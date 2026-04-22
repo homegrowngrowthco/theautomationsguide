@@ -1,0 +1,64 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { title, description, pubDate, updatedDate, author, tags } = post.data;
+
+const formattedPubDate = pubDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const formattedUpdatedDate = updatedDate?.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="container">
+    <article>
+      <header class="post-header">
+        {tags.length > 0 && (
+          <div class="post-card-tags">
+            {tags.map((tag) => <span class="tag">{tag}</span>)}
+          </div>
+        )}
+        <h1>{title}</h1>
+        <div class="post-meta">
+          <span>By {author}</span>
+          <span class="post-meta-sep">·</span>
+          <time datetime={pubDate.toISOString()}>
+            {formattedPubDate}
+          </time>
+          {updatedDate && (
+            <>
+              <span class="post-meta-sep">·</span>
+              <span>Updated {formattedUpdatedDate}</span>
+            </>
+          )}
+        </div>
+      </header>
+
+      <div class="prose">
+        <slot />
+      </div>
+
+      <hr class="divider" />
+
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+        <a href="/blog" class="btn btn--ghost">&larr; Back to Blog</a>
+        <p style="font-size:0.8rem;color:var(--text-faint)">
+          Enjoying this? Share it with your team.
+        </p>
+      </div>
+    </article>
+  </div>
+</BaseLayout>

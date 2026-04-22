@@ -1,0 +1,114 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+const recentPosts = allPosts
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
+  .slice(0, 3);
+---
+
+<BaseLayout
+  title="The Automations Guide"
+  description="Practical automation guides, tool reviews, and workflows for RevOps and go-to-market teams."
+>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-eyebrow">RevOps · GTM · Automation</div>
+      <h1>Automate the grind.<br />Ship more pipeline.</h1>
+      <p>
+        Practical guides, honest tool reviews, and battle-tested workflows
+        for revenue operations and go-to-market teams.
+      </p>
+      <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+        <a href="/blog" class="btn btn--primary">Read the Blog &rarr;</a>
+        <a href="/about" class="btn btn--ghost">About this site</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="section--sm" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg-secondary);">
+    <div class="container--wide">
+      <div class="features">
+        <div class="feature-item">
+          <div class="feature-icon">⚡</div>
+          <h3>Tool Reviews</h3>
+          <p>Honest takes on the automation platforms your RevOps team is actually considering.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🔁</div>
+          <h3>Workflow Playbooks</h3>
+          <p>Step-by-step guides you can copy, adapt, and ship to your stack immediately.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📊</div>
+          <h3>RevOps Strategy</h3>
+          <p>Frameworks for aligning sales, marketing, and CS around automated, reliable data.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🛠️</div>
+          <h3>Stack Comparisons</h3>
+          <p>Side-by-side breakdowns so you can pick the right tool for the right job.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent posts -->
+  <section class="section">
+    <div class="container--wide">
+      <p class="section-label">Latest from the blog</p>
+      <h2 class="section-heading">Recent Articles</h2>
+      <p class="section-sub">No fluff. Just actionable automation content for GTM teams.</p>
+
+      {recentPosts.length > 0 ? (
+        <div class="card-grid">
+          {recentPosts.map((post) => (
+            <a href={`/blog/${post.slug}`} class="post-card">
+              {post.data.tags.length > 0 && (
+                <div class="post-card-tags">
+                  {post.data.tags.slice(0, 2).map((tag) => (
+                    <span class="tag">{tag}</span>
+                  ))}
+                </div>
+              )}
+              <h2>{post.data.title}</h2>
+              <p>{post.data.description}</p>
+              <div class="post-card-meta">
+                <span>
+                  {post.data.pubDate.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <p style="color:var(--text-muted)">No posts yet — check back soon.</p>
+      )}
+
+      <div class="mt-lg">
+        <a href="/blog" class="btn btn--ghost">View all articles &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA strip -->
+  <section style="background:var(--bg-secondary);border-top:1px solid var(--border);padding:4rem 0;">
+    <div class="container" style="text-align:center;">
+      <h2 style="font-size:1.75rem;font-weight:800;letter-spacing:-0.025em;margin-bottom:0.75rem;">
+        Built for teams that run on automation
+      </h2>
+      <p style="color:var(--text-muted);margin-bottom:2rem;max-width:480px;margin-left:auto;margin-right:auto;">
+        Whether you're a one-person RevOps team or scaling a GTM motion, this site
+        covers the tools and tactics that actually matter.
+      </p>
+      <a href="/blog" class="btn btn--primary">Start reading &rarr;</a>
+    </div>
+  </section>
+</BaseLayout>
