@@ -1,7 +1,8 @@
 ---
 title: "The RevOps Tech Stack in 2025: Tools That Actually Move the Needle"
 description: "A practical breakdown of the automation tools powering modern revenue operations teams — from CRM orchestration to AI-assisted routing."
-pubDate: 2025-03-15
+pubDate: 2026-03-15
+updatedDate: 2026-04-22
 author: "The Automations Guide"
 tags: ["RevOps", "Tech Stack", "Strategy"]
 ---

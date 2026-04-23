@@ -1,0 +1,366 @@
+#!/usr/bin/env node
+
+/**
+ * create-notion-plan.js
+ * Creates a structured 90-day launch plan in Notion for theautomationsguide.com
+ *
+ * Setup:
+ *   npm install @notionhq/client
+ *
+ * Usage (env vars — recommended):
+ *   NOTION_TOKEN=secret_xxx NOTION_PARENT_PAGE_ID=abc123 node create-notion-plan.js
+ *
+ * Usage (edit inline):
+ *   Replace NOTION_TOKEN and NOTION_PARENT_PAGE_ID below, then: node create-notion-plan.js
+ */
+
+const { Client } = require('@notionhq/client');
+
+// ── Config ────────────────────────────────────────────────────────────────────
+const NOTION_TOKEN          = process.env.NOTION_TOKEN          || 'NOTION_TOKEN';
+const NOTION_PARENT_PAGE_ID = process.env.NOTION_PARENT_PAGE_ID || 'NOTION_PARENT_PAGE_ID';
+// ─────────────────────────────────────────────────────────────────────────────
+
+const notion = new Client({ auth: NOTION_TOKEN });
+
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+// 350ms between calls stays safely under Notion's 3 req/sec limit
+const delay = () => sleep(350);
+
+const rt = (text) => [{ type: 'text', text: { content: String(text) } }];
+
+// ── Task data ─────────────────────────────────────────────────────────────────
+
+const PHASE_1_TASKS = [
+  // Week 1
+  { week: 'Week 1', day: 1,  task: 'Set up email capture form and verify it routes to Beehiiv',              category: 'Setup',        priority: 'High',   notes: 'Test with a real email; confirm subscriber appears in Beehiiv dashboard' },
+  { week: 'Week 1', day: 1,  task: 'Create /tools page with affiliate link placeholders',                    category: 'Monetization', priority: 'High',   notes: 'Will swap placeholders for real links once affiliate programs approve' },
+  { week: 'Week 1', day: 2,  task: 'Verify sitemap.xml is accessible and returns 200',                      category: 'Setup',        priority: 'High',   notes: 'Navigate to /sitemap.xml and confirm it lists all published posts' },
+  { week: 'Week 1', day: 2,  task: 'Add OG tags (og:title, og:description, og:image) to all layouts',       category: 'Setup',        priority: 'High',   notes: 'Validate with opengraph.xyz before announcing the site' },
+  { week: 'Week 1', day: 3,  task: 'Create Beehiiv account and embed signup form on site',                  category: 'Setup',        priority: 'High',   notes: 'Embed widget on homepage and bottom of every blog post' },
+  { week: 'Week 1', day: 4,  task: 'Set up Google Search Console and verify domain ownership',              category: 'Analytics',    priority: 'High',   notes: 'DNS TXT record method is most reliable for Netlify domains' },
+  { week: 'Week 1', day: 4,  task: 'Submit sitemap.xml URL to Google Search Console',                       category: 'Analytics',    priority: 'High',   notes: '' },
+  { week: 'Week 1', day: 5,  task: 'Create X (Twitter) account @theautomationsguide',                      category: 'Setup',        priority: 'High',   notes: 'Write bio, upload logo; pin intro tweet once first thread is posted' },
+  { week: 'Week 1', day: 5,  task: 'Create TikTok account theautomationsguide',                            category: 'Setup',        priority: 'Medium', notes: 'Upload profile photo and write bio; do not post yet' },
+  { week: 'Week 1', day: 6,  task: 'Apply to Clay affiliate program',                                      category: 'Monetization', priority: 'High',   notes: 'High-value tool with strong RevOps audience fit' },
+  { week: 'Week 1', day: 6,  task: 'Apply to n8n affiliate program',                                       category: 'Monetization', priority: 'High',   notes: 'Core tool in our own stack — authentic promotion angle' },
+  { week: 'Week 1', day: 7,  task: 'Apply to HubSpot affiliate program',                                   category: 'Monetization', priority: 'High',   notes: 'High commissions; strong brand recognition in GTM space' },
+  { week: 'Week 1', day: 7,  task: 'Apply to Monday.com affiliate program',                                category: 'Monetization', priority: 'Medium', notes: 'Good GTM team overlap with target audience' },
+  // Week 2
+  { week: 'Week 2', day: 8,  task: 'Import n8n workflow JSON into n8n instance',                           category: 'Setup',        priority: 'High',   notes: 'Use Import from File option in n8n workflow editor' },
+  { week: 'Week 2', day: 8,  task: 'Configure Anthropic API key credential in n8n',                       category: 'Setup',        priority: 'High',   notes: 'Add as Header Auth credential; test with a simple prompt node first' },
+  { week: 'Week 2', day: 9,  task: 'Configure GitHub PAT credential in n8n',                              category: 'Setup',        priority: 'High',   notes: 'PAT needs repo write and workflow scopes' },
+  { week: 'Week 2', day: 9,  task: 'Configure Notion integration token credential in n8n',                category: 'Setup',        priority: 'High',   notes: 'Grant integration access to the content staging database' },
+  { week: 'Week 2', day: 10, task: 'Run full pipeline end-to-end with manual trigger',                    category: 'Setup',        priority: 'High',   notes: 'Verify: post generated → committed to GitHub → live on Netlify' },
+  { week: 'Week 2', day: 11, task: 'Fix bugs discovered during pipeline test',                            category: 'Setup',        priority: 'High',   notes: 'Common issues: YAML front-matter formatting, filename collisions, branch name' },
+  { week: 'Week 2', day: 11, task: 'Fix all existing post pubDates to 2026',                              category: 'Setup',        priority: 'Medium', notes: 'Update front-matter date fields directly in the GitHub repo' },
+  { week: 'Week 2', day: 12, task: 'Publish first real blog post via pipeline (manual trigger)',          category: 'Content',      priority: 'High',   notes: 'Topic: RevOps automation use case with clear affiliate angle' },
+  { week: 'Week 2', day: 13, task: 'Publish second real blog post via pipeline',                          category: 'Content',      priority: 'High',   notes: '' },
+  { week: 'Week 2', day: 14, task: 'Publish third real blog post via pipeline',                           category: 'Content',      priority: 'High',   notes: '' },
+  { week: 'Week 2', day: 14, task: 'Write and post first X thread manually (repurpose blog post 1)',     category: 'Distribution', priority: 'High',   notes: 'Draft in Notion → review → post manually on first iteration' },
+  // Week 3
+  { week: 'Week 3', day: 15, task: 'Enable pipeline schedule trigger (Mon/Wed/Fri at 9am UTC)',          category: 'Setup',        priority: 'High',   notes: '' },
+  { week: 'Week 3', day: 15, task: 'Verify first scheduled post publishes without manual trigger',       category: 'Setup',        priority: 'High',   notes: 'Monitor n8n execution log; confirm Netlify deploy fires automatically' },
+  { week: 'Week 3', day: 16, task: 'Begin daily X engagement routine (5 targeted comments per day)',     category: 'Distribution', priority: 'High',   notes: 'Create a Twitter List of RevOps/GTM/automation accounts to surface daily' },
+  { week: 'Week 3', day: 17, task: 'Identify 3–5 relevant newsletters and link roundups to submit to',  category: 'Distribution', priority: 'Medium', notes: 'Targets: TLDR, RevOps Co-op, No Code Weekly, Automation Insider' },
+  { week: 'Week 3', day: 18, task: 'Submit site to identified newsletters and link roundups',            category: 'Distribution', priority: 'Medium', notes: '' },
+  { week: 'Week 3', day: 19, task: 'Record and post first TikTok/Reel (screen recording walkthrough)',  category: 'Distribution', priority: 'Medium', notes: 'Under 60s; show n8n or Clay doing something useful for a RevOps team' },
+  { week: 'Week 3', day: 21, task: 'Swap placeholder affiliate links for real links on /tools page',    category: 'Monetization', priority: 'High',   notes: 'Only for approved programs; leave placeholders for pending applications' },
+  // Week 4
+  { week: 'Week 4', day: 22, task: 'Write first Beehiiv newsletter (repurpose top blog post)',          category: 'Content',      priority: 'High',   notes: '3 takeaways + link to full post + one CTA; keep it short' },
+  { week: 'Week 4', day: 23, task: 'Send first email newsletter via Beehiiv',                           category: 'Distribution', priority: 'High',   notes: 'Check subject line and preview text before sending' },
+  { week: 'Week 4', day: 24, task: 'Post genuinely helpful comments in r/salesops (no spam)',           category: 'Distribution', priority: 'Medium', notes: 'Link to content only when it directly answers the question asked' },
+  { week: 'Week 4', day: 24, task: 'Post genuinely helpful comments in r/nocode (no spam)',             category: 'Distribution', priority: 'Medium', notes: '' },
+  { week: 'Week 4', day: 25, task: 'Review Google Search Console for first indexing signals',           category: 'Analytics',    priority: 'High',   notes: 'Check: pages indexed, impressions, crawl errors, manual actions' },
+  { week: 'Week 4', day: 26, task: 'Audit all affiliate links — verify placement and UTM tracking',     category: 'Monetization', priority: 'High',   notes: 'Click every link; confirm UTM params fire and redirect correctly' },
+  { week: 'Week 4', day: 28, task: 'Read all published posts critically — assess content quality',      category: 'Analytics',    priority: 'High',   notes: 'Ask: would a RevOps pro find this genuinely useful vs generic filler?' },
+  { week: 'Week 4', day: 30, task: 'Adjust Claude prompts in n8n if content quality needs improvement', category: 'Content',     priority: 'High',   notes: 'Tighten system prompt with audience persona and examples of good vs bad output' },
+];
+
+const PHASE_2_TASKS = [
+  // Week 5-6
+  { week: 'Week 5–6', day: 31, task: 'Pull GSC data — identify 2–3 topics with early impressions',          category: 'Analytics',    priority: 'High',   notes: 'Focus on keywords in position 11–30 — these are the quick-win zone' },
+  { week: 'Week 5–6', day: 32, task: 'Write deeper posts on the top 2–3 GSC impression topics',              category: 'Content',      priority: 'High',   notes: 'Add examples, screenshots, and code snippets to expand thin content' },
+  { week: 'Week 5–6', day: 33, task: 'Publish expanded deep-dive post #1 via pipeline',                      category: 'Content',      priority: 'High',   notes: '' },
+  { week: 'Week 5–6', day: 34, task: 'Start building Make vs Zapier comparison page (high commercial intent)', category: 'Content',    priority: 'High',   notes: 'Include comparison table, use cases, pricing, and affiliate links for both tools' },
+  { week: 'Week 5–6', day: 36, task: 'Complete and publish Make vs Zapier comparison page',                   category: 'Content',      priority: 'High',   notes: 'Add a clear verdict section and CTA; this page should carry the most affiliate links' },
+  { week: 'Week 5–6', day: 37, task: 'Audit all published posts and add internal links',                      category: 'Content',      priority: 'Medium', notes: 'Every post should link to at least 2 other related posts' },
+  { week: 'Week 5–6', day: 39, task: 'Increase X posting cadence to 5x/week',                                category: 'Distribution', priority: 'High',   notes: 'Use pipeline-generated thread drafts in Notion; schedule posts in advance' },
+  { week: 'Week 5–6', day: 40, task: 'Monitor X engagement metrics for Week 5–6 posts',                      category: 'Analytics',    priority: 'Medium', notes: 'Track: impressions, likes, replies, profile visits, link clicks per thread' },
+  { week: 'Week 5–6', day: 42, task: 'Review 6-week traffic and subscriber numbers vs targets',               category: 'Analytics',    priority: 'High',   notes: 'Target checkpoint: 150+ visitors, 30+ subscribers by Day 42' },
+  // Week 7-8
+  { week: 'Week 7–8', day: 43, task: 'Export X thread engagement data for pattern analysis',                  category: 'Analytics',    priority: 'High',   notes: 'Use Twitter Analytics or a third-party tool like Shield' },
+  { week: 'Week 7–8', day: 44, task: 'Identify top 3 highest-engagement threads and find the common pattern', category: 'Analytics',    priority: 'High',   notes: 'Analyze: hook style, topic type, format (list vs story vs how-to), length' },
+  { week: 'Week 7–8', day: 45, task: 'Update Twitter thread prompt in n8n to replicate winning pattern',      category: 'Setup',        priority: 'Medium', notes: 'Add top-performing threads as few-shot examples directly in the prompt' },
+  { week: 'Week 7–8', day: 46, task: 'Identify 3 RevOps newsletter authors for content swap or mention outreach', category: 'Distribution', priority: 'High', notes: 'Target newsletters with 1k–10k subscribers — accessible but impactful' },
+  { week: 'Week 7–8', day: 47, task: 'Send personalized outreach to first newsletter author',                 category: 'Distribution', priority: 'High',   notes: 'Offer a guest section, link swap, or co-promotion angle' },
+  { week: 'Week 7–8', day: 48, task: 'Send personalized outreach to second newsletter author',                category: 'Distribution', priority: 'Medium', notes: '' },
+  { week: 'Week 7–8', day: 49, task: 'Send personalized outreach to third newsletter author',                 category: 'Distribution', priority: 'Medium', notes: '' },
+  { week: 'Week 7–8', day: 50, task: 'Establish 3x/week TikTok posting cadence (Tue/Thu/Sat)',               category: 'Distribution', priority: 'Medium', notes: 'Batch-record 3–4 videos in one session to save time' },
+  { week: 'Week 7–8', day: 51, task: 'Post first TikTok in new 3x/week schedule',                            category: 'Distribution', priority: 'Medium', notes: '' },
+  { week: 'Week 7–8', day: 53, task: 'Check all affiliate dashboards for click volume data',                  category: 'Analytics',    priority: 'High',   notes: 'Log clicks per program; note which page drove them' },
+  { week: 'Week 7–8', day: 55, task: 'Review affiliate conversion rates for programs with clicks',            category: 'Analytics',    priority: 'High',   notes: 'Flag programs with clicks but zero conversions — check link placement and context' },
+  { week: 'Week 7–8', day: 56, task: 'Mid-point retrospective: traffic, subscribers, clicks summary',        category: 'Analytics',    priority: 'High',   notes: 'Write the summary in Notion; use it as the base for Phase 3 planning' },
+];
+
+const PHASE_3_TASKS = [
+  // Week 9-10
+  { week: 'Week 9–10',  day: 61, task: 'Pull GSC data — identify high-impression keywords not yet targeted',      category: 'Analytics',    priority: 'High',   notes: '' },
+  { week: 'Week 9–10',  day: 62, task: 'Begin building second high-intent comparison or best-of page',            category: 'Content',      priority: 'High',   notes: 'Choose topic based on GSC data (e.g. "Best CRM for RevOps Teams")' },
+  { week: 'Week 9–10',  day: 64, task: 'Research Beehiiv Boost — eligibility and payout structure',              category: 'Monetization', priority: 'Medium', notes: 'Boost pays per new verified subscriber — passive revenue potential' },
+  { week: 'Week 9–10',  day: 65, task: 'Complete and publish second comparison/best-of page',                     category: 'Content',      priority: 'High',   notes: 'Include affiliate links with clear CTAs in the comparison table' },
+  { week: 'Week 9–10',  day: 66, task: 'Activate Beehiiv Boost if eligible and payout is viable',                category: 'Monetization', priority: 'Medium', notes: '' },
+  { week: 'Week 9–10',  day: 67, task: 'Identify top 3 posts by organic traffic in GSC or GA4',                  category: 'Analytics',    priority: 'High',   notes: '' },
+  { week: 'Week 9–10',  day: 68, task: 'Plan follow-up posts for each of the top 3 traffic posts',               category: 'Content',      priority: 'High',   notes: 'Go deeper, cover adjacent use cases, or answer common follow-up questions' },
+  { week: 'Week 9–10',  day: 70, task: 'Publish first follow-up post targeting top organic traffic topic',        category: 'Content',      priority: 'High',   notes: '' },
+  // Week 11-12
+  { week: 'Week 11–12', day: 71, task: 'Pull comprehensive metrics: traffic, subscribers, affiliate clicks, revenue', category: 'Analytics', priority: 'High',  notes: 'Build a single view in Notion or a spreadsheet' },
+  { week: 'Week 11–12', day: 72, task: 'Compare actual vs target: 500 visitors, 100 subs, $100 revenue',          category: 'Analytics',    priority: 'High',   notes: '' },
+  { week: 'Week 11–12', day: 73, task: 'Diagnose gaps: content quality issue, distribution issue, or SEO?',       category: 'Analytics',    priority: 'High',   notes: 'Content: low time-on-page. Distribution: low traffic. SEO: low indexing rate.' },
+  { week: 'Week 11–12', day: 75, task: 'Decision checkpoint: double down, pivot angle, or kill',                  category: 'Analytics',    priority: 'High',   notes: 'Write out the reasoning in full regardless of outcome' },
+  { week: 'Week 11–12', day: 77, task: 'Draft first sponsored content outreach email (if metrics on track)',       category: 'Monetization', priority: 'Medium', notes: 'Lead with audience demographics and traffic growth numbers' },
+  { week: 'Week 11–12', day: 78, task: 'Send sponsored content pitch to first potential sponsor',                 category: 'Monetization', priority: 'Medium', notes: 'Target tools in the RevOps/GTM stack that already run affiliate programs' },
+  { week: 'Week 11–12', day: 80, task: 'Identify 3 additional potential sponsors for Q2 outreach pipeline',      category: 'Monetization', priority: 'Low',    notes: '' },
+  { week: 'Week 11–12', day: 82, task: 'Review Beehiiv email open rates and click-through rates',                category: 'Analytics',    priority: 'Medium', notes: 'Benchmarks: 35%+ open rate, 3%+ CTR for a niche B2B audience' },
+  { week: 'Week 11–12', day: 84, task: 'Finalize final content calendar based on performance data',               category: 'Content',      priority: 'Medium', notes: 'Prioritize topics already ranking or driving affiliate clicks' },
+  // Week 13
+  { week: 'Week 13',    day: 85, task: 'Write full 90-day retrospective draft',                                    category: 'Analytics',    priority: 'High',   notes: 'Structure: goals set → results → what worked → what did not → next steps' },
+  { week: 'Week 13',    day: 86, task: 'Document what worked: top content formats and best distribution channels', category: 'Analytics',    priority: 'High',   notes: '' },
+  { week: 'Week 13',    day: 87, task: 'Document what did not work: failed experiments and low-ROI activities',   category: 'Analytics',    priority: 'High',   notes: 'Be honest — this section is the most valuable part for future planning' },
+  { week: 'Week 13',    day: 88, task: 'Calculate final revenue, traffic, and subscriber numbers',                category: 'Analytics',    priority: 'High',   notes: '' },
+  { week: 'Week 13',    day: 89, task: 'Make formal go/no-go decision for next 90-day plan',                     category: 'Analytics',    priority: 'High',   notes: 'Go: commit with updated targets. No-go: document learnings and wind down.' },
+  { week: 'Week 13',    day: 90, task: 'Publish 90-day retrospective as a public blog post',                     category: 'Content',      priority: 'Medium', notes: 'Great for SEO, community credibility, and public accountability' },
+];
+
+const PHASES = [
+  {
+    title:     'Phase 1 — Foundation (Days 1–30)',
+    emoji:     '🔧',
+    goal:      'Pipeline running, site fully live, affiliate links active, social accounts posting',
+    milestone: 'First 3 blog posts published via pipeline; X and TikTok accounts live; all affiliate programs applied to',
+    tasks:     PHASE_1_TASKS,
+  },
+  {
+    title:     'Phase 2 — Traction (Days 31–60)',
+    emoji:     '📈',
+    goal:      '500 monthly visitors, 100 email subscribers, first affiliate clicks tracked',
+    milestone: 'Make vs Zapier comparison page live; X at 5x/week; first affiliate click in dashboard',
+    tasks:     PHASE_2_TASKS,
+  },
+  {
+    title:     'Phase 3 — Optimize (Days 61–90)',
+    emoji:     '🏆',
+    goal:      '$100+ affiliate revenue, 500 email subscribers, clear picture of what is working',
+    milestone: 'Second high-intent page published; Beehiiv Boost evaluated; full retrospective written',
+    tasks:     PHASE_3_TASKS,
+  },
+];
+
+// ── Shared DB property schema ─────────────────────────────────────────────────
+function dbProperties() {
+  return {
+    'Task': { title: {} },
+    'Week': {
+      select: {
+        options: [
+          { name: 'Week 1',     color: 'blue'   },
+          { name: 'Week 2',     color: 'purple' },
+          { name: 'Week 3',     color: 'green'  },
+          { name: 'Week 4',     color: 'yellow' },
+          { name: 'Week 5–6',   color: 'orange' },
+          { name: 'Week 7–8',   color: 'red'    },
+          { name: 'Week 9–10',  color: 'pink'   },
+          { name: 'Week 11–12', color: 'brown'  },
+          { name: 'Week 13',    color: 'gray'   },
+        ],
+      },
+    },
+    'Day':      { number: { format: 'number' } },
+    'Category': {
+      select: {
+        options: [
+          { name: 'Setup',        color: 'blue'   },
+          { name: 'Content',      color: 'green'  },
+          { name: 'Distribution', color: 'purple' },
+          { name: 'Monetization', color: 'yellow' },
+          { name: 'Analytics',    color: 'orange' },
+        ],
+      },
+    },
+    'Priority': {
+      select: {
+        options: [
+          { name: 'High',   color: 'red'    },
+          { name: 'Medium', color: 'yellow' },
+          { name: 'Low',    color: 'gray'   },
+        ],
+      },
+    },
+    'Status': {
+      select: {
+        options: [
+          { name: 'Not Started', color: 'gray'  },
+          { name: 'In Progress', color: 'blue'  },
+          { name: 'Done',        color: 'green' },
+          { name: 'Blocked',     color: 'red'   },
+        ],
+      },
+    },
+    'Notes': { rich_text: {} },
+  };
+}
+
+function parentPageChildren() {
+  return [
+    {
+      type: 'callout',
+      callout: {
+        icon:      { type: 'emoji', emoji: '🎯' },
+        rich_text: rt('Site: theautomationsguide.com  |  Audience: RevOps & GTM teams  |  Pipeline: n8n + Claude API → GitHub → Netlify  |  Monetization: Affiliate links + sponsored content'),
+        color:     'blue_background',
+      },
+    },
+    { type: 'heading_2', heading_2: { rich_text: rt('Plan Overview') } },
+    {
+      type: 'table',
+      table: {
+        table_width:       2,
+        has_column_header: true,
+        has_row_header:    false,
+        children: [
+          {
+            type: 'table_row',
+            table_row: {
+              cells: [
+                [{ type: 'text', text: { content: 'Property' }, annotations: { bold: true } }],
+                [{ type: 'text', text: { content: 'Value'    }, annotations: { bold: true } }],
+              ],
+            },
+          },
+          { type: 'table_row', table_row: { cells: [rt('Start Date'),       rt('2026-04-22')] } },
+          { type: 'table_row', table_row: { cells: [rt('Goal'),             rt('First affiliate revenue ($100+) within 90 days')] } },
+          { type: 'table_row', table_row: { cells: [rt('Key Metrics'),      rt('Monthly visitors · Email subscribers · Affiliate clicks · Revenue ($)')] } },
+          { type: 'table_row', table_row: { cells: [rt('Phase 1 Target'),   rt('Pipeline live, site live, social accounts active, affiliate programs applied')] } },
+          { type: 'table_row', table_row: { cells: [rt('Phase 2 Target'),   rt('500 monthly visitors, 100 email subscribers, first affiliate clicks')] } },
+          { type: 'table_row', table_row: { cells: [rt('Phase 3 Target'),   rt('$100+ affiliate revenue, 500 subscribers, retrospective complete')] } },
+          { type: 'table_row', table_row: { cells: [rt('Content pipeline'), rt('n8n triggers Claude API → writes post → commits to GitHub → Netlify deploys')] } },
+          { type: 'table_row', table_row: { cells: [rt('Social pipeline'),  rt('n8n generates X thread + video script → saves to Notion for review')] } },
+        ],
+      },
+    },
+    { type: 'divider', divider: {} },
+    { type: 'heading_2', heading_2: { rich_text: rt('Phases') } },
+    {
+      type: 'paragraph',
+      paragraph: { rich_text: rt('Each phase is a sub-page with a full task database. Click through to manage your daily work.') },
+    },
+  ];
+}
+
+function subPageChildren(phase) {
+  return [
+    {
+      type: 'callout',
+      callout: {
+        icon:      { type: 'emoji', emoji: '🎯' },
+        rich_text: rt(`Goal: ${phase.goal}`),
+        color:     'green_background',
+      },
+    },
+    {
+      type: 'callout',
+      callout: {
+        icon:      { type: 'emoji', emoji: '🏁' },
+        rich_text: rt(`Key Milestone: ${phase.milestone}`),
+        color:     'yellow_background',
+      },
+    },
+    { type: 'divider', divider: {} },
+    { type: 'heading_2', heading_2: { rich_text: rt('Task Database') } },
+    {
+      type: 'paragraph',
+      paragraph: {
+        rich_text: rt('All tasks for this phase are tracked below. Update Status as you complete each item. Filter by Week or Priority to focus your view.'),
+      },
+    },
+  ];
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+async function main() {
+  if (NOTION_TOKEN === 'NOTION_TOKEN') {
+    console.error('ERROR: Set NOTION_TOKEN before running.\n  NOTION_TOKEN=secret_xxx NOTION_PARENT_PAGE_ID=abc123 node create-notion-plan.js');
+    process.exit(1);
+  }
+  if (NOTION_PARENT_PAGE_ID === 'NOTION_PARENT_PAGE_ID') {
+    console.error('ERROR: Set NOTION_PARENT_PAGE_ID before running.\n  NOTION_TOKEN=secret_xxx NOTION_PARENT_PAGE_ID=abc123 node create-notion-plan.js');
+    process.exit(1);
+  }
+
+  console.log('\n🚀  Creating 90-Day Launch Plan in Notion…\n');
+
+  // 1. Parent page
+  console.log('Creating parent page…');
+  await delay();
+  const parentPage = await notion.pages.create({
+    parent:     { type: 'page_id', page_id: NOTION_PARENT_PAGE_ID },
+    icon:       { type: 'emoji', emoji: '🗺️' },
+    properties: { title: { title: rt('The Automations Guide — 90 Day Launch Plan') } },
+    children:   parentPageChildren(),
+  });
+  console.log(`  ✓ Parent page: ${parentPage.id}\n`);
+
+  // 2. Phase sub-pages
+  for (const phase of PHASES) {
+    console.log(`Creating "${phase.title}"…`);
+
+    await delay();
+    const subPage = await notion.pages.create({
+      parent:     { type: 'page_id', page_id: parentPage.id },
+      icon:       { type: 'emoji', emoji: phase.emoji },
+      properties: { title: { title: rt(phase.title) } },
+      children:   subPageChildren(phase),
+    });
+    console.log(`  ✓ Sub-page: ${subPage.id}`);
+
+    // Inline database
+    await delay();
+    const db = await notion.databases.create({
+      parent:     { type: 'page_id', page_id: subPage.id },
+      title:      rt(`${phase.title} — Tasks`),
+      is_inline:  true,
+      properties: dbProperties(),
+    });
+    console.log(`  ✓ Database: ${db.id}`);
+
+    // Task rows
+    console.log(`  Adding ${phase.tasks.length} tasks…`);
+    for (let i = 0; i < phase.tasks.length; i++) {
+      const t = phase.tasks[i];
+      await delay();
+      await notion.pages.create({
+        parent: { database_id: db.id },
+        properties: {
+          'Task':     { title: rt(t.task) },
+          'Week':     { select: { name: t.week } },
+          'Day':      { number: t.day },
+          'Category': { select: { name: t.category } },
+          'Priority': { select: { name: t.priority } },
+          'Status':   { select: { name: 'Not Started' } },
+          'Notes':    { rich_text: t.notes ? rt(t.notes) : [] },
+        },
+      });
+      process.stdout.write(`\r  Tasks added: ${i + 1}/${phase.tasks.length}   `);
+    }
+    console.log(`\n  ✓ All tasks added for "${phase.title}"\n`);
+  }
+
+  console.log('✅  Done! Your 90-Day Launch Plan is live in Notion.');
+  console.log(`\n   🔗 https://notion.so/${parentPage.id.replace(/-/g, '')}\n`);
+}
+
+main().catch(err => {
+  console.error('\n❌  Error:', err.message);
+  if (err.body) console.error('   Details:', JSON.stringify(err.body, null, 2));
+  process.exit(1);
+});

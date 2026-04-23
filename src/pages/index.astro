@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import EmailSignup from '../components/EmailSignup.astro';
 import { getCollection } from 'astro:content';
 
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);
@@ -15,15 +16,16 @@ const recentPosts = allPosts
   <!-- Hero -->
   <section class="hero">
     <div class="container">
-      <div class="hero-eyebrow">RevOps · GTM · Automation</div>
+      <div class="hero-eyebrow">RevOps &middot; GTM &middot; Automation</div>
       <h1>Automate the grind.<br />Ship more pipeline.</h1>
       <p>
         Practical guides, honest tool reviews, and battle-tested workflows
         for revenue operations and go-to-market teams.
       </p>
+      <p class="hero-social-proof">Read by RevOps and GTM teams at [COMPANY_LOGOS_PLACEHOLDER]</p>
       <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
         <a href="/blog" class="btn btn--primary">Read the Blog &rarr;</a>
-        <a href="/about" class="btn btn--ghost">About this site</a>
+        <a href="/tools" class="btn btn--ghost">Browse Tools</a>
       </div>
     </div>
   </section>
@@ -33,22 +35,22 @@ const recentPosts = allPosts
     <div class="container--wide">
       <div class="features">
         <div class="feature-item">
-          <div class="feature-icon">⚡</div>
+          <div class="feature-icon">&#9889;</div>
           <h3>Tool Reviews</h3>
           <p>Honest takes on the automation platforms your RevOps team is actually considering.</p>
         </div>
         <div class="feature-item">
-          <div class="feature-icon">🔁</div>
+          <div class="feature-icon">&#128257;</div>
           <h3>Workflow Playbooks</h3>
           <p>Step-by-step guides you can copy, adapt, and ship to your stack immediately.</p>
         </div>
         <div class="feature-item">
-          <div class="feature-icon">📊</div>
+          <div class="feature-icon">&#128202;</div>
           <h3>RevOps Strategy</h3>
           <p>Frameworks for aligning sales, marketing, and CS around automated, reliable data.</p>
         </div>
         <div class="feature-item">
-          <div class="feature-icon">🛠️</div>
+          <div class="feature-icon">&#128295;</div>
           <h3>Stack Comparisons</h3>
           <p>Side-by-side breakdowns so you can pick the right tool for the right job.</p>
         </div>
@@ -56,7 +58,7 @@ const recentPosts = allPosts
     </div>
   </section>
 
-  <!-- Recent posts -->
+  <!-- Latest Posts -->
   <section class="section">
     <div class="container--wide">
       <p class="section-label">Latest from the blog</p>
@@ -95,6 +97,72 @@ const recentPosts = allPosts
       <div class="mt-lg">
         <a href="/blog" class="btn btn--ghost">View all articles &rarr;</a>
       </div>
+    </div>
+  </section>
+
+  <!-- Featured Tools -->
+  <section class="section" style="border-top:1px solid var(--border);background:var(--bg-secondary);">
+    <div class="container--wide">
+      <p class="section-label">Affiliate partners</p>
+      <h2 class="section-heading">Featured Tools</h2>
+      <p class="section-sub">The automation platforms we recommend to RevOps and GTM teams.</p>
+      <div class="tool-grid">
+
+        <div class="tool-card">
+          <div class="tool-card-header">
+            <h3>Make</h3>
+            <span class="tool-badge tool-badge--free">Free tier</span>
+          </div>
+          <p>The best-in-class automation platform for complex, multi-step RevOps workflows.</p>
+          <a href="AFFILIATE_LINK_PLACEHOLDER" class="btn btn--primary tool-cta" target="_blank" rel="noopener noreferrer">
+            Learn More &rarr;
+          </a>
+        </div>
+
+        <div class="tool-card">
+          <div class="tool-card-header">
+            <h3>Clay</h3>
+            <span class="tool-badge">Paid</span>
+          </div>
+          <p>Build enriched, personalized outbound lists from 50+ data sources in one interface.</p>
+          <a href="AFFILIATE_LINK_PLACEHOLDER" class="btn btn--ghost tool-cta" target="_blank" rel="noopener noreferrer">
+            Learn More &rarr;
+          </a>
+        </div>
+
+        <div class="tool-card">
+          <div class="tool-card-header">
+            <h3>HubSpot</h3>
+            <span class="tool-badge tool-badge--free">Free tier</span>
+          </div>
+          <p>The CRM at the center of most modern GTM stacks, with built-in workflow automation.</p>
+          <a href="AFFILIATE_LINK_PLACEHOLDER" class="btn btn--ghost tool-cta" target="_blank" rel="noopener noreferrer">
+            Learn More &rarr;
+          </a>
+        </div>
+
+        <div class="tool-card">
+          <div class="tool-card-header">
+            <h3>n8n</h3>
+            <span class="tool-badge tool-badge--free">Free (self-hosted)</span>
+          </div>
+          <p>Open-source workflow automation for engineering-forward GTM teams who want full control.</p>
+          <a href="AFFILIATE_LINK_PLACEHOLDER" class="btn btn--ghost tool-cta" target="_blank" rel="noopener noreferrer">
+            Learn More &rarr;
+          </a>
+        </div>
+
+      </div>
+      <div class="mt-md">
+        <a href="/tools" class="btn btn--ghost">View all tools &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Email Signup -->
+  <section class="section" style="border-top:1px solid var(--border);">
+    <div class="container">
+      <EmailSignup />
     </div>
   </section>
 

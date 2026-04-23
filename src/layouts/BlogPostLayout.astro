@@ -1,5 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import EmailSignup from '../components/EmailSignup.astro';
+import AuthorNote from '../components/AuthorNote.astro';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -8,6 +10,9 @@ interface Props {
 
 const { post } = Astro.props;
 const { title, description, pubDate, updatedDate, author, tags } = post.data;
+
+const wordCount = post.body.split(/\s+/).filter(Boolean).length;
+const readTime = Math.max(1, Math.round(wordCount / 200));
 
 const formattedPubDate = pubDate.toLocaleDateString('en-US', {
   year: 'numeric',
@@ -34,22 +39,35 @@ const formattedUpdatedDate = updatedDate?.toLocaleDateString('en-US', {
         <h1>{title}</h1>
         <div class="post-meta">
           <span>By {author}</span>
-          <span class="post-meta-sep">·</span>
-          <time datetime={pubDate.toISOString()}>
-            {formattedPubDate}
-          </time>
+          <span class="post-meta-sep">&middot;</span>
+          <time datetime={pubDate.toISOString()}>{formattedPubDate}</time>
+          <span class="post-meta-sep">&middot;</span>
+          <span>{readTime} min read</span>
           {updatedDate && (
             <>
-              <span class="post-meta-sep">·</span>
+              <span class="post-meta-sep">&middot;</span>
               <span>Updated {formattedUpdatedDate}</span>
             </>
           )}
         </div>
       </header>
 
+      <AuthorNote />
+
       <div class="prose">
         <slot />
       </div>
+
+      {tags.length > 0 && (
+        <div class="post-related-tags">
+          <p class="post-related-tags-label">Filed under:</p>
+          <div class="post-card-tags">
+            {tags.map((tag) => <span class="tag">{tag}</span>)}
+          </div>
+        </div>
+      )}
+
+      <EmailSignup />
 
       <hr class="divider" />
 

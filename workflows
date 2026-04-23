@@ -1,0 +1,486 @@
+{
+  "name": "Blog Post Generator – RevOps & GTM",
+  "nodes": [
+    {
+      "id": "a1b2c3d4-0001-0001-0001-000000000001",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "parameters": {}
+    },
+    {
+      "id": "a1b2c3d4-0001-0001-0001-000000000002",
+      "name": "Daily Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 520],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1-5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "a1b2c3d4-0001-0001-0001-000000000003",
+      "name": "Set Topic & Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [500, 410],
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "blogTopic",
+              "value": "How RevOps teams can automate lead scoring with AI in 2026",
+              "type": "string"
+            },
+            {
+              "id": "f2",
+              "name": "githubOwner",
+              "value": "YOUR_GITHUB_USERNAME",
+              "type": "string"
+            },
+            {
+              "id": "f3",
+              "name": "githubRepo",
+              "value": "YOUR_REPO_NAME",
+              "type": "string"
+            },
+            {
+              "id": "f4",
+              "name": "githubBranch",
+              "value": "main",
+              "type": "string"
+            },
+            {
+              "id": "f5",
+              "name": "notionDatabaseId",
+              "value": "YOUR_NOTION_DATABASE_ID",
+              "type": "string"
+            },
+            {
+              "id": "f6",
+              "name": "slackWebhookUrl",
+              "value": "YOUR_SLACK_INCOMING_WEBHOOK_URL",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "a1b2c3d4-0001-0001-0001-000000000004",
+      "name": "Generate Blog Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [760, 410],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ANTHROPIC_CREDENTIAL_ID",
+          "name": "Anthropic API Key"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 2048, messages: [{ role: 'user', content: 'Write a complete blog post for an Astro static site.\\n\\nTARGET AUDIENCE: RevOps and GTM teams who use or are evaluating sales/marketing automation tools (HubSpot, Salesforce, Clay, Apollo, n8n, Zapier, Outreach, Gong, etc.)\\nTOPIC: ' + $json.blogTopic + '\\n\\nREQUIREMENTS:\\n- Length: 800-1200 words\\n- Practical and actionable — include real-world examples, not just theory\\n- Reference relevant tools naturally where they add value\\n- Structure: strong intro paragraph, 3-4 main sections using ## headers, conclusion with a clear takeaway\\n- Tone: professional but conversational, like a senior RevOps practitioner writing for peers\\n\\nOutput ONLY the raw Astro markdown file content. Do NOT wrap it in code fences. Do NOT add any commentary before or after. Begin immediately with the frontmatter block:\\n\\n---\\ntitle: \"[compelling, specific title]\"\\ndescription: \"[1-2 sentence SEO meta description]\"\\npubDate: ' + new Date().toISOString().split(\"T\")[0] + '\\ntags: [\"revops\", \"automation\", \"[third-relevant-tag]\"]\\n---\\n\\n[full blog post content in markdown]' }] }) }}"
+      }
+    },
+    {
+      "id": "a1b2c3d4-0001-0001-0001-000000000005",
+      "name": "Parse Blog Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1020, 410],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const response = $input.first().json;\nconst config = $('Set Topic & Config').first().json;\n\nif (!response.content || !response.content[0] || !response.content[0].text) {\n  throw new Error('Unexpected Claude API response: ' + JSON.stringify(response));\n}\n\nconst markdownContent = response.content[0].text.trim();\n\n// Extract title from frontmatter (handles both quoted and unquoted)\nconst titleMatch = markdownContent.match(/^---[\\s\\S]*?^title:\\s*[\"']?(.+?)[\"']?\\s*$/m);\nconst title = titleMatch\n  ? titleMatch[1].trim().replace(/^\"|\"$/g, '').replace(/^'|'$/g, '')\n  : 'blog-post-' + Date.now();\n\n// Generate a URL-safe slug from the title\nconst slug = title\n  .toLowerCase()\n  .replace(/[^a-z0-9\\s]/g, '')\n  .trim()\n  .replace(/\\s+/g, '-')\n  .replace(/-+/g, '-')\n  .substring(0, 60)\n  .replace(/-$/, '');\n\nconst today = new Date().toISOString().split('T')[0];\nconst filename = `${today}-${slug}.md`;\n\n// GitHub Contents API requires base64-encoded file content\nconst encodedContent = Buffer.from(markdownContent).toString('base64');\n\n// Build the GitHub blob URL for the notification message\nconst githubFileUrl = `https://github.com/${config.githubOwner}/${config.githubRepo}/blob/${config.githubBranch}/src/content/blog/${filename}`;\n\nreturn [{\n  json: {\n    ...config,\n    markdownContent,\n    title,\n    slug,\n    filename,\n    encodedContent,\n    pubDate: today,\n    githubFileUrl\n  }\n}];"
+      }
+    },
+    {
+      "id": "a1b2c3d4-0001-0001-0001-000000000010",
+      "name": "Humanize Blog Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1280, 410],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ANTHROPIC_CREDENTIAL_ID",
+          "name": "Anthropic API Key"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 4096, system: `You are an editor for a RevOps practitioner's blog. Your job is to rewrite AI-generated draft content to sound like it was written by a senior operator with real opinions.\\n\\nRules:\\n- Remove all of these words/phrases wherever they appear: delve, crucial, game-changer, streamline, leverage (as a verb), robust, utilize, it's worth noting, in conclusion, in today's landscape, cutting-edge, seamlessly\\n- Vary sentence length deliberately — mix short punchy sentences with longer ones\\n- Add at least one specific opinionated claim or contrarian take per section\\n- Replace any generic examples with specific tool names, real workflow steps, or concrete numbers\\n- Keep all markdown formatting and frontmatter exactly intact\\n- Output only the rewritten markdown, no commentary`, messages: [{ role: 'user', content: 'Rewrite this blog post draft:\\n\\n' + $json.markdownContent }] }) }}"
+      }
+    },
+    {
+      "id": "a1b2c3d4-0001-0001-0001-000000000006",
+      "name": "Commit to GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, 140],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GITHUB_CREDENTIAL_ID",
+          "name": "GitHub PAT"
+        }
+      },
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.github.com/repos/{{ $('Parse Blog Response').first().json.githubOwner }}/{{ $('Parse Blog Response').first().json.githubRepo }}/contents/src/content/blog/{{ $('Parse Blog Response').first().json.filename }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ message: 'content: add blog post – ' + $('Parse Blog Response').first().json.title, content: Buffer.from($json.content[0].text).toString('base64'), branch: $('Parse Blog Response').first().json.githubBranch }) }}"
+      }
+    },
+    {
+      "id": "a1b2c3d4-0001-0001-0001-000000000007",
+      "name": "Slack Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1800, 140],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Parse Blog Response').first().json.slackWebhookUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ text: ':pencil2: *New blog post committed to GitHub!*\\n\\n*Title:* ' + $('Parse Blog Response').first().json.title + '\\n*File:* `src/content/blog/' + $('Parse Blog Response').first().json.filename + '`\\n*Preview:* ' + $('Parse Blog Response').first().json.githubFileUrl + '\\n\\n_Netlify will deploy automatically on merge to main._' }) }}"
+      }
+    },
+    {
+      "id": "a1b2c3d4-0001-0001-0001-000000000008",
+      "name": "Generate Twitter Thread",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, 460],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ANTHROPIC_CREDENTIAL_ID",
+          "name": "Anthropic API Key"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 1024, messages: [{ role: 'user', content: 'Convert the blog post below into an X/Twitter thread of 6-8 tweets for a RevOps/GTM audience.\\n\\nRules:\\n- Tweet 1: Hook — a bold claim, contrarian take, or surprising stat that stops the scroll. No \"thread\" or emoji spam.\\n- Tweets 2-6: One punchy insight or tactic per tweet. Be specific and concrete.\\n- Tweet 7: One-line summary takeaway.\\n- Tweet 8 (optional): CTA — \"Full post here: [BLOG_LINK]\" (use literal placeholder [BLOG_LINK])\\n- Max 260 characters per tweet (count carefully)\\n- Number each tweet: 1/ 2/ etc.\\n- No hashtags unless truly essential\\n- Tone: direct, no fluff, peer-to-peer\\n\\nOutput ONLY the numbered tweets, one per line, nothing else.\\n\\nBLOG POST:\\n' + $json.content[0].text }] }) }}"
+      }
+    },
+    {
+      "id": "a1b2c3d4-0001-0001-0001-000000000009",
+      "name": "Save Thread to Notion",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1800, 460],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "NOTION_CREDENTIAL_ID",
+          "name": "Notion Integration Token"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ parent: { database_id: $('Parse Blog Response').first().json.notionDatabaseId }, properties: { Name: { title: [{ text: { content: 'Twitter Thread: ' + $('Parse Blog Response').first().json.title } }] }, Status: { select: { name: 'Draft – Needs Review' } }, 'Blog Post URL': { url: $('Parse Blog Response').first().json.githubFileUrl }, 'Pub Date': { date: { start: $('Parse Blog Response').first().json.pubDate } } }, children: [{ object: 'block', type: 'callout', callout: { rich_text: [{ type: 'text', text: { content: 'Review each tweet carefully before posting. Replace [BLOG_LINK] with the live Netlify URL once deployed.' } }], icon: { emoji: '✏️' } } }, { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: $('Generate Twitter Thread').first().json.content[0].text.substring(0, 1999) } }] } }] }) }}"
+      }
+    },
+    {
+      "id": "a1b2c3d4-0001-0001-0001-000000000011",
+      "name": "Generate Video Script",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, 780],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ANTHROPIC_CREDENTIAL_ID",
+          "name": "Anthropic API Key"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 512, messages: [{ role: 'user', content: `Write a short-form video script based on this blog post.\\n\\nRules:\\n- 45-60 seconds when read aloud (roughly 120-150 words total)\\n- Hook in first 3 seconds: a question or bold statement that earns the next 57 seconds\\n- Middle: 3 specific tactics or insights from the post, one sentence each — no generic advice\\n- End: soft CTA — \"Link in bio for the full breakdown\"\\n- Tone: direct, no hype, sounds like a practitioner not a marketer\\n- Output format: plain text with [HOOK], [POINT 1], [POINT 2], [POINT 3], [CTA] labels on their own lines\\n- No emojis, no hashtags\\n\\nBLOG POST:\\n` + $json.content[0].text }] }) }}"
+      }
+    },
+    {
+      "id": "a1b2c3d4-0001-0001-0001-000000000012",
+      "name": "Save Script to Notion",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1800, 780],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "NOTION_CREDENTIAL_ID",
+          "name": "Notion Integration Token"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ parent: { database_id: $('Parse Blog Response').first().json.notionDatabaseId }, properties: { Name: { title: [{ text: { content: 'Video Script: ' + $('Parse Blog Response').first().json.title } }] }, Status: { select: { name: 'Script – Needs Review' } }, 'Blog Post URL': { url: $('Parse Blog Response').first().json.githubFileUrl }, 'Pub Date': { date: { start: $('Parse Blog Response').first().json.pubDate } } }, children: [{ object: 'block', type: 'callout', callout: { rich_text: [{ type: 'text', text: { content: 'Review script before posting. Read aloud to check timing — target 45-60 seconds.' } }], icon: { emoji: '🎬' } } }, { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: $json.content[0].text.substring(0, 1999) } }] } }] }) }}"
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Topic & Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Schedule": {
+      "main": [
+        [
+          {
+            "node": "Set Topic & Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Topic & Config": {
+      "main": [
+        [
+          {
+            "node": "Generate Blog Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Blog Post": {
+      "main": [
+        [
+          {
+            "node": "Parse Blog Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Blog Response": {
+      "main": [
+        [
+          {
+            "node": "Humanize Blog Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Humanize Blog Post": {
+      "main": [
+        [
+          {
+            "node": "Commit to GitHub",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generate Twitter Thread",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generate Video Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commit to GitHub": {
+      "main": [
+        [
+          {
+            "node": "Slack Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Twitter Thread": {
+      "main": [
+        [
+          {
+            "node": "Save Thread to Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Video Script": {
+      "main": [
+        [
+          {
+            "node": "Save Script to Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2",
+  "id": "blog-post-generator-revops-gtm"
+}

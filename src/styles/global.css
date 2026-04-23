@@ -561,4 +561,272 @@ main { flex: 1; }
   .hero { padding: 4rem 0 3rem; }
   .section { padding: 3.5rem 0; }
   .card-grid { grid-template-columns: 1fr; }
+  .tool-grid { grid-template-columns: 1fr; }
+  .email-input-row { flex-direction: column; }
+}
+
+/* ── Email Signup ──────────────────────────────── */
+.email-signup {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  margin: 2.5rem 0;
+}
+
+.email-signup-inner {
+  max-width: 540px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.email-signup-eyebrow {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.email-signup-heading {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+  line-height: 1.35;
+}
+
+.email-signup-sub {
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.email-signup-form-placeholder {
+  margin: 0.25rem 0 0.25rem;
+}
+
+.email-input-row {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.email-input {
+  flex: 1;
+  min-width: 220px;
+  max-width: 320px;
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: var(--font);
+}
+
+.email-input::placeholder { color: var(--text-faint); }
+.email-input:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.email-signup-note {
+  font-size: 0.8rem;
+  color: var(--text-faint);
+  margin-top: 1rem;
+}
+
+.email-signup-launching {
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  margin-top: 0.6rem;
+}
+
+/* ── Tool cards ────────────────────────────────── */
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+.tool-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.tool-card:hover {
+  border-color: var(--accent-dim);
+  box-shadow: 0 0 0 1px var(--accent-dim), 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.tool-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tool-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tool-card p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+  flex: 1;
+}
+
+.tool-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: var(--bg-secondary);
+  color: var(--text-faint);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.tool-badge--free {
+  background: var(--accent-glow);
+  color: var(--accent);
+  border-color: var(--accent-dim);
+}
+
+.tool-cta {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+}
+
+/* ── Affiliate notice ──────────────────────────── */
+.affiliate-notice {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-dim);
+  border-radius: var(--radius);
+  padding: 0.875rem 1.25rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Tools page ────────────────────────────────── */
+.tools-hero {
+  padding: 4rem 0 3rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.tools-hero h1 {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin: 1rem 0 1.25rem;
+}
+
+.tools-hero p {
+  font-size: 1.0625rem;
+  color: var(--text-muted);
+  max-width: 540px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.tools-category {
+  margin-bottom: 0.25rem;
+}
+
+.tools-category-heading {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+
+.tools-category-sub {
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+}
+
+/* ── Author note callout ───────────────────────── */
+.author-note {
+  margin: 0 0 2rem;
+}
+
+.author-note-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: var(--bg-secondary);
+  border-left: 3px solid var(--accent-dim);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.875rem 1.25rem;
+}
+
+.author-note-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  color: var(--accent);
+}
+
+.author-note p {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.author-note strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ── Hero social proof ─────────────────────────── */
+.hero-social-proof {
+  font-size: 0.8rem;
+  color: var(--text-faint);
+  letter-spacing: 0.02em;
+  margin: -1.5rem auto 2rem;
+  max-width: 580px;
+}
+
+/* ── Post related tags ─────────────────────────── */
+.post-related-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 2.5rem 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.post-related-tags-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  white-space: nowrap;
 }

@@ -1,7 +1,7 @@
 ---
 title: "How to Automate Your Sales-to-CS Handoff with HubSpot and Slack"
 description: "A step-by-step playbook for building a reliable, automated sales handoff workflow using HubSpot workflows, Slack notifications, and Make."
-pubDate: 2025-04-18
+pubDate: 2026-04-18
 author: "The Automations Guide"
 tags: ["HubSpot", "Slack", "Workflow", "Playbook"]
 ---

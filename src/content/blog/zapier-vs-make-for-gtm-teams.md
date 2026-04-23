@@ -1,7 +1,7 @@
 ---
 title: "Zapier vs. Make: Which Automation Platform Is Right for Your GTM Team?"
 description: "A practical, no-hype comparison of Zapier and Make for revenue operations and go-to-market teams — including pricing, power, and when to switch."
-pubDate: 2025-04-02
+pubDate: 2026-04-02
 author: "The Automations Guide"
 tags: ["Zapier", "Make", "Comparison", "Tools"]
 ---

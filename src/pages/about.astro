@@ -4,62 +4,77 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <BaseLayout
   title="About"
-  description="The Automations Guide covers automation tools and workflows for RevOps and GTM teams."
+  description="The Automations Guide is written by Ian Chamberland, a RevOps practitioner who has built automation workflows for real GTM and revenue operations teams."
 >
   <div class="container">
     <div class="about-hero">
       <p class="section-label">About this site</p>
-      <h1>We write about automation so your team doesn't have to figure it out the hard way.</h1>
+      <h1>Built by a RevOps practitioner, for RevOps practitioners.</h1>
       <p style="color:var(--text-muted);font-size:1.0625rem;line-height:1.75;max-width:580px;margin-top:1rem;">
-        The Automations Guide is an independent publication covering automation tools,
-        RevOps workflows, and GTM strategy. We cut through the vendor noise and share
-        what actually works.
+        Ian Chamberland here. I've spent years working inside GTM and revenue operations teams —
+        building the automations, wiring up the tools, and inheriting the messes that happen when
+        stacks grow faster than processes do.
       </p>
     </div>
 
     <div class="about-content">
       <div class="prose">
-        <h2>What we cover</h2>
+        <h2>Why this site exists</h2>
         <p>
-          Revenue Operations is increasingly defined by the quality of the automation layer
-          underneath it. Broken handoffs, manual data entry, and disconnected tools cost
-          pipeline and erode team trust.
+          Most automation content online is written by people who have never actually had to
+          maintain a workflow in production, deal with a Zapier task limit at 11pm before a
+          campaign goes live, or explain to a VP of Sales why their lead routing broke.
         </p>
         <p>
-          This site exists to help RevOps practitioners, GTM leaders, and ops-minded
-          founders build automation stacks that actually hold up — from the first Zap to
-          a full-scale HubSpot orchestration.
+          I built this site to be the resource I wish existed when I was figuring out which
+          tools to buy, which workflows to build first, and which vendor claims to ignore.
+          Everything here comes from direct experience — not from reading documentation or
+          regurgitating feature lists.
         </p>
 
-        <h3>Topics we dig into</h3>
+        <h2>What I cover</h2>
+        <p>
+          The Automations Guide focuses on the automation layer that sits underneath modern
+          revenue operations: the middleware, the CRM workflows, the data plumbing that
+          makes GTM motions run (or not run) smoothly.
+        </p>
+
+        <h3>Specifically:</h3>
         <ul>
-          <li>Automation platform comparisons (Zapier, Make, n8n, and beyond)</li>
-          <li>HubSpot, Salesforce, and CRM workflow automation</li>
-          <li>Sales &amp; marketing handoff automation</li>
-          <li>Lead routing, scoring, and enrichment workflows</li>
-          <li>RevOps tech stack design and tooling decisions</li>
-          <li>AI-powered automation in GTM contexts</li>
+          <li>Automation platform comparisons — Zapier, Make, n8n, and where each one actually breaks</li>
+          <li>HubSpot and Salesforce workflow automation, including the edge cases the docs skip</li>
+          <li>Sales-to-CS handoff automation and the handoff failure modes I've personally shipped</li>
+          <li>Lead routing, scoring, and enrichment workflows using Clay, Apollo, and HubSpot</li>
+          <li>RevOps tech stack decisions — what to buy, what to skip, what order to build in</li>
+          <li>AI-assisted automation in GTM contexts, including what's actually useful vs. hype</li>
         </ul>
 
-        <h2>How we work</h2>
+        <h2>How I work</h2>
         <p>
-          Every article is written from hands-on experience. We test the tools we write
-          about, document what breaks, and share the real tradeoffs — not just the
-          marketing pitch.
+          I only write about tools I've used in a real environment. That means I've paid for
+          them, hit their limits, submitted support tickets, and migrated off them when something
+          better came along. The write-ups here reflect that — including when a tool is genuinely
+          good, when it's overpriced for what it does, and when I'd recommend starting with the
+          free tier indefinitely.
         </p>
         <p>
-          Some links on this site are affiliate links. When you click through and purchase
-          a tool we recommend, we may earn a small commission. This never influences our
-          editorial take — we only recommend tools we'd use ourselves.
+          I don't recommend tools based on commission size. If a tool has a better affiliate rate
+          but is the wrong call for most RevOps teams, I won't push it. The only tools that get
+          a "try this" recommendation here are ones I have personally evaluated and would use
+          (or have used) in a real stack.
         </p>
 
         <h2>Affiliate Disclosure</h2>
         <p>
-          The Automations Guide participates in affiliate programs with several of the
-          tools we cover. This means we may receive compensation when you sign up for or
-          purchase a product through a link on this site. We are committed to full
-          transparency: affiliate relationships are disclosed on relevant pages, and our
-          editorial recommendations are based on genuine evaluation — not commission size.
+          Some links on this site are affiliate links. When you sign up for or purchase a tool
+          through one of those links, I may earn a commission at no extra cost to you. Affiliate
+          relationships are disclosed on pages where they exist. My editorial take is never
+          influenced by whether an affiliate program is available — some of the tools I recommend
+          most frequently have no affiliate program at all.
+        </p>
+        <p>
+          If you have questions about anything I've written or want to suggest a topic, you can
+          reach me at <a href="mailto:ian@theautomationsguide.com">ian@theautomationsguide.com</a>.
         </p>
       </div>
     </div>

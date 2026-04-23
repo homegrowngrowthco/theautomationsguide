@@ -1,0 +1,49 @@
+---
+// SETUP: Replace BEEHIIV_EMBED_URL_PLACEHOLDER with your Beehiiv embed URL
+// Example: https://embeds.beehiiv.com/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/subscribe
+// Create your free account at beehiiv.com, then go to Settings → Embed
+const EMBED_URL = "BEEHIIV_EMBED_URL_PLACEHOLDER";
+const isReady = !EMBED_URL.includes("PLACEHOLDER");
+---
+
+<section class="email-signup">
+  <div class="email-signup-inner">
+    <p class="email-signup-eyebrow">Free Newsletter</p>
+    <h3 class="email-signup-heading">
+      Get weekly automation playbooks for RevOps teams. No fluff.
+    </h3>
+    <p class="email-signup-sub">
+      Join RevOps and GTM professionals who get our best automation guides, tool reviews,
+      and workflow templates — delivered every week.
+    </p>
+
+    {isReady ? (
+      <iframe
+        src={EMBED_URL}
+        width="100%"
+        height="320"
+        style="border:0;background:transparent;border-radius:var(--radius);"
+        scrolling="no"
+        frameborder="0"
+        title="Subscribe to The Automations Guide newsletter"
+        loading="lazy"
+      ></iframe>
+    ) : (
+      <div class="email-signup-form-placeholder">
+        <div class="email-input-row">
+          <input
+            type="email"
+            placeholder="you@company.com"
+            class="email-input"
+            aria-label="Email address"
+            disabled
+          />
+          <button class="btn btn--primary" disabled>Subscribe &rarr;</button>
+        </div>
+        <p class="email-signup-launching">Signup launching soon — swap in your Beehiiv embed URL to activate.</p>
+      </div>
+    )}
+
+    <p class="email-signup-note">No spam. Unsubscribe anytime.</p>
+  </div>
+</section>
