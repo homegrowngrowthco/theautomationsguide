@@ -811,6 +811,18 @@ main { flex: 1; }
   max-width: 580px;
 }
 
+/* ── Quick Answer (GEO-optimised TL;DR block) ──── */
+.quick-answer {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-glow);
+  padding: 1rem 1.25rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin-bottom: 1.5em;
+  font-size: 1rem;
+  color: var(--text);
+}
+.quick-answer strong { color: var(--accent); }
+
 /* ── Post related tags ─────────────────────────── */
 .post-related-tags {
   display: flex;

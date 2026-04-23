@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Page Not Found" description="The page you're looking for doesn't exist.">
+  <Fragment slot="head">
+    <meta name="robots" content="noindex, nofollow" />
+  </Fragment>
+  <div class="container" style="padding: 8rem 1.5rem; text-align: center;">
+    <p style="font-size: 0.85rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem;">404</p>
+    <h1 style="font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; letter-spacing: -0.03em; color: var(--text); margin-bottom: 1rem;">
+      Page not found
+    </h1>
+    <p style="color: var(--text-muted); font-size: 1.0625rem; max-width: 480px; margin: 0 auto 2.5rem; line-height: 1.7;">
+      The page you're looking for doesn't exist or has moved. Try one of these:
+    </p>
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+      <a href="/blog" class="btn btn--primary">Browse the Blog</a>
+      <a href="/" class="btn btn--ghost">Go Home</a>
+    </div>
+  </div>
+</BaseLayout>

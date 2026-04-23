@@ -9,7 +9,7 @@ interface Props {
 }
 
 const { post } = Astro.props;
-const { title, description, pubDate, updatedDate, author, tags } = post.data;
+const { title, description, pubDate, updatedDate, author, tags, faqs } = post.data;
 
 const wordCount = post.body.split(/\s+/).filter(Boolean).length;
 const readTime = Math.max(1, Math.round(wordCount / 200));
@@ -25,9 +25,49 @@ const formattedUpdatedDate = updatedDate?.toLocaleDateString('en-US', {
   month: 'long',
   day: 'numeric',
 });
+
+const postUrl = new URL(`/blog/${post.slug}`, Astro.site).toString();
+
+const blogPostingSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: title,
+  description: description,
+  url: postUrl,
+  datePublished: pubDate.toISOString(),
+  dateModified: (updatedDate ?? pubDate).toISOString(),
+  author: {
+    '@type': 'Person',
+    name: author,
+    url: 'https://theautomationsguide.com/about',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'The Automations Guide',
+    url: 'https://theautomationsguide.com',
+  },
+};
+
+const faqSchema =
+  faqs && faqs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqs.map((faq) => ({
+          '@type': 'Question',
+          name: faq.question,
+          acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+        })),
+      }
+    : null;
 ---
 
 <BaseLayout title={title} description={description}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)} />
+    {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
+  </Fragment>
+
   <div class="container">
     <article>
       <header class="post-header">

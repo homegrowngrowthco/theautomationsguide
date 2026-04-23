@@ -1,0 +1,2 @@
+# Force apex domain — redirect www to apex
+https://www.theautomationsguide.com/* https://theautomationsguide.com/:splat 301!
