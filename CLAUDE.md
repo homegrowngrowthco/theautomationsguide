@@ -323,8 +323,8 @@ All of these need real values before live promotion:
 
 ### Immediate — do this week
 
-- [ ] **Google Search Console** — submit `https://theautomationsguide.com/sitemap-index.xml` under Sitemaps; run URL Inspection → Request Indexing on homepage
-- [ ] **Bing Webmaster Tools** — set up, then use "Import from GSC" once GSC is live
+- [x] **Google Search Console** — sitemap submitted 2026-04-24
+- [x] **Bing Webmaster Tools** — set up 2026-04-24
 - [ ] **Import n8n workflow** — `blog-post-generator-workflow.json` → Workflows → Import from file
 - [ ] **Configure n8n credentials** — Anthropic API Key, GitHub PAT, Notion Integration Token
 - [ ] **Fill n8n Set node** — `githubOwner`, `githubRepo`, `notionDatabaseId`, `slackWebhookUrl`
