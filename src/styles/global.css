@@ -533,6 +533,31 @@ main { flex: 1; }
   color: var(--text-faint);
 }
 
+.footer-publisher {
+  max-width: var(--max-w-wide);
+  margin: 1.5rem auto 0;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.footer-publisher-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.8125rem;
+  transition: color 0.15s;
+}
+
+.footer-publisher-link:hover { color: var(--accent); }
+
+.footer-publisher-link img {
+  height: 1.25rem;
+  width: auto;
+  object-fit: contain;
+}
+
 /* ── Blog index header ─────────────────────────── */
 .page-header {
   padding: 4rem 0 2.5rem;

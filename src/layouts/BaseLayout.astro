@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import Analytics from '../components/Analytics.astro';
 
 interface Props {
   title: string;
@@ -28,8 +29,29 @@ const orgSchema = {
   url: 'https://theautomationsguide.com',
   description:
     'Practical automation guides, tool reviews, and workflows for RevOps and go-to-market teams.',
-  // TODO: populate sameAs once social profiles are live
-  sameAs: [],
+  publisher: {
+    '@type': 'Organization',
+    name: 'Homegrown Growth Co',
+    url: 'https://homegrowngrowth.co',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://theautomationsguide.com/hgc-logo.png',
+    },
+  },
+  founder: {
+    '@type': 'Person',
+    name: 'Ian Chamberland',
+    jobTitle: 'Founder, Homegrown Growth Co',
+    url: 'https://www.linkedin.com/in/ianchamberland/',
+    sameAs: [
+      'https://www.linkedin.com/in/ianchamberland/',
+      'https://homegrowngrowth.co',
+    ],
+  },
+  sameAs: [
+    'https://www.linkedin.com/in/ianchamberland/',
+    'https://homegrowngrowth.co',
+  ],
 };
 
 // --- JSON-LD: BreadcrumbList (all pages) ---
@@ -107,6 +129,12 @@ const breadcrumbSchema = {
 
     <!-- Per-page head injections (BlogPosting, FAQPage, etc.) -->
     <slot name="head" />
+
+    <!-- Analytics (PostHog) -->
+    <Analytics />
+
+    <!-- Beehiiv attribution — tracks which page a subscribe came from -->
+    <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
   </head>
 
   <body>
@@ -146,16 +174,29 @@ const breadcrumbSchema = {
             <li><a href="/about">About</a></li>
           </ul>
         </nav>
+        <nav class="footer-links" aria-label="Legal navigation">
+          <ul>
+            <li><a href="/disclosure">Affiliate Disclosure</a></li>
+            <li><a href="/privacy">Privacy</a></li>
+            <li><a href="/terms">Terms</a></li>
+          </ul>
+        </nav>
       </div>
 
       <div class="footer-disclaimer">
         <p>
-          <strong>Affiliate Disclosure:</strong> Some links on this site are affiliate links,
-          which means we may earn a commission if you click through and make a purchase — at no
-          additional cost to you. We only recommend tools and services we genuinely believe in
-          and that are relevant to our audience. Our editorial opinions are our own and are not
-          influenced by affiliate relationships.
+          <strong>Affiliate Disclosure:</strong> Some links on this site are affiliate links —
+          we may earn a commission if you click through and sign up, at no extra cost to you.
+          We only recommend tools we'd actually use. <a href="/disclosure">Read the full disclosure</a>.
         </p>
+      </div>
+
+      <div class="footer-publisher">
+        <a href="https://homegrowngrowth.co" target="_blank" rel="noopener noreferrer" class="footer-publisher-link" aria-label="Visit Homegrown Growth Co">
+          <span>Published by</span>
+          <img src="/hgc-logo.png" alt="Homegrown Growth Co" width="22" height="22" loading="lazy" />
+          <strong>Homegrown Growth Co</strong>
+        </a>
       </div>
 
       <div class="footer-bottom">
