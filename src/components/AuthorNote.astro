@@ -1,90 +1,40 @@
 ---
-// Signals human authorship and E-E-A-T to Google.
-// The Automations Guide is published by Homegrown Growth Co — fractional RevOps consultancy
-// founded by Ian Chamberland. Author byline links to Ian's LinkedIn (Google Knowledge Graph signal).
+// Subtle "About the author" footer block. Lives at the very bottom of each post —
+// signals authorship + E-E-A-T to Google without pulling reader attention.
+//
+// Class names are scoped (prefixed `tag-author`) to avoid collision with any older
+// `.author-note*` styles in global.css.
 ---
 
-<aside class="author-note" aria-label="About the author">
-  <div class="author-note-inner">
-    <div class="author-note-header">
-      <a
-        href="https://homegrowngrowth.co"
-        class="author-note-publisher"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Visit Homegrown Growth Co"
-      >
-        <img
-          src="/hgc-logo.png"
-          alt="Homegrown Growth Co"
-          class="author-note-logo"
-          width="28"
-          height="28"
-          loading="lazy"
-        />
-        <span><strong>Homegrown Growth Co</strong></span>
-      </a>
-    </div>
-    <p class="author-note-bio">
-      Written by <strong>Ian Chamberland</strong>, founder of Homegrown Growth Co. 8 years in
-      revenue operations — from data analyst to Head of Global Revenue Operations at high-growth
-      companies. Now running fractional RevOps for GTM teams that want a senior thought partner
-      who actually builds the thing.
-    </p>
-    <p class="author-note-cta">
-      <a href="https://www.linkedin.com/in/ianchamberland/" target="_blank" rel="noopener noreferrer">
-        Connect on LinkedIn
-      </a>
-      &nbsp;·&nbsp;
-      <a href="https://homegrowngrowth.co" target="_blank" rel="noopener noreferrer">
-        See HGC services
-      </a>
-    </p>
-  </div>
+<aside class="tag-author" aria-label="About the author">
+  <p class="tag-author-line">
+    Published by
+    <a href="https://homegrowngrowth.co" target="_blank" rel="noopener noreferrer">Homegrown Growth Co</a>.
+    Written by Ian Chamberland — 8 years in revenue operations, ex-Head of Global Revenue Operations.
+    <a href="https://www.linkedin.com/in/ianchamberland/" target="_blank" rel="noopener noreferrer">LinkedIn</a>.
+  </p>
 </aside>
 
 <style>
-  .author-note {
-    margin: 3rem 0 1rem;
-    padding: 1.5rem;
-    border-left: 3px solid var(--accent);
-    background: var(--bg-secondary);
-    border-radius: 0 0.5rem 0.5rem 0;
+  .tag-author {
+    margin: 2rem 0 0;
+    padding: 1rem 0 0;
+    border-top: 1px solid var(--border);
   }
-  .author-note-header {
-    margin-bottom: 0.75rem;
-  }
-  .author-note-publisher {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--text);
-    text-decoration: none;
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .author-note-publisher:hover { color: var(--accent); }
-  .author-note-logo {
-    height: 1.75rem;
-    width: 1.75rem;
-    object-fit: contain;
-  }
-  .author-note-bio {
-    margin: 0 0 0.75rem 0;
-    color: var(--text);
-    font-size: 0.9375rem;
+  .tag-author-line {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
     line-height: 1.6;
   }
-  .author-note-cta {
-    margin: 0;
-    font-size: 0.875rem;
+  .tag-author-line a {
     color: var(--text-muted);
+    text-decoration: underline;
+    text-decoration-color: var(--border);
+    text-underline-offset: 0.15em;
   }
-  .author-note-cta a {
+  .tag-author-line a:hover {
     color: var(--accent);
-    text-decoration: none;
-    font-weight: 600;
+    text-decoration-color: var(--accent);
   }
-  .author-note-cta a:hover { text-decoration: underline; }
 </style>
