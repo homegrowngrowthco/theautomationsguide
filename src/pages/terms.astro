@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const lastUpdated = '2026-05-03';
+---
+
+<BaseLayout
+  title="Terms of Use"
+  description="Terms governing use of The Automations Guide website and content."
+>
+  <Fragment slot="head">
+    <meta name="robots" content="noindex, follow" />
+  </Fragment>
+
+  <article class="container" style="max-width:760px;padding-top:3rem;padding-bottom:5rem;">
+    <h1>Terms of Use</h1>
+    <p style="color:var(--text-muted);">Last updated: {lastUpdated}</p>
+
+    <h2>Acceptance</h2>
+    <p>
+      By using theautomationsguide.com, you agree to these terms. If you don't agree, please
+      don't use the site.
+    </p>
+
+    <h2>Editorial content</h2>
+    <p>
+      All content on this site reflects the personal opinions and experiences of the author at
+      the time of writing. Tools change. Pricing changes. Vendor positioning changes. We try to
+      keep things accurate but make no warranty that any specific recommendation will work in
+      your situation.
+    </p>
+    <p>
+      Nothing on this site is professional advice — legal, financial, technical, or otherwise.
+      Test things in a non-production environment before deploying to your real GTM stack.
+    </p>
+
+    <h2>Affiliate relationships</h2>
+    <p>
+      Many recommended tools are linked via affiliate programs. See our
+      <a href="/disclosure">Affiliate Disclosure</a> for details. Affiliate relationships do
+      not influence which tools we recommend or how we describe them.
+    </p>
+
+    <h2>Trademarks</h2>
+    <p>
+      Tool names mentioned (HubSpot, Salesforce, Make, Zapier, n8n, Apollo, Clay, etc.) are
+      trademarks of their respective owners. Use of these names is for editorial reference and
+      does not imply endorsement by those companies.
+    </p>
+
+    <h2>Your content</h2>
+    <p>
+      If you submit comments, feedback, or other content (via email or other channels), you grant
+      us a non-exclusive license to quote or reference that content in future articles. We'll
+      anonymize personal details unless you explicitly grant permission to attribute.
+    </p>
+
+    <h2>Linking</h2>
+    <p>
+      Feel free to link to any page on this site. If you'd like to republish content (with
+      attribution + link back), reach out — we usually say yes.
+    </p>
+
+    <h2>Limitation of liability</h2>
+    <p>
+      To the maximum extent permitted by law, The Automations Guide and its operator are not
+      liable for any direct, indirect, incidental, or consequential damages arising from your
+      use of the site or any tool recommended on it.
+    </p>
+
+    <h2>Changes</h2>
+    <p>
+      We may update these terms occasionally. Continued use of the site after updates constitutes
+      acceptance of the revised terms.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      Questions about these terms: <a href="mailto:ian@theautomationsguide.com">ian@theautomationsguide.com</a>
+    </p>
+  </article>
+</BaseLayout>

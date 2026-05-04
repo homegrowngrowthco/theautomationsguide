@@ -1,0 +1,189 @@
+---
+// Reusable comparison table for tool / product / option comparisons in posts.
+//
+// USAGE in markdown posts:
+//   import ComparisonTable from '../../components/ComparisonTable.astro';
+//
+//   <ComparisonTable
+//     title="Make vs Zapier vs n8n"
+//     tools={[
+//       {
+//         name: 'Make',
+//         tagline: 'Best for visual multi-step workflows',
+//         pros: ['Visual builder', 'Generous free tier', 'Powerful iterators'],
+//         cons: ['Steeper learning curve', 'Pricing scales fast at high ops'],
+//         pricing: 'Free → $9/mo',
+//         affiliateSlug: 'make',
+//         ctaLabel: 'Try Make Free',
+//         highlight: true,
+//       },
+//       { name: 'Zapier', ... },
+//     ]}
+//   />
+
+interface Tool {
+  name: string;
+  tagline: string;
+  pros: string[];
+  cons: string[];
+  pricing?: string;
+  affiliateSlug?: string;
+  ctaLabel?: string;
+  highlight?: boolean;
+}
+
+interface Props {
+  title?: string;
+  tools: Tool[];
+}
+
+const { title, tools } = Astro.props;
+---
+
+<section class="comparison-table">
+  {title && <h3 class="comparison-title">{title}</h3>}
+  <div class="comparison-grid">
+    {tools.map((tool) => (
+      <div class={`comparison-card ${tool.highlight ? 'comparison-card--highlight' : ''}`}>
+        {tool.highlight && <div class="comparison-badge">Top pick</div>}
+        <h4 class="comparison-name">{tool.name}</h4>
+        <p class="comparison-tagline">{tool.tagline}</p>
+
+        {tool.pricing && (
+          <p class="comparison-pricing"><strong>Pricing:</strong> {tool.pricing}</p>
+        )}
+
+        <div class="comparison-section">
+          <strong class="comparison-section-label">What it's good at</strong>
+          <ul class="comparison-list comparison-list--pros">
+            {tool.pros.map((p) => <li>{p}</li>)}
+          </ul>
+        </div>
+
+        <div class="comparison-section">
+          <strong class="comparison-section-label">Where it falls short</strong>
+          <ul class="comparison-list comparison-list--cons">
+            {tool.cons.map((c) => <li>{c}</li>)}
+          </ul>
+        </div>
+
+        {tool.affiliateSlug && (
+          <a
+            href={`/go/${tool.affiliateSlug}`}
+            class={`comparison-cta ${tool.highlight ? 'comparison-cta--primary' : ''}`}
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+          >
+            {tool.ctaLabel || `Try ${tool.name}`} &rarr;
+          </a>
+        )}
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .comparison-table {
+    margin: 2.5rem 0;
+  }
+  .comparison-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    color: var(--text);
+  }
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .comparison-card {
+    position: relative;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .comparison-card--highlight {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .comparison-badge {
+    position: absolute;
+    top: -0.625rem;
+    right: 1rem;
+    background: var(--accent);
+    color: var(--bg);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.625rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .comparison-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.375rem 0;
+    color: var(--text);
+  }
+  .comparison-tagline {
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+    margin: 0 0 1rem 0;
+  }
+  .comparison-pricing {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .comparison-section {
+    margin-bottom: 1rem;
+  }
+  .comparison-section-label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 0.375rem;
+  }
+  .comparison-list {
+    margin: 0;
+    padding-left: 1.125rem;
+    font-size: 0.9375rem;
+    color: var(--text);
+  }
+  .comparison-list li {
+    margin-bottom: 0.25rem;
+  }
+  .comparison-list--pros li::marker { color: #2dd4bf; }
+  .comparison-list--cons li::marker { color: #f87171; }
+  .comparison-cta {
+    display: inline-block;
+    margin-top: auto;
+    padding-top: 1rem;
+    text-align: center;
+    text-decoration: none;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    border-top: 1px solid var(--border);
+    padding: 0.875rem 1rem 0;
+    transition: opacity 0.15s;
+  }
+  .comparison-cta:hover { opacity: 0.8; }
+  .comparison-cta--primary {
+    background: var(--accent);
+    color: var(--bg);
+    border-radius: 0.5rem;
+    border-top: none;
+    padding: 0.75rem 1rem;
+    margin-top: 1rem;
+  }
+  .comparison-cta--primary:hover { opacity: 0.9; }
+</style>

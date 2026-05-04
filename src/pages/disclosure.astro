@@ -1,0 +1,87 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const lastUpdated = '2026-05-03';
+---
+
+<BaseLayout
+  title="Affiliate Disclosure"
+  description="How The Automations Guide uses affiliate links and how we keep recommendations honest."
+>
+  <Fragment slot="head">
+    <meta name="robots" content="noindex, follow" />
+  </Fragment>
+
+  <article class="container" style="max-width:760px;padding-top:3rem;padding-bottom:5rem;">
+    <h1>Affiliate Disclosure</h1>
+    <p style="color:var(--text-muted);">Last updated: {lastUpdated}</p>
+
+    <h2>The short version</h2>
+    <div class="quick-answer">
+      <strong>Quick answer:</strong> Some links on this site are affiliate links. If you click
+      through and sign up, we may earn a commission at no extra cost to you. We only recommend
+      tools we'd actually use, and our editorial opinions are independent of any affiliate
+      relationship.
+    </div>
+
+    <h2>What this means in practice</h2>
+    <p>
+      The Automations Guide participates in affiliate programs from companies like HubSpot,
+      Make, n8n, Apollo, Clay, Beehiiv, Smartlead, and Pipedrive — among others. When you click
+      a link to one of these tools and sign up for a paid plan, we may receive a commission
+      from that company.
+    </p>
+    <p>
+      That commission does not change your price. The tool costs the same whether you find it
+      via this site, Google, or a friend's recommendation.
+    </p>
+
+    <h2>How we keep recommendations honest</h2>
+    <ul>
+      <li>
+        <strong>We test before we recommend.</strong> If we haven't actually used a tool (or
+        spoken in depth with someone who has), we don't recommend it.
+      </li>
+      <li>
+        <strong>We tell you the trade-offs.</strong> Every tool has weaknesses. We name them.
+        If a tool is overhyped, we say so — even when it pays well.
+      </li>
+      <li>
+        <strong>Editorial opinion is independent of payout.</strong> The highest-paying affiliate
+        program is not automatically the top recommendation. We don't write "best of" lists where
+        the order is set by commission rate.
+      </li>
+      <li>
+        <strong>We disclose the relationship.</strong> This page exists, and the footer of every
+        page links to it.
+      </li>
+    </ul>
+
+    <h2>How affiliate links are marked</h2>
+    <p>
+      We don't mark every affiliate link individually because the FTC standard is clear, prominent
+      disclosure (which this page provides). For transparency: any link that goes through
+      <code>/go/[tool]</code> on this site, or that points to a tool's signup page from a
+      recommendation, is likely an affiliate link.
+    </p>
+
+    <h2>FTC compliance</h2>
+    <p>
+      This disclosure is provided in accordance with the U.S. Federal Trade Commission's
+      <a href="https://www.ftc.gov/business-guidance/resources/disclosures-101-social-media-influencers" target="_blank" rel="noopener noreferrer">
+        Endorsement Guides
+      </a>
+      and the
+      <a href="https://www.ftc.gov/legal-library/browse/rules/guides-concerning-use-endorsements-testimonials-advertising" target="_blank" rel="noopener noreferrer">
+        Guides Concerning the Use of Endorsements and Testimonials in Advertising
+      </a>.
+    </p>
+
+    <h2>Questions</h2>
+    <p>
+      If you have questions about a specific recommendation, our affiliate relationships, or
+      how we make money, email <a href="mailto:ian@theautomationsguide.com">ian@theautomationsguide.com</a>.
+      We'll always tell you the truth.
+    </p>
+  </article>
+</BaseLayout>

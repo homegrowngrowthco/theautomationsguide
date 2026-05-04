@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const lastUpdated = '2026-05-03';
+---
+
+<BaseLayout
+  title="Privacy Policy"
+  description="How The Automations Guide collects, uses, and protects information about visitors."
+>
+  <Fragment slot="head">
+    <meta name="robots" content="noindex, follow" />
+  </Fragment>
+
+  <article class="container" style="max-width:760px;padding-top:3rem;padding-bottom:5rem;">
+    <h1>Privacy Policy</h1>
+    <p style="color:var(--text-muted);">Last updated: {lastUpdated}</p>
+
+    <h2>Who runs this site</h2>
+    <p>
+      The Automations Guide (theautomationsguide.com) is operated by Ian Chamberland.
+      Questions about this policy can be sent to <a href="mailto:ian@theautomationsguide.com">ian@theautomationsguide.com</a>.
+    </p>
+
+    <h2>What we collect</h2>
+    <p>We try to collect as little as possible. Specifically:</p>
+    <ul>
+      <li>
+        <strong>Analytics:</strong> We use a privacy-respecting analytics tool (PostHog Cloud)
+        to count visits, see which pages are popular, and understand how readers find the site.
+        We do not sell or share this data.
+      </li>
+      <li>
+        <strong>Newsletter subscriptions:</strong> If you subscribe to our newsletter via Beehiiv,
+        we collect your email address solely to send you the newsletter. You can unsubscribe at any
+        time using the link at the bottom of every email.
+      </li>
+      <li>
+        <strong>Affiliate link clicks:</strong> When you click an outbound affiliate link
+        (e.g., <code>/go/hubspot</code>), we record the click for our own optimization. The destination
+        site receives standard referral information (HTTP referrer, user agent) when you land there.
+        Their handling of that data is governed by their own privacy policy.
+      </li>
+      <li>
+        <strong>Server logs:</strong> Our hosting provider (Netlify) keeps standard server logs
+        (IP address, timestamp, requested URL) for operational and security purposes.
+      </li>
+    </ul>
+
+    <h2>What we don't do</h2>
+    <ul>
+      <li>We do not sell, rent, or trade personal information.</li>
+      <li>We do not use third-party advertising networks (no AdSense, Mediavine, or similar).</li>
+      <li>We do not use cross-site tracking pixels (no Facebook Pixel, no Google Ads remarketing).</li>
+      <li>We do not run cookie banners because we do not set tracking cookies that require consent.</li>
+    </ul>
+
+    <h2>Cookies</h2>
+    <p>
+      We use minimal cookies, primarily for analytics (anonymized) and to remember if you've
+      dismissed the newsletter signup. We do not use cookies for advertising or cross-site tracking.
+    </p>
+
+    <h2>Your rights</h2>
+    <p>If you're in the US, EU, UK, or anywhere else, you have the right to:</p>
+    <ul>
+      <li>Know what personal information we have about you</li>
+      <li>Request deletion of your personal information</li>
+      <li>Unsubscribe from our newsletter at any time (one-click in any email, or email us)</li>
+      <li>Opt out of analytics by enabling Do Not Track in your browser, or by using an ad blocker</li>
+    </ul>
+    <p>
+      To exercise any of these rights, email <a href="mailto:ian@theautomationsguide.com">ian@theautomationsguide.com</a>
+      and we'll respond within 30 days.
+    </p>
+
+    <h2>Children</h2>
+    <p>
+      This site is intended for business audiences. We do not knowingly collect information from
+      anyone under 16. If you believe we have, please contact us and we'll delete it.
+    </p>
+
+    <h2>Changes to this policy</h2>
+    <p>
+      If we change how we collect or use data, we'll update this page and revise the "last updated"
+      date above. Material changes will be noted in the newsletter.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      Questions, requests, or complaints: <a href="mailto:ian@theautomationsguide.com">ian@theautomationsguide.com</a>
+    </p>
+  </article>
+</BaseLayout>
