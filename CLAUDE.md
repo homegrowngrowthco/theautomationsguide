@@ -1,4 +1,16 @@
-# Session Log — last updated 2026-04-24
+# Session Log — last updated 2026-05-03
+
+## Quick reference — recent additions (Session 5, 2026-05-03)
+
+**Legal pages live:** `/privacy`, `/terms`, `/disclosure` — all `noindex, follow`. Footer updated to link them.
+
+**Affiliate redirect system:** Centralized in `src/data/affiliate-links.ts`. Use `/go/<slug>` in any post or component. The `/go/[tool]` Astro page fires a PostHog `affiliate_click` event before redirecting (works once PostHog is installed). 10 tools registered, all with `status: 'pending'` until real URLs come in.
+
+**ComparisonTable component:** `src/components/ComparisonTable.astro`. Drop into any post for a multi-tool comparison with affiliate CTAs. See component header for usage example.
+
+**Topic Suggestor prompt:** Updated to weight commercial intent — explicit hierarchy from "highest intent (comparisons/alternatives)" down to "lower intent (opinion)". Mix targets 3+ HIGHEST INTENT per batch.
+
+**Blog engine LinkedIn output:** New parallel branch in `blog-post-engine.json`. Generates LinkedIn post + saves to Drafts DB alongside Twitter thread + video script. Uses LinkedIn-specific best practices (hook in first 210 chars, line breaks every 1-2 sentences, 1200-1800 char target, anti-cliché ruleset).
 
 Running log across all sessions. Use as context when starting a new Claude Code session.
 
@@ -97,6 +109,25 @@ theautomationsguide/
 |---|---|
 | Bash tool calls kept getting interrupted/denied | Created `.claude/settings.json` with allowlist for `git add/commit/push` and `npm install/build` |
 
+### Session 4 — Content engine v3 + Topic Suggestor + Daily Briefing + affiliate research (2026-05-03)
+
+Reassessed site (no rebuild needed — Astro/Netlify is the right shape for hands-off review/tweak workflow). Rebuilt the n8n content engine into a PR-based flow so reviews happen on Netlify deploy previews. Researched affiliate programs for the 8 site tools + 5 high-value adjacent programs.
+
+| File | What changed |
+|---|---|
+| `n8n/blog-post-engine.json` | NEW — v3 workflow (Notion topic queue, PR flow, idempotency check, claude-sonnet-4-6 + prompt cache). Live & tested end-to-end (PR #1 created successfully) |
+| `n8n/topic-suggestor.json` | NEW — Mon/Thu — Claude proposes 5 topics based on coverage gaps, written as `Suggested` for batch approval (5 min twice/week) |
+| `n8n/daily-briefing.json` | NEW — daily 7:30am — single Slack ping summarizing PRs to review, topics to approve, drafts to post. Skips post when nothing pending |
+| `n8n/create-content-databases.js` | NEW — provisions Content Calendar + Drafts DBs in Notion, seeds 3 sample topics. Updated to include `Suggested` status |
+| `n8n/README.md` | NEW — full setup guide for all three workflows |
+| `n8n/blog-post-engine-v2-archive.json` | Archived v2 (was at repo-root `workflows`) for reference |
+| `AFFILIATE_PROGRAMS.md` | NEW — Tier 1/2/3 application URLs, commission rates, cookie windows. Confirmed Zapier/Gong/Chorus have no public affiliate program — drop from site |
+| Removed `workflows.zip` (unneeded) and the loose `workflows` file |
+
+Reasoning: Ian wants hands-off + scalable + review-friendly across multiple businesses. Three-workflow system gives him "agents propose, human approves in batch, agents execute" pattern: Topic Suggestor proposes → Ian flips Suggested → Queued → Blog Engine generates + opens PR → Ian reviews on Netlify preview → merges. Daily Briefing is the single morning check-in point that consolidates "what needs me today."
+
+Bug fixed mid-session: Notion update-page calls in v3 used POST instead of PATCH (Notion's update endpoint requires PATCH). Fixed in workflow JSON + manually in Ian's running instance. Fix details in feedback memory `feedback_notion_api_quirks.md`.
+
 ### Session 3 — SEO/GEO infrastructure added (2026-04-24)
 
 All committed and live on Netlify. Verified 200s on all endpoints.
@@ -148,101 +179,130 @@ Update `Content-Security-Policy` in `public/_headers` — add `frame-src https:/
 
 ---
 
-## 2. n8n Blog Post Generator Workflow
+## 2. Content Engine — n8n (v3, 2026-05-03)
 
-**File:** `C:\Users\ianch\blog-post-generator-workflow.json` (version 2)
+**Folder:** `n8n/` in this repo
+**Files:**
+- `n8n/blog-post-engine.json` — main workflow (Notion topic → blog PR + social drafts)
+- `n8n/topic-suggestor.json` — Mon/Thu — Claude suggests 5 topics based on coverage gaps, writes as `Suggested` for batch approval
+- `n8n/daily-briefing.json` — daily 7:30am — single Slack message: PRs to review, topics to approve, drafts to post
+- `n8n/create-content-databases.js` — one-off Node script to create the Notion DBs
+- `n8n/README.md` — full setup guide for all three workflows
+- `n8n/blog-post-engine-v2-archive.json` — old v2 (direct-to-master commit, hardcoded topic) for reference only
 
-### Pipeline
+**Current Notion DB IDs (live):**
+- Content Calendar: `62f34586-4f78-4b83-b2ac-105f500d059e`
+- Content Drafts (Social): `7399699b-ef9d-4ef4-8c2c-4749f99b5b76`
+
+These are pre-filled in the Config nodes of all three workflow JSONs.
+
+### Pipeline (v3)
 
 ```
 Manual Trigger ──┐
-                 ├──▶ Set Topic & Config
-Daily Schedule ──┘           │
+                 ├──▶ Config (DB IDs, repo, slack URL)
+Weekday 8am ─────┘           │
                              ▼
-                    Generate Blog Post (Claude claude-sonnet-4-5)
+                  Get Next Topic (Notion query: Status = Queued)
                              │
                              ▼
-                    Parse Blog Response (Code node)
-                    [validates response, extracts title, generates slug,
-                     base64-encodes content, builds GitHub URL,
-                     spreads config forward]
+                  Parse Topic → Mark "Generating" in Notion
                              │
                              ▼
-                    Humanize Blog Post (Claude claude-sonnet-4-5)
-                    [strips AI fingerprint words, adds opinionated takes,
-                     varies sentence length, uses specific tool names/numbers]
+                  Generate Draft (Claude sonnet-4-6, with prompt cache)
                              │
-              ┌──────────────┼──────────────┐
-              ▼              ▼              ▼
-       Commit to GitHub  Generate         Generate
-              │          Twitter Thread   Video Script
-              ▼          (6-8 tweets)    (45-60 sec,
-       Slack Notification      │         labeled sections)
-                          Save Thread        │
-                          to Notion     Save Script
-                                        to Notion
+                             ▼
+                  Humanize (strips AI fingerprint words, adds opinions)
+                             │
+                             ▼
+                  Parse Draft (extract title, build slug + branch name)
+                             │
+                             ▼
+                  Check Idempotency (GET file on master — 404 = safe)
+                             │
+                             ▼
+                  Get Base SHA → Create Branch → Commit File → Open PR
+                             │
+              ┌──────────────┼──────────────┬──────────────┐
+              ▼              ▼              ▼              ▼
+        Mark Topic      Generate       Generate       Slack
+        "In Review"     Twitter        Video          Notification
+        + PR URL        Thread         Script         (with PR URL)
+                            │              │
+                            ▼              ▼
+                    Save Thread     Save Script
+                    to Drafts DB    to Drafts DB
 ```
 
-**Schedule:** 8am Mon–Fri (`0 8 * * 1-5`). Dual trigger — Manual or Schedule, both feed the same Set node.
+### Key v3 changes from v2
 
-### Credentials to configure in n8n
+| What | v2 | v3 |
+|---|---|---|
+| Topic source | Hardcoded in Set node | Notion Content Calendar (Status = Queued) |
+| Model | claude-sonnet-4-5 | claude-sonnet-4-6 + prompt caching |
+| Commit flow | Direct push to `master` | Create branch + open PR (Netlify builds preview) |
+| Idempotency | None — would overwrite | Pre-check via GitHub Contents API; aborts if file exists |
+| Topic state | Lost after run | Notion status: Queued → Generating → In Review → Published |
+| Notion DBs | One DB ("blog") | Two DBs (Content Calendar + Content Drafts) |
+| Slack message | Links to GitHub blob | Links to PR (Netlify auto-comments preview URL) |
 
-| Credential name (exact) | Type | Header name | Header value |
+### Credentials (n8n) — exact names matter
+
+| Credential name | Type | Header name | Header value |
 |---|---|---|---|
 | `Anthropic API Key` | Header Auth | `x-api-key` | `sk-ant-...` |
-| `GitHub PAT` | Header Auth | `Authorization` | `token ghp_...` |
+| `GitHub PAT` | Header Auth | `Authorization` | `token ghp_...` (needs `repo` scope) |
 | `Notion Integration Token` | Header Auth | `Authorization` | `Bearer ntn_...` |
 
-Slack: no credential — paste webhook URL directly into `slackWebhookUrl` in the Set node.
+### Config node values to fill in
 
-### Set Topic & Config values to fill in
-
-| Field | Description |
+| Field | What to put |
 |---|---|
-| `blogTopic` | Post topic — swap per run, or drive from a Notion content calendar |
-| `githubOwner` | `homegrowngrowthco` |
-| `githubRepo` | `theautomationsguide` |
-| `githubBranch` | `master` |
-| `notionDatabaseId` | 32-char ID from the Notion DB URL |
-| `slackWebhookUrl` | Full Incoming Webhook URL from Slack app settings |
+| `topicsDatabaseId` | Content Calendar DB ID (printed by `create-content-databases.js`) |
+| `draftsDatabaseId` | Content Drafts DB ID (same script) |
+| `slackWebhookUrl` | Incoming Webhook URL from Slack |
+| `githubOwner` / `githubRepo` / `githubBaseBranch` / `siteBaseUrl` | Pre-filled |
 
-### Notion database schema (must match exactly)
+### Content Calendar DB schema (created by the script)
+
+| Property | Type | Required | Notes |
+|---|---|---|---|
+| Topic | Title | yes | The post idea |
+| Status | Select | yes | Queued, Generating, In Review, Published, Skipped |
+| Priority | Select | recommended | High, Medium, Low — engine picks highest first |
+| Tag | Select | recommended | revops, automation, tools, comparison, guide — first frontmatter tag |
+| Target Keyword | Rich text | optional | SEO hint to LLM |
+| Notes | Rich text | optional | Angle, must-includes, contrarian takes |
+| PR URL | URL | auto | Filled when PR opens |
+| Pub Date | Date | auto | Filled when PR opens |
+| Created | Created time | auto | Used as tie-breaker for sort |
+
+### Content Drafts DB schema (created by the script)
 
 | Property | Type | Notes |
 |---|---|---|
-| `Name` | Title | Set automatically |
-| `Status` | Select | Options: `Draft – Needs Review`, `Script – Needs Review` |
-| `Blog Post URL` | URL | GitHub blob URL (pre-deploy) |
-| `Pub Date` | Date | ISO date of generation |
+| Name | Title | "Twitter: [post title]" or "Video: [post title]" |
+| Status | Select | Draft – Needs Review, Script – Needs Review, Approved, Posted, Skipped |
+| Type | Select | Twitter Thread, Video Script, LinkedIn Post |
+| PR URL | URL | Links back to the post PR |
+| Pub Date | Date | ISO date of generation |
 
-### Astro frontmatter Claude generates
+### Review flow
 
-```yaml
----
-title: "Post title"
-description: "Brief description"
-pubDate: 2026-04-22
-tags: ["tag1", "tag2"]
----
-```
-
-Files committed to `src/content/blog/YYYY-MM-DD-{slug}.md`.
+1. PR opens automatically with title `content: [post title]`
+2. Netlify builds deploy preview within ~2 min, comments URL on PR
+3. Slack ping: PR link
+4. Open preview URL — read post like a visitor
+5. Edit on GitHub directly if needed (commit to same branch → preview rebuilds)
+6. Click Merge → master deploys → live within ~2 min
 
 ### Known gotchas
 
-- **Notion 2000-char cap:** Content truncated with `.substring(0, 1999)`. If you extend thread to 10+ tweets, split into two `children` entries.
-- **GitHub API node references `$('Parse Blog Response').first().json`** for filename/owner/repo — not `$json` — because at that node `$json` is the Humanize response.
-- **`blogTopic` is hardcoded** in Set node. For true daily automation, drive it from a Notion content calendar query instead.
-- **No duplicate check:** Same topic run twice → same filename → second run overwrites first. Add IF node to check GitHub if idempotency matters.
-- **Netlify deploy is automatic** — Slack notification links to the GitHub blob URL, not the live post URL.
-
-### Potential future additions
-
-- Drive `blogTopic` from Notion content calendar (HTTP Request → filter unpublished → pick next)
-- PR flow instead of direct-to-`master` commit (create branch → commit → open PR for review)
-- Error branch via n8n Error Trigger or IF node on status codes
-- Parameterize model name in Set node
-- LinkedIn post as a fourth branch from Humanize Blog Post
+- **Notion property names are case-sensitive** — `Topic`, `Target Keyword`, `PR URL` etc. must match exactly
+- **GitHub PAT scope** — needs `repo` for branch creation on private repos (`public_repo` enough for public)
+- **Notion 2000-char cap** still applies — Twitter thread + video script truncated to 1999 chars in Drafts DB
+- **Same topic generates same slug → idempotency check throws** — by design. Reword topic or delete existing post
+- **No queued topics → workflow stops cleanly** (Parse Topic returns empty array). Add topics, next run picks up
 
 ---
 
@@ -311,10 +371,10 @@ All of these need real values before live promotion:
 | Placeholder | Where | What to put |
 |---|---|---|
 | `BEEHIIV_EMBED_URL_PLACEHOLDER` | `src/components/EmailSignup.astro` | Beehiiv embed URL |
-| `AFFILIATE_LINK_PLACEHOLDER` | `src/pages/index.astro`, `src/pages/tools.astro` | Real affiliate URLs for Make, Clay, HubSpot, n8n, Apollo, Zapier, Gong, Chorus |
+| `AFFILIATE_LINK_PLACEHOLDER` | `src/pages/index.astro`, `src/pages/tools.astro` | See `AFFILIATE_PROGRAMS.md` for application URLs. Drop Zapier/Gong/Chorus (no public affiliate program), swap in Beehiiv/Smartlead/Pipedrive |
 | `[COMPANY_LOGOS_PLACEHOLDER]` | `src/pages/index.astro` hero | Real company names/logos |
 | `ian@theautomationsguide.com` | `src/pages/about.astro` | Set up this email (Google Workspace or Fastmail) |
-| `githubOwner` / `githubRepo` / `notionDatabaseId` / `slackWebhookUrl` | n8n Set Topic & Config node | See Section 2 above |
+| `topicsDatabaseId` / `draftsDatabaseId` / `slackWebhookUrl` | n8n Config node | Run `n8n/create-content-databases.js`; paste IDs |
 | `sameAs: []` | `src/layouts/BaseLayout.astro` | LinkedIn company page URL + Twitter/X URL |
 
 ---
@@ -325,10 +385,13 @@ All of these need real values before live promotion:
 
 - [x] **Google Search Console** — sitemap submitted 2026-04-24
 - [x] **Bing Webmaster Tools** — set up 2026-04-24
-- [ ] **Import n8n workflow** — `blog-post-generator-workflow.json` → Workflows → Import from file
-- [ ] **Configure n8n credentials** — Anthropic API Key, GitHub PAT, Notion Integration Token
-- [ ] **Fill n8n Set node** — `githubOwner`, `githubRepo`, `notionDatabaseId`, `slackWebhookUrl`
-- [ ] **Test n8n workflow** — run once on a throwaway topic before enabling the daily schedule
+- [x] **Build content engine v3** — PR-based, Notion topic queue, idempotency check (2026-05-03)
+- [ ] **Run `n8n/create-content-databases.js`** — creates Content Calendar + Drafts DBs in Notion
+- [ ] **Import `n8n/blog-post-engine.json`** — n8n Cloud → Workflows → Import from file
+- [ ] **Configure n8n credentials** — Anthropic API Key, GitHub PAT (with `repo` scope), Notion Integration Token
+- [ ] **Fill n8n Config node** — `topicsDatabaseId`, `draftsDatabaseId`, `slackWebhookUrl`
+- [ ] **Test n8n workflow** — manual trigger with one Queued topic before activating schedule
+- [ ] **Apply to affiliate programs** — see `AFFILIATE_PROGRAMS.md` (Tier 1 first: HubSpot via email, Make/n8n/Apollo/Clay self-service)
 - [ ] **Connect domain** — `theautomationsguide.com` in Netlify → Site settings → Domain management (if not already done)
 
 ### Soon
@@ -351,8 +414,9 @@ All of these need real values before live promotion:
 
 ### Later / optional
 
-- [ ] Drive `blogTopic` from Notion content calendar (Phase 1, Day ~15 task)
-- [ ] Replace direct-to-`master` n8n commit with a PR review flow
+- [x] Drive topics from Notion content calendar (done in v3)
+- [x] Replace direct-to-`master` n8n commit with a PR review flow (done in v3)
 - [ ] Add LinkedIn post as fourth n8n output branch
-- [ ] Add error handling branch in n8n for Claude/GitHub failures
+- [ ] Add error handling branch in n8n for Claude/GitHub failures (use Error Trigger workflow)
+- [ ] Auto-merge PRs after N days if no review (GitHub Actions)
 - [ ] Register domain for resale at Sedo/Afternic/Dan.com once site has 90+ days of traffic
