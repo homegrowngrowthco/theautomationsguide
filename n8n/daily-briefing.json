@@ -1,0 +1,202 @@
+{
+  "name": "Daily Briefing — TAG",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "tag00003-0000-0000-0000-000000000001",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 200]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "30 7 * * *" }]
+        }
+      },
+      "id": "tag00003-0000-0000-0000-000000000002",
+      "name": "Daily 7:30am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 400]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            { "id": "c1", "name": "githubOwner", "value": "homegrowngrowthco", "type": "string" },
+            { "id": "c2", "name": "githubRepo", "value": "theautomationsguide", "type": "string" },
+            { "id": "c3", "name": "topicsDatabaseId", "value": "62f34586-4f78-4b83-b2ac-105f500d059e", "type": "string" },
+            { "id": "c4", "name": "draftsDatabaseId", "value": "7399699b-ef9d-4ef4-8c2c-4749f99b5b76", "type": "string" },
+            { "id": "c5", "name": "slackWebhookUrl", "value": "REPLACE_WITH_SLACK_WEBHOOK_URL", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tag00003-0000-0000-0000-000000000003",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.github.com/repos/{{ $json.githubOwner }}/{{ $json.githubRepo }}/pulls?state=open&per_page=50",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "X-GitHub-Api-Version", "value": "2022-11-28" },
+            { "name": "Accept", "value": "application/vnd.github+json" }
+          ]
+        },
+        "options": { "timeout": 30000 }
+      },
+      "id": "tag00003-0000-0000-0000-000000000004",
+      "name": "Get Open PRs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
+          "name": "GitHub PAT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.notion.com/v1/databases/{{ $('Config').first().json.topicsDatabaseId }}/query",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Notion-Version", "value": "2022-06-28" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ filter: { or: [{ property: 'Status', select: { equals: 'Suggested' } }, { property: 'Status', select: { equals: 'Queued' } }] }, page_size: 100 }) }}",
+        "options": { "timeout": 30000 }
+      },
+      "id": "tag00003-0000-0000-0000-000000000005",
+      "name": "Get Topics State",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 360],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_NOTION_CREDENTIAL_ID",
+          "name": "Notion Integration Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.notion.com/v1/databases/{{ $('Config').first().json.draftsDatabaseId }}/query",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Notion-Version", "value": "2022-06-28" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ filter: { or: [{ property: 'Status', select: { equals: 'Draft – Needs Review' } }, { property: 'Status', select: { equals: 'Script – Needs Review' } }] }, page_size: 100 }) }}",
+        "options": { "timeout": 30000 }
+      },
+      "id": "tag00003-0000-0000-0000-000000000006",
+      "name": "Get Pending Drafts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 520],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_NOTION_CREDENTIAL_ID",
+          "name": "Notion Integration Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Assemble the briefing message. We want a single Slack post with:\n//   - Counts of each pending bucket\n//   - Deep links so each item is one click away\n//   - Skip the post entirely if there's nothing to do (don't train Ian to ignore the channel)\n\nconst config = $('Config').first().json;\nconst prs = $('Get Open PRs').first().json || [];\nconst topicsResp = $('Get Topics State').first().json || {};\nconst draftsResp = $('Get Pending Drafts').first().json || {};\n\n// PRs: filter to content engine PRs (title prefix), so manual repo PRs don't pollute the count\nconst contentPRs = (Array.isArray(prs) ? prs : [])\n  .filter(p => p.title && p.title.startsWith('content:'));\nconst otherPRs = (Array.isArray(prs) ? prs : [])\n  .filter(p => p.title && !p.title.startsWith('content:'));\n\n// Notion property text helper\nfunction text(prop) {\n  if (!prop) return '';\n  const arr = prop.title || prop.rich_text || [];\n  return arr.map(t => t.plain_text).join('').trim();\n}\nfunction sel(prop) { return prop?.select?.name || ''; }\n\nconst topics = topicsResp.results || [];\nconst suggested = topics.filter(t => sel(t.properties?.Status) === 'Suggested');\nconst queued = topics.filter(t => sel(t.properties?.Status) === 'Queued');\n\nconst drafts = draftsResp.results || [];\nconst pendingTwitter = drafts.filter(d => sel(d.properties?.Type) === 'Twitter Thread' && sel(d.properties?.Status).includes('Needs Review'));\nconst pendingVideo = drafts.filter(d => sel(d.properties?.Type) === 'Video Script' && sel(d.properties?.Status).includes('Needs Review'));\n\nconst totalPending = contentPRs.length + suggested.length + pendingTwitter.length + pendingVideo.length;\n\n// Skip the post if nothing needs Ian's attention. The whole point is to NOT add noise.\nif (totalPending === 0 && otherPRs.length === 0) {\n  console.log('Nothing pending — skipping briefing post.');\n  return [{ json: { skip: true, reason: 'nothing-pending' } }];\n}\n\n// Build sections — only include lines for non-zero counts so the message stays scannable\nconst sections = [];\n\nif (contentPRs.length > 0) {\n  const lines = contentPRs.slice(0, 5).map(p => `   • <${p.html_url}|#${p.number} ${p.title.replace(/^content:\\s*/, '')}>`);\n  const more = contentPRs.length > 5 ? `\\n   • _+${contentPRs.length - 5} more_` : '';\n  sections.push(`:newspaper: *${contentPRs.length} post PR${contentPRs.length === 1 ? '' : 's'} awaiting review*\\n${lines.join('\\n')}${more}`);\n}\n\nif (suggested.length > 0) {\n  const lines = suggested.slice(0, 5).map(t => `   • ${text(t.properties?.Topic || t.properties?.Name)}`);\n  const more = suggested.length > 5 ? `\\n   • _+${suggested.length - 5} more_` : '';\n  sections.push(`:bulb: *${suggested.length} topic${suggested.length === 1 ? '' : 's'} awaiting approval*\\n${lines.join('\\n')}${more}\\n   _Filter Content Calendar by Status = Suggested_`);\n}\n\nif (pendingTwitter.length > 0 || pendingVideo.length > 0) {\n  const parts = [];\n  if (pendingTwitter.length > 0) parts.push(`${pendingTwitter.length} Twitter thread${pendingTwitter.length === 1 ? '' : 's'}`);\n  if (pendingVideo.length > 0) parts.push(`${pendingVideo.length} video script${pendingVideo.length === 1 ? '' : 's'}`);\n  sections.push(`:writing_hand: *${parts.join(' + ')} to post*\\n   _Open Content Drafts in Notion_`);\n}\n\nif (queued.length > 0) {\n  sections.push(`:hourglass: *${queued.length} topic${queued.length === 1 ? '' : 's'} queued for the engine* (next run will pick the highest priority)`);\n}\n\nif (otherPRs.length > 0) {\n  const lines = otherPRs.slice(0, 3).map(p => `   • <${p.html_url}|#${p.number} ${p.title}>`);\n  sections.push(`:wrench: *${otherPRs.length} non-content PR${otherPRs.length === 1 ? '' : 's'} open*\\n${lines.join('\\n')}`);\n}\n\nconst dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });\nconst headline = totalPending === 0\n  ? `:coffee: *Morning briefing — ${dateStr}*\\n\\nNo content tasks pending. ${otherPRs.length > 0 ? 'You do have non-content PRs open ↓' : 'You can focus on something else.'}`\n  : `:coffee: *Morning briefing — ${dateStr}*\\n_${totalPending} item${totalPending === 1 ? '' : 's'} need${totalPending === 1 ? 's' : ''} you today._`;\n\nconst message = [headline, ...sections].join('\\n\\n');\n\nreturn [{ json: {\n  skip: false,\n  slackWebhookUrl: config.slackWebhookUrl,\n  message,\n  totalPending,\n}}];"
+      },
+      "id": "tag00003-0000-0000-0000-000000000007",
+      "name": "Build Briefing",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 360]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "g1",
+              "leftValue": "={{ $json.skip }}",
+              "rightValue": false,
+              "operator": { "type": "boolean", "operation": "false", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "tag00003-0000-0000-0000-000000000008",
+      "name": "Has Pending?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 360]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.slackWebhookUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ text: $json.message }) }}",
+        "options": { "timeout": 30000 }
+      },
+      "id": "tag00003-0000-0000-0000-000000000009",
+      "name": "Post Briefing to Slack",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 280]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": { "main": [[{ "node": "Config", "type": "main", "index": 0 }]] },
+    "Daily 7:30am": { "main": [[{ "node": "Config", "type": "main", "index": 0 }]] },
+    "Config": { "main": [[{ "node": "Get Open PRs", "type": "main", "index": 0 }]] },
+    "Get Open PRs": { "main": [[{ "node": "Get Topics State", "type": "main", "index": 0 }]] },
+    "Get Topics State": { "main": [[{ "node": "Get Pending Drafts", "type": "main", "index": 0 }]] },
+    "Get Pending Drafts": { "main": [[{ "node": "Build Briefing", "type": "main", "index": 0 }]] },
+    "Build Briefing": { "main": [[{ "node": "Has Pending?", "type": "main", "index": 0 }]] },
+    "Has Pending?": { "main": [[{ "node": "Post Briefing to Slack", "type": "main", "index": 0 }], []] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "active": false,
+  "meta": { "templateCredsSetupCompleted": false }
+}
