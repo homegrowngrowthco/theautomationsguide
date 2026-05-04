@@ -1,40 +1,95 @@
 ---
-// Subtle "About the author" footer block. Lives at the very bottom of each post —
-// signals authorship + E-E-A-T to Google without pulling reader attention.
+// "About the author" card. Lives at the very bottom of each post — signals
+// authorship + E-E-A-T to Google + readers without dominating the post entry.
 //
-// Class names are scoped (prefixed `tag-author`) to avoid collision with any older
+// Class names are scoped (`tag-author*`) to avoid collision with older
 // `.author-note*` styles in global.css.
 ---
 
 <aside class="tag-author" aria-label="About the author">
-  <p class="tag-author-line">
-    Published by
-    <a href="https://homegrowngrowth.co" target="_blank" rel="noopener noreferrer">Homegrown Growth Co</a>.
-    Written by Ian Chamberland — 8 years in revenue operations, ex-Head of Global Revenue Operations.
-    <a href="https://www.linkedin.com/in/ianchamberland/" target="_blank" rel="noopener noreferrer">LinkedIn</a>.
-  </p>
+  <img
+    src="/hgc-logo.png"
+    alt="Homegrown Growth Co"
+    class="tag-author-logo"
+    width="48"
+    height="48"
+    loading="lazy"
+  />
+  <div class="tag-author-body">
+    <p class="tag-author-name">
+      <strong>Ian Chamberland</strong>
+      <span class="tag-author-role">Founder, <a href="https://homegrowngrowth.co" target="_blank" rel="noopener noreferrer">Homegrown Growth Co</a></span>
+    </p>
+    <p class="tag-author-bio">
+      8 years in revenue operations — from data analyst to Head of Global Revenue
+      Operations at high-growth companies. Now running fractional RevOps for GTM
+      teams that want a senior thought partner who actually builds the thing.
+    </p>
+    <p class="tag-author-links">
+      <a href="https://www.linkedin.com/in/ianchamberland/" target="_blank" rel="noopener noreferrer">Connect on LinkedIn</a>
+      <span class="tag-author-sep">·</span>
+      <a href="https://homegrowngrowth.co" target="_blank" rel="noopener noreferrer">See HGC services</a>
+    </p>
+  </div>
 </aside>
 
 <style>
   .tag-author {
-    margin: 2rem 0 0;
-    padding: 1rem 0 0;
-    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    margin: 2.5rem 0 0;
+    padding: 1.25rem 1.25rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
   }
-  .tag-author-line {
-    margin: 0;
-    font-size: 0.8125rem;
+  .tag-author-logo {
+    height: 3rem;
+    width: 3rem;
+    object-fit: contain;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+  .tag-author-body { flex: 1; min-width: 0; }
+  .tag-author-name {
+    margin: 0 0 0.375rem;
+    font-size: 0.9375rem;
+    color: var(--text);
+  }
+  .tag-author-role {
+    margin-left: 0.5rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+  .tag-author-role a {
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+  .tag-author-role a:hover { color: var(--accent); }
+  .tag-author-bio {
+    margin: 0 0 0.5rem;
+    font-size: 0.875rem;
     color: var(--text-muted);
     line-height: 1.6;
   }
-  .tag-author-line a {
-    color: var(--text-muted);
-    text-decoration: underline;
-    text-decoration-color: var(--border);
-    text-underline-offset: 0.15em;
+  .tag-author-links {
+    margin: 0;
+    font-size: 0.8125rem;
   }
-  .tag-author-line a:hover {
+  .tag-author-links a {
     color: var(--accent);
-    text-decoration-color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .tag-author-links a:hover { text-decoration: underline; }
+  .tag-author-sep {
+    color: var(--text-faint);
+    margin: 0 0.5rem;
+  }
+  @media (max-width: 480px) {
+    .tag-author { flex-direction: column; gap: 0.75rem; }
+    .tag-author-role { display: block; margin-left: 0; margin-top: 0.125rem; }
   }
 </style>

@@ -166,7 +166,8 @@ const breadcrumbSchema = {
           </a>
           <p>Practical automation guides, tool reviews, and workflows for RevOps and go-to-market teams.</p>
         </div>
-        <nav class="footer-links" aria-label="Footer navigation">
+        <nav class="footer-links" aria-label="Site navigation">
+          <p class="footer-col-label">Site</p>
           <ul>
             <li><a href="/">Home</a></li>
             <li><a href="/blog">Blog</a></li>
@@ -175,6 +176,7 @@ const breadcrumbSchema = {
           </ul>
         </nav>
         <nav class="footer-links" aria-label="Legal navigation">
+          <p class="footer-col-label">Legal</p>
           <ul>
             <li><a href="/disclosure">Affiliate Disclosure</a></li>
             <li><a href="/privacy">Privacy</a></li>
@@ -183,24 +185,16 @@ const breadcrumbSchema = {
         </nav>
       </div>
 
-      <div class="footer-disclaimer">
-        <p>
-          <strong>Affiliate Disclosure:</strong> Some links on this site are affiliate links —
-          we may earn a commission if you click through and sign up, at no extra cost to you.
-          We only recommend tools we'd actually use. <a href="/disclosure">Read the full disclosure</a>.
-        </p>
-      </div>
-
-      <div class="footer-publisher">
-        <a href="https://homegrowngrowth.co" target="_blank" rel="noopener noreferrer" class="footer-publisher-link" aria-label="Visit Homegrown Growth Co">
-          <span>Published by</span>
-          <img src="/hgc-logo.png" alt="Homegrown Growth Co" width="22" height="22" loading="lazy" />
-          <strong>Homegrown Growth Co</strong>
-        </a>
-      </div>
-
       <div class="footer-bottom">
-        &copy; {new Date().getFullYear()} The Automations Guide. All rights reserved.
+        <span>&copy; {new Date().getFullYear()} The Automations Guide</span>
+        <span class="footer-bottom-sep">·</span>
+        <a href="https://homegrowngrowth.co" target="_blank" rel="noopener noreferrer" class="footer-bottom-publisher" aria-label="Visit Homegrown Growth Co">
+          Published by
+          <img src="/hgc-logo.png" alt="" width="16" height="16" loading="lazy" />
+          <span>Homegrown Growth Co</span>
+        </a>
+        <span class="footer-bottom-sep">·</span>
+        <a href="/disclosure">Affiliate disclosure</a>
       </div>
     </footer>
   </body>

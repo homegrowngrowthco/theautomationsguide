@@ -466,7 +466,7 @@ main { flex: 1; }
 .site-footer {
   margin-top: auto;
   border-top: 1px solid var(--border);
-  padding: 3rem 0 2rem;
+  padding: 2.5rem 0 1.5rem;
   background: var(--bg-secondary);
 }
 
@@ -475,7 +475,7 @@ main { flex: 1; }
   margin: 0 auto;
   padding: 0 1.5rem;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr;
   gap: 3rem;
   align-items: start;
 }
@@ -488,8 +488,17 @@ main { flex: 1; }
   font-size: 0.875rem;
   color: var(--text-muted);
   margin-top: 0.5rem;
-  max-width: 300px;
+  max-width: 360px;
   line-height: 1.6;
+}
+
+.footer-col-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+  margin: 0 0 0.625rem;
+  font-weight: 600;
 }
 
 .footer-links ul {
@@ -497,6 +506,8 @@ main { flex: 1; }
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  margin: 0;
+  padding: 0;
 }
 
 .footer-links a {
@@ -508,54 +519,42 @@ main { flex: 1; }
 
 .footer-links a:hover { color: var(--accent); }
 
-.footer-disclaimer {
-  margin-top: 2.5rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--border);
-  max-width: var(--max-w-wide);
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-}
-
-.footer-disclaimer p {
-  font-size: 0.775rem;
-  color: var(--text-faint);
-  line-height: 1.65;
-}
-
 .footer-bottom {
   max-width: var(--max-w-wide);
-  margin: 1.5rem auto 0;
-  padding: 0 1.5rem;
-  font-size: 0.8rem;
-  color: var(--text-faint);
-}
-
-.footer-publisher {
-  max-width: var(--max-w-wide);
-  margin: 1.5rem auto 0;
-  padding: 1rem 1.5rem;
+  margin: 2rem auto 0;
+  padding: 1.25rem 1.5rem 0;
   border-top: 1px solid var(--border);
-}
-
-.footer-publisher-link {
-  display: inline-flex;
+  font-size: 0.8125rem;
+  color: var(--text-faint);
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
-  color: var(--text-muted);
+}
+
+.footer-bottom a {
+  color: var(--text-faint);
   text-decoration: none;
-  font-size: 0.8125rem;
   transition: color 0.15s;
 }
 
-.footer-publisher-link:hover { color: var(--accent); }
+.footer-bottom a:hover { color: var(--accent); }
 
-.footer-publisher-link img {
-  height: 1.25rem;
+.footer-bottom-sep {
+  color: var(--border);
+}
+
+.footer-bottom-publisher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.footer-bottom-publisher img {
+  height: 1rem;
   width: auto;
   object-fit: contain;
+  vertical-align: middle;
 }
 
 /* ── Blog index header ─────────────────────────── */
