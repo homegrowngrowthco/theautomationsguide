@@ -3,6 +3,17 @@ title: "RevOps Automation Stack We'd Build With $500/mo in 2026"
 description: "Exact tool selection and monthly cost breakdown for a $500/mo RevOps automation stack in 2026. HubSpot Free, n8n Cloud, Apollo Basic, and Smartlead included."
 pubDate: 2026-05-03
 tags: ["tools", "automation", "budget"]
+faqs:
+  - question: "Can I run a real RevOps automation stack for under $500/mo in 2026?"
+    answer: "Yes — HubSpot Free + Apollo Basic ($49) + Smartlead Growth ($79) + n8n Cloud Pro ($50) + Clay Starter ($149) totals $327/mo and handles prospecting, enrichment, cold email sequencing, and CRM automation."
+  - question: "Is HubSpot Free enough for RevOps automation?"
+    answer: "For basic RevOps, yes — contact records, deal pipelines, forms, tracking, and webhook triggers via n8n polling. You give up native sequences, but Smartlead replaces that at lower cost."
+  - question: "What's the cheapest cold email tool that works at scale?"
+    answer: "Smartlead Growth at $79/mo includes unlimited inboxes, built-in warmup, and pricing that doesn't punish sending volume — better economics than Apollo's sequencer or Lemlist once you're past low-volume sends."
+  - question: "Should I use Clay or Apollo for enrichment in a budget stack?"
+    answer: "Apollo's enrichment is bundled into prospecting and works well for most starting stacks. Add Clay's waterfall enrichment ($149/mo) when fill rate becomes a bottleneck — typically once you're sending 1k+ emails a week."
+  - question: "Why not just use Zoho CRM at $20/user instead of HubSpot Free?"
+    answer: "Zoho's automation triggers are limited, its API rate limits hit hard on lower tiers, and you'll spend more time fighting the tool than building on it. HubSpot Free's clean API and webhook surface area make every downstream automation cheaper to build."
 ---
 
 Most RevOps teams don't have a Salesforce budget. They have a Google Sheet, a founder who bought HubSpot Starter three years ago, and a sales rep manually copy-pasting leads from LinkedIn into a CRM while complaining about pipeline coverage. The real problem isn't ambition — it's that most budget-conscious stack guides either recommend free tools that don't actually connect, or enterprise tools that cost $3,000/mo and require a six-month implementation. There's a genuinely functional, automatable, scalable RevOps stack you can run for under $500/mo in 2026 that handles prospecting, enrichment, outbound sequencing, and basic CRM automation without duct tape.

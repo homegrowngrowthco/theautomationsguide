@@ -5,6 +5,15 @@ pubDate: 2026-03-15
 updatedDate: 2026-04-22
 author: "The Automations Guide"
 tags: ["RevOps", "Tech Stack", "Strategy"]
+faqs:
+  - question: "What are the four layers of a modern RevOps tech stack?"
+    answer: "CRM (the system of record), data enrichment (filling the gaps), automation middleware (connecting tools), and the activation layer (taking action on signals via sequences, tasks, and alerts)."
+  - question: "Which RevOps tools should I invest in first?"
+    answer: "Most teams already have CRM. The next-highest-leverage investments are data enrichment (Clay or Apollo) and automation middleware (Make or n8n) — most teams underspend on these two layers."
+  - question: "Do I need both Clay and Apollo for enrichment?"
+    answer: "They overlap. Apollo includes a contact database with basic enrichment; Clay layers 50+ data sources for deeper enrichment. Most teams pick one based on whether their primary need is contact data (Apollo) or enrichment depth (Clay)."
+  - question: "How does AI-assisted routing fit into a RevOps stack?"
+    answer: "AI-assisted routing handles the messy lead-to-rep matching that breaks rule-based round-robins — territory ambiguity, SDR-to-AE handoff, account hierarchy. It typically lives in the activation layer rather than replacing it."
 ---
 
 If you've ever sat in a quarterly planning meeting watching someone manually pull data from three different spreadsheets into a HubSpot dashboard, you already understand the RevOps automation problem.
@@ -12,6 +21,8 @@ If you've ever sat in a quarterly planning meeting watching someone manually pul
 The issue isn't a lack of tools. It's that most teams accumulate tools reactively — one fire at a time — until they have a Frankenstein stack that requires a full-time engineer just to hold together.
 
 This post is about building intentionally. Here's how high-performing RevOps teams are structuring their automation stacks in 2025.
+
+<div class="quick-answer"><strong>Quick answer:</strong> Modern RevOps stacks converge on four layers — CRM, enrichment, automation middleware, and activation. Most teams have layer 1 covered and underspend on layers 2 and 3, where the highest leverage actually lives.</div>
 
 ## The Core Four (and what sits beneath them)
 
