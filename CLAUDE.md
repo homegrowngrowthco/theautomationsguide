@@ -364,59 +364,60 @@ Or edit the two constants at the top of the file directly. Script validates both
 
 ---
 
-## 4. Open Placeholders (all three projects)
+## 4. Open Placeholders (current state — 2026-05-03 EOD)
 
-All of these need real values before live promotion:
-
-| Placeholder | Where | What to put |
+| Placeholder | Where | Status |
 |---|---|---|
-| `BEEHIIV_EMBED_URL_PLACEHOLDER` | `src/components/EmailSignup.astro` | Beehiiv embed URL |
-| `AFFILIATE_LINK_PLACEHOLDER` | `src/pages/index.astro`, `src/pages/tools.astro` | See `AFFILIATE_PROGRAMS.md` for application URLs. Drop Zapier/Gong/Chorus (no public affiliate program), swap in Beehiiv/Smartlead/Pipedrive |
-| `[COMPANY_LOGOS_PLACEHOLDER]` | `src/pages/index.astro` hero | Real company names/logos |
-| `ian@theautomationsguide.com` | `src/pages/about.astro` | Set up this email (Google Workspace or Fastmail) |
-| `topicsDatabaseId` / `draftsDatabaseId` / `slackWebhookUrl` | n8n Config node | Run `n8n/create-content-databases.js`; paste IDs |
-| `sameAs: []` | `src/layouts/BaseLayout.astro` | LinkedIn company page URL + Twitter/X URL |
+| `BEEHIIV_EMBED_URL_PLACEHOLDER` | `src/components/EmailSignup.astro` | ✅ Done — Beehiiv form ID `d41efc59-7041-482b-8178-6d238e6c3cfa` wired |
+| `AFFILIATE_LINK_PLACEHOLDER` (raw) | `src/pages/index.astro`, `src/pages/tools.astro` | ✅ Replaced with `/go/[tool]` redirects. Real affiliate URLs still needed in `src/data/affiliate-links.ts` once approvals come in |
+| `[COMPANY_LOGOS_PLACEHOLDER]` | `src/pages/index.astro` hero | ✅ Replaced with HGC publisher line |
+| `ian@theautomationsguide.com` | `src/pages/about.astro` and legal pages | ✅ Done — alias on Ian's HGC Google Workspace |
+| Notion DB IDs / Slack URL | n8n Config nodes | ✅ Filled in workflow JSONs (Content Calendar `62f34586-...`, Drafts `7399699b-...`) |
+| `sameAs: []` | `src/layouts/BaseLayout.astro` | ✅ Populated with LinkedIn (Ian) + HGC. TAG company page LinkedIn/Twitter URLs still pending |
+| Apple touch icon | `public/apple-touch-icon.png` | ✅ Done (HGC's icon) |
+| OG image template | `public/og-default.png` | ❌ Not done — needs design work |
 
 ---
 
-## 5. Master Next Steps
+## 5. Master Next Steps (current state — 2026-05-03 EOD)
 
-### Immediate — do this week
+### What's running already
 
-- [x] **Google Search Console** — sitemap submitted 2026-04-24
-- [x] **Bing Webmaster Tools** — set up 2026-04-24
-- [x] **Build content engine v3** — PR-based, Notion topic queue, idempotency check (2026-05-03)
-- [ ] **Run `n8n/create-content-databases.js`** — creates Content Calendar + Drafts DBs in Notion
-- [ ] **Import `n8n/blog-post-engine.json`** — n8n Cloud → Workflows → Import from file
-- [ ] **Configure n8n credentials** — Anthropic API Key, GitHub PAT (with `repo` scope), Notion Integration Token
-- [ ] **Fill n8n Config node** — `topicsDatabaseId`, `draftsDatabaseId`, `slackWebhookUrl`
-- [ ] **Test n8n workflow** — manual trigger with one Queued topic before activating schedule
-- [ ] **Apply to affiliate programs** — see `AFFILIATE_PROGRAMS.md` (Tier 1 first: HubSpot via email, Make/n8n/Apollo/Clay self-service)
-- [ ] **Connect domain** — `theautomationsguide.com` in Netlify → Site settings → Domain management (if not already done)
+- [x] Site live, deployed on Netlify, full SEO/GEO infrastructure
+- [x] Content engine v3 + Topic Suggestor + Daily Briefing workflows live in n8n Cloud
+- [x] PostHog analytics + Beehiiv newsletter wired and shipping
+- [x] HGC publisher branding (AuthorNote, About, footer, schema)
+- [x] Legal pages (privacy, terms, disclosure)
+- [x] `/go/[tool]` affiliate redirect system with PostHog tracking
+- [x] ComparisonTable component for tool comparisons in posts
+- [x] All 5 existing posts have `faqs:` arrays + `.quick-answer` blocks
+- [x] Engine prompt updated to auto-generate FAQs + quick-answer for new posts
+- [x] Apple touch icon
+- [x] Email alias `ian@theautomationsguide.com`
+- [x] GSC + Bing submitted
 
-### Soon
+### Open — Ian (this week)
 
-- [ ] **Apple touch icon** — add 180×180px PNG at `public/apple-touch-icon.png`, then uncomment the link in `BaseLayout.astro`
-- [ ] **Social profiles** — create LinkedIn Company Page + Twitter/X account; add URLs to `sameAs: []` in `BaseLayout.astro`
-- [ ] **Analytics** — install Plausible (preferred: no cookie banners, privacy-first) or GA4
-- [ ] **Beehiiv newsletter** — swap `BEEHIIV_EMBED_URL_PLACEHOLDER` in `EmailSignup.astro`; update CSP in `_headers`
-- [ ] **Affiliate links** — replace all `AFFILIATE_LINK_PLACEHOLDER` values in `index.astro` + `tools.astro`
-- [ ] **Email** — set up `ian@theautomationsguide.com` (Google Workspace or Fastmail)
-- [ ] **OG images** — add social share images (`ogImage` prop already wired into `BaseLayout.astro`)
-- [ ] **Notion filters** — set default week filters on each phase database
-- [ ] **GEO baseline** — search "best RevOps automation blogs" and "Zapier vs Make comparison" in ChatGPT, Perplexity, Claude, Gemini; log whether the site appears (see `OFF_SITE_SEO_CHECKLIST.md`)
+- [ ] **Apply to remaining affiliate programs** — see `AFFILIATE_PROGRAMS.md` for Tier 1/2/3 + the additional 15 in conversation
+- [ ] **As approvals come in:** edit `src/data/affiliate-links.ts` — change `url: ''` to real affiliate URL, change `status: 'pending'` to `'live'`, commit + push
+- [ ] **Verify PostHog:** open live site in incognito → check PostHog Live Events tab → confirm pageviews + click events fire
+- [ ] **Verify Beehiiv:** subscribe with test email → confirm signup attributes correctly to source URL
+- [ ] **Create TAG LinkedIn Company Page** + send URL to add to `sameAs` in BaseLayout
 
-### Content — ongoing
+### Open — Ian (next 2-4 weeks)
 
-- [ ] **Add `faqs:` arrays** to existing posts to unlock FAQPage JSON-LD (see Section 1 for format)
-- [ ] **Add `.quick-answer` TL;DR blocks** to existing posts for LLM extraction
-- [ ] Write more posts — cadence matters more than perfection at this stage
+- [ ] **Distribution: post on LinkedIn 3-5×/week** (via TAG company page per Ian's preference)
+- [ ] **Approve Topic Suggestor's biweekly suggestions** in Notion (flip `Suggested` → `Queued` for the good ones)
+- [ ] **Pitch 2-3 podcasts/month** — RevOps Podcast (Sweep), Modern Sales, Sales Hacker, GTM Now
+- [ ] **Join + post in 2-3 RevOps communities** — RevOps Co-op (Slack, free), Modern Sales Pros, Pavilion
+- [ ] **Build first lead magnet** — e.g., RevOps Stack Audit Notion template, gated by Beehiiv subscribe
+- [ ] **GEO baseline test** — search target queries in ChatGPT, Perplexity, Claude, Gemini; log results
 
-### Later / optional
+### Open — engine improvements (Claude can pick these up later)
 
-- [x] Drive topics from Notion content calendar (done in v3)
-- [x] Replace direct-to-`master` n8n commit with a PR review flow (done in v3)
-- [ ] Add LinkedIn post as fourth n8n output branch
-- [ ] Add error handling branch in n8n for Claude/GitHub failures (use Error Trigger workflow)
-- [ ] Auto-merge PRs after N days if no review (GitHub Actions)
-- [ ] Register domain for resale at Sedo/Afternic/Dan.com once site has 90+ days of traffic
+- [ ] OG image template — static PNG at `public/og-default.png` (needs design tool)
+- [ ] Handwrite "Make vs Zapier vs n8n" flagship post (~3,000 words, ComparisonTable + `/go/` links)
+- [ ] LinkedIn output: replace TAG-engine "Twitter Thread" branch with LinkedIn-only since TAG audience won't be on Twitter anyway
+- [ ] Error Trigger workflow in n8n for Claude/GitHub failure paths
+- [ ] Auto-merge content PRs after N days of no review (GitHub Actions)
+- [ ] Per-business shared n8n sub-workflows (Slack notifier, error logger) once 2nd business uses pattern
