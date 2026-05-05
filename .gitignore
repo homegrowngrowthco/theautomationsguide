@@ -26,5 +26,6 @@ pnpm-debug.log*
 .vscode/
 .idea/
 
-# Claude Code local user overrides (project allowlist in settings.json is committed)
+# Claude Code (commit settings.json; ignore local overrides + history)
 .claude/settings.local.json
+.claude/file-history/
