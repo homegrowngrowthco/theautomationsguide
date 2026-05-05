@@ -43,7 +43,7 @@ The full system is three workflows that compose:
 ### 1. Create the Notion databases
 
 ```powershell
-# In a new terminal at C:\Users\ianch\
+# In a new terminal at C:\Users\Ian\OneDrive\Documents\claude_projects\
 $env:NOTION_TOKEN = "ntn_your_integration_token"
 $env:NOTION_PARENT_PAGE_ID = "page_id_where_dbs_should_live"
 node theautomationsguide/n8n/create-content-databases.js

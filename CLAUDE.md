@@ -33,7 +33,7 @@ Running log across all sessions. Use as context when starting a new Claude Code 
 - **GitHub:** `github.com/homegrowngrowthco/theautomationsguide`
 - **Branch:** `master` (not `main`)
 - **Netlify:** auto-deploys on push to `master` — no manual step needed after `git push`
-- **Local path:** `C:\Users\ianch\theautomationsguide\`
+- **Local path:** `C:\Users\Ian\OneDrive\Documents\claude_projects\theautomationsguide\`
 
 ### Site structure
 
@@ -309,7 +309,7 @@ Weekday 8am ─────┘           │
 ## 3. 90-Day Launch Plan — Notion
 
 **Notion root page:** https://www.notion.so/34a7e25f0a1681fa9a88c329a60fb71a
-**Script:** `C:\Users\ianch\create-notion-plan.js`
+**Script:** `C:\Users\Ian\OneDrive\Documents\claude_projects\create-notion-plan.js`
 
 ### Structure
 
