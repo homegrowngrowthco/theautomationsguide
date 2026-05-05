@@ -1,4 +1,29 @@
-# Session Log — last updated 2026-05-03
+# Session Log — last updated 2026-05-05
+
+## Recovery Notes (2026-05-05 machine wipe)
+
+This project survived the **2026-05-04** complete machine wipe.
+
+**Preserved:**
+- Full git history on GitHub (`homegrowngrowthco/theautomationsguide`, branch `master`). Last commit: 2026-05-05 "Update local paths to new OneDrive location" (the path migration).
+- Live production site at theautomationsguide.com (Netlify auto-deploys from `master`).
+- All n8n Cloud workflows (`blog-post-engine` v3, `topic-suggestor`, `daily-briefing`) — JSONs in `n8n/` plus live versions in n8n Cloud.
+- Notion DBs (Content Calendar `62f34586-4f78-4b83-b2ac-105f500d059e`, Drafts `7399699b-ef9d-4ef4-8c2c-4749f99b5b76`).
+- Beehiiv newsletter integration (form ID `d41efc59-7041-482b-8178-6d238e6c3cfa`).
+- All 5 published posts in `src/content/blog/`.
+- `.claude/settings.json` (project allowlist) — committed to repo.
+- Existing `AFFILIATE_PROGRAMS.md`, `OFF_SITE_SEO_CHECKLIST.md`.
+
+**Lost:**
+- Local `.claude/settings.local.json` overrides.
+- Local Claude Code session history.
+
+**Followup needed:**
+- Rotate keys used in n8n credentials (Anthropic, GitHub PAT with `repo` scope, Notion Integration Token). After rotation, update the n8n Cloud credentials with the same names.
+- No redeploy needed — Netlify auto-deploys from `master`, the repo is unchanged.
+- `.gitignore` updated 2026-05-05 to add `.claude/file-history/` to the existing `.claude/settings.local.json` ignore.
+
+---
 
 ## Quick reference — recent additions (Session 5, 2026-05-03)
 
