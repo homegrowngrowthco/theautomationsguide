@@ -31,12 +31,15 @@ The full system is three workflows that compose:
 
 | File | Purpose |
 |---|---|
-| `blog-post-engine.json` | The main workflow — generates a post, opens a PR, queues social drafts |
+| `blog-post-engine.json` | The main workflow — generates a post, opens a PR, queues social drafts. **v4 (2026-05-07)**: outputs MDX with components, per-post-type templates, dual `.md`/`.mdx` idempotency. |
 | `topic-suggestor.json` | Runs Mon/Thu — Claude suggests 5 new topics based on coverage gaps, writes them as `Suggested` for batch approval |
 | `daily-briefing.json` | Runs daily 7:30am — single Slack message summarizing what needs your attention (open PRs, topics to approve, drafts to post) |
 | `create-content-databases.js` | One-off script that creates the two Notion DBs and seeds 3 sample topics |
+| `update-engine-for-mdx.mjs` | One-shot Node script (record only) that converted v3 → v4. Source of truth for how the v4 prompts were constructed. Don't re-run on post-update JSON — it errors on missing original node names. |
 | `blog-post-engine-v2-archive.json` | Archived v2 of the engine for reference |
 | `README.md` | This file |
+
+**v4 changes (2026-05-07).** Engine now produces `.mdx` instead of `.md`. Generate Draft prompt picks one of four post-type skeletons (`comparison` / `tutorial` / `framework` / `opinion`) based on the Notion `Tag` field, and uses the Astro MDX component library at [src/components/post/](../src/components/post/). Idempotency check now GETs both `.md` and `.mdx` paths to protect legacy slugs from collision. Humanize verifies that the import block, `/go/<slug>` affiliate links on first mention, and the `<MyTake>` block (zero or one allowed) are intact. **After editing this JSON, re-import into n8n Cloud — the live engine doesn't auto-pull from this file.**
 
 ## One-time setup (~15 min)
 
