@@ -1,0 +1,124 @@
+name: Auto-merge stale content PRs
+
+# Daily check at 14:00 UTC (10am ET / 9am ET in DST). Auto-merges any
+# `content:`-prefixed PR opened by the n8n engine that's been sitting open
+# for 14+ days, has all checks passing, and has no review requesting changes.
+# Manual runs allowed via workflow_dispatch.
+
+on:
+  schedule:
+    - cron: '0 14 * * *'
+  workflow_dispatch:
+    inputs:
+      stale_days:
+        description: 'Days to consider a content PR stale (default 14)'
+        required: false
+        default: '14'
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find and merge stale content PRs
+        uses: actions/github-script@v7
+        env:
+          STALE_DAYS: ${{ github.event.inputs.stale_days || '14' }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        with:
+          script: |
+            const STALE_DAYS = parseInt(process.env.STALE_DAYS, 10);
+            const STALE_MS = STALE_DAYS * 24 * 60 * 60 * 1000;
+            const now = Date.now();
+
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              base: 'master',
+              per_page: 50,
+            });
+
+            const merged = [];
+            const skipped = [];
+
+            for (const pr of prs) {
+              const reasons = [];
+
+              if (!pr.title.startsWith('content:')) reasons.push('not a content PR title');
+              if (!pr.head.ref.startsWith('content/')) reasons.push('not a content/ branch');
+              const ageMs = now - new Date(pr.created_at).getTime();
+              if (ageMs < STALE_MS) reasons.push(`only ${Math.round(ageMs / (24 * 3600 * 1000))} days old`);
+
+              if (reasons.length > 0) {
+                skipped.push({ pr: pr.number, title: pr.title, reasons });
+                continue;
+              }
+
+              // Block on any CHANGES_REQUESTED review
+              const reviews = await github.rest.pulls.listReviews({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+              });
+              if (reviews.data.some((r) => r.state === 'CHANGES_REQUESTED')) {
+                skipped.push({ pr: pr.number, title: pr.title, reasons: ['has CHANGES_REQUESTED review'] });
+                continue;
+              }
+
+              // Block on any failed check run
+              const checks = await github.rest.checks.listForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: pr.head.sha,
+              });
+              const failed = checks.data.check_runs.filter(
+                (c) => c.conclusion === 'failure' || c.conclusion === 'cancelled' || c.conclusion === 'timed_out',
+              );
+              if (failed.length > 0) {
+                skipped.push({ pr: pr.number, title: pr.title, reasons: [`failed checks: ${failed.map((f) => f.name).join(', ')}`] });
+                continue;
+              }
+
+              // Block on Netlify deploy preview not success
+              const statuses = await github.rest.repos.listCommitStatusesForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: pr.head.sha,
+              });
+              const netlify = statuses.data.find((s) => s.context === 'netlify/theautomationsguide/deploy-preview');
+              if (netlify && netlify.state !== 'success') {
+                skipped.push({ pr: pr.number, title: pr.title, reasons: [`Netlify deploy preview state: ${netlify.state}`] });
+                continue;
+              }
+
+              // Merge
+              core.info(`Auto-merging PR #${pr.number}: ${pr.title}`);
+              await github.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                merge_method: 'merge',
+                commit_title: `Auto-merge after ${STALE_DAYS}d: ${pr.title}`,
+              });
+              merged.push({ pr: pr.number, title: pr.title, url: pr.html_url });
+            }
+
+            // Slack notify on merges (skip if no webhook secret configured)
+            if (merged.length > 0 && process.env.SLACK_WEBHOOK_URL) {
+              const lines = merged.map((m) => `• <${m.url}|#${m.pr}> — ${m.title}`).join('\n');
+              const text = `🤖 *Auto-merged ${merged.length} stale content PR(s)* (${STALE_DAYS}d threshold)\n${lines}`;
+              await fetch(process.env.SLACK_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({ text }),
+              });
+            }
+
+            core.info(`Merged: ${merged.length}, Skipped: ${skipped.length}`);
+            if (skipped.length > 0) {
+              core.info('Skipped details:\n' + skipped.map((s) => `  PR #${s.pr}: ${s.reasons.join('; ')}`).join('\n'));
+            }

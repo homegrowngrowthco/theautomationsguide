@@ -34,6 +34,9 @@ The full system is three workflows that compose:
 | `blog-post-engine.json` | The main workflow — generates a post, opens a PR, queues social drafts. **v4 (2026-05-07)**: outputs MDX with components, per-post-type templates, dual `.md`/`.mdx` idempotency. |
 | `topic-suggestor.json` | Runs Mon/Thu — Claude suggests 5 new topics based on coverage gaps, writes them as `Suggested` for batch approval |
 | `daily-briefing.json` | Runs daily 7:30am — single Slack message summarizing what needs your attention (open PRs, topics to approve, drafts to post) |
+| `posthog-monitor.json` | **(2026-05-07)** Daily 9am ET — checks PostHog for $pageview events in the last 24h. Slack-alerts if zero (tracking broke or site is dead). |
+| `notion-publish-status.json` | **(2026-05-07)** GitHub webhook → fires when a `content/`-branch PR merges to master, finds the matching Notion topic by `PR URL`, sets `Status = Published`, posts a Slack notification. |
+| `error-trigger.json` | **(2026-05-07)** n8n Error Trigger — listens for failures from any workflow that lists this one as its "Error workflow" (set in workflow Settings). Slack-alerts with workflow name + error + execution link. |
 | `create-content-databases.js` | One-off script that creates the two Notion DBs and seeds 3 sample topics |
 | `update-engine-for-mdx.mjs` | One-shot Node script (record only) that converted v3 → v4. Source of truth for how the v4 prompts were constructed. Don't re-run on post-update JSON — it errors on missing original node names. |
 | `blog-post-engine-v2-archive.json` | Archived v2 of the engine for reference |
@@ -213,3 +216,105 @@ If nothing is pending, it skips the post entirely so you don't get trained to ig
 | Send to a different channel | Use a different Slack webhook URL |
 | Always post even when nothing pending | In `Build Briefing` node, change the `if (totalPending === 0 && otherPRs.length === 0)` early return to `if (false)` |
 | Add more buckets (Plausible numbers, affiliate clicks, etc) | Add HTTP Request nodes querying those services + extend the message in `Build Briefing` |
+
+---
+
+## Workflow 4: PostHog Liveness Monitor (`posthog-monitor.json`)
+
+Daily 9am ET ping that GETs PostHog for `$pageview` events in the last 24h. Slack-alerts if zero — meaning the tracking script broke or the site is genuinely dead. Cheap, ~1 API call/day.
+
+### Setup (one-time)
+
+1. **Generate a PostHog Personal API Key.** PostHog → top-right avatar → *My settings* → *Personal API keys* → *Create personal API key*. Copy the `phx_...` value.
+2. **Find your PostHog project ID.** Project settings page URL: `https://us.posthog.com/project/<id>/settings` — that `<id>` is the integer.
+3. **Create n8n credential.** n8n → Credentials → New → Header Auth, name it `PostHog Personal API Key`, header name `Authorization`, header value `Bearer phx_...`.
+4. **Import workflow.** n8n → Workflows → Import from File → `posthog-monitor.json`.
+5. **Edit Config node:** set `posthogProjectId` and `slackWebhookUrl`. Default `posthogHost` is `https://us.posthog.com` — change to `https://eu.posthog.com` if that's your region.
+6. **Wire credential.** Open *Query PostHog* node → set credential to `PostHog Personal API Key`.
+7. **Test:** click *Execute workflow* manually. Confirm a green check on each node. If you genuinely have zero pageviews in 24h, expect a Slack alert.
+8. **Activate** the workflow toggle.
+
+### What it doesn't catch
+
+This monitor only verifies that *some* `$pageview` event was captured. It won't tell you about specific event types (`affiliate_click`, etc) or whether traffic is up/down trend-wise — for that, use PostHog's own dashboards or extend the workflow to query specific event totals.
+
+### Beehiiv equivalent
+
+Beehiiv has a similar API but requires a publication ID + API key (Beehiiv → Settings → API). When you're ready, the same pattern applies: query `https://api.beehiiv.com/v2/publications/<id>/subscriptions?status=active&limit=1` daily and alert if the subscriber count drops or the form ID stops working. Not built yet — flag it when you want it.
+
+---
+
+## Workflow 5: Notion Publish Status (`notion-publish-status.json`)
+
+GitHub webhook → fires every time a PR merges to master. If the PR's branch starts with `content/` (engine-generated), it looks up the matching Notion topic by `PR URL` property and sets `Status = Published`. Sends a Slack notification with the post title.
+
+Replaces the manual "go mark Published in Notion" step after every PR merge.
+
+### Setup (one-time)
+
+1. **Import workflow.** n8n → Workflows → Import from File → `notion-publish-status.json`.
+2. **Activate** the workflow (the webhook URL only exists when the workflow is active).
+3. **Copy the production webhook URL.** Open the *GitHub Webhook* node → in the *Webhook URLs* panel copy the **production** URL. Looks like `https://<your-n8n-instance>/webhook/tag-pr-merged`.
+4. **Configure GitHub repo webhook.** GitHub → repo Settings → Webhooks → *Add webhook*:
+   - **Payload URL**: paste the n8n production URL from step 3
+   - **Content type**: `application/json`
+   - **Secret**: leave blank for v1 (we don't validate signatures yet — fine for a low-stakes status update)
+   - **Which events**: select *Let me select individual events* → check only **Pull requests**
+   - **Active**: yes
+5. **Edit Config node** in the workflow: confirm `topicsDatabaseId` matches your Content Calendar DB ID and set `slackWebhookUrl`.
+6. **Wire credentials.** *Find Notion Topic* and *Mark Published* nodes both use `Notion Integration Token` (the same credential the engine uses).
+7. **Test:** trigger by merging an existing test PR (or use GitHub → Webhook → *Recent deliveries* → Redeliver an old payload). Confirm the Notion topic flips to Published and the Slack notification fires.
+
+### What it filters
+
+The *Filter Eligible* code node only acts when:
+- `action === 'closed'`
+- `pull_request.merged === true`
+- `pull_request.base.ref === 'master'`
+- `pull_request.head.ref` starts with `content/`
+
+Everything else (open events, draft PRs, non-content branches, non-master targets) is silently skipped so GitHub doesn't see 5xx and stop redelivering.
+
+### What if no Notion match?
+
+If a `content/` PR merges and no Notion topic has its PR URL set (e.g. you opened a content PR by hand outside the engine), *Resolve Page* logs the miss and exits gracefully. No error, no Slack ping.
+
+---
+
+## Workflow 6: Error Trigger (`error-trigger.json`)
+
+n8n native Error Trigger that fires when any workflow listing this one as its "Error workflow" fails. Slack-alerts with the workflow name, the failing node, the error message, and a link to the execution log. Stack-trace preview included for debugging.
+
+### Setup (one-time)
+
+1. **Import workflow.** n8n → Workflows → Import from File → `error-trigger.json`.
+2. **Edit Config node:** set `slackWebhookUrl`.
+3. **Activate** the workflow.
+4. **Attach to existing workflows.** For each workflow you want covered (Blog Post Engine, Topic Suggestor, Daily Briefing, PostHog Monitor, Notion Publish Status):
+   - Open the workflow → *Workflow Settings* (top right) → *Error workflow* dropdown → select **Error Trigger — TAG**
+   - Save
+5. **Test:** force a failure in any wired workflow (e.g. temporarily break the Anthropic API key in Blog Post Engine and run it manually). Confirm a Slack alert lands.
+
+### What it covers
+
+This is a backstop for *unexpected* failures (timeouts, 5xx from upstream APIs, malformed responses, code-node exceptions). It doesn't replace the normal happy-path notifications (PR opened, post published) — those still fire from inside each workflow.
+
+---
+
+## Workflow 7: Auto-merge stale content PRs (GitHub Actions, not n8n)
+
+Lives at [`.github/workflows/auto-merge-content.yml`](../.github/workflows/auto-merge-content.yml). Runs daily at 14:00 UTC. Auto-merges any `content:`-prefixed PR that's been open 14+ days, with all checks passing and no `CHANGES_REQUESTED` review.
+
+### Setup (one-time)
+
+1. **Add `SLACK_WEBHOOK_URL` repo secret.** GitHub → repo Settings → Secrets and variables → Actions → *New repository secret* → name `SLACK_WEBHOOK_URL`, value the same Slack incoming webhook URL used by the n8n workflows. Without this, the action still merges; it just won't notify.
+2. **First run:** GitHub → Actions tab → *Auto-merge stale content PRs* → *Run workflow* button. Confirms it works against your current PR list.
+
+### Adjusting
+
+| Want to | Change |
+|---|---|
+| Tighter or looser staleness window | Change `default: '14'` in the `workflow_dispatch.inputs.stale_days` block, or trigger manually with a custom value |
+| Run at a different time | Change `cron: '0 14 * * *'` (currently 14:00 UTC daily) |
+| Skip auto-merge entirely on a PR | Apply a `CHANGES_REQUESTED` review on the PR — the action will skip it |
+| Stop the GHA temporarily | Comment out the `schedule:` block and rely on manual `workflow_dispatch` only |
