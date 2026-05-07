@@ -1,0 +1,18 @@
+---
+// Ian's opinionated aside. Distinct amber styling so it visually reads as a
+// personal note, not a system callout (which is .quick-answer's role).
+//
+// Use sparingly — once per post — for a contrarian or experience-based claim.
+//
+// USAGE in MDX posts:
+//   <MyTake>
+//     I've watched four companies pick Zapier first because it was familiar,
+//     then rebuild on n8n 18 months later when the bill hit $800/mo. If you
+//     know you'll have >2,000 tasks/mo by Q4, just start on n8n.
+//   </MyTake>
+---
+
+<aside class="my-take">
+  <span class="my-take-eyebrow">My take</span>
+  <div class="my-take-body"><slot /></div>
+</aside>

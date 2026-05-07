@@ -1,0 +1,29 @@
+---
+// Two-pane layout: text + visual/code/figure side-by-side on desktop, stacked on mobile.
+//
+// USAGE in MDX posts:
+//   <SideBySide>
+//     <Fragment slot="left">Markdown or text content</Fragment>
+//     <Fragment slot="right"><Figure caption="...">...</Figure></Fragment>
+//   </SideBySide>
+//
+// Props:
+//   reverse — flips left/right order on desktop (mobile order unchanged)
+//   align   — vertical alignment of the two panes: 'top' (default) or 'center'
+
+interface Props {
+  reverse?: boolean;
+  align?: 'top' | 'center';
+}
+
+const { reverse = false, align = 'top' } = Astro.props;
+---
+
+<div
+  class="side-by-side"
+  data-reverse={reverse ? 'true' : 'false'}
+  data-align={align}
+>
+  <div class="side-by-side-pane"><slot name="left" /></div>
+  <div class="side-by-side-pane"><slot name="right" /></div>
+</div>
