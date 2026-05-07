@@ -1,0 +1,271 @@
+name: QA + auto-fix content PRs
+
+# Visual QA loop for engine-generated content PRs.
+#
+# Flow:
+#   1. PR opened or pushed on a `content/` branch (or any push to that branch).
+#   2. Wait for Netlify deploy preview to be SUCCESS for the head commit.
+#   3. Capture Playwright screenshots of the new post at 4 breakpoints.
+#   4. Send to Claude Vision (qa/qa-pr-review.mjs), get JSON verdict.
+#   5. If shouldFix=true AND we haven't already attempted 2 fixes on this branch:
+#      - Ask Claude to rewrite the .mdx (qa/qa-pr-fix.mjs) given the issues
+#      - Commit + push with `[qa-fix-N]` marker — this triggers a re-run
+#   6. If shouldFix=true AND we've already attempted 2 fixes:
+#      - Post a PR comment with the issues + Slack-ping
+#      - Stop (no more autofixes; manual review needed)
+#   7. If shouldFix=false: post a green QA-pass comment and exit.
+#
+# Retry tracking: we count commits in this PR matching `[qa-fix-N]`. Hard cap at 2
+# fix attempts to prevent infinite loops + cost runaway. Each loop costs roughly
+# $0.05–$0.10 in Anthropic API calls.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  qa:
+    if: startsWith(github.event.pull_request.head.ref, 'content/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    timeout-minutes: 15
+
+    steps:
+      - name: Skip our own commits
+        id: skip-check
+        run: |
+          if [[ "${{ github.event.pull_request.user.login }}" == "github-actions[bot]" ]]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          fi
+          # Also skip if the latest commit is ours (loop guard).
+          LATEST_MSG=$(git log -1 --pretty=%s ${{ github.event.pull_request.head.sha }} 2>/dev/null || echo "")
+          if echo "$LATEST_MSG" | grep -qE '^\[qa-fix-[0-9]+\]'; then
+            # Latest commit is a qa-fix commit — let it process so we can re-review.
+            echo "Latest commit is a qa-fix; proceeding to re-review."
+          fi
+
+      - name: Checkout PR branch
+        if: steps.skip-check.outputs.skip != 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Count prior qa-fix attempts on this branch
+        if: steps.skip-check.outputs.skip != 'true'
+        id: retry-count
+        run: |
+          COUNT=$(git log --pretty=%s origin/master..HEAD | grep -cE '^\[qa-fix-[0-9]+\]' || echo "0")
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+          echo "Prior fix attempts: $COUNT"
+
+      - name: Identify changed post slug
+        if: steps.skip-check.outputs.skip != 'true'
+        id: slug
+        run: |
+          # The engine commits a single .mdx in src/content/blog/.
+          POST=$(git diff --name-only origin/master..HEAD -- 'src/content/blog/*.mdx' | head -1)
+          if [ -z "$POST" ]; then
+            echo "No .mdx post changed in this PR; skipping QA."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            SLUG=$(basename "$POST" .mdx)
+            # Match the slug format used by qa-screenshots.mjs (slugify of /blog/<slug>).
+            SCREENSHOT_SLUG="blog_${SLUG}"
+            echo "post=$POST" >> $GITHUB_OUTPUT
+            echo "slug=$SLUG" >> $GITHUB_OUTPUT
+            echo "screenshot_slug=$SCREENSHOT_SLUG" >> $GITHUB_OUTPUT
+            echo "Post: $POST  Slug: $SLUG"
+          fi
+
+      - name: Setup Node
+        if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Wait for Netlify deploy preview
+        if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        id: wait-preview
+        uses: actions/github-script@v7
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        with:
+          script: |
+            const sha = process.env.HEAD_SHA;
+            const maxAttempts = 30;     // up to ~5 min
+            const intervalMs = 10_000;
+            for (let i = 0; i < maxAttempts; i++) {
+              const { data: statuses } = await github.rest.repos.listCommitStatusesForRef({
+                owner: context.repo.owner, repo: context.repo.repo, ref: sha,
+              });
+              const netlify = statuses.find(s => s.context === 'netlify/theautomationsguide/deploy-preview');
+              if (netlify?.state === 'success' && netlify.target_url) {
+                core.setOutput('preview_url', netlify.target_url);
+                core.info(`Netlify ready: ${netlify.target_url}`);
+                return;
+              }
+              if (netlify?.state === 'failure' || netlify?.state === 'error') {
+                core.setFailed(`Netlify deploy preview failed: ${netlify.description}`);
+                return;
+              }
+              core.info(`Waiting for Netlify (attempt ${i + 1}/${maxAttempts})... current state: ${netlify?.state || 'pending'}`);
+              await new Promise(r => setTimeout(r, intervalMs));
+            }
+            core.setFailed('Netlify deploy preview did not complete within timeout window.');
+
+      - name: Capture screenshots
+        if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        env:
+          QA_BASE_URL: ${{ steps.wait-preview.outputs.preview_url }}
+        run: node qa/qa-screenshots.mjs
+
+      - name: Run Claude Vision review
+        if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        id: review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          node qa/qa-pr-review.mjs --slug "${{ steps.slug.outputs.slug }}" > qa-review.json
+          cat qa-review.json
+          SHOULD_FIX=$(jq -r '.shouldFix' qa-review.json)
+          CONFIDENCE=$(jq -r '.confidence' qa-review.json)
+          SUMMARY=$(jq -r '.summary' qa-review.json)
+          echo "should_fix=$SHOULD_FIX" >> $GITHUB_OUTPUT
+          echo "confidence=$CONFIDENCE" >> $GITHUB_OUTPUT
+          echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
+
+      - name: Decide branch — fix, manual, or pass
+        if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        id: decide
+        run: |
+          SHOULD_FIX="${{ steps.review.outputs.should_fix }}"
+          PRIOR_FIXES="${{ steps.retry-count.outputs.count }}"
+          if [ "$SHOULD_FIX" != "true" ]; then
+            echo "branch=pass" >> $GITHUB_OUTPUT
+          elif [ "$PRIOR_FIXES" -ge 2 ]; then
+            echo "branch=manual" >> $GITHUB_OUTPUT
+          else
+            NEXT=$((PRIOR_FIXES + 1))
+            echo "branch=fix" >> $GITHUB_OUTPUT
+            echo "next_attempt=$NEXT" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Apply Claude fix
+        if: steps.decide.outputs.branch == 'fix'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          node qa/qa-pr-fix.mjs \
+            --post "${{ steps.slug.outputs.post }}" \
+            --review qa-review.json
+
+      - name: Verify the fix builds
+        if: steps.decide.outputs.branch == 'fix'
+        run: npm run build
+
+      - name: Commit and push the fix
+        if: steps.decide.outputs.branch == 'fix'
+        env:
+          ATTEMPT: ${{ steps.decide.outputs.next_attempt }}
+          POST: ${{ steps.slug.outputs.post }}
+          SUMMARY: ${{ steps.review.outputs.summary }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$POST"
+          if git diff --staged --quiet; then
+            echo "No changes after fix attempt — skipping commit."
+            exit 0
+          fi
+          git commit -m "[qa-fix-$ATTEMPT] Auto-fix layout issues from Claude Vision review
+
+          Issues addressed: $SUMMARY
+
+          Generated by .github/workflows/qa-content-pr.yml. Re-running QA
+          on this commit will verify whether the fix landed."
+          git push origin "${{ github.event.pull_request.head.ref }}"
+
+      - name: Comment on PR — fix applied
+        if: steps.decide.outputs.branch == 'fix'
+        uses: actions/github-script@v7
+        env:
+          ATTEMPT: ${{ steps.decide.outputs.next_attempt }}
+          SUMMARY: ${{ steps.review.outputs.summary }}
+          ISSUES_JSON: ${{ steps.review.outputs.should_fix }}
+        with:
+          script: |
+            const review = require('./qa-review.json');
+            const lines = [
+              `🤖 **QA fix attempt ${process.env.ATTEMPT} of 2** applied automatically.`,
+              ``,
+              `**Issues found:** ${review.issues.length}`,
+              ...review.issues.map(i => `- \`${i.severity}\` (${i.viewport}): ${i.description} → _${i.suggestedFix}_`),
+              ``,
+              `Re-running QA on the new commit. If the fix doesn't fully resolve, I'll try once more (max 2 attempts) before flagging for manual review.`,
+            ];
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: lines.join('\n'),
+            });
+
+      - name: Comment on PR — manual review needed
+        if: steps.decide.outputs.branch == 'manual'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const review = require('./qa-review.json');
+            const lines = [
+              `🚨 **QA fix limit reached** — 2 auto-fix attempts didn't resolve all issues.`,
+              ``,
+              `**Remaining issues:**`,
+              ...review.issues.map(i => `- \`${i.severity}\` (${i.viewport}): ${i.description}`),
+              ``,
+              `Manual review needed. Either fix the post directly on the PR branch, dismiss as a false positive, or close the PR.`,
+            ];
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: lines.join('\n'),
+            });
+
+      - name: Slack — manual review needed
+        if: steps.decide.outputs.branch == 'manual' && env.SLACK_WEBHOOK_URL != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          SUMMARY: ${{ steps.review.outputs.summary }}
+        run: |
+          curl -sS -X POST -H 'content-type: application/json' "$SLACK_WEBHOOK_URL" \
+            -d "{\"text\":\"🚨 *QA pipeline hit retry limit on a content PR*\nPR: $PR_URL\nIssues: $SUMMARY\nManual review needed.\"}"
+
+      - name: Comment on PR — QA pass
+        if: steps.decide.outputs.branch == 'pass'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const review = require('./qa-review.json');
+            const attemptInfo = '${{ steps.retry-count.outputs.count }}' === '0'
+              ? 'on first review.'
+              : `after ${{ steps.retry-count.outputs.count }} auto-fix attempt(s).`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `✅ **QA pass** ${attemptInfo}\n\n_${review.summary}_\n\nReady for human review on the deploy preview.`,
+            });

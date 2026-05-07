@@ -65,7 +65,75 @@ It does **not** catch: copy quality, factual errors, SEO issues, perf, accessibi
 
 A typical run (~10 pages × 4 viewports = 40 images) at Sonnet 4.6 vision rates is **~$0.15–0.25**. Run as often as you want.
 
-## Future hooks
+## Auto-fix pipeline (GitHub Action)
 
-- Wire `npm run qa` into the n8n `blog-post-engine` workflow so every PR gets an auto-generated `qa-review.md` posted as a PR comment.
+A separate GitHub Action — [`.github/workflows/qa-content-pr.yml`](../.github/workflows/qa-content-pr.yml) — runs the QA loop automatically on every engine-generated content PR. Lives in GitHub Actions, not n8n, because Playwright is native to GHA.
+
+### Flow
+
+```
+Engine opens PR (content/* branch)
+        │
+        ▼
+GHA waits for Netlify deploy preview = SUCCESS
+        │
+        ▼
+qa-screenshots.mjs against the deploy-preview URL
+        │
+        ▼
+qa-pr-review.mjs → Claude Vision → JSON verdict
+        │
+        ├── shouldFix=false ───▶ "QA pass" PR comment, exit
+        │
+        ├── shouldFix=true + < 2 prior fixes
+        │     │
+        │     ▼
+        │   qa-pr-fix.mjs → Claude rewrites the .mdx
+        │     │
+        │     ▼
+        │   Build verifies, commit `[qa-fix-N]`, push
+        │     │
+        │     ▼
+        │   PR sync triggers a fresh QA run on the new commit
+        │
+        └── shouldFix=true + 2 prior fixes already
+              │
+              ▼
+            "Manual review needed" PR comment + Slack alert, exit
+```
+
+### Why the 2-fix cap
+
+Two fix attempts is enough to handle most layout issues without burning into infinite-loop territory. If Claude's two attempts haven't resolved the issue, the third attempt is unlikely to and the cost of running it pays for nothing. Cap = max ~$0.30 per PR in API spend.
+
+### Setup (one-time)
+
+1. **Add the `ANTHROPIC_API_KEY` repo secret.** GitHub → repo Settings → Secrets and variables → Actions → *New repository secret* → name `ANTHROPIC_API_KEY`, value `sk-ant-...`. Use the same key as the n8n Cloud credential, or generate a separate key for CI traceability.
+2. **Confirm `SLACK_WEBHOOK_URL` is set** (already added for the auto-merge GHA — same secret reused here for manual-review pings).
+3. **First run:** open any test content PR. The action triggers automatically on `content/*` branches.
+
+### Tracking attempts
+
+The action counts commits matching `[qa-fix-N]` on the branch since `origin/master`. This means:
+- A fresh content PR has 0 prior fixes
+- After the first auto-fix commit, count=1
+- After the second auto-fix commit, count=2 → next QA run that finds issues falls through to manual review
+
+### Cost per PR
+
+- Screenshots: free (Playwright in GHA)
+- Vision review: ~$0.05 (4 images × Sonnet 4.6 vision)
+- Fix generation (only if review says shouldFix): ~$0.05–$0.10 (full post in/out)
+- Worst case (initial review + 2 fix attempts + 2 re-reviews): ~$0.25–$0.30
+
+### Skipping the loop
+
+If a generated post fails the same way twice and the auto-fix can't resolve it, you'll get a Slack ping. Options:
+- Edit the .mdx manually on the PR branch (your edit doesn't carry a `[qa-fix-N]` marker, so the next QA run starts the counter fresh from a manual baseline)
+- Close the PR if the post isn't worth the effort
+- Dismiss as a false positive — push an empty commit with `[qa-skip]` in the message and the action skips itself (TODO: not yet implemented; current workaround is to disable the workflow file temporarily)
+
+## Other future hooks
+
 - Add Playwright accessibility checks (`@axe-core/playwright`) for a11y regression alongside visual.
+- Visual regression diffing against a baseline screenshot set (catches drift the LLM might miss).
