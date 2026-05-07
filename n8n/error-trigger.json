@@ -1,0 +1,74 @@
+{
+  "name": "Error Trigger — TAG (Slack on workflow failure)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "tag00006-0000-0000-0000-000000000001",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            { "id": "c1", "name": "slackWebhookUrl", "value": "REPLACE_WITH_SLACK_WEBHOOK_URL", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tag00006-0000-0000-0000-000000000002",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// The Error Trigger payload contains:\n//   - execution.id, execution.url\n//   - workflow.name, workflow.id\n//   - trigger.<details>\n//   - lastNodeExecuted (name of the node that errored)\n//   - executionMode (manual / trigger / etc)\n// Pull a Slack-friendly summary.\nconst payload = $input.first().json;\nconst config = $('Config').first().json;\n\nconst workflowName = payload?.workflow?.name || '(unknown workflow)';\nconst workflowId = payload?.workflow?.id || '';\nconst execId = payload?.execution?.id || '';\nconst execUrl = payload?.execution?.url || '';\nconst lastNode = payload?.execution?.lastNodeExecuted || '(unknown node)';\nconst errorMessage = payload?.execution?.error?.message || payload?.execution?.error?.description || '(no message)';\nconst errorStack = payload?.execution?.error?.stack || '';\n\n// Trim stack to first 6 lines so Slack stays scannable.\nconst stackPreview = errorStack.split('\\n').slice(0, 6).join('\\n');\n\nreturn [{ json: {\n  ...config,\n  workflowName,\n  workflowId,\n  execId,\n  execUrl,\n  lastNode,\n  errorMessage,\n  stackPreview,\n}}];"
+      },
+      "id": "tag00006-0000-0000-0000-000000000003",
+      "name": "Format",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.slackWebhookUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ text: `⚠️ *n8n workflow failure: ${$json.workflowName}*\\nNode that errored: \\`${$json.lastNode}\\`\\nError: ${$json.errorMessage}\\n${$json.execUrl ? `<${$json.execUrl}|Open execution in n8n>` : `Execution ID: ${$json.execId}`}\\n\\n\\`\\`\\`${$json.stackPreview}\\`\\`\\`` }) }}",
+        "options": { "timeout": 30000 }
+      },
+      "id": "tag00006-0000-0000-0000-000000000004",
+      "name": "Slack Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Error Trigger": { "main": [[{ "node": "Config", "type": "main", "index": 0 }]] },
+    "Config":        { "main": [[{ "node": "Format", "type": "main", "index": 0 }]] },
+    "Format":        { "main": [[{ "node": "Slack Alert", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "staticData": null,
+  "meta": { "templateCredsSetupCompleted": false },
+  "pinData": {},
+  "versionId": "1",
+  "id": "tag00006",
+  "tags": []
+}
