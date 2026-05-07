@@ -62,7 +62,7 @@ COMPARISON:
 - <StatRow stats={[ { number, label, description }, ...3 facts ]} />
 - <ComparisonTable title="..." tools={[ { name, tagline, pros: [...], cons: [...], pricing, affiliateSlug, ctaLabel, highlight: true|false }, ...2-4 tools ]} />
 - One ## section "How to choose" with 1-2 paragraphs
-- <SideBySide><Fragment slot="left">decision criteria text — 2-3 short paragraphs</Fragment><Fragment slot="right"><Figure caption="..."><svg viewBox="0 0 360 260" xmlns="http://www.w3.org/2000/svg"><!-- simple decision tree, 3-4 boxes --></svg></Figure></Fragment></SideBySide>
+- <SideBySide><Fragment slot="left">decision criteria text — 2-3 short paragraphs</Fragment><Fragment slot="right"><Figure caption="..."><svg viewBox="0 0 360 260" xmlns="http://www.w3.org/2000/svg">{/* simple decision tree, 3-4 boxes */}</svg></Figure></Fragment></SideBySide>
 - <MyTake>contrarian or experiential claim, 2-3 sentences</MyTake>
 - One ## section, single takeaway paragraph (no "in conclusion")
 
@@ -99,6 +99,11 @@ MyTake RULES:
 - 2-3 sentences max
 - If you don't have a real opinion, omit the block entirely
 - Maximum one MyTake per post
+
+SVG / MDX SYNTAX RULE:
+- This is MDX, not HTML. Inside any inline <svg> (or any JSX context), do NOT use HTML <!-- comments -->. They will break the build.
+- If you need a comment inside SVG, use JSX comments: {/* comment text */}.
+- Better: omit comments entirely. SVG element names already document themselves.
 
 QUICK ANSWER RULES:
 - Single sentence, plain language
