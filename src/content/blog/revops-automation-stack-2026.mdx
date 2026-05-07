@@ -15,19 +15,31 @@ faqs:
     answer: "Roughly $300-500/mo at the bottom — HubSpot Free + Apollo + Smartlead + n8n Cloud + optional Clay covers prospecting, enrichment, sequencing, and CRM automation. The expensive part is operator time, not the tools."
 ---
 
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+
 If you asked a RevOps leader to describe their automation stack in 2024, most would list their CRM, a few point solutions, and either Zapier or nothing holding it together. In 2026, that answer looks different — and teams that haven't caught up are paying for it in wasted rep hours, leaky pipeline, and data they can't trust.
 
 This post is a practical blueprint for what the RevOps automation stack looks like today: the layers you need, the tools worth paying for, and the order to build it in.
 
 <div class="quick-answer"><strong>Quick answer:</strong> The 2026 RevOps automation stack has four layers — CRM, enrichment, automation middleware, and activation. Build them in that order. Enrichment is no longer optional, and middleware is where most teams underinvest.</div>
 
+<PullQuote>
+The best RevOps automation stacks in 2026 aren't collections of tools — they're systems. Four layers, in order, no skipping.
+</PullQuote>
+
 ## The four-layer model
 
 The best RevOps automation stacks aren't collections of tools — they're systems. Specifically, they're four interconnected layers:
 
-1. **System of Record** — where your customer data lives (HubSpot, Salesforce)
-2. **Enrichment Layer** — how you fill gaps and keep data fresh (Clay, Apollo, Clearbit)
-3. **Automation Middleware** — how your tools talk to each other (Make, n8n, Zapier)
+1. **System of Record** — where your customer data lives ([HubSpot](/go/hubspot), Salesforce)
+2. **Enrichment Layer** — how you fill gaps and keep data fresh ([Clay](/go/clay), [Apollo](/go/apollo), Clearbit)
+3. **Automation Middleware** — how your tools talk to each other ([Make](/go/make), [n8n](/go/n8n), Zapier)
 4. **Activation Layer** — how signals turn into actions (sequences, tasks, Slack alerts)
 
 Most teams have layer 1. Most are underinvested in layers 2 and 3. And layer 4 only works well when 1–3 are solid.
@@ -46,19 +58,59 @@ Apollo.io is the right tool for teams that need both the database and enrichment
 
 The Zapier vs. Make debate has largely settled.
 
-**Zapier** remains the right call for teams with no technical capacity, simple linear trigger-action workflows, or quick prototypes you need running today.
-
-**Make** has won the mid-market. If you need complex branching logic, data transformation and iteration, or multi-system orchestration — CRM to enrichment to Slack to task creation in one flow — Make handles it at dramatically lower cost than Zapier at scale.
-
-**n8n** is the right answer for engineering-forward teams that want to self-host or embed automation into internal tooling. The community ecosystem has matured significantly; most common GTM integrations now have native nodes.
-
-A rough guide for where each tool fits:
-
-| Tool | Best for |
-|------|----------|
-| **Zapier** | Non-technical teams, simple linear flows, fast prototyping |
-| **Make** | Complex logic, data transformation, cost-sensitive at scale |
-| **n8n** | Self-hosted, engineering-forward teams, no per-op pricing |
+<ComparisonTable
+  title="Middleware in 2026"
+  tools={[
+    {
+      name: "Make",
+      tagline: "Won the mid-market — best power-to-price",
+      pros: [
+        "Branching, iteration, error routes — production-ready",
+        "5x cheaper than Zapier at high volume",
+        "Visual canvas without code"
+      ],
+      cons: [
+        "Steeper learning curve than Zapier",
+        "Not self-hostable on standard plans"
+      ],
+      pricing: "Free → ~$9/mo entry; ~$160/mo at 200K ops",
+      affiliateSlug: "make",
+      ctaLabel: "Try Make Free",
+      highlight: true
+    },
+    {
+      name: "Zapier",
+      tagline: "Right call only for non-technical teams + simple flows",
+      pros: [
+        "Largest app catalog and easiest UI",
+        "Fastest path to a working prototype",
+        "Familiar to non-technical operators"
+      ],
+      cons: [
+        "Per-task pricing punishes scale",
+        "Logic ceiling: weak iteration + branching",
+        "Error handling is the worst in the category"
+      ],
+      pricing: "Free → $19.99/mo Starter; $800+/mo at high volume"
+    },
+    {
+      name: "n8n",
+      tagline: "Best for engineering-forward teams",
+      pros: [
+        "Self-hostable on a $20/mo VPS",
+        "Native Code nodes for custom logic",
+        "Best-in-class AI agent + LangChain support"
+      ],
+      cons: [
+        "Smaller native app catalog (closing fast)",
+        "Operational overhead if self-hosting"
+      ],
+      pricing: "Free self-hosted; ~$50/mo Cloud Pro",
+      affiliateSlug: "n8n",
+      ctaLabel: "Try n8n"
+    }
+  ]}
+/>
 
 If you're currently on Zapier and running more than five active Zaps, pull your task report. Odds are good you could rebuild the same workflows in Make at 20–40% of the cost.
 
@@ -105,6 +157,10 @@ The biggest RevOps automation mistake in 2026 isn't picking the wrong tool — i
 Automation amplifies whatever is in your CRM. If your data is clean, automation makes your reps faster. If your data is messy, automation makes your problems louder, faster.
 
 Before you build your next workflow, ask: does the data this workflow depends on actually get filled in reliably? If the answer is no, fix the data quality problem first. An automation that routes leads to the wrong rep because territory data is missing isn't saving anyone time — it's just surfacing the problem in a more embarrassing way.
+
+<MyTake>
+The unglamorous truth: most teams that "rebuilt their stack" in 2026 didn't actually need new tools. They needed three weeks of disciplined data cleanup on the tools they already had. The tools-vs-discipline framing is exactly inverted from how most ops leads pitch the work to their CFO — and that's why ops budgets stay funded but pipeline data still doesn't get trusted.
+</MyTake>
 
 ## Where to start
 

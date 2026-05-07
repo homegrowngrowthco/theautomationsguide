@@ -15,13 +15,21 @@ faqs:
     answer: "For engineering-forward teams willing to self-host, yes — same UI philosophy as Make with no per-operation pricing. For most GTM teams, the operational overhead of self-hosting is not worth it."
 ---
 
-Zapier and Make are the two most common automation platforms in the RevOps world. They solve the same core problem — connecting your tools and triggering actions automatically — but they take very different approaches to it.
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+
+Zapier and [Make](/go/make) are the two most common automation platforms in the RevOps world. They solve the same core problem — connecting your tools and triggering actions automatically — but they take very different approaches to it.
 
 The question isn't which one is "better." It's which one is right for your team right now.
 
 <div class="quick-answer"><strong>Quick answer:</strong> Choose Zapier if your team is non-technical and your workflows are simple and linear. Choose Make if you need branching logic, data transformation, or you've outgrown Zapier's task limits — Make is roughly 5x cheaper at scale.</div>
 
-> **Disclosure:** This post contains affiliate links to both Zapier and Make. We tested both platforms extensively before writing this, and our recommendations are based on that experience.
+> **Disclosure:** This post contains affiliate links to Make and [n8n](/go/n8n). We tested both platforms (and Zapier) extensively before writing this, and our recommendations are based on that experience.
 
 ## The quick version
 
@@ -36,7 +44,7 @@ Zapier's superpower is accessibility. The UI is clean, the trigger-action model 
 
 For a GTM team that needs to:
 
-- Route new form fills into HubSpot
+- Route new form fills into [HubSpot](/go/hubspot)
 - Notify Slack when a deal closes
 - Create tasks when a support ticket opens
 - Sync data between two CRMs during a migration
@@ -65,15 +73,43 @@ Zapier's pricing is based on **tasks** (each action in a Zap counts). A 5-step Z
 
 Make's pricing is based on **operations**, which are similarly counted but the plans offer substantially more volume at each tier.
 
-A rough comparison for a mid-size RevOps team running several active automations:
-
-| Metric | Zapier | Make |
-|--------|--------|------|
-| 10,000 tasks/ops per month | ~$49/mo | ~$9/mo |
-| Advanced logic | Limited | Full |
-| Data transformation | Basic | Advanced |
-| API/webhook support | Yes | Yes |
-| Learning curve | Low | Medium |
+<ComparisonTable
+  title="Zapier vs Make at typical RevOps volume"
+  tools={[
+    {
+      name: "Zapier",
+      tagline: "Fastest to ship, hardest to scale",
+      pros: [
+        "Most accessible UI in the category",
+        "Largest app integration catalog",
+        "Trigger-action mental model is intuitive"
+      ],
+      cons: [
+        "Per-task pricing punishes scale",
+        "Limited branching + iteration",
+        "Error handling is the weakest in the category"
+      ],
+      pricing: "~$49/mo at 10K tasks; balloons fast at higher volume"
+    },
+    {
+      name: "Make",
+      tagline: "Best power-to-price for mid-market RevOps",
+      pros: [
+        "5x cheaper than Zapier at 10K+ ops/mo",
+        "Iterators + routers for real data work",
+        "Native error routes (table-stakes for production)"
+      ],
+      cons: [
+        "Steeper learning curve than Zapier",
+        "Canvas can get visually busy on large flows"
+      ],
+      pricing: "~$9/mo at 10K ops; ~$160/mo at 200K ops",
+      affiliateSlug: "make",
+      ctaLabel: "Try Make Free",
+      highlight: true
+    }
+  ]}
+/>
 
 These numbers shift with plan changes, so check current pricing directly — but the pattern holds: Make gives you more for less.
 
@@ -89,7 +125,11 @@ The learning curve on Make is real but manageable. Budget a few hours for the fi
 
 ## What about n8n?
 
-n8n is worth a mention for teams that are willing to self-host. It's open-source, the UI is similar to Make, and you pay for your own infrastructure instead of per-task pricing. For engineering-forward teams or startups with a DevOps-friendly culture, it's worth evaluating. For most GTM teams, the operational overhead isn't worth it.
+[n8n](/go/n8n) is worth a mention for teams that are willing to self-host. It's open-source, the UI is similar to Make, and you pay for your own infrastructure instead of per-task pricing. For engineering-forward teams or startups with a DevOps-friendly culture, it's worth evaluating. For most GTM teams, the operational overhead isn't worth it.
+
+<MyTake>
+I've watched teams pick Zapier first because it was familiar, then rebuild on Make 18 months later when the bill hit $800/mo. If you know your volume will be over 2,000 tasks/month within 6 months, just start on Make. The week of relearning is dramatically cheaper than the migration.
+</MyTake>
 
 ## My recommendation
 
