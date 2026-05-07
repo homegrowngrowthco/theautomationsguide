@@ -1,0 +1,20 @@
+---
+// Large styled quote with optional attribution.
+//
+// USAGE in MDX posts:
+//   <PullQuote attribution="2024 RevOps Benchmarks Report">
+//     The teams winning at automation in 2026 don't have more tools — they have
+//     fewer, better-connected ones.
+//   </PullQuote>
+
+interface Props {
+  attribution?: string;
+}
+
+const { attribution } = Astro.props;
+---
+
+<blockquote class="pull-quote">
+  <div class="pull-quote-body"><slot /></div>
+  {attribution && <footer class="pull-quote-attribution">{attribution}</footer>}
+</blockquote>

@@ -1,0 +1,32 @@
+---
+// Wraps an image, inline SVG, or other figure body with a caption.
+//
+// USAGE in MDX posts:
+//   <Figure caption="A typical 4-layer RevOps stack: capture → enrich → activate → measure.">
+//     <svg viewBox="0 0 600 200">...inline diagram...</svg>
+//   </Figure>
+//
+//   Or with an image src:
+//   <Figure src="/figures/stack-2026.svg" alt="..." caption="..." />
+
+interface Props {
+  caption: string;
+  src?: string;
+  alt?: string;
+  width?: number | string;
+  height?: number | string;
+}
+
+const { caption, src, alt = '', width, height } = Astro.props;
+---
+
+<figure class="figure">
+  <div class="figure-body">
+    {src ? (
+      <img src={src} alt={alt} width={width} height={height} loading="lazy" />
+    ) : (
+      <slot />
+    )}
+  </div>
+  <figcaption class="figure-caption">{caption}</figcaption>
+</figure>
