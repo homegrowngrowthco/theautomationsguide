@@ -1,0 +1,32 @@
+---
+// Row of 1-4 big-number callout cards. Stays inside the prose column width.
+//
+// USAGE in MDX posts:
+//   <StatRow stats={[
+//     { number: '$8.4B', label: 'RevOps tooling market', description: 'Forrester, 2025' },
+//     { number: '47%', label: 'use 3+ automation tools' },
+//     { number: '12 hrs', label: 'saved per rep / week' },
+//   ]} />
+
+interface Stat {
+  number: string;
+  label: string;
+  description?: string;
+}
+
+interface Props {
+  stats: Stat[];
+}
+
+const { stats } = Astro.props;
+---
+
+<div class="stat-row" style={`--cols: ${stats.length}`}>
+  {stats.map((stat) => (
+    <div class="stat-card">
+      <div class="stat-card-number">{stat.number}</div>
+      <div class="stat-card-label">{stat.label}</div>
+      {stat.description && <div class="stat-card-description">{stat.description}</div>}
+    </div>
+  ))}
+</div>

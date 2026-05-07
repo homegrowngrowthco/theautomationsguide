@@ -29,3 +29,7 @@ pnpm-debug.log*
 # Claude Code (commit settings.json; ignore local overrides + history)
 .claude/settings.local.json
 .claude/file-history/
+
+# QA artifacts (Playwright screenshots + Claude vision review output)
+qa-screenshots/
+qa-review.md

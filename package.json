@@ -4,13 +4,23 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "qa:screenshots": "node qa/qa-screenshots.mjs",
+    "qa:review": "node qa/qa-claude-review.mjs",
+    "qa": "npm run qa:screenshots && npm run qa:review"
   },
   "dependencies": {
+    "@astrojs/mdx": "^3.1.9",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.1.6",
     "astro": "^4.16.0"
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.95.1",
+    "dotenv": "^17.4.2",
+    "pagefind": "^1.5.2",
+    "playwright": "^1.59.1"
   }
 }
