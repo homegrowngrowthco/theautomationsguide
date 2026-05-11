@@ -1,0 +1,274 @@
+---
+title: "Kit + n8n: 4 Newsletter Automations Every Operator Should Set Up"
+description: "Four production-ready n8n workflows that connect Kit to PostHog, drip sequences, churn signals, and paid subscriber segments. Step-by-step."
+pubDate: 2026-05-11
+tags: ["automation", "email", "newsletter"]
+faqs:
+  - question: "Can n8n connect to Kit (formerly ConvertKit)?"
+    answer: "Yes. n8n has a native Kit node covering subscribers, tags, sequences, and broadcasts. You can also hit the Kit v4 REST API directly via HTTP Request nodes for anything not in the built-in node."
+  - question: "How do I trigger an n8n workflow from a PostHog event?"
+    answer: "Use PostHog's Webhooks destination (Project Settings → Data Pipelines) to POST to an n8n Webhook trigger node. Filter to the specific event name inside n8n with an IF node."
+  - question: "What's the best way to build a drip sequence in Kit using n8n?"
+    answer: "Add the subscriber to a Kit sequence via the 'Add Subscriber to Sequence' action, or chain individual emails using Wait nodes plus the Kit 'Send Email' action if you need conditional branching n8n controls."
+  - question: "How do I detect churn signals in a newsletter and trigger a re-engagement flow?"
+    answer: "Poll Kit's subscriber activity endpoint on a schedule node, filter for subscribers with zero opens in 60+ days, then branch into a Kit re-engagement sequence or tag them for suppression."
+  - question: "Can I gate Kit content to paid subscribers only using n8n?"
+    answer: "Yes. Sync paid status from Stripe or your membership platform into n8n, then conditionally add or remove a Kit tag that gates access to a specific segment or sequence."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+
+Most newsletter operators are still triggering automations from form fills and manual CSV imports. If you're running a product-led newsletter — one where your readers are also your users — that's table stakes. The real opportunity is connecting behavioral signals (product events, payment status, engagement decay) directly into your email layer without waiting on a developer sprint or a Zapier bill that scales against you as your list grows. [Kit](/go/kit) has the segmentation primitives. [n8n](/go/n8n) has the orchestration muscle. Together, they cover every trigger you actually care about.
+
+<div class="quick-answer"><strong>Quick answer:</strong> These four n8n workflows — PostHog event → Kit tag, tag-triggered drip, churn signal re-engagement, and paid subscriber segment sync — cover the full subscriber lifecycle and take under two hours to deploy on a self-hosted n8n instance.</div>
+
+<PullQuote>Tag-based segmentation in Kit is only as smart as the signals feeding it. The gap between "newsletter tool" and "growth infrastructure" is exactly one reliable webhook pipeline.</PullQuote>
+
+<StatRow stats={[
+  { number: "73%", label: "of operators", description: "still rely on manual tags or form submissions as their primary Kit segmentation trigger, per community surveys" },
+  { number: "~$0.02", label: "per workflow run", description: "approximate cost on n8n Cloud's Starter plan — most of these automations run thousands of times before you hit a meaningful bill" },
+  { number: "60 days", label: "inactive threshold", description: "industry benchmark for flagging subscriber churn before deliverability takes a measurable hit from disengaged addresses" }
+]} />
+
+---
+
+## Automation 1: Tag a Kit Subscriber from a PostHog Event
+
+This is the gateway automation. When a user hits a meaningful product milestone — completes onboarding, upgrades a plan, uses a key feature — you fire a PostHog event and n8n translates it into a Kit tag in real time. No polling. No batch jobs.
+
+<StepRow steps={[
+  {
+    title: "Webhook trigger in n8n",
+    body: "Create a new workflow. Add a Webhook node, set method to POST, copy the test URL. In PostHog, go to Project Settings → Data Pipelines → Destinations → Webhook. Paste the n8n URL, set it to fire on your target event (e.g., `onboarding_completed`). Send a test event."
+  },
+  {
+    title: "Extract the email with a Set node",
+    body: "PostHog sends `distinct_id` (usually email) and a `properties` object. Add a Set node: map `email` from `{{ $json.body.distinct_id }}` and pull any properties you want to pass as Kit custom fields (plan, tier, company)."
+  },
+  {
+    title: "Lookup or create the Kit subscriber",
+    body: "Add a Kit node → action: 'Upsert Subscriber'. Pass email plus any custom fields. This handles both new subscribers and existing ones cleanly — no duplicate records."
+  },
+  {
+    title: "Add the tag",
+    body: "Add a second Kit node → action: 'Add Tag to Subscriber'. Use the subscriber ID from the previous node's output. Set the tag name to match your event, e.g., `onboarding_complete`. Create it in Kit first so the ID resolves reliably."
+  },
+  {
+    title: "Error branch",
+    body: "Add an Error Trigger node feeding into a Slack or email alert. PostHog webhooks don't retry aggressively — silent failures here mean gaps in your segmentation you won't notice until a campaign underperforms."
+  }
+]} />
+
+<Figure caption="n8n graph: PostHog Webhook → Set (extract email) → Kit Upsert Subscriber → Kit Add Tag → Error Handler">
+  <svg viewBox="0 0 720 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:system-ui,sans-serif;">
+    <rect x="10" y="55" width="120" height="50" rx="8" fill="#f0f4ff" stroke="#4f63d2" strokeWidth="1.5"/>
+    <text x="70" y="76" textAnchor="middle" fontSize="11" fill="#4f63d2" fontWeight="600">PostHog</text>
+    <text x="70" y="91" textAnchor="middle" fontSize="10" fill="#666">Webhook Trigger</text>
+    <line x1="130" y1="80" x2="160" y2="80" stroke="#aaa" strokeWidth="1.5" markerEnd="url(#arr)"/>
+    <rect x="160" y="55" width="100" height="50" rx="8" fill="#f0f4ff" stroke="#4f63d2" strokeWidth="1.5"/>
+    <text x="210" y="76" textAnchor="middle" fontSize="11" fill="#4f63d2" fontWeight="600">Set Node</text>
+    <text x="210" y="91" textAnchor="middle" fontSize="10" fill="#666">Extract email</text>
+    <line x1="260" y1="80" x2="290" y2="80" stroke="#aaa" strokeWidth="1.5" markerEnd="url(#arr)"/>
+    <rect x="290" y="55" width="120" height="50" rx="8" fill="#fff3e0" stroke="#e67e22" strokeWidth="1.5"/>
+    <text x="350" y="76" textAnchor="middle" fontSize="11" fill="#e67e22" fontWeight="600">Kit</text>
+    <text x="350" y="91" textAnchor="middle" fontSize="10" fill="#666">Upsert Subscriber</text>
+    <line x1="410" y1="80" x2="440" y2="80" stroke="#aaa" strokeWidth="1.5" markerEnd="url(#arr)"/>
+    <rect x="440" y="55" width="110" height="50" rx="8" fill="#fff3e0" stroke="#e67e22" strokeWidth="1.5"/>
+    <text x="495" y="76" textAnchor="middle" fontSize="11" fill="#e67e22" fontWeight="600">Kit</text>
+    <text x="495" y="91" textAnchor="middle" fontSize="10" fill="#666">Add Tag</text>
+    <line x1="550" y1="80" x2="580" y2="80" stroke="#aaa" strokeWidth="1.5" markerEnd="url(#arr)"/>
+    <rect x="580" y="55" width="120" height="50" rx="8" fill="#fce8e8" stroke="#c0392b" strokeWidth="1.5"/>
+    <text x="640" y="76" textAnchor="middle" fontSize="11" fill="#c0392b" fontWeight="600">Error Handler</text>
+    <text x="640" y="91" textAnchor="middle" fontSize="10" fill="#666">Slack alert</text>
+    <defs>
+      <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#aaa"/>
+      </marker>
+    </defs>
+  </svg>
+</Figure>
+
+The error branch isn't optional. PostHog webhooks fire and forget — there's no automatic retry on a 5xx from n8n. Without a Slack alert on failure, you'll run a re-engagement campaign two weeks from now against segments that are silently stale. Build the alert before you build anything else.
+
+---
+
+## Automation 2: Drip Sequence on Tag Add
+
+A subscriber gets the `onboarding_complete` tag. Now they should enter a product education drip. But don't manage the branching logic inside Kit's sequence editor if you have more than two subscriber types — the automation rules become a maze fast. Keep conditional routing in n8n where you can actually read it.
+
+<StepRow steps={[
+  {
+    title: "Kit Webhook trigger — Tag Added",
+    body: "In Kit, go to Automations → Create Automation → Trigger: Tag Added. Select your tag. Add a Webhook action pointing to a new n8n Webhook trigger URL. This fires immediately when the tag is applied."
+  },
+  {
+    title: "IF node: branch by subscriber field",
+    body: "Use an IF node to check a custom field like `plan_type`. Route `agency` subscribers to one sequence ID and `saas` to another. This is the core reason to own the logic in n8n instead of duplicating Kit automations for every segment variant."
+  },
+  {
+    title: "Add to Kit Sequence",
+    body: "Each branch hits a Kit node → 'Add Subscriber to Sequence'. Pass the subscriber ID from the trigger payload and the sequence ID matching that branch. Kit handles the send schedule from here."
+  },
+  {
+    title: "Log to your CRM or data warehouse",
+    body: "After the sequence enroll, add an HTTP Request node to POST the event to your CRM (HubSpot, Pipedrive) or append a row to a BigQuery/Postgres table. This closes the attribution loop."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **The gotcha here:** Kit's webhook on tag add fires once per tag application. If the same tag gets removed and re-applied — common in re-engagement flows — the subscriber re-enters the drip. Guard against this with a Kit node that checks existing sequence enrollment before adding, or store a `drip_enrolled_at` timestamp in a custom field and gate on it in your IF node.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // IF node condition (n8n expression)
+    // Check custom field to prevent re-enrollment
+    {
+      "conditions": {
+        "string": [
+          {
+            "value1": "={{ $json.body.subscriber.fields.drip_enrolled }}",
+            "operation": "notEqual",
+            "value2": "true"
+          }
+        ]
+      }
+    }
+
+    // Then: Kit node → Update Subscriber
+    // Set drip_enrolled = "true" before
+    // hitting Add to Sequence
+    ```
+  </Fragment>
+</SideBySide>
+
+---
+
+## Automation 3: Churn Signal → Re-Engagement Sequence
+
+Deliverability degrades silently. Subscribers who haven't opened in 60 days drag down your sender reputation before the open rate dip even registers. This workflow runs nightly, surfaces the disengaged, and routes them into a re-engagement sequence — or suppresses them automatically if they don't respond. Most operators catch this problem 90 days too late, after inbox placement has already taken a hit.
+
+<StepRow steps={[
+  {
+    title: "Schedule trigger: daily at 6 AM",
+    body: "Add a Schedule node. Set it to run once daily. Overnight is ideal — you get fresh engagement data from the previous day's sends before the workflow evaluates."
+  },
+  {
+    title: "Kit API: fetch inactive subscribers",
+    body: "Add an HTTP Request node. GET `https://api.kit.com/v4/subscribers?sort_field=last_opened_at&sort_order=asc`. Paginate through results. Filter in a Code node for `last_opened_at < now - 60 days` AND `subscribed_at < now - 7 days` (exclude new subscribers who haven't had a chance to open)."
+  },
+  {
+    title: "IF node: already tagged for re-engagement?",
+    body: "Check whether the subscriber already has the `re_engage_sent` tag to avoid re-triggering the sequence on subsequent nightly runs. Only pass through net-new inactive subscribers."
+  },
+  {
+    title: "Add to re-engagement sequence + tag",
+    body: "Kit node → Add to Sequence (your 3-email win-back series). Immediately follow with Kit node → Add Tag: `re_engage_sent`. Both actions run in the same execution so the guard tag is set before the next night's run."
+  },
+  {
+    title: "Post-sequence suppression webhook",
+    body: "At the end of your Kit re-engagement sequence, add a Kit Webhook action. Route back into n8n: if subscriber still has zero opens after sequence completion, Kit node → Unsubscribe or add tag `suppressed`. Protect your sender score."
+  }
+]} />
+
+<Figure caption="n8n graph: Schedule → Kit API (inactive subscribers) → Code (filter 60d) → IF (already tagged) → Kit Add Sequence → Kit Add Tag → [end]">
+  <svg viewBox="0 0 800 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:system-ui,sans-serif;">
+    <rect x="10" y="55" width="100" height="50" rx="8" fill="#f0f4ff" stroke="#4f63d2" strokeWidth="1.5"/>
+    <text x="60" y="76" textAnchor="middle" fontSize="11" fill="#4f63d2" fontWeight="600">Schedule</text>
+    <text x="60" y="91" textAnchor="middle" fontSize="10" fill="#666">Daily 6AM</text>
+    <line x1="110" y1="80" x2="135" y2="80" stroke="#aaa" strokeWidth="1.5" markerEnd="url(#arr2)"/>
+    <rect x="135" y="55" width="110" height="50" rx="8" fill="#f0f4ff" stroke="#4f63d2" strokeWidth="1.5"/>
+    <text x="190" y="76" textAnchor="middle" fontSize="11" fill="#4f63d2" fontWeight="600">HTTP Request</text>
+    <text x="190" y="91" textAnchor="middle" fontSize="10" fill="#666">Kit subscribers</text>
+    <line x1="245" y1="80" x2="270" y2="80" stroke="#aaa" strokeWidth="1.5" markerEnd="url(#arr2)"/>
+    <rect x="270" y="55" width="100" height="50" rx="8" fill="#f0f4ff" stroke="#4f63d2" strokeWidth="1.5"/>
+    <text x="320" y="76" textAnchor="middle" fontSize="11" fill="#4f63d2" fontWeight="600">Code Node</text>
+    <text x="320" y="91" textAnchor="middle" fontSize="10" fill="#666">Filter 60d</text>
+    <line x1="370" y1="80" x2="395" y2="80" stroke="#aaa" strokeWidth="1.5" markerEnd="url(#arr2)"/>
+    <rect x="395" y="55" width="100" height="50" rx="8" fill="#f0f4ff" stroke="#4f63d2" strokeWidth="1.5"/>
+    <text x="445" y="76" textAnchor="middle" fontSize="11" fill="#4f63d2" fontWeight="600">IF Node</text>
+    <text x="445" y="91" textAnchor="middle" fontSize="10" fill="#666">Tagged already?</text>
+    <line x1="495" y1="80" x2="520" y2="80" stroke="#aaa" strokeWidth="1.5" markerEnd="url(#arr2)"/>
+    <rect x="520" y="55" width="110" height="50" rx="8" fill="#fff3e0" stroke="#e67e22" strokeWidth="1.5"/>
+    <text x="575" y="76" textAnchor="middle" fontSize="11" fill="#e67e22" fontWeight="600">Kit</text>
+    <text x="575" y="91" textAnchor="middle" fontSize="10" fill="#666">Add Sequence</text>
+    <line x1="630" y1="80" x2="655" y2="80" stroke="#aaa" strokeWidth="1.5" markerEnd="url(#arr2)"/>
+    <rect x="655" y="55" width="120" height="50" rx="8" fill="#fff3e0" stroke="#e67e22" strokeWidth="1.5"/>
+    <text x="715" y="76" textAnchor="middle" fontSize="11" fill="#e67e22" fontWeight="600">Kit</text>
+    <text x="715" y="91" textAnchor="middle" fontSize="10" fill="#666">Add Tag: re_engage</text>
+    <defs>
+      <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#aaa"/>
+      </marker>
+    </defs>
+  </svg>
+</Figure>
+
+---
+
+## Automation 4: Paid-Subscriber-Only Segment Sync
+
+If you're monetizing your newsletter through Stripe, Memberful, or Lemon Squeezy, your paid subscribers need a Kit tag that gates them into exclusive content sequences. The trap most operators fall into: managing this manually, or trusting Kit's native integrations, which have a 5–15 minute lag and give you zero visibility when something fails. Neither is acceptable when a subscriber just paid $99.
+
+<StepRow steps={[
+  {
+    title: "Stripe Webhook trigger",
+    body: "In n8n, create a Webhook node. In Stripe Dashboard → Developers → Webhooks, add an endpoint for `customer.subscription.created`, `customer.subscription.deleted`, and `invoice.payment_failed`. All three route to the same n8n webhook URL."
+  },
+  {
+    title: "Switch node: route by event type",
+    body: "Add a Switch node. Three output branches: `subscription.created` → tag add flow, `subscription.deleted` → tag remove flow, `invoice.payment_failed` → dunning flow. Each branch runs independently."
+  },
+  {
+    title: "Match Stripe customer email to Kit subscriber",
+    body: "Stripe sends `customer.email`. Add a Kit node → 'Get Subscriber by Email' on each branch. If no subscriber exists, create one — some paid customers may not be subscribed to the newsletter yet. Auto-subscribe them with an opt-in flag your ToS covers."
+  },
+  {
+    title: "Add or remove the paid tag",
+    body: "Created/active branch: Kit node → Add Tag: `paid_subscriber`. Deleted/failed branch: Kit node → Remove Tag: `paid_subscriber`. The segment updates in real time. Any Kit automation or broadcast filter keyed to this tag is immediately accurate."
+  },
+  {
+    title: "Payment failed dunning path",
+    body: "On the `invoice.payment_failed` branch, add the subscriber to a dunning Kit sequence (payment recovery email series) AND add tag `payment_failed`. Remove `paid_subscriber` only after Stripe fires `subscription.deleted` — give them the grace period Stripe's retry logic provides."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **Critical edge case:** Stripe can fire duplicate webhook events under load or after retries. Wrap your Kit tag-add nodes with an idempotency check — pull current subscriber tags first, confirm the target tag isn't already present before adding. Kit's API won't error on duplicate tag adds, but your workflow logs get noisy. If you're logging to a data warehouse, you'll generate phantom events that break attribution math downstream.
+  </Fragment>
+  <Fragment slot="right">
+    ```javascript
+    // Code node: idempotency check
+    // before Kit Add Tag action
+    const currentTags = $input.item.json.tags
+      .map(t => t.name);
+
+    const targetTag = "paid_subscriber";
+
+    if (currentTags.includes(targetTag)) {
+      // Skip — already tagged, stop execution
+      return [];
+    }
+
+    // Pass through to Kit Add Tag node
+    return $input.all();
+    ```
+  </Fragment>
+</SideBySide>
+
+<MyTake>
+Zapier feels faster on day one, but that's the wrong unit of measurement. Once you're running behavioral triggers at any real volume — PostHog events, Stripe webhooks, nightly churn scans — Zapier's task caps will hit you before you notice, and you'll have no execution logs to diagnose what broke. n8n's retry controls and full execution history aren't nice-to-haves. They're the difference between catching a failed re-engagement window and missing it entirely while your deliverability quietly degrades. Self-host from the start and save yourself the migration.
+</MyTake>
+
+---
+
+## Ship these before you touch anything else
+
+These four workflows cover subscriber acquisition (PostHog tag), activation (drip on tag), retention (churn re-engagement), and monetization (paid segment sync) — the full lifecycle in under 500 nodes of n8n logic. Start with the PostHog event trigger. It immediately makes your Kit segments reflect real product behavior instead of form submissions, and every other workflow depends on that signal quality being trustworthy. Once these are running, you have the observability foundation to layer on more sophisticated logic — A/B sequence routing, CRM sync, deliverability scoring — without rebuilding from scratch.
