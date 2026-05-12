@@ -58,8 +58,12 @@ jobs:
         if: steps.skip-check.outputs.skip != 'true'
         id: retry-count
         run: |
-          COUNT=$(git log --pretty=%s origin/master..HEAD | grep -cE '^\[qa-fix-[0-9]+\]' || echo "0")
-          echo "count=$COUNT" >> $GITHUB_OUTPUT
+          # grep -c outputs "0" AND exits 1 when there are zero matches, which
+          # would trigger `|| echo "0"` and write "0\n0" to GITHUB_OUTPUT
+          # (breaking it). Pipe through `wc -l` instead — works regardless of
+          # match count and always exits 0.
+          COUNT=$(git log --pretty=%s origin/master..HEAD | grep -E '^\[qa-fix-[0-9]+\]' | wc -l | tr -d ' ')
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
           echo "Prior fix attempts: $COUNT"
 
       - name: Identify changed post slug
