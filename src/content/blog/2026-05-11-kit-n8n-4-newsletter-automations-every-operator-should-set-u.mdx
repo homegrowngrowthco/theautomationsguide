@@ -37,11 +37,11 @@ Most newsletter operators are still triggering automations from form fills and m
 ]} />
 
 <style>{`
-  @media (min-width: 1024px) {
-    .stat-row-cards {
-      min-width: 220px;
-      padding: 1.5rem;
-    }
+  .stat-row-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  .stat-row-grid > * {
+    min-width: 0 !important;
   }
 `}</style>
 
