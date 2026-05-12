@@ -22,6 +22,12 @@ const VIEWPORTS = [
   { name: 'wide',    width: 1440, height: 900  },
 ];
 
+// Anthropic Vision API rejects images with any dimension > 8000px.
+// Full-page screenshots of long blog posts blow past that. Cap height
+// at 7500px (margin below the limit) — captures the layout-issue-prone
+// top of the page, drops below-the-fold content (FAQs, footer, etc.).
+const MAX_SCREENSHOT_HEIGHT = 7500;
+
 const STATIC_PAGES = ['/', '/blog', '/tools', '/about', '/search'];
 
 const blogPosts = readdirSync('./src/content/blog')
@@ -57,11 +63,24 @@ async function run() {
 
       try {
         await page.goto(`${BASE_URL}${url}`, { waitUntil: 'networkidle', timeout: 15000 });
-        await page.screenshot({
-          path: path.join(OUT_DIR, slug, `${vp.name}.png`),
-          fullPage: true,
-        });
-        console.log(`  ✓ ${slug}/${vp.name}.png`);
+
+        // Measure full page height. If it would exceed Anthropic Vision's 8000px
+        // limit, clip the screenshot to MAX_SCREENSHOT_HEIGHT instead.
+        const pageHeight = await page.evaluate(
+          () => document.documentElement.scrollHeight,
+        );
+        const screenshotOpts = pageHeight > MAX_SCREENSHOT_HEIGHT
+          ? {
+              path: path.join(OUT_DIR, slug, `${vp.name}.png`),
+              clip: { x: 0, y: 0, width: vp.width, height: MAX_SCREENSHOT_HEIGHT },
+            }
+          : {
+              path: path.join(OUT_DIR, slug, `${vp.name}.png`),
+              fullPage: true,
+            };
+        await page.screenshot(screenshotOpts);
+        const clipped = pageHeight > MAX_SCREENSHOT_HEIGHT ? ` (clipped from ${pageHeight}px)` : '';
+        console.log(`  ✓ ${slug}/${vp.name}.png${clipped}`);
       } catch (err) {
         console.log(`  ✗ ${slug}/${vp.name}.png — ${err.message}`);
       } finally {

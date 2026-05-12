@@ -1,0 +1,190 @@
+# Deployment & Rollback Guide
+
+The "I don't know what I'm doing, what do I press?" doc. Bookmark this.
+
+## Mental model — 30 second version
+
+- **One change = one Pull Request (PR) = one merge commit on `master`.**
+- **Every merge to `master` auto-deploys to production via Netlify** (~90 seconds).
+- **Every merge can be reverted with one command** (`git revert <merge-sha>`) which creates a NEW commit that undoes the change. Netlify auto-deploys that revert, so production rolls back without any UI clicks.
+- **n8n workflows are NOT auto-deployed** — they live in n8n Cloud and only change when you manually re-import a workflow JSON. To roll back an n8n change, find the previous version of the JSON in git history, copy it, paste into n8n.
+
+## Rule of thumb when you're nervous
+
+> If the live site looks broken or wrong after a deploy, **revert the most recent merge** first. Diagnose later. Production stays clean. Reverts are cheap.
+
+---
+
+## Part 1: Find out what was deployed when
+
+### "What's the most recent thing that hit production?"
+
+```bash
+git fetch origin master
+git log origin/master --oneline -10
+```
+
+Output looks like:
+
+```
+0ac804b Merge pull request #17 from homegrowngrowthco/fix/qa-workflow-grep-count
+8733108 Merge pull request #13 from homegrowngrowthco/feat/right-size-models
+c2c2b18 Merge pull request #12 from homegrowngrowthco/feat/qa-into-engine-autofix
+...
+```
+
+Each `Merge pull request #N` line is one deployment. The short hash on the left (`0ac804b`) is the **merge SHA** — what you'll use to revert.
+
+### "What changed in PR #N?"
+
+```bash
+gh pr view 17
+gh pr diff 17       # full diff
+```
+
+Or in browser: `https://github.com/homegrowngrowthco/theautomationsguide/pull/17`.
+
+---
+
+## Part 2: Roll back a deployment (the safe pattern)
+
+**The pattern**: create a new commit that undoes the change. This preserves history (you can always see what happened) and Netlify deploys the revert just like any other commit.
+
+### Easy mode — GitHub UI
+
+1. Open the PR you want to roll back: `https://github.com/homegrowngrowthco/theautomationsguide/pull/<N>`
+2. Scroll to the bottom of the conversation tab.
+3. Click the **"Revert"** button next to the merge confirmation.
+4. GitHub opens a NEW PR with the revert.
+5. Merge that PR.
+6. Netlify auto-deploys within ~90 seconds.
+
+That's it. The original change stays in history; the revert PR cleanly undoes its effects.
+
+### Power-user mode — command line
+
+```bash
+# Pull latest master
+git checkout master
+git pull origin master
+
+# Create a revert branch (one merge SHA at a time)
+git revert -m 1 <merge-sha-from-git-log>
+# (the `-m 1` flag tells git: "for this merge commit, undo by reverting to its first parent — master before the merge")
+
+# Push and open PR
+git push origin master   # if you have direct push (we don't — use a PR)
+
+# Better: revert on a branch + PR
+git checkout -b revert/pr-<N>
+git revert -m 1 <merge-sha-from-git-log>
+git push -u origin revert/pr-<N>
+gh pr create --title "Revert PR #<N>" --body "Reverts <merge-sha>. Reason: ..."
+gh pr merge --merge
+```
+
+---
+
+## Part 3: Emergency rollback — Netlify direct (no git involved)
+
+If git feels scary or you need production reverted in the next 30 seconds:
+
+1. Go to https://app.netlify.com/projects/theautomationsguide/deploys
+2. You'll see a list of every deploy ever made. Each row has a timestamp + commit hash + a status.
+3. Find the **last known-good deploy** (the one before the broken one).
+4. Click the row → "**Publish deploy**" button.
+5. That older deploy is now live on `theautomationsguide.com` within seconds.
+
+**Caveat**: this only rolls back the *live site*. The git `master` branch still has the bad commit. So as a follow-up, also do a `git revert` (above) to bring git in sync, otherwise Netlify will re-publish the bad commit the next time anything else merges.
+
+Think of Netlify "Publish deploy" as the **panic button** that buys you time to do the proper git revert.
+
+---
+
+## Part 4: Rolling back an n8n workflow change
+
+n8n Cloud doesn't connect to git automatically. Workflow JSONs in this repo are the **source of truth** — n8n Cloud is the **deployed copy**. When you "deploy" an n8n change, you manually re-import the JSON. To roll back:
+
+### Find the previous version of the workflow JSON
+
+```bash
+# See history of one workflow file
+git log --oneline n8n/blog-post-engine.json
+
+# Output:
+#   bfa25dd Right-size models — collapse social outputs
+#   c23036c fix(engine): use JSX comments
+#   83d80c6 fix(engine): use JSX comments (original)
+#   ...
+
+# Get the file as it existed at a previous commit
+git show <commit-sha>:n8n/blog-post-engine.json > /tmp/blog-post-engine-rollback.json
+```
+
+### Re-import the older version
+
+n8n Cloud → Workflows → open the workflow → **⋯ menu → Import from File** → paste the contents of `/tmp/blog-post-engine-rollback.json`.
+
+That's the rollback. Same file, older version. Activate.
+
+**Tip:** always note in your CLAUDE.md `Session Log` when you re-import an n8n workflow — that way the audit trail of "which version is live in n8n Cloud right now" is documented somewhere outside n8n.
+
+---
+
+## Part 5: Recent deployments reference
+
+For this project, here are the most consequential merges to date (newest first). Update this section as new significant PRs land.
+
+| Date | PR | Merge SHA | What | Revert command |
+|---|---|---|---|---|
+| 2026-05-12 | #17 | `0ac804b` | Fix grep -c bug in QA workflow | `git revert -m 1 0ac804b` |
+| 2026-05-11 | #13 | `8733108` | Right-size Anthropic models (social outputs → Haiku) | `git revert -m 1 8733108` |
+| 2026-05-11 | #12 | `c2c2b18` | QA-into-engine auto-fix pipeline | `git revert -m 1 c2c2b18` |
+| 2026-05-11 | #11 | `52e6807` | Backfill 8 existing posts to MDX | `git revert -m 1 52e6807` |
+| 2026-05-11 | #10 | `b9f4932` | Automation improvements (Node 22, monitors, auto-merge GHA) | `git revert -m 1 b9f4932` |
+| 2026-05-11 | #9 | `d1f4c3c` | Session 7 docs log | `git revert -m 1 d1f4c3c` |
+| 2026-05-11 | #8 | `c23036c` | Engine SVG comment fix | `git revert -m 1 c23036c` |
+| 2026-05-11 | #7 | `a83b5cd` | Visual post format redesign + MDX engine upgrade | `git revert -m 1 a83b5cd` |
+| 2026-05-11 | #6 | `abb50d3` | First MDX-format post (Apollo Alternatives) | `git revert -m 1 abb50d3` |
+
+(Refresh with `git log origin/master --oneline --merges -15`.)
+
+---
+
+## Part 6: Pre-deploy checklist (when you're about to merge a PR)
+
+Before clicking **Merge**, eyeball:
+
+- [ ] **All checks green?** GitHub shows a checkmark next to the PR (Netlify deploy preview ✓, redirect rules ✓, etc.) Specifically: `netlify/theautomationsguide/deploy-preview` must be `SUCCESS` — that means the new code actually built.
+- [ ] **Deploy preview looks right?** Click the Netlify deploy preview link in the PR comments. Check that the change does what you expect. For content PRs, click around the post URL on the preview.
+- [ ] **Conflicts?** If GitHub shows "This branch has conflicts that must be resolved," don't merge. Either resolve in the GitHub UI (small conflicts) or ask Claude to rebase the branch.
+- [ ] **What does it touch?** `gh pr view <N> --json files --jq '.files[].path'` shows the file list. If a PR claims to "fix a typo" but touches 30 files, slow down.
+
+If all four pass → merge with confidence. If anything fails → don't merge.
+
+---
+
+## Part 7: When something feels weird, ask Claude
+
+Common questions you can paste in:
+
+- *"What did PR #N change? Walk me through the diff."*
+- *"Revert PR #N for me."*
+- *"The live site looks broken. What's the most recent thing that deployed?"*
+- *"The QA action is failing on PR #M, what's wrong?"*
+- *"Roll back the n8n blog engine to the version before today's right-size-models change."*
+
+Claude has access to git history, the GitHub API, and Netlify deploy URLs. You don't need to know commands — just describe the problem and Claude executes the safe pattern.
+
+---
+
+## TL;DR cheat sheet
+
+| What I want | What to do |
+|---|---|
+| "What's live right now?" | `git log origin/master --oneline -5` |
+| "Undo the last thing I shipped" | Open the merge commit's PR in GitHub → click **Revert** → merge the revert PR |
+| "Production is on fire — get the site back to yesterday" | Netlify dashboard → Deploys tab → pick yesterday's deploy → **Publish deploy** |
+| "I want to undo a specific PR from a week ago" | Same as the first row — open that PR → Revert button |
+| "I changed an n8n workflow and now it's broken" | `git log --oneline n8n/<workflow>.json` → `git show <prev-sha>:n8n/<workflow>.json` → re-import in n8n Cloud |
+| "I have no idea what I'm doing" | Ask Claude — describe the symptom, not the command |
