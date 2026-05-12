@@ -71,6 +71,8 @@ This session closed out everything left open after Session 7's redesign: shipped
 
 **Deployment + rollback safety guide (PR #18, merged 2026-05-12).** Added [`DEPLOYMENT.md`](DEPLOYMENT.md) at the project root — plain-language reference covering the mental model (PR → merge → Netlify auto-deploy → `git revert` to undo), three rollback paths (GitHub UI Revert button, `git revert -m 1 <merge-sha>`, Netlify dashboard "Publish older deploy" as emergency button), n8n-specific rollback (git is source of truth → `git show <sha>:n8n/<file>.json` → re-import), recent deployments table with per-PR revert commands, pre-merge checklist, and TL;DR cheat sheet. Pinned for "I don't know what I'm doing, what do I press?" moments.
 
+**Affiliate program wiring — 6 live, 2 rejected, 2 pending (commit `b7c3071`, pushed direct to master 2026-05-12 PM).** Edited [`src/data/affiliate-links.ts`](src/data/affiliate-links.ts) — the source of truth for every `/go/<slug>` redirect on the site. Approved 2026-05-12: **Make** (`make.com/en/register?pc=automationsguide`, direct partner program, 35% / 12 mo, 30-day cookie), **Apollo** (`get.apollo.io/k7n9run0vl50`, PartnerStack, 15% mo / 20% annual / 12 mo), **Clay** (`me.sh/?via=theautomationsguide`, Rewardful, $50 one-time / 60-day cookie), **Beehiiv** (`?via=the-automations-guide`, 50-60% recurring / 12 mo), **Smartlead** (`?via=theautomationsguide`, 15-35% recurring tiered), **Kit** (`partners.kit.com/nt9zrjmnck9y`, PartnerStack, 50% / 12 mo). Rejected (traffic-related, ~likely <1K visits/mo threshold): HubSpot, n8n — `/go/hubspot` and `/go/n8n` still resolve via homepage + UTM fallback, so links don't break. Pending: Pipedrive (gated by PartnerStack Network application, also pending 2026-05-12). Lemlist not applied yet. Added `'rejected'` to the `AffiliateLink` status union for accurate registry state. [AFFILIATE_PROGRAMS.md](AFFILIATE_PROGRAMS.md) rewritten with a proper Status / Live link / Commission / Notes table; "Where to put the links" section trimmed to point at `affiliate-links.ts` as the single edit point. Net effect: the site's affiliate revenue path is now live for the first time — every existing `/go/<tool>` link across blog posts, tools page, and homepage tool cards now routes to a real partner URL with tracking. **PartnerStack Network application copy** (Label + "What program managers should provide") prepared in conversation; submitted by Ian.
+
 ---
 
 ## Quick reference — Session 7 (2026-05-07 PM)
@@ -534,34 +536,15 @@ Or edit the two constants at the top of the file directly. Script validates both
 - [x] (2026-05-12) **6 affiliate programs live:** Make (`pc=automationsguide`), Apollo, Clay, Beehiiv, Smartlead, Kit. All wired in `src/data/affiliate-links.ts`. HubSpot + n8n rejected (re-apply when traffic builds). Pipedrive gated by pending PartnerStack Network application.
 - [x] [DEPLOYMENT.md](DEPLOYMENT.md) — rollback safety guide pinned at repo root.
 
-### Open — Ian (immediate, this week)
+### Open / pending — tracked in Notion
 
-- [ ] **Review the 8 Kit-affiliate topic suggestions** in the Notion Content Calendar — flip the ones to write to `Queued` (engine picks highest priority on next weekday 8am run; uses v4 MDX format + QA pipeline).
-- [ ] **PartnerStack Network application pending (2026-05-12)** — approval unlocks Pipedrive + any other PartnerStack-hosted program without per-program re-application. Once approved, flip Pipedrive to `live` in `src/data/affiliate-links.ts` with the partner link.
-- [ ] **Re-apply HubSpot + n8n once monthly traffic builds (~1K visits/mo)** — both rejected 2026-05-12, likely traffic-related. Until then, `/go/hubspot` and `/go/n8n` fall back to homepage + UTM tag — links still work, just no commission. Update `src/data/affiliate-links.ts` (`status: 'rejected'` → `'live'`, fill in `url`) when re-approved.
-- [ ] **Apply Lemlist** (https://lemlist.com/affiliate-program) once a Smartlead-alt comparison post is queued.
-- [ ] **Tier 3 programs** — apply once you have 10+ posts that mention the tool. See `AFFILIATE_PROGRAMS.md` § Tier 3.
-- [ ] **Verify PostHog:** open live site in incognito → check PostHog Live Events tab → confirm pageviews + click events fire. (Daily liveness monitor will Slack-alert if it drops to zero, so this is mainly a one-time setup check.)
-- [ ] **Verify Beehiiv:** subscribe with test email → confirm signup attributes correctly to source URL.
-- [ ] **Create TAG LinkedIn Company Page** + send URL to add to `sameAs` in BaseLayout.
+**Canonical source of truth for all TheAutomationsGuide to-do items:**
 
-### Open — Ian (next 2-4 weeks)
+➡️ **[TAG Tasks Notion database](https://www.notion.so/df30d3d41bc14e94a4f9d760c521d69f)** (under `TAG - Content Engine` workspace)
 
-- [ ] **Distribution: post on LinkedIn 3-5×/week** (via TAG company page per Ian's preference).
-- [ ] **Approve Topic Suggestor's biweekly suggestions** in Notion (flip `Suggested` → `Queued` for the good ones).
-- [ ] **Pitch 2-3 podcasts/month** — RevOps Podcast (Sweep), Modern Sales, Sales Hacker, GTM Now.
-- [ ] **Join + post in 2-3 RevOps communities** — RevOps Co-op (Slack, free), Modern Sales Pros, Pavilion.
-- [ ] **Build first lead magnet** — e.g., RevOps Stack Audit Notion template, gated by Beehiiv subscribe.
-- [ ] **GEO baseline test** — search target queries in ChatGPT, Perplexity, Claude, Gemini; log results.
+Sortable by Due Date / Priority / Category. Statuses: `Not started` → `In progress` → `Done` (or `Waiting` if blocked on an external response). Recurring items (monthly engine audit, quarterly key rotation, etc.) live there too.
 
-### Open — engine + automation improvements (Claude can pick these up later)
-
-- [ ] **Restore QA auto-loop 2nd-pass verification** — swap `Commit and push the fix` step in `.github/workflows/qa-content-pr.yml` from `GITHUB_TOKEN` to a fine-grained PAT secret (e.g., `AUTO_FIX_PAT`). Currently the pipeline is one-shot because GitHub Actions security blocks the bot's pushes from triggering new workflow runs. ~15 min when prioritized.
-- [ ] **Beehiiv liveness equivalent** — n8n daily ping on Beehiiv subscriber count API, Slack-alert on form-id failure or zero new subscribers over N days. Pattern documented in `n8n/README.md` Workflow 4 § Beehiiv equivalent.
-- [ ] **OG image template** — static PNG at `public/og-default.png` (needs design tool).
-- [ ] **Bump Netlify Node 22 → 24 LTS** when Node 22 enters maintenance (April 2027). One-line change in `netlify.toml`.
-- [ ] **Per-business shared n8n sub-workflows** (Slack notifier, error logger) once a 2nd business uses the pattern.
-- [ ] **Move affiliate registry to Notion or edge function** if you tire of pushing one-line commits to update affiliate URLs once 5+ are live. Sketched in earlier session — not urgent.
+**Going forward, do not add new to-do items to this CLAUDE.md file.** Add them to the Notion DB. This section exists only to point you there. Past Sessions' completed work is preserved in the Quick reference sections above for historical context.
 
 ### Revert paths (in case anything breaks)
 
