@@ -1,4 +1,4 @@
-# Session Log — last updated 2026-05-07
+# Session Log — last updated 2026-05-12
 
 ## Recovery Notes (2026-05-05 machine wipe)
 
@@ -25,7 +25,55 @@ This project survived the **2026-05-04** complete machine wipe.
 
 ---
 
-## Quick reference — recent additions (Session 7, 2026-05-07 PM)
+## Quick reference — recent additions (Session 8, 2026-05-11 → 2026-05-12)
+
+This session closed out everything left open after Session 7's redesign: shipped the deferred automation workflows, ran the rotation backlog for TheAutomationsGuide, fixed two bugs caught when the QA pipeline ran live for the first time, and produced the first fully-engine-generated + auto-QA-fixed post to land on the site.
+
+**Automation infrastructure (PR #10, merged 2026-05-11):**
+- Bumped Netlify to Node 22 LTS (Node 20 maintenance EOL was Apr 2026).
+- Added 3 new n8n workflows + 1 GitHub Action:
+  - `n8n/posthog-monitor.json` — daily 9am ET PostHog liveness check, Slack-alerts on zero pageviews in 24h.
+  - `n8n/notion-publish-status.json` — webhook-triggered, fires on PR merge → flips matching Notion topic to `Published` + Slack ping. Closes the "go mark Published manually" loop.
+  - `n8n/error-trigger.json` — n8n native Error Trigger backstop, Slack-alerts on any workflow failure account-wide.
+  - `.github/workflows/auto-merge-content.yml` — daily 14:00 UTC GHA that auto-merges `content:`-prefixed PRs that are 14+ days old with all checks passing and no CHANGES_REQUESTED review.
+- Setup steps for each documented in [n8n/README.md](n8n/README.md) Workflows 4–7.
+
+**Backfilled 8 existing `.md` posts to `.mdx` with components (PR #11, merged 2026-05-11).** Per-post component picks based on what each post supports — comparison posts got ComparisonTable + StatRow; tutorial got StepRow + SideBySide; framework posts got PullQuote + ComparisonTable; listicle got PullQuote + StepRow. All 8 now have a single contrarian MyTake block + `/go/<slug>` affiliate links on first mentions of each tool from the registry. Three posts (make-vs-zapier-vs-n8n, 5-mistakes, apollo-vs-clay) had no `faqs` field and got 4 each.
+
+**QA-into-engine auto-fix pipeline (PR #12, merged 2026-05-11).** GitHub Action [`.github/workflows/qa-content-pr.yml`](.github/workflows/qa-content-pr.yml) that runs on every `content/*` PR: waits for Netlify deploy preview → captures Playwright screenshots at 4 breakpoints → Claude Vision (`claude-sonnet-4-6`) reviews and returns JSON verdict → if issues found, Claude rewrites the `.mdx` and commits back as `[qa-fix-N]`. Capped at 2 fix attempts to prevent infinite loops; if cap hit, posts a manual-review comment + Slack-pings. Cost ceiling per PR: ~$0.25-$0.30 worst case. Helper scripts in [qa/qa-pr-review.mjs](qa/qa-pr-review.mjs) + [qa/qa-pr-fix.mjs](qa/qa-pr-fix.mjs).
+
+**Right-sized Anthropic models for cost-efficiency (PR #13, merged 2026-05-11).** Audit found 3 social-output Anthropic calls (Twitter / Video / LinkedIn) each running Sonnet 4.6 with the full ~3K-token post body duplicated in each user prompt — ~10K duplicate input tokens per post — and `cache_control` flags set on prompts under the 1024-token threshold so caching was theater. Collapsed into a single `Generate Social Outputs` Haiku 4.5 call returning JSON, with a new `Parse Social Outputs` code node fanning the 3 fields to the existing Save nodes. Switched Topic Suggestor to Haiku 4.5 (simple structured generation, Haiku-reachable quality). Trimmed `max_tokens` caps to right-sized values. Net: ~30% cost reduction (~$0.19 → ~$0.13 per post) with no quality regression. Auto-memory `feedback_right_size_models.md` captures the principle for future projects.
+
+**Key rotations completed (2026-05-12):**
+- **Anthropic** (post-malware-wipe rotation, item N1 on parent ROTATION-LIST). 4 consumers updated: 1Password, n8n credential, `theautomationsguide/.env`, GitHub repo secret `ANTHROPIC_API_KEY`. Scope verified by grep across all `claude_projects/` — Anthropic key is only referenced in TheAutomationsGuide.
+- **GitHub PAT** (item N2). Switched to fine-grained PAT format (`github_pat_...`) scoped to this repo with `Contents: R/W` + `Pull requests: R/W`. n8n credential updated with `Authorization: Bearer github_pat_...`.
+- **Notion Integration Token** (item N3). Reset on `TAG - Content Engine` integration. n8n credential updated with `Authorization: Bearer ntn_...`.
+
+**n8n credential format reference** (matters when rotating):
+| Credential name | Type | Header name | Header value |
+|---|---|---|---|
+| `Anthropic API Key` | Header Auth | `x-api-key` | `sk-ant-...` (**raw, no Bearer**) |
+| `GitHub PAT` | Header Auth | `Authorization` | `Bearer github_pat_...` |
+| `Notion Integration Token` | Header Auth | `Authorization` | `Bearer ntn_...` |
+| `PostHog Personal API Key` | Header Auth | `Authorization` | `Bearer phx_...` |
+
+**n8n workflows imported + activated in Cloud (2026-05-12):**
+- Re-imported: `blog-post-engine.json` (picks up SVG comment fix from PR #8 + social-outputs collapse from PR #13), `topic-suggestor.json` (Haiku swap from PR #13).
+- New imports: `posthog-monitor.json`, `notion-publish-status.json`, `error-trigger.json` — all activated, credentials wired, GitHub webhook configured to fire `notion-publish-status` on every Pull request event.
+- Error Trigger set as the "Error workflow" on every other workflow (Blog Engine, Topic Suggestor, Daily Briefing, PostHog Monitor, Notion Publish Status) in Workflow Settings.
+
+**First live QA pipeline run — PR #16 (newsletter automation stack post, merged 2026-05-12).** Surfaced 2 bugs in my GHA implementation, both fixed:
+- **Bug 1 (PR #17):** `grep -cE 'pat' || echo "0"` was producing `"0\n0"` when grep found zero matches, breaking `$GITHUB_OUTPUT` parser (`Invalid format '0'`). Fix: replaced with `grep -E 'pat' | wc -l | tr -d ' '` — exits cleanly regardless of match count.
+- **Bug 2 (PR #19):** Playwright `fullPage: true` on a 1100-1400-word MDX post at mobile breakpoint produced PNGs > 10,000px tall, which Anthropic Vision rejects (8000px dimension limit). Fix: detect `document.documentElement.scrollHeight` and clip to 7,500px via Playwright's `clip` option when oversized.
+- After both fixes, the QA workflow ran end-to-end: Claude Vision found 6 layout issues (4 major + 2 minor: StepRow density at tablet, StatRow padding on mobile, SideBySide diagram unreadable at tablet, PullQuote margin, prose width at desktop, newsletter footer padding asymmetry). Claude rewrote the `.mdx`, committed `[qa-fix-1]` (`575c71f`), Netlify rebuilt the deploy preview with fixes applied. Reviewed visually and merged.
+
+**Known limitation — QA auto-loop is one-shot, not 2-shot, until PAT swap.** The `[qa-fix-N]` commits are pushed with the default `GITHUB_TOKEN`, which by GitHub's security design does NOT trigger downstream workflow runs (loop prevention). So the QA workflow's intended 2-pass verification (review → fix-1 → re-review → optional fix-2 → re-review) currently degrades to a 1-pass (review → fix-1 → human reviews deploy preview manually). To restore full auto-loop, swap the `Commit and push the fix` step in `qa-content-pr.yml` to use a fine-grained PAT secret (e.g., `AUTO_FIX_PAT`) instead of `GITHUB_TOKEN`. Scoped follow-up, not urgent — single-pass auto-fix is a useful workflow even without the second verification.
+
+**Deployment + rollback safety guide (PR #18, merged 2026-05-12).** Added [`DEPLOYMENT.md`](DEPLOYMENT.md) at the project root — plain-language reference covering the mental model (PR → merge → Netlify auto-deploy → `git revert` to undo), three rollback paths (GitHub UI Revert button, `git revert -m 1 <merge-sha>`, Netlify dashboard "Publish older deploy" as emergency button), n8n-specific rollback (git is source of truth → `git show <sha>:n8n/<file>.json` → re-import), recent deployments table with per-PR revert commands, pre-merge checklist, and TL;DR cheat sheet. Pinned for "I don't know what I'm doing, what do I press?" moments.
+
+---
+
+## Quick reference — Session 7 (2026-05-07 PM)
 
 **Visual post format redesign — site-wide.** Posts moved off the 760px-centered "wall of text" layout onto a wider 1280px container with a Forbes/Gartner-style full-width body. All chrome (post header, EmailSignup, AuthorNote, related-tags), homepage `#newsletter` band, and About page also widened. Quick Answer block uses flexbox to vertically-center mixed inline content (works on all 8 existing `.md` posts without edits). Post-header padding tightened (~70px reclaimed around the title divider). Mobile `StatRow` cards trimmed (~30% smaller). PRs: [#7](https://github.com/homegrowngrowthco/theautomationsguide/pull/7).
 
@@ -462,37 +510,35 @@ Or edit the two constants at the top of the file directly. Script validates both
 
 ---
 
-## 5. Master Next Steps (current state — 2026-05-07 EOD)
+## 5. Master Next Steps (current state — 2026-05-12 EOD)
 
 ### What's running already
 
-- [x] Site live, deployed on Netlify, full SEO/GEO infrastructure
-- [x] Content engine v4 (MDX, per-post-type templates, dual idempotency) + Topic Suggestor + Daily Briefing workflows live in n8n Cloud
-- [x] PostHog analytics + Beehiiv newsletter wired and shipping
-- [x] HGC publisher branding (AuthorNote, About, footer, schema)
-- [x] Legal pages (privacy, terms, disclosure)
-- [x] `/go/[tool]` affiliate redirect system with PostHog tracking
-- [x] Visual MDX component library: SideBySide, StatRow, PullQuote, MyTake, StepRow, Figure, ComparisonTable
-- [x] Apple touch icon
-- [x] Email alias `ian@theautomationsguide.com`
-- [x] GSC + Bing submitted
-- [x] (2026-05-07 AM) Repo hygiene: `delete_branch_on_merge` on GitHub + `remote.origin.prune` locally
-- [x] (2026-05-07 AM) Notion MCP authenticated to "The Automations Guide" workspace — Content Calendar writable directly from Claude
-- [x] (2026-05-07 AM) 8 Kit-affiliate topics in Notion Content Calendar as `Suggested`
-- [x] (2026-05-07 PM) **Visual format redesign** — 1280px container, Forbes-style full-width body, MDX components, tighter spacing — PRs #7, #6, #8 merged
-- [x] (2026-05-07 PM) **Pagefind static search** — index built at `npm run build`, served from `/pagefind/`, navbar input + `/search` page
-- [x] (2026-05-07 PM) **Navbar overhaul** — 72px tall, bigger text, search input + Newsletter CTA + LinkedIn icon
-- [x] (2026-05-07 PM) **QA pipeline** — Playwright screenshots + Claude Vision review at `npm run qa`, scripts in [qa/](qa/)
-- [x] (2026-05-07 PM) **First MDX-format post live** — Apollo Alternatives (PR #6) merged, deploys with full component rendering
+- [x] Site live on theautomationsguide.com, auto-deployed from `master` via Netlify (Node 22 LTS).
+- [x] **Content engine v4** (MDX + per-post-type templates + dual idempotency + Haiku for social outputs) live in n8n Cloud. ~$0.13 per post API spend.
+- [x] **Topic Suggestor** (Haiku 4.5, Mon/Thu) + **Daily Briefing** (Slack ping each morning) live in n8n Cloud.
+- [x] **Auto-merge content PRs GHA** (daily 14:00 UTC, 14-day staleness threshold, Slack-notifies via `SLACK_WEBHOOK_URL` repo secret).
+- [x] **QA auto-fix pipeline GHA** (Claude Vision review + 2-fix-cap, ~$0.30 worst-case per PR) — see Session 8 note about one-shot limitation pending PAT swap.
+- [x] **PostHog liveness monitor** in n8n (daily 9am ET, Slack-alerts on zero pageviews in 24h).
+- [x] **Notion publish-status webhook** in n8n (auto-flips Notion topic Status → Published on PR merge + Slack notification).
+- [x] **n8n Error Trigger backstop** wired as "Error workflow" on every active n8n flow.
+- [x] **Pagefind static search** — index built at `npm run build`, served from `/pagefind/`, navbar input + `/search` page.
+- [x] **Visual MDX component library** (SideBySide, StatRow, PullQuote, MyTake, StepRow, Figure, ComparisonTable) used in all 9 published posts.
+- [x] PostHog analytics + Beehiiv newsletter wired and shipping.
+- [x] HGC publisher branding (AuthorNote, About, footer, schema).
+- [x] Legal pages (privacy, terms, disclosure).
+- [x] `/go/[tool]` affiliate redirect system with PostHog tracking.
+- [x] Apple touch icon, email alias `ian@theautomationsguide.com`, GSC + Bing submitted.
+- [x] (2026-05-12) **Anthropic / GitHub PAT / Notion Integration Token all rotated** through every consumer (1Password, n8n credential, `.env`, GitHub repo secret as applicable).
+- [x] (2026-05-12) **First fully-engine-generated + auto-QA-fixed post live** — `/blog/2026-05-12-newsletter-automation-stack-...` (PR #16, qa-fix-1 applied 6 layout issues).
+- [x] [DEPLOYMENT.md](DEPLOYMENT.md) — rollback safety guide pinned at repo root.
 
 ### Open — Ian (immediate, this week)
 
-- [ ] **Re-import [n8n/blog-post-engine.json](n8n/blog-post-engine.json) into n8n Cloud** — picks up SVG-comment fix from PR #8 so future generations don't recur the HTML-comment-in-SVG build failure. The live engine is on the earlier version imported today.
-- [ ] **Add `ANTHROPIC_API_KEY` to local `.env`** at the project root if you want to run `npm run qa:review` (Claude Vision layout review). Screenshots run without it via `npm run qa:screenshots`.
-- [ ] **Review the 8 Kit-affiliate topic suggestions** in the Notion Content Calendar — flip the ones to write to `Queued` (engine picks highest priority on next weekday 8am run; new posts will use the v4 MDX format).
+- [ ] **Review the 8 Kit-affiliate topic suggestions** in the Notion Content Calendar — flip the ones to write to `Queued` (engine picks highest priority on next weekday 8am run; uses v4 MDX format + QA pipeline).
 - [ ] **Apply to remaining affiliate programs** — see `AFFILIATE_PROGRAMS.md` for Tier 1/2/3 + the additional 15 in conversation.
 - [ ] **As approvals come in:** edit `src/data/affiliate-links.ts` — change `url: ''` to real affiliate URL, change `status: 'pending'` to `'live'`, commit + push.
-- [ ] **Verify PostHog:** open live site in incognito → check PostHog Live Events tab → confirm pageviews + click events fire.
+- [ ] **Verify PostHog:** open live site in incognito → check PostHog Live Events tab → confirm pageviews + click events fire. (Daily liveness monitor will Slack-alert if it drops to zero, so this is mainly a one-time setup check.)
 - [ ] **Verify Beehiiv:** subscribe with test email → confirm signup attributes correctly to source URL.
 - [ ] **Create TAG LinkedIn Company Page** + send URL to add to `sameAs` in BaseLayout.
 
@@ -507,21 +553,24 @@ Or edit the two constants at the top of the file directly. Script validates both
 
 ### Open — engine + automation improvements (Claude can pick these up later)
 
-- [ ] **Notion Status → "Published" webhook workflow** — separate n8n workflow triggered by GitHub `pull_request.closed (merged=true)` webhook; matches PR URL to Notion topic and PATCHes Status to Published. Currently Ian marks Published manually post-merge. ~30 min build.
-- [ ] **QA-into-engine integration** — wire `npm run qa` into the n8n blog-post-engine workflow. After PR opens, capture screenshots of the deploy preview, send to Claude Vision, *apply fixes* and re-commit (auto-fix mode per saved feedback memory), then notify Ian. Removes manual visual review step.
-- [ ] **Backfill 8 existing `.md` posts to `.mdx` with components** — deferred. AI-assisted converter script (Claude API) + manual review pass. Worth scoping after 4–6 weeks of new MDX-format posts when we know which components actually fit which post types.
-- [ ] **Bump Netlify Node 20 → 22 or 24 LTS** — Node 20 hits maintenance EOL April 2026. Single-line change in `netlify.toml`.
+- [ ] **Restore QA auto-loop 2nd-pass verification** — swap `Commit and push the fix` step in `.github/workflows/qa-content-pr.yml` from `GITHUB_TOKEN` to a fine-grained PAT secret (e.g., `AUTO_FIX_PAT`). Currently the pipeline is one-shot because GitHub Actions security blocks the bot's pushes from triggering new workflow runs. ~15 min when prioritized.
+- [ ] **Beehiiv liveness equivalent** — n8n daily ping on Beehiiv subscriber count API, Slack-alert on form-id failure or zero new subscribers over N days. Pattern documented in `n8n/README.md` Workflow 4 § Beehiiv equivalent.
 - [ ] **OG image template** — static PNG at `public/og-default.png` (needs design tool).
-- [ ] **Handwrite "Make vs Zapier vs n8n" flagship post** (~3,000 words, ComparisonTable + `/go/` links) — could now also use the new MDX components.
-- [ ] **LinkedIn output**: replace TAG-engine "Twitter Thread" branch with LinkedIn-only since TAG audience won't be on Twitter anyway.
-- [ ] **Error Trigger workflow in n8n** for Claude/GitHub failure paths.
-- [ ] **Auto-merge content PRs after N days of no review** (GitHub Actions).
-- [ ] **Per-business shared n8n sub-workflows** (Slack notifier, error logger) once 2nd business uses pattern.
+- [ ] **Bump Netlify Node 22 → 24 LTS** when Node 22 enters maintenance (April 2027). One-line change in `netlify.toml`.
+- [ ] **Per-business shared n8n sub-workflows** (Slack notifier, error logger) once a 2nd business uses the pattern.
+- [ ] **Move affiliate registry to Notion or edge function** if you tire of pushing one-line commits to update affiliate URLs once 5+ are live. Sketched in earlier session — not urgent.
 
 ### Revert paths (in case anything breaks)
 
 | Concern | Revert command |
 |---|---|
-| Visual format redesign caused regression | `git revert a83b5cd` (PR #7 merge) |
-| Engine v4 MDX prompt produces bad output | `git revert c23036c` (PR #8 merge) — falls back to pre-fix v4 prompt that built PR #6. To fully revert to v3 markdown engine: `git revert a83b5cd` and re-import the resulting JSON into n8n Cloud. |
-| Apollo Alternatives post not what you want | `git revert abb50d3` (PR #6 merge) |
+| Latest content PR not what you want | `git revert 73a8e86` (PR #16 — newsletter automation post) |
+| Backfilled posts look worse than originals | `git revert 52e6807` (PR #11 — backfill 8 posts to MDX) |
+| QA auto-fix pipeline misbehaves | `git revert c2c2b18` (PR #12 — QA pipeline) — engine still works without QA loop |
+| Right-size models causing social output quality regression | `git revert 8733108` (PR #13 — model right-sizing) — restores 3 Sonnet social calls |
+| Automation workflows / Node 22 / auto-merge GHA broken | `git revert b9f4932` (PR #10 — automation improvements) |
+| QA workflow `grep -c` or screenshot height bugs surface again | `git revert 0ac804b` (PR #17) or `git revert 2e248ae` (PR #19) — both are bug fixes; reverting restores the failing behavior. Don't revert these. |
+| Visual format redesign caused regression | `git revert a83b5cd` (PR #7) |
+| Engine v4 MDX prompt produces bad output | `git revert c23036c` (PR #8) — falls back to pre-fix v4 prompt. To fully revert to v3 markdown engine: `git revert a83b5cd` and re-import the resulting JSON into n8n Cloud. |
+
+For step-by-step rollback instructions (UI / CLI / Netlify emergency button) see [DEPLOYMENT.md](DEPLOYMENT.md).
