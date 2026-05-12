@@ -42,7 +42,7 @@ const { title, tools } = Astro.props;
 
 <section class="comparison-table">
   {title && <h3 class="comparison-title">{title}</h3>}
-  <div class="comparison-grid">
+  <div class="comparison-grid" style={`--cols: ${tools.length}`}>
     {tools.map((tool) => (
       <div class={`comparison-card ${tool.highlight ? 'comparison-card--highlight' : ''}`}>
         {tool.highlight && <div class="comparison-badge">Top pick</div>}
@@ -94,8 +94,13 @@ const { title, tools } = Astro.props;
   }
   .comparison-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: 1fr;
     gap: 1rem;
+  }
+  /* On wider screens, force one row at the actual tool count
+     (set via --cols inline style on .comparison-grid). */
+  @media (min-width: 640px) {
+    .comparison-grid { grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); }
   }
   .comparison-card {
     position: relative;

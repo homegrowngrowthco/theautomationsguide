@@ -1,41 +1,48 @@
-# Affiliate Programs to Apply To
+# Affiliate Programs
 
-Direct application URLs for the tools featured on the site, plus high-value adjacent programs for the RevOps/automation niche.
+Application status for the tools featured on the site, plus high-value adjacent programs for the RevOps/automation niche.
 
-**Apply order:** Tier 1 first (already on the site), then Tier 2 (high commission, easy approval).
+**Source of truth for live URLs:** [`src/data/affiliate-links.ts`](src/data/affiliate-links.ts) — that file drives every `/go/<slug>` redirect on the site. This doc tracks application state and program details for reference.
 
 ---
 
-## Tier 1 — Already featured on the site
+## Tier 1 — Featured on the site
 
-These need to be live before launch promotion. All 8 currently use `AFFILIATE_LINK_PLACEHOLDER` in `src/pages/index.astro` and `src/pages/tools.astro`.
+Status as of 2026-05-12.
 
-| Tool | Apply | Commission | Cookie | Notes |
+| Tool | Status | Live link | Commission | Notes |
 |---|---|---|---|---|
-| **HubSpot** | Email `affiliates@hubspot.com` with site URL + plan | 30% recurring up to 12 months + welcome bonus up to $80 | 180 days | Manual review, 2-3 business days. Highest tier potential of the bunch. |
-| **Make.com** | Sign up for Make → Dashboard → "Affiliate Program" | 35% for 12 months | 30 days | Min payout $100 + 3 unique paying users. Wise only. |
-| **n8n** | https://n8n.io/affiliates/ → click apply (PartnerStack) | 30% for 12 months | n/a | No paid ads allowed. Cloud referrals only. |
-| **Apollo.io** | https://www.apollo.io/partners/affiliates → "Apply now" | 15% monthly / 20% annual, for 12 months | n/a | Through PartnerStack. 30-day hold for cancel buffer. |
-| **Clay** | https://www.clay.com/affiliate (powered by Rewardful) | One-time $50 per Pro plan customer | 60 days | Lower commission but easy approval. Creator Program (20% revshare for 12 mo) available later. |
-| **Zapier** | NO public affiliate program | n/a | n/a | Only Solution Partner (consultancy) and Integration Partner (build apps). Skip — replace the Zapier card on the site with another tool. |
-| **Gong** | No public affiliate program | n/a | n/a | Enterprise sales motion only. Drop from site. |
-| **Chorus** (ZoomInfo) | No public affiliate program | n/a | n/a | Same — enterprise. Drop from site. |
+| **Make.com** | ✅ Live | `https://www.make.com/en/register?pc=automationsguide` | 35% for 12 months, 30-day cookie | Direct Make partner program (partner code `automationsguide`). Min payout $100 + 3 unique paying users. Wise only. |
+| **Apollo.io** | ✅ Live | `https://get.apollo.io/k7n9run0vl50` | 15% monthly / 20% annual, 12 months | Via PartnerStack. 30-day hold for cancel buffer. |
+| **Clay** | ✅ Live | `https://me.sh/?via=theautomationsguide` | $50 one-time per Pro customer, 60-day cookie | Via Rewardful. Creator Program (20% revshare for 12 mo) available later once content volume grows. |
+| **Beehiiv** | ✅ Live | `https://www.beehiiv.com/?via=the-automations-guide` | 50-60% recurring 12 months (tiered) | Tier-up to 60% with volume. |
+| **Smartlead** | ✅ Live | `https://smartlead.ai/?via=theautomationsguide` | 15-35% recurring (tiered by volume) | Tier-up with conversion volume. |
+| **Kit** | ✅ Live | `https://partners.kit.com/nt9zrjmnck9y` | 50% for 12 months, then 10-20% recurring at Bronze+ | Via PartnerStack. Newsletter alt to Beehiiv. |
+| **HubSpot** | ❌ Rejected (2026-05-12) | n/a — `/go/hubspot` falls back to homepage + UTM | 30% recurring 12mo + welcome bonus | Likely traffic-related rejection. Re-apply once monthly traffic builds (~1K visits/mo). Site cards still work via the redirect. |
+| **n8n** | ❌ Rejected (2026-05-12) | n/a — `/go/n8n` falls back to homepage + UTM | 30% for 12 months | Likely traffic-related rejection (PartnerStack-hosted, cloud referrals only, no paid ads). Re-apply once traffic builds. |
+| **Pipedrive** | ⏳ Pending | n/a (gated by PartnerStack Network app) | 20-30% recurring 12mo (tiered) | Will be reachable once PartnerStack Network application is approved. |
+| **Lemlist** | ⏳ Not applied yet | n/a | Recurring on subscription, % varies | Apply when adding a Smartlead-alt comparison post. |
 
-**Action:** Replace Zapier, Gong, and Chorus cards on the site with tools that actually have programs. See Tier 2.
+**PartnerStack Network application:** pending as of 2026-05-12. Approval unlocks Pipedrive + any other PartnerStack-hosted program without per-program re-application.
+
+**Removed from site:** Zapier (no public affiliate program), Gong (enterprise only), Chorus/ZoomInfo (enterprise only). Replaced on site by Beehiiv / Smartlead / Pipedrive.
 
 ---
 
-## Tier 2 — High-value programs to add
+## Application URLs (for reference / re-applications)
 
-Worth featuring on the site because they pay well, your audience needs them, and the program is open to anyone.
-
-| Tool | Apply | Commission | Why feature it |
-|---|---|---|---|
-| **Beehiiv** | https://partners.beehiiv.com/signup | 50-60% recurring for 12 months (tiered) | You'll use it for your own newsletter — easy authentic recommendation. Tier-up to 60% fast. |
-| **Smartlead** | https://www.smartlead.ai/affiliate-partners | 15-35% recurring (tiered by conversion volume) | The cold email tool RevOps teams actually use. Strong fit. |
-| **Lemlist** | https://lemlist.com/affiliate-program | Recurring on subscription, % varies | Good alt to Smartlead, more visual workflows. |
-| **Pipedrive** | https://www.pipedrive.com/en/affiliate-partnership (PartnerStack) | 20-30% recurring for 12 months (tiered) | The CRM HubSpot-skeptics pick. SMB-friendly. |
-| **Kit (ConvertKit)** | https://kit.com/affiliate (PartnerStack) | 50% for 12 months, then 10-20% recurring at Bronze+ | Newsletter alt to Beehiiv. Use whichever you actually run. |
+| Tool | Where to apply | Cookie window |
+|---|---|---|
+| HubSpot | Email `affiliates@hubspot.com` with site URL + plan | 180 days |
+| Make.com | Sign up for Make → Dashboard → "Affiliate Program" | 30 days |
+| n8n | https://n8n.io/affiliates/ (PartnerStack) | n/a |
+| Apollo.io | https://www.apollo.io/partners/affiliates | n/a |
+| Clay | https://www.clay.com/affiliate (Rewardful) | 60 days |
+| Beehiiv | https://partners.beehiiv.com/signup | — |
+| Smartlead | https://www.smartlead.ai/affiliate-partners | — |
+| Pipedrive | https://www.pipedrive.com/en/affiliate-partnership (PartnerStack) | — |
+| Lemlist | https://lemlist.com/affiliate-program | — |
+| Kit | https://kit.com/affiliate (PartnerStack) | — |
 
 ---
 
@@ -52,16 +59,16 @@ Apply once you have 10+ posts that mention the tool, or when relevant content go
 
 ---
 
-## Where to put the links once approved
+## Where to update links going forward
 
-Each tool's link replaces every `AFFILIATE_LINK_PLACEHOLDER` instance for that tool. Currently:
+All affiliate URLs live in one place: [`src/data/affiliate-links.ts`](src/data/affiliate-links.ts).
 
-- `src/pages/index.astro` — Make, Clay, HubSpot, n8n
-- `src/pages/tools.astro` — all 8 in tiers (Make, Clay, HubSpot, n8n, Apollo, Zapier, Gong, Chorus)
+To change a link:
+1. Edit the `url` field for that slug.
+2. Update `status` (`live`, `pending`, `rejected`, `applied`, `no-program`).
+3. Commit + push to `master`. Netlify auto-deploys within ~2 minutes.
 
-When you swap Zapier/Gong/Chorus for Beehiiv/Smartlead/Pipedrive, also update:
-- `src/components/EmailSignup.astro` — once Beehiiv embed is live, the affiliate context is implicit
-- Blog posts that mention the tool (use Grep to find `Zapier|Gong|Chorus` in `src/content/blog/`)
+No edits to `tools.astro`, `index.astro`, or blog posts are needed — they all link to `/go/<slug>`, which resolves via the data file at request time. If `url` is empty, the redirect falls back to the tool homepage with a UTM tag so the link still works.
 
 ## FTC disclosure
 

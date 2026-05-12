@@ -7,19 +7,30 @@
       "name": "Manual Trigger",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [240, 200]
+      "position": [
+        240,
+        200
+      ]
     },
     {
       "parameters": {
         "rule": {
-          "interval": [{ "field": "cronExpression", "expression": "30 7 * * 1,4" }]
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 7 * * 1,4"
+            }
+          ]
         }
       },
       "id": "tag00002-0000-0000-0000-000000000002",
       "name": "Mon + Thu 7:30am",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [240, 400]
+      "position": [
+        240,
+        400
+      ]
     },
     {
       "parameters": {
@@ -27,12 +38,42 @@
         "duplicateItem": false,
         "assignments": {
           "assignments": [
-            { "id": "c1", "name": "githubOwner", "value": "homegrowngrowthco", "type": "string" },
-            { "id": "c2", "name": "githubRepo", "value": "theautomationsguide", "type": "string" },
-            { "id": "c3", "name": "githubBaseBranch", "value": "master", "type": "string" },
-            { "id": "c4", "name": "topicsDatabaseId", "value": "62f34586-4f78-4b83-b2ac-105f500d059e", "type": "string" },
-            { "id": "c5", "name": "slackWebhookUrl", "value": "REPLACE_WITH_SLACK_WEBHOOK_URL", "type": "string" },
-            { "id": "c6", "name": "suggestionCount", "value": 5, "type": "number" }
+            {
+              "id": "c1",
+              "name": "githubOwner",
+              "value": "homegrowngrowthco",
+              "type": "string"
+            },
+            {
+              "id": "c2",
+              "name": "githubRepo",
+              "value": "theautomationsguide",
+              "type": "string"
+            },
+            {
+              "id": "c3",
+              "name": "githubBaseBranch",
+              "value": "master",
+              "type": "string"
+            },
+            {
+              "id": "c4",
+              "name": "topicsDatabaseId",
+              "value": "62f34586-4f78-4b83-b2ac-105f500d059e",
+              "type": "string"
+            },
+            {
+              "id": "c5",
+              "name": "slackWebhookUrl",
+              "value": "REPLACE_WITH_SLACK_WEBHOOK_URL",
+              "type": "string"
+            },
+            {
+              "id": "c6",
+              "name": "suggestionCount",
+              "value": 5,
+              "type": "number"
+            }
           ]
         },
         "options": {}
@@ -41,7 +82,10 @@
       "name": "Config",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [460, 300]
+      "position": [
+        460,
+        300
+      ]
     },
     {
       "parameters": {
@@ -52,17 +96,28 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "X-GitHub-Api-Version", "value": "2022-11-28" },
-            { "name": "Accept", "value": "application/vnd.github+json" }
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            }
           ]
         },
-        "options": { "timeout": 30000 }
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "tag00002-0000-0000-0000-000000000004",
       "name": "List Published Posts",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [680, 200],
+      "position": [
+        680,
+        200
+      ],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
@@ -79,21 +134,32 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Notion-Version", "value": "2022-06-28" },
-            { "name": "content-type", "value": "application/json" }
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
         "body": "={{ JSON.stringify({ page_size: 100 }) }}",
-        "options": { "timeout": 30000 }
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "tag00002-0000-0000-0000-000000000005",
       "name": "Get Calendar State",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [680, 400],
+      "position": [
+        680,
+        400
+      ],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_NOTION_CREDENTIAL_ID",
@@ -109,7 +175,10 @@
       "name": "Build Context",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [900, 300]
+      "position": [
+        900,
+        300
+      ]
     },
     {
       "parameters": {
@@ -120,21 +189,32 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "anthropic-version", "value": "2023-06-01" },
-            { "name": "content-type", "value": "application/json" }
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 2048, system: [{ type: 'text', text: `You are a content strategist for theautomationsguide.com — a publication for RevOps and GTM operators evaluating sales/marketing automation tools (HubSpot, Salesforce, Clay, Apollo, n8n, Zapier, Make, Smartlead, Instantly, Outreach, Gong, Pipedrive, Beehiiv, Lemlist, Kit, etc).\\n\\nThe site makes money via affiliate commissions when readers click through and sign up for tools. Active affiliate partners: HubSpot, Make, n8n, Apollo, Clay, Beehiiv, Smartlead, Pipedrive, Lemlist, Kit. Posts that convert best send buyer-intent traffic to these tools.\\n\\nCOMMERCIAL INTENT HIERARCHY (rank topics by this — high intent = high revenue):\\n\\n1. HIGHEST INTENT — buyer is choosing/comparing right now:\\n   - \"X vs Y\" / \"X vs Y vs Z\" tool comparisons\\n   - \"X alternatives\" (someone churning from a tool)\\n   - \"Best X for [audience/use case]\" listicles with 3-7 picks\\n\\n2. HIGH INTENT — buyer is implementing or evaluating:\\n   - \"How to [specific workflow] with [named tool]\" tutorials\\n   - \"The [$budget] RevOps stack for [team size]\"\\n   - \"[Tool] review: [specific use case]\"\\n   - \"[Tool] vs [Tool]: [specific dimension]\"\\n\\n3. MEDIUM INTENT — practitioner learning:\\n   - \"Mistakes I see RevOps teams make with [thing]\"\\n   - \"What I learned migrating from X to Y\"\\n\\n4. LOWER INTENT (use sparingly, max 1 of 5 suggestions):\\n   - Industry trend pieces, opinion, contrarian takes — only when they can plausibly link to specific tools\\n\\nNEVER suggest:\\n- Pure awareness/explainer content (\"What is RevOps?\", \"Guide to automation\")\\n- Generic listicles without specific tool names\\n- Opinion pieces with no tool angle\\n- Topics that wouldn't naturally place 2+ affiliate links\\n\\nPRIORITY RULES:\\n- High: Hierarchy levels 1 + 2 (always)\\n- Medium: Level 3 (sometimes)\\n- Low: Level 4 (rare)\\n\\nTITLE QUALITY RULES:\\n- Under 65 chars (Google snippet limit)\\n- Include the year when freshness matters (\"in 2026\", \"2026 edition\")\\n- Lead with the comparison/recommendation, not the explanation\\n- Specific over generic: \"The $500/mo RevOps stack\" beats \"Building a RevOps stack\"`, cache_control: { type: 'ephemeral' } }], messages: [{ role: 'user', content: `Suggest ${$json.suggestionCount} new blog post topics that maximize affiliate revenue potential.\\n\\nTARGET MIX for these ${$json.suggestionCount} suggestions: at least 3 should be HIGHEST INTENT (comparisons / alternatives / best-of), at most 1 should be LOWER INTENT.\\n\\nRECENT PUBLISHED POSTS (last ${$json.publishedCount} slugs):\\n${$json.publishedSlugs.map((s, i) => `${i+1}. ${s}`).join('\\n')}\\n\\nALL EXISTING CALENDAR TOPICS (do NOT duplicate — includes every status: Queued, Suggested, Skipped, In Review, Published — total ${$json.calendarCount}):\\n${$json.existingCalendarTopics.map((t, i) => `${i+1}. ${t}`).join('\\n')}\\n\\nFor each suggestion, provide:\\n- topic: post title (under 65 chars, search-friendly, specific)\\n- keyword: one target keyword someone would search\\n- tag: one of [revops, automation, tools, comparison, guide]\\n- priority: one of [High, Medium, Low] per the hierarchy above\\n- notes: 1-2 sentences on the angle. Name the specific tools to feature, the contrarian take to push, or what makes this post different from existing coverage.\\n\\nReturn ONLY a valid JSON array of ${$json.suggestionCount} objects. No preamble. No code fences. Shape:\\n[{\"topic\":\"...\",\"keyword\":\"...\",\"tag\":\"comparison\",\"priority\":\"High\",\"notes\":\"...\"}, ...]` }] }) }}",
-        "options": { "timeout": 120000 }
+        "body": "={{ JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 2048, system: [{ type: 'text', text: `You are a content strategist for theautomationsguide.com — a publication for RevOps and GTM operators evaluating sales/marketing automation tools (HubSpot, Salesforce, Clay, Apollo, n8n, Zapier, Make, Smartlead, Instantly, Outreach, Gong, Pipedrive, Beehiiv, Lemlist, Kit, etc).\\n\\nThe site makes money via affiliate commissions when readers click through and sign up for tools. Active affiliate partners: HubSpot, Make, n8n, Apollo, Clay, Beehiiv, Smartlead, Pipedrive, Lemlist, Kit. Posts that convert best send buyer-intent traffic to these tools.\\n\\nCOMMERCIAL INTENT HIERARCHY (rank topics by this — high intent = high revenue):\\n\\n1. HIGHEST INTENT — buyer is choosing/comparing right now:\\n   - \"X vs Y\" / \"X vs Y vs Z\" tool comparisons\\n   - \"X alternatives\" (someone churning from a tool)\\n   - \"Best X for [audience/use case]\" listicles with 3-7 picks\\n\\n2. HIGH INTENT — buyer is implementing or evaluating:\\n   - \"How to [specific workflow] with [named tool]\" tutorials\\n   - \"The [$budget] RevOps stack for [team size]\"\\n   - \"[Tool] review: [specific use case]\"\\n   - \"[Tool] vs [Tool]: [specific dimension]\"\\n\\n3. MEDIUM INTENT — practitioner learning:\\n   - \"Mistakes I see RevOps teams make with [thing]\"\\n   - \"What I learned migrating from X to Y\"\\n\\n4. LOWER INTENT (use sparingly, max 1 of 5 suggestions):\\n   - Industry trend pieces, opinion, contrarian takes — only when they can plausibly link to specific tools\\n\\nNEVER suggest:\\n- Pure awareness/explainer content (\"What is RevOps?\", \"Guide to automation\")\\n- Generic listicles without specific tool names\\n- Opinion pieces with no tool angle\\n- Topics that wouldn't naturally place 2+ affiliate links\\n\\nPRIORITY RULES:\\n- High: Hierarchy levels 1 + 2 (always)\\n- Medium: Level 3 (sometimes)\\n- Low: Level 4 (rare)\\n\\nTITLE QUALITY RULES:\\n- Under 65 chars (Google snippet limit)\\n- Include the year when freshness matters (\"in 2026\", \"2026 edition\")\\n- Lead with the comparison/recommendation, not the explanation\\n- Specific over generic: \"The $500/mo RevOps stack\" beats \"Building a RevOps stack\"`, cache_control: { type: 'ephemeral' } }], messages: [{ role: 'user', content: `Suggest ${$json.suggestionCount} new blog post topics that maximize affiliate revenue potential.\\n\\nTARGET MIX for these ${$json.suggestionCount} suggestions: at least 3 should be HIGHEST INTENT (comparisons / alternatives / best-of), at most 1 should be LOWER INTENT.\\n\\nRECENT PUBLISHED POSTS (last ${$json.publishedCount} slugs):\\n${$json.publishedSlugs.map((s, i) => `${i+1}. ${s}`).join('\\n')}\\n\\nALL EXISTING CALENDAR TOPICS (do NOT duplicate — includes every status: Queued, Suggested, Skipped, In Review, Published — total ${$json.calendarCount}):\\n${$json.existingCalendarTopics.map((t, i) => `${i+1}. ${t}`).join('\\n')}\\n\\nFor each suggestion, provide:\\n- topic: post title (under 65 chars, search-friendly, specific)\\n- keyword: one target keyword someone would search\\n- tag: one of [revops, automation, tools, comparison, guide]\\n- priority: one of [High, Medium, Low] per the hierarchy above\\n- notes: 1-2 sentences on the angle. Name the specific tools to feature, the contrarian take to push, or what makes this post different from existing coverage.\\n\\nReturn ONLY a valid JSON array of ${$json.suggestionCount} objects. No preamble. No code fences. Shape:\\n[{\"topic\":\"...\",\"keyword\":\"...\",\"tag\":\"comparison\",\"priority\":\"High\",\"notes\":\"...\"}, ...]` }] }) }}",
+        "options": {
+          "timeout": 120000
+        }
       },
       "id": "tag00002-0000-0000-0000-000000000007",
       "name": "Generate Suggestions",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1120, 300],
+      "position": [
+        1120,
+        300
+      ],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_ANTHROPIC_CREDENTIAL_ID",
@@ -150,7 +230,10 @@
       "name": "Parse Suggestions",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1340, 300]
+      "position": [
+        1340,
+        300
+      ]
     },
     {
       "parameters": {
@@ -161,8 +244,14 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Notion-Version", "value": "2022-06-28" },
-            { "name": "content-type", "value": "application/json" }
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
@@ -171,14 +260,22 @@
         "body": "={{ JSON.stringify({ parent: { type: 'database_id', database_id: $json.topicsDatabaseId }, properties: { Topic: { title: [{ text: { content: $json.topic } }] }, Status: { select: { name: 'Suggested' } }, Priority: { select: { name: $json.priority } }, Tag: { select: { name: $json.tag } }, 'Target Keyword': { rich_text: [{ text: { content: $json.keyword } }] }, Notes: { rich_text: [{ text: { content: $json.notes } }] } } }) }}",
         "options": {
           "timeout": 30000,
-          "batching": { "batch": { "batchSize": 1, "batchInterval": 400 } }
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 400
+            }
+          }
         }
       },
       "id": "tag00002-0000-0000-0000-000000000009",
       "name": "Create Suggestion in Notion",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1560, 300],
+      "position": [
+        1560,
+        300
+      ],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_NOTION_CREDENTIAL_ID",
@@ -194,7 +291,10 @@
       "name": "Build Slack Message",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1780, 300]
+      "position": [
+        1780,
+        300
+      ]
     },
     {
       "parameters": {
@@ -203,35 +303,147 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "content-type", "value": "application/json" }
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
         "body": "={{ JSON.stringify({ text: `:bulb: *${$json.count} new topic suggestions ready for review*\\n\\n${$json.summary}\\n\\n_Filter the Content Calendar by Status = Suggested. Flip the ones you like to Queued, Skipped for the rest._` }) }}",
-        "options": { "timeout": 30000 }
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "tag00002-0000-0000-0000-00000000000b",
       "name": "Slack Notify",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [2000, 300]
+      "position": [
+        2000,
+        300
+      ]
     }
   ],
   "connections": {
-    "Manual Trigger": { "main": [[{ "node": "Config", "type": "main", "index": 0 }]] },
-    "Mon + Thu 7:30am": { "main": [[{ "node": "Config", "type": "main", "index": 0 }]] },
-    "Config": { "main": [[{ "node": "List Published Posts", "type": "main", "index": 0 }]] },
-    "List Published Posts": { "main": [[{ "node": "Get Calendar State", "type": "main", "index": 0 }]] },
-    "Get Calendar State": { "main": [[{ "node": "Build Context", "type": "main", "index": 0 }]] },
-    "Build Context": { "main": [[{ "node": "Generate Suggestions", "type": "main", "index": 0 }]] },
-    "Generate Suggestions": { "main": [[{ "node": "Parse Suggestions", "type": "main", "index": 0 }]] },
-    "Parse Suggestions": { "main": [[{ "node": "Create Suggestion in Notion", "type": "main", "index": 0 }]] },
-    "Create Suggestion in Notion": { "main": [[{ "node": "Build Slack Message", "type": "main", "index": 0 }]] },
-    "Build Slack Message": { "main": [[{ "node": "Slack Notify", "type": "main", "index": 0 }]] }
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mon + Thu 7:30am": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "List Published Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Published Posts": {
+      "main": [
+        [
+          {
+            "node": "Get Calendar State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Calendar State": {
+      "main": [
+        [
+          {
+            "node": "Build Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Context": {
+      "main": [
+        [
+          {
+            "node": "Generate Suggestions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Suggestions": {
+      "main": [
+        [
+          {
+            "node": "Parse Suggestions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Suggestions": {
+      "main": [
+        [
+          {
+            "node": "Create Suggestion in Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Suggestion in Notion": {
+      "main": [
+        [
+          {
+            "node": "Build Slack Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Slack Message": {
+      "main": [
+        [
+          {
+            "node": "Slack Notify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
-  "settings": { "executionOrder": "v1" },
+  "settings": {
+    "executionOrder": "v1"
+  },
   "active": false,
-  "meta": { "templateCredsSetupCompleted": false }
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
 }

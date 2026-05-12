@@ -15,23 +15,33 @@ faqs:
     answer: "Under 30 seconds from deal close to CSM Slack notification. Teams that ship this typically cut first outreach time from 24-48 hours to under 1 hour."
 ---
 
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+
 The sales-to-customer-success handoff is one of the highest-stakes moments in the customer lifecycle — and one of the most commonly botched.
 
 A rep closes a deal. The customer is excited. Somewhere between the signed contract and the first onboarding call, something gets dropped. The CSM gets a Slack message with a name and a deal value. The customer gets a generic welcome email. The relationship starts on the wrong foot before anyone realizes it.
 
-This doesn't have to happen. Here's a complete automation playbook for building a reliable handoff using HubSpot and Slack — no custom code required.
+This doesn't have to happen. Here's a complete automation playbook for building a reliable handoff using [HubSpot](/go/hubspot) and Slack — no custom code required.
 
 <div class="quick-answer"><strong>Quick answer:</strong> Trigger a HubSpot workflow on Deal Stage = Closed Won → fire a webhook to Make → Make routes data to Slack, creates a CS task, and logs a note. Cuts handoff time from 24-48 hours to under 1 hour.</div>
 
 ## What the automation will do
 
-When a deal moves to **Closed Won** in HubSpot, the automation will:
+When a deal moves to **Closed Won** in HubSpot, the automation runs five things in sequence:
 
-1. Pull key deal and contact data from HubSpot
-2. Assign the CS owner based on your routing rules
-3. Create a follow-up task for the assigned CSM
-4. Send a structured Slack message to your CS channel with full context
-5. Log the handoff in HubSpot with a note
+<StepRow steps={[
+  { title: "Pull deal + contact data", body: "HubSpot workflow extracts deal name, value, owner, and associated contact + company records." },
+  { title: "Assign the CS owner", body: "Routing logic in Make picks the right CSM based on territory, deal size, or round-robin." },
+  { title: "Create a follow-up task", body: "HubSpot task auto-created on the deal with a 3-business-day due date for the kickoff." },
+  { title: "Notify CS in Slack", body: "Structured Block Kit message lands in #cs-handoffs with full deal context + a link to the HubSpot record." },
+  { title: "Log the handoff", body: "Note attached to the HubSpot deal so the audit trail lives where the rest of the deal history is." }
+]} />
 
 The whole thing runs in under 30 seconds from deal close to CSM notification.
 
@@ -39,7 +49,7 @@ The whole thing runs in under 30 seconds from deal close to CSM notification.
 
 - HubSpot (Sales Hub Starter or above for workflow automation)
 - Slack workspace with a dedicated `#cs-handoffs` channel
-- Make account (free tier works to get started)
+- [Make](/go/make) account (free tier works to get started)
 - 30–60 minutes
 
 ## Step 1: Set up the HubSpot trigger
@@ -66,18 +76,27 @@ In your HubSpot workflow, add an action:
 3. **URL:** (paste your Make webhook URL — you'll create this in the next step)
 4. **Request body:** Include the deal properties you need:
 
-```
-{
-  "deal_name": "{{deal.dealname}}",
-  "deal_value": "{{deal.amount}}",
-  "close_date": "{{deal.closedate}}",
-  "contact_name": "{{contact.firstname}} {{contact.lastname}}",
-  "contact_email": "{{contact.email}}",
-  "company_name": "{{company.name}}",
-  "deal_owner": "{{deal.hubspot_owner_id}}",
-  "deal_id": "{{deal.hs_object_id}}"
-}
-```
+<SideBySide>
+  <Fragment slot="left">
+    The webhook payload is what every downstream module in Make will read from. Include every field you might want to use for routing, Slack formatting, or the kickoff task — adding a field later means re-publishing the HubSpot workflow, which is more friction than it sounds.
+
+    Common gotcha: HubSpot's variable syntax is double-curly braces (see the JSON example on the right), not Liquid or Handlebars. Use the variable picker in the right rail of HubSpot's workflow editor — it inserts the correct syntax for you instead of forcing you to remember the brace style.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    {
+      "deal_name": "{{deal.dealname}}",
+      "deal_value": "{{deal.amount}}",
+      "close_date": "{{deal.closedate}}",
+      "contact_name": "{{contact.firstname}} {{contact.lastname}}",
+      "contact_email": "{{contact.email}}",
+      "company_name": "{{company.name}}",
+      "deal_owner": "{{deal.hubspot_owner_id}}",
+      "deal_id": "{{deal.hs_object_id}}"
+    }
+    ```
+  </Fragment>
+</SideBySide>
 
 Save but don't activate the workflow yet — you'll need the Make scenario running first.
 
@@ -151,6 +170,10 @@ Once the core flow is working, these extensions are high-value:
 - **Day-1 nudge:** Schedule a Slack reminder to the CSM 24 hours after assignment if the kickoff hasn't been booked
 
 The pattern is the same each time: trigger on a signal, enrich the data, take action, log the outcome.
+
+<MyTake>
+The single highest-leverage extension here isn't another module — it's the day-1 nudge. Every CS team I've shipped this with eventually finds that ~15% of kickoffs slip past the 24-hour SLA because the CSM was buried that day. A scheduled Slack reminder costs you 10 minutes to build and recovers most of those slipping calls. Build the core five steps, then build the nudge before you build anything else.
+</MyTake>
 
 ## The payoff
 

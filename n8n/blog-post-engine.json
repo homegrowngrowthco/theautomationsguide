@@ -7,19 +7,30 @@
       "name": "Manual Trigger",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [240, 200]
+      "position": [
+        240,
+        200
+      ]
     },
     {
       "parameters": {
         "rule": {
-          "interval": [{ "field": "cronExpression", "expression": "0 8 * * 1-5" }]
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1-5"
+            }
+          ]
         }
       },
       "id": "tag00001-0000-0000-0000-000000000002",
       "name": "Weekday 8am",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [240, 400]
+      "position": [
+        240,
+        400
+      ]
     },
     {
       "parameters": {
@@ -27,13 +38,48 @@
         "duplicateItem": false,
         "assignments": {
           "assignments": [
-            { "id": "c1", "name": "githubOwner", "value": "homegrowngrowthco", "type": "string" },
-            { "id": "c2", "name": "githubRepo", "value": "theautomationsguide", "type": "string" },
-            { "id": "c3", "name": "githubBaseBranch", "value": "master", "type": "string" },
-            { "id": "c4", "name": "topicsDatabaseId", "value": "REPLACE_WITH_NOTION_CONTENT_CALENDAR_DB_ID", "type": "string" },
-            { "id": "c5", "name": "draftsDatabaseId", "value": "REPLACE_WITH_NOTION_DRAFTS_DB_ID", "type": "string" },
-            { "id": "c6", "name": "slackWebhookUrl", "value": "REPLACE_WITH_SLACK_WEBHOOK_URL", "type": "string" },
-            { "id": "c7", "name": "siteBaseUrl", "value": "https://theautomationsguide.com", "type": "string" }
+            {
+              "id": "c1",
+              "name": "githubOwner",
+              "value": "homegrowngrowthco",
+              "type": "string"
+            },
+            {
+              "id": "c2",
+              "name": "githubRepo",
+              "value": "theautomationsguide",
+              "type": "string"
+            },
+            {
+              "id": "c3",
+              "name": "githubBaseBranch",
+              "value": "master",
+              "type": "string"
+            },
+            {
+              "id": "c4",
+              "name": "topicsDatabaseId",
+              "value": "REPLACE_WITH_NOTION_CONTENT_CALENDAR_DB_ID",
+              "type": "string"
+            },
+            {
+              "id": "c5",
+              "name": "draftsDatabaseId",
+              "value": "REPLACE_WITH_NOTION_DRAFTS_DB_ID",
+              "type": "string"
+            },
+            {
+              "id": "c6",
+              "name": "slackWebhookUrl",
+              "value": "REPLACE_WITH_SLACK_WEBHOOK_URL",
+              "type": "string"
+            },
+            {
+              "id": "c7",
+              "name": "siteBaseUrl",
+              "value": "https://theautomationsguide.com",
+              "type": "string"
+            }
           ]
         },
         "options": {}
@@ -42,7 +88,10 @@
       "name": "Config",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [460, 300]
+      "position": [
+        460,
+        300
+      ]
     },
     {
       "parameters": {
@@ -53,21 +102,32 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Notion-Version", "value": "2022-06-28" },
-            { "name": "content-type", "value": "application/json" }
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
         "body": "={{ JSON.stringify({ filter: { property: 'Status', select: { equals: 'Queued' } }, sorts: [{ property: 'Priority', direction: 'descending' }, { property: 'Created', direction: 'ascending' }], page_size: 1 }) }}",
-        "options": { "timeout": 30000 }
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "tag00001-0000-0000-0000-000000000004",
       "name": "Get Next Topic",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [680, 300],
+      "position": [
+        680,
+        300
+      ],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_NOTION_CREDENTIAL_ID",
@@ -83,7 +143,10 @@
       "name": "Parse Topic",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [900, 300]
+      "position": [
+        900,
+        300
+      ]
     },
     {
       "parameters": {
@@ -94,21 +157,32 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Notion-Version", "value": "2022-06-28" },
-            { "name": "content-type", "value": "application/json" }
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
         "body": "={{ JSON.stringify({ properties: { Status: { select: { name: 'Generating' } } } }) }}",
-        "options": { "timeout": 30000 }
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "tag00001-0000-0000-0000-000000000006",
       "name": "Mark Topic Generating",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1120, 300],
+      "position": [
+        1120,
+        300
+      ],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_NOTION_CREDENTIAL_ID",
@@ -125,21 +199,32 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "anthropic-version", "value": "2023-06-01" },
-            { "name": "content-type", "value": "application/json" }
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4096, system: [{ type: 'text', text: `You are a senior RevOps practitioner writing for theautomationsguide.com. The audience is RevOps and GTM operators evaluating sales/marketing automation tools (HubSpot, Salesforce, Clay, Apollo, n8n, Zapier, Outreach, Gong, Make, Smartlead, Instantly, Lemlist, Pipedrive, Beehiiv, etc).\\n\\nWrite for peers, not beginners. Be specific. Reference real tool names, real workflow steps, real numbers. Have opinions.`, cache_control: { type: 'ephemeral' } }], messages: [{ role: 'user', content: `Write a complete blog post for an Astro static site on this topic:\\n\\nTOPIC: ${$('Parse Topic').first().json.blogTopic}\\n\\nNOTES: ${$('Parse Topic').first().json.topicNotes || '(none)'}\\nTARGET KEYWORD: ${$('Parse Topic').first().json.targetKeyword || '(use your judgment)'}\\nPRIMARY TAG: ${$('Parse Topic').first().json.primaryTag || 'revops'}\\n\\nREQUIREMENTS:\\n- 1000-1400 words\\n- Open with a one-paragraph hook that names the actual problem\\n- 3-5 ## sections, each with a concrete tactic, tool comparison, or workflow step\\n- Include a <div class=\"quick-answer\"><strong>Quick answer:</strong> [one-sentence TL;DR]</div> block right after the intro paragraph (this is critical — LLM engines extract this for citations and Google may use it for featured snippets)\\n- Where natural, mention specific tools by name with what they do well/poorly\\n- End with a one-paragraph takeaway, no \"in conclusion\"\\n\\nFRONTMATTER MUST INCLUDE A faqs ARRAY of 3-5 question/answer pairs. Each FAQ should answer something a reader might literally type into Google or ask an LLM about this topic. Answers must be 1-2 sentences max, factually consistent with the post body. The faqs array unlocks FAQPage schema for rich snippets.\\n\\nOutput ONLY the raw Astro markdown file content. No code fences. No commentary. Begin immediately with the frontmatter (note YAML formatting for faqs):\\n\\n---\\ntitle: \"[specific, search-friendly title under 65 chars]\"\\ndescription: \"[1-2 sentence SEO meta description, 140-160 chars]\"\\npubDate: ${new Date().toISOString().split('T')[0]}\\ntags: [\"${$('Parse Topic').first().json.primaryTag || 'revops'}\", \"automation\", \"[third tag]\"]\\nfaqs:\\n  - question: \"[searchable question, e.g. 'Is Make better than Zapier?']\"\\n    answer: \"[1-2 sentence factual answer, consistent with the post]\"\\n  - question: \"[next question]\"\\n    answer: \"[next answer]\"\\n  - question: \"[next question]\"\\n    answer: \"[next answer]\"\\n---\\n\\n[full post]` }] }) }}",
-        "options": { "timeout": 120000 }
+        "body": "={{ JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4096, system: [{ type: 'text', text: `You are a senior RevOps practitioner writing for theautomationsguide.com. The audience is RevOps and GTM operators evaluating sales/marketing automation tools (HubSpot, Salesforce, Clay, Apollo, n8n, Zapier, Outreach, Gong, Make, Smartlead, Instantly, Lemlist, Pipedrive, Beehiiv, Kit, etc).\n\nWrite for peers, not beginners. Be specific. Reference real tool names, real workflow steps, real numbers. Have opinions.\n\nYou write MDX (Markdown + JSX) for an Astro static site. The site has a visual component library you must use to make posts engaging — not walls of text.`, cache_control: { type: 'ephemeral' } }], messages: [{ role: 'user', content: `Write a blog post in MDX for theautomationsguide.com.\n\nTOPIC: ${$('Parse Topic').first().json.blogTopic}\nNOTES: ${$('Parse Topic').first().json.topicNotes || '(none)'}\nTARGET KEYWORD: ${$('Parse Topic').first().json.targetKeyword || '(use your judgment)'}\nPRIMARY TAG: ${$('Parse Topic').first().json.primaryTag || 'revops'}\n\nPOST TYPE — pick one based on tag/topic:\n- comparison: head-to-head tool reviews (\"X vs Y\", \"best [tool] for [use case]\") — 1100-1400 words\n- tutorial: step-by-step playbooks, how-tos — 800-1100 words\n- framework: opinionated strategy/framework pieces (\"The X Stack in 2026\") — 900-1200 words\n- opinion: short takes, news commentary, contrarian arguments — 600-900 words\nDefault to framework if unclear.\n\nREQUIRED IMPORTS — paste this exact block right after the frontmatter ---:\n\nimport SideBySide from '@/components/post/SideBySide.astro';\nimport StatRow from '@/components/post/StatRow.astro';\nimport PullQuote from '@/components/post/PullQuote.astro';\nimport MyTake from '@/components/post/MyTake.astro';\nimport StepRow from '@/components/post/StepRow.astro';\nimport Figure from '@/components/post/Figure.astro';\nimport ComparisonTable from '@/components/ComparisonTable.astro';\n\nPOST SKELETON BY TYPE:\n\nCOMPARISON:\n- One-paragraph hook\n- <div class=\"quick-answer\"><strong>Quick answer:</strong> [TL;DR]</div>\n- <StatRow stats={[ { number, label, description }, ...3 facts ]} />\n- <ComparisonTable title=\"...\" tools={[ { name, tagline, pros: [...], cons: [...], pricing, affiliateSlug, ctaLabel, highlight: true|false }, ...2-4 tools ]} />\n- One ## section \"How to choose\" with 1-2 paragraphs\n- <SideBySide><Fragment slot=\"left\">decision criteria text — 2-3 short paragraphs</Fragment><Fragment slot=\"right\"><Figure caption=\"...\"><svg viewBox=\"0 0 360 260\" xmlns=\"http://www.w3.org/2000/svg\">{/* simple decision tree, 3-4 boxes */}</svg></Figure></Fragment></SideBySide>\n- <MyTake>contrarian or experiential claim, 2-3 sentences</MyTake>\n- One ## section, single takeaway paragraph (no \"in conclusion\")\n\nTUTORIAL:\n- One-paragraph hook\n- <div class=\"quick-answer\">...</div>\n- One ## section setting up the workflow + ~150 words context\n- <StepRow steps={[ { title, body }, ...3-5 steps ]} />\n- <SideBySide><Fragment slot=\"left\">gotcha or trap text</Fragment><Fragment slot=\"right\">code/config example in a fenced markdown block</Fragment></SideBySide>\n- <MyTake>experience-based claim from running this in production</MyTake>\n- One ## section, single takeaway paragraph\n\nFRAMEWORK:\n- One-paragraph hook\n- <div class=\"quick-answer\">...</div>\n- <PullQuote>thesis statement, 1-2 sentences, no attribution unless quoting someone real</PullQuote>\n- <StatRow stats={[...3 evidence facts]} />\n- 2 ## sections, each with one paragraph + ONE component (SideBySide, ComparisonTable, or Figure)\n- <MyTake>contrarian claim about the framework</MyTake>\n- One ## section, single takeaway paragraph\n\nOPINION:\n- <PullQuote>opening thesis</PullQuote>\n- 2-3 ## sections — pure prose, can include 1-2 components total (one SideBySide max)\n- <MyTake>your contrarian/experiential angle</MyTake>\n- No takeaway section needed — let MyTake be the close\n\nAFFILIATE LINKS — on the FIRST mention of any of these tools, link /go/<slug>. Don't repeat the link on later mentions:\nhubspot, make, n8n, apollo, clay, beehiiv, smartlead, pipedrive, lemlist, kit\nExample: \"[Make](/go/make) shines when...\" → after that, just say \"Make\".\n\nMyTake RULES:\n- Contrarian or experience-based claim ONLY (not a summary, not a generic \"I think...\")\n- 2-3 sentences max\n- If you don't have a real opinion, omit the block entirely\n- Maximum one MyTake per post\n\nSVG / MDX SYNTAX RULE:\n- This is MDX, not HTML. Inside any inline <svg> (or any JSX context), do NOT use HTML <!-- comments -->. They will break the build with @mdx-js/rollup parsing errors.\n- If you need a comment inside SVG, use JSX comments: {/* comment text */}.\n- Better: omit comments entirely. SVG element names already document themselves.\n\nQUICK ANSWER RULES:\n- Single sentence, plain language\n- Place immediately after the hook paragraph (or after PullQuote for opinion posts)\n- Exact pattern: <div class=\"quick-answer\"><strong>Quick answer:</strong> [text].</div>\n\nFAQS RULES:\n- Frontmatter must include 3-5 faqs\n- Each FAQ answers something a reader would type into Google\n- Answers 1-2 sentences, factually consistent with body\n\nOUTPUT FORMAT — exactly this, no commentary, no code fences around the whole thing:\n\n---\ntitle: \"[specific, search-friendly, under 65 chars]\"\ndescription: \"[1-2 sentences, 140-160 chars, SEO meta]\"\npubDate: ${new Date().toISOString().split('T')[0]}\ntags: [\"${$('Parse Topic').first().json.primaryTag || 'revops'}\", \"automation\", \"[third tag]\"]\nfaqs:\n  - question: \"[searchable question]\"\n    answer: \"[1-2 sentences, factually consistent with body]\"\n  - question: \"...\"\n    answer: \"...\"\n  - question: \"...\"\n    answer: \"...\"\n---\n\nimport SideBySide from '@/components/post/SideBySide.astro';\nimport StatRow from '@/components/post/StatRow.astro';\nimport PullQuote from '@/components/post/PullQuote.astro';\nimport MyTake from '@/components/post/MyTake.astro';\nimport StepRow from '@/components/post/StepRow.astro';\nimport Figure from '@/components/post/Figure.astro';\nimport ComparisonTable from '@/components/ComparisonTable.astro';\n\n[skeleton content matching the post type you selected]` }] }) }}",
+        "options": {
+          "timeout": 120000
+        }
       },
       "id": "tag00001-0000-0000-0000-000000000007",
       "name": "Generate Draft",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1340, 300],
+      "position": [
+        1340,
+        300
+      ],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_ANTHROPIC_CREDENTIAL_ID",
@@ -156,21 +241,32 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "anthropic-version", "value": "2023-06-01" },
-            { "name": "content-type", "value": "application/json" }
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4096, system: [{ type: 'text', text: `You are an editor for a RevOps practitioner's blog. Rewrite AI-generated draft content so it sounds like a senior operator wrote it — opinionated, specific, varied cadence.\\n\\nHard rules:\\n- DELETE these words/phrases anywhere they appear: delve, crucial, game-changer, streamline, leverage (as a verb), robust, utilize, it's worth noting, in conclusion, in today's landscape, cutting-edge, seamlessly, navigating the, unlock the power, dive into, at the end of the day, moving the needle, low-hanging fruit\\n- Vary sentence length deliberately. Mix short punchy sentences with longer ones.\\n- Add at least one specific opinionated claim per section (\"this is overhyped\", \"don't bother with X — use Y instead\", a contrarian take)\\n- Replace generic examples with specific tool names, real workflow steps, or concrete numbers\\n- Keep all markdown formatting and frontmatter exactly intact, including the <div class=\"quick-answer\"> block\\n- Output only the rewritten markdown, no commentary, no code fences`, cache_control: { type: 'ephemeral' } }], messages: [{ role: 'user', content: `Rewrite this draft:\\n\\n${$json.content[0].text}` }] }) }}",
-        "options": { "timeout": 120000 }
+        "body": "={{ JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4096, system: [{ type: 'text', text: `You are an editor for a RevOps practitioner's blog. Rewrite AI-generated MDX draft content so it sounds like a senior operator wrote it — opinionated, specific, varied cadence.\n\nHard rules:\n- DELETE these words/phrases anywhere they appear: delve, crucial, game-changer, streamline, leverage (as a verb), robust, utilize, it's worth noting, in conclusion, in today's landscape, cutting-edge, seamlessly, navigating the, unlock the power, dive into, at the end of the day, moving the needle, low-hanging fruit\n- Vary sentence length deliberately. Mix short punchy sentences with longer ones.\n- Add at least one specific opinionated claim per major section (contrarian take, \"don't bother with X — use Y instead\", concrete recommendation)\n- Replace generic examples with specific tool names, real workflow steps, or concrete numbers\n\nPRESERVATION rules — DO NOT MODIFY:\n- The frontmatter block (--- ... ---) including faqs array — keep title/description/pubDate/tags/faqs exactly intact.\n- The import block (the seven import lines starting with 'import SideBySide'). Verify all 7 imports are present and in order.\n- The <div class=\"quick-answer\">...</div> block.\n- All JSX components: <StatRow>, <ComparisonTable>, <SideBySide>, <PullQuote>, <StepRow>, <Figure>, <MyTake>. You may rewrite their text props/slot content for voice but never change tag names, prop names, or remove components.\n- /go/<slug> affiliate links — keep them. If first mention of an affiliate tool (hubspot, make, n8n, apollo, clay, beehiiv, smartlead, pipedrive, lemlist, kit) is missing its /go link, add it.\n\nVERIFY before output:\n- Exactly one <MyTake> block exists (or zero — never more). If the existing MyTake reads as a generic summary instead of a contrarian/experiential claim, rewrite it as a sharp contrarian take. If you can't make it sharp, delete the block entirely.\n\nOutput only the rewritten MDX, no commentary, no code fences around the whole thing.`, cache_control: { type: 'ephemeral' } }], messages: [{ role: 'user', content: `Rewrite this MDX draft:\\n\\n${$json.content[0].text}` }] }) }}",
+        "options": {
+          "timeout": 120000
+        }
       },
       "id": "tag00001-0000-0000-0000-000000000008",
       "name": "Humanize",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1560, 300],
+      "position": [
+        1560,
+        300
+      ],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_ANTHROPIC_CREDENTIAL_ID",
@@ -180,13 +276,16 @@
     },
     {
       "parameters": {
-        "jsCode": "// Take the humanized draft, extract the title, build a slug + filename + branch name.\n// Defensive: short-circuit if the response is malformed so we don't poison the PR.\nconst response = $input.first().json;\nconst topic = $('Parse Topic').first().json;\n\nif (!response.content || !Array.isArray(response.content) || !response.content[0]?.text) {\n  throw new Error('Humanize response malformed: ' + JSON.stringify(response).substring(0, 500));\n}\n\nconst markdown = response.content[0].text.trim();\n\n// Sanity check — frontmatter must be present and parseable.\nif (!markdown.startsWith('---')) {\n  throw new Error('Generated markdown missing frontmatter block. First 200 chars: ' + markdown.substring(0, 200));\n}\n\nconst titleMatch = markdown.match(/^---[\\s\\S]*?^title:\\s*[\"']?(.+?)[\"']?\\s*$/m);\nif (!titleMatch) {\n  throw new Error('Could not parse title from frontmatter.');\n}\nconst title = titleMatch[1].trim().replace(/^\"|\"$/g, '').replace(/^'|'$/g, '');\n\n// URL-safe slug\nconst slug = title.toLowerCase()\n  .replace(/[^a-z0-9\\s-]/g, '')\n  .trim()\n  .replace(/\\s+/g, '-')\n  .replace(/-+/g, '-')\n  .substring(0, 60)\n  .replace(/-$/, '');\n\nconst today = new Date().toISOString().split('T')[0];\nconst filename = `${today}-${slug}.md`;\nconst branchName = `content/${today}-${slug}`;\nconst filePath = `src/content/blog/${filename}`;\n\n// GitHub Contents API requires base64\nconst encodedContent = Buffer.from(markdown).toString('base64');\n\nreturn [{ json: {\n  ...topic,\n  markdown,\n  title,\n  slug,\n  filename,\n  filePath,\n  branchName,\n  encodedContent,\n  pubDate: today,\n}}];"
+        "jsCode": "// Take the humanized MDX draft, extract the title, build a slug + filename + branch name.\n// Outputs both filePath (.mdx, canonical) and filePathMd (.md, legacy idempotency check).\nconst response = $input.first().json;\nconst topic = $('Parse Topic').first().json;\n\nif (!response.content || !Array.isArray(response.content) || !response.content[0]?.text) {\n  throw new Error('Humanize response malformed: ' + JSON.stringify(response).substring(0, 500));\n}\n\nconst markdown = response.content[0].text.trim();\n\nif (!markdown.startsWith('---')) {\n  throw new Error('Generated MDX missing frontmatter block. First 200 chars: ' + markdown.substring(0, 200));\n}\n\nconst titleMatch = markdown.match(/^---[\\s\\S]*?^title:\\s*[\"']?(.+?)[\"']?\\s*$/m);\nif (!titleMatch) {\n  throw new Error('Could not parse title from frontmatter.');\n}\nconst title = titleMatch[1].trim().replace(/^\"|\"$/g, '').replace(/^'|'$/g, '');\n\n// Sanity check: import block must be present.\nif (!markdown.includes(\"import SideBySide from '@/components/post/SideBySide.astro'\")) {\n  throw new Error('MDX missing required component imports. Engine prompt may be drifting — review Generate Draft output.');\n}\n\nconst slug = title.toLowerCase()\n  .replace(/[^a-z0-9\\s-]/g, '')\n  .trim()\n  .replace(/\\s+/g, '-')\n  .replace(/-+/g, '-')\n  .substring(0, 60)\n  .replace(/-$/, '');\n\nconst today = new Date().toISOString().split('T')[0];\nconst filename = `${today}-${slug}.mdx`;\nconst filePath = `src/content/blog/${filename}`;\nconst filePathMd = `src/content/blog/${today}-${slug}.md`; // legacy collision check\n\nconst branchName = `content/${today}-${slug}`;\nconst encodedContent = Buffer.from(markdown).toString('base64');\n\nreturn [{ json: {\n  ...topic,\n  markdown,\n  title,\n  slug,\n  filename,\n  filePath,\n  filePathMd,\n  branchName,\n  encodedContent,\n  pubDate: today,\n}}];"
       },
       "id": "tag00001-0000-0000-0000-000000000009",
       "name": "Parse Draft",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1780, 300]
+      "position": [
+        1780,
+        300
+      ]
     },
     {
       "parameters": {
@@ -197,20 +296,34 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "X-GitHub-Api-Version", "value": "2022-11-28" },
-            { "name": "Accept", "value": "application/vnd.github+json" }
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            }
           ]
         },
         "options": {
           "timeout": 30000,
-          "response": { "response": { "neverError": true, "fullResponse": true } }
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
         }
       },
       "id": "tag00001-0000-0000-0000-00000000000a",
-      "name": "Check Idempotency",
+      "name": "Check Idempotency MDX",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [2000, 300],
+      "position": [
+        2000,
+        300
+      ],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
@@ -220,13 +333,60 @@
     },
     {
       "parameters": {
-        "jsCode": "// If the file already exists on master (status 200), abort — we already published this slug today.\n// 404 means safe to proceed. Anything else is an error worth surfacing.\nconst response = $input.first().json;\nconst draft = $('Parse Draft').first().json;\nconst statusCode = response.statusCode;\n\nif (statusCode === 200) {\n  throw new Error(`Post already exists on ${draft.githubBaseBranch}: ${draft.filePath}. Skipping to avoid overwrite.`);\n}\nif (statusCode !== 404) {\n  throw new Error(`Unexpected GitHub status ${statusCode} when checking for existing file. Body: ${JSON.stringify(response.body).substring(0, 300)}`);\n}\n\nconsole.log(`File ${draft.filePath} does not exist on ${draft.githubBaseBranch} — safe to create branch.`);\nreturn [{ json: draft }];"
+        "method": "GET",
+        "url": "=https://api.github.com/repos/{{ $json.githubOwner }}/{{ $json.githubRepo }}/contents/{{ $json.filePathMd }}?ref={{ $json.githubBaseBranch }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "tag00001-0000-0000-0000-00000000001a",
+      "name": "Check Idempotency MD",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2110,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
+          "name": "GitHub PAT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Verify BOTH the .mdx and the legacy .md path don't already exist on master.\n// If either returns 200, abort — we already published this slug.\nconst draft = $('Parse Draft').first().json;\nconst mdxResp = $('Check Idempotency MDX').first().json;\nconst mdResp = $input.first().json; // most recent: Check Idempotency MD\n\nif (mdxResp.statusCode === 200) {\n  throw new Error(`Post already exists at .mdx path: ${draft.filePath}. Skipping to avoid overwrite.`);\n}\nif (mdResp.statusCode === 200) {\n  throw new Error(`Post already exists at legacy .md path: ${draft.filePathMd}. Skipping to avoid overwrite.`);\n}\nif (mdxResp.statusCode !== 404) {\n  throw new Error(`Unexpected GitHub status ${mdxResp.statusCode} on .mdx idempotency check. Body: ${JSON.stringify(mdxResp.body).substring(0, 300)}`);\n}\nif (mdResp.statusCode !== 404) {\n  throw new Error(`Unexpected GitHub status ${mdResp.statusCode} on .md idempotency check. Body: ${JSON.stringify(mdResp.body).substring(0, 300)}`);\n}\n\nconsole.log(`Both ${draft.filePath} and ${draft.filePathMd} are absent on ${draft.githubBaseBranch} — safe to commit.`);\nreturn [{ json: draft }];"
       },
       "id": "tag00001-0000-0000-0000-00000000000b",
       "name": "Confirm Not Exists",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2220, 300]
+      "position": [
+        2220,
+        300
+      ]
     },
     {
       "parameters": {
@@ -237,17 +397,28 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "X-GitHub-Api-Version", "value": "2022-11-28" },
-            { "name": "Accept", "value": "application/vnd.github+json" }
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            }
           ]
         },
-        "options": { "timeout": 30000 }
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "tag00001-0000-0000-0000-00000000000c",
       "name": "Get Base SHA",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [2440, 300],
+      "position": [
+        2440,
+        300
+      ],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
@@ -263,7 +434,10 @@
       "name": "Carry Base SHA",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2660, 300]
+      "position": [
+        2660,
+        300
+      ]
     },
     {
       "parameters": {
@@ -274,22 +448,36 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "X-GitHub-Api-Version", "value": "2022-11-28" },
-            { "name": "Accept", "value": "application/vnd.github+json" },
-            { "name": "content-type", "value": "application/json" }
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
         "body": "={{ JSON.stringify({ ref: `refs/heads/${$json.branchName}`, sha: $json.baseSha }) }}",
-        "options": { "timeout": 30000 }
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "tag00001-0000-0000-0000-00000000000e",
       "name": "Create Branch",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [2880, 300],
+      "position": [
+        2880,
+        300
+      ],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
@@ -306,22 +494,36 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "X-GitHub-Api-Version", "value": "2022-11-28" },
-            { "name": "Accept", "value": "application/vnd.github+json" },
-            { "name": "content-type", "value": "application/json" }
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
         "body": "={{ JSON.stringify({ message: `content: add ${$('Carry Base SHA').first().json.title}`, content: $('Carry Base SHA').first().json.encodedContent, branch: $('Carry Base SHA').first().json.branchName }) }}",
-        "options": { "timeout": 30000 }
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "tag00001-0000-0000-0000-00000000000f",
       "name": "Commit File",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [3100, 300],
+      "position": [
+        3100,
+        300
+      ],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
@@ -338,22 +540,36 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "X-GitHub-Api-Version", "value": "2022-11-28" },
-            { "name": "Accept", "value": "application/vnd.github+json" },
-            { "name": "content-type", "value": "application/json" }
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
         "body": "={{ JSON.stringify({ title: `content: ${$('Carry Base SHA').first().json.title}`, head: $('Carry Base SHA').first().json.branchName, base: $('Carry Base SHA').first().json.githubBaseBranch, body: `Auto-generated post from the n8n content engine.\\n\\n**Topic:** ${$('Carry Base SHA').first().json.blogTopic}\\n**Slug:** ${$('Carry Base SHA').first().json.slug}\\n**Pub date:** ${$('Carry Base SHA').first().json.pubDate}\\n\\nNetlify will post the deploy preview URL as a comment below. Review on the preview URL, then merge to publish.` }) }}",
-        "options": { "timeout": 30000 }
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "tag00001-0000-0000-0000-000000000010",
       "name": "Open PR",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [3320, 300],
+      "position": [
+        3320,
+        300
+      ],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
@@ -369,7 +585,10 @@
       "name": "Carry PR Info",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [3540, 300]
+      "position": [
+        3540,
+        300
+      ]
     },
     {
       "parameters": {
@@ -380,87 +599,36 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Notion-Version", "value": "2022-06-28" },
-            { "name": "content-type", "value": "application/json" }
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
         "body": "={{ JSON.stringify({ properties: { Status: { select: { name: 'In Review' } }, 'PR URL': { url: $json.prUrl }, 'Pub Date': { date: { start: $json.pubDate } } } }) }}",
-        "options": { "timeout": 30000 }
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "tag00001-0000-0000-0000-000000000012",
       "name": "Mark Topic In Review",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [3760, 160],
+      "position": [
+        3760,
+        160
+      ],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_NOTION_CREDENTIAL_ID",
           "name": "Notion Integration Token"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.anthropic.com/v1/messages",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            { "name": "anthropic-version", "value": "2023-06-01" },
-            { "name": "content-type", "value": "application/json" }
-          ]
-        },
-        "sendBody": true,
-        "contentType": "raw",
-        "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1024, messages: [{ role: 'user', content: `Convert the blog post below into an X/Twitter thread of 6-8 tweets for a RevOps/GTM audience.\\n\\nRules:\\n- Tweet 1: Hook — bold claim, contrarian take, or surprising stat. No \"thread\" or emoji spam.\\n- Tweets 2-6: One punchy insight per tweet. Specific and concrete.\\n- Tweet 7: One-line takeaway.\\n- Tweet 8 (optional): \"Full post: ${$json.siteBaseUrl}/blog/${$json.slug}\"\\n- Max 260 chars per tweet (count carefully)\\n- Number each tweet: 1/ 2/ etc\\n- No hashtags unless essential\\n\\nOutput ONLY the numbered tweets, one per line.\\n\\nBLOG POST:\\n${$json.markdown}` }] }) }}",
-        "options": { "timeout": 60000 }
-      },
-      "id": "tag00001-0000-0000-0000-000000000013",
-      "name": "Generate Twitter Thread",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [3760, 380],
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "REPLACE_WITH_ANTHROPIC_CREDENTIAL_ID",
-          "name": "Anthropic API Key"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.anthropic.com/v1/messages",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            { "name": "anthropic-version", "value": "2023-06-01" },
-            { "name": "content-type", "value": "application/json" }
-          ]
-        },
-        "sendBody": true,
-        "contentType": "raw",
-        "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 512, messages: [{ role: 'user', content: `Write a 45-60 second short-form video script (120-150 words read aloud) based on the blog post below.\\n\\nRules:\\n- Hook in first 3 seconds: a question or bold statement\\n- Middle: 3 specific tactics from the post, one sentence each — no generic advice\\n- End: soft CTA — \"Link in bio for the full breakdown\"\\n- Tone: practitioner not marketer\\n- Format: plain text with [HOOK], [POINT 1], [POINT 2], [POINT 3], [CTA] labels on their own lines\\n- No emojis, no hashtags\\n\\nBLOG POST:\\n${$('Carry PR Info').first().json.markdown}` }] }) }}",
-        "options": { "timeout": 60000 }
-      },
-      "id": "tag00001-0000-0000-0000-000000000014",
-      "name": "Generate Video Script",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [3760, 600],
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "REPLACE_WITH_ANTHROPIC_CREDENTIAL_ID",
-          "name": "Anthropic API Key"
         }
       }
     },
@@ -473,21 +641,32 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Notion-Version", "value": "2022-06-28" },
-            { "name": "content-type", "value": "application/json" }
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ parent: { database_id: $('Carry PR Info').first().json.draftsDatabaseId }, properties: { Name: { title: [{ text: { content: 'Twitter: ' + $('Carry PR Info').first().json.title } }] }, Status: { select: { name: 'Draft – Needs Review' } }, Type: { select: { name: 'Twitter Thread' } }, 'PR URL': { url: $('Carry PR Info').first().json.prUrl }, 'Pub Date': { date: { start: $('Carry PR Info').first().json.pubDate } } }, children: [{ object: 'block', type: 'callout', callout: { rich_text: [{ type: 'text', text: { content: 'Review each tweet. Live URL is in the body already.' } }], icon: { emoji: '✏️' } } }, { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: $json.content[0].text.substring(0, 1999) } }] } }] }) }}",
-        "options": { "timeout": 30000 }
+        "body": "={{ JSON.stringify({ parent: { database_id: $('Carry PR Info').first().json.draftsDatabaseId }, properties: { Name: { title: [{ text: { content: 'Twitter: ' + $('Carry PR Info').first().json.title } }] }, Status: { select: { name: 'Draft – Needs Review' } }, Type: { select: { name: 'Twitter Thread' } }, 'PR URL': { url: $('Carry PR Info').first().json.prUrl }, 'Pub Date': { date: { start: $('Carry PR Info').first().json.pubDate } } }, children: [{ object: 'block', type: 'callout', callout: { rich_text: [{ type: 'text', text: { content: 'Review each tweet. Live URL is in the body already.' } }], icon: { emoji: '✏️' } } }, { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: $json.twitter.substring(0, 1999) } }] } }] }) }}",
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "tag00001-0000-0000-0000-000000000015",
       "name": "Save Twitter Thread",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [3980, 380],
+      "position": [
+        3980,
+        380
+      ],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_NOTION_CREDENTIAL_ID",
@@ -504,21 +683,32 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Notion-Version", "value": "2022-06-28" },
-            { "name": "content-type", "value": "application/json" }
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ parent: { database_id: $('Carry PR Info').first().json.draftsDatabaseId }, properties: { Name: { title: [{ text: { content: 'Video: ' + $('Carry PR Info').first().json.title } }] }, Status: { select: { name: 'Script – Needs Review' } }, Type: { select: { name: 'Video Script' } }, 'PR URL': { url: $('Carry PR Info').first().json.prUrl }, 'Pub Date': { date: { start: $('Carry PR Info').first().json.pubDate } } }, children: [{ object: 'block', type: 'callout', callout: { rich_text: [{ type: 'text', text: { content: 'Read aloud to verify timing — target 45-60 seconds.' } }], icon: { emoji: '🎬' } } }, { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: $json.content[0].text.substring(0, 1999) } }] } }] }) }}",
-        "options": { "timeout": 30000 }
+        "body": "={{ JSON.stringify({ parent: { database_id: $('Carry PR Info').first().json.draftsDatabaseId }, properties: { Name: { title: [{ text: { content: 'Video: ' + $('Carry PR Info').first().json.title } }] }, Status: { select: { name: 'Script – Needs Review' } }, Type: { select: { name: 'Video Script' } }, 'PR URL': { url: $('Carry PR Info').first().json.prUrl }, 'Pub Date': { date: { start: $('Carry PR Info').first().json.pubDate } } }, children: [{ object: 'block', type: 'callout', callout: { rich_text: [{ type: 'text', text: { content: 'Read aloud to verify timing — target 45-60 seconds.' } }], icon: { emoji: '🎬' } } }, { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: $json.video.substring(0, 1999) } }] } }] }) }}",
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "tag00001-0000-0000-0000-000000000016",
       "name": "Save Video Script",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [3980, 600],
+      "position": [
+        3980,
+        600
+      ],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_NOTION_CREDENTIAL_ID",
@@ -533,51 +723,28 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "content-type", "value": "application/json" }
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
         "body": "={{ JSON.stringify({ text: `:newspaper: *New post PR opened — ready for review*\\n\\n*Title:* ${$('Carry PR Info').first().json.title}\\n*Topic:* ${$('Carry PR Info').first().json.blogTopic}\\n*PR:* ${$('Carry PR Info').first().json.prUrl}\\n\\n_Netlify will comment the deploy preview URL on the PR within ~2 min. Review on the preview, then merge to publish to ${$('Carry PR Info').first().json.siteBaseUrl}._\\n\\n_LinkedIn post + Twitter thread + video script are queued for review in Notion._` }) }}",
-        "options": { "timeout": 30000 }
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "tag00001-0000-0000-0000-000000000017",
       "name": "Slack Notification",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [3980, 160]
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.anthropic.com/v1/messages",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            { "name": "anthropic-version", "value": "2023-06-01" },
-            { "name": "content-type", "value": "application/json" }
-          ]
-        },
-        "sendBody": true,
-        "contentType": "raw",
-        "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1024, messages: [{ role: 'user', content: `Convert the blog post below into a LinkedIn post for a RevOps/GTM practitioner audience.\\n\\nLinkedIn rules that actually drive engagement:\\n- Hook in the first 1-2 lines (LinkedIn truncates after ~210 chars before \"...see more\"). The hook MUST earn the click. Bold claim, contrarian take, surprising number, or specific failure story.\\n- Total length: 1200-1800 chars. Long-form does well on LinkedIn for B2B audiences but only if every line earns its place.\\n- Use line breaks between every sentence or two. Wall-of-text kills engagement.\\n- 3-5 specific takeaways from the post. Name actual tool names, real workflow steps, real numbers. NO vague advice.\\n- End with a soft CTA: pose a question to drive comments, OR \"Full breakdown: ${$json.siteBaseUrl}/blog/${$json.slug}\"\\n- Tone: senior practitioner talking to peers. NOT marketer. NOT thought-leader. Specific > inspirational.\\n- No emoji spam. One or two MAX, only if they earn their place. No 🚀.\\n- No hashtags except 1-2 highly specific ones at the very end (e.g. #RevOps, #GTM). Skip generic ones.\\n\\nAvoid these LinkedIn cliches: \"hot take\", \"unpopular opinion\", \"here's the thing\", emoji bullet points, \"thoughts?\", \"agree?\", numbered lists with one word per number.\\n\\nOutput ONLY the LinkedIn post text. No commentary. No explanation.\\n\\nBLOG POST:\\n${$('Carry PR Info').first().json.markdown}` }] }) }}",
-        "options": { "timeout": 60000 }
-      },
-      "id": "tag00001-0000-0000-0000-000000000018",
-      "name": "Generate LinkedIn Post",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [3760, 820],
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "REPLACE_WITH_ANTHROPIC_CREDENTIAL_ID",
-          "name": "Anthropic API Key"
-        }
-      }
+      "position": [
+        3980,
+        160
+      ]
     },
     {
       "parameters": {
@@ -588,60 +755,342 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Notion-Version", "value": "2022-06-28" },
-            { "name": "content-type", "value": "application/json" }
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ parent: { type: 'database_id', database_id: $('Carry PR Info').first().json.draftsDatabaseId }, properties: { Name: { title: [{ text: { content: 'LinkedIn: ' + $('Carry PR Info').first().json.title } }] }, Status: { select: { name: 'Draft – Needs Review' } }, Type: { select: { name: 'LinkedIn Post' } }, 'PR URL': { url: $('Carry PR Info').first().json.prUrl }, 'Pub Date': { date: { start: $('Carry PR Info').first().json.pubDate } } }, children: [{ object: 'block', type: 'callout', callout: { rich_text: [{ type: 'text', text: { content: 'Read the hook out loud. If you would not click \"see more\", rewrite the first line. Live URL is in the post body already.' } }], icon: { emoji: '💼' } } }, { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: $json.content[0].text.substring(0, 1999) } }] } }] }) }}",
-        "options": { "timeout": 30000 }
+        "body": "={{ JSON.stringify({ parent: { type: 'database_id', database_id: $('Carry PR Info').first().json.draftsDatabaseId }, properties: { Name: { title: [{ text: { content: 'LinkedIn: ' + $('Carry PR Info').first().json.title } }] }, Status: { select: { name: 'Draft – Needs Review' } }, Type: { select: { name: 'LinkedIn Post' } }, 'PR URL': { url: $('Carry PR Info').first().json.prUrl }, 'Pub Date': { date: { start: $('Carry PR Info').first().json.pubDate } } }, children: [{ object: 'block', type: 'callout', callout: { rich_text: [{ type: 'text', text: { content: 'Read the hook out loud. If you would not click \"see more\", rewrite the first line. Live URL is in the post body already.' } }], icon: { emoji: '💼' } } }, { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: $json.linkedin.substring(0, 1999) } }] } }] }) }}",
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "tag00001-0000-0000-0000-000000000019",
       "name": "Save LinkedIn Post",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [3980, 820],
+      "position": [
+        3980,
+        820
+      ],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_NOTION_CREDENTIAL_ID",
           "name": "Notion Integration Token"
         }
       }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 2048, messages: [{ role: 'user', content: `Generate three social outputs from the blog post below — Twitter thread, short-form video script, LinkedIn post — for a RevOps/GTM audience.\n\nOutput ONLY a JSON object. No surrounding prose. No markdown code fences.\n\n{\n  \"twitter\": \"6-8 numbered tweets (1/, 2/, etc), one per line, max 260 chars each. Tweet 1 = hook (bold claim, contrarian take, or surprising stat). Tweets 2-6 = punchy specific insights. Tweet 7 = takeaway. Optional final tweet: 'Full post: ${$json.siteBaseUrl}/blog/${$json.slug}'. No hashtag spam. No 'thread' word.\",\n  \"video\": \"45-60 second short-form video script, 120-150 words total. Use these labels on their own lines: [HOOK], [POINT 1], [POINT 2], [POINT 3], [CTA]. Direct address. No narrator stage directions.\",\n  \"linkedin\": \"1200-1800 character LinkedIn post. Hook in first 210 chars (before the 'see more' fold). Line breaks every 1-2 sentences. 3-5 specific takeaways. Soft CTA at the end. Senior practitioner tone. No emojis. No 'thought-leader' clichés. Plain text — LinkedIn doesn't render markdown.\"\n}\n\nHard rules across all three:\n- Be specific. Reference real tool names, real numbers, real workflow steps.\n- DELETE these words anywhere they appear: delve, crucial, game-changer, streamline, leverage (as a verb), robust, utilize, in conclusion, cutting-edge, seamlessly, dive into, at the end of the day, moving the needle, low-hanging fruit, in today's landscape, unlock the power.\n- One concrete contrarian or experience-based claim per output.\n\nPOST_URL: ${$json.siteBaseUrl}/blog/${$json.slug}\n\nBLOG POST:\n${$json.markdown}` }] }) }}",
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "id": "tag00001-0000-0000-0000-000000000020",
+      "name": "Generate Social Outputs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3760,
+        600
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_ANTHROPIC_CREDENTIAL_ID",
+          "name": "Anthropic API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the Haiku JSON response and expose flat fields for the 3 Save nodes.\n// Defensive: if Haiku returns prose around the JSON (rare but possible), extract\n// the first top-level JSON object via regex before parsing.\nconst response = $input.first().json;\nconst carry = $('Carry PR Info').first().json;\n\nif (!response.content || !Array.isArray(response.content) || !response.content[0]?.text) {\n  throw new Error('Generate Social Outputs returned malformed response: ' + JSON.stringify(response).substring(0, 500));\n}\n\nconst raw = response.content[0].text.trim();\nconst jsonMatch = raw.match(/\\{[\\s\\S]*\\}/);\nif (!jsonMatch) {\n  throw new Error('Could not find JSON in social outputs response. Raw: ' + raw.substring(0, 500));\n}\n\nlet parsed;\ntry {\n  parsed = JSON.parse(jsonMatch[0]);\n} catch (err) {\n  throw new Error('Social outputs JSON parse failed: ' + err.message + ' — raw: ' + jsonMatch[0].substring(0, 500));\n}\n\n// Validate the 3 expected fields exist\nfor (const f of ['twitter', 'video', 'linkedin']) {\n  if (typeof parsed[f] !== 'string' || parsed[f].length === 0) {\n    throw new Error(`Social outputs missing or empty field: ${f}`);\n  }\n}\n\nreturn [{ json: { ...carry, twitter: parsed.twitter, video: parsed.video, linkedin: parsed.linkedin } }];"
+      },
+      "id": "tag00001-0000-0000-0000-000000000021",
+      "name": "Parse Social Outputs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3980,
+        600
+      ]
     }
   ],
   "connections": {
-    "Manual Trigger": { "main": [[{ "node": "Config", "type": "main", "index": 0 }]] },
-    "Weekday 8am": { "main": [[{ "node": "Config", "type": "main", "index": 0 }]] },
-    "Config": { "main": [[{ "node": "Get Next Topic", "type": "main", "index": 0 }]] },
-    "Get Next Topic": { "main": [[{ "node": "Parse Topic", "type": "main", "index": 0 }]] },
-    "Parse Topic": { "main": [[{ "node": "Mark Topic Generating", "type": "main", "index": 0 }]] },
-    "Mark Topic Generating": { "main": [[{ "node": "Generate Draft", "type": "main", "index": 0 }]] },
-    "Generate Draft": { "main": [[{ "node": "Humanize", "type": "main", "index": 0 }]] },
-    "Humanize": { "main": [[{ "node": "Parse Draft", "type": "main", "index": 0 }]] },
-    "Parse Draft": { "main": [[{ "node": "Check Idempotency", "type": "main", "index": 0 }]] },
-    "Check Idempotency": { "main": [[{ "node": "Confirm Not Exists", "type": "main", "index": 0 }]] },
-    "Confirm Not Exists": { "main": [[{ "node": "Get Base SHA", "type": "main", "index": 0 }]] },
-    "Get Base SHA": { "main": [[{ "node": "Carry Base SHA", "type": "main", "index": 0 }]] },
-    "Carry Base SHA": { "main": [[{ "node": "Create Branch", "type": "main", "index": 0 }]] },
-    "Create Branch": { "main": [[{ "node": "Commit File", "type": "main", "index": 0 }]] },
-    "Commit File": { "main": [[{ "node": "Open PR", "type": "main", "index": 0 }]] },
-    "Open PR": { "main": [[{ "node": "Carry PR Info", "type": "main", "index": 0 }]] },
-    "Carry PR Info": {
-      "main": [[
-        { "node": "Mark Topic In Review", "type": "main", "index": 0 },
-        { "node": "Generate LinkedIn Post", "type": "main", "index": 0 },
-        { "node": "Generate Twitter Thread", "type": "main", "index": 0 },
-        { "node": "Generate Video Script", "type": "main", "index": 0 },
-        { "node": "Slack Notification", "type": "main", "index": 0 }
-      ]]
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
-    "Generate LinkedIn Post": { "main": [[{ "node": "Save LinkedIn Post", "type": "main", "index": 0 }]] },
-    "Generate Twitter Thread": { "main": [[{ "node": "Save Twitter Thread", "type": "main", "index": 0 }]] },
-    "Generate Video Script": { "main": [[{ "node": "Save Video Script", "type": "main", "index": 0 }]] }
+    "Weekday 8am": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Get Next Topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Next Topic": {
+      "main": [
+        [
+          {
+            "node": "Parse Topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Topic": {
+      "main": [
+        [
+          {
+            "node": "Mark Topic Generating",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Topic Generating": {
+      "main": [
+        [
+          {
+            "node": "Generate Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Draft": {
+      "main": [
+        [
+          {
+            "node": "Humanize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Humanize": {
+      "main": [
+        [
+          {
+            "node": "Parse Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Draft": {
+      "main": [
+        [
+          {
+            "node": "Check Idempotency",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm Not Exists": {
+      "main": [
+        [
+          {
+            "node": "Get Base SHA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Base SHA": {
+      "main": [
+        [
+          {
+            "node": "Carry Base SHA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Carry Base SHA": {
+      "main": [
+        [
+          {
+            "node": "Create Branch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Branch": {
+      "main": [
+        [
+          {
+            "node": "Commit File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commit File": {
+      "main": [
+        [
+          {
+            "node": "Open PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Open PR": {
+      "main": [
+        [
+          {
+            "node": "Carry PR Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Carry PR Info": {
+      "main": [
+        [
+          {
+            "node": "Mark Topic In Review",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Slack Notification",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generate Social Outputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Idempotency MDX": {
+      "main": [
+        [
+          {
+            "node": "Check Idempotency MD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Idempotency MD": {
+      "main": [
+        [
+          {
+            "node": "Confirm Not Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Social Outputs": {
+      "main": [
+        [
+          {
+            "node": "Parse Social Outputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Social Outputs": {
+      "main": [
+        [
+          {
+            "node": "Save Twitter Thread",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save Video Script",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save LinkedIn Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
-  "settings": { "executionOrder": "v1" },
+  "settings": {
+    "executionOrder": "v1"
+  },
   "active": false,
-  "meta": { "templateCredsSetupCompleted": false }
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
 }

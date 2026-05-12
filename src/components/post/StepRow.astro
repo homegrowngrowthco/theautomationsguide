@@ -1,0 +1,31 @@
+---
+// Horizontal numbered step cards. Replaces numbered lists for procedural content.
+//
+// USAGE in MDX posts:
+//   <StepRow steps={[
+//     { title: 'Trigger on deal closed', body: 'HubSpot workflow fires on stage = Closed Won.' },
+//     { title: 'Enrich the company', body: 'Clay pulls firmographic + tech stack data.' },
+//     { title: 'Notify CS in Slack', body: 'Webhook posts to #cs-handoff with the brief.' },
+//   ]} />
+
+interface Step {
+  title: string;
+  body: string;
+}
+
+interface Props {
+  steps: Step[];
+}
+
+const { steps } = Astro.props;
+---
+
+<div class="step-row" style={`--cols: ${steps.length}`}>
+  {steps.map((step, i) => (
+    <div class="step-card">
+      <div class="step-card-number">Step {i + 1}</div>
+      <div class="step-card-title">{step.title}</div>
+      <div class="step-card-body"><p>{step.body}</p></div>
+    </div>
+  ))}
+</div>
