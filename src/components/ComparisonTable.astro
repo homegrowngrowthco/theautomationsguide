@@ -188,7 +188,11 @@ const { title, tools } = Astro.props;
     border-radius: 0.5rem;
     border-top: none;
     padding: 0.75rem 1rem;
-    margin-top: 1rem;
+    /* Inherit margin-top: auto from .comparison-cta so the primary
+       button pins to the bottom of its grid cell — same as
+       non-highlighted CTAs. Without this, highlighted cards' CTAs
+       float at variable heights depending on pros/cons count and
+       buttons across the row misalign. */
   }
   .comparison-cta--primary:hover { opacity: 0.9; }
 </style>
