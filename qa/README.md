@@ -126,6 +126,14 @@ The action counts commits matching `[qa-fix-N]` on the branch since `origin/mast
 - Fix generation (only if review says shouldFix): ~$0.05–$0.10 (full post in/out)
 - Worst case (initial review + 2 fix attempts + 2 re-reviews): ~$0.25–$0.30
 
+### Known limitation — auto-loop is one-shot (2026-05-12)
+
+The `[qa-fix-N]` commits are pushed using the default `GITHUB_TOKEN`. By GitHub Actions security design, **pushes made with `GITHUB_TOKEN` do NOT trigger new workflow runs**. This was intentional on GitHub's side (loop prevention) but it means our intended `review → fix-1 → re-review → optional fix-2 → re-review` flow degrades to `review → fix-1 → (human reviews deploy preview manually)`.
+
+The fix-1 commit still lands on the PR branch and Netlify rebuilds the deploy preview with the fix applied — so the visual-review loop still works, just without the automated 2nd-pass verification.
+
+**To restore the full 2-attempt auto-loop:** swap the `Commit and push the fix` step in `.github/workflows/qa-content-pr.yml` to use a fine-grained PAT (stored as repo secret `AUTO_FIX_PAT`) instead of `GITHUB_TOKEN`. PAT-authored pushes DO trigger downstream workflows. The PAT needs `Contents: R/W` + `Pull requests: R/W` scoped to this repo. ~15 minutes of work when prioritized — flagged in [CLAUDE.md](../CLAUDE.md) §5 deferred items.
+
 ### Skipping the loop
 
 If a generated post fails the same way twice and the auto-fix can't resolve it, you'll get a Slack ping. Options:

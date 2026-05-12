@@ -17,7 +17,7 @@ export interface AffiliateLink {
   /** Tool homepage to fall back to until the affiliate link is approved */
   homepageFallback: string;
   /** Status of the affiliate program application */
-  status: 'live' | 'applied' | 'pending' | 'no-program';
+  status: 'live' | 'applied' | 'pending' | 'rejected' | 'no-program';
   /** Notes — commission rate, application date, etc. */
   notes?: string;
 }
@@ -27,57 +27,57 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     name: 'HubSpot',
     url: '',
     homepageFallback: 'https://www.hubspot.com/',
-    status: 'pending',
-    notes: '30% recurring 12mo + welcome bonus. Email-based application.',
+    status: 'rejected',
+    notes: 'Rejected 2026-05-12 — likely traffic-related. Re-apply once monthly traffic builds (target ~1K visits/mo). Falls back to homepage + UTM tag in the meantime.',
   },
   make: {
     name: 'Make',
-    url: '',
+    url: 'https://www.make.com/en/register?pc=automationsguide',
     homepageFallback: 'https://www.make.com/',
-    status: 'pending',
-    notes: '35% for 12 months. Self-service via Make dashboard.',
+    status: 'live',
+    notes: '35% for 12 months. Approved 2026-05-12. Direct Make partner program (partner code `automationsguide`).',
   },
   n8n: {
     name: 'n8n',
     url: '',
     homepageFallback: 'https://n8n.io/',
-    status: 'pending',
-    notes: '30% for 12 months via PartnerStack. No paid ads allowed.',
+    status: 'rejected',
+    notes: 'Rejected 2026-05-12 — likely traffic-related. Re-apply once monthly traffic builds. Falls back to homepage + UTM tag in the meantime.',
   },
   apollo: {
     name: 'Apollo.io',
-    url: '',
+    url: 'https://get.apollo.io/k7n9run0vl50',
     homepageFallback: 'https://www.apollo.io/',
-    status: 'pending',
-    notes: '15% monthly / 20% annual for 12 months via PartnerStack.',
+    status: 'live',
+    notes: '15% monthly / 20% annual for 12 months via PartnerStack. Approved 2026-05-12.',
   },
   clay: {
     name: 'Clay',
-    url: '',
+    url: 'https://me.sh/?via=theautomationsguide',
     homepageFallback: 'https://www.clay.com/',
-    status: 'pending',
-    notes: '$50 one-time per Pro customer via Rewardful.',
+    status: 'live',
+    notes: '$50 one-time per Pro customer via Rewardful. Approved 2026-05-12.',
   },
   beehiiv: {
     name: 'Beehiiv',
-    url: '',
+    url: 'https://www.beehiiv.com/?via=the-automations-guide',
     homepageFallback: 'https://www.beehiiv.com/',
-    status: 'pending',
-    notes: '50-60% recurring (tiered) for 12 months.',
+    status: 'live',
+    notes: '50-60% recurring (tiered) for 12 months. Approved 2026-05-12.',
   },
   smartlead: {
     name: 'Smartlead',
-    url: '',
+    url: 'https://smartlead.ai/?via=theautomationsguide',
     homepageFallback: 'https://www.smartlead.ai/',
-    status: 'pending',
-    notes: '15-35% recurring (tiered by volume).',
+    status: 'live',
+    notes: '15-35% recurring (tiered by volume). Approved 2026-05-12.',
   },
   pipedrive: {
     name: 'Pipedrive',
     url: '',
     homepageFallback: 'https://www.pipedrive.com/',
     status: 'pending',
-    notes: '20-30% recurring (tiered) for 12 months via PartnerStack.',
+    notes: '20-30% recurring (tiered) for 12 months via PartnerStack. Gated behind PartnerStack Network approval (pending 2026-05-12).',
   },
   lemlist: {
     name: 'Lemlist',
@@ -88,10 +88,10 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   },
   kit: {
     name: 'Kit',
-    url: '',
+    url: 'https://partners.kit.com/nt9zrjmnck9y',
     homepageFallback: 'https://kit.com/',
-    status: 'pending',
-    notes: '50% for 12 months via PartnerStack. Newsletter alt to Beehiiv.',
+    status: 'live',
+    notes: '50% for 12 months via PartnerStack. Approved 2026-05-12.',
   },
 };
 
