@@ -142,7 +142,14 @@ const breadcrumbSchema = {
         <a href="/" class="nav-logo">
           The <span>Automations</span> Guide
         </a>
-        <div class="nav-end">
+        <button class="nav-hamburger" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-menu">
+          <svg class="nav-hamburger-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line class="hb-line hb-line-top" x1="3" y1="6" x2="21" y2="6"></line>
+            <line class="hb-line hb-line-mid" x1="3" y1="12" x2="21" y2="12"></line>
+            <line class="hb-line hb-line-bot" x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+        <div class="nav-end" id="nav-menu" data-open="false">
           <ul class="nav-links">
             <li><a href="/blog" aria-current={currentPath.startsWith('/blog') ? 'page' : undefined}>Blog</a></li>
             <li><a href="/tools" aria-current={currentPath === '/tools' ? 'page' : undefined}>Tools</a></li>
@@ -168,6 +175,31 @@ const breadcrumbSchema = {
         </div>
       </div>
     </nav>
+    <script is:inline>
+      (function () {
+        const btn = document.querySelector('.nav-hamburger');
+        const menu = document.getElementById('nav-menu');
+        if (!btn || !menu) return;
+        function setOpen(open) {
+          menu.dataset.open = open ? 'true' : 'false';
+          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+        btn.addEventListener('click', () => setOpen(menu.dataset.open !== 'true'));
+        // Close drawer when a link inside it is clicked (navigation moves on)
+        menu.addEventListener('click', (e) => {
+          if (e.target.closest('a')) setOpen(false);
+        });
+        // Close drawer on Escape
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && menu.dataset.open === 'true') setOpen(false);
+        });
+        // If the viewport grows past mobile while drawer is open, close it
+        const mq = window.matchMedia('(min-width: 768px)');
+        const handleMq = () => { if (mq.matches) setOpen(false); };
+        if (mq.addEventListener) mq.addEventListener('change', handleMq);
+        else mq.addListener(handleMq);
+      })();
+    </script>
 
     <!-- Page content -->
     <main id="main-content">
