@@ -500,7 +500,7 @@ Or edit the two constants at the top of the file directly. Script validates both
 | Placeholder | Where | Status |
 |---|---|---|
 | `BEEHIIV_EMBED_URL_PLACEHOLDER` | `src/components/EmailSignup.astro` | ✅ Done — Beehiiv form ID `d41efc59-7041-482b-8178-6d238e6c3cfa` wired |
-| `AFFILIATE_LINK_PLACEHOLDER` (raw) | `src/pages/index.astro`, `src/pages/tools.astro` | ✅ Replaced with `/go/[tool]` redirects. Real affiliate URLs still needed in `src/data/affiliate-links.ts` once approvals come in |
+| `AFFILIATE_LINK_PLACEHOLDER` (raw) | `src/pages/index.astro`, `src/pages/tools.astro` | ✅ Replaced with `/go/[tool]` redirects. Live (2026-05-12): Make, Apollo, Clay, Beehiiv, Smartlead, Kit. Rejected: HubSpot, n8n (re-apply when traffic builds). Pending PartnerStack Network: Pipedrive. |
 | `[COMPANY_LOGOS_PLACEHOLDER]` | `src/pages/index.astro` hero | ✅ Replaced with HGC publisher line |
 | `ian@theautomationsguide.com` | `src/pages/about.astro` and legal pages | ✅ Done — alias on Ian's HGC Google Workspace |
 | Notion DB IDs / Slack URL | n8n Config nodes | ✅ Filled in workflow JSONs (Content Calendar `62f34586-...`, Drafts `7399699b-...`) |
@@ -531,13 +531,16 @@ Or edit the two constants at the top of the file directly. Script validates both
 - [x] Apple touch icon, email alias `ian@theautomationsguide.com`, GSC + Bing submitted.
 - [x] (2026-05-12) **Anthropic / GitHub PAT / Notion Integration Token all rotated** through every consumer (1Password, n8n credential, `.env`, GitHub repo secret as applicable).
 - [x] (2026-05-12) **First fully-engine-generated + auto-QA-fixed post live** — `/blog/2026-05-12-newsletter-automation-stack-...` (PR #16, qa-fix-1 applied 6 layout issues).
+- [x] (2026-05-12) **6 affiliate programs live:** Make (`pc=automationsguide`), Apollo, Clay, Beehiiv, Smartlead, Kit. All wired in `src/data/affiliate-links.ts`. HubSpot + n8n rejected (re-apply when traffic builds). Pipedrive gated by pending PartnerStack Network application.
 - [x] [DEPLOYMENT.md](DEPLOYMENT.md) — rollback safety guide pinned at repo root.
 
 ### Open — Ian (immediate, this week)
 
 - [ ] **Review the 8 Kit-affiliate topic suggestions** in the Notion Content Calendar — flip the ones to write to `Queued` (engine picks highest priority on next weekday 8am run; uses v4 MDX format + QA pipeline).
-- [ ] **Apply to remaining affiliate programs** — see `AFFILIATE_PROGRAMS.md` for Tier 1/2/3 + the additional 15 in conversation.
-- [ ] **As approvals come in:** edit `src/data/affiliate-links.ts` — change `url: ''` to real affiliate URL, change `status: 'pending'` to `'live'`, commit + push.
+- [ ] **PartnerStack Network application pending (2026-05-12)** — approval unlocks Pipedrive + any other PartnerStack-hosted program without per-program re-application. Once approved, flip Pipedrive to `live` in `src/data/affiliate-links.ts` with the partner link.
+- [ ] **Re-apply HubSpot + n8n once monthly traffic builds (~1K visits/mo)** — both rejected 2026-05-12, likely traffic-related. Until then, `/go/hubspot` and `/go/n8n` fall back to homepage + UTM tag — links still work, just no commission. Update `src/data/affiliate-links.ts` (`status: 'rejected'` → `'live'`, fill in `url`) when re-approved.
+- [ ] **Apply Lemlist** (https://lemlist.com/affiliate-program) once a Smartlead-alt comparison post is queued.
+- [ ] **Tier 3 programs** — apply once you have 10+ posts that mention the tool. See `AFFILIATE_PROGRAMS.md` § Tier 3.
 - [ ] **Verify PostHog:** open live site in incognito → check PostHog Live Events tab → confirm pageviews + click events fire. (Daily liveness monitor will Slack-alert if it drops to zero, so this is mainly a one-time setup check.)
 - [ ] **Verify Beehiiv:** subscribe with test email → confirm signup attributes correctly to source URL.
 - [ ] **Create TAG LinkedIn Company Page** + send URL to add to `sameAs` in BaseLayout.
