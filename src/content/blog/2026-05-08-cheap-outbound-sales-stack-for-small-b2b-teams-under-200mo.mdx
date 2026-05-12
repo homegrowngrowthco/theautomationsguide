@@ -30,11 +30,29 @@ Most "build your outbound stack" posts are written by people who already cleared
 
 <PullQuote>The tools that power a $10K MRR outbound motion and a $500K MRR outbound motion are more similar than vendors want you to believe — the difference is process, not price tier.</PullQuote>
 
-<StatRow stats={[
-  { number: "$98", label: "Core stack cost", description: "Apollo Basic ($49) + Smartlead Starter ($39) + $10 VPS for n8n — the irreducible minimum for a functioning outbound system" },
-  { number: "6,000", label: "Emails/mo on Smartlead Starter", description: "Enough to run 250–400 active prospects through a 10–15 touch sequence with headroom for warm-up traffic" },
-  { number: "1,000", label: "Apollo export credits/mo on Basic", description: "At a 30% connect rate and 5% reply rate, that's 150 conversations started per month from a single operator" }
-]} style="--stat-item-padding-mobile: 12px 0; --stat-gap-mobile: 10px;" />
+<style>{`
+  .stat-row-fix [data-stat-item] {
+    padding: 12px 16px !important;
+  }
+  @media (max-width: 640px) {
+    .stat-row-fix [data-stat-item] {
+      padding: 12px 16px !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+    }
+    .stat-row-fix [data-stat-list] {
+      gap: 0 !important;
+    }
+  }
+`}</style>
+
+<div class="stat-row-fix">
+  <StatRow stats={[
+    { number: "$98", label: "Core stack cost", description: "Apollo Basic ($49) + Smartlead Starter ($39) + $10 VPS for n8n — the irreducible minimum for a functioning outbound system" },
+    { number: "6,000", label: "Emails/mo on Smartlead Starter", description: "Enough to run 250–400 active prospects through a 10–15 touch sequence with headroom for warm-up traffic" },
+    { number: "1,000", label: "Apollo export credits/mo on Basic", description: "At a 30% connect rate and 5% reply rate, that's 150 conversations started per month from a single operator" }
+  ]} />
+</div>
 
 ## The Stack: What Goes Where and Why
 
@@ -44,14 +62,30 @@ The organizing principle here is separation of concerns. [Apollo](/go/apollo) do
 
 One strong opinion before we go further: don't use Apollo's built-in sequencer on this budget. The sending infrastructure isn't where Apollo earns its money — the data is. Hand off to Smartlead the moment a prospect hits a sequence. You'll get better deliverability and cleaner reply routing almost immediately.
 
-<div style="container-type: inline-size;">
-  <style>{`
-    @container (max-width: 900px) and (min-width: 520px) {
-      .comparison-table-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-      }
+<style>{`
+  .comparison-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .comparison-table-scroll [data-comparison-grid],
+  .comparison-table-scroll [data-card-container] {
+    min-width: 600px;
+  }
+  @media (max-width: 640px) {
+    .comparison-table-scroll [data-card],
+    .comparison-table-scroll [class*="card"] {
+      padding: 1rem !important;
     }
-  `}</style>
+    .comparison-table-scroll [data-feature-item],
+    .comparison-table-scroll [class*="feature-item"],
+    .comparison-table-scroll li {
+      gap: 4px !important;
+      margin-bottom: 4px !important;
+    }
+  }
+`}</style>
+
+<div class="comparison-table-scroll">
   <ComparisonTable title="Under-$200 Outbound Stack: Tool Breakdown" tools={[
     {
       name: "Apollo Basic",
