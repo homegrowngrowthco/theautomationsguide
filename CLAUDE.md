@@ -1,4 +1,4 @@
-# Session Log — last updated 2026-05-12
+# Session Log — last updated 2026-05-13
 
 ## Recovery Notes (2026-05-05 machine wipe)
 
@@ -22,6 +22,37 @@ This project survived the **2026-05-04** complete machine wipe.
 - Rotate keys used in n8n credentials (Anthropic, GitHub PAT with `repo` scope, Notion Integration Token). After rotation, update the n8n Cloud credentials with the same names.
 - No redeploy needed — Netlify auto-deploys from `master`, the repo is unchanged.
 - `.gitignore` updated 2026-05-05 to add `.claude/file-history/` to the existing `.claude/settings.local.json` ignore.
+
+---
+
+## Quick reference — recent additions (Session 9, 2026-05-13)
+
+This session diagnosed and fixed a recurring layout bug class in the content engine, hardened the engine against three failure modes that were producing AI-slop output, and cleared the open-PR backlog.
+
+**Triggering bug — PR #24 newsletter post (Beehiiv vs Substack vs HubSpot, merged 2026-05-13).** Ian flagged a broken flowchart and missing Substack hyperlink. Root cause investigation revealed two issues that together explain the symptom plus a class of recurring failures:
+
+1. **Substack wasn't in `src/data/affiliate-links.ts`** so the ComparisonTable CTA dropped (component only renders CTA when `affiliateSlug` is set) and the engine's "first mention" rule skipped Substack entirely. Fixed by adding `substack` as `status: 'no-program'` with `homepageFallback: 'https://substack.com/'` — the existing `resolveDestination()` handles fallback to homepage + UTM tag.
+2. **The engine generated camelCase SVG attributes** (`textAnchor`, `fontWeight`, `strokeWidth`) despite its prompt having a CRITICAL kebab-case rule. Astro renders SVG as raw HTML, so browsers silently drop camelCase attrs → `text-anchor` defaulted to `start` → labels rendered left-aligned and overflowed both their boxes and the figure container. The qa-fix-1 / qa-fix-2 auto-fix bot saw the visual overflow but couldn't infer "the attribute names are wrong" from a screenshot — it patched CSS around the symptom (qa-fix-2 added an invalid `style` prop on `<ComparisonTable>` with `@media` inside inline CSS, plus an empty trailing `<div>` for 7rem of blank space).
+
+**Engine v5 (PR #25, merged 2026-05-13).** Three coordinated changes hardening the engine after the PR #24 diagnosis:
+
+- **Generate Draft prompt**: adds `PERSONAL VOICE` (first person required — I/me/my/we/my clients, 3-5 markers per post, Ian Chamberland / Homegrown Growth Co. framing), `EXTERNAL CITATIONS` (2-4 inline links to vendor docs / Gartner / Forrester / HubSpot Research / Lenny / Reforge / Common Room / First Round Review / G2; do-not-invent-URLs rule explicit), `NO EM/EN DASHES` (hard rule with commas/periods/parens replacements). `substack` added to the affiliate slug list.
+- **Humanize prompt**: adds `NO DASHES` scrub across body/frontmatter/JSX/captions, `PERSONAL VOICE verify` (inject if <3 first-person markers), `CITATIONS verify` (add if <2 inline external links). `substack` added to slug list (parity).
+- **Parse Draft jsCode**: prepends a deterministic `sanitizeMdx()` that runs on every output regardless of LLM compliance. Converts camelCase SVG attrs → kebab-case (`textAnchor` → `text-anchor`, `fontWeight` → `font-weight`, `strokeWidth` → `stroke-width`, etc.) and replaces em (U+2014) + en (U+2013) dashes with `", "`. **This sanitizer is the load-bearing change** — prompt rules are aspirational, the regex pass makes the bug class unshippable.
+
+Engine v5 was re-imported into n8n Cloud by Ian on 2026-05-13. Source-of-truth artifact: [n8n/update-engine-v5.mjs](n8n/update-engine-v5.mjs) — same idempotent one-shot pattern as v4's `update-engine-for-mdx.mjs`.
+
+**Cleanup + CI lint (PR #26, merged 2026-05-13).** Removed the qa-fix-2 noise from the newsletter post (invalid `style` prop on `<ComparisonTable>` + empty trailing `<div>` that was rendering as visible blank space + a spurious horizontal divider). Added a `camelCase SVG attributes` lint step to [.github/workflows/qa-content-pr.yml](.github/workflows/qa-content-pr.yml) that runs before the expensive Playwright/Vision pipeline (~2s, fail-fast). The lint is defense-in-depth: the engine's `sanitizeMdx()` covers the LLM path, the CI lint covers hand edits and direct commits that bypass the engine.
+
+**Navbar mobile/tablet fixes (PR #23, merged 2026-05-13 — opened 2026-05-12).** Two real overflow bugs identified by the QA Vision review on the earlier kit-newsletter post: (1) mobile <768px — logo + 3 nav-links = ~400px in a 327px content area, "Tools" was clipping with no fallback; (2) tablet 768-1023px — Newsletter CTA visible despite `.nav-cta { display: none }` because `.btn { display: inline-flex }` declared later in source at same specificity (0,1,0) was winning. Fix adds a hamburger drawer on mobile (vanilla DOM, IIFE-wrapped inline `<script is:inline>`, ARIA-correct, CSS-only animation hamburger → X via `transform` on `aria-expanded="true"`, drawer closes on link click / Escape / viewport-resize-past-768) and bumps tablet rule specificity to `.btn.nav-cta { display: none }` (0,2,0 beats 0,1,0).
+
+**Auto-memory updates** (this session, persisted in `~/.claude/projects/.../memory/`):
+- `feedback_no_em_dashes.md` — hard editorial rule across all of Ian's content/writing projects; em dashes and en dashes are AI-slop tells, replace with commas/periods/parens
+- `feedback_deterministic_sanitizer_over_prompt.md` — for LLM output with hard syntax invariants (kebab-case attrs, character bans, schema constraints), add a deterministic post-process; prompt rules alone fail and Vision QA can't infer attribute-level bugs from screenshots
+
+**Affiliate philosophy clarified.** Every tool mentioned gets a `/go/<slug>` link regardless of program status. If no affiliate program exists, `homepageFallback` + UTM tag in [src/data/affiliate-links.ts](src/data/affiliate-links.ts) handles the redirect. `resolveDestination()` already implements this; the engine's "first mention" rule now linkifies all tools on the slug list (which includes Substack as the first `no-program` example). When adding a new tool the engine should know about: add it to both `affiliate-links.ts` AND the slug list in both Generate Draft and Humanize prompts (one entry in the engine JSON, applies to both nodes via the v5 updater script).
+
+**Action required of Ian after this session:** None — engine v5 already re-imported into n8n Cloud. Next blog engine run picks up all three layers (prompt rules + verify pass + sanitizer).
 
 ---
 
@@ -512,15 +543,15 @@ Or edit the two constants at the top of the file directly. Script validates both
 
 ---
 
-## 5. Master Next Steps (current state — 2026-05-12 EOD)
+## 5. Master Next Steps (current state — 2026-05-13 EOD)
 
 ### What's running already
 
 - [x] Site live on theautomationsguide.com, auto-deployed from `master` via Netlify (Node 22 LTS).
-- [x] **Content engine v4** (MDX + per-post-type templates + dual idempotency + Haiku for social outputs) live in n8n Cloud. ~$0.13 per post API spend.
+- [x] **Content engine v5** (Session 9, 2026-05-13) live in n8n Cloud. Adds PERSONAL VOICE + EXTERNAL CITATIONS + NO EM/EN DASHES prompt rules, Humanize verify passes for each, and a deterministic `sanitizeMdx()` in Parse Draft that converts camelCase SVG attrs → kebab-case and strips em/en dashes regardless of LLM compliance. ~$0.13 per post API spend (unchanged from v4).
 - [x] **Topic Suggestor** (Haiku 4.5, Mon/Thu) + **Daily Briefing** (Slack ping each morning) live in n8n Cloud.
 - [x] **Auto-merge content PRs GHA** (daily 14:00 UTC, 14-day staleness threshold, Slack-notifies via `SLACK_WEBHOOK_URL` repo secret).
-- [x] **QA auto-fix pipeline GHA** (Claude Vision review + 2-fix-cap, ~$0.30 worst-case per PR) — see Session 8 note about one-shot limitation pending PAT swap.
+- [x] **QA auto-fix pipeline GHA** (Claude Vision review + 2-fix-cap, ~$0.30 worst-case per PR). **camelCase SVG attrs CI lint** (Session 9) runs before screenshots and fails fast if camelCase attrs slip into a content PR — defense-in-depth against hand edits that bypass the engine sanitizer. See Session 8 note about one-shot limitation pending PAT swap.
 - [x] **PostHog liveness monitor** in n8n (daily 9am ET, Slack-alerts on zero pageviews in 24h).
 - [x] **Notion publish-status webhook** in n8n (auto-flips Notion topic Status → Published on PR merge + Slack notification).
 - [x] **n8n Error Trigger backstop** wired as "Error workflow" on every active n8n flow.
@@ -534,6 +565,8 @@ Or edit the two constants at the top of the file directly. Script validates both
 - [x] (2026-05-12) **Anthropic / GitHub PAT / Notion Integration Token all rotated** through every consumer (1Password, n8n credential, `.env`, GitHub repo secret as applicable).
 - [x] (2026-05-12) **First fully-engine-generated + auto-QA-fixed post live** — `/blog/2026-05-12-newsletter-automation-stack-...` (PR #16, qa-fix-1 applied 6 layout issues).
 - [x] (2026-05-12) **6 affiliate programs live:** Make (`pc=automationsguide`), Apollo, Clay, Beehiiv, Smartlead, Kit. All wired in `src/data/affiliate-links.ts`. HubSpot + n8n rejected (re-apply when traffic builds). Pipedrive gated by pending PartnerStack Network application.
+- [x] (2026-05-13) **Substack registered as `no-program` affiliate entry** in `src/data/affiliate-links.ts` — links via `/go/substack` fall back to substack.com + UTM tag. Pattern for any tool without an affiliate program: add the entry, add the slug to the engine's slug list, and `resolveDestination()` handles the homepage fallback automatically.
+- [x] (2026-05-13) **Navbar mobile hamburger drawer + tablet CTA specificity fix** (PR #23). Mobile <768px shows a hamburger that opens a drawer (Blog/Tools/About + search + Newsletter CTA + LinkedIn). Tablet 768-1023px hides the CTA + LinkedIn icon via `.btn.nav-cta { display: none }` (specificity 0,2,0).
 - [x] [DEPLOYMENT.md](DEPLOYMENT.md) — rollback safety guide pinned at repo root.
 
 ### Open / pending — tracked in Notion
@@ -550,7 +583,11 @@ Sortable by Due Date / Priority / Category. Statuses: `Not started` → `In prog
 
 | Concern | Revert command |
 |---|---|
-| Latest content PR not what you want | `git revert 73a8e86` (PR #16 — newsletter automation post) |
+| Navbar mobile drawer / tablet hide broken | `git revert 4cec916` (PR #23 — navbar mobile/tablet fix) |
+| camelCase SVG CI lint blocking a PR you don't want it to | `git revert bae8a23` (PR #26 — also restores the qa-fix-2 noise) |
+| Newsletter post (Beehiiv vs Substack vs HubSpot) needs rollback | `git revert cc295c5` (PR #24 — full post + Substack affiliate-links entry) |
+| Engine v5 prompts produce odd output | `git revert 8377188` (PR #25) — then re-import the reverted JSON into n8n Cloud. Falls back to v4 behavior. |
+| Latest engine-generated content PR not what you want | `git revert 73a8e86` (PR #16 — newsletter automation post) |
 | Backfilled posts look worse than originals | `git revert 52e6807` (PR #11 — backfill 8 posts to MDX) |
 | QA auto-fix pipeline misbehaves | `git revert c2c2b18` (PR #12 — QA pipeline) — engine still works without QA loop |
 | Right-size models causing social output quality regression | `git revert 8733108` (PR #13 — model right-sizing) — restores 3 Sonnet social calls |

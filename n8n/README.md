@@ -31,7 +31,7 @@ The full system is three workflows that compose:
 
 | File | Purpose |
 |---|---|
-| `blog-post-engine.json` | The main workflow — generates a post, opens a PR, queues social drafts. **v4 (2026-05-07)**: outputs MDX with components, per-post-type templates, dual `.md`/`.mdx` idempotency. |
+| `blog-post-engine.json` | The main workflow — generates a post, opens a PR, queues social drafts. **v5 (2026-05-13)**: adds PERSONAL VOICE + EXTERNAL CITATIONS + NO EM/EN DASHES prompt rules in Generate Draft, parallel verify passes in Humanize, and a deterministic `sanitizeMdx()` in Parse Draft that converts camelCase SVG attrs → kebab-case and strips em/en dashes regardless of LLM output. **v4 (2026-05-07)**: outputs MDX with components, per-post-type templates, dual `.md`/`.mdx` idempotency. |
 | `topic-suggestor.json` | Runs Mon/Thu — Claude suggests 5 new topics based on coverage gaps, writes them as `Suggested` for batch approval |
 | `daily-briefing.json` | Runs daily 7:30am — single Slack message summarizing what needs your attention (open PRs, topics to approve, drafts to post) |
 | `posthog-monitor.json` | **(2026-05-07)** Daily 9am ET — checks PostHog for $pageview events in the last 24h. Slack-alerts if zero (tracking broke or site is dead). |
@@ -39,10 +39,19 @@ The full system is three workflows that compose:
 | `error-trigger.json` | **(2026-05-07)** n8n Error Trigger — listens for failures from any workflow that lists this one as its "Error workflow" (set in workflow Settings). Slack-alerts with workflow name + error + execution link. |
 | `create-content-databases.js` | One-off script that creates the two Notion DBs and seeds 3 sample topics |
 | `update-engine-for-mdx.mjs` | One-shot Node script (record only) that converted v3 → v4. Source of truth for how the v4 prompts were constructed. Don't re-run on post-update JSON — it errors on missing original node names. |
+| `update-engine-v5.mjs` | Idempotent updater script that converted v4 → v5. Source of truth for the PERSONAL VOICE / EXTERNAL CITATIONS / NO EM-EN DASHES prompt additions, the parallel Humanize verify additions, and the `sanitizeMdx()` injection in Parse Draft. Safe to re-run (guards on string presence). |
 | `blog-post-engine-v2-archive.json` | Archived v2 of the engine for reference |
 | `README.md` | This file |
 
-**v4 changes (2026-05-07).** Engine now produces `.mdx` instead of `.md`. Generate Draft prompt picks one of four post-type skeletons (`comparison` / `tutorial` / `framework` / `opinion`) based on the Notion `Tag` field, and uses the Astro MDX component library at [src/components/post/](../src/components/post/). Idempotency check now GETs both `.md` and `.mdx` paths to protect legacy slugs from collision. Humanize verifies that the import block, `/go/<slug>` affiliate links on first mention, and the `<MyTake>` block (zero or one allowed) are intact. **After editing this JSON, re-import into n8n Cloud — the live engine doesn't auto-pull from this file.**
+**v5 changes (2026-05-13).** Three coordinated layers added on top of v4:
+
+- **Generate Draft prompt** adds `PERSONAL VOICE` (first person, 3-5 markers per post, Ian Chamberland / Homegrown Growth Co. framing), `EXTERNAL CITATIONS` (2-4 inline markdown links to vendor docs / Gartner / Forrester / HubSpot Research / Lenny / Reforge / Common Room / First Round Review / G2; do-not-invent-URLs rule explicit), and `NO EM/EN DASHES` (hard rule with comma/period/parens replacements). `substack` added to the affiliate slug list — every tool gets a `/go/<slug>` link regardless of program status; `resolveDestination()` falls back to homepage + UTM if no affiliate URL is set.
+- **Humanize prompt** adds `NO DASHES` scrub across body/frontmatter/JSX/captions, `PERSONAL VOICE verify` (inject first-person framing if <3 markers found), and `CITATIONS verify` (add inline external links if <2 found, never invent URLs).
+- **Parse Draft jsCode** prepends a deterministic `sanitizeMdx()` that runs on every output regardless of LLM compliance. Converts camelCase SVG attrs to kebab-case (`textAnchor` → `text-anchor`, `fontWeight` → `font-weight`, `strokeWidth` → `stroke-width`, plus the rest in the engine prompt's CRITICAL list) and replaces em (U+2014) + en (U+2013) dashes with `", "`. This sanitizer is the load-bearing change — prompt rules are aspirational, the regex pass makes the bug class unshippable.
+
+**v4 changes (2026-05-07).** Engine produces `.mdx` instead of `.md`. Generate Draft picks one of four post-type skeletons (`comparison` / `tutorial` / `framework` / `opinion`) based on the Notion `Tag` field, and uses the Astro MDX component library at [src/components/post/](../src/components/post/). Idempotency check now GETs both `.md` and `.mdx` paths to protect legacy slugs from collision. Humanize verifies that the import block, `/go/<slug>` affiliate links on first mention, and the `<MyTake>` block (zero or one allowed) are intact.
+
+**After editing this JSON, re-import into n8n Cloud — the live engine doesn't auto-pull from this file.**
 
 ## One-time setup (~15 min)
 
