@@ -85,6 +85,27 @@ jobs:
             echo "Post: $POST  Slug: $SLUG"
           fi
 
+      - name: Lint MDX for camelCase SVG attributes
+        if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        env:
+          POST: ${{ steps.slug.outputs.post }}
+        run: |
+          # Astro renders SVG as raw HTML, so camelCase SVG attrs are silently
+          # dropped by the browser. The n8n engine has a sanitizeMdx() that
+          # converts these to kebab-case, but hand edits and direct commits
+          # bypass it — this lint is the defense-in-depth.
+          set +e
+          MATCHES=$(grep -nE '(textAnchor|fontWeight|fontSize|fontFamily|strokeWidth|strokeDasharray|strokeLinecap|strokeLinejoin|markerEnd|markerStart|clipPath|fillOpacity|strokeOpacity)=' "$POST")
+          set -e
+          if [ -n "$MATCHES" ]; then
+            echo "::error file=$POST::camelCase SVG attributes detected. Astro renders SVG as raw HTML — camelCase attrs are silently ignored by the browser, breaking layouts (text not centered, strokes wrong width). Convert to kebab-case: textAnchor→text-anchor, fontWeight→font-weight, strokeWidth→stroke-width, etc."
+            echo ""
+            echo "Offending lines in $POST:"
+            echo "$MATCHES"
+            exit 1
+          fi
+          echo "No camelCase SVG attributes found in $POST."
+
       - name: Setup Node
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
         uses: actions/setup-node@v4
