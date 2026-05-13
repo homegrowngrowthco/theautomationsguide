@@ -78,7 +78,7 @@ Most GTM operators treat newsletter infrastructure as an afterthought — someth
           "No CRM integrations whatsoever"
         ],
         pricing: "Free; 10% cut on paid subscriptions",
-        affiliateSlug: null,
+        affiliateSlug: "substack",
         ctaLabel: "Visit Substack",
         highlight: false
       },
@@ -113,7 +113,7 @@ Ask one question first: is this newsletter a CRM workflow or a standalone audien
 
 If your sends depend heavily on deal stage, contact lifecycle, or Salesforce opportunity data — and you're already paying for Marketing Hub Professional — then [HubSpot](/go/hubspot) email is defensible. Not because it's good at newsletters. Because the integration cost of splitting your stack isn't worth it at that point. That's a genuinely narrow use case, and most operators reading this don't fit it.
 
-For everyone else — SDR leaders building thought leadership lists, demand gen operators running content flywheels, RevOps practitioners publishing to practitioners — the newsletter needs to stand on its own. Grow itself. Deliver reliably. And eventually generate behavioral signal you can pipe back into outbound. That's a job for a dedicated newsletter platform. Substack's total absence of automation disqualifies it immediately for anyone operating at meaningful scale. Full stop.
+For everyone else — SDR leaders building thought leadership lists, demand gen operators running content flywheels, RevOps practitioners publishing to practitioners — the newsletter needs to stand on its own. Grow itself. Deliver reliably. And eventually generate behavioral signal you can pipe back into outbound. That's a job for a dedicated newsletter platform. [Substack](/go/substack)'s total absence of automation disqualifies it immediately for anyone operating at meaningful scale. Full stop.
 
 <SideBySide>
   <Fragment slot="left">
@@ -125,46 +125,55 @@ For everyone else — SDR leaders building thought leadership lists, demand gen 
   </Fragment>
   <Fragment slot="right">
     <Figure caption="Decision tree: Beehiiv vs Substack vs HubSpot for B2B newsletter operators">
-      <svg viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg" style="font-family: sans-serif; font-size: 11px;">
+      <svg viewBox="0 0 360 320" xmlns="http://www.w3.org/2000/svg" style="font-family: sans-serif; font-size: 11px;">
+        {/* Root */}
         <rect x="100" y="10" width="160" height="36" rx="6" fill="#6366f1" />
         <text x="180" y="24" textAnchor="middle" fill="white" fontWeight="bold">Building owned audience?</text>
         <text x="180" y="38" textAnchor="middle" fill="white">Start here</text>
 
+        {/* Stem to Q1 */}
         <line x1="180" y1="46" x2="180" y2="68" stroke="#94a3b8" strokeWidth="1.5" />
 
-        <rect x="90" y="68" width="180" height="34" rx="6" fill="#1e293b" />
-        <text x="180" y="84" textAnchor="middle" fill="white">Need drip sequences</text>
+        {/* Q1 */}
+        <rect x="80" y="68" width="200" height="34" rx="6" fill="#1e293b" />
+        <text x="180" y="84" textAnchor="middle" fill="white">Need automation</text>
         <text x="180" y="97" textAnchor="middle" fill="white">or CRM sync?</text>
 
-        <line x1="100" y1="85" x2="50" y2="130" stroke="#94a3b8" strokeWidth="1.5" />
-        <text x="62" y="118" fill="#94a3b8" fontSize="10">No</text>
+        {/* Q1 → No (left) → Substack */}
+        <line x1="120" y1="102" x2="60" y2="140" stroke="#94a3b8" strokeWidth="1.5" />
+        <text x="78" y="126" fill="#94a3b8" fontSize="10">No</text>
 
-        <line x1="260" y1="85" x2="310" y2="130" stroke="#94a3b8" strokeWidth="1.5" />
-        <text x="278" y="118" fill="#94a3b8" fontSize="10">Yes</text>
+        {/* Q1 → Yes (right) → Q2 */}
+        <line x1="240" y1="102" x2="300" y2="140" stroke="#94a3b8" strokeWidth="1.5" />
+        <text x="270" y="126" fill="#94a3b8" fontSize="10">Yes</text>
 
-        <rect x="10" y="130" width="100" height="34" rx="6" fill="#334155" />
-        <text x="60" y="147" textAnchor="middle" fill="white">Solo publisher?</text>
-        <text x="60" y="160" textAnchor="middle" fill="#94a3b8">Discovery matters</text>
+        {/* Leaf left: Substack */}
+        <rect x="10" y="140" width="100" height="40" rx="6" fill="#0f172a" stroke="#6366f1" strokeWidth="1.5" />
+        <text x="60" y="158" textAnchor="middle" fill="#a5b4fc" fontWeight="bold">Substack</text>
+        <text x="60" y="172" textAnchor="middle" fill="#64748b">(low ceiling)</text>
 
-        <rect x="250" y="130" width="100" height="34" rx="6" fill="#334155" />
-        <text x="300" y="147" textAnchor="middle" fill="white">Deep in HubSpot</text>
-        <text x="300" y="160" textAnchor="middle" fill="#94a3b8">already?</text>
+        {/* Q2: Deep in HubSpot? */}
+        <rect x="240" y="140" width="120" height="34" rx="6" fill="#1e293b" />
+        <text x="300" y="156" textAnchor="middle" fill="white">Deep in HubSpot</text>
+        <text x="300" y="169" textAnchor="middle" fill="white">already?</text>
 
-        <line x1="60" y1="164" x2="60" y2="200" stroke="#94a3b8" strokeWidth="1.5" />
-        <line x1="300" y1="164" x2="300" y2="200" stroke="#94a3b8" strokeWidth="1.5" />
-        <line x1="180" y1="102" x2="180" y2="200" stroke="#94a3b8" strokeWidth="1.5" />
+        {/* Q2 → No (left) → Beehiiv */}
+        <line x1="260" y1="174" x2="200" y2="230" stroke="#94a3b8" strokeWidth="1.5" />
+        <text x="218" y="208" fill="#94a3b8" fontSize="10">No</text>
 
-        <rect x="10" y="200" width="100" height="34" rx="6" fill="#0f172a" stroke="#6366f1" strokeWidth="1.5" />
-        <text x="60" y="217" textAnchor="middle" fill="#a5b4fc">Substack</text>
-        <text x="60" y="230" textAnchor="middle" fill="#64748b">(low ceiling)</text>
+        {/* Q2 → Yes (right) → HubSpot */}
+        <line x1="340" y1="174" x2="320" y2="230" stroke="#94a3b8" strokeWidth="1.5" />
+        <text x="338" y="208" fill="#94a3b8" fontSize="10">Yes</text>
 
-        <rect x="130" y="200" width="100" height="34" rx="6" fill="#6366f1" />
-        <text x="180" y="217" textAnchor="middle" fill="white" fontWeight="bold">Beehiiv</text>
-        <text x="180" y="230" textAnchor="middle" fill="#c7d2fe">operator default</text>
+        {/* Leaf middle: Beehiiv (operator default) */}
+        <rect x="150" y="230" width="120" height="44" rx="6" fill="#6366f1" />
+        <text x="210" y="250" textAnchor="middle" fill="white" fontWeight="bold">Beehiiv</text>
+        <text x="210" y="265" textAnchor="middle" fill="#c7d2fe">operator default</text>
 
-        <rect x="250" y="200" width="100" height="34" rx="6" fill="#0f172a" stroke="#6366f1" strokeWidth="1.5" />
-        <text x="300" y="217" textAnchor="middle" fill="#a5b4fc">HubSpot Email</text>
-        <text x="300" y="230" textAnchor="middle" fill="#64748b">(if &lt;25k contacts)</text>
+        {/* Leaf right: HubSpot Email */}
+        <rect x="270" y="230" width="80" height="44" rx="6" fill="#0f172a" stroke="#6366f1" strokeWidth="1.5" />
+        <text x="310" y="250" textAnchor="middle" fill="#a5b4fc" fontWeight="bold">HubSpot</text>
+        <text x="310" y="265" textAnchor="middle" fill="#64748b">(if &lt;25k contacts)</text>
       </svg>
     </Figure>
   </Fragment>

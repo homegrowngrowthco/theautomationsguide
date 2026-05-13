@@ -93,6 +93,13 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'live',
     notes: '50% for 12 months via PartnerStack. Approved 2026-05-12.',
   },
+  substack: {
+    name: 'Substack',
+    url: '',
+    homepageFallback: 'https://substack.com/',
+    status: 'no-program',
+    notes: 'No affiliate program available. Falls back to homepage + UTM tag so /go/substack still routes correctly.',
+  },
 };
 
 /**
