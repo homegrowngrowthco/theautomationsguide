@@ -28,80 +28,84 @@ Most GTM operators treat newsletter infrastructure as an afterthought — someth
 
 <div class="quick-answer"><strong>Quick answer:</strong> Beehiiv is the clear choice for B2B operators who need deliverability control, automation depth, and monetization options — Substack is fine for solo thought leaders, and HubSpot is for teams already deep in the CRM who just need occasional email blasts.</div>
 
-<StatRow stats={[
-  { number: "42%", label: "Higher Open Rates", description: "Beehiiv users report open rates 30–42% above industry average, credited to dedicated IP infrastructure and custom domain sending." },
-  { number: "$0", label: "Substack Automation Budget", description: "Substack has zero native automation — no drip sequences, no behavioral triggers, no segmentation. It's a publishing tool, not a marketing tool." },
-  { number: "5–10×", label: "HubSpot Cost Premium", description: "HubSpot's Marketing Hub scales to $800–$3,200/month for list sizes where Beehiiv charges $99–$299/month with more newsletter-native features." }
-]} />
+<div style="margin-bottom: 1.5rem;">
+  <StatRow stats={[
+    { number: "42%", label: "Higher Open Rates", description: "Beehiiv users report open rates 30–42% above industry average, credited to dedicated IP infrastructure and custom domain sending." },
+    { number: "$0", label: "Substack Automation Budget", description: "Substack has zero native automation — no drip sequences, no behavioral triggers, no segmentation. It's a publishing tool, not a marketing tool." },
+    { number: "5–10×", label: "HubSpot Cost Premium", description: "HubSpot's Marketing Hub scales to $800–$3,200/month for list sizes where Beehiiv charges $99–$299/month with more newsletter-native features." }
+  ]} />
+</div>
 
-<ComparisonTable
-  title="Beehiiv vs Substack vs HubSpot for B2B Newsletter"
-  tools={[
-    {
-      name: "Beehiiv",
-      tagline: "Newsletter infrastructure built for growth operators",
-      pros: [
-        "Custom domain sending + dedicated IP options",
-        "Native automations: welcome sequences, drip flows, behavioral triggers",
-        "Segmentation by source, engagement tier, and custom fields",
-        "Built-in monetization: paid subscriptions, ad network, boosts",
-        "Clean API + Zapier/Make webhooks for CRM sync",
-        "Subscriber growth tools: referral program, recommendations"
-      ],
-      cons: [
-        "No native CRM — you're syncing to HubSpot or Salesforce separately",
-        "Web analytics less mature than dedicated tools",
-        "Paid tier required for automations (free plan is limited)"
-      ],
-      pricing: "Free up to 2,500 subs; Scale at $99/mo (100k subs)",
-      affiliateSlug: "beehiiv",
-      ctaLabel: "Try Beehiiv",
-      highlight: true
-    },
-    {
-      name: "Substack",
-      tagline: "Publishing-first platform for writers and solo creators",
-      pros: [
-        "Zero friction to launch — publish in under an hour",
-        "Built-in discovery network drives organic subscriber growth",
-        "Native paid subscriptions with no platform fee on free tier",
-        "Strong community features (comments, chat)"
-      ],
-      cons: [
-        "Zero automation — no sequences, no triggers, no drip",
-        "No custom fields, no segmentation beyond paid vs free",
-        "Audience data is trapped — export is basic CSV only",
-        "Substack owns your discovery, not you",
-        "No CRM integrations whatsoever"
-      ],
-      pricing: "Free; 10% cut on paid subscriptions",
-      affiliateSlug: null,
-      ctaLabel: "Visit Substack",
-      highlight: false
-    },
-    {
-      name: "HubSpot",
-      tagline: "CRM-first platform with email marketing bolted on",
-      pros: [
-        "Deep CRM integration — contact properties, deal stage triggers",
-        "Powerful workflow automation if you're already in the ecosystem",
-        "Excellent list segmentation using full CRM data",
-        "A/B testing and detailed engagement reporting"
-      ],
-      cons: [
-        "Not designed for newsletter UX — no reader portal, no public archive",
-        "No subscriber growth tools (no referral, no boost network)",
-        "No monetization options natively",
-        "Cost scales painfully with list size — 50k contacts pushes $800+/mo",
-        "Deliverability is shared infrastructure, not newsletter-optimized"
-      ],
-      pricing: "Marketing Hub Starter $20/mo; Professional $800/mo (scales by contacts)",
-      affiliateSlug: "hubspot",
-      ctaLabel: "Try HubSpot",
-      highlight: false
-    }
-  ]}
-/>
+<div style="overflow-x: auto; width: 100%;">
+  <ComparisonTable
+    title="Beehiiv vs Substack vs HubSpot for B2B Newsletter"
+    tools={[
+      {
+        name: "Beehiiv",
+        tagline: "Newsletter infrastructure built for growth operators",
+        pros: [
+          "Custom domain sending + dedicated IP options",
+          "Native automations: welcome sequences, drip flows, behavioral triggers",
+          "Segmentation by source, engagement tier, and custom fields",
+          "Built-in monetization: paid subscriptions, ad network, boosts",
+          "Clean API + Zapier/Make webhooks for CRM sync",
+          "Subscriber growth tools: referral program, recommendations"
+        ],
+        cons: [
+          "No native CRM — you're syncing to HubSpot or Salesforce separately",
+          "Web analytics less mature than dedicated tools",
+          "Paid tier required for automations (free plan is limited)"
+        ],
+        pricing: "Free up to 2,500 subs; Scale at $99/mo (100k subs)",
+        affiliateSlug: "beehiiv",
+        ctaLabel: "Try Beehiiv",
+        highlight: true
+      },
+      {
+        name: "Substack",
+        tagline: "Publishing-first platform for writers and solo creators",
+        pros: [
+          "Zero friction to launch — publish in under an hour",
+          "Built-in discovery network drives organic subscriber growth",
+          "Native paid subscriptions with no platform fee on free tier",
+          "Strong community features (comments, chat)"
+        ],
+        cons: [
+          "Zero automation — no sequences, no triggers, no drip",
+          "No custom fields, no segmentation beyond paid vs free",
+          "Audience data is trapped — export is basic CSV only",
+          "Substack owns your discovery, not you",
+          "No CRM integrations whatsoever"
+        ],
+        pricing: "Free; 10% cut on paid subscriptions",
+        affiliateSlug: null,
+        ctaLabel: "Visit Substack",
+        highlight: false
+      },
+      {
+        name: "HubSpot",
+        tagline: "CRM-first platform with email marketing bolted on",
+        pros: [
+          "Deep CRM integration — contact properties, deal stage triggers",
+          "Powerful workflow automation if you're already in the ecosystem",
+          "Excellent list segmentation using full CRM data",
+          "A/B testing and detailed engagement reporting"
+        ],
+        cons: [
+          "Not designed for newsletter UX — no reader portal, no public archive",
+          "No subscriber growth tools (no referral, no boost network)",
+          "No monetization options natively",
+          "Cost scales painfully with list size — 50k contacts pushes $800+/mo",
+          "Deliverability is shared infrastructure, not newsletter-optimized"
+        ],
+        pricing: "Marketing Hub Starter $20/mo; Professional $800/mo (scales by contacts)",
+        affiliateSlug: "hubspot",
+        ctaLabel: "Try HubSpot",
+        highlight: false
+      }
+    ]}
+  />
+</div>
 
 ## How to Choose the Right Platform
 
