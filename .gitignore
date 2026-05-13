@@ -33,3 +33,6 @@ pnpm-debug.log*
 # QA artifacts (Playwright screenshots + Claude vision review output)
 qa-screenshots/
 qa-review.md
+
+# Local screenshots (manual captures for debugging / PR review)
+screenshots/
