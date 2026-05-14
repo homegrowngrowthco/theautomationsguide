@@ -24,6 +24,37 @@ import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
+<style>{`
+  @media (max-width: 640px) {
+    .comparison-table-grid {
+      display: block !important;
+    }
+    .comparison-table-grid > * {
+      display: block !important;
+      width: 100% !important;
+      min-width: 0 !important;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .stat-row-grid {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      grid-template-rows: auto auto !important;
+    }
+    .stat-row-grid > *:last-child {
+      grid-column: 1 / -1 !important;
+      max-width: 50% !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+  }
+
+  .side-by-side-flex {
+    align-items: flex-start !important;
+  }
+`}</style>
+
 Every RevOps team I talk to in 2026 is sitting on a mountain of conversation data and wondering why pipeline still feels like a mystery. They have Gong recording every call, Outreach or Salesloft sequencing every touch, and a CRM drowning in synced fields. What they rarely have is a system that turns a signal from one of those platforms into an action in another. That gap, not the tools themselves, is where deals die.
 
 <div class="quick-answer"><strong>Quick answer:</strong> Gong wins on intelligence and forecasting, Outreach wins on sequencing volume and automation breadth, and Salesloft wins on deal management and coaching for enterprise teams, but none of them replace a deliberate action-trigger layer built on top.</div>
@@ -106,8 +137,8 @@ The comparison most teams run is the wrong one. They evaluate Gong, Outreach, an
 
 Gong is genuinely exceptional at surfacing that a deal has gone dark, that a champion appeared on calls regularly and then vanished three weeks ago, or that competitive mentions spiked across the last two deal stages. The problem is that Gong's native action layer is thin. It can push a field to Salesforce and trigger a notification. That is mostly it. Outreach has deeper action capabilities inside its own sequence engine, but the trigger logic between Gong signals and Outreach actions is not native. Salesloft's Rhythm AI is the most interesting attempt at closing this loop natively, but it is still maturing and it is Salesforce-first in ways that frustrate HubSpot shops.
 
-<SideBySide>
-  <Fragment slot="left">
+<div style="display: flex; align-items: flex-start; gap: 1.5rem; flex-wrap: wrap;">
+  <div style="flex: 1; min-width: 280px;">
 
 **Choosing by team motion**
 
@@ -117,8 +148,8 @@ If your AEs own complex, multi-stakeholder deals with cycles running 90 days or 
 
 If your leadership team needs forecast accuracy and coaching visibility, Gong is not optional. No other tool in this category gives a VP of Sales the ability to walk into a board meeting with call-evidence-backed forecasts. But Gong paired with nothing downstream becomes an expensive archive. Full stop.
 
-  </Fragment>
-  <Fragment slot="right">
+  </div>
+  <div style="flex: 1; min-width: 280px;">
     <Figure caption="Decision tree: matching platform to primary GTM motion">
       <svg viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg" width="360" height="280">
         <rect x="100" y="10" width="160" height="44" rx="6" fill="#6366f1" />
@@ -159,8 +190,8 @@ If your leadership team needs forecast accuracy and coaching visibility, Gong is
         <line x1="288" y1="154" x2="210" y2="194" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
       </svg>
     </Figure>
-  </Fragment>
-</SideBySide>
+  </div>
+</div>
 
 ## The action-trigger layer none of them fully solve natively
 
