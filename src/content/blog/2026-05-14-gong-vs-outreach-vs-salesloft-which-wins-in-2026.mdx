@@ -36,6 +36,28 @@ import ComparisonTable from '@/components/ComparisonTable.astro';
     }
   }
 
+  @media (max-width: 480px) {
+    .comparison-table-grid > * {
+      padding: 1rem !important;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .stat-row-grid {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 1rem !important;
+    }
+    .stat-row-grid > * {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+    .stat-row-grid .stat-description,
+    .stat-row-grid p {
+      font-size: 0.875rem !important;
+    }
+  }
+
   @media (max-width: 768px) {
     .stat-row-grid {
       display: grid !important;
@@ -52,6 +74,14 @@ import ComparisonTable from '@/components/ComparisonTable.astro';
 
   .side-by-side-flex {
     align-items: flex-start !important;
+  }
+
+  @media (max-width: 900px) {
+    .side-by-side-flex figure,
+    .side-by-side-flex .figure {
+      min-width: 280px !important;
+      width: 100% !important;
+    }
   }
 `}</style>
 
@@ -149,9 +179,9 @@ If your AEs own complex, multi-stakeholder deals with cycles running 90 days or 
 If your leadership team needs forecast accuracy and coaching visibility, Gong is not optional. No other tool in this category gives a VP of Sales the ability to walk into a board meeting with call-evidence-backed forecasts. But Gong paired with nothing downstream becomes an expensive archive. Full stop.
 
   </div>
-  <div style="flex: 1; min-width: 280px;">
+  <div style="flex: 1; min-width: 280px; width: 100%;">
     <Figure caption="Decision tree: matching platform to primary GTM motion">
-      <svg viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg" width="360" height="280">
+      <svg viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg" style="min-width: 280px; width: 100%; height: auto; display: block;">
         <rect x="100" y="10" width="160" height="44" rx="6" fill="#6366f1" />
         <text x="180" y="28" text-anchor="middle" font-size="11" font-weight="600" fill="#fff" font-family="sans-serif">Primary GTM need?</text>
         <text x="180" y="46" text-anchor="middle" font-size="10" fill="#e0e7ff" font-family="sans-serif">Start here</text>
