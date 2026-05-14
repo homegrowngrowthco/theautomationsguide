@@ -34,11 +34,14 @@ Most teams treat closed-lost as a write-off. That instinct is expensive. [HubSpo
 
 Reactivation requires a different message, a different cadence, and a different owner than your standard outbound sequence. Sending a generic "just checking in" to a contact you lost 8 months ago is worse than sending nothing. I've watched that exact mistake at clients who had solid lists but lazy copy, and the unsubscribe rate alone poisoned their domain reputation for months. The workflow I'm walking you through treats reactivation as a distinct motion with its own segment logic, sequence copy, and attribution tracking.
 
-<StatRow stats={[
-  { number: "56%", label: "of closed-lost deals reopen within 12 months", description: "According to Salesforce State of Sales data on pipeline recycling across B2B orgs" },
-  { number: "3x", label: "higher reply rate vs cold outbound", description: "Reactivation sequences to warm closed-lost contacts outperform cold sequences in most stacks I've measured" },
-  { number: "90 days", label: "minimum staleness threshold", description: "Contacts active more recently than 90 days are too fresh for reactivation framing and should stay in a nurture track" }
-]} />
+<StatRow
+  style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;"
+  stats={[
+    { number: "56%", label: "of closed-lost deals reopen within 12 months", description: "According to Salesforce State of Sales data on pipeline recycling across B2B orgs" },
+    { number: "3x", label: "higher reply rate vs cold outbound", description: "Reactivation sequences to warm closed-lost contacts outperform cold sequences in most stacks I've measured" },
+    { number: "90 days", label: "minimum staleness threshold", description: "Contacts active more recently than 90 days are too fresh for reactivation framing and should stay in a nurture track" }
+  ]}
+/>
 
 ## Building the Segment in HubSpot
 
@@ -48,28 +51,30 @@ In HubSpot, navigate to Contacts, then Lists, and create a new active list. You 
 
 Name this list something explicit like "Reactivation Candidates Q2 2026" so it's auditable. This list will feed Apollo through the native sync.
 
-<StepRow steps={[
-  {
-    title: "Create the HubSpot Active List",
-    body: "Build a dynamic contact list filtered on Closed Lost deal stage + Last Activity Date over 90 days + Deal Amount above your floor. Set it as active so it updates automatically as new deals go stale."
-  },
-  {
-    title: "Map the Apollo Integration in HubSpot",
-    body: "In HubSpot Settings, go to Integrations and connect Apollo if you haven't already. Authorize contact sync and confirm that Apollo can read and write to contact properties. The Apollo HubSpot integration docs walk through the OAuth scope requirements."
-  },
-  {
-    title: "Create a Dedicated Apollo Sequence",
-    body: "In Apollo, create a new sequence named 'Reactivation 2026' with 6 steps: emails on days 1, 4, 8, and 14, plus a LinkedIn connection request on day 6 and a final breakup email on day 21. Keep this sequence completely separate from your outbound prospecting sequences so you can tune deliverability and A/B test copy independently. Mixing reactivation and cold outbound in one sequence is how you lose visibility into what's actually working."
-  },
-  {
-    title: "Enroll the HubSpot Segment into Apollo",
-    body: "From your HubSpot active list, use the Apollo integration to push contacts directly into your Reactivation sequence. In Apollo's integration settings, you can map list membership to sequence enrollment automatically. Confirm the field mapping includes First Name, Company, and Last Deal Stage so your sequence variables populate correctly."
-  },
-  {
-    title: "Configure Outcome Sync Back to HubSpot",
-    body: "In Apollo's HubSpot sync settings, enable write-back for: sequence replied (map to a custom contact property 'Reactivation Reply' set to Yes), meeting booked (map to 'Reactivation Meeting Date'), and sequence finished with no reply (map to 'Reactivation Status' set to Exhausted). This is the step most people skip, and it's the one that makes the whole workflow attributable."
-  }
-]} />
+<div style="overflow-x:auto;">
+  <StepRow steps={[
+    {
+      title: "Create the HubSpot Active List",
+      body: "Build a dynamic contact list filtered on Closed Lost deal stage + Last Activity Date over 90 days + Deal Amount above your floor. Set it as active so it updates automatically as new deals go stale."
+    },
+    {
+      title: "Map the Apollo Integration in HubSpot",
+      body: "In HubSpot Settings, go to Integrations and connect Apollo if you haven't already. Authorize contact sync and confirm that Apollo can read and write to contact properties. The Apollo HubSpot integration docs walk through the OAuth scope requirements."
+    },
+    {
+      title: "Create a Dedicated Apollo Sequence",
+      body: "In Apollo, create a new sequence named 'Reactivation 2026' with 6 steps: emails on days 1, 4, 8, and 14, plus a LinkedIn connection request on day 6 and a final breakup email on day 21. Keep this sequence completely separate from your outbound prospecting sequences so you can tune deliverability and A/B test copy independently. Mixing reactivation and cold outbound in one sequence is how you lose visibility into what's actually working."
+    },
+    {
+      title: "Enroll the HubSpot Segment into Apollo",
+      body: "From your HubSpot active list, use the Apollo integration to push contacts directly into your Reactivation sequence. In Apollo's integration settings, you can map list membership to sequence enrollment automatically. Confirm the field mapping includes First Name, Company, and Last Deal Stage so your sequence variables populate correctly."
+    },
+    {
+      title: "Configure Outcome Sync Back to HubSpot",
+      body: "In Apollo's HubSpot sync settings, enable write-back for: sequence replied (map to a custom contact property 'Reactivation Reply' set to Yes), meeting booked (map to 'Reactivation Meeting Date'), and sequence finished with no reply (map to 'Reactivation Status' set to Exhausted). This is the step most people skip, and it's the one that makes the whole workflow attributable."
+    }
+  ]} />
+</div>
 
 ## The Sync Trap and the Fix
 
