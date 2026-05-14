@@ -25,6 +25,26 @@ This project survived the **2026-05-04** complete machine wipe.
 
 ---
 
+## Quick reference — recent additions (Session 10, 2026-05-14)
+
+Hotfix session triggered by the first scheduled blog engine run after the 2026-05-13 v5 re-import. Two latent bugs in the engine surfaced and both got fixed and re-imported. No content PRs this session.
+
+**Bug 1 — Generate Draft "invalid syntax" (commit `fb8da93`, no PR — direct to master).** At 08:00 ET the scheduled run failed at the Generate Draft node with n8n `ExpressionExtensionError: invalid syntax`. Root cause: commit `2eff8e9` (2026-05-12) added a "use kebab-case for SVG attrs" prompt rule that wrapped attribute names in markdown backticks (`` `text-anchor`, `font-size`, ... ``). The entire prompt is itself a JS template literal in the n8n HTTP body, so the first inner backtick terminated the template literal early and the rest of the prompt parsed as JS, throwing at parse time. Bug was latent in the JSON since 2026-05-12, the n8n Cloud import that picked it up was 2026-05-13 (engine v5), and today's 8am scheduled run was the first one to hit it. **Fix:** replaced the 14 markdown-formatted attribute names with single-quote-wrapped equivalents (`'text-anchor'`, `'font-size'`, ...), semantic instruction to the LLM is identical, no template-literal break. New auto-memory `feedback_no_backticks_in_template_literal_prompts.md` captures the rule + the JSON-parse + `new Function('return ' + expr)()` test-pattern for future-proofing.
+
+**Bug 2 — Parse Social Outputs "missing twitter field" (commit `f0f4dd8`, no PR — direct to master).** After re-importing the Bug 1 fix, the workflow got all the way through Open PR before failing at Parse Social Outputs with `Error: Social outputs missing or empty field: twitter`. Haiku had returned a JSON shape inconsistent with the strict 3-field validator (either named the field `tweet`/`tweets`/`x_thread`, dropped it entirely, or truncated at `max_tokens: 2048`). Two coordinated fixes: **(a)** Generate Social Outputs `max_tokens` bumped 2048 → 4096 for headroom (worst-case extra Haiku output cost ~$0.005 per post). **(b)** Parse Social Outputs rewritten to try common field-name variants (twitter / twitter_thread / tweet / tweets / x / x_thread, analogous for video and linkedin); on still-missing fields, save a diagnostic placeholder to Notion instead of throwing. Placeholder includes truncation flag, missing field name, Haiku's actual top-level keys, and a 300-char raw sample so Ian can decide whether to regenerate manually. **Social drafts are now non-blocking** — the blog PR ships even if Haiku's social JSON is malformed. Source-of-truth artifact: [n8n/update-engine-resilient-social-parser.mjs](n8n/update-engine-resilient-social-parser.mjs), same idempotent one-shot pattern as v5's `update-engine-v5.mjs`.
+
+**Auto-memory updates** (this session, persisted in `~/.claude/projects/.../memory/`):
+- `feedback_no_backticks_in_template_literal_prompts.md` — when an LLM prompt is embedded in a JS template literal (n8n HTTP body, code-node strings), never use markdown backticks for code formatting; use single quotes or escape. Surfaces as opaque `ExpressionExtensionError: invalid syntax` at runtime. Cross-references `feedback_deterministic_sanitizer_over_prompt.md`.
+
+**Action required of Ian after this session:** None, both hotfixes were re-imported into n8n Cloud during the session. Next scheduled run picks up both. If today's stuck Notion topic is still at `Status=Generating`, flip back to `Queued` so the next run picks it up. If the auto-fired social Slack pings for today's PR are useful as templates, regenerate manually via a one-off n8n trigger against the same topic — otherwise the post itself is the main artifact.
+
+**Revert paths** (also captured in DEPLOYMENT.md table further down):
+- Both hotfixes broken: `git revert f0f4dd8` then `git revert fb8da93`
+- Parse Social Outputs new behavior unwanted: `git revert f0f4dd8` (falls back to throw-on-missing + `max_tokens: 2048`)
+- Backtick fix unwanted: `git revert fb8da93` (re-breaks Generate Draft at next scheduled run, do not)
+
+---
+
 ## Quick reference — recent additions (Session 9, 2026-05-13)
 
 This session diagnosed and fixed a recurring layout bug class in the content engine, hardened the engine against three failure modes that were producing AI-slop output, and cleared the open-PR backlog.
