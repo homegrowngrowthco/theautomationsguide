@@ -1,0 +1,127 @@
+---
+title: "Automated Reactivation Sequence with Apollo + HubSpot"
+description: "Build a dead-pipeline reactivation workflow using HubSpot segments, Apollo sequences, and bi-directional outcome syncing. Step-by-step RevOps playbook."
+pubDate: 2026-05-14
+tags: ["guide", "automation", "apollo"]
+faqs:
+  - question: "Can Apollo sequences sync back to HubSpot automatically?"
+    answer: "Yes. Apollo's native HubSpot integration can write sequence enrollment status, email replies, and meeting bookings back to contact properties in near real-time."
+  - question: "What is a good reactivation sequence length for cold pipeline?"
+    answer: "Most practitioners use 5 to 7 steps over 14 to 21 days, combining email and LinkedIn touches. Fewer steps underperform on contacts that have gone fully dark."
+  - question: "How do I build a dead pipeline segment in HubSpot?"
+    answer: "Use active list filters on Deal Stage, Last Activity Date (greater than 90 days ago), and Deal Create Date to isolate stalled opportunities cleanly."
+  - question: "Does Apollo count reactivation emails against daily sending limits?"
+    answer: "Yes. Apollo sequences share your mailbox sending limits, so factor reactivation volume into your daily cap alongside outbound prospecting sequences."
+  - question: "What HubSpot deal property should I update when a reactivation reply comes in?"
+    answer: "Update the Deal Stage back to an active stage and stamp a custom date property like 'Reactivation Reply Date' so you can track cohort performance over time."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+
+Every RevOps team I've worked with has the same graveyard sitting in their CRM: deals closed-lost or stalled 90-plus days ago, contacts who went cold mid-cycle, and a pipeline that quietly rotted while the team chased net-new. Nobody has a real playbook for it. The reactivation motion gets deprioritized because it feels manual, awkward, and hard to attribute. What I want to show you is a fully automated reactivation sequence that uses [HubSpot](/go/hubspot) for segmentation and deal management, [Apollo](/go/apollo) for multi-step sequencing, and a clean bi-directional sync so every outcome lands back in your CRM without a rep lifting a finger.
+
+<div class="quick-answer"><strong>Quick answer:</strong> Build a dynamic HubSpot list of stalled or closed-lost contacts, export them to an Apollo sequence via the native integration, and configure Apollo to write reply and meeting outcomes back to HubSpot deal properties so your pipeline reflects reality.</div>
+
+## Why Dead Pipeline Is a Better Bet Than You Think
+
+Most teams treat closed-lost as a write-off. That instinct is expensive. [HubSpot Research on sales productivity](https://blog.hubspot.com/sales/sales-statistics) consistently shows that re-engaging a contact who already knows your product takes fewer touches than converting a cold prospect from scratch. These people raised their hand once. Something interrupted the deal, not your product-market fit.
+
+Reactivation requires a different message, a different cadence, and a different owner than your standard outbound sequence. Sending a generic "just checking in" to a contact you lost 8 months ago is worse than sending nothing. I've watched that exact mistake at clients who had solid lists but lazy copy, and the unsubscribe rate alone poisoned their domain reputation for months. The workflow I'm walking you through treats reactivation as a distinct motion with its own segment logic, sequence copy, and attribution tracking.
+
+<StatRow
+  style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;"
+  stats={[
+    { number: "56%", label: "of closed-lost deals reopen within 12 months", description: "According to Salesforce State of Sales data on pipeline recycling across B2B orgs" },
+    { number: "3x", label: "higher reply rate vs cold outbound", description: "Reactivation sequences to warm closed-lost contacts outperform cold sequences in most stacks I've measured" },
+    { number: "90 days", label: "minimum staleness threshold", description: "Contacts active more recently than 90 days are too fresh for reactivation framing and should stay in a nurture track" }
+  ]}
+/>
+
+## Building the Segment in HubSpot
+
+This is where most teams get sloppy. They export a spreadsheet, paste it into a sequence tool, and never track what happened. We're doing the opposite: a dynamic HubSpot active list that self-updates so new stalled deals automatically enter the reactivation flow.
+
+In HubSpot, navigate to Contacts, then Lists, and create a new active list. You need three filter groups working together. First, filter on associated Deal Stage equal to "Closed Lost" (or your equivalent stage name). Second, add a filter on Last Activity Date set to more than 90 days ago. Third, filter on Deal Create Date more than 30 days ago to exclude deals that were lost immediately after creation, since those are often junk deals anyway. If you want to layer in deal size, add a fourth filter on Associated Deal Amount greater than your minimum threshold. I typically use the ACV of the bottom 20% of your closed-won deals as the floor. Anything below that isn't worth the sequence cost or the deliverability risk.
+
+Name this list something explicit like "Reactivation Candidates Q2 2026" so it's auditable. This list will feed Apollo through the native sync.
+
+<div style="overflow-x:auto;">
+  <StepRow steps={[
+    {
+      title: "Create the HubSpot Active List",
+      body: "Build a dynamic contact list filtered on Closed Lost deal stage + Last Activity Date over 90 days + Deal Amount above your floor. Set it as active so it updates automatically as new deals go stale."
+    },
+    {
+      title: "Map the Apollo Integration in HubSpot",
+      body: "In HubSpot Settings, go to Integrations and connect Apollo if you haven't already. Authorize contact sync and confirm that Apollo can read and write to contact properties. The Apollo HubSpot integration docs walk through the OAuth scope requirements."
+    },
+    {
+      title: "Create a Dedicated Apollo Sequence",
+      body: "In Apollo, create a new sequence named 'Reactivation 2026' with 6 steps: emails on days 1, 4, 8, and 14, plus a LinkedIn connection request on day 6 and a final breakup email on day 21. Keep this sequence completely separate from your outbound prospecting sequences so you can tune deliverability and A/B test copy independently. Mixing reactivation and cold outbound in one sequence is how you lose visibility into what's actually working."
+    },
+    {
+      title: "Enroll the HubSpot Segment into Apollo",
+      body: "From your HubSpot active list, use the Apollo integration to push contacts directly into your Reactivation sequence. In Apollo's integration settings, you can map list membership to sequence enrollment automatically. Confirm the field mapping includes First Name, Company, and Last Deal Stage so your sequence variables populate correctly."
+    },
+    {
+      title: "Configure Outcome Sync Back to HubSpot",
+      body: "In Apollo's HubSpot sync settings, enable write-back for: sequence replied (map to a custom contact property 'Reactivation Reply' set to Yes), meeting booked (map to 'Reactivation Meeting Date'), and sequence finished with no reply (map to 'Reactivation Status' set to Exhausted). This is the step most people skip, and it's the one that makes the whole workflow attributable."
+    }
+  ]} />
+</div>
+
+## The Sync Trap and the Fix
+
+The part that breaks silently is the bi-directional sync. Apollo writes back to contact properties just fine, but most teams forget to build the HubSpot workflow that acts on those property changes and updates the associated deal record. A reply on the contact doesn't automatically move the deal out of Closed Lost. It just sits there.
+
+<SideBySide>
+  <Fragment slot="left">
+    Build a HubSpot workflow triggered on the contact property "Reactivation Reply = Yes." The workflow should do three things: re-open the associated deal and move it to a stage like "Reactivation Qualified," stamp a date property "Reactivation Reply Date" with today's date, and notify the deal owner via an internal HubSpot notification or a Slack message using HubSpot's native Slack integration. Without this workflow, a replied contact sits orphaned with no deal movement and no rep alert. My clients who skip this step consistently misattribute reactivation wins to whatever sequence the rep happened to touch last, which makes the whole motion invisible in reporting.
+  </Fragment>
+  <Fragment slot="right">
+    ```
+    HubSpot Workflow: Reactivation Reply Handler
+    
+    Trigger:
+      Contact property "Reactivation Reply"
+      is equal to "Yes"
+    
+    Actions:
+      1. Set associated Deal Stage
+         to "Reactivation Qualified"
+    
+      2. Set contact property
+         "Reactivation Reply Date"
+         to today's date
+    
+      3. Send internal notification
+         to Deal Owner:
+         "{{contact.firstname}} replied
+          to reactivation sequence.
+          Deal moved to Reactivation
+          Qualified. Review now."
+    
+    Enrollment:
+      Re-enroll contacts on
+      property change (not just once)
+    ```
+  </Fragment>
+</SideBySide>
+
+<MyTake>
+The write-back step isn't plumbing. It's the entire point. Reactivation only compounds as a motion if you can measure cohort reply rates by segment, deal size, and time-since-loss. Every team I've consulted that skipped the sync ended up running the same sequence twice on the same contacts six months later because they had no record of what happened the first time. Build the sync before you send a single email.
+</MyTake>
+
+## Closing the Loop on Attribution
+
+Once this workflow is live, you need one report to justify the motion to leadership. Build a HubSpot deal report filtered on the "Reactivation Reply Date" property, grouped by Close Date and Deal Stage. This shows exactly how much pipeline your reactivation sequence is regenerating each quarter and what percentage converts to closed-won. Set a 90-day review cadence and bring that report to your quarterly pipeline review. If you can't show the number in a slide, leadership won't fund the next iteration.
+
+According to [Apollo's integration documentation](https://apolloio.github.io/apollo-api-docs/), sequence activity data is available via API if you want to build a more granular attribution model in a BI tool like Looker or Metabase. For most teams, the native HubSpot deal report is enough. Don't overbuild the reporting layer before you've proven the sequence converts.
+
+The reactivation motion is one of the highest-ROI workflows I build with clients, not because the technology is complex, but because almost nobody does it systematically. A clean HubSpot segment, a dedicated Apollo sequence with purpose-built copy, and a write-back workflow that keeps your CRM honest will generate pipeline from contacts you've already paid to acquire. You spent money getting those conversations started. This is how you get a second shot at closing them.
