@@ -28,11 +28,21 @@ Every RevOps team I've talked to in the last 18 months has asked some version of
 
 <div class="quick-answer"><strong>Quick answer:</strong> Use Clay for high-volume, multi-provider waterfall enrichment at scale, and use Zapier when your team is non-technical and enrichment is a simple one-step trigger on a small list.</div>
 
-<StatRow stats={[
-  { number: "75+", label: "Data providers in Clay", description: "Clay natively connects to over 75 enrichment sources including Apollo, Clearbit, LinkedIn, and Hunter, all in one table." },
-  { number: "6,000+", label: "Zapier app integrations", description: "Zapier connects to over 6,000 apps, making it the broadest general-purpose automation platform available." },
-  { number: "~40%", label: "Average lift from waterfall enrichment", description: "Teams using multi-provider waterfall logic in Clay report significantly higher match rates versus single-provider lookups, per Clay's own benchmarks." }
-]} />
+<div style="container-type:inline-size">
+  <style>{`
+    .stat-row-force-three [data-stat-grid] {
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 8px !important;
+    }
+  `}</style>
+  <div class="stat-row-force-three">
+    <StatRow stats={[
+      { number: "75+", label: "Data providers in Clay", description: "Clay natively connects to over 75 enrichment sources including Apollo, Clearbit, LinkedIn, and Hunter, all in one table." },
+      { number: "6,000+", label: "Zapier app integrations", description: "Zapier connects to over 6,000 apps, making it the broadest general-purpose automation platform available." },
+      { number: "~40%", label: "Average lift from waterfall enrichment", description: "Teams using multi-provider waterfall logic in Clay report significantly higher match rates versus single-provider lookups, per Clay's own benchmarks." }
+    ]} />
+  </div>
+</div>
 
 <ComparisonTable
   title="Clay vs Zapier for B2B Lead Enrichment"
@@ -150,3 +160,13 @@ Zapier's reputation as the "easier" tool is actually the thing that gets teams i
 If you're a RevOps operator at a Series A company running any meaningful outbound volume, Clay is almost certainly the right investment for enrichment. The [Clay documentation on waterfall enrichment](https://docs.clay.com/getting-started/core-concepts) shows how quickly you can stack providers without writing a single line of code, and the credit model becomes predictable once you run a few batches and understand your match rates. For enterprise teams already deep in Salesforce, pairing Clay with a lightweight Zapier or Make connector to sync enriched data back into the CRM is the stack I've shipped most often at Homegrown Growth Co.
 
 For teams at an earlier stage, or where the person running automation is a marketing manager rather than a dedicated RevOps hire, Zapier's simplicity is a genuine advantage. Don't overcomplicate it for them. [Zapier's own integration guides](https://zapier.com/blog/lead-enrichment-automation/) walk through connecting form tools to enrichment APIs in under 30 minutes. That is real. If your list volume is low and your enrichment logic is "look up company size and industry on new form submission," you do not need Clay's horsepower. The right tool is always the one your team will actually maintain six months from now, not the one that impressed them in a demo.
+
+<style>{`
+  .post-content-wrapper {
+    padding-bottom: 48px !important;
+  }
+  .newsletter-section {
+    margin-bottom: 48px !important;
+    max-height: none;
+  }
+`}</style>
