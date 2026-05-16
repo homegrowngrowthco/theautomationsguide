@@ -25,6 +25,25 @@ This project survived the **2026-05-04** complete machine wipe.
 
 ---
 
+## Quick reference — recent additions (Session 11, 2026-05-15)
+
+Short triage session against 3 entries in VS Code's Problems panel for this repo + the sibling `homegrown-growthco` repo. Two fixed and verified live; the third (a GHA secret-context lint on [.github/workflows/qa-content-pr.yml](.github/workflows/qa-content-pr.yml)) is a false-positive — the `SLACK_WEBHOOK_URL` repo secret is configured and used elsewhere in the same workflow, the GitHub Actions VS Code extension just can't introspect repo secrets — left as-is.
+
+**Engine output validated end-to-end since Session 10's hotfixes (observed, no new work).** Two scheduled engine runs after Session 10 shipped clean PRs: PR #27 (Gong vs Outreach vs Salesloft, merged 2026-05-14, commit `c054de5`) and PR #28 (Automated Reactivation Sequence with Apollo + HubSpot, merged 2026-05-14, commit `a3a353c`). Both went through QA auto-fix (PR #27 received one `[qa-fix-1]` pass; PR #28 received `[qa-fix-1]` + `[qa-fix-2]`) and merged green via the daily auto-merge GHA. Session 10's bug 1 (backtick fix in Generate Draft prompt) + bug 2 (resilient social-output parser) both held — neither failure recurred. The engine is operating normally on the v5 + Session 10 baseline.
+
+**tsconfig.json fix (commit `ecc68c7`, no PR — direct to master).** Severity-8 VS Code Problems entry was "Option 'baseUrl' is deprecated and will stop functioning in TypeScript 7.0." **Initial fix attempt** — drop the `baseUrl` line entirely, relying on the TS 5.0+ spec that resolves `paths` relative to the tsconfig location — **broke the local test build**. Astro 4.16 / Vite / Rollup still requires `baseUrl` to be set for the `@/*` path alias to resolve at build time, even when the type-system spec doesn't require it. Error surfaced as: `Rollup failed to resolve import "@/components/post/SideBySide.astro"` from one of the 13 affected blog `.mdx` files. **Final fix** (per the TS warning text's own recommendation): restore `baseUrl: "."` AND add `"ignoreDeprecations": "6.0"` to silence the VS Code Problems entry while preserving build behavior. Local `npm run build` succeeded cleanly (34 pages built in 6.84s, pagefind indexed 23 pages) before push. Push initially rejected because of the PRs #27 + #28 auto-merges on master since the last local sync — resolved via `git pull --rebase origin master` (clean rebase, single-line tsconfig change doesn't intersect content `.mdx` files) and re-push. Netlify deploys API confirms `ecc68c7` in `ready` state at 11:48:59Z.
+
+**`netlify/actions/cli@master` archived (sibling repo `homegrown-growth-co`, not this one).** Same VS Code triage caught that the HGC marketing site's deploy workflow was referencing an archived GHA action. Fixed there with a `setup-node` + `netlify-cli@22` install pattern. Calling out here because if the same archived-action pattern shows up anywhere in this repo's GHAs in the future, the fix template is the same: replace `uses: netlify/actions/cli@master` with the 3-step install + run pattern.
+
+**Auto-memory updates** (this session, persisted in `~/.claude/projects/.../memory/`): none. The Vite-still-needs-baseUrl-even-when-TS-doesn't lesson is captured inline here + in `claude_projects/SESSION_FILE_OPS_LOG.md` op #106. Not strong enough as a generalizable rule to warrant its own feedback memory; the pattern (build-time path-alias config can depend on options the type-system spec marks as optional) is too specific to surface as a future-session heuristic.
+
+**Action required of Ian after this session:** None. Both the fix and the engine output are live and healthy. Three engine-generated PRs are now live since the v5 + Session 10 baseline: PR #27, PR #28, and the earlier newsletter post from Session 9.
+
+**Revert paths** (also captured in DEPLOYMENT.md table further down):
+- tsconfig change unwanted: `git revert ecc68c7` — re-surfaces the VS Code TS 6.0 deprecation warning but build still works (the revert removes the `ignoreDeprecations` line, not `baseUrl` itself).
+
+---
+
 ## Quick reference — recent additions (Session 10, 2026-05-14)
 
 Hotfix session triggered by the first scheduled blog engine run after the 2026-05-13 v5 re-import. Two latent bugs in the engine surfaced and both got fixed and re-imported. No content PRs this session.
@@ -603,6 +622,7 @@ Sortable by Due Date / Priority / Category. Statuses: `Not started` → `In prog
 
 | Concern | Revert command |
 |---|---|
+| tsconfig `ignoreDeprecations` line wrong / TS 7.0 breaks it | `git revert ecc68c7` (commit, no PR — direct master) — re-surfaces VS Code TS 6.0 deprecation warning but build still works |
 | Navbar mobile drawer / tablet hide broken | `git revert 4cec916` (PR #23 — navbar mobile/tablet fix) |
 | camelCase SVG CI lint blocking a PR you don't want it to | `git revert bae8a23` (PR #26 — also restores the qa-fix-2 noise) |
 | Newsletter post (Beehiiv vs Substack vs HubSpot) needs rollback | `git revert cc295c5` (PR #24 — full post + Substack affiliate-links entry) |
