@@ -26,13 +26,15 @@ import ComparisonTable from '@/components/ComparisonTable.astro';
 
 Most outbound debates frame [Lemlist](/go/lemlist) and [Apollo](/go/apollo) as direct competitors fighting for the same budget line. In practice, I've watched them serve completely different jobs on the same team, and the teams that treat them as substitutes almost always underperform the teams that know exactly which problem each one solves. The real question in 2026 is not which tool is better. It is whether your bottleneck is data, delivery, or both.
 
-<div class="quick-answer"><strong>Quick answer:</strong> Choose Apollo when prospecting and sequencing in one tool is the priority; choose Lemlist when deliverability, inbox rotation, and deep personalization are the constraint; layer both when your team builds lists at volume and needs serious sending infrastructure.</div>
+<div class="quick-answer" style="margin-bottom: 1.5rem;"><strong>Quick answer:</strong> Choose Apollo when prospecting and sequencing in one tool is the priority; choose Lemlist when deliverability, inbox rotation, and deep personalization are the constraint; layer both when your team builds lists at volume and needs serious sending infrastructure.</div>
 
-<StatRow stats={[
-  { number: "270M+", label: "Apollo contact records", description: "Apollo's database as of 2025, making it one of the largest self-serve B2B contact sources available without a ZoomInfo contract." },
-  { number: "3x", label: "Reply rate lift from personalization", description: "Lemlist's own benchmark data shows image and video personalization sequences outperform plain-text sequences by roughly 3x on reply rate for cold outreach." },
-  { number: "~$100", label: "Monthly per-seat cost stacked", description: "Running Apollo Basic plus Lemlist Email Pro runs approximately $88 to $110 per seat, which is the real budget question teams need to answer before defaulting to one tool." }
-]} />
+<div style="margin-bottom: 1.5rem;">
+  <StatRow stats={[
+    { number: "270M+", label: "Apollo contact records", description: "Apollo's database as of 2025, making it one of the largest self-serve B2B contact sources available without a ZoomInfo contract." },
+    { number: "3x", label: "Reply rate lift from personalization", description: "Lemlist's own benchmark data shows image and video personalization sequences outperform plain-text sequences by roughly 3x on reply rate for cold outreach." },
+    { number: "~$100", label: "Monthly per-seat cost stacked", description: "Running Apollo Basic plus Lemlist Email Pro runs approximately $88 to $110 per seat, which is the real budget question teams need to answer before defaulting to one tool." }
+  ]} />
+</div>
 
 <ComparisonTable
   title="Lemlist vs Apollo: 2026 Head-to-Head"
@@ -166,3 +168,28 @@ The outbound teams I've seen consistently beat their benchmarks this year are no
 If you are under 200 contacts per month, start with Lemlist alone and bolt on Apollo when your prospecting motion needs its own data source. If you are already pulling lists from Apollo and noticing deliverability sliding after 60 days, that is the exact moment to add Lemlist as your sending layer. The fix is not warming up your existing domains harder. It is separating the data problem from the delivery problem entirely.
 
 According to [research from McKinsey on B2B sales digitization](https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/the-new-b2b-growth-equation), the winning move is matching tooling to the specific constraint, not buying the most full-featured platform. That principle applies here as much as anywhere in your RevOps stack. Pick the constraint. Fix it. Then pick the next one.
+
+<style>{`
+  .newsletter-section,
+  [class*="newsletter"],
+  [class*="email-capture"],
+  [class*="subscribe"] {
+    margin-top: 4rem !important;
+  }
+
+  .newsletter-section iframe,
+  [class*="newsletter"] iframe,
+  [class*="email-capture"] iframe,
+  [class*="subscribe"] iframe {
+    min-height: 0 !important;
+    overflow: hidden;
+  }
+
+  @media (max-width: 860px) {
+    .stat-row,
+    [class*="stat-row"],
+    [class*="StatRow"] {
+      grid-template-columns: 1fr !important;
+    }
+  }
+`}</style>
