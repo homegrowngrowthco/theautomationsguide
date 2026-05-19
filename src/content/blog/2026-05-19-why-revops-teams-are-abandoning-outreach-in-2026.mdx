@@ -42,6 +42,15 @@ The [Salesforce State of Sales report](https://www.salesforce.com/resources/rese
   { number: "3-4x", label: "Feature overlap", description: "Average number of Outreach capabilities that clients I work with already cover in other point tools" }
 ]} />
 
+<style>{`
+  @media (max-width: 767px) {
+    .stat-row-card {
+      padding-top: 0.75rem !important;
+      padding-bottom: 0.75rem !important;
+    }
+  }
+`}</style>
+
 ## What Teams Are Actually Moving To
 
 "Outreach is too expensive" is not a strategy. The replacement stack depends heavily on your team size, CRM, and whether you need prospecting, sequencing, call intelligence, or all three. My strong opinion: most teams are replacing a $160/seat platform with a $50/seat one and getting 90% of the workflow coverage they actually used.
@@ -89,6 +98,14 @@ The [Salesforce State of Sales report](https://www.salesforce.com/resources/rese
   }
 ]} />
 
+<style>{`
+  @media (min-width: 480px) and (max-width: 767px) {
+    .comparison-table-grid {
+      grid-template-columns: 1fr 1fr !important;
+    }
+  }
+`}</style>
+
 ## How to Actually Choose
 
 One question before anything else: are you replacing Outreach's sequencing, its call intelligence, its forecasting, or all three? Most teams I've worked with only used roughly 40% of what they were paying for. That means the replacement does not need to be Outreach-shaped. Stop shopping for a one-to-one swap and start from your actual usage logs.
@@ -107,7 +124,8 @@ Third: how many active sequences do you maintain? Under 20, migration is a weeke
 </Fragment>
 <Fragment slot="right">
 <Figure caption="Outreach replacement decision tree based on CRM and team size">
-<svg viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+<div style="overflow-x: auto;">
+<svg viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif" style="min-width: 560px; display: block;">
   <rect x="110" y="10" width="140" height="40" rx="6" fill="#6366f1" />
   <text x="180" y="35" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">Your CRM?</text>
 
@@ -141,6 +159,7 @@ Third: how many active sequences do you maintain? Under 20, migration is a weeke
   <text x="75" y="207" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Add Gong</text>
   <text x="75" y="219" text-anchor="middle" font-size="10" fill="#dcfce7">for call intel</text>
 </svg>
+</div>
 </Figure>
 </Fragment>
 </SideBySide>
