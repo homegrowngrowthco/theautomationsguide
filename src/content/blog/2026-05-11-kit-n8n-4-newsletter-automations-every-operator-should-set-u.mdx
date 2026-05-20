@@ -273,8 +273,18 @@ If you're monetizing your newsletter through Stripe, Memberful, or Lemon Squeezy
 </SideBySide>
 
 <MyTake>
-Zapier feels faster on day one, but that's the wrong unit of measurement. Once you're running behavioral triggers at any real volume — PostHog events, Stripe webhooks, nightly churn scans — Zapier's task caps will hit you before you notice, and you'll have no execution logs to diagnose what broke. n8n's retry controls and full execution history aren't nice-to-haves. They're the difference between catching a failed re-engagement window and missing it entirely while your deliverability quietly degrades. Self-host from the start and save yourself the migration.
+Zapier feels faster on day one, but that's the wrong unit of measurement. Once you're running behavioral triggers at any real volume, PostHog events, Stripe webhooks, nightly churn scans, Zapier's task caps will hit you before you notice, and you'll have no execution logs to diagnose what broke. n8n's retry controls and full execution history aren't nice-to-haves. They're the difference between catching a failed re-engagement window and missing it entirely while your deliverability quietly degrades. Self-host from the start and save yourself the migration.
 </MyTake>
+
+---
+
+## One more thing: Kit just shipped an MCP server
+
+If you're already running Claude, Cursor, or any other MCP-capable AI agent for daily ops work, the new Kit MCP (Model Context Protocol) server collapses a whole category of investigation work out of n8n. Once connected, the agent gets direct read and write access to your Kit subscribers, tags, broadcasts, sequences, and forms. Questions that used to mean spinning up a one-off workflow ("how many subscribers picked up the `onboarding_complete` tag yesterday?", "which segment received the last paid-only broadcast?", "tag everyone who opened the last three sends with `engaged_q2`") become single-prompt conversations.
+
+The MCP doesn't replace the four automations above. It complements them. Treat n8n as your scheduled and event-driven layer, the workflows that run every night, every Stripe event, every PostHog ping. Treat the MCP as your on-demand investigation and prototyping layer, the place you ask questions before deciding whether they're worth automating in the first place. I've started using it to validate thresholds on Automation 3 before committing the n8n logic: ask Claude to pull last-opened distributions across the list, eyeball whether 60 days is actually the right churn boundary for my segment, then ship the workflow once the threshold is grounded in real data instead of an industry benchmark.
+
+If you don't have a Kit account yet, you can grab the 14-day trial through my partner link and the MCP works on every paid tier from day one: **[partners.kit.com/theautomationsguide](https://partners.kit.com/theautomationsguide)**. Setup is roughly five minutes: generate an API key in Kit's account settings, drop the MCP server config into your Claude Desktop or Cursor config file, restart. The agent immediately sees your account and you can start asking.
 
 ---
 
