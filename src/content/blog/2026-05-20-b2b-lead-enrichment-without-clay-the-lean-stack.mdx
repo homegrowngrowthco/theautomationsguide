@@ -1,0 +1,157 @@
+---
+title: "B2B Lead Enrichment Without Clay: The Lean Stack"
+description: "Clay alternatives for lead enrichment automation using Apollo and Make or n8n. Built for teams under 3 SDRs who don't need to pay Clay prices."
+pubDate: 2026-05-20
+tags: ["guide", "automation", "lead-enrichment"]
+faqs:
+  - question: "What is the best Clay alternative for lead enrichment?"
+    answer: "Apollo combined with Make or n8n covers most enrichment workflows at a fraction of Clay's cost. The stack handles company data, contact lookups, and CRM writes without a Clay subscription."
+  - question: "How much does Clay cost compared to alternatives?"
+    answer: "Clay starts at $149/month for the Starter plan and scales steeply with credit usage. Apollo's Basic plan starts at $49/user/month and includes enrichment credits, making it 60-70% cheaper for small teams."
+  - question: "Can you automate lead enrichment without Clay?"
+    answer: "Yes. Apollo's API provides company and contact enrichment, and an automation layer like Make or n8n handles routing, CRM writes, and waterfalling across data sources."
+  - question: "Is n8n or Make better for lead enrichment automation?"
+    answer: "Make is faster to set up for non-developers and handles most enrichment pipelines well. n8n is better if you need self-hosting, complex branching logic, or want to avoid per-operation pricing."
+  - question: "What data can Apollo enrich that Clay also covers?"
+    answer: "Apollo enriches company firmographics, contact title, email, phone, LinkedIn URL, funding stage, headcount, and technology stack, which covers the majority of use cases Clay handles for outbound."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+
+Every RevOps operator I talk to has the same reaction when they see a [Clay](/go/clay) quote for a two-person SDR team: genuine sticker shock, followed by a hunt for alternatives. Clay is excellent software. I use it with larger clients and recommend it without hesitation when the workflow complexity justifies it. But if you have fewer than three SDRs running outbound, you are almost certainly paying for a Ferrari to do grocery runs. There is a composable stack using [Apollo](/go/apollo) and [Make](/go/make) or [n8n](/go/n8n) that handles 80% of what Clay does at roughly 30% of the cost. I have been running it for clients at Homegrown Growth Co. for the past 18 months.
+
+<div class="quick-answer"><strong>Quick answer:</strong> Apollo handles the enrichment data layer, Make or n8n handles the automation and CRM routing, and together they replace Clay's core enrichment workflows for small outbound teams at a significantly lower price point.</div>
+
+<PullQuote>Clay is overkill for most teams under three SDRs. The real unlock is separating the data layer from the automation layer and owning each one independently.</PullQuote>
+
+<StatRow stats={[
+  { number: "$149/mo", label: "Clay Starter", description: "Clay's entry price before credit overages, compared to Apollo Basic at $49/user/month with enrichment included" },
+  { number: "80%", label: "Overlap coverage", description: "Proportion of standard outbound enrichment use cases Apollo's API covers versus Clay's full waterfall feature set" },
+  { number: "3x", label: "Setup speed", description: "In my experience, Apollo plus Make pipelines take roughly one-third the configuration time of equivalent Clay waterfalls for simple enrichment jobs" }
+]} />
+
+## What Clay Actually Does (And What You Actually Need)
+
+Clay's real value proposition is the waterfall enrichment model: it queries multiple data providers in sequence, falls back gracefully when one source misses, and gives you a no-code interface to stitch it all together with AI columns and conditional logic. That is genuinely powerful for a team doing high-volume, persona-diverse prospecting across multiple segments. The [Clay documentation on waterfall enrichment](https://docs.clay.com/docs/waterfall-enrichment) shows just how deep that rabbit hole goes.
+
+Here is the honest audit I run with every client before recommending Clay: how many distinct enrichment signals are you actually using per record? For most sub-three-SDR outbound motions, the answer is four to six fields. Company name, industry, headcount, contact title, verified email, and LinkedIn URL. Apollo's enrichment API returns all six on a single call. You do not need a six-provider waterfall for that. The [Salesforce State of Sales report](https://www.salesforce.com/resources/research-reports/state-of-sales/) consistently shows that high-performing SDR teams prioritize signal quality over signal volume, which means a clean, reliable single-source enrichment often outperforms a noisy waterfall.
+
+Don't bother building a multi-provider fallback chain until your match rate on Apollo drops below 70% for your specific ICP. For most B2B SaaS target markets, it won't.
+
+<div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+<ComparisonTable title="Clay vs. Apollo + Make/n8n for Small Team Enrichment" tools={[
+  {
+    name: "Clay",
+    tagline: "Waterfall enrichment with AI columns and a spreadsheet UI",
+    pros: ["Best-in-class waterfall across 50+ providers", "AI column transformations in-platform", "No-code table interface SDRs can operate directly", "Strong community and template library"],
+    cons: ["$149/mo minimum before credit overages", "Credits burn fast on high-volume lists", "Overkill complexity for simple enrichment jobs", "Vendor lock-in on enrichment logic"],
+    pricing: "From $149/mo (Starter)",
+    affiliateSlug: "clay",
+    ctaLabel: "Try Clay",
+    highlight: false
+  },
+  {
+    name: "Apollo + Make",
+    tagline: "Apollo for data, Make for orchestration and CRM writes",
+    pros: ["Apollo enrichment included in base plan", "Make handles routing, CRM writes, and branching", "Composable: swap any layer independently", "Lower total cost for most small-team workflows"],
+    cons: ["Requires more initial setup than Clay's UI", "No native waterfall fallback (must build manually)", "Two vendors to manage instead of one", "Make's per-operation pricing can creep up at volume"],
+    pricing: "Apollo from $49/user/mo + Make from $9/mo",
+    affiliateSlug: "make",
+    ctaLabel: "Try Make",
+    highlight: true
+  },
+  {
+    name: "Apollo + n8n",
+    tagline: "Apollo for data, n8n for self-hosted automation logic",
+    pros: ["n8n self-hosted is nearly free at volume", "Full code access for complex branching", "No per-operation pricing on self-hosted tier", "Strong HTTP node for custom API calls"],
+    cons: ["Requires a developer or technical RevOps to maintain", "Self-hosting adds infrastructure overhead", "Smaller template library than Make", "Longer setup time for non-developers"],
+    pricing: "Apollo from $49/user/mo + n8n Cloud from $20/mo (or self-host free)",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n",
+    highlight: false
+  }
+]} />
+</div>
+
+## Building the Stack: How the Pieces Fit
+
+Stop thinking about this as a "Clay replacement." It's two separate jobs: data retrieval and workflow orchestration. Apollo owns the first. Your automation layer owns the second. Once that mental model clicks, the build becomes obvious.
+
+Here is how I set this up for clients when they come to me after a Clay pricing conversation.
+
+<div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+<StepRow steps={[
+  {
+    title: "Set up Apollo enrichment via API",
+    body: "Pull your Apollo API key from Settings > Integrations > API. The /people/match and /organizations/enrich endpoints handle the vast majority of enrichment jobs. Verify your plan includes API access (Basic and above do). Apollo's enrichment returns 65+ fields per contact record."
+  },
+  {
+    title: "Build the trigger layer in Make or n8n",
+    body: "The trigger is usually one of three things: a new row in a Google Sheet (list upload), a new contact in your CRM (HubSpot or Salesforce), or a webhook from your inbound form. In Make, use the Google Sheets Watch Rows module or the HubSpot Watch Contacts trigger. In n8n, the equivalent is the Google Sheets Trigger or HubSpot Trigger node."
+  },
+  {
+    title: "Call Apollo and map the response",
+    body: "In Make, use the HTTP module to POST to the Apollo /people/match endpoint with the contact's email or name plus company domain. Map the response fields (title, seniority, LinkedIn URL, company headcount, industry, funding stage) to your output schema. This single call replaces what Clay would split across three or four providers for most use cases."
+  },
+  {
+    title: "Write enriched data back to your CRM",
+    body: "Use Make's HubSpot Update Contact module or Salesforce Update Record module to write the enriched fields back. Only overwrite blank fields unless you intentionally want to refresh stale data. I always add a conditional filter: if the CRM field is already populated and less than 90 days old, skip the write to preserve credits and avoid overwriting manually corrected records."
+  },
+  {
+    title: "Add a Slack or email alert for failed enrichments",
+    body: "Apollo will return partial results or null values for contacts it cannot match. Route failed enrichments to a dedicated Slack channel or a separate Google Sheet for manual review. This is the step most people skip and then wonder why their CRM has 20% blank records three months later."
+  }
+]} />
+</div>
+
+<SideBySide>
+<Fragment slot="left">
+
+### The credit burn trap
+
+The most common mistake I see when teams migrate to this stack: treating Apollo credits like they are unlimited. They are not. Each API call to /people/match consumes export credits, and those are the same credits your SDRs use when they manually pull contacts from the Apollo search UI. I have watched teams burn through their entire monthly allocation in the first week because their automation had no deduplication check and was re-enriching existing contacts on every CRM sync. Always check for existing data before calling the API. Set a hard rate limit on your automation scenario. These two rules will save you from a very awkward conversation with your AE at Apollo mid-month.
+
+</Fragment>
+<Fragment slot="right">
+
+```json
+// Make HTTP module: Apollo /people/match
+// Only call if CRM email_verified field is blank
+{
+  "api_key": "{{APOLLO_API_KEY}}",
+  "email": "{{contact.email}}",
+  "reveal_personal_emails": false,
+  "reveal_phone_number": false
+}
+
+// Conditional filter BEFORE the API call:
+// contact.apollo_enriched_date is EMPTY
+// OR contact.apollo_enriched_date < 90 days ago
+
+// On success, write back:
+// - job_title
+// - seniority
+// - linkedin_url
+// - organization.employee_count
+// - organization.industry
+// - organization.funding_stage
+```
+
+</Fragment>
+</SideBySide>
+
+<MyTake>Waterfall enrichment sounds like it improves data quality. In practice, for teams running fewer than 2,000 contacts a month, it mostly introduces field conflicts and maintenance overhead that a one or two-person RevOps function cannot sustain. I have rebuilt more broken Clay waterfalls than I care to count for clients who added providers "just in case" and ended up with three sources writing to the same HubSpot field. One clean source beats three mediocre ones every time. Start with Apollo alone, and only add a second provider when you have the match-rate data that proves you need it.</MyTake>
+
+## When to Actually Upgrade to Clay
+
+I want to be direct here because the internet dramatically undersells Clay's legitimate use cases. If your team is processing more than 500 new contacts per week, operating across three or more distinct ICPs with different enrichment signals, or needs technographic data from Clearbit or BuiltWith layered on top of contact data, the Apollo plus Make stack will start to show its limits. Clay's waterfall genuinely saves time at that scale. The [G2 reviews for Clay](https://www.g2.com/products/clay/reviews) consistently highlight the waterfall and AI columns as the two features operators cannot replicate easily elsewhere, and I agree with that read.
+
+The threshold I use with clients: if you are enriching more than 2,000 contacts per month and pulling from more than two providers per record, do the math on Clay versus the operational cost of maintaining a custom multi-source pipeline. Clay might win on total cost of ownership even at its price point. The per-hour cost of a RevOps contractor maintaining brittle API logic adds up fast.
+
+For everyone else, which is most of the early-stage SaaS teams I work with, Apollo plus Make or n8n is the right call. It is composable, auditable, and cheap enough to iterate on without anxiety. Build it lean. Add complexity only when your data tells you to.
