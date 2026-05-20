@@ -25,6 +25,29 @@ This project survived the **2026-05-04** complete machine wipe.
 
 ---
 
+## Quick reference — recent additions (Session 12, 2026-05-20)
+
+One-shot session to claim Kit's $25 partner promo for mentioning their new MCP server in an existing article. Picked [2026-05-11-kit-n8n-4-newsletter-automations-every-operator-should-set-u.mdx](src/content/blog/2026-05-11-kit-n8n-4-newsletter-automations-every-operator-should-set-u.mdx) as the host — most Kit-centric recent post, MCP framing flows naturally from "programmatic Kit access via n8n" into "programmatic Kit access via AI agents."
+
+**Edit shape (commit `88033dc`, direct to master).** New `## One more thing: Kit just shipped an MCP server` section inserted between the closing MyTake and the "Ship these before you touch anything else" wrap-up. Three paragraphs: (1) frames MCP as letting Claude/Cursor agents read+write subscribers/tags/broadcasts/sequences/forms directly, collapsing ad-hoc investigation work out of n8n; (2) positions it as on-demand complement to n8n's scheduled/event-driven layer with a concrete example (using the MCP to validate Automation 3's 60-day churn threshold against real list data before committing the workflow logic); (3) bolded `[partners.kit.com/theautomationsguide](https://partners.kit.com/theautomationsguide)` CTA + 5-minute setup note (API key → config file → restart). Same edit cleaned 2 em dashes in the existing MyTake (pre-engine-v5 grandfathered AI slop, replaced with commas per [`feedback_no_em_dashes.md`](../.claude/memory/...)). Other grandfathered em dashes elsewhere in the post left alone to keep the diff minimal — engine v5's `sanitizeMdx()` covers this class going forward but doesn't backfill.
+
+**Branded partner slug vs registry slug — deliberate divergence.** The new partner URL `partners.kit.com/theautomationsguide` is a branded slug PartnerStack issued separately from the original `partners.kit.com/nt9zrjmnck9y` ID that's wired into [src/data/affiliate-links.ts](src/data/affiliate-links.ts) `kit.url`. I left the registry on the old slug. The article uses the new branded slug as a direct URL (visibility for Kit's verification team), `/go/kit` still routes to the original slug for tracking continuity. If PartnerStack confirms both resolve to the same payout account, the swap is a one-line edit + commit; flagged as optional in STATUS.md.
+
+**Push required a mid-session rebase.** First `git push origin master` rejected because the engine had auto-merged 3 content PRs while we were editing: PR #30 (Lemlist vs Apollo for B2B Outbound 2026, merge `d9f39e7`), PR #31 (Why RevOps Teams Are Abandoning Outreach in 2026, merge `8123322`), PR #32 (B2B Lead Enrichment Without Clay: The Lean Stack, merge `a3c4db0`). All three received `[qa-fix-1]` from the QA auto-fix bot and auto-merged green via the daily auto-merge GHA. `git pull --rebase origin master` was clean (single-content-file change didn't intersect any of the auto-merged content files) and re-push succeeded. Engine is operating normally on the v5 + Session 10 hotfix baseline across these 3 additional runs — neither Session 10 bug recurred. Matches the rebase pattern from Session 11 (mid-session `ccb0d8a` PR #29 merge). Sufficient signal at this point to add a CLAUDE.md note that engine auto-merges can land any time during a session and a pre-push `git fetch origin && git log --oneline HEAD..origin/master` is cheap insurance — captured in the `log-status` skill but worth restating here.
+
+**DEPLOYMENT.md log entry (commit `fee7e07`, direct to master).** Added row at top of Part 5 Recent deployments reference: `\| 2026-05-20 \| direct \| 88033dc \| Add Kit MCP section to Kit + n8n post (Kit partner promo) \| git revert 88033dc \|`. Pure documentation, no site impact.
+
+**Live URL submitted to Kit:** `https://theautomationsguide.com/blog/2026-05-11-kit-n8n-4-newsletter-automations-every-operator-should-set-u/`. MCP section is second-to-last block in the rendered article; partner link is bolded in the third paragraph of that section.
+
+**Revert paths** (also captured in DEPLOYMENT.md table further down):
+- MCP section unwanted: `git revert 88033dc` — restores the article to its pre-MCP state. Forfeits the $25 Kit promo eligibility.
+- Docs-log entry unwanted: `git revert fee7e07` — drops the DEPLOYMENT.md row, no site impact.
+- Both non-destructive; ordering doesn't matter.
+
+**Action required of Ian after this session:** Submit the article URL to Kit for $25 verification (the partner promo confirmation flow). Wait ~90s after the `88033dc` push for Netlify to finish the build before submission. Optional separate decision: swap `affiliate-links.ts` `kit.url` to the branded slug.
+
+---
+
 ## Quick reference — recent additions (Session 11, 2026-05-15)
 
 Short triage session against 3 entries in VS Code's Problems panel for this repo + the sibling `homegrown-growthco` repo. Two fixed and verified live; the third (a GHA secret-context lint on [.github/workflows/qa-content-pr.yml](.github/workflows/qa-content-pr.yml)) is a false-positive — the `SLACK_WEBHOOK_URL` repo secret is configured and used elsewhere in the same workflow, the GitHub Actions VS Code extension just can't introspect repo secrets — left as-is.
