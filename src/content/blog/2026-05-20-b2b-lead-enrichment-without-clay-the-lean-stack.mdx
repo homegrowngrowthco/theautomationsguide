@@ -44,6 +44,7 @@ Here is the honest audit I run with every client before recommending Clay: how m
 
 Don't bother building a multi-provider fallback chain until your match rate on Apollo drops below 70% for your specific ICP. For most B2B SaaS target markets, it won't.
 
+<div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
 <ComparisonTable title="Clay vs. Apollo + Make/n8n for Small Team Enrichment" tools={[
   {
     name: "Clay",
@@ -76,6 +77,7 @@ Don't bother building a multi-provider fallback chain until your match rate on A
     highlight: false
   }
 ]} />
+</div>
 
 ## Building the Stack: How the Pieces Fit
 
@@ -83,6 +85,7 @@ Stop thinking about this as a "Clay replacement." It's two separate jobs: data r
 
 Here is how I set this up for clients when they come to me after a Clay pricing conversation.
 
+<div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
 <StepRow steps={[
   {
     title: "Set up Apollo enrichment via API",
@@ -105,6 +108,7 @@ Here is how I set this up for clients when they come to me after a Clay pricing 
     body: "Apollo will return partial results or null values for contacts it cannot match. Route failed enrichments to a dedicated Slack channel or a separate Google Sheet for manual review. This is the step most people skip and then wonder why their CRM has 20% blank records three months later."
   }
 ]} />
+</div>
 
 <SideBySide>
 <Fragment slot="left">
