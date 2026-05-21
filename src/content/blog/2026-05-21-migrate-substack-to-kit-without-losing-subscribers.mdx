@@ -32,6 +32,17 @@ I've helped three newsletter operators move off [Substack](/go/substack) in the 
 
 Before touching a single CSV, get clear on what Substack is holding that [Kit](/go/kit) cannot absorb natively.
 
+<div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+  <style>{`
+    @media (min-width: 900px) {
+      .statrow-override { grid-template-columns: repeat(3, 1fr) !important; }
+    }
+    @media (min-width: 540px) and (max-width: 899px) {
+      .statrow-override { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+  `}</style>
+</div>
+
 <StatRow stats={[
   { number: "3", label: "things that break", description: "Paid subscription billing, Substack Recommendations network, and substack.com archive URLs all stop working post-migration" },
   { number: "~20%", label: "typical list churn", description: "Industry benchmarks suggest roughly 20% of imported cold lists never re-engage, so expect your effective list to shrink before it grows" },
@@ -43,6 +54,17 @@ Substack's subscriber CSV is clean and consistent. That is a genuine advantage. 
 Don't bother trying to infer engagement history from Substack's export columns. There isn't enough signal. Build your engagement picture from scratch in Kit using the re-permission sequence below.
 
 ## The export, clean, and import steps
+
+<div style="display:grid;grid-template-columns:1fr;">
+  <style>{`
+    @media (min-width: 540px) {
+      .steprow-override { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+    @media (min-width: 900px) {
+      .steprow-override { grid-template-columns: repeat(3, 1fr) !important; }
+    }
+  `}</style>
+</div>
 
 <StepRow steps={[
   {
