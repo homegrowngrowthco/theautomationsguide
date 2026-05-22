@@ -35,7 +35,7 @@ The full system is three workflows that compose:
 | `topic-suggestor.json` | Runs Mon/Thu — Claude suggests 5 new topics based on coverage gaps, writes them as `Suggested` for batch approval |
 | `daily-briefing.json` | Runs daily 7:30am — single Slack message summarizing what needs your attention (open PRs, topics to approve, drafts to post) |
 | `posthog-monitor.json` | **(2026-05-07)** Daily 9am ET — checks PostHog for $pageview events in the last 24h. Slack-alerts if zero (tracking broke or site is dead). |
-| `notion-publish-status.json` | **(2026-05-07)** GitHub webhook → fires when a `content/`-branch PR merges to master, finds the matching Notion topic by `PR URL`, sets `Status = Published`, posts a Slack notification. |
+| `notion-publish-status.json` | **(2026-05-07, extended 2026-05-22)** GitHub webhook → fires when a `content/`-branch PR merges to master, finds the matching Notion topic by `PR URL`, sets `Status = Published`, posts a Slack notification, **submits the post URL to IndexNow (Bing/Yandex/DuckDuckGo) and the Google Indexing API** (Google branch is opt-in via service-account JSON in the Config node — see Workflow 5 setup). |
 | `error-trigger.json` | **(2026-05-07)** n8n Error Trigger — listens for failures from any workflow that lists this one as its "Error workflow" (set in workflow Settings). Slack-alerts with workflow name + error + execution link. |
 | `create-content-databases.js` | One-off script that creates the two Notion DBs and seeds 3 sample topics |
 | `update-engine-for-mdx.mjs` | One-shot Node script (record only) that converted v3 → v4. Source of truth for how the v4 prompts were constructed. Don't re-run on post-update JSON — it errors on missing original node names. |
@@ -287,6 +287,26 @@ Everything else (open events, draft PRs, non-content branches, non-master target
 ### What if no Notion match?
 
 If a `content/` PR merges and no Notion topic has its PR URL set (e.g. you opened a content PR by hand outside the engine), *Resolve Page* logs the miss and exits gracefully. No error, no Slack ping.
+
+### IndexNow + Google Indexing API submit (added 2026-05-22)
+
+After Slack Notify, the workflow now pings two search-engine indexing APIs with the freshly merged post URL. Both are wired with `neverError: true` so failures here can't fail the workflow — the Notion status update already happened and the Slack ping already went out.
+
+**IndexNow (Bing / Yandex / DuckDuckGo / Naver / Seznam):**
+- Already configured. Key: `dde35cca97309131104c0505957f0948`. Verification file: [public/dde35cca97309131104c0505957f0948.txt](../public/dde35cca97309131104c0505957f0948.txt), served at `https://theautomationsguide.com/dde35cca97309131104c0505957f0948.txt`.
+- POSTs `{ host, key, keyLocation, urlList: [postUrl] }` to `https://api.indexnow.org/indexnow`.
+- 200 = accepted. 202 = accepted-with-warnings. 422 = key/keyLocation mismatch — double-check the file content matches the `indexNowKey` in the Config node.
+
+**Google Indexing API (optional — off by default):**
+- Default state: `googleServiceAccountJson` is empty in the Config node, so the *Google Indexing Enabled?* gate node short-circuits and the Build JWT / Get Token / Submit nodes never fire. No error, no Slack noise.
+- To enable:
+  1. **GCP Console** → create or reuse a project → APIs & Services → enable **Indexing API**.
+  2. **IAM & Admin → Service Accounts** → create a service account (any name, e.g. `tag-indexing-api`). Grant it **no** project-level roles. Click into it → Keys → Add Key → Create new key → JSON → download.
+  3. **Google Search Console** → property `theautomationsguide.com` → Settings → Users and permissions → Add user → paste the service account email (looks like `tag-indexing-api@<project>.iam.gserviceaccount.com`) → set permission to **Owner**. (Indexing API only accepts notifications from Owners.)
+  4. **n8n** → open this workflow → *Config* node → `googleServiceAccountJson` → paste the **entire contents** of the downloaded JSON key file (one big JSON string including the `-----BEGIN PRIVATE KEY-----` lines with `\n` escapes — paste verbatim, don't reformat).
+  5. **Test:** trigger the workflow against a recent merged content PR via *Executions → run with this data*. Confirm the *Google Indexing Submit* node returns 200 with an `urlNotificationMetadata.url` field echoing your post URL.
+- Officially the Indexing API is gated to JobPosting + BroadcastEvent (livestream) schemas. In practice Google accepts other URLs and treats the notification as a strong recrawl signal; quotas (~200 calls/day per project, ~600 URL submissions) are well above the engine's output rate.
+- If GCP credentials get rotated or revoked, set `googleServiceAccountJson` back to `""` to disable cleanly.
 
 ---
 

@@ -1,5 +1,5 @@
 {
-  "name": "Notion Publish Status — TAG (PR merge → Status: Published)",
+  "name": "Notion Publish Status — TAG (PR merge → Status: Published + IndexNow + Google Indexing API)",
   "nodes": [
     {
       "parameters": {
@@ -21,7 +21,11 @@
         "assignments": {
           "assignments": [
             { "id": "c1", "name": "topicsDatabaseId", "value": "62f34586-4f78-4b83-b2ac-105f500d059e", "type": "string" },
-            { "id": "c2", "name": "slackWebhookUrl", "value": "REPLACE_WITH_SLACK_WEBHOOK_URL", "type": "string" }
+            { "id": "c2", "name": "slackWebhookUrl", "value": "REPLACE_WITH_SLACK_WEBHOOK_URL", "type": "string" },
+            { "id": "c3", "name": "siteHost", "value": "theautomationsguide.com", "type": "string" },
+            { "id": "c4", "name": "indexNowKey", "value": "dde35cca97309131104c0505957f0948", "type": "string" },
+            { "id": "c5", "name": "indexNowKeyLocation", "value": "https://theautomationsguide.com/dde35cca97309131104c0505957f0948.txt", "type": "string" },
+            { "id": "c6", "name": "googleServiceAccountJson", "value": "", "type": "string" }
           ]
         },
         "options": {}
@@ -34,7 +38,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// GitHub fires this webhook for many event types. Filter to:\n//   - pull_request.closed events\n//   - merged === true\n//   - base.ref === 'master' (don't update Notion for non-prod merges)\n//   - head.ref starts with 'content/' (only content engine PRs map to Notion topics)\nconst config = $('Config').first().json;\nconst payload = $('GitHub Webhook').first().json.body || {};\n\nconst action = payload.action;\nconst pr = payload.pull_request || {};\nconst merged = pr.merged === true;\nconst baseRef = pr.base?.ref;\nconst headRef = pr.head?.ref || '';\nconst prUrl = pr.html_url;\n\nconst eligible =\n  action === 'closed' &&\n  merged &&\n  baseRef === 'master' &&\n  headRef.startsWith('content/') &&\n  !!prUrl;\n\nif (!eligible) {\n  // Not our event — silently no-op so GitHub doesn't see a 5xx.\n  console.log(`Webhook skipped: action=${action} merged=${merged} baseRef=${baseRef} headRef=${headRef}`);\n  return [];\n}\n\nreturn [{ json: { ...config, prUrl, prTitle: pr.title, prNumber: pr.number, mergedAt: pr.merged_at } }];"
+        "jsCode": "// GitHub fires this webhook for many event types. Filter to:\n//   - pull_request.closed events\n//   - merged === true\n//   - base.ref === 'master' (don't update Notion for non-prod merges)\n//   - head.ref starts with 'content/' (only content engine PRs map to Notion topics)\n// Also extracts the post slug from the branch name and builds the canonical\n// public URL, which downstream IndexNow / Google Indexing nodes consume.\nconst config = $('Config').first().json;\nconst payload = $('GitHub Webhook').first().json.body || {};\n\nconst action = payload.action;\nconst pr = payload.pull_request || {};\nconst merged = pr.merged === true;\nconst baseRef = pr.base?.ref;\nconst headRef = pr.head?.ref || '';\nconst prUrl = pr.html_url;\n\nconst eligible =\n  action === 'closed' &&\n  merged &&\n  baseRef === 'master' &&\n  headRef.startsWith('content/') &&\n  !!prUrl;\n\nif (!eligible) {\n  console.log(`Webhook skipped: action=${action} merged=${merged} baseRef=${baseRef} headRef=${headRef}`);\n  return [];\n}\n\n// Branch convention: content/<slug>. The slug equals the .mdx filename without\n// extension, which is also the URL slug under /blog/<slug>/.\nconst slug = headRef.replace(/^content\\//, '');\nconst postUrl = `https://${config.siteHost}/blog/${slug}/`;\n\nreturn [{ json: { ...config, prUrl, prTitle: pr.title, prNumber: pr.number, mergedAt: pr.merged_at, slug, postUrl } }];"
       },
       "id": "tag00005-0000-0000-0000-000000000003",
       "name": "Filter Eligible",
@@ -127,7 +131,7 @@
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ text: `📰 Notion topic marked Published\\n*PR #${$('Resolve Page').first().json.prNumber}:* ${$('Resolve Page').first().json.prTitle}\\nLive on https://theautomationsguide.com after Netlify finishes (~90s).` }) }}",
+        "body": "={{ JSON.stringify({ text: `📰 Notion topic marked Published\\n*PR #${$('Resolve Page').first().json.prNumber}:* ${$('Resolve Page').first().json.prTitle}\\nLive on ${$('Resolve Page').first().json.postUrl} after Netlify finishes (~90s).` }) }}",
         "options": { "timeout": 30000 }
       },
       "id": "tag00005-0000-0000-0000-000000000007",
@@ -135,21 +139,115 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.indexnow.org/indexnow",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "content-type", "value": "application/json; charset=utf-8" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ host: $('Resolve Page').first().json.siteHost, key: $('Resolve Page').first().json.indexNowKey, keyLocation: $('Resolve Page').first().json.indexNowKeyLocation, urlList: [$('Resolve Page').first().json.postUrl] }) }}",
+        "options": { "timeout": 30000, "response": { "response": { "neverError": true, "fullResponse": true } } }
+      },
+      "id": "tag00005-0000-0000-0000-000000000008",
+      "name": "IndexNow Submit",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1780, 300],
+      "notes": "Pings IndexNow (Bing, Yandex, DuckDuckGo, Naver, Seznam). neverError:true so a 4xx/5xx here can't fail the workflow — the Status update to Notion already happened. 200 = accepted, 202 = accepted-with-warnings, 422 = unprocessable (usually a key/keyLocation mismatch)."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gate the Google Indexing API branch on the service-account JSON being\n// populated. If empty, return [] to short-circuit the rest of the chain\n// — this keeps the workflow shippable before Ian sets up the GCP side.\nconst data = $('Resolve Page').first().json;\nconst sa = (data.googleServiceAccountJson || '').trim();\n\nif (!sa) {\n  console.log('googleServiceAccountJson is empty — skipping Google Indexing API submit. To enable: paste the service account JSON into the Config node\\'s googleServiceAccountJson field after granting it Owner on the GSC property.');\n  return [];\n}\n\nlet parsed;\ntry {\n  parsed = JSON.parse(sa);\n} catch (err) {\n  console.log(`googleServiceAccountJson is set but not valid JSON: ${err.message}. Skipping.`);\n  return [];\n}\n\nif (!parsed.client_email || !parsed.private_key) {\n  console.log('googleServiceAccountJson is valid JSON but missing client_email or private_key. Skipping.');\n  return [];\n}\n\nreturn [{ json: { ...data, _saClientEmail: parsed.client_email, _saPrivateKey: parsed.private_key } }];"
+      },
+      "id": "tag00005-0000-0000-0000-000000000009",
+      "name": "Google Indexing Enabled?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build a signed JWT for Google's OAuth2 token endpoint, using the service\n// account's RSA private key (RS256). No external dependencies — we use\n// Node's built-in crypto module, which n8n's Code node exposes.\nconst crypto = require('crypto');\nconst data = $input.first().json;\nconst clientEmail = data._saClientEmail;\nconst privateKey = data._saPrivateKey;\n\nconst b64url = (input) =>\n  Buffer.from(input).toString('base64').replace(/=+$/, '').replace(/\\+/g, '-').replace(/\\//g, '_');\n\nconst header = b64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));\nconst now = Math.floor(Date.now() / 1000);\nconst payload = b64url(JSON.stringify({\n  iss: clientEmail,\n  scope: 'https://www.googleapis.com/auth/indexing',\n  aud: 'https://oauth2.googleapis.com/token',\n  iat: now,\n  exp: now + 3600,\n}));\n\nconst signingInput = `${header}.${payload}`;\nconst signature = crypto\n  .createSign('RSA-SHA256')\n  .update(signingInput)\n  .sign(privateKey)\n  .toString('base64')\n  .replace(/=+$/, '')\n  .replace(/\\+/g, '-')\n  .replace(/\\//g, '_');\n\nconst jwt = `${signingInput}.${signature}`;\n\n// Drop the private key from the carried payload so it doesn't leak into\n// downstream node-logging or HTTP request inspectors.\nconst { _saPrivateKey, _saClientEmail, googleServiceAccountJson, ...rest } = data;\nreturn [{ json: { ...rest, jwt } }];"
+      },
+      "id": "tag00005-0000-0000-0000-000000000010",
+      "name": "Build Google JWT",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2220, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://oauth2.googleapis.com/token",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "content-type", "value": "application/x-www-form-urlencoded" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/x-www-form-urlencoded",
+        "body": "=grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion={{ $json.jwt }}",
+        "options": { "timeout": 30000 }
+      },
+      "id": "tag00005-0000-0000-0000-000000000011",
+      "name": "Get Google Access Token",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2440, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://indexing.googleapis.com/v3/urlNotifications:publish",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $json.access_token }}" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ url: $('Build Google JWT').first().json.postUrl, type: 'URL_UPDATED' }) }}",
+        "options": { "timeout": 30000, "response": { "response": { "neverError": true, "fullResponse": true } } }
+      },
+      "id": "tag00005-0000-0000-0000-000000000012",
+      "name": "Google Indexing Submit",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2660, 300],
+      "notes": "Officially the Indexing API is gated to JobPosting + BroadcastEvent schemas. In practice Google accepts blog post URLs and uses them as a strong recrawl signal. neverError:true means a 403 (quota/scope) or 429 (quota exceeded) won't fail the workflow — the Status/IndexNow steps already happened."
     }
   ],
   "connections": {
-    "GitHub Webhook":   { "main": [[{ "node": "Config", "type": "main", "index": 0 }]] },
-    "Config":           { "main": [[{ "node": "Filter Eligible", "type": "main", "index": 0 }]] },
-    "Filter Eligible":  { "main": [[{ "node": "Find Notion Topic", "type": "main", "index": 0 }]] },
-    "Find Notion Topic":{ "main": [[{ "node": "Resolve Page", "type": "main", "index": 0 }]] },
-    "Resolve Page":     { "main": [[{ "node": "Mark Published", "type": "main", "index": 0 }]] },
-    "Mark Published":   { "main": [[{ "node": "Slack Notify", "type": "main", "index": 0 }]] }
+    "GitHub Webhook":           { "main": [[{ "node": "Config", "type": "main", "index": 0 }]] },
+    "Config":                   { "main": [[{ "node": "Filter Eligible", "type": "main", "index": 0 }]] },
+    "Filter Eligible":          { "main": [[{ "node": "Find Notion Topic", "type": "main", "index": 0 }]] },
+    "Find Notion Topic":        { "main": [[{ "node": "Resolve Page", "type": "main", "index": 0 }]] },
+    "Resolve Page":             { "main": [[{ "node": "Mark Published", "type": "main", "index": 0 }]] },
+    "Mark Published":           { "main": [[{ "node": "Slack Notify", "type": "main", "index": 0 }]] },
+    "Slack Notify":             { "main": [[{ "node": "IndexNow Submit", "type": "main", "index": 0 }]] },
+    "IndexNow Submit":          { "main": [[{ "node": "Google Indexing Enabled?", "type": "main", "index": 0 }]] },
+    "Google Indexing Enabled?": { "main": [[{ "node": "Build Google JWT", "type": "main", "index": 0 }]] },
+    "Build Google JWT":         { "main": [[{ "node": "Get Google Access Token", "type": "main", "index": 0 }]] },
+    "Get Google Access Token":  { "main": [[{ "node": "Google Indexing Submit", "type": "main", "index": 0 }]] }
   },
   "settings": { "executionOrder": "v1" },
   "staticData": null,
   "meta": { "templateCredsSetupCompleted": false },
   "pinData": {},
-  "versionId": "1",
+  "versionId": "2",
   "id": "tag00005",
   "tags": []
 }
