@@ -137,6 +137,7 @@ For this project, here are the most consequential merges to date (newest first).
 
 | Date | PR | Merge SHA | What | Revert command |
 |---|---|---|---|---|
+| 2026-05-22 | direct | `e09acdc` | SEO: filter noindex URLs out of sitemap + single robots meta in BaseLayout | `git revert e09acdc` |
 | 2026-05-20 | direct | `88033dc` | Add Kit MCP section to Kit + n8n post (Kit partner promo) | `git revert 88033dc` |
 | 2026-05-12 | #17 | `0ac804b` | Fix grep -c bug in QA workflow | `git revert -m 1 0ac804b` |
 | 2026-05-11 | #13 | `8733108` | Right-size Anthropic models (social outputs → Haiku) | `git revert -m 1 8733108` |

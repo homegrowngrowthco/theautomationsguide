@@ -1,3 +1,35 @@
+# Session Log — last updated 2026-05-22
+
+## Quick reference — recent additions (Session 13, 2026-05-22)
+
+One-shot session triaging a GSC indexing question — Ian saw 6 pages indexed and 16 not indexed and asked whether something was wrong. Diagnosis: the deployed sitemap at [sitemap-0.xml](https://theautomationsguide.com/sitemap-0.xml) had **39 URLs**, but **15 of them were pages explicitly marked `noindex`** (4 utility pages — `/privacy/`, `/terms/`, `/disclosure/`, `/search/` — plus the 11 `/go/<tool>/` affiliate redirects). Sitemap inclusion + page-level noindex is a self-contradicting signal — GSC buckets these as "Excluded by 'noindex' tag" in the "Why pages aren't indexed" view, inflating the "not indexed" count without any actual quality/crawl issue.
+
+**Fix shape (commit `e09acdc`, direct to master).** Two coordinated edits in one commit:
+
+1. **[astro.config.mjs](astro.config.mjs)** — added a `sitemap({ filter })` predicate that drops `/go/*` and the four utility paths. Sitemap now ships **24 URLs** (homepage, `/about/`, `/blog/`, `/tools/`, 20 posts) — exactly what should be indexable.
+2. **[src/layouts/BaseLayout.astro](src/layouts/BaseLayout.astro)** — added a `noindex?: boolean` prop. When true, emits a single `<meta name="robots" content="noindex, follow">`; otherwise emits the full `index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1` directive. Previously, the four utility pages were stacking two conflicting `<meta name="robots">` tags (BaseLayout said `index, follow`, the page slot added a second `noindex, follow`). Functionally OK (Google takes most restrictive) but sloppy. [privacy.astro](src/pages/privacy.astro), [terms.astro](src/pages/terms.astro), [disclosure.astro](src/pages/disclosure.astro), [search.astro](src/pages/search.astro) now pass `noindex={true}` instead of injecting via `<Fragment slot="head">`.
+
+[404.astro](src/pages/404.astro) was left untouched — uses `noindex, nofollow` (different directive set) and isn't in the sitemap anyway, so the cleanup doesn't affect it.
+
+**Local verification.** `npm run build` succeeded — 34 pages built, Pagefind indexed 29, generated `dist/sitemap-0.xml` confirmed at 24 URLs (all 15 previously-listed noindex URLs absent). Spot-checked `dist/privacy/index.html` for exactly one robots meta (✓ `noindex, follow`), and `dist/index.html` + `dist/about/index.html` + `dist/blog/index.html` for the full index directive (✓).
+
+**`/go/<tool>` pages don't use BaseLayout** — they have their own minimal HTML doc (meta refresh + PostHog `affiliate_click` capture). The sitemap filter handles them; no template change needed there.
+
+**Pre-push check.** `git fetch origin && git log --oneline HEAD..origin/master` confirmed no engine auto-merges landed mid-session (3 new content branches discovered — `2026-05-21-kit-vs-substack-vs-beehiiv`, `2026-05-21-migrate-substack-to-kit`, `2026-05-22-best-mailchimp-alternatives` — none merged yet, so no rebase needed before the push).
+
+**Action required of Ian after this session:**
+
+1. **Wait ~90s for Netlify to deploy `e09acdc`.** No site behavior changes; the sitemap will reflect the new URL set on next Google crawl.
+2. **In GSC → Pages → "Why pages aren't indexed":** confirm the bucket reasons. If you see "Excluded by 'noindex' tag" with ~15 URLs, that's the population this fix addresses — click **Validate Fix** to ask Google to reprocess. If you also see "Crawled - currently not indexed" on real blog posts, that's a different (content-quality / new-domain-trust) problem and is not solved here.
+3. **Re-submit the sitemap in GSC** (Sitemaps → enter `sitemap-index.xml`) to nudge Google to pick up the trimmed set faster. Optional — it's already pinged via [public/robots.txt:32](public/robots.txt#L32).
+4. **Expect the "Not indexed" count to drop within 1-2 weeks** as Google reprocesses. Indexed count should stay flat or grow as the real blog posts get crawled.
+
+**Revert paths** (also captured in DEPLOYMENT.md):
+- Both edits unwanted: `git revert e09acdc` — restores the 39-URL sitemap and the double robots meta tag pattern.
+- Both edits are non-destructive (no content/data changes, no schema changes) and safe to revert at any time.
+
+---
+
 # Session Log — last updated 2026-05-13
 
 ## Recovery Notes (2026-05-05 machine wipe)
