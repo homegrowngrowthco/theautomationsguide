@@ -28,6 +28,31 @@ One-shot session triaging a GSC indexing question — Ian saw 6 pages indexed an
 - Both edits unwanted: `git revert e09acdc` — restores the 39-URL sitemap and the double robots meta tag pattern.
 - Both edits are non-destructive (no content/data changes, no schema changes) and safe to revert at any time.
 
+### Same-session follow-up — IndexNow + Google Indexing API submit (commit `805cb28`)
+
+After deploying the sitemap fix, Ian asked what process exists for telling search engines about new posts. None did — the post-merge n8n workflow only updated Notion + pinged Slack. So `notion-publish-status.json` got extended to also hit two search-engine indexing APIs:
+
+**IndexNow (Bing / Yandex / DuckDuckGo / Naver / Seznam) — live + working.** Random 32-char hex key `dde35cca97309131104c0505957f0948` committed to [public/dde35cca97309131104c0505957f0948.txt](public/dde35cca97309131104c0505957f0948.txt) (Astro auto-copies to `dist/` root → served at `https://theautomationsguide.com/dde35cca97309131104c0505957f0948.txt`). Key is public-by-design per IndexNow protocol — the file is the ownership proof, not a secret. New "IndexNow Submit" HTTP node POSTs `{host, key, keyLocation, urlList: [postUrl]}` to `api.indexnow.org/indexnow` after Slack Notify.
+
+**Google Indexing API — wired but opt-in.** Added 4 nodes after IndexNow: "Google Indexing Enabled?" code gate (short-circuits with `return []` if `googleServiceAccountJson` is empty in the Config node — current default), "Build Google JWT" code node (signs RS256 JWT with Node's built-in `crypto` module — no external dependencies), "Get Google Access Token" HTTP POST to `oauth2.googleapis.com/token` with the JWT, "Google Indexing Submit" HTTP POST to `indexing.googleapis.com/v3/urlNotifications:publish` with `{url: postUrl, type: 'URL_UPDATED'}`. Both HTTP calls use `neverError:true` so a 4xx/5xx can't fail the workflow (Notion + Slack steps already happened). Officially the API is gated to JobPosting + BroadcastEvent schemas but accepts blog URLs in practice — quotas are ~200 calls/day per project, well above the engine's ~1/day output rate. Setup steps (GCP project + Indexing API enable + service account + JSON key + GSC Owner grant + paste JSON into Config node) documented in [n8n/README.md](n8n/README.md) Workflow 5 section.
+
+**Filter Eligible also got a slug-extraction extension.** Pulls `slug = headRef.replace(/^content\//, '')` and builds `postUrl = https://${siteHost}/blog/${slug}/`. Slack message now references `postUrl` instead of bare domain. Same slug feeds both indexing APIs.
+
+**n8n re-import required.** Workflow JSON shipped as v2 (`versionId: "2"`); Ian needs to re-import `notion-publish-status.json` into n8n Cloud to pick up the 12 nodes (was 7). No new credentials needed for the IndexNow branch — IndexNow is auth-free. The Notion HTTP nodes still use the existing `Notion Integration Token` credential.
+
+**Action required of Ian** (this paragraph is the consolidated post-deploy todo):
+1. **Re-import [n8n/notion-publish-status.json](n8n/notion-publish-status.json)** into n8n Cloud. The webhook URL stays the same; GitHub repo webhook does NOT need to be reconfigured.
+2. **Wait for Netlify to publish `805cb28`** (~90s) — confirms the IndexNow key file is live at the root URL. Curl it to double-check: `curl https://theautomationsguide.com/dde35cca97309131104c0505957f0948.txt` should return the same 32-char hex.
+3. **In GSC → Pages → "Why pages aren't indexed":** click "Validate Fix" on any URLs flagged with "Excluded by 'noindex' tag" (from commit `e09acdc` earlier this session).
+4. **Re-submit the sitemap in GSC:** Sitemaps → enter `sitemap-index.xml` → submit. Confirms Google reads the new 24-URL trimmed sitemap.
+5. **For the 16 currently-stuck unindexed URLs:** in GSC → URL Inspection → paste each one → "Request Indexing". Manual one-time fill since they pre-date the IndexNow wiring. Cap is ~10/day per property.
+6. **(Optional — pick when ready) Wire the Google Indexing API:** follow steps 1-4 in [n8n/README.md](n8n/README.md) Workflow 5 → IndexNow + Google Indexing API submit section. Required only if you want Google to get the same "URL_UPDATED" ping that Bing/Yandex now get. Skippable; IndexNow alone covers the GEO-relevant engines.
+
+**Revert paths** (also captured in DEPLOYMENT.md):
+- IndexNow + Google Indexing API additions unwanted: `git revert 805cb28`, then re-import the pre-805cb28 workflow JSON from `git show 2a84738:n8n/notion-publish-status.json` into n8n Cloud.
+- Just the Google Indexing branch unwanted: leave `googleServiceAccountJson` empty in n8n Config node — the gate node will continue to short-circuit it.
+- Just the IndexNow ping unwanted: pause the *IndexNow Submit* node in n8n. The `dde35cca97309131104c0505957f0948.txt` file can stay or be deleted (no-op either way once n8n isn't pinging IndexNow).
+
 ---
 
 # Session Log — last updated 2026-05-13

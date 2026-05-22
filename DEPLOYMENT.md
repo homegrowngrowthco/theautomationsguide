@@ -137,6 +137,7 @@ For this project, here are the most consequential merges to date (newest first).
 
 | Date | PR | Merge SHA | What | Revert command |
 |---|---|---|---|---|
+| 2026-05-22 | direct | `805cb28` | SEO: add IndexNow + Google Indexing API submit to PR-merge n8n workflow (key file `dde35cca97309131104c0505957f0948.txt` + 5 new workflow nodes) | `git revert 805cb28` (also: re-import the old workflow JSON from `git show 2a84738:n8n/notion-publish-status.json` into n8n Cloud) |
 | 2026-05-22 | direct | `e09acdc` | SEO: filter noindex URLs out of sitemap + single robots meta in BaseLayout | `git revert e09acdc` |
 | 2026-05-20 | direct | `88033dc` | Add Kit MCP section to Kit + n8n post (Kit partner promo) | `git revert 88033dc` |
 | 2026-05-12 | #17 | `0ac804b` | Fix grep -c bug in QA workflow | `git revert -m 1 0ac804b` |
