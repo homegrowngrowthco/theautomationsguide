@@ -40,13 +40,13 @@ After deploying the sitemap fix, Ian asked what process exists for telling searc
 
 **n8n re-import required.** Workflow JSON shipped as v2 (`versionId: "2"`); Ian needs to re-import `notion-publish-status.json` into n8n Cloud to pick up the 12 nodes (was 7). No new credentials needed for the IndexNow branch — IndexNow is auth-free. The Notion HTTP nodes still use the existing `Notion Integration Token` credential.
 
-**Action required of Ian** (this paragraph is the consolidated post-deploy todo):
-1. **Re-import [n8n/notion-publish-status.json](n8n/notion-publish-status.json)** into n8n Cloud. The webhook URL stays the same; GitHub repo webhook does NOT need to be reconfigured.
-2. **Wait for Netlify to publish `805cb28`** (~90s) — confirms the IndexNow key file is live at the root URL. Curl it to double-check: `curl https://theautomationsguide.com/dde35cca97309131104c0505957f0948.txt` should return the same 32-char hex.
-3. **In GSC → Pages → "Why pages aren't indexed":** click "Validate Fix" on any URLs flagged with "Excluded by 'noindex' tag" (from commit `e09acdc` earlier this session).
-4. **Re-submit the sitemap in GSC:** Sitemaps → enter `sitemap-index.xml` → submit. Confirms Google reads the new 24-URL trimmed sitemap.
-5. **For the 16 currently-stuck unindexed URLs:** in GSC → URL Inspection → paste each one → "Request Indexing". Manual one-time fill since they pre-date the IndexNow wiring. Cap is ~10/day per property.
-6. **(Optional — pick when ready) Wire the Google Indexing API:** follow steps 1-4 in [n8n/README.md](n8n/README.md) Workflow 5 → IndexNow + Google Indexing API submit section. Required only if you want Google to get the same "URL_UPDATED" ping that Bing/Yandex now get. Skippable; IndexNow alone covers the GEO-relevant engines.
+**Action required of Ian** (this paragraph is the consolidated post-deploy todo — completion status as of 2026-05-22 PM):
+1. ✅ **Re-import [n8n/notion-publish-status.json](n8n/notion-publish-status.json)** into n8n Cloud — DONE 2026-05-22. The webhook URL stays the same; GitHub repo webhook does NOT need to be reconfigured.
+2. ✅ **Wait for Netlify to publish `805cb28`** — DONE 2026-05-22. IndexNow key file curl'd at `https://theautomationsguide.com/dde35cca97309131104c0505957f0948.txt` returns the expected 32-char hex; sitemap re-checked at 25 URLs with zero noindex paths leaking.
+3. ✅ **In GSC → Pages → "Why pages aren't indexed":** click "Validate Fix" — DONE 2026-05-22.
+4. ✅ **Re-submit the sitemap in GSC:** `sitemap-index.xml` — DONE 2026-05-22.
+5. ⏳ **For the 16 currently-stuck unindexed URLs:** in GSC → URL Inspection → "Request Indexing". **IN PROGRESS** — Ian splitting across days due to ~10/day GSC soft cap; will be done by 2026-05-23 Saturday.
+6. ⏸️ **(Deferred 2026-05-22) Wire the Google Indexing API:** Ian chose to leave `googleServiceAccountJson` blank in the n8n Config node. Rationale: IndexNow alone covers Bing/Yandex/DuckDuckGo/Naver/Seznam; Google still reads the (now trimmed) sitemap and gets natural-crawl signal from there; manual GSC "Request Indexing" handles the rare case where a specific post needs faster Google indexing. The Indexing API is also technically off-label for blog posts (officially gated to JobPosting + BroadcastEvent schemas). Revisit if post velocity goes up or Google indexing latency becomes a measured bottleneck — re-enabling is a paste-JSON-into-Config-node operation, no code change needed.
 
 **Revert paths** (also captured in DEPLOYMENT.md):
 - IndexNow + Google Indexing API additions unwanted: `git revert 805cb28`, then re-import the pre-805cb28 workflow JSON from `git show 2a84738:n8n/notion-publish-status.json` into n8n Cloud.
