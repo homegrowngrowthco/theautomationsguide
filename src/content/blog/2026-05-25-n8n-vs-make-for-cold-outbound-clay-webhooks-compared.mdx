@@ -1,0 +1,162 @@
+---
+title: "n8n vs Make for Cold Outbound: Clay Webhooks Compared"
+description: "Which automation platform handles Clay webhooks better for cold outbound? n8n vs Make compared on throughput, error handling, and cost at scale."
+pubDate: 2026-05-25
+tags: ["comparison", "automation", "cold-outbound"]
+faqs:
+  - question: "Does n8n handle Clay webhooks better than Make?"
+    answer: "n8n handles Clay webhooks better at volume due to no execution caps and lower per-run cost. Make is faster to set up for smaller campaigns under a few thousand records per month."
+  - question: "What is the webhook execution limit in Make?"
+    answer: "Make's free tier allows 1,000 operations per month, and paid plans count every module execution, so a single Clay webhook triggering a 5-module scenario costs 5 operations per row."
+  - question: "Can Clay send webhooks to n8n?"
+    answer: "Yes. Clay supports outbound webhooks natively, and n8n exposes a webhook URL you paste directly into Clay's HTTP Request or Webhook enrichment columns."
+  - question: "Which is cheaper for high-volume Clay enrichment workflows?"
+    answer: "n8n is significantly cheaper at scale. Self-hosted n8n has no per-execution cost, and even n8n Cloud is flat-rate, while Make's operation-based pricing compounds quickly with multi-step scenarios."
+  - question: "What errors should I watch for with Clay webhooks in Make or n8n?"
+    answer: "The most common issues are Clay's 30-second webhook timeout causing silent drops, and downstream enrichment rows arriving out of order. Both platforms need explicit retry logic to handle these reliably."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+
+Cold outbound stacks have gotten complicated. A typical sequence today runs [Clay](/go/clay) for enrichment, a webhook to push qualified rows into a sequencer, and some middleware layer to route, dedupe, and handle errors in between. That middleware choice ([Make](/go/make) or [n8n](/go/n8n)) sounds like a minor implementation detail until your Clay table is enriching 8,000 rows overnight and you wake up to 600 failed webhook deliveries that made zero noise.
+
+<div class="quick-answer"><strong>Quick answer:</strong> Make is faster to wire up for pilots and small campaigns, but n8n wins on throughput, error visibility, and cost once you pass roughly 5,000 Clay-triggered executions per month.</div>
+
+<StatRow stats={[
+  { number: "5x", label: "Operation Multiplier", description: "A 5-module Make scenario costs 5 operations per Clay row. At 10k rows/month that is 50,000 operations, pushing you into Make's Core or higher tier." },
+  { number: "30s", label: "Clay Webhook Timeout", description: "Clay drops webhook calls that do not receive a 200 response within 30 seconds. Neither platform documents this prominently, and it causes silent data loss." },
+  { number: "0", label: "n8n Execution Cap (self-hosted)", description: "Self-hosted n8n has no per-execution pricing. A Clay table enriching 50,000 rows costs the same to process as one enriching 500." }
+]} />
+
+<ComparisonTable
+  title="Make vs n8n for Clay Webhook Workflows"
+  tools={[
+    {
+      name: "Make",
+      tagline: "Fastest path from Clay to your sequencer",
+      pros: [
+        "Visual scenario builder requires no code for Clay webhook ingestion",
+        "Native HTTP module handles Clay payloads in under 5 minutes",
+        "Built-in data store for lightweight deduplication",
+        "Instant webhook URL, no server setup"
+      ],
+      cons: [
+        "Operation-based pricing scales painfully with multi-step scenarios",
+        "Error handling UI buries failed executions across runs",
+        "No native queue: burst traffic from large Clay tables causes scenario backlogs",
+        "Harder to add custom retry logic without workarounds"
+      ],
+      pricing: "From $9/mo (Core, 10k ops). Heavy Clay workflows often need $29+ (Pro).",
+      affiliateSlug: "make",
+      ctaLabel: "Try Make Free",
+      highlight: false
+    },
+    {
+      name: "n8n",
+      tagline: "Built for volume, built for engineers who want control",
+      pros: [
+        "Flat-rate cloud or free self-hosted: no per-execution tax on Clay volume",
+        "Native error workflow trigger for per-row failure routing",
+        "Webhook node accepts Clay payloads and responds 200 immediately, queuing internally",
+        "Code node lets you write real JS for edge-case payload parsing"
+      ],
+      cons: [
+        "Higher setup time: credentials, workflow structure, and self-hosting add friction",
+        "UI is less intuitive for non-technical GTM teammates",
+        "Debugging complex multi-branch flows takes longer than Make's visual diff"
+      ],
+      pricing: "n8n Cloud from $20/mo (flat, unlimited executions on Starter). Self-hosted is free.",
+      affiliateSlug: "n8n",
+      ctaLabel: "Try n8n Free",
+      highlight: true
+    }
+  ]}
+/>
+
+## How to choose based on your Clay workflow reality
+
+This is a throughput and team question, not a features question. Both platforms can receive a Clay webhook, parse the JSON payload, and push a formatted record into [Smartlead](/go/smartlead), Instantly, or Outreach. The divergence shows up in three real scenarios: nightly bulk enrichment runs, real-time single-row triggers, and error recovery when Clay's enrichment columns return partial data.
+
+For most early-stage outbound programs (a single SDR, one Clay table, under 2,000 new rows per month) Make's visual builder genuinely reduces time-to-first-send. I've wired Make scenarios for clients in under an hour that would have taken an afternoon in n8n just from credential setup and workflow organization alone. That speed matters when the founder is personally doing outbound and has zero interest in managing infrastructure.
+
+The calculus flips when you start running multiple Clay tables, enrichment waterfalls with 8 to 10 provider columns, or automated re-enrichment loops. Make's operation counter turns every module into a line item. A scenario that does: receive webhook, parse payload, check duplicate in data store, enrich one additional field, POST to sequencer costs 5 operations per row. At 20,000 rows per month that is 100,000 operations, which sits in Make's $29/month Pro tier but only gives you 150,000 ops total. Add a second Clay table and you are looking at the Teams plan. n8n's flat pricing eliminates that math entirely.
+
+<SideBySide>
+  <Fragment slot="left">
+    **Choose Make if:** Your team is non-technical, you are running fewer than 5,000 Clay-triggered rows per month, and speed-to-working-workflow matters more than cost optimization. Make's native integrations with tools like Smartlead and [Pipedrive](/go/pipedrive) also reduce the JSON-wrangling that n8n often requires.
+
+    **Choose n8n if:** You are running high-volume enrichment (5,000+ rows/month), you need per-row error workflows rather than just scenario-level retries, your team has at least one person comfortable with JSON and basic JavaScript, or you are self-hosting to keep data off third-party infrastructure.
+
+    **The gray zone:** Real-time single-row triggers (a form fill kicks off Clay enrichment, then routes to CRM) actually favor Make because the volume is low and the visual flow is easy to hand off to a RevOps teammate who did not build it.
+  </Fragment>
+  <Fragment slot="right">
+    <Figure caption="Decision tree: Make vs n8n for Clay webhook routing">
+      <svg viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+        <rect x="100" y="10" width="160" height="44" rx="8" fill="#6366f1" />
+        <text x="180" y="28" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">Clay Webhook Trigger</text>
+        <text x="180" y="46" text-anchor="middle" font-size="10" fill="#e0e7ff">How many rows/month?</text>
+
+        <line x1="180" y1="54" x2="180" y2="80" stroke="#94a3b8" stroke-width="1.5" />
+
+        <line x1="180" y1="80" x2="80" y2="80" stroke="#94a3b8" stroke-width="1.5" />
+        <line x1="180" y1="80" x2="290" y2="80" stroke="#94a3b8" stroke-width="1.5" />
+        <text x="110" y="74" text-anchor="middle" font-size="9" fill="#64748b">Under 5k</text>
+        <text x="255" y="74" text-anchor="middle" font-size="9" fill="#64748b">Over 5k</text>
+
+        <line x1="80" y1="80" x2="80" y2="106" stroke="#94a3b8" stroke-width="1.5" />
+        <line x1="290" y1="80" x2="290" y2="106" stroke="#94a3b8" stroke-width="1.5" />
+
+        <rect x="20" y="106" width="120" height="44" rx="8" fill="#0ea5e9" />
+        <text x="80" y="124" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">Team technical?</text>
+        <text x="80" y="141" text-anchor="middle" font-size="9" fill="#e0f2fe">No-code vs. code comfort</text>
+
+        <rect x="220" y="106" width="120" height="44" rx="8" fill="#10b981" />
+        <text x="280" y="124" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">Use n8n</text>
+        <text x="280" y="141" text-anchor="middle" font-size="9" fill="#d1fae5">Flat cost, error workflows</text>
+
+        <line x1="80" y1="150" x2="80" y2="176" stroke="#94a3b8" stroke-width="1.5" />
+        <line x1="80" y1="176" x2="40" y2="176" stroke="#94a3b8" stroke-width="1.5" />
+        <line x1="80" y1="176" x2="130" y2="176" stroke="#94a3b8" stroke-width="1.5" />
+        <text x="40" y="170" text-anchor="middle" font-size="9" fill="#64748b">No</text>
+        <text x="130" y="170" text-anchor="middle" font-size="9" fill="#64748b">Yes</text>
+
+        <line x1="40" y1="176" x2="40" y2="200" stroke="#94a3b8" stroke-width="1.5" />
+        <line x1="130" y1="176" x2="130" y2="200" stroke="#94a3b8" stroke-width="1.5" />
+
+        <rect x="0" y="200" width="80" height="44" rx="8" fill="#0ea5e9" />
+        <text x="40" y="218" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">Use Make</text>
+        <text x="40" y="235" text-anchor="middle" font-size="9" fill="#e0f2fe">Visual, fast deploy</text>
+
+        <rect x="90" y="200" width="80" height="44" rx="8" fill="#10b981" />
+        <text x="130" y="218" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">Either works</text>
+        <text x="130" y="235" text-anchor="middle" font-size="9" fill="#d1fae5">n8n preferred</text>
+      </svg>
+    </Figure>
+  </Fragment>
+</SideBySide>
+
+## The error handling gap that actually matters
+
+This is where I see the most production pain with clients. Clay's webhook behavior has a few quirks that middleware needs to handle gracefully. The 30-second timeout means a slow downstream API (a Clearbit fallback or a Salesforce upsert that lags) will cause Clay to mark the webhook as failed and stop retrying. [Clay's documentation on HTTP request columns](https://docs.clay.com) confirms this timeout behavior, but it is easy to miss on a first read-through.
+
+Make's approach to errors is scenario-level. If a row fails, Make logs it in the execution history, but correlating a failed run back to the specific Clay row requires manual investigation. You can add error handlers, but they add operation cost, and the UI for reviewing failed executions across 200 runs is genuinely painful. I've spent hours in Make's execution history trying to identify which 40 rows out of a 2,000-row run dropped silently. That should not be a manual process at any volume above a few hundred records.
+
+n8n's error workflow trigger is a meaningfully different architecture. When a row fails, n8n fires a separate workflow automatically and passes the original payload along with it. That means you can route failures to a Slack alert with the full row data, push them to a Google Sheet for manual review, or re-queue them with exponential backoff. This is standard behavior in production queue systems. It is also what separates a fragile integration from one you can run at 50,000 rows per month without babysitting. The [n8n docs on error workflows](https://docs.n8n.io/flow-logic/error-handling/) cover this well, and it is the first feature I reach for when setting up any Clay-adjacent automation.
+
+One more practical note worth calling out: [G2's workflow automation category](https://www.g2.com/categories/workflow-automation) consistently rates n8n higher on customization and Make higher on ease of use, which tracks exactly with what I see across my client base. Neither platform is wrong. They are optimized for different operator profiles.
+
+<MyTake>
+Skip Make entirely if your Clay tables have more than two enrichment waterfalls. I know that sounds aggressive, but I've watched the same pattern play out with at least a dozen clients: start on Make because the UI looks approachable, hit the operation ceiling around month three of a real outbound program, then rebuild everything in n8n over a lost weekend. The n8n setup cost is a one-time tax. Make's operation cost compounds every single month and gets worse the more sophisticated your enrichment logic becomes.
+</MyTake>
+
+## Where to land
+
+One Clay table. Non-technical operator. Under 5,000 rows per month. Make is the right call and it deploys fast. The moment you add volume, multiple tables, or the need to audit every failed row without hunting through execution logs, n8n earns its place. Self-hosted n8n is effectively free at any scale, and the error workflow architecture is something no amount of Make workarounds fully replicates.
+
+Pick the tool that matches where your program is in six weeks, not where it is today. And if you already know you are building toward a high-volume enrichment operation, skip the intermediate step. My clients who started on n8n from day one have never asked to switch.
