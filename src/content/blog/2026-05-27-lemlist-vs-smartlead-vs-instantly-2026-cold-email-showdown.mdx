@@ -28,12 +28,43 @@ If you run outbound for a B2B SaaS team in 2026, you have already cycled through
 
 <div class="quick-answer"><strong>Quick answer:</strong> Use Instantly for lean teams moving fast, Smartlead when you are running 20-plus inboxes with Clay enrichment at the core of your stack, and Lemlist when personalization quality is the actual differentiator in your market.</div>
 
+<style>{`
+  .stat-row-wrap .stat-item {
+    padding-block: 1rem;
+  }
+  @media (max-width: 480px) {
+    .stat-row-wrap {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+    .stat-row-wrap .stat-item {
+      padding-block: 0.75rem;
+    }
+  }
+  @media (min-width: 481px) and (max-width: 860px) {
+    .comparison-table-wrap .cards-grid {
+      grid-template-columns: 1fr;
+    }
+    .comparison-table-wrap .card {
+      min-width: 0;
+    }
+  }
+  .newsletter-section {
+    min-height: unset !important;
+    padding-bottom: 2rem !important;
+  }
+`}</style>
+
+<div class="stat-row-wrap">
 <StatRow stats={[
   { number: "47%", label: "Average cold email open rate", description: "Across Smartlead's published 2025 benchmark data for warmed domains with 3-plus sending accounts rotated" },
   { number: "3x", label: "Reply lift from image personalization", description: "Lemlist's internal data on sequences using personalized images vs plain-text equivalents in the same campaign" },
   { number: "72%", label: "Outbound teams using multi-inbox rotation", description: "Per the 2025 Outbound Sales Benchmark by Nooks, up from 41% in 2023, showing the infrastructure shift toward volume-resilient sending" }
 ]} />
+</div>
 
+<div class="comparison-table-wrap">
 <ComparisonTable
   title="Lemlist vs Smartlead vs Instantly: 2026 Comparison"
   tools={[
@@ -101,6 +132,7 @@ If you run outbound for a B2B SaaS team in 2026, you have already cycled through
     }
   ]}
 />
+</div>
 
 ## How to choose
 
