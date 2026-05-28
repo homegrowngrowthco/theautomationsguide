@@ -34,6 +34,29 @@ If you are reading this, you are probably staring at a renewal quote from Outrea
   { number: "4-6 weeks", label: "realistic migration timeline", description: "Average re-enablement period I have observed across tool migrations at the 50-150 rep scale, including data export, sequence rebuild, and rep retraining" }
 ]} />
 
+<style>{`
+  .comparison-table-wrapper .ct-grid {
+    gap: 1rem;
+  }
+  @media (max-width: 900px) {
+    .comparison-table-wrapper .ct-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+  @media (max-width: 600px) {
+    .comparison-table-wrapper .ct-card {
+      padding: 1rem !important;
+    }
+    .comparison-table-wrapper .ct-card ul {
+      gap: 0.25rem !important;
+    }
+  }
+  .sidebyside-centered {
+    align-items: center;
+  }
+`}</style>
+
+<div class="comparison-table-wrapper">
 <ComparisonTable
   title="Outreach Alternatives: Mid-Market Comparison 2026"
   tools={[
@@ -99,6 +122,7 @@ If you are reading this, you are probably staring at a renewal quote from Outrea
     }
   ]}
 />
+</div>
 
 ## How to choose the right Outreach replacement
 
@@ -108,7 +132,7 @@ If your team is Salesforce-native and averaging more than 400 touchpoints per re
 
 If you have already consolidated your GTM stack on [HubSpot](/go/hubspot), adding Sales Hub Professional to get sequences is a much easier internal sell than standing up a second vendor. The ops overhead is lower, reporting is cleaner because deal data and engagement data share the same schema, and your enablement team trains reps on one interface instead of two. The caveat: [HubSpot's documentation on sequences](https://knowledge.hubspot.com/sequences/create-and-edit-sequences) makes clear that sequences only work for contacts with an assigned owner and a tracked email. High-volume outbound to cold lists will hit friction fast.
 
-<SideBySide>
+<SideBySide class="sidebyside-centered">
   <Fragment slot="left">
     **Decision criteria that actually matter**
 
