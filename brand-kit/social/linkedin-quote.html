@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>LinkedIn quote</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Source+Serif+4:ital,wght@0,600;1,500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;background:#fdfcf8;}
+  .card{
+    width:100%;height:100vh;background:#fdfcf8;
+    color:#1a1d22;font-family:'Inter',sans-serif;
+    padding:56px 56px;
+    display:flex;flex-direction:column;justify-content:space-between;
+    border:1px solid #e5e1d4;
+  }
+  .top{display:flex;align-items:center;gap:14px;}
+  .mark{width:34px;height:34px;}
+  .brand{font-family:'Source Serif 4',serif;font-size:16px;font-weight:600;letter-spacing:-0.015em;}
+  .small{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#5e6671;margin-left:auto;}
+  .quote-rail{
+    display:flex;gap:24px;align-items:flex-start;
+  }
+  .rail{width:3px;background:#0d8c78;flex-shrink:0;align-self:stretch;}
+  blockquote{
+    font-family:'Source Serif 4',serif;font-size:36px;font-weight:500;
+    line-height:1.2;letter-spacing:-0.015em;text-wrap:balance;
+  }
+  blockquote em{font-style:italic;color:#0d8c78;}
+  cite{
+    display:block;margin-top:24px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;font-style:normal;
+    letter-spacing:0.18em;text-transform:uppercase;color:#5e6671;
+  }
+  .bottom{
+    display:flex;align-items:flex-end;justify-content:space-between;
+    padding-top:24px;border-top:1px solid #e5e1d4;
+  }
+  .colophon{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;text-transform:uppercase;color:#0d8c78;font-weight:500;}
+  .url{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.05em;color:#8b929e;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="top">
+    <svg class="mark" viewBox="0 0 48 48" fill="none">
+      <circle cx="24" cy="24" r="22" stroke="#1a1d22" stroke-width="1" opacity="0.2"/>
+      <path d="M 24 4 A 20 20 0 0 1 44 24" stroke="#0d8c78" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <path d="M 24 44 A 20 20 0 0 1 4 24" stroke="#0d8c78" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="24" cy="24" r="4" fill="#0d8c78"/>
+      <circle cx="24" cy="4" r="2.4" fill="#0d8c78"/>
+      <circle cx="24" cy="44" r="2.4" fill="#0d8c78"/>
+    </svg>
+    <span class="brand">The Automations Guide</span>
+    <span class="small">Pull quote &middot; #032</span>
+  </div>
+  <div class="quote-rail">
+    <div class="rail"></div>
+    <blockquote>
+      You don&rsquo;t pick an automation platform &mdash; you pick the one your <em>future tired self</em> can debug at 11pm on a Sunday.
+      <cite>&mdash; Ian Chambers</cite>
+    </blockquote>
+  </div>
+  <div class="bottom">
+    <span class="colophon">Run · Review · Repeat</span>
+    <span class="url">theautomationsguide.com</span>
+  </div>
+</div>
+</body>
+</html>

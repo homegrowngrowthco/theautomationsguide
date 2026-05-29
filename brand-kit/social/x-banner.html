@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>X banner</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=Source+Serif+4:ital,wght@0,600;1,500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;background:#0d1117;}
+  .card{
+    width:100%;height:100vh;
+    background:
+      radial-gradient(ellipse at 90% 50%, rgba(30,195,164,0.18), transparent 60%),
+      linear-gradient(180deg, #0d1117 0%, #060a0f 100%);
+    color:#e6edf3;font-family:'Inter',sans-serif;
+    padding:48px 64px;
+    display:flex;align-items:center;gap:36px;
+  }
+  .mark{width:78px;height:78px;flex-shrink:0;}
+  .stack{display:flex;flex-direction:column;gap:8px;}
+  .colophon{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#1ec3a4;font-weight:500;}
+  .name{font-family:'Source Serif 4',serif;font-size:38px;font-weight:600;letter-spacing:-0.025em;line-height:1;}
+  .name em{font-style:italic;font-weight:500;color:#1ec3a4;}
+  .tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:#8b929e;}
+  .right{margin-left:auto;text-align:right;}
+  .url{font-family:'JetBrains Mono',monospace;font-size:13px;color:#8b929e;letter-spacing:0.04em;}
+  .url-strong{color:#e6edf3;}
+</style>
+</head>
+<body>
+<div class="card">
+  <svg class="mark" viewBox="0 0 48 48" fill="none">
+    <circle cx="24" cy="24" r="22" stroke="#e6edf3" stroke-width="1" opacity="0.2"/>
+    <path d="M 24 4 A 20 20 0 0 1 44 24" stroke="#1ec3a4" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <path d="M 24 44 A 20 20 0 0 1 4 24" stroke="#1ec3a4" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <circle cx="24" cy="24" r="4" fill="#1ec3a4"/>
+    <circle cx="24" cy="4" r="2.4" fill="#1ec3a4"/>
+    <circle cx="24" cy="44" r="2.4" fill="#1ec3a4"/>
+  </svg>
+  <div class="stack">
+    <span class="colophon">Run · Review · Repeat</span>
+    <span class="name">The Automations Guide</span>
+    <span class="tag">A field guide for revenue automation operators</span>
+  </div>
+  <div class="right">
+    <span class="url"><span class="url-strong">theautomationsguide.com</span></span><br>
+    <span class="url" style="margin-top:6px;display:inline-block;">Daily &middot; Weekly &middot; Monthly</span>
+  </div>
+</div>
+</body>
+</html>

@@ -1,5 +1,45 @@
-/* ── Design tokens ─────────────────────────────── */
+/* ── Design tokens ───────────────────────────────
+   Brand Kit v2.2 (2026-05-29). Foundation scales pasted from the kit's
+   brand/tokens.css; existing site-token aliases below are revalued to point
+   at the foundation so all existing selectors keep working. Site is dark-only;
+   the kit's light-mode block is for newsletters and is intentionally omitted. */
 :root {
+  /* ── Brand color: Signal Teal (kit foundation) ── */
+  --tag-teal-50:  #e6fbf6;
+  --tag-teal-100: #b5f2e6;
+  --tag-teal-200: #7ee7d2;
+  --tag-teal-300: #45d6b9;
+  --tag-teal-400: #1ec3a4;   /* dark-mode accent */
+  --tag-teal-500: #14a890;   /* core brand */
+  --tag-teal-600: #0d8c78;
+  --tag-teal-700: #0a6d5e;
+  --tag-teal-800: #084f44;
+  --tag-teal-900: #053731;
+
+  /* ── Ink neutrals (kit foundation) ── */
+  --ink-50:  #f7f8f9;
+  --ink-100: #eceef1;
+  --ink-200: #d8dce2;
+  --ink-300: #b6bcc6;
+  --ink-400: #8b929e;
+  --ink-500: #5e6671;
+  --ink-600: #404750;
+  --ink-700: #262b32;
+  --ink-800: #161b22;
+  --ink-900: #0d1117;
+  --ink-950: #060a0f;
+
+  /* ── Semantic accents (sparingly used) ── */
+  --accent-amber: oklch(0.78 0.13 75);
+  --accent-coral: oklch(0.68 0.15 25);
+  --accent-iris:  oklch(0.62 0.13 270);
+
+  /* ── Type families (kit foundation) ── */
+  --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif:   'Source Serif 4', 'Iowan Old Style', Georgia, serif;
+  --font-display: 'Outfit', -apple-system, 'Segoe UI', sans-serif;
+
+  /* ── Site-token aliases (revalued to the kit foundation) ── */
   --bg:            #0d1117;
   --bg-secondary:  #161b22;
   --bg-card:       #161b22;
@@ -7,17 +47,17 @@
   --text:          #e6edf3;
   --text-muted:    #8b949e;
   --text-faint:    #484f58;
-  --accent:        #2dd4bf;
-  --accent-dim:    #0d9488;
-  --accent-glow:   rgba(45, 212, 191, 0.12);
+  --accent:        var(--tag-teal-400);            /* #1ec3a4 */
+  --accent-dim:    var(--tag-teal-600);            /* #0d8c78 */
+  --accent-hover:  var(--tag-teal-300);            /* #45d6b9 */
+  --accent-glow:   rgba(30, 195, 164, 0.10);
   --radius:        8px;
   --radius-lg:     14px;
   --max-w:         760px;
   --max-w-wide:    1280px;
   --max-w-reading: 880px;
-  --font:          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-                   Oxygen, Ubuntu, sans-serif;
-  --font-mono:     'SF Mono', 'Fira Code', 'Fira Mono', monospace;
+  --font:          var(--font-sans);
+  --font-mono:     'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
   --nav-h:         72px;
 }
 
@@ -68,17 +108,19 @@ a:hover { text-decoration: underline; }
 }
 
 .nav-logo {
-  font-size: 1.0625rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: -0.03em;
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.nav-logo span { color: var(--accent); }
+/* "Automations" is the dominant word; "The"/"Guide" stay quiet (kit logo rules). */
+.nav-logo span { color: var(--accent); font-weight: 800; }
 
 .nav-links {
   display: flex;
@@ -334,7 +376,7 @@ main { flex: 1; }
 }
 
 .btn--primary:hover {
-  background: #5eead4;
+  background: var(--accent-hover);
   text-decoration: none;
 }
 
@@ -467,7 +509,7 @@ main { flex: 1; }
 .prose p { margin-bottom: 1.25em; }
 
 .prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
-.prose a:hover { color: #5eead4; }
+.prose a:hover { color: var(--accent-hover); }
 
 .prose ul, .prose ol {
   padding-left: 1.5rem;
@@ -1214,4 +1256,36 @@ main { flex: 1; }
   color: var(--text-muted);
   line-height: 1.55;
   text-align: center;
+}
+
+/* ── Brand typography (Brand Kit v2.2) ─────────────
+   Headline tier (H1/H2, hero, page headers, pull quotes) uses the serif
+   Source Serif 4 at weight 600. H3 and below stay sans (Inter). Placed late
+   so these win on source order over the earlier per-section font-weight
+   declarations (which were 800). Loaded via Google Fonts in BaseLayout. */
+.hero h1,
+.prose h1,
+.prose h2,
+.post-header h1,
+.about-hero h1,
+.page-header h1,
+.tools-hero h1,
+.section-heading,
+.pull-quote-body {
+  font-family: var(--font-serif);
+  font-weight: 600;
+}
+
+/* Label / eyebrow / code tier uses JetBrains Mono. */
+.hero-eyebrow,
+.tag,
+.section-label,
+.email-signup-eyebrow,
+.my-take-eyebrow,
+.step-card-number,
+.stat-card-label,
+.tool-badge,
+.post-related-tags-label,
+.footer-col-label {
+  font-family: var(--font-mono);
 }

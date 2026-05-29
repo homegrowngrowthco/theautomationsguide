@@ -1,0 +1,48 @@
+/* Newsletter shared styles — inlined into each template for email safety,
+   but kept here as the source of truth. Email clients won't load this file. */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  background: #f6f4ec;
+  color: #1a1d22;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.55;
+  font-size: 16px;
+}
+.email-shell {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #fdfcf8;
+  padding: 0;
+}
+.email-pad { padding: 36px 36px 0; }
+.email-pad-x { padding-left: 36px; padding-right: 36px; }
+.serif { font-family: 'Source Serif 4', 'Iowan Old Style', Georgia, serif; }
+.mono { font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace; }
+
+.eyebrow {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: #0d8c78; font-weight: 500;
+}
+.muted { color: #5e6671; }
+.faint { color: #8b929e; }
+
+a { color: #0d8c78; text-decoration: none; }
+a.link-underline { border-bottom: 1px solid currentColor; }
+
+.rule { border: 0; border-top: 1px solid #e5e1d4; margin: 28px 0; }
+.rule-strong { border: 0; border-top: 1px solid #1a1d22; margin: 28px 0; }
+.rule-teal  { border: 0; border-top: 1px solid #0d8c78; margin: 0; }
+
+.btn-email {
+  display: inline-block;
+  background: #0d8c78; color: white;
+  font-weight: 600; font-size: 14px;
+  padding: 12px 22px; border-radius: 8px;
+  text-decoration: none;
+}
+.btn-email-dark {
+  background: #1a1d22; color: #fdfcf8;
+}

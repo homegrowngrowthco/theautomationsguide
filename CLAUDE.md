@@ -1,4 +1,30 @@
-# Session Log — last updated 2026-05-22
+# Session Log — last updated 2026-05-29
+
+## Quick reference — recent additions (Session 14, 2026-05-29)
+
+Design refresh session — applied a Claude Design "Brand Kit v2.2" to the site. Source kit shipped as `The Automations Guide Website.zip` (left untracked in the repo root — not committed). Work is on branch **`design-refresh-brand-kit-v2`** (off `origin/master` `a61ea6c`), to ship as a PR so Netlify builds a deploy preview.
+
+**What the kit changes (more than a recolor):** teal shifts `#2dd4bf` → `#1ec3a4` (dark-mode accent) / `#14a890` (core brand); headlines (H1/H2, hero, page headers, pull-quotes) move to the serif **Source Serif 4** (600); body/UI → **Inter**; eyebrows/tags/labels/code → **JetBrains Mono**; wordmark → **Outfit**. Site stays dark-only (the kit's light-mode block is for newsletters and was intentionally not added).
+
+**Token strategy — revalue + augment, NOT rename (load-bearing).** The kit's token names (`--accent-strong`, `--r-md`, `--font-sans`, `--ink-*`, `--tag-teal-*`) don't match the site's existing names (`--accent-dim`, `--accent-glow`, `--radius`, `--font`). The kit README's "paste `:root`, delete old block" would have broken ~every rule. Instead, in [src/styles/global.css](src/styles/global.css): pasted the kit's foundation scales (`--tag-teal-*`, `--ink-*`, semantic accents, `--font-sans/serif/display`) at the top of `:root`, then re-pointed every existing site-token alias at the foundation. Key remaps: `--accent`→`var(--tag-teal-400)`, `--accent-dim`→`var(--tag-teal-600)`, `--accent-glow`→`rgba(30,195,164,.10)`, new `--accent-hover`→`var(--tag-teal-300)` (replaces the old hardcoded `#5eead4` in `.btn--primary:hover` + `.prose a:hover`), `--font`→`var(--font-sans)`, `--font-mono`→JetBrains Mono. `--bg/--text/--border/...` unchanged (kit dark values are identical).
+
+**Typography applied** via a "Brand typography" block appended late in global.css (wins on source order over the earlier per-section `font-weight:800` rules): serif on `.hero h1, .prose h1, .prose h2, .post-header h1, .about-hero h1, .page-header h1, .tools-hero h1, .section-heading, .pull-quote-body` (H3/H4 stay Inter); JetBrains Mono on `.hero-eyebrow, .tag, .section-label, .email-signup-eyebrow, .my-take-eyebrow, .step-card-number, .stat-card-label, .tool-badge, .post-related-tags-label, .footer-col-label`.
+
+**Fonts loaded** in [src/layouts/BaseLayout.astro](src/layouts/BaseLayout.astro) `<head>` (site previously had zero web fonts): preconnect + one Google Fonts `css2` link (Inter 400-700, Source Serif 4 600, JetBrains Mono 400-700, Outfit 500/800, `display=swap`). **CSP in [public/_headers](public/_headers)** extended: `style-src` += `https://fonts.googleapis.com`, `font-src` += `https://fonts.gstatic.com` (otherwise the fonts would be blocked).
+
+**Wordmark** restyled (not swapped to `<img>` — the kit's logo SVGs are `<text font-family="Outfit">`, which doesn't embed fonts and falls back to system sans as an image). `.nav-logo` now uses `var(--font-display)` (Outfit); "The"/"Guide" quiet (weight 500, muted), "Automations" dominant (weight 800). Kept "Automations" **teal** rather than the kit's white-word + teal-period lockup — flagged to Ian as a follow-up choice if he wants exact kit fidelity. Both nav + footer reuse `.nav-logo`, so the change flows to both.
+
+**Favicon** [public/favicon.svg](public/favicon.svg): recolored its four teal fills `#2dd4bf`→`#1ec3a4`, kept the legible abstract orbital mark (the kit's wordmark favicon is illegible at 16px — Ian's choice). The `[tool].astro` redirect page (self-contained doc, no global.css) hardcoded teal updated to literal `#1ec3a4`. `ComparisonTable.astro` pros-marker `#2dd4bf`→`var(--accent)`.
+
+**New committed assets:** `public/brand/` (kit logo + avatar SVGs, already on new teal — for future og-image/social/external use); `brand-kit/` (full kit as source-of-truth: tokens.css, design-system.html, logos, avatars, Beehiiv + newsletter HTML, social graphics); [NEWSLETTER.md](NEWSLETTER.md) (points at the staged Beehiiv templates + frames the **manual Beehiiv import as an action for Ian** — templates can't be created from the repo).
+
+**Verification:** `npm run build` clean (32 pages, Pagefind indexed 32). Confirmed in `dist/`: font `css2` link present on homepage, new teal in compiled CSS, zero stale `#2dd4bf` in compiled CSS. Playwright screenshots (home / blog / tools / about / post at mobile 375 + desktop 1280) eyeballed: serif headlines, mono teal eyebrows/tags/badges, Outfit wordmark, new teal, responsive layouts all correct.
+
+**Action required of Ian:** (1) Open the PR's Netlify deploy preview and review desktop + mobile. (2) After merge, fill the merge SHA into the DEPLOYMENT.md row. (3) Manually import the two Beehiiv templates per [NEWSLETTER.md](NEWSLETTER.md) (Beehiiv UI, ~10 min). (4) Optional decisions: switch the wordmark to the kit's white-Automations + teal-period lockup; regenerate `apple-touch-icon.png`; align `.my-take` amber to the kit's `--accent-amber`.
+
+**Revert path:** all changes are CSS/asset/docs only (no content, schema, data, or workflow changes) — fully safe to revert. After merge: `git revert -m 1 <merge-sha>`.
+
+---
 
 ## Quick reference — recent additions (Session 13, 2026-05-22)
 
