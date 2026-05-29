@@ -24,6 +24,28 @@ import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
+<style>{`
+  @media (max-width: 900px) {
+    .comparison-table-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+  @media (max-width: 480px) {
+    .comparison-card {
+      padding: 12px !important;
+    }
+    .comparison-card-stat-row {
+      gap: 4px !important;
+    }
+  }
+  .side-by-side-container {
+    align-items: flex-start !important;
+  }
+  .side-by-side-container .figure-wrap {
+    margin-top: 0 !important;
+  }
+`}</style>
+
 Most RevOps teams I talk to have the same problem: they built their Salesforce automation stack on [Make](/go/make) or [n8n](/go/n8n), and now they're paying three tool bills to do what one well-configured platform should handle alone. The middleware layer made sense when Salesforce Flow was clunky and underpowered. That argument is increasingly hard to make in 2026. Native automation inside Salesforce, [HubSpot](/go/hubspot), and [Pipedrive](/go/pipedrive) has matured to the point where the iPaaS tax is often unjustifiable for anything short of genuinely cross-system orchestration.
 
 <div class="quick-answer"><strong>Quick answer:</strong> For most B2B SaaS RevOps teams, native Salesforce Flow covers internal automation, while HubSpot or Pipedrive can replace the entire stack if you're willing to consolidate your CRM and automation layer into one platform.</div>
@@ -118,7 +140,7 @@ The right call depends almost entirely on where your data lives and how much cro
     **Choose [Pipedrive](/go/pipedrive)** if you are a sales-led team under 50 reps who needs deal automation without RevOps overhead. It will not scale to enterprise complexity. For straightforward pipeline automation, it is the lowest-friction option in this comparison by a wide margin.
   </Fragment>
   <Fragment slot="right">
-    <Figure caption="Automation tool selection by org complexity and CRM maturity">
+    <Figure caption="Automation tool selection by org complexity and CRM maturity" style="margin-top: 0;">
       <svg viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
         {/* Start node */}
         <rect x="120" y="10" width="120" height="40" rx="8" fill="#6366f1" />
