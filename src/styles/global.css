@@ -39,18 +39,24 @@
   --font-serif:   'Source Serif 4', 'Iowan Old Style', Georgia, serif;
   --font-display: 'Outfit', -apple-system, 'Segoe UI', sans-serif;
 
-  /* ── Site-token aliases (revalued to the kit foundation) ── */
-  --bg:            #0d1117;
-  --bg-secondary:  #161b22;
-  --bg-card:       #161b22;
-  --border:        #21262d;
-  --text:          #e6edf3;
-  --text-muted:    #8b949e;
-  --text-faint:    #484f58;
-  --accent:        var(--tag-teal-400);            /* #1ec3a4 */
+  /* ── Site-token aliases — KIT LIGHT MODE (warm cream, the kit's non-dark palette) ── */
+  --bg:            #fdfcf8;                         /* warm off-white stationery */
+  --bg-secondary:  #f6f4ec;                         /* slightly warmer panel */
+  --bg-card:       #ffffff;
+  --border:        #e5e1d4;
+  --border-strong: #cdc7b3;
+  --text:          #262b32;                         /* ink-700, matches logo */
+  --text-muted:    #5e6671;
+  --text-faint:    #8b929e;
+  --accent:        var(--tag-teal-500);            /* #14a890 core brand */
   --accent-dim:    var(--tag-teal-600);            /* #0d8c78 */
-  --accent-hover:  var(--tag-teal-300);            /* #45d6b9 */
-  --accent-glow:   rgba(30, 195, 164, 0.10);
+  --accent-hover:  var(--tag-teal-700);            /* #0a6d5e — darker on hover (light bg) */
+  --accent-glow:   var(--tag-teal-50);             /* #e6fbf6 soft teal tint */
+  --accent-contrast: #ffffff;                      /* text/icon on a teal fill */
+  --nav-bg:        rgba(253, 252, 248, 0.85);      /* translucent cream nav */
+  --shadow-sm:     0 1px 2px rgba(13, 17, 23, 0.06);
+  --shadow-md:     0 4px 12px rgba(13, 17, 23, 0.08);
+  --shadow-lg:     0 12px 32px rgba(13, 17, 23, 0.12);
   --radius:        8px;
   --radius-lg:     14px;
   --max-w:         760px;
@@ -90,7 +96,7 @@ a:hover { text-decoration: underline; }
   top: 0;
   z-index: 100;
   height: var(--nav-h);
-  background: rgba(13, 17, 23, 0.85);
+  background: var(--nav-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
@@ -119,8 +125,10 @@ a:hover { text-decoration: underline; }
   gap: 0.5rem;
 }
 
-/* "Automations" is the dominant word; "The"/"Guide" stay quiet (kit logo rules). */
-.nav-logo span { color: var(--accent); font-weight: 800; }
+/* Kit wordmark lockup: "Automations" dominant in ink (800) with a teal period;
+   "The"/"Guide" stay quiet (500, muted, inherited from .nav-logo). */
+.nav-logo .logo-word { color: var(--text); font-weight: 800; }
+.nav-logo .logo-dot { color: var(--accent-dim); }
 
 .nav-links {
   display: flex;
@@ -258,7 +266,7 @@ a:hover { text-decoration: underline; }
     flex-direction: column;
     align-items: stretch;
     gap: 0.5rem;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    box-shadow: var(--shadow-lg);
   }
   .nav-end[data-open="false"] { display: none; }
   .nav-end[data-open="true"]  { display: flex; }
@@ -372,7 +380,7 @@ main { flex: 1; }
 
 .btn--primary {
   background: var(--accent);
-  color: #0d1117;
+  color: var(--accent-contrast);
 }
 
 .btn--primary:hover {
@@ -414,7 +422,7 @@ main { flex: 1; }
 
 .post-card:hover {
   border-color: var(--accent-dim);
-  box-shadow: 0 0 0 1px var(--accent-dim), 0 8px 32px rgba(0,0,0,0.4);
+  box-shadow: 0 0 0 1px var(--accent-dim), var(--shadow-lg);
   text-decoration: none;
 }
 
@@ -780,11 +788,29 @@ main { flex: 1; }
 
 /* ── Responsive ────────────────────────────────── */
 @media (max-width: 640px) {
-  .hero { padding: 4rem 0 3rem; }
-  .section { padding: 3.5rem 0; }
+  /* Tighten vertical rhythm — desktop heroes leave large empty gaps on phones. */
+  .hero { padding: 3rem 0 2.25rem; }
+  .section { padding: 3rem 0; }
+  .section--sm { padding: 2rem 0; }
+  .tools-hero { padding: 2.5rem 0 2rem; }
+  .about-hero { padding: 2.75rem 0 2rem; }
+  .page-header { padding: 2.5rem 0 1.75rem; margin-bottom: 2rem; }
+  .post-header { padding: 1.75rem 0 1rem; }
+
   .card-grid { grid-template-columns: 1fr; }
   .tool-grid { grid-template-columns: 1fr; }
   .email-input-row { flex-direction: column; }
+
+  /* Long centered intro copy reads ragged on a narrow column — left-align the
+     body text (headings stay centered) and ease the size down. */
+  .hero p,
+  .tools-hero p {
+    text-align: left;
+    font-size: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .hero h1 { font-size: clamp(1.85rem, 8vw, 2.4rem); }
 }
 
 /* ── Email Signup ──────────────────────────────── */
@@ -888,7 +914,7 @@ main { flex: 1; }
 
 .tool-card:hover {
   border-color: var(--accent-dim);
-  box-shadow: 0 0 0 1px var(--accent-dim), 0 8px 32px rgba(0,0,0,0.3);
+  box-shadow: 0 0 0 1px var(--accent-dim), var(--shadow-lg);
 }
 
 .tool-card-header {

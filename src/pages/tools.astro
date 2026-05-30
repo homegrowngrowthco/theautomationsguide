@@ -1,5 +1,20 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { tools, toolCategories, postMentionsTool } from '../data/tools';
+
+const categorySubs: Record<string, string> = {
+  'Workflow Automation': 'The middleware layer that connects your stack and runs your GTM playbooks.',
+  'CRM': 'The system of record at the center of your GTM motion.',
+  'Outbound & Lead Generation': 'Enrichment, contact data, and cold email tools that fill the top of your funnel.',
+  'Newsletter Platform': 'The tool we use to publish, and recommend to anyone serious about owned audience.',
+};
+
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+const articleCount = (slug: string) => {
+  const tool = tools.find((t) => t.slug === slug)!;
+  return allPosts.filter((post) => postMentionsTool(tool, post)).length;
+};
 ---
 
 <BaseLayout
@@ -17,188 +32,71 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <section class="tools-hero">
     <div class="container">
       <div class="hero-eyebrow">Tools &middot; Reviews &middot; Recommendations</div>
-      <h1>The RevOps automation stack — tested and reviewed</h1>
+      <h1>The RevOps automation stack, tested and reviewed</h1>
       <p>
-        Curated picks across workflow automation, CRM, outbound, and newsletter — with honest
+        Curated picks across workflow automation, CRM, outbound, and newsletter, with honest
         takes on where each tool fits and when to use it. Every tool here has been used in a
         real GTM stack.
       </p>
     </div>
   </section>
 
-  <!-- Workflow Automation -->
-  <section class="section">
-    <div class="container--wide">
-      <div class="tools-category">
-        <h2 class="tools-category-heading">Workflow Automation</h2>
-        <p class="tools-category-sub">The middleware layer that connects your stack and runs your GTM playbooks.</p>
-      </div>
-      <div class="tool-grid">
-
-        <div class="tool-card">
-          <div class="tool-card-header">
-            <h3>Make</h3>
-            <span class="tool-badge tool-badge--free">Free tier available</span>
-          </div>
-          <p>
-            Make (formerly Integromat) is the best-in-class automation platform for RevOps teams
-            that need complex logic, data transformation, and multi-path workflows. More powerful
-            than Zapier at a fraction of the cost, with a visual canvas that makes it easy to
-            reason about even the most complex flows.
-          </p>
-          <a href="/go/make" class="btn btn--primary tool-cta" target="_blank" rel="noopener noreferrer sponsored">
-            Try Make &rarr;
-          </a>
+  {toolCategories.map((category, i) => (
+    <section class="section" style={i > 0 ? 'border-top:1px solid var(--border);' : undefined}>
+      <div class="container--wide">
+        <div class="tools-category">
+          <h2 class="tools-category-heading">{category}</h2>
+          {categorySubs[category] && <p class="tools-category-sub">{categorySubs[category]}</p>}
         </div>
-
-        <div class="tool-card">
-          <div class="tool-card-header">
-            <h3>n8n</h3>
-            <span class="tool-badge tool-badge--free">Free (self-hosted) or Cloud</span>
-          </div>
-          <p>
-            n8n is an open-source workflow automation tool you can self-host for full data control
-            and no per-operation pricing. It's ideal for engineering-forward GTM teams that want
-            Make-level power without ongoing platform costs — or for teams that want a managed
-            cloud option.
-          </p>
-          <a href="/go/n8n" class="btn btn--ghost tool-cta" target="_blank" rel="noopener noreferrer sponsored">
-            Explore n8n &rarr;
-          </a>
+        <div class="tool-grid">
+          {tools.filter((t) => t.category === category).map((tool) => {
+            const count = articleCount(tool.slug);
+            return (
+              <div class="tool-card">
+                <div class="tool-card-header">
+                  <h3><a href={`/tools/${tool.slug}`}>{tool.name}</a></h3>
+                  <span class={`tool-badge${tool.badgeFree ? ' tool-badge--free' : ''}`}>{tool.badge}</span>
+                </div>
+                <p>{tool.blurb}</p>
+                <div class="tool-card-actions">
+                  <a
+                    href={`/go/${tool.slug}`}
+                    class={`btn ${tool.ctaPrimary ? 'btn--primary' : 'btn--ghost'}`}
+                    target="_blank"
+                    rel="noopener noreferrer sponsored"
+                  >
+                    {tool.ctaLabel} &rarr;
+                  </a>
+                  {count > 0 && (
+                    <a href={`/tools/${tool.slug}`} class="tool-articles-link">
+                      {count} article{count === 1 ? '' : 's'} &rarr;
+                    </a>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
-
       </div>
-    </div>
-  </section>
-
-  <!-- CRM -->
-  <section class="section" style="border-top:1px solid var(--border);">
-    <div class="container--wide">
-      <div class="tools-category">
-        <h2 class="tools-category-heading">CRM</h2>
-        <p class="tools-category-sub">The system of record at the center of your GTM motion.</p>
-      </div>
-      <div class="tool-grid">
-
-        <div class="tool-card">
-          <div class="tool-card-header">
-            <h3>HubSpot</h3>
-            <span class="tool-badge tool-badge--free">Free tier available</span>
-          </div>
-          <p>
-            HubSpot is the CRM at the center of most modern GTM stacks, with built-in workflow
-            automation that handles lead routing, deal stage triggers, and sequences out of the box.
-            The free tier is genuinely useful; paid tiers unlock the automation depth RevOps teams
-            actually need.
-          </p>
-          <a href="/go/hubspot" class="btn btn--primary tool-cta" target="_blank" rel="noopener noreferrer sponsored">
-            Try HubSpot &rarr;
-          </a>
-        </div>
-
-        <div class="tool-card">
-          <div class="tool-card-header">
-            <h3>Pipedrive</h3>
-            <span class="tool-badge tool-badge--free">14-day free trial</span>
-          </div>
-          <p>
-            Pipedrive is the CRM HubSpot-skeptics pick. Lighter, sales-pipeline-first, with
-            cleaner pricing at scale. Strong fit for SMB GTM teams that find HubSpot's free
-            tier limiting but its paid tiers overpriced for what they actually use.
-          </p>
-          <a href="/go/pipedrive" class="btn btn--ghost tool-cta" target="_blank" rel="noopener noreferrer sponsored">
-            Try Pipedrive &rarr;
-          </a>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- Outbound & Lead Gen -->
-  <section class="section" style="border-top:1px solid var(--border);">
-    <div class="container--wide">
-      <div class="tools-category">
-        <h2 class="tools-category-heading">Outbound &amp; Lead Generation</h2>
-        <p class="tools-category-sub">Enrichment, contact data, and cold email tools that fill the top of your funnel.</p>
-      </div>
-      <div class="tool-grid">
-
-        <div class="tool-card">
-          <div class="tool-card-header">
-            <h3>Clay</h3>
-            <span class="tool-badge">Paid</span>
-          </div>
-          <p>
-            Clay combines a spreadsheet interface with 50+ enrichment data sources to help you
-            build targeted, personalized outbound lists at scale. If your SDR team is manually
-            researching accounts, Clay is the highest-leverage tool you're probably not using yet.
-          </p>
-          <a href="/go/clay" class="btn btn--primary tool-cta" target="_blank" rel="noopener noreferrer sponsored">
-            Try Clay &rarr;
-          </a>
-        </div>
-
-        <div class="tool-card">
-          <div class="tool-card-header">
-            <h3>Apollo.io</h3>
-            <span class="tool-badge tool-badge--free">Free tier available</span>
-          </div>
-          <p>
-            Apollo combines a 275M+ contact database with built-in email sequencing, making it a
-            one-stop shop for outbound GTM teams. The enrichment API also integrates cleanly with
-            HubSpot for keeping CRM data current without manual data entry.
-          </p>
-          <a href="/go/apollo" class="btn btn--ghost tool-cta" target="_blank" rel="noopener noreferrer sponsored">
-            Try Apollo &rarr;
-          </a>
-        </div>
-
-        <div class="tool-card">
-          <div class="tool-card-header">
-            <h3>Smartlead</h3>
-            <span class="tool-badge">Paid</span>
-          </div>
-          <p>
-            Smartlead is the cold email infrastructure RevOps teams actually use at scale —
-            unlimited inboxes, built-in warmup, and pricing that doesn't punish you for sending
-            volume. The right tool when you've outgrown Apollo's sequencer or Lemlist's caps.
-          </p>
-          <a href="/go/smartlead" class="btn btn--ghost tool-cta" target="_blank" rel="noopener noreferrer sponsored">
-            Try Smartlead &rarr;
-          </a>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- Newsletter -->
-  <section class="section" style="border-top:1px solid var(--border);">
-    <div class="container--wide">
-      <div class="tools-category">
-        <h2 class="tools-category-heading">Newsletter Platform</h2>
-        <p class="tools-category-sub">The tool we use to publish — and recommend to anyone serious about owned audience.</p>
-      </div>
-      <div class="tool-grid">
-
-        <div class="tool-card">
-          <div class="tool-card-header">
-            <h3>Beehiiv</h3>
-            <span class="tool-badge tool-badge--free">Free up to 2,500 subs</span>
-          </div>
-          <p>
-            Beehiiv is the newsletter platform built specifically for serious publishers — strong
-            free tier, native referral programs, paid subscriptions, and built-in monetization via
-            Boosts. We use it to publish The Automations Guide; it's the tool we'd pick again.
-          </p>
-          <a href="/go/beehiiv" class="btn btn--primary tool-cta" target="_blank" rel="noopener noreferrer sponsored">
-            Try Beehiiv &rarr;
-          </a>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
+    </section>
+  ))}
 </BaseLayout>
+
+<style>
+  .tool-card h3 a { color: inherit; text-decoration: none; }
+  .tool-card h3 a:hover { color: var(--accent); }
+  .tool-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 0.25rem;
+  }
+  .tool-articles-link {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .tool-articles-link:hover { color: var(--accent); text-decoration: none; }
+</style>
