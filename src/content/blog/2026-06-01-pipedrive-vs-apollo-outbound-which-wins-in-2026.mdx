@@ -24,15 +24,54 @@ import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
+<style>{`
+  /* Fix 1: StatRow three-card grid — prevent uneven wrap at 768px */
+  .stat-row-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  @media (max-width: 767px) {
+    .stat-row-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .stat-row-grid > * {
+    min-width: 200px;
+  }
+
+  /* Fix 2: Cap prose content width at 720px on wide viewports */
+  .prose-content {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Fix 3: Reduce ComparisonTable card padding and list-item gap on mobile */
+  @media (max-width: 480px) {
+    .comparison-table-card {
+      padding: 16px;
+    }
+    .comparison-table-card li {
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+  }
+`}</style>
+
+<div class="prose-content">
+
 The question I get from B2B SaaS founders more than almost any other right now is some version of: "We're already on [Pipedrive](/go/pipedrive), do we actually need [Apollo](/go/apollo), or can we just run sequences inside Pipedrive?" Fair question. Both tools have expanded aggressively into each other's territory over the past two years. The honest answer depends on your sending volume, your team's motion, and whether "outbound" means 50 personalized touches a week or 5,000 cold emails a day.
 
 <div class="quick-answer"><strong>Quick answer:</strong> Use Pipedrive's native automation when your outbound is relationship-led and CRM-first. Switch to Apollo when you are running dedicated cold outbound at volume and deliverability is a first-class concern.</div>
 
-<StatRow stats={[
-  { number: "73%", label: "of B2B buyers say they receive too many irrelevant cold emails", description: "Which means deliverability and targeting precision, Apollo's core strengths, matter more than ever in 2026." },
-  { number: "3x", label: "higher reply rates for sequences under 200 daily sends per inbox", description: "Inbox rotation and per-mailbox send limits, features Apollo manages natively, are the single biggest lever on cold email performance." },
-  { number: "$49", label: "Apollo's entry paid tier vs $14 for Pipedrive Starter", description: "The price gap closes fast once you factor in Pipedrive's add-ons for Campaigns and LeadBooster enrichment." }
-]} />
+<div class="stat-row-grid">
+  <StatRow stats={[
+    { number: "73%", label: "of B2B buyers say they receive too many irrelevant cold emails", description: "Which means deliverability and targeting precision, Apollo's core strengths, matter more than ever in 2026." },
+    { number: "3x", label: "higher reply rates for sequences under 200 daily sends per inbox", description: "Inbox rotation and per-mailbox send limits, features Apollo manages natively, are the single biggest lever on cold email performance." },
+    { number: "$49", label: "Apollo's entry paid tier vs $14 for Pipedrive Starter", description: "The price gap closes fast once you factor in Pipedrive's add-ons for Campaigns and LeadBooster enrichment." }
+  ]} />
+</div>
 
 <ComparisonTable
   title="Pipedrive vs Apollo: Outbound Feature Breakdown"
@@ -153,3 +192,5 @@ Deliverability is where the comparison stops being close. Pipedrive sends email 
 Apollo's Mailbox Hub, even if it falls short of [Smartlead](/go/smartlead) or [Lemlist](/go/lemlist) for dedicated cold email infrastructure, manages warmup pools, rotates across connected inboxes, and surfaces deliverability signals before your domain reputation craters. The [Litmus 2025 State of Email report](https://www.litmus.com/resources/state-of-email) makes clear that inbox placement is getting harder as providers tighten filters, which makes active sending-health monitoring more than a nice-to-have. For any team sending more than 100 cold emails per day, that infrastructure alone justifies Apollo's price premium over Pipedrive's add-ons.
 
 My recommendation, stated plainly: Pipedrive is a better CRM than Apollo. Apollo is a better outbound execution platform than Pipedrive. The best stacks I have built in 2026 treat them as complementary. But if you can only afford one and your primary motion is cold outbound at volume, Apollo owns that job more completely. Stop agonizing over the overlap and pick based on where your team actually spends its time.
+
+</div>
