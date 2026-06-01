@@ -1,5 +1,30 @@
 # Session Log — last updated 2026-06-01
 
+## Quick reference — recent additions (Session 16, 2026-06-01)
+
+Closed out the remaining open items after the Session 14 + 15 design refresh went live. Ian had already linked GA4 to Search Console; Beehiiv template import stays **paused** (no subscribers yet, his call). Four areas, all on `master` working tree:
+
+**1. Engine updated for the new LIGHT content format (the deferred Session-15 fast-follow).** [n8n/blog-post-engine.json](n8n/blog-post-engine.json) was still drawing in-post SVG diagrams in the old dark indigo/navy palette, so the next engine-generated post would have re-emitted indigo-on-cream. Three coordinated edits:
+- **Generate Draft prompt** — added a `DIAGRAM COLORS` rule right after the SVG syntax rule: draw for a LIGHT cream background, box fills white `#ffffff` or pale teal `#e6fbf6`, lines/emphasis teal `#14a890`/`#0d8c78`, text ink `#262b32`, faint connectors `#cdc7b3`, no indigo `#6366f1`/slate/navy, keep semantic accents (sky/green/amber/orange/red/pink) for decision-tree meaning only. No backticks in the added text (the prompt is a JS template literal, per `feedback_no_backticks_in_template_literal_prompts`).
+- **Humanize prompt** — added a `DIAGRAM COLORS verify` line (swap any indigo/navy/white-text diagram colors to the light palette; keep semantic accents).
+- **`sanitizeMdx()` (Parse Draft code node)** — added a deterministic `colorFixes` remap (16 mappings: indigo shades to teal, navy/slate to ink `#262b32`, pale-indigo tints to `#e6fbf6`, slate surfaces to cream `#f6f4ec`, `#aaa`/`#aaaaaa` to `#cdc7b3`), case-insensitive. **This is the load-bearing change** (same sanitizer-over-prompt pattern as the kebab-case + dash fixes; prompt rules drift, the regex pass makes dark diagrams unshippable). No cascading (no replacement value matches another pattern).
+
+**Verification:** `JSON.parse` clean; all 13 `={{ }}` expression bodies parse-checked via `new Function` (incl. Generate Draft + Humanize) plus the Parse Draft jsCode node; functional test of `sanitizeMdx()` confirmed `#6366f1` to `#14a890`, `#0F172A` to `#262b32` (uppercase), `#1e293b` to `#262b32`, `#aaa` to `#cdc7b3`, em dash to comma on a sample SVG. **n8n re-import required** (re-import `blog-post-engine.json` into n8n Cloud; no new credentials).
+
+**2. GA4 verified live.** Fetched production HTML: the real `gtag/js?id=G-RKWHJ95P3H` loader is served (alongside PostHog), gated to non-localhost. Combined with Ian's GSC link, the GA4 follow-up is closed. (Only the GA4 Realtime dashboard eyeball is left to Ian, but the snippet is provably deployed.)
+
+**3. DEPLOYMENT.md merge SHA filled.** The Session 14 + 15 design-refresh row was `_pending merge_`; filled in merge SHA **`7d03d0d`** (Session-15 commit `11d6cf7`; outreach-post recolor `f51dc09` is a separate revert), revert path `git revert -m 1 7d03d0d`.
+
+**4. apple-touch-icon.png regenerated.** The old `public/apple-touch-icon.png` was a stale 258-byte placeholder from 2026-05-03 (pre-brand-refresh). Rasterized a new 180x180 full-bleed icon from the brand orbital mark (teal `#1ec3a4` on the `#0d1117` dark tile, matching [favicon.svg](public/favicon.svg)) via `sharp`. Full-bleed (no transparency/rounded corners since Apple applies its own mask).
+
+**Revert paths:**
+- Engine changes unwanted: revert this session's commit, then re-import the prior `blog-post-engine.json` from git into n8n Cloud. The diagram colors also just stop being remapped, no breakage.
+- apple-touch-icon / DEPLOYMENT.md unwanted: revert the same commit (markup/asset/docs only).
+
+**Still open / NOT done:** import the two Beehiiv templates (**paused** by Ian, no subs yet); GA4 Realtime eyeball (Ian, optional). Google Indexing API stays intentionally parked (Session 13).
+
+---
+
 ## Quick reference — recent additions (Session 15, 2026-06-01)
 
 Homepage/tools/blog redesign + analytics + the deferred SVG recolor, built on **`design-refresh-brand-kit-v2`** (continues Session 14's work) and **merged to `master` + pushed LIVE this session** (Session-15 commit `11d6cf7`, merge commit `7d03d0d`; the whole Session 14 + 15 design refresh is now on prod). Five areas:
