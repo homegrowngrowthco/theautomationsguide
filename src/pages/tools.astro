@@ -49,7 +49,7 @@ const articleCount = (slug: string) => {
           {categorySubs[category] && <p class="tools-category-sub">{categorySubs[category]}</p>}
         </div>
         <div class="tool-grid">
-          {tools.filter((t) => t.category === category).map((tool) => {
+          {tools.filter((t) => t.category === category && t.listed !== false).map((tool) => {
             const count = articleCount(tool.slug);
             return (
               <div class="tool-card">

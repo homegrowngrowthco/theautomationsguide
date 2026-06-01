@@ -24,7 +24,8 @@ const topicTiles = [...tagCounts.entries()]
   .slice(0, 8);
 
 // "Tools we cover" strip: dedupe by slug, stable order from the registry.
-const stripTools = tools;
+// Only listed tools appear here; pipeline tools (listed:false) still get a hub page.
+const stripTools = tools.filter((t) => t.listed !== false);
 ---
 
 <BaseLayout

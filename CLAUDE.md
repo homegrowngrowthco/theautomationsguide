@@ -1,5 +1,23 @@
 # Session Log — last updated 2026-06-01
 
+## Quick reference — recent additions (Session 17, 2026-06-01)
+
+Affiliate-program expansion: researched GTM-space programs (weighted to newer/AI tools), prioritized 20 to apply for, and built an unlisted landing page for each so the site is first-to-compare as those tools grow.
+
+**1. New tracker doc [AFFILIATE_PIPELINE.md](AFFILIATE_PIPELINE.md).** ~92 GTM affiliate programs grouped by category with confidence flags, a prioritized top-20 (Wave 1 + Wave 2) with Applied/Approved checkboxes, and a how-to-use flow. Companion to AFFILIATE_PROGRAMS.md. Koala deliberately excluded (shut down after the Cursor acquisition).
+
+**2. 20 unlisted tool landing pages.** Added 20 entries to [src/data/tools.ts](src/data/tools.ts) (Instantly, AiSDR, RB2B, Warmly, Relevance AI, Pabbly, Lusha, Synthflow, Surfer, Cal.com, Lindy, Reply.io, KrispCall, Laxis, Close, Nutshell, GetResponse, AdCreative.ai, Motion, Brevo) + matching `/go/<slug>` entries in [src/data/affiliate-links.ts](src/data/affiliate-links.ts) (`status: 'pending'`, homepage+UTM fallback until approved). Each hub renders a substantive page: bestFor line + 2-paragraph positioning body + 3 FAQs + CTA, and emits **FAQPage JSON-LD**.
+
+**3. New `listed` flag (load-bearing for clean rollout).** Extended the `Tool` model with `listed?: boolean` (+ `bestFor`, `body`, `faqs`). [tools.astro](src/pages/tools.astro) grid and [index.astro](src/pages/index.astro) homepage logo strip now filter `listed !== false`, so the 20 pipeline tools generate indexable `/tools/<slug>` pages (in the sitemap) but stay OFF the homepage/grid until each has an approved affiliate link or a published article. Also added Close/Motion/Warmly/Instantly to the `AMBIGUOUS` set in tools.ts (common words; require tag/title or >=2 body hits to count as a "mention").
+
+**Verification:** `npm run build` clean at **93 HTML pages** (was ~53; +20 hubs +20 redirects). Sitemap includes the new `/tools/*` hubs and zero `/go/*`. Spot-checked `/tools/aisdr`: bestFor + body + FAQ JSON-LD render, CTA routes to `/go/aisdr`, and it is absent from `dist/index.html` + `dist/tools/index.html` (unlisted confirmed). Zero em/en dashes in the new content (pre-existing dashes in code comments left alone).
+
+**To activate a tool later:** paste the approved link into affiliate-links.ts (`url` + `status: 'live'`), then set `listed: true` + add a `/brand/tools/<slug>` logo in tools.ts so it joins the homepage strip + /tools grid.
+
+**Revert path:** all additive (data + one template + two filters + one doc), no schema/route changes. `git revert <sha>` removes the 20 pages cleanly.
+
+---
+
 ## Quick reference — recent additions (Session 16, 2026-06-01)
 
 Closed out the remaining open items after the Session 14 + 15 design refresh went live. Ian had already linked GA4 to Search Console; Beehiiv template import stays **paused** (no subscribers yet, his call). Four areas, all on `master` working tree:

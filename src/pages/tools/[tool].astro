@@ -15,6 +15,19 @@ export async function getStaticPaths() {
 
 const { tool, posts } = Astro.props;
 const description = `Every article on The Automations Guide that covers ${tool.name}, plus where it fits in a RevOps and GTM stack.`;
+
+const faqSchema =
+  tool.faqs && tool.faqs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: tool.faqs.map((f) => ({
+          '@type': 'Question',
+          name: f.question,
+          acceptedAnswer: { '@type': 'Answer', text: f.answer },
+        })),
+      }
+    : null;
 ---
 
 <BaseLayout title={`${tool.name} — guides, reviews & alternatives`} description={description}>
@@ -36,6 +49,18 @@ const description = `Every article on The Automations Guide that covers ${tool.n
         <span class={`tool-badge${tool.badgeFree ? ' tool-badge--free' : ''}`}>{tool.badge}</span>
       </div>
     </div>
+
+    {tool.bestFor && (
+      <p class="tool-hub-bestfor"><strong>Best for:</strong> {tool.bestFor}</p>
+    )}
+
+    {tool.body && tool.body.length > 0 && (
+      <div class="tool-hub-body">
+        {tool.body.map((para) => (
+          <p>{para}</p>
+        ))}
+      </div>
+    )}
 
     <!-- Articles mentioning this tool -->
     <h2 class="section-heading" style="margin-bottom:1.5rem;">
@@ -78,8 +103,22 @@ const description = `Every article on The Automations Guide that covers ${tool.n
       </p>
     )}
 
+    {tool.faqs && tool.faqs.length > 0 && (
+      <section class="tool-hub-faqs">
+        <h2 class="section-heading">Frequently asked questions</h2>
+        {tool.faqs.map((f) => (
+          <div class="tool-hub-faq">
+            <h3>{f.question}</h3>
+            <p>{f.answer}</p>
+          </div>
+        ))}
+      </section>
+    )}
+
     <p class="mt-lg"><a href="/tools">&larr; All tools</a></p>
   </div>
+
+  {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
 </BaseLayout>
 
 <style>
@@ -89,5 +128,41 @@ const description = `Every article on The Automations Guide that covers ${tool.n
     gap: 0.85rem;
     flex-wrap: wrap;
     margin-top: 1.5rem;
+  }
+  .tool-hub-bestfor {
+    max-width: 70ch;
+    margin: 0 0 1.75rem;
+    padding: 0.85rem 1.1rem;
+    border-left: 3px solid var(--accent);
+    background: var(--accent-glow);
+    border-radius: 0 var(--r-md, 8px) var(--r-md, 8px) 0;
+    color: var(--text);
+    font-size: 1.0625rem;
+  }
+  .tool-hub-body {
+    max-width: 70ch;
+    margin-bottom: 3rem;
+  }
+  .tool-hub-body p {
+    color: var(--text);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    margin-bottom: 1.1rem;
+  }
+  .tool-hub-faqs {
+    max-width: 70ch;
+    margin-top: 3.5rem;
+  }
+  .tool-hub-faq {
+    margin-bottom: 1.5rem;
+  }
+  .tool-hub-faq h3 {
+    font-size: 1.125rem;
+    margin-bottom: 0.4rem;
+  }
+  .tool-hub-faq p {
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin: 0;
   }
 </style>
