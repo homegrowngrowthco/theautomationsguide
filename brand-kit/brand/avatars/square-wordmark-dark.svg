@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" fill="#fdfcf8">
+  <rect width="1200" height="1200" fill="#0d1117"></rect>
+  <text x="180" y="480" font-family="Outfit, -apple-system, &#39;Segoe UI&#39;, sans-serif" font-weight="500" font-size="112" letter-spacing="-0.01em" fill="#8b929e">The</text>
+  <text x="560" y="720" font-family="Outfit, -apple-system, &#39;Segoe UI&#39;, sans-serif" font-weight="800" font-size="250" letter-spacing="-0.05em" fill="#fdfcf8" text-anchor="middle" textLength="1000" lengthAdjust="spacingAndGlyphs">Automations</text>
+  <circle cx="1085" cy="688" r="28" fill="#1ec3a4"></circle>
+  <text x="1020" y="858" font-family="Outfit, -apple-system, &#39;Segoe UI&#39;, sans-serif" font-weight="500" font-size="112" letter-spacing="-0.01em" fill="#8b929e" text-anchor="end">Guide</text>
+</svg>

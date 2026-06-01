@@ -2,35 +2,135 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import EmailSignup from '../components/EmailSignup.astro';
 import { getCollection } from 'astro:content';
+import { tools } from '../data/tools';
 
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);
 const recentPosts = allPosts
   .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
   .slice(0, 3);
+
+// Topic tiles: most-used tags, with a post count, deep-linking into the blog filter.
+// Lowercase the keys so case-variant duplicates ("HubSpot"/"hubspot") merge and
+// the ?tag= link matches the blog filter (which also normalizes to lowercase).
+const tagCounts = new Map<string, number>();
+for (const p of allPosts) {
+  for (const t of p.data.tags) {
+    const k = t.toLowerCase();
+    tagCounts.set(k, (tagCounts.get(k) ?? 0) + 1);
+  }
+}
+const topicTiles = [...tagCounts.entries()]
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 8);
+
+// "Tools we cover" strip: dedupe by slug, stable order from the registry.
+const stripTools = tools;
 ---
 
 <BaseLayout
   title="The Automations Guide"
-  description="Practical automation guides, tool reviews, and workflows for RevOps and go-to-market teams."
+  description="The RevOps and GTM automation playbook: honest tool reviews, copy-paste workflows, and revenue operations strategy for go-to-market teams."
 >
-  <!-- Hero -->
-  <section class="hero">
-    <div class="container">
-      <div class="hero-eyebrow">RevOps &middot; GTM &middot; Automation</div>
-      <h1>Automate the grind.<br />Ship more pipeline.</h1>
-      <p>
-        Practical guides, honest tool reviews, and battle-tested workflows
-        for revenue operations and go-to-market teams.
-      </p>
-      <p class="hero-social-proof">Published by <a href="https://homegrowngrowth.co" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">Homegrown Growth Co</a> — fractional RevOps for GTM teams.</p>
-      <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
-        <a href="/blog" class="btn btn--primary">Read the Blog &rarr;</a>
-        <a href="/tools" class="btn btn--ghost">Browse Tools</a>
+  <!-- Hero (split: copy + workflow visual) -->
+  <section class="hero hero--split">
+    <div class="container--wide">
+      <div class="hero-split">
+        <div class="hero-copy">
+          <div class="hero-eyebrow">RevOps &middot; GTM &middot; Automation</div>
+          <h1>The RevOps &amp; GTM automation playbook.</h1>
+          <p>
+            Honest tool reviews, copy-paste workflows, and revenue operations
+            strategy for go-to-market teams that want to scale output, not headcount.
+          </p>
+          <div class="hero-actions">
+            <a href="/blog" class="btn btn--primary">Read the Blog &rarr;</a>
+            <a href="/tools" class="btn btn--ghost">Browse Tools</a>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <svg viewBox="0 0 440 360" role="presentation" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="hv-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" fill="#cdc7b3"></path>
+              </marker>
+            </defs>
+            <!-- connectors -->
+            <g fill="none" stroke="#cdc7b3" stroke-width="2" marker-end="url(#hv-arrow)">
+              <path d="M150 70 C200 70 200 70 246 70"></path>
+              <path d="M324 100 C324 150 250 150 196 178"></path>
+              <path d="M150 196 C200 196 200 196 246 196"></path>
+              <path d="M324 226 C324 276 250 276 196 300"></path>
+              <path d="M150 300 C200 300 230 300 246 300"></path>
+            </g>
+            <!-- accent flow dots -->
+            <g fill="#14a890">
+              <circle cx="200" cy="70" r="3.5"></circle>
+              <circle cx="200" cy="196" r="3.5"></circle>
+              <circle cx="200" cy="300" r="3.5"></circle>
+            </g>
+            <!-- nodes -->
+            <g class="hv-node">
+              <rect x="36" y="44" width="114" height="52" rx="12" fill="#ffffff" stroke="#e5e1d4"></rect>
+              <circle cx="62" cy="70" r="9" fill="#e6fbf6" stroke="#14a890" stroke-width="1.5"></circle>
+              <text x="82" y="66" text-anchor="start" font-size="12" font-weight="700" fill="#262b32">Trigger</text>
+              <text x="82" y="80" text-anchor="start" font-size="10" fill="#5e6671">New lead</text>
+            </g>
+            <g class="hv-node">
+              <rect x="246" y="44" width="158" height="52" rx="12" fill="#ffffff" stroke="#e5e1d4"></rect>
+              <circle cx="272" cy="70" r="9" fill="#e6fbf6" stroke="#14a890" stroke-width="1.5"></circle>
+              <text x="292" y="66" text-anchor="start" font-size="12" font-weight="700" fill="#262b32">Enrich</text>
+              <text x="292" y="80" text-anchor="start" font-size="10" fill="#5e6671">Clay + Apollo</text>
+            </g>
+            <g class="hv-node">
+              <rect x="36" y="170" width="114" height="52" rx="12" fill="#ffffff" stroke="#e5e1d4"></rect>
+              <circle cx="62" cy="196" r="9" fill="#e6fbf6" stroke="#14a890" stroke-width="1.5"></circle>
+              <text x="82" y="192" text-anchor="start" font-size="12" font-weight="700" fill="#262b32">Route</text>
+              <text x="82" y="206" text-anchor="start" font-size="10" fill="#5e6671">Score + assign</text>
+            </g>
+            <g class="hv-node">
+              <rect x="246" y="170" width="158" height="52" rx="12" fill="#14a890" stroke="#14a890"></rect>
+              <circle cx="272" cy="196" r="9" fill="rgba(255,255,255,0.25)" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="292" y="192" text-anchor="start" font-size="12" font-weight="700" fill="#ffffff">Sync to CRM</text>
+              <text x="292" y="206" text-anchor="start" font-size="10" fill="#e6fbf6">HubSpot</text>
+            </g>
+            <g class="hv-node">
+              <rect x="36" y="274" width="114" height="52" rx="12" fill="#ffffff" stroke="#e5e1d4"></rect>
+              <circle cx="62" cy="300" r="9" fill="#e6fbf6" stroke="#14a890" stroke-width="1.5"></circle>
+              <text x="82" y="296" text-anchor="start" font-size="12" font-weight="700" fill="#262b32">Notify</text>
+              <text x="82" y="310" text-anchor="start" font-size="10" fill="#5e6671">Slack ping</text>
+            </g>
+            <g class="hv-node">
+              <rect x="246" y="274" width="158" height="52" rx="12" fill="#ffffff" stroke="#e5e1d4"></rect>
+              <circle cx="272" cy="300" r="9" fill="#e6fbf6" stroke="#14a890" stroke-width="1.5"></circle>
+              <text x="292" y="296" text-anchor="start" font-size="12" font-weight="700" fill="#262b32">Report</text>
+              <text x="292" y="310" text-anchor="start" font-size="10" fill="#5e6671">Pipeline view</text>
+            </g>
+          </svg>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Features -->
+  <!-- Tools we cover (logo strip) -->
+  <section class="logo-strip-section">
+    <div class="container--wide">
+      <p class="logo-strip-label">Tools we cover</p>
+      <div class="logo-strip">
+        {stripTools.map((tool) => (
+          <a href={`/tools/${tool.slug}`} class="logo-strip-item" title={tool.name}>
+            {tool.logo ? (
+              <img src={tool.logo} alt={`${tool.name} logo`} loading="lazy" decoding="async" />
+            ) : (
+              <span class="logo-strip-wordmark">{tool.name}</span>
+            )}
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- What you'll find here -->
   <section class="section--sm" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg-secondary);">
     <div class="container--wide">
       <div class="features">
@@ -91,7 +191,7 @@ const recentPosts = allPosts
           ))}
         </div>
       ) : (
-        <p style="color:var(--text-muted)">No posts yet — check back soon.</p>
+        <p style="color:var(--text-muted)">No posts yet, check back soon.</p>
       )}
 
       <div class="mt-lg">
@@ -100,64 +200,24 @@ const recentPosts = allPosts
     </div>
   </section>
 
-  <!-- Featured Tools -->
-  <section class="section" style="border-top:1px solid var(--border);background:var(--bg-secondary);">
-    <div class="container--wide">
-      <p class="section-label">Affiliate partners</p>
-      <h2 class="section-heading">Featured Tools</h2>
-      <p class="section-sub">The automation platforms we recommend to RevOps and GTM teams.</p>
-      <div class="tool-grid">
-
-        <div class="tool-card">
-          <div class="tool-card-header">
-            <h3>Make</h3>
-            <span class="tool-badge tool-badge--free">Free tier</span>
-          </div>
-          <p>The best-in-class automation platform for complex, multi-step RevOps workflows.</p>
-          <a href="/go/make" class="btn btn--primary tool-cta" target="_blank" rel="noopener noreferrer sponsored">
-            Try Make &rarr;
-          </a>
+  <!-- Browse by topic -->
+  {topicTiles.length > 0 && (
+    <section class="section" style="border-top:1px solid var(--border);background:var(--bg-secondary);">
+      <div class="container--wide">
+        <p class="section-label">Find what you need</p>
+        <h2 class="section-heading">Browse by topic</h2>
+        <p class="section-sub">Jump straight to the guides and reviews for a specific tool or theme.</p>
+        <div class="topic-tiles">
+          {topicTiles.map(([tag, count]) => (
+            <a href={`/blog?tag=${encodeURIComponent(tag)}`} class="topic-tile">
+              <span class="topic-tile-name">{tag}</span>
+              <span class="topic-tile-count">{count} article{count === 1 ? '' : 's'}</span>
+            </a>
+          ))}
         </div>
-
-        <div class="tool-card">
-          <div class="tool-card-header">
-            <h3>Clay</h3>
-            <span class="tool-badge">Paid</span>
-          </div>
-          <p>Build enriched, personalized outbound lists from 50+ data sources in one interface.</p>
-          <a href="/go/clay" class="btn btn--ghost tool-cta" target="_blank" rel="noopener noreferrer sponsored">
-            Try Clay &rarr;
-          </a>
-        </div>
-
-        <div class="tool-card">
-          <div class="tool-card-header">
-            <h3>HubSpot</h3>
-            <span class="tool-badge tool-badge--free">Free tier</span>
-          </div>
-          <p>The CRM at the center of most modern GTM stacks, with built-in workflow automation.</p>
-          <a href="/go/hubspot" class="btn btn--ghost tool-cta" target="_blank" rel="noopener noreferrer sponsored">
-            Try HubSpot &rarr;
-          </a>
-        </div>
-
-        <div class="tool-card">
-          <div class="tool-card-header">
-            <h3>n8n</h3>
-            <span class="tool-badge tool-badge--free">Free (self-hosted)</span>
-          </div>
-          <p>Open-source workflow automation for engineering-forward GTM teams who want full control.</p>
-          <a href="/go/n8n" class="btn btn--ghost tool-cta" target="_blank" rel="noopener noreferrer sponsored">
-            Try n8n &rarr;
-          </a>
-        </div>
-
       </div>
-      <div class="mt-md">
-        <a href="/tools" class="btn btn--ghost">View all tools &rarr;</a>
-      </div>
-    </div>
-  </section>
+    </section>
+  )}
 
   <!-- Email Signup -->
   <section id="newsletter" class="section" style="border-top:1px solid var(--border);scroll-margin-top:calc(var(--nav-h) + 1rem);">

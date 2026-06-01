@@ -1,23 +1,69 @@
-/* ── Design tokens ─────────────────────────────── */
+/* ── Design tokens ───────────────────────────────
+   Brand Kit v2.2 (2026-05-29). Foundation scales pasted from the kit's
+   brand/tokens.css; existing site-token aliases below are revalued to point
+   at the foundation so all existing selectors keep working. Site is dark-only;
+   the kit's light-mode block is for newsletters and is intentionally omitted. */
 :root {
-  --bg:            #0d1117;
-  --bg-secondary:  #161b22;
-  --bg-card:       #161b22;
-  --border:        #21262d;
-  --text:          #e6edf3;
-  --text-muted:    #8b949e;
-  --text-faint:    #484f58;
-  --accent:        #2dd4bf;
-  --accent-dim:    #0d9488;
-  --accent-glow:   rgba(45, 212, 191, 0.12);
+  /* ── Brand color: Signal Teal (kit foundation) ── */
+  --tag-teal-50:  #e6fbf6;
+  --tag-teal-100: #b5f2e6;
+  --tag-teal-200: #7ee7d2;
+  --tag-teal-300: #45d6b9;
+  --tag-teal-400: #1ec3a4;   /* dark-mode accent */
+  --tag-teal-500: #14a890;   /* core brand */
+  --tag-teal-600: #0d8c78;
+  --tag-teal-700: #0a6d5e;
+  --tag-teal-800: #084f44;
+  --tag-teal-900: #053731;
+
+  /* ── Ink neutrals (kit foundation) ── */
+  --ink-50:  #f7f8f9;
+  --ink-100: #eceef1;
+  --ink-200: #d8dce2;
+  --ink-300: #b6bcc6;
+  --ink-400: #8b929e;
+  --ink-500: #5e6671;
+  --ink-600: #404750;
+  --ink-700: #262b32;
+  --ink-800: #161b22;
+  --ink-900: #0d1117;
+  --ink-950: #060a0f;
+
+  /* ── Semantic accents (sparingly used) ── */
+  --accent-amber: oklch(0.78 0.13 75);
+  --accent-coral: oklch(0.68 0.15 25);
+  --accent-iris:  oklch(0.62 0.13 270);
+
+  /* ── Type families (kit foundation) ── */
+  --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif:   'Source Serif 4', 'Iowan Old Style', Georgia, serif;
+  --font-display: 'Outfit', -apple-system, 'Segoe UI', sans-serif;
+
+  /* ── Site-token aliases — KIT LIGHT MODE (warm cream, the kit's non-dark palette) ── */
+  --bg:            #fdfcf8;                         /* warm off-white stationery */
+  --bg-secondary:  #f6f4ec;                         /* slightly warmer panel */
+  --bg-card:       #ffffff;
+  --border:        #e5e1d4;
+  --border-strong: #cdc7b3;
+  --text:          #262b32;                         /* ink-700, matches logo */
+  --text-muted:    #5e6671;
+  --text-faint:    #8b929e;
+  --accent:        var(--tag-teal-500);            /* #14a890 core brand */
+  --accent-dim:    var(--tag-teal-600);            /* #0d8c78 */
+  --accent-hover:  var(--tag-teal-700);            /* #0a6d5e — darker on hover (light bg) */
+  --accent-glow:   var(--tag-teal-50);             /* #e6fbf6 soft teal tint */
+  --accent-contrast: #ffffff;                      /* text/icon on a teal fill */
+  --nav-bg:        rgba(253, 252, 248, 0.85);      /* translucent cream nav */
+  --shadow-sm:     0 1px 2px rgba(13, 17, 23, 0.06);
+  --shadow-md:     0 4px 12px rgba(13, 17, 23, 0.08);
+  --shadow-lg:     0 12px 32px rgba(13, 17, 23, 0.12);
   --radius:        8px;
   --radius-lg:     14px;
   --max-w:         760px;
   --max-w-wide:    1280px;
   --max-w-reading: 880px;
-  --font:          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-                   Oxygen, Ubuntu, sans-serif;
-  --font-mono:     'SF Mono', 'Fira Code', 'Fira Mono', monospace;
+  --font:          var(--font-sans);
+  --font-mono:     'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
   --nav-h:         72px;
 }
 
@@ -50,7 +96,7 @@ a:hover { text-decoration: underline; }
   top: 0;
   z-index: 100;
   height: var(--nav-h);
-  background: rgba(13, 17, 23, 0.85);
+  background: var(--nav-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
@@ -68,17 +114,21 @@ a:hover { text-decoration: underline; }
 }
 
 .nav-logo {
-  font-size: 1.0625rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: -0.03em;
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.nav-logo span { color: var(--accent); }
+/* Kit wordmark lockup: "Automations" dominant in ink (800) with a teal period;
+   "The"/"Guide" stay quiet (500, muted, inherited from .nav-logo). */
+.nav-logo .logo-word { color: var(--text); font-weight: 800; }
+.nav-logo .logo-dot { color: var(--accent-dim); }
 
 .nav-links {
   display: flex;
@@ -216,7 +266,7 @@ a:hover { text-decoration: underline; }
     flex-direction: column;
     align-items: stretch;
     gap: 0.5rem;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    box-shadow: var(--shadow-lg);
   }
   .nav-end[data-open="false"] { display: none; }
   .nav-end[data-open="true"]  { display: flex; }
@@ -313,6 +363,149 @@ main { flex: 1; }
   line-height: 1.75;
 }
 
+/* ── Split hero (homepage: copy + workflow visual) ── */
+.hero--split {
+  padding: 4.5rem 0 3.5rem;
+  text-align: left;
+}
+
+.hero-split {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.hero--split .hero h1,
+.hero-copy h1 {
+  font-size: clamp(2rem, 4.4vw, 3.1rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 1.1rem;
+}
+
+.hero-copy p {
+  font-size: 1.125rem;
+  color: var(--text-muted);
+  max-width: 520px;
+  margin: 0 0 2rem;
+  line-height: 1.7;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.hero-visual {
+  display: flex;
+  justify-content: center;
+}
+
+.hero-visual svg {
+  width: 100%;
+  max-width: 440px;
+  height: auto;
+  filter: drop-shadow(0 12px 32px rgba(13, 17, 23, 0.08));
+}
+
+@media (max-width: 860px) {
+  .hero-split { grid-template-columns: 1fr; gap: 2rem; }
+  .hero-visual { order: -1; }
+  .hero-visual svg { max-width: 380px; }
+}
+
+/* ── Tools-we-cover logo strip ─────────────────── */
+.logo-strip-section {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+  padding: 2rem 0;
+}
+
+.logo-strip-label {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 1.25rem;
+}
+
+.logo-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.75rem 2.5rem;
+}
+
+.logo-strip-item {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  opacity: 0.85;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.logo-strip-item:hover { opacity: 1; transform: translateY(-1px); text-decoration: none; }
+
+.logo-strip-item img {
+  height: 30px;
+  width: auto;
+  display: block;
+}
+
+.logo-strip-wordmark {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* ── Browse-by-topic tiles ─────────────────────── */
+.topic-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.topic-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.1rem 1.25rem;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.topic-tile:hover {
+  border-color: var(--accent-dim);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.topic-tile-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  text-transform: capitalize;
+}
+
+.topic-tile-count {
+  font-size: 0.8rem;
+  color: var(--text-faint);
+}
+
 /* ── Buttons ───────────────────────────────────── */
 .btn {
   display: inline-flex;
@@ -330,11 +523,11 @@ main { flex: 1; }
 
 .btn--primary {
   background: var(--accent);
-  color: #0d1117;
+  color: var(--accent-contrast);
 }
 
 .btn--primary:hover {
-  background: #5eead4;
+  background: var(--accent-hover);
   text-decoration: none;
 }
 
@@ -372,7 +565,7 @@ main { flex: 1; }
 
 .post-card:hover {
   border-color: var(--accent-dim);
-  box-shadow: 0 0 0 1px var(--accent-dim), 0 8px 32px rgba(0,0,0,0.4);
+  box-shadow: 0 0 0 1px var(--accent-dim), var(--shadow-lg);
   text-decoration: none;
 }
 
@@ -467,7 +660,7 @@ main { flex: 1; }
 .prose p { margin-bottom: 1.25em; }
 
 .prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
-.prose a:hover { color: #5eead4; }
+.prose a:hover { color: var(--accent-hover); }
 
 .prose ul, .prose ol {
   padding-left: 1.5rem;
@@ -729,6 +922,65 @@ main { flex: 1; }
 
 .page-header p { color: var(--text-muted); font-size: 1rem; }
 
+/* ── Blog search box (reuses .nav-search, widened) ── */
+.blog-search { margin-top: 1.5rem; max-width: 420px; }
+.blog-search input { width: 100%; }
+.blog-search input:focus { width: 100%; }
+
+/* ── Blog tag filter pills ─────────────────────── */
+.tag-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+/* The [hidden] attribute's UA `display:none` loses to `.post-card { display:flex }`,
+   so the tag filter needs a higher-specificity rule to actually hide cards. */
+.post-card[hidden] { display: none; }
+
+/* Make the existing .tag pill behave as a real filter button. */
+.tag--filter {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  text-transform: lowercase;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.tag--filter:hover {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+
+.tag--filter[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-color: var(--accent);
+}
+
+.tag-filter-count {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-faint);
+}
+
+.tag-filter-empty {
+  text-align: center;
+  padding: 4rem 0;
+  color: var(--text-muted);
+  font-size: 1.05rem;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 /* ── Utilities ─────────────────────────────────── */
 .text-accent { color: var(--accent); }
 .mt-sm { margin-top: 1rem; }
@@ -738,11 +990,29 @@ main { flex: 1; }
 
 /* ── Responsive ────────────────────────────────── */
 @media (max-width: 640px) {
-  .hero { padding: 4rem 0 3rem; }
-  .section { padding: 3.5rem 0; }
+  /* Tighten vertical rhythm — desktop heroes leave large empty gaps on phones. */
+  .hero { padding: 3rem 0 2.25rem; }
+  .section { padding: 3rem 0; }
+  .section--sm { padding: 2rem 0; }
+  .tools-hero { padding: 2.5rem 0 2rem; }
+  .about-hero { padding: 2.75rem 0 2rem; }
+  .page-header { padding: 2.5rem 0 1.75rem; margin-bottom: 2rem; }
+  .post-header { padding: 1.75rem 0 1rem; }
+
   .card-grid { grid-template-columns: 1fr; }
   .tool-grid { grid-template-columns: 1fr; }
   .email-input-row { flex-direction: column; }
+
+  /* Long centered intro copy reads ragged on a narrow column — left-align the
+     body text (headings stay centered) and ease the size down. */
+  .hero p,
+  .tools-hero p {
+    text-align: left;
+    font-size: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .hero h1 { font-size: clamp(1.85rem, 8vw, 2.4rem); }
 }
 
 /* ── Email Signup ──────────────────────────────── */
@@ -841,12 +1111,35 @@ main { flex: 1; }
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  height: 100%;
   transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Brand logo slot at the top of each tool card — fixed height so the name/
+   badge rows line up across every card in a category row. */
+.tool-card-logo-slot {
+  display: flex;
+  align-items: center;
+  height: 36px;
+}
+
+.tool-card-logo {
+  height: 32px;
+  width: auto;
+  display: block;
+}
+
+.tool-card-logo-text {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
 }
 
 .tool-card:hover {
   border-color: var(--accent-dim);
-  box-shadow: 0 0 0 1px var(--accent-dim), 0 8px 32px rgba(0,0,0,0.3);
+  box-shadow: 0 0 0 1px var(--accent-dim), var(--shadow-lg);
 }
 
 .tool-card-header {
@@ -1108,9 +1401,9 @@ main { flex: 1; }
 
 /* ── Component: My take (Ian's aside) ──────────── */
 .my-take {
-  background: rgba(245, 158, 11, 0.06);
-  border: 1px solid rgba(245, 158, 11, 0.25);
-  border-left: 3px solid #f59e0b;
+  background: color-mix(in oklab, var(--accent-amber) 8%, transparent);
+  border: 1px solid color-mix(in oklab, var(--accent-amber) 30%, transparent);
+  border-left: 3px solid var(--accent-amber);
   border-radius: 0 var(--radius) var(--radius) 0;
   padding: 0.85rem 1.25rem 0.95rem;
   margin: 1rem 0;
@@ -1121,7 +1414,7 @@ main { flex: 1; }
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #f59e0b;
+  color: var(--accent-amber);
   margin-bottom: 0.4rem;
   display: block;
 }
@@ -1214,4 +1507,36 @@ main { flex: 1; }
   color: var(--text-muted);
   line-height: 1.55;
   text-align: center;
+}
+
+/* ── Brand typography (Brand Kit v2.2) ─────────────
+   Headline tier (H1/H2, hero, page headers, pull quotes) uses the serif
+   Source Serif 4 at weight 600. H3 and below stay sans (Inter). Placed late
+   so these win on source order over the earlier per-section font-weight
+   declarations (which were 800). Loaded via Google Fonts in BaseLayout. */
+.hero h1,
+.prose h1,
+.prose h2,
+.post-header h1,
+.about-hero h1,
+.page-header h1,
+.tools-hero h1,
+.section-heading,
+.pull-quote-body {
+  font-family: var(--font-serif);
+  font-weight: 600;
+}
+
+/* Label / eyebrow / code tier uses JetBrains Mono. */
+.hero-eyebrow,
+.tag,
+.section-label,
+.email-signup-eyebrow,
+.my-take-eyebrow,
+.step-card-number,
+.stat-card-label,
+.tool-badge,
+.post-related-tags-label,
+.footer-col-label {
+  font-family: var(--font-mono);
 }

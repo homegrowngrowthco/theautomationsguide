@@ -137,6 +137,7 @@ For this project, here are the most consequential merges to date (newest first).
 
 | Date | PR | Merge SHA | What | Revert command |
 |---|---|---|---|---|
+| 2026-05-29 | PR #41 (branch `design-refresh-brand-kit-v2`) | _pending merge_ | Design: apply Brand Kit v2.2 — **light mode (warm cream #fdfcf8)**, teal `#14a890`, web fonts (Inter / Source Serif 4 / JetBrains Mono / Outfit), serif headlines, exact-match wordmark, favicon recolor, `public/brand/` + `brand-kit/` assets, Beehiiv templates staged, **rich `/tools/<tool>` hub pages**, mobile polish. CSS/asset/page-only. | `git revert -m 1 <merge-sha>` (fill in after merge) |
 | 2026-05-22 | direct | `805cb28` | SEO: add IndexNow + Google Indexing API submit to PR-merge n8n workflow (key file `dde35cca97309131104c0505957f0948.txt` + 5 new workflow nodes) | `git revert 805cb28` (also: re-import the old workflow JSON from `git show 2a84738:n8n/notion-publish-status.json` into n8n Cloud) |
 | 2026-05-22 | direct | `e09acdc` | SEO: filter noindex URLs out of sitemap + single robots meta in BaseLayout | `git revert e09acdc` |
 | 2026-05-20 | direct | `88033dc` | Add Kit MCP section to Kit + n8n post (Kit partner promo) | `git revert 88033dc` |

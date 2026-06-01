@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>X share card</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=Source+Serif+4:ital,wght@0,600;1,500;1,600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;background:#0d1117;}
+  .card{
+    width:100%;height:100vh;
+    background:
+      radial-gradient(circle at 85% 15%, rgba(30,195,164,0.18), transparent 55%),
+      linear-gradient(180deg, #0d1117 0%, #060a0f 100%);
+    color:#e6edf3;font-family:'Inter',sans-serif;
+    padding:48px 56px;
+    display:flex;flex-direction:column;justify-content:space-between;
+  }
+  .top{display:flex;align-items:center;gap:14px;}
+  .mark{width:38px;height:38px;}
+  .brand{font-family:'Source Serif 4',serif;font-size:18px;font-weight:600;letter-spacing:-0.015em;}
+  .pill{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#1ec3a4;border:1px solid rgba(30,195,164,0.4);padding:5px 11px;border-radius:999px;background:rgba(30,195,164,0.08);}
+  h1{font-family:'Source Serif 4',serif;font-size:46px;font-weight:600;line-height:1.05;letter-spacing:-0.025em;text-wrap:balance;max-width:90%;}
+  h1 em{font-style:italic;font-weight:500;color:#1ec3a4;}
+  .bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;}
+  .url{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.05em;color:#8b929e;}
+  .meta{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#5e6671;text-align:right;}
+  .meta span{color:#1ec3a4;display:block;margin-bottom:4px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="top">
+    <svg class="mark" viewBox="0 0 48 48" fill="none">
+      <circle cx="24" cy="24" r="22" stroke="#e6edf3" stroke-width="1" opacity="0.2"/>
+      <path d="M 24 4 A 20 20 0 0 1 44 24" stroke="#1ec3a4" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <path d="M 24 44 A 20 20 0 0 1 4 24" stroke="#1ec3a4" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="24" cy="24" r="4" fill="#1ec3a4"/>
+      <circle cx="24" cy="4" r="2.4" fill="#1ec3a4"/>
+      <circle cx="24" cy="44" r="2.4" fill="#1ec3a4"/>
+    </svg>
+    <span class="brand">The Automations Guide</span>
+    <span class="pill">New &middot; Issue 032</span>
+  </div>
+  <h1>The Make vs. Zapier comparison <em>nobody wants to write.</em></h1>
+  <div class="bottom">
+    <span class="url">theautomationsguide.com</span>
+    <div class="meta"><span>Run · Review · Repeat</span>9 min read &middot; weekly issue</div>
+  </div>
+</div>
+</body>
+</html>

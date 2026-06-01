@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Post promo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=Source+Serif+4:ital,wght@0,600;1,500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;}
+  .card{
+    width:100%;height:100vh;background:#fdfcf8;
+    color:#1a1d22;font-family:'Inter',sans-serif;
+    padding:48px 48px 40px;
+    display:flex;flex-direction:column;
+  }
+  .top{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
+  .mark{width:30px;height:30px;}
+  .brand{font-family:'Source Serif 4',serif;font-size:15px;font-weight:600;letter-spacing:-0.015em;}
+  .small{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#5e6671;margin-left:auto;}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#0d8c78;font-weight:500;margin-bottom:16px;}
+  h1{font-family:'Source Serif 4',serif;font-size:42px;font-weight:600;line-height:1.05;letter-spacing:-0.025em;margin-bottom:18px;text-wrap:balance;}
+  h1 em{font-style:italic;color:#0d8c78;font-weight:500;}
+  .lead{font-size:17px;line-height:1.55;color:#5e6671;max-width:90%;}
+  .meta{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;padding-top:32px;border-top:1px solid #e5e1d4;}
+  .read{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:#1a1d22;font-weight:600;}
+  .url{font-family:'JetBrains Mono',monospace;font-size:11px;color:#8b929e;}
+  .stack{flex:1;display:flex;flex-direction:column;justify-content:center;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="top">
+    <svg class="mark" viewBox="0 0 48 48" fill="none">
+      <circle cx="24" cy="24" r="22" stroke="#1a1d22" stroke-width="1" opacity="0.2"/>
+      <path d="M 24 4 A 20 20 0 0 1 44 24" stroke="#0d8c78" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <path d="M 24 44 A 20 20 0 0 1 4 24" stroke="#0d8c78" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="24" cy="24" r="4" fill="#0d8c78"/>
+      <circle cx="24" cy="4" r="2.4" fill="#0d8c78"/>
+      <circle cx="24" cy="44" r="2.4" fill="#0d8c78"/>
+    </svg>
+    <span class="brand">The Automations Guide</span>
+    <span class="small">New essay</span>
+  </div>
+  <div class="stack">
+    <div class="eyebrow">Feature &middot; Comparison</div>
+    <h1>The RevOps tech stack we&rsquo;d <em>actually buy</em> in 2026.</h1>
+    <p class="lead">Eight tools to hand a new ops hire on day one. Four to skip. The math behind both.</p>
+  </div>
+  <div class="meta">
+    <span class="read">Read &rarr; theautomationsguide.com</span>
+    <span class="url">11 min</span>
+  </div>
+</div>
+</body>
+</html>

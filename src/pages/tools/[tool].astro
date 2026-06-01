@@ -1,0 +1,93 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { tools, postMentionsTool } from '../../data/tools';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+  return tools.map((tool) => {
+    const posts = allPosts
+      .filter((post) => postMentionsTool(tool, post))
+      .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+    return { params: { tool: tool.slug }, props: { tool, posts } };
+  });
+}
+
+const { tool, posts } = Astro.props;
+const description = `Every article on The Automations Guide that covers ${tool.name}, plus where it fits in a RevOps and GTM stack.`;
+---
+
+<BaseLayout title={`${tool.name} — guides, reviews & alternatives`} description={description}>
+  <div class="container--wide">
+    <!-- Tool hero -->
+    <div class="page-header">
+      <div class="hero-eyebrow">{tool.category}</div>
+      <h1>{tool.name}</h1>
+      <p>{tool.blurb}</p>
+      <div class="tool-hub-actions">
+        <a
+          href={`/go/${tool.slug}`}
+          class={`btn ${tool.ctaPrimary ? 'btn--primary' : 'btn--ghost'}`}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+        >
+          {tool.ctaLabel} &rarr;
+        </a>
+        <span class={`tool-badge${tool.badgeFree ? ' tool-badge--free' : ''}`}>{tool.badge}</span>
+      </div>
+    </div>
+
+    <!-- Articles mentioning this tool -->
+    <h2 class="section-heading" style="margin-bottom:1.5rem;">
+      {posts.length > 0
+        ? `${posts.length} article${posts.length === 1 ? '' : 's'} mentioning ${tool.name}`
+        : `Articles mentioning ${tool.name}`}
+    </h2>
+
+    {posts.length > 0 ? (
+      <div class="card-grid">
+        {posts.map((post) => (
+          <a href={`/blog/${post.slug}`} class="post-card">
+            {post.data.tags.length > 0 && (
+              <div class="post-card-tags">
+                {post.data.tags.slice(0, 3).map((t) => (
+                  <span class="tag">{t}</span>
+                ))}
+              </div>
+            )}
+            <h2>{post.data.title}</h2>
+            <p>{post.data.description}</p>
+            <div class="post-card-meta">
+              <span>
+                {post.data.pubDate.toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </span>
+              <span class="post-meta-sep">·</span>
+              <span>{post.data.author}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <p style="color:var(--text-muted);font-size:1.0625rem;">
+        We haven't published a dedicated article on {tool.name} yet — it's on the list. In the
+        meantime, browse the <a href="/blog">full blog</a> or see all our <a href="/tools">tools</a>.
+      </p>
+    )}
+
+    <p class="mt-lg"><a href="/tools">&larr; All tools</a></p>
+  </div>
+</BaseLayout>
+
+<style>
+  .tool-hub-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+  }
+</style>
