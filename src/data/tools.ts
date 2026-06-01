@@ -20,6 +20,11 @@ export interface Tool {
   ctaLabel: string;
   /** True = primary (teal) button, false = ghost button. */
   ctaPrimary?: boolean;
+  /**
+   * Public path to the tool's full-color brand logo SVG, e.g. '/brand/tools/make.svg'.
+   * Optional: when unset, the card and logo strip fall back to a styled text wordmark.
+   */
+  logo?: string;
   /** Strings to look for when deciding which posts "mention" this tool. */
   aliases: string[];
 }
@@ -43,6 +48,7 @@ export const tools: Tool[] = [
       'Make (formerly Integromat) is the best-in-class automation platform for RevOps teams that need complex logic, data transformation, and multi-path workflows. More powerful than Zapier at a fraction of the cost, with a visual canvas that makes it easy to reason about even the most complex flows.',
     ctaLabel: 'Try Make',
     ctaPrimary: true,
+    logo: '/brand/tools/make.svg',
     aliases: ['Make', 'Integromat'],
   },
   {
@@ -55,6 +61,7 @@ export const tools: Tool[] = [
       "n8n is an open-source workflow automation tool you can self-host for full data control and no per-operation pricing. It's ideal for engineering-forward GTM teams that want Make-level power without ongoing platform costs, or a managed cloud option.",
     ctaLabel: 'Explore n8n',
     ctaPrimary: false,
+    logo: '/brand/tools/n8n.svg',
     aliases: ['n8n'],
   },
   {
@@ -67,6 +74,7 @@ export const tools: Tool[] = [
       'HubSpot is the CRM at the center of most modern GTM stacks, with built-in workflow automation that handles lead routing, deal stage triggers, and sequences out of the box. The free tier is genuinely useful; paid tiers unlock the automation depth RevOps teams actually need.',
     ctaLabel: 'Try HubSpot',
     ctaPrimary: true,
+    logo: '/brand/tools/hubspot.svg',
     aliases: ['HubSpot'],
   },
   {
@@ -79,6 +87,7 @@ export const tools: Tool[] = [
       "Pipedrive is the CRM HubSpot-skeptics pick. Lighter, sales-pipeline-first, with cleaner pricing at scale. Strong fit for SMB GTM teams that find HubSpot's free tier limiting but its paid tiers overpriced for what they actually use.",
     ctaLabel: 'Try Pipedrive',
     ctaPrimary: false,
+    logo: '/brand/tools/pipedrive.svg',
     aliases: ['Pipedrive'],
   },
   {
@@ -90,6 +99,7 @@ export const tools: Tool[] = [
       "Clay combines a spreadsheet interface with 50+ enrichment data sources to help you build targeted, personalized outbound lists at scale. If your SDR team is manually researching accounts, Clay is the highest-leverage tool you're probably not using yet.",
     ctaLabel: 'Try Clay',
     ctaPrimary: true,
+    logo: '/brand/tools/clay.webp',
     aliases: ['Clay'],
   },
   {
@@ -102,6 +112,7 @@ export const tools: Tool[] = [
       'Apollo combines a 275M+ contact database with built-in email sequencing, making it a one-stop shop for outbound GTM teams. The enrichment API also integrates cleanly with HubSpot for keeping CRM data current without manual data entry.',
     ctaLabel: 'Try Apollo',
     ctaPrimary: false,
+    logo: '/brand/tools/apollo.svg',
     aliases: ['Apollo'],
   },
   {
@@ -113,6 +124,7 @@ export const tools: Tool[] = [
       "Smartlead is the cold email infrastructure RevOps teams actually use at scale: unlimited inboxes, built-in warmup, and pricing that doesn't punish you for sending volume. The right tool when you've outgrown Apollo's sequencer or Lemlist's caps.",
     ctaLabel: 'Try Smartlead',
     ctaPrimary: false,
+    logo: '/brand/tools/smartlead.webp',
     aliases: ['Smartlead'],
   },
   {
@@ -125,7 +137,21 @@ export const tools: Tool[] = [
       "Beehiiv is the newsletter platform built specifically for serious publishers, with a strong free tier, native referral programs, paid subscriptions, and built-in monetization via Boosts. We use it to publish The Automations Guide; it's the tool we'd pick again.",
     ctaLabel: 'Try Beehiiv',
     ctaPrimary: true,
+    logo: '/brand/tools/beehiiv.png',
     aliases: ['Beehiiv'],
+  },
+  {
+    slug: 'kit',
+    name: 'Kit',
+    category: 'Newsletter Platform',
+    badge: 'Free up to 10,000 subs',
+    badgeFree: true,
+    blurb:
+      'Kit (formerly ConvertKit) is the creator-first email platform built around automation, with visual sequence builders, tag-based segmentation, and a clean API that plays well with n8n and Make. A strong pick when your newsletter is part of a larger automated GTM motion rather than a standalone broadcast.',
+    ctaLabel: 'Try Kit',
+    ctaPrimary: false,
+    logo: '/brand/tools/kit.svg',
+    aliases: ['Kit', 'ConvertKit'],
   },
 ];
 
