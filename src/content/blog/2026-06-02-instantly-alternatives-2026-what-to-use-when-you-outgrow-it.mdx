@@ -28,74 +28,112 @@ If your Instantly bill quietly doubled in the last two quarters without a propor
 
 <div class="quick-answer"><strong>Quick answer:</strong> Smartlead is the best direct replacement for volume-heavy cold email teams, Lemlist wins on multi-channel personalization, and Pipedrive Sequences is the underrated option for sub-500-email-per-day teams who already live in Pipedrive CRM.</div>
 
-<StatRow stats={[
-  { number: "47%", label: "of cold email senders", description: "reported deliverability degradation after Google's 2024 bulk sender policy changes, per Validity's 2024 Email Deliverability Benchmark" },
-  { number: "3x", label: "warm-up cost multiplier", description: "The per-inbox warm-up model means a 90-inbox operation often pays 3x the base plan price before sending a single sequence email" },
-  { number: "62%", label: "of sequences include LinkedIn", description: "according to Outreach's 2025 State of Sales Execution report, making single-channel email tools a structural gap for modern outbound" }
-]} />
-
-<ComparisonTable
-  title="Instantly Alternatives 2026"
-  tools={[
-    {
-      name: "Smartlead",
-      tagline: "Best for high-volume cold email infrastructure",
-      pros: [
-        "Unlimited mailbox warm-up on all paid plans",
-        "Aggressive inbox rotation across sending accounts",
-        "API-first, so it plugs cleanly into Clay enrichment flows",
-        "Unibox consolidates all replies in one view"
-      ],
-      cons: [
-        "UI is functional but not polished",
-        "No native LinkedIn step in sequences",
-        "Reporting depth is still catching up to Instantly"
-      ],
-      pricing: "From $39/mo (Basic) to $94/mo (Pro), billed monthly",
-      affiliateSlug: "smartlead",
-      ctaLabel: "Try Smartlead",
-      highlight: true
-    },
-    {
-      name: "Lemlist",
-      tagline: "Best for multi-channel personalization and LinkedIn steps",
-      pros: [
-        "Native LinkedIn + email + phone step sequencing",
-        "Lemwarm built in on paid plans",
-        "Dynamic image and video personalization at scale",
-        "Strong community and template library"
-      ],
-      cons: [
-        "Inbox rotation is less mature than Smartlead",
-        "Gets expensive fast if you add LinkedIn automation seats",
-        "Deliverability relies more on your sending hygiene than the platform"
-      ],
-      pricing: "From $59/mo per user (Email + LinkedIn plan)",
-      affiliateSlug: "lemlist",
-      ctaLabel: "Try Lemlist",
-      highlight: false
-    },
-    {
-      name: "Pipedrive Sequences",
-      tagline: "Contrarian pick for low-volume teams already on Pipedrive",
-      pros: [
-        "Zero incremental tool cost if you are already on Pipedrive Professional or above",
-        "Sequences live inside your CRM, so activity is natively logged",
-        "No warm-up drama because volume stays manageable",
-        "Simpler ops: one fewer vendor, one fewer integration to maintain"
-      ],
-      cons: [
-        "Hard cap on deliverability at scale without warm-up infrastructure",
-        "Sequence logic is basic compared to Smartlead or Lemlist",
-        "No multi-channel steps natively"
-      ],
-      pricing: "Included in Pipedrive Professional ($49/user/mo) and above",
-      affiliateSlug: "pipedrive",
-      ctaLabel: "Try Pipedrive",
-      highlight: false
+<style>{`
+  .stat-row-fix > * {
+    padding: 12px 16px !important;
+  }
+  @media (max-width: 639px) {
+    .stat-row-fix {
+      display: grid !important;
+      grid-template-columns: repeat(2, 1fr) !important;
     }
-  ]}
-/>
+    .stat-row-fix > *:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      max-width: 50%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+  @media (min-width: 768px) {
+    .comparison-table-fix [class*="grid"] {
+      grid-template-columns: repeat(3, 1fr) !important;
+    }
+    .comparison-table-fix [class*="card"],
+    .comparison-table-fix [class*="tool"] {
+      padding: 16px !important;
+    }
+  }
+  .sidebyside-top-align {
+    align-items: flex-start !important;
+  }
+  .sidebyside-top-align figure,
+  .sidebyside-top-align [class*="figure"] {
+    margin-top: 0 !important;
+  }
+`}</style>
+
+<div class="stat-row-fix">
+  <StatRow stats={[
+    { number: "47%", label: "of cold email senders", description: "reported deliverability degradation after Google's 2024 bulk sender policy changes, per Validity's 2024 Email Deliverability Benchmark" },
+    { number: "3x", label: "warm-up cost multiplier", description: "The per-inbox warm-up model means a 90-inbox operation often pays 3x the base plan price before sending a single sequence email" },
+    { number: "62%", label: "of sequences include LinkedIn", description: "according to Outreach's 2025 State of Sales Execution report, making single-channel email tools a structural gap for modern outbound" }
+  ]} />
+</div>
+
+<div class="comparison-table-fix">
+  <ComparisonTable
+    title="Instantly Alternatives 2026"
+    tools={[
+      {
+        name: "Smartlead",
+        tagline: "Best for high-volume cold email infrastructure",
+        pros: [
+          "Unlimited mailbox warm-up on all paid plans",
+          "Aggressive inbox rotation across sending accounts",
+          "API-first, so it plugs cleanly into Clay enrichment flows",
+          "Unibox consolidates all replies in one view"
+        ],
+        cons: [
+          "UI is functional but not polished",
+          "No native LinkedIn step in sequences",
+          "Reporting depth is still catching up to Instantly"
+        ],
+        pricing: "From $39/mo (Basic) to $94/mo (Pro), billed monthly",
+        affiliateSlug: "smartlead",
+        ctaLabel: "Try Smartlead",
+        highlight: true
+      },
+      {
+        name: "Lemlist",
+        tagline: "Best for multi-channel personalization and LinkedIn steps",
+        pros: [
+          "Native LinkedIn + email + phone step sequencing",
+          "Lemwarm built in on paid plans",
+          "Dynamic image and video personalization at scale",
+          "Strong community and template library"
+        ],
+        cons: [
+          "Inbox rotation is less mature than Smartlead",
+          "Gets expensive fast if you add LinkedIn automation seats",
+          "Deliverability relies more on your sending hygiene than the platform"
+        ],
+        pricing: "From $59/mo per user (Email + LinkedIn plan)",
+        affiliateSlug: "lemlist",
+        ctaLabel: "Try Lemlist",
+        highlight: false
+      },
+      {
+        name: "Pipedrive Sequences",
+        tagline: "Contrarian pick for low-volume teams already on Pipedrive",
+        pros: [
+          "Zero incremental tool cost if you are already on Pipedrive Professional or above",
+          "Sequences live inside your CRM, so activity is natively logged",
+          "No warm-up drama because volume stays manageable",
+          "Simpler ops: one fewer vendor, one fewer integration to maintain"
+        ],
+        cons: [
+          "Hard cap on deliverability at scale without warm-up infrastructure",
+          "Sequence logic is basic compared to Smartlead or Lemlist",
+          "No multi-channel steps natively"
+        ],
+        pricing: "Included in Pipedrive Professional ($49/user/mo) and above",
+        affiliateSlug: "pipedrive",
+        ctaLabel: "Try Pipedrive",
+        highlight: false
+      }
+    ]}
+  />
+</div>
 
 ## How to choose the right Instantly alternative
 
@@ -105,7 +143,7 @@ If you are running more than 20 active sending mailboxes and cold email is the c
 
 If your ICP research is mature enough that you are personalizing at the individual level (using [Clay](/go/clay) or a similar enrichment layer to generate custom snippets, images, or first lines), [Lemlist](/go/lemlist) earns its premium. The LinkedIn step is genuinely useful for enterprise sequences where a cold email paired with a LinkedIn touch within 48 hours moves reply rates. Just budget for the seat cost when coordinating across multiple SDRs. It adds up faster than the pricing page implies.
 
-<SideBySide>
+<SideBySide class="sidebyside-top-align">
   <Fragment slot="left">
     **Volume over 500 emails/day?** You need warm-up infrastructure. Smartlead is the call. Lemlist works but its warm-up pool is smaller, and I would not bet a 100-mailbox operation on it without extensive domain staggering.
 
@@ -116,7 +154,7 @@ If your ICP research is mature enough that you are personalizing at the individu
     **Budget constrained and need multi-channel?** [Apollo](/go/apollo) sequences deserve a look here too. The data and sequencing in one platform trades deliverability sophistication for cost efficiency at the sub-20-inbox level.
   </Fragment>
   <Fragment slot="right">
-    <Figure caption="Decision tree: picking your Instantly alternative">
+    <Figure caption="Decision tree: picking your Instantly alternative" style="margin-top: 0;">
       <svg viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
         <rect x="100" y="10" width="160" height="40" rx="8" fill="#e6fbf6" stroke="#14a890" stroke-width="1.5"/>
         <text x="180" y="35" text-anchor="middle" font-size="12" font-weight="600" fill="#0d8c78">Volume over 500/day?</text>
