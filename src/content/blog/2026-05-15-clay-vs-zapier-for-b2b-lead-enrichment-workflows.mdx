@@ -41,6 +41,13 @@ Every RevOps team I've talked to in the last 18 months has asked some version of
   .cvz-stat-row [class*="grid"] > * {
     min-width: 0;
   }
+  @media (max-width: 860px) {
+    .cvz-stat-row [data-stat-grid],
+    .cvz-stat-row [class*="stat-grid"],
+    .cvz-stat-row [class*="grid"] {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
   @media (max-width: 639px) {
     .cvz-comparison [class*="card"],
     .cvz-comparison [class*="tool"],
@@ -50,6 +57,9 @@ Every RevOps team I've talked to in the last 18 months has asked some version of
       padding-top: 16px;
       padding-bottom: 16px;
     }
+  }
+  .cvz-newsletter-gap {
+    margin-bottom: 48px;
   }
 `}</style>
 
@@ -150,12 +160,4 @@ If you're a RevOps operator at a Series A company running any meaningful outboun
 
 For teams at an earlier stage, or where the person running automation is a marketing manager rather than a dedicated RevOps hire, Zapier's simplicity is a genuine advantage. Don't overcomplicate it for them. [Zapier's own integration guides](https://zapier.com/blog/lead-enrichment-automation/) walk through connecting form tools to enrichment APIs in under 30 minutes. That is real. If your list volume is low and your enrichment logic is "look up company size and industry on new form submission," you do not need Clay's horsepower. The right tool is always the one your team will actually maintain six months from now, not the one that impressed them in a demo.
 
-<style>{`
-  .post-content-wrapper {
-    padding-bottom: 48px !important;
-  }
-  .newsletter-section {
-    margin-bottom: 48px !important;
-    max-height: none;
-  }
-`}</style>
+<div class="cvz-newsletter-gap" />
