@@ -43,8 +43,7 @@ Mid-market outbound teams are quietly cycling off [Apollo](/go/apollo) — not b
     .stat-row-scroll :global([class*="card"]),
     .stat-row-scroll :global(> div > div),
     .stat-row-scroll :global(.stat-row > *) {
-      padding-top: 0.5rem;
-      padding-bottom: 0.5rem;
+      padding-block: 0.75rem;
     }
   }
 `}</style>
@@ -138,7 +137,16 @@ Mid-market outbound teams are quietly cycling off [Apollo](/go/apollo) — not b
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-  @media (max-width: 767px) {
+  @media (min-width: 481px) and (max-width: 767px) {
+    .comparison-table-scroll :global([class*="grid"]),
+    .comparison-table-scroll :global([class*="card-grid"]),
+    .comparison-table-scroll :global(.comparison-grid) {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      min-width: unset;
+    }
+  }
+  @media (max-width: 480px) {
     .comparison-table-scroll :global([class*="grid"]),
     .comparison-table-scroll :global([class*="card-grid"]),
     .comparison-table-scroll :global(.comparison-grid) {
