@@ -23,6 +23,7 @@ import MyTake from '@/components/post/MyTake.astro';
 import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
 import DecisionTree from '@/components/post/DecisionTree.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
 <style>{`
@@ -74,49 +75,24 @@ The question I get from B2B SaaS founders more than almost any other right now i
   ]} />
 </div>
 
-<ComparisonTable
-  title="Pipedrive vs Apollo: Outbound Feature Breakdown"
+<ToolBreakdown
+  title="Pipedrive vs Apollo, broken down"
   tools={[
     {
       name: "Pipedrive",
-      tagline: "CRM-first automation for relationship-led sales",
-      pros: [
-        "Deal pipeline and sequences in one place",
-        "Automation builder covers most nurture workflows",
-        "LeadBooster for inbound lead capture",
-        "Lower starting price, easier for small teams",
-        "Native Slack, Zapier, and Make integrations"
-      ],
-      cons: [
-        "No inbox rotation or dedicated deliverability tooling",
-        "Email Campaigns add-on costs extra",
-        "Sequence logic is shallow vs Apollo or Outreach",
-        "Enrichment (via LeadBooster) is limited compared to Apollo's 275M+ contact database",
-        "No A/B testing on sequences natively"
-      ],
-      pricing: "From $14/user/mo (Starter). Campaigns add-on from $13.33/mo.",
+      tagline: "CRM-first, built for relationship-led sales",
+      body: "Pipedrive keeps the deal pipeline and your sequences in one place, and its automation builder covers most nurture workflows without much fuss. LeadBooster handles inbound capture, the starting price is low enough for small teams, and it plugs into Slack, Zapier, and Make natively. The limits show up on outbound at volume: there is no inbox rotation or real deliverability tooling, the Email Campaigns add-on costs extra, sequence logic is shallow next to Apollo, and there is no native A/B testing.",
+      highlights: ["Pipeline plus sequences in one tool", "Low entry price, easy for small teams"],
+      pricing: "From $14/user/mo; Campaigns add-on from $13.33/mo",
       affiliateSlug: "pipedrive",
-      ctaLabel: "Try Pipedrive",
-      highlight: false
+      ctaLabel: "Try Pipedrive"
     },
     {
       name: "Apollo",
-      tagline: "Prospecting, enrichment, and sequencing in one outbound platform",
-      pros: [
-        "275M+ contact database with strong B2B coverage",
-        "Mailbox Hub with built-in warmup and inbox rotation",
-        "Multi-step sequences with A/B testing",
-        "AI-assisted email writing and intent signals",
-        "Native dialer and LinkedIn steps in sequences"
-      ],
-      cons: [
-        "CRM is lightweight, not a Pipedrive replacement",
-        "Data accuracy varies by industry and region",
-        "Can get expensive once you scale seats and export credits",
-        "UI complexity increases with team size",
-        "Deliverability still lags specialist tools like Smartlead at very high volume"
-      ],
-      pricing: "Free tier available. Paid from $49/user/mo.",
+      tagline: "Prospecting, enrichment, and sequencing in one platform",
+      body: "Apollo bundles a 275M-plus contact database, Mailbox Hub with built-in warmup and inbox rotation, multi-step sequences with A/B testing, AI-assisted writing with intent signals, and a native dialer plus LinkedIn steps. The tradeoffs: its CRM is lightweight rather than a Pipedrive replacement, data accuracy varies by industry and region, costs climb as you add seats and export credits, and deliverability still trails specialists like Smartlead at very high volume.",
+      highlights: ["275M+ contacts plus Mailbox Hub warmup", "Multi-step sequences with A/B testing"],
+      pricing: "Free tier; paid from $49/user/mo",
       affiliateSlug: "apollo",
       ctaLabel: "Try Apollo",
       highlight: true
@@ -152,6 +128,12 @@ Apollo flips the model entirely. It starts from a prospecting list and builds th
     />
   </Fragment>
 </SideBySide>
+
+<Figure class="post-screenshot" caption="Pipedrive's pipeline view: deals by stage, values, and next-activity cues, with multiple pipelines.">
+  <a href="/go/pipedrive" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/pipedrive-pipeline.png" alt="Pipedrive Deals pipeline board showing Qualified, Contact Made, and Demo Scheduled stages with deal cards and a pipeline selector." loading="lazy" />
+  </a>
+</Figure>
 
 <MyTake>
 Most teams I see buy Apollo and then quietly stop using Pipedrive's sequence features. That's actually the right instinct, but it's almost never a deliberate decision. If you're paying for Apollo, cut the Pipedrive Campaigns add-on on day one and own the choice. Running both half-heartedly is the worst outcome: two sequence tools, inconsistent contact history, and no single source of truth on what actually happened in an outbound thread.

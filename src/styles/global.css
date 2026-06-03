@@ -1503,6 +1503,15 @@ main { flex: 1; }
   display: block;
 }
 
+/* Product screenshots embedded after a DecisionTree: separate them from the
+   flowchart above and keep them modest rather than full-bleed. */
+.figure.post-screenshot {
+  margin-top: 2.5rem;
+}
+.figure.post-screenshot .figure-body img {
+  max-width: 600px;
+}
+
 .figure-caption {
   margin-top: 1rem;
   padding-top: 1rem;

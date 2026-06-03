@@ -15,12 +15,13 @@ interface Props {
   alt?: string;
   width?: number | string;
   height?: number | string;
+  class?: string;
 }
 
-const { caption, src, alt = '', width, height } = Astro.props;
+const { caption, src, alt = '', width, height, class: className } = Astro.props;
 ---
 
-<figure class="figure">
+<figure class:list={['figure', className]}>
   <div class="figure-body">
     {src ? (
       <img src={src} alt={alt} width={width} height={height} loading="lazy" />

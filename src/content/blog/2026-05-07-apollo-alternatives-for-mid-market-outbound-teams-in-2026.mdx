@@ -43,8 +43,7 @@ Mid-market outbound teams are quietly cycling off [Apollo](/go/apollo) — not b
     .stat-row-scroll :global([class*="card"]),
     .stat-row-scroll :global(> div > div),
     .stat-row-scroll :global(.stat-row > *) {
-      padding-top: 0.5rem;
-      padding-bottom: 0.5rem;
+      padding-block: 0.75rem;
     }
   }
 `}</style>
@@ -138,13 +137,44 @@ Mid-market outbound teams are quietly cycling off [Apollo](/go/apollo) — not b
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-  @media (max-width: 767px) {
+  @media (min-width: 481px) and (max-width: 767px) {
+    .comparison-table-scroll :global([class*="grid"]),
+    .comparison-table-scroll :global([class*="card-grid"]),
+    .comparison-table-scroll :global(.comparison-grid) {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      min-width: unset;
+    }
+  }
+  @media (max-width: 480px) {
     .comparison-table-scroll :global([class*="grid"]),
     .comparison-table-scroll :global([class*="card-grid"]),
     .comparison-table-scroll :global(.comparison-grid) {
       display: grid;
       grid-template-columns: repeat(4, minmax(220px, 1fr));
       min-width: 880px;
+    }
+  }
+  .comparison-table-scroll :global([class*="card-grid"]),
+  .comparison-table-scroll :global([class*="grid"]),
+  .comparison-table-scroll :global(.comparison-grid) {
+    align-items: stretch;
+  }
+  .comparison-table-scroll :global([class*="comparison-card"]),
+  .comparison-table-scroll :global([class*="card"]) {
+    display: flex;
+    flex-direction: column;
+  }
+  .comparison-table-scroll :global([class*="comparison-card"] > [class*="body"]),
+  .comparison-table-scroll :global([class*="card"] > [class*="body"]),
+  .comparison-table-scroll :global([class*="comparison-card"] > [class*="content"]),
+  .comparison-table-scroll :global([class*="card"] > [class*="content"]) {
+    flex: 1;
+  }
+  @media (max-width: 480px) {
+    .comparison-table-scroll :global([class*="comparison-card"]),
+    .comparison-table-scroll :global([class*="card"]) {
+      padding: 16px;
     }
   }
 `}</style>
@@ -157,28 +187,50 @@ If your issue is bounce rates and stale data, Apollo's single-source model is th
 
 Cost structure matters more than most teams admit upfront. Apollo's "unlimited" positioning obscures real costs once you layer in verification tools like Neverbounce or Zerobounce to scrub exports. Clay is explicit about credit consumption, which makes budget forecasting straightforward. ZoomInfo locks you into a $15K+ annual contract before you've validated fit — a serious risk for any team mid-ICP pivot.
 
-<SideBySide>
-  <Fragment slot="left">
-    **If your SDR team is primarily US-focused and volume is under 3K contacts/month**, Apollo still makes sense — the ROI is clear and the sequencing is solid. Push past that threshold and data quality becomes a real deliverability liability.
+<div class="side-by-side-apollo">
+  <SideBySide>
+    <Fragment slot="left">
+      **If your SDR team is primarily US-focused and volume is under 3K contacts/month**, Apollo still makes sense — the ROI is clear and the sequencing is solid. Push past that threshold and data quality becomes a real deliverability liability.
 
-    **If you're running EMEA or have strong European ICP coverage**, Kaspr plus Sales Navigator is a credible stack that most Apollo alternatives can't match on mobile data quality.
+      **If you're running EMEA or have strong European ICP coverage**, Kaspr plus Sales Navigator is a credible stack that most Apollo alternatives can't match on mobile data quality.
 
-    **If you're building a programmatic, enrichment-heavy outbound motion** — think Clay tables pulling LinkedIn + Clearbit + custom webhooks — Clay is the only tool in this list architected for that workflow natively.
-  </Fragment>
-  <Fragment slot="right">
-    <DecisionTree
-      caption="Apollo alternative decision tree for mid-market outbound teams"
-      footer="EMEA-focused book of business? Add Kaspr for mobile data coverage Apollo misses."
-      tree={{
-        question: "Primary pain point?",
-        branches: [
-          { label: "Stale data, high bounces", result: { title: "Clay", note: "Waterfall enrichment across providers", tone: "primary" } },
-          { label: "Wrong timing, low replies", result: { title: "Sales Navigator", note: "Or ZoomInfo intent for timing signals", tone: "alt" } },
-        ],
-      }}
-    />
-  </Fragment>
-</SideBySide>
+      **If you're building a programmatic, enrichment-heavy outbound motion** — think Clay tables pulling LinkedIn + Clearbit + custom webhooks — Clay is the only tool in this list architected for that workflow natively.
+    </Fragment>
+    <Fragment slot="right">
+      <DecisionTree
+        caption="Apollo alternative decision tree for mid-market outbound teams"
+        footer="EMEA-focused book of business? Add Kaspr for mobile data coverage Apollo misses."
+        tree={{
+          question: "Primary pain point?",
+          branches: [
+            { label: "Stale data, high bounces", result: { title: "Clay", note: "Waterfall enrichment across providers", tone: "primary" } },
+            { label: "Wrong timing, low replies", result: { title: "Sales Navigator", note: "Or ZoomInfo intent for timing signals", tone: "alt" } },
+          ],
+        }}
+      />
+    </Fragment>
+  </SideBySide>
+</div>
+
+<style>{`
+  .side-by-side-apollo :global([class*="side-by-side"]),
+  .side-by-side-apollo :global([class*="sidebyside"]),
+  .side-by-side-apollo :global([class*="two-col"]) {
+    align-items: flex-start;
+  }
+  .side-by-side-apollo :global([class*="side-by-side"] > *),
+  .side-by-side-apollo :global([class*="sidebyside"] > *),
+  .side-by-side-apollo :global([class*="two-col"] > *) {
+    margin-top: 0;
+    padding-top: 0;
+  }
+`}</style>
+
+<Figure class="post-screenshot" caption="Clay's waterfall enrichment: find, enrich, and build sequences from a single table.">
+  <a href="/go/clay" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/clay-enrichment.png" alt="Clay table flow showing Find people, Enrich leads, a campaign step, and a message draft built from enrichment columns." loading="lazy" />
+  </a>
+</Figure>
 
 <MyTake>
 Apollo's data problem is structural — not a bug they'll fix in the next release. They pull from the same underlying data brokers as every other single-source tool, and that model has a freshness ceiling that no product roadmap can engineer around. The teams winning in 2026 aren't hunting for a better Apollo. They're building waterfall logic that treats no single provider as authoritative. Clay is the practical way to do that without a full engineering build.
