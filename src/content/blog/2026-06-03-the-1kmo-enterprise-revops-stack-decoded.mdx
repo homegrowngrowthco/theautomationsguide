@@ -31,46 +31,28 @@ Every RevOps operator I know has sat in a budget review defending a $5,000 month
 <PullQuote>The enterprise RevOps stack does not become expensive when you buy it. It becomes expensive when you buy it six months before your motion is complex enough to justify it.</PullQuote>
 
 <style>{`
-  .stat-row-fix {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  @media (max-width: 480px) {
-    .stat-row-fix {
-      flex-direction: column;
-    }
-    .stat-row-fix > * {
-      width: 100% !important;
-      min-width: 0 !important;
+  @media (max-width: 600px) {
+    .revops-statrow-wrap [data-stat-card],
+    .revops-statrow-wrap .stat-card,
+    .revops-statrow-wrap > div > div,
+    .revops-statrow-wrap > div > article,
+    .revops-statrow-wrap > div > section {
+      padding-top: 16px;
+      padding-bottom: 16px;
     }
   }
-  @media (max-width: 900px) {
-    .comparison-table-fix table {
-      display: block;
-    }
-    .comparison-table-fix thead {
-      display: none;
-    }
-    .comparison-table-fix tbody {
-      display: block;
-    }
-    .comparison-table-fix tr {
-      display: block;
-      margin-bottom: 1.5rem;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 1rem;
-    }
-    .comparison-table-fix td {
-      display: block;
-      width: 100% !important;
-      box-sizing: border-box;
+  .revops-comptable-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  @media (min-width: 680px) {
+    .revops-comptable-wrap {
+      overflow-x: visible;
     }
   }
 `}</style>
 
-<div class="stat-row-fix">
+<div class="revops-statrow-wrap">
   <StatRow stats={[
     { number: "$6,800", label: "Avg monthly cost", description: "Salesforce Enterprise + Gong + Outreach for a 10-rep team, per vendor list pricing in 2025" },
     { number: "43%", label: "Feature utilization", description: "Median Salesforce feature utilization at SMB accounts, per Salesforce's own adoption benchmarks" },
@@ -109,7 +91,7 @@ Second, you need a dedicated sales manager whose job is rep coaching. Gong's cal
 
 Third, you need 2,000 or more outbound touches per month with multi-step sequences that require bi-directional CRM sync. That's where [Outreach](https://www.outreach.io/) earns its margin over [Lemlist](/go/lemlist) or [Smartlead](/go/smartlead). Below those thresholds, the enterprise stack is complexity theater. The tools are real. The ROI isn't.
 
-<div class="comparison-table-fix">
+<div class="revops-comptable-wrap">
   <ComparisonTable
     title="Enterprise RevOps Stack vs Growth Alternatives"
     tools={[
