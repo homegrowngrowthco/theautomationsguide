@@ -27,11 +27,21 @@ Most RevOps teams pick their automation platform the same way they pick a CRM: w
 
 <div class="quick-answer"><strong>Quick answer:</strong> n8n wins for technical RevOps teams who want control and low cost at scale; Make wins for complex multi-step logic at mid-market; Zapier is only justified if your team refuses to learn anything new.</div>
 
-<StatRow stats={[
-  { number: "$50/mo", label: "n8n Cloud Pro", description: "50,000 executions, unlimited workflows. Self-hosted on a $20 VPS goes effectively to zero." },
-  { number: "$160/mo", label: "Make Teams plan", description: "200,000 ops. Roughly 5x the volume Zapier gives you at the same price point." },
-  { number: "$800–$1,200/mo", label: "Zapier at 200K tasks", description: "Professional / Team tier. The bill that forces every growing RevOps team to have a platform conversation." }
-]} />
+<style>{`
+  .quick-answer,
+  .stat-row-wrapper {
+    display: block !important;
+    visibility: visible !important;
+  }
+`}</style>
+
+<div class="stat-row-wrapper">
+  <StatRow stats={[
+    { number: "$50/mo", label: "n8n Cloud Pro", description: "50,000 executions, unlimited workflows. Self-hosted on a $20 VPS goes effectively to zero." },
+    { number: "$160/mo", label: "Make Teams plan", description: "200,000 ops. Roughly 5x the volume Zapier gives you at the same price point." },
+    { number: "$800–$1,200/mo", label: "Zapier at 200K tasks", description: "Professional / Team tier. The bill that forces every growing RevOps team to have a platform conversation." }
+  ]} />
+</div>
 
 ## At a glance
 
