@@ -67,15 +67,23 @@ const { title, tools } = Astro.props;
           </ul>
         </div>
 
+        {/* Every column should link to /go/<slug> — even tools without an
+            affiliate program (they fall back to homepage + UTM in
+            affiliate-links.ts). Always set affiliateSlug so all columns render
+            an identical CTA. If a slug is genuinely omitted, the whole actions
+            row (divider + button) is skipped so the card degrades cleanly
+            rather than showing an empty bordered gap. */}
         {tool.affiliateSlug && (
-          <a
-            href={`/go/${tool.affiliateSlug}`}
-            class={`comparison-cta ${tool.highlight ? 'comparison-cta--primary' : ''}`}
-            target="_blank"
-            rel="noopener noreferrer sponsored"
-          >
-            {tool.ctaLabel || `Try ${tool.name}`} &rarr;
-          </a>
+          <div class="comparison-actions">
+            <a
+              href={`/go/${tool.affiliateSlug}`}
+              class={`comparison-cta ${tool.highlight ? 'comparison-cta--primary' : 'comparison-cta--ghost'}`}
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+            >
+              {tool.ctaLabel || `Try ${tool.name}`} &rarr;
+            </a>
+          </div>
         )}
       </div>
     ))}
@@ -168,31 +176,36 @@ const { title, tools } = Astro.props;
   }
   .comparison-list--pros li::marker { color: var(--accent); }
   .comparison-list--cons li::marker { color: #f87171; }
-  .comparison-cta {
-    display: inline-block;
+  /* Actions row: pinned to the bottom of every card with an identical top
+     divider, so all columns line up and read the same regardless of how many
+     pros/cons each lists or whether it's the highlighted "Top pick". */
+  .comparison-actions {
     margin-top: auto;
     padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+  .comparison-cta {
+    display: block;
     text-align: center;
     text-decoration: none;
-    color: var(--accent);
     font-weight: 600;
     font-size: 0.9375rem;
-    border-top: 1px solid var(--border);
-    padding: 0.875rem 1rem 0;
-    transition: opacity 0.15s;
+    padding: 0.7rem 1rem;
+    border-radius: 0.5rem;
+    transition: opacity 0.15s, background 0.15s;
   }
-  .comparison-cta:hover { opacity: 0.8; }
+  /* Non-highlighted columns: outlined ghost button (uniform with each other). */
+  .comparison-cta--ghost {
+    color: var(--accent);
+    background: transparent;
+    border: 1px solid var(--accent-dim);
+  }
+  .comparison-cta--ghost:hover { background: var(--accent-glow); }
+  /* The "Top pick" keeps a filled teal button so it still stands out. */
   .comparison-cta--primary {
     background: var(--accent);
-    color: var(--bg);
-    border-radius: 0.5rem;
-    border-top: none;
-    padding: 0.75rem 1rem;
-    /* Inherit margin-top: auto from .comparison-cta so the primary
-       button pins to the bottom of its grid cell — same as
-       non-highlighted CTAs. Without this, highlighted cards' CTAs
-       float at variable heights depending on pros/cons count and
-       buttons across the row misalign. */
+    color: var(--accent-contrast, var(--bg));
+    border: 1px solid var(--accent);
   }
   .comparison-cta--primary:hover { opacity: 0.9; }
 </style>

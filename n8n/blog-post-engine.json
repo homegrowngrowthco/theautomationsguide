@@ -677,48 +677,6 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.notion.com/v1/pages",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Notion-Version",
-              "value": "2022-06-28"
-            },
-            {
-              "name": "content-type",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "contentType": "raw",
-        "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ parent: { database_id: $('Carry PR Info').first().json.draftsDatabaseId }, properties: { Name: { title: [{ text: { content: 'Video: ' + $('Carry PR Info').first().json.title } }] }, Status: { select: { name: 'Script – Needs Review' } }, Type: { select: { name: 'Video Script' } }, 'PR URL': { url: $('Carry PR Info').first().json.prUrl }, 'Pub Date': { date: { start: $('Carry PR Info').first().json.pubDate } } }, children: [{ object: 'block', type: 'callout', callout: { rich_text: [{ type: 'text', text: { content: 'Read aloud to verify timing — target 45-60 seconds.' } }], icon: { emoji: '🎬' } } }, { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: $json.video.substring(0, 1999) } }] } }] }) }}",
-        "options": {
-          "timeout": 30000
-        }
-      },
-      "id": "tag00001-0000-0000-0000-000000000016",
-      "name": "Save Video Script",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        3980,
-        600
-      ],
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "REPLACE_WITH_NOTION_CREDENTIAL_ID",
-          "name": "Notion Integration Token"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "method": "POST",
         "url": "={{ $('Carry PR Info').first().json.slackWebhookUrl }}",
         "sendHeaders": true,
         "headerParameters": {
@@ -732,7 +690,7 @@
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ text: `:newspaper: *New post PR opened — ready for review*\\n\\n*Title:* ${$('Carry PR Info').first().json.title}\\n*Topic:* ${$('Carry PR Info').first().json.blogTopic}\\n*PR:* ${$('Carry PR Info').first().json.prUrl}\\n\\n_Netlify will comment the deploy preview URL on the PR within ~2 min. Review on the preview, then merge to publish to ${$('Carry PR Info').first().json.siteBaseUrl}._\\n\\n_LinkedIn post + Twitter thread + video script are queued for review in Notion._` }) }}",
+        "body": "={{ JSON.stringify({ text: `:newspaper: *New post PR opened — ready for review*\\n\\n*Title:* ${$('Carry PR Info').first().json.title}\\n*Topic:* ${$('Carry PR Info').first().json.blogTopic}\\n*PR:* ${$('Carry PR Info').first().json.prUrl}\\n\\n_Netlify will comment the deploy preview URL on the PR within ~2 min. Review on the preview, then merge to publish to ${$('Carry PR Info').first().json.siteBaseUrl}._\\n\\n_LinkedIn post + Twitter thread are queued for review in Notion._` }) }}",
         "options": {
           "timeout": 30000
         }
@@ -810,7 +768,7 @@
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 4096, messages: [{ role: 'user', content: `Generate three social outputs from the blog post below — Twitter thread, short-form video script, LinkedIn post — for a RevOps/GTM audience.\n\nOutput ONLY a JSON object. No surrounding prose. No markdown code fences.\n\n{\n  \"twitter\": \"6-8 numbered tweets (1/, 2/, etc), one per line, max 260 chars each. Tweet 1 = hook (bold claim, contrarian take, or surprising stat). Tweets 2-6 = punchy specific insights. Tweet 7 = takeaway. Optional final tweet: 'Full post: ${$json.siteBaseUrl}/blog/${$json.slug}'. No hashtag spam. No 'thread' word.\",\n  \"video\": \"45-60 second short-form video script, 120-150 words total. Use these labels on their own lines: [HOOK], [POINT 1], [POINT 2], [POINT 3], [CTA]. Direct address. No narrator stage directions.\",\n  \"linkedin\": \"1200-1800 character LinkedIn post. Hook in first 210 chars (before the 'see more' fold). Line breaks every 1-2 sentences. 3-5 specific takeaways. Soft CTA at the end. Senior practitioner tone. No emojis. No 'thought-leader' clichés. Plain text — LinkedIn doesn't render markdown.\"\n}\n\nHard rules across all three:\n- Be specific. Reference real tool names, real numbers, real workflow steps.\n- DELETE these words anywhere they appear: delve, crucial, game-changer, streamline, leverage (as a verb), robust, utilize, in conclusion, cutting-edge, seamlessly, dive into, at the end of the day, moving the needle, low-hanging fruit, in today's landscape, unlock the power.\n- One concrete contrarian or experience-based claim per output.\n\nPOST_URL: ${$json.siteBaseUrl}/blog/${$json.slug}\n\nBLOG POST:\n${$json.markdown}` }] }) }}",
+        "body": "={{ JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 4096, messages: [{ role: 'user', content: `Generate two social outputs from the blog post below — Twitter thread, LinkedIn post — for a RevOps/GTM audience.\n\nOutput ONLY a JSON object. No surrounding prose. No markdown code fences.\n\n{\n  \"twitter\": \"6-8 numbered tweets (1/, 2/, etc), one per line, max 260 chars each. Tweet 1 = hook (bold claim, contrarian take, or surprising stat). Tweets 2-6 = punchy specific insights. Tweet 7 = takeaway. Optional final tweet: 'Full post: ${$json.siteBaseUrl}/blog/${$json.slug}'. No hashtag spam. No 'thread' word.\",\n  \"linkedin\": \"1200-1800 character LinkedIn post. Hook in first 210 chars (before the 'see more' fold). Line breaks every 1-2 sentences. 3-5 specific takeaways. Soft CTA at the end. Senior practitioner tone. No emojis. No 'thought-leader' clichés. Plain text — LinkedIn doesn't render markdown.\"\n}\n\nHard rules across all three:\n- Be specific. Reference real tool names, real numbers, real workflow steps.\n- DELETE these words anywhere they appear: delve, crucial, game-changer, streamline, leverage (as a verb), robust, utilize, in conclusion, cutting-edge, seamlessly, dive into, at the end of the day, moving the needle, low-hanging fruit, in today's landscape, unlock the power.\n- One concrete contrarian or experience-based claim per output.\n\nPOST_URL: ${$json.siteBaseUrl}/blog/${$json.slug}\n\nBLOG POST:\n${$json.markdown}` }] }) }}",
         "options": {
           "timeout": 90000
         }
@@ -832,7 +790,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Parse the Haiku JSON response and expose flat fields for the 3 Save nodes.\n// Defensive: try common field-name variants, and if a field is still missing\n// save a diagnostic placeholder so the workflow completes and Ian can see in\n// Notion what Haiku actually returned. Social drafts are secondary to the\n// blog PR itself, never block the workflow on a flaky Haiku response.\nconst response = $input.first().json;\nconst carry = $('Carry PR Info').first().json;\n\nif (!response.content || !Array.isArray(response.content) || !response.content[0]?.text) {\n  throw new Error('Generate Social Outputs returned malformed response: ' + JSON.stringify(response).substring(0, 500));\n}\n\nconst raw = response.content[0].text.trim();\nconst jsonMatch = raw.match(/\\{[\\s\\S]*\\}/);\nif (!jsonMatch) {\n  throw new Error('Could not find JSON in social outputs response. Raw: ' + raw.substring(0, 500));\n}\n\nlet parsed;\ntry {\n  parsed = JSON.parse(jsonMatch[0]);\n} catch (err) {\n  throw new Error('Social outputs JSON parse failed: ' + err.message + '. Raw: ' + jsonMatch[0].substring(0, 500));\n}\n\nfunction pickField(obj, names) {\n  for (const n of names) {\n    const v = obj[n];\n    if (typeof v === 'string' && v.trim().length > 0) return v;\n  }\n  return null;\n}\n\nconst fields = {\n  twitter: pickField(parsed, ['twitter', 'twitter_thread', 'tweet', 'tweets', 'x', 'x_thread']),\n  video: pickField(parsed, ['video', 'video_script', 'short_form', 'tiktok', 'reel']),\n  linkedin: pickField(parsed, ['linkedin', 'linkedin_post', 'li_post']),\n};\n\nconst stopReason = response.stop_reason || 'unknown';\nconst truncatedNote = stopReason === 'max_tokens' ? ' (Haiku response truncated by max_tokens)' : '';\nconst keys = Object.keys(parsed).join(', ') || '(none)';\nconst sample = jsonMatch[0].substring(0, 300);\n\nfor (const f of ['twitter', 'video', 'linkedin']) {\n  if (!fields[f]) {\n    fields[f] = '[Generation incomplete' + truncatedNote + '. Missing field: ' + f + '. Haiku returned keys: ' + keys + '. Regenerate manually. Raw sample: ' + sample + ']';\n  }\n}\n\nreturn [{ json: { ...carry, ...fields } }];"
+        "jsCode": "// Parse the Haiku JSON response and expose flat fields for the 3 Save nodes.\n// Defensive: try common field-name variants, and if a field is still missing\n// save a diagnostic placeholder so the workflow completes and Ian can see in\n// Notion what Haiku actually returned. Social drafts are secondary to the\n// blog PR itself, never block the workflow on a flaky Haiku response.\nconst response = $input.first().json;\nconst carry = $('Carry PR Info').first().json;\n\nif (!response.content || !Array.isArray(response.content) || !response.content[0]?.text) {\n  throw new Error('Generate Social Outputs returned malformed response: ' + JSON.stringify(response).substring(0, 500));\n}\n\nconst raw = response.content[0].text.trim();\nconst jsonMatch = raw.match(/\\{[\\s\\S]*\\}/);\nif (!jsonMatch) {\n  throw new Error('Could not find JSON in social outputs response. Raw: ' + raw.substring(0, 500));\n}\n\nlet parsed;\ntry {\n  parsed = JSON.parse(jsonMatch[0]);\n} catch (err) {\n  throw new Error('Social outputs JSON parse failed: ' + err.message + '. Raw: ' + jsonMatch[0].substring(0, 500));\n}\n\nfunction pickField(obj, names) {\n  for (const n of names) {\n    const v = obj[n];\n    if (typeof v === 'string' && v.trim().length > 0) return v;\n  }\n  return null;\n}\n\nconst fields = {\n  twitter: pickField(parsed, ['twitter', 'twitter_thread', 'tweet', 'tweets', 'x', 'x_thread']),\n  linkedin: pickField(parsed, ['linkedin', 'linkedin_post', 'li_post']),\n};\n\nconst stopReason = response.stop_reason || 'unknown';\nconst truncatedNote = stopReason === 'max_tokens' ? ' (Haiku response truncated by max_tokens)' : '';\nconst keys = Object.keys(parsed).join(', ') || '(none)';\nconst sample = jsonMatch[0].substring(0, 300);\n\nfor (const f of ['twitter', 'linkedin']) {\n  if (!fields[f]) {\n    fields[f] = '[Generation incomplete' + truncatedNote + '. Missing field: ' + f + '. Haiku returned keys: ' + keys + '. Regenerate manually. Raw sample: ' + sample + ']';\n  }\n}\n\nreturn [{ json: { ...carry, ...fields } }];"
       },
       "id": "tag00001-0000-0000-0000-000000000021",
       "name": "Parse Social Outputs",
@@ -1069,11 +1027,6 @@
         [
           {
             "node": "Save Twitter Thread",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Save Video Script",
             "type": "main",
             "index": 0
           },

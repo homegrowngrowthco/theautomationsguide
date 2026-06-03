@@ -100,6 +100,34 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'no-program',
     notes: 'No affiliate program available. Falls back to homepage + UTM tag so /go/substack still routes correctly.',
   },
+  salesforce: {
+    name: 'Salesforce',
+    url: '',
+    homepageFallback: 'https://www.salesforce.com/',
+    status: 'no-program',
+    notes: 'No consumer affiliate program (enterprise AppExchange/partner only). Falls back to homepage + UTM tag so /go/salesforce still routes and every comparison column links consistently.',
+  },
+  gong: {
+    name: 'Gong',
+    url: '',
+    homepageFallback: 'https://www.gong.io/',
+    status: 'no-program',
+    notes: 'No public affiliate program (enterprise sales motion). Falls back to homepage + UTM tag so /go/gong still routes and comparison columns link consistently.',
+  },
+  outreach: {
+    name: 'Outreach',
+    url: '',
+    homepageFallback: 'https://www.outreach.io/',
+    status: 'no-program',
+    notes: 'No public affiliate program (enterprise sales motion). Falls back to homepage + UTM tag so /go/outreach still routes and comparison columns link consistently.',
+  },
+  salesloft: {
+    name: 'Salesloft',
+    url: '',
+    homepageFallback: 'https://www.salesloft.com/',
+    status: 'no-program',
+    notes: 'No public affiliate program (enterprise sales motion). Falls back to homepage + UTM tag so /go/salesloft still routes and comparison columns link consistently.',
+  },
 
   // --- Affiliate pipeline (Session 17). status:'pending' = identified + intended, not yet applied.
   // Each /go/<slug> falls back to the homepage + UTM until the real link is pasted into `url`.

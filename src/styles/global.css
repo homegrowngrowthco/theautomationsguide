@@ -1104,6 +1104,7 @@ main { flex: 1; }
 }
 
 .tool-card {
+  position: relative;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -1142,12 +1143,15 @@ main { flex: 1; }
   box-shadow: 0 0 0 1px var(--accent-dim), var(--shadow-lg);
 }
 
+/* Stack the name then the badge in a column so the badge always sits BELOW the
+   tool name, identically on every card. (Previously a space-between flex row,
+   which left short badges beside the name and wrapped long ones underneath,
+   so e.g. "Make" and "n8n" cards looked different.) */
 .tool-card-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
 }
 
 .tool-card h3 {
