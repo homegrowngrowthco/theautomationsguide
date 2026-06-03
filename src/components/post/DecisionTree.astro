@@ -51,7 +51,7 @@ const Self = (await import('./DecisionTree.astro')).default;
 {nested ? (
   <div class="dtree-node">
     <div class="dtree-q">{tree.question}</div>
-    <div class="dtree-branches">
+    <div class="dtree-branches" style={`--dtree-bus-inset: ${50 / tree.branches.length}%`}>
       {tree.branches.map((b) => (
         <div class="dtree-branch">
           <span class="dtree-label">{b.label}</span>
@@ -72,7 +72,7 @@ const Self = (await import('./DecisionTree.astro')).default;
     <div class="dtree-flow">
       <div class="dtree-node">
         <div class="dtree-q dtree-q--root">{tree.question}</div>
-        <div class="dtree-branches">
+        <div class="dtree-branches" style={`--dtree-bus-inset: ${50 / tree.branches.length}%`}>
           {tree.branches.map((b) => (
             <div class="dtree-branch">
               <span class="dtree-label">{b.label}</span>
@@ -128,24 +128,38 @@ const Self = (await import('./DecisionTree.astro')).default;
     border-color: var(--accent);
     color: var(--accent-contrast, #fff);
   }
-  /* Branch row: connector drops down then fans out */
+  /* Branch row + connectors: a stem drops from the question to a horizontal
+     bus, and a drop runs from the bus down to each branch. Lines use the teal
+     accent (var(--border) was invisible on the cream card). */
   .dtree-branches {
     display: flex;
     gap: 1rem;
-    margin-top: 1.4rem;
+    margin-top: 0;
+    padding-top: 1.8rem; /* connector zone: stem (0.9) + drop (0.9) */
     position: relative;
     flex-wrap: wrap;
     justify-content: center;
   }
-  /* vertical connector from question into the branch row */
+  /* vertical stem from the question down to the bus */
   .dtree-branches::before {
     content: "";
     position: absolute;
-    top: -1.4rem;
+    top: 0;
     left: 50%;
-    width: 1px;
-    height: 1.4rem;
-    background: var(--border);
+    transform: translateX(-50%);
+    width: 2px;
+    height: 0.9rem;
+    background: var(--accent-dim);
+  }
+  /* horizontal bus spanning the branch centers (inset set inline per branch count) */
+  .dtree-branches::after {
+    content: "";
+    position: absolute;
+    top: 0.9rem;
+    left: var(--dtree-bus-inset, 25%);
+    right: var(--dtree-bus-inset, 25%);
+    height: 2px;
+    background: var(--accent-dim);
   }
   .dtree-branch {
     display: flex;
@@ -157,12 +171,16 @@ const Self = (await import('./DecisionTree.astro')).default;
     min-width: 8.5rem;
     max-width: 14rem;
   }
-  /* short connector above each branch */
+  /* drop from the bus down to each branch (Yes / No) */
   .dtree-branch::before {
     content: "";
-    width: 1px;
-    height: 0.55rem;
-    background: var(--border);
+    position: absolute;
+    top: -0.9rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 0.9rem;
+    background: var(--accent-dim);
   }
   .dtree-label {
     font-family: var(--font-mono, monospace);
@@ -218,8 +236,9 @@ const Self = (await import('./DecisionTree.astro')).default;
   .dtree-node .dtree-node { margin-top: 0; }
 
   @media (max-width: 560px) {
-    .dtree-branches { flex-direction: column; align-items: stretch; gap: 0.85rem; }
+    .dtree-branches { flex-direction: column; align-items: stretch; gap: 0.85rem; padding-top: 0.85rem; }
     .dtree-branches::before { display: none; }
+    .dtree-branches::after { display: none; }
     .dtree-branch { max-width: none; }
     .dtree-branch::before { display: none; }
   }
