@@ -14,7 +14,19 @@ Closed out the three deferred items from Session 18 in one session. PR #47 open 
 
 **Deferred (needs Ian):** per-post **product screenshots** — NOT in PR #47 (additive; every post already lands 2-3 visuals via StatRow + ComparisonTable + DecisionTree). A per-post shot list (recommended tool per post → official vendor source only, never third-party blogs) is going to Ian for download approval, then lands as a follow-up commit on the same branch. `public/screenshots/n8n.png` (Session 18) can be reused for n8n-vs-make with no download.
 
-**Revert paths:** PR #47 content/docs/engine-JSON — `git revert -m 1 <merge-sha>` after merge. Live engine — re-run `deploy-engine.mjs --apply` against `git show 4176908~1:n8n/blog-post-engine.json`. Notion topics — set `Status: Skipped` (or delete the 16 rows).
+**Revert paths:** PR #47 content/docs/engine-JSON — `git revert -m 1 09292ff`. Live engine — re-run `deploy-engine.mjs --apply` against an earlier `blog-post-engine.json`. Notion topics — set `Status: Skipped` (or delete the 16 rows).
+
+### Session 19 follow-up (same day) — screenshots, comparison-format variety, engine re-deploy
+
+After the Session 19 PRs, Ian reviewed and asked for two changes; both shipped (all merged to master + engine re-deployed):
+
+**A. Product screenshots (PR #48, merge `0dbc6c7`).** Added real product-UI screenshots to **7** comparison posts, each sourced from the tool's **own domain** and visually verified before use (the reliable source was vendor **help/docs centers**, not marketing pages, which lazy-load UI — see `reference_product_screenshots_from_help_docs`): why-revops + outreach-alternatives → HubSpot Sequences (knowledge.hubspot.com), apollo-alternatives → Clay (clay.com), beehiiv-vs-substack → Beehiiv (media.beehiiv.com), n8n-vs-make → reused `public/screenshots/n8n.png`, lemlist-vs-apollo → Apollo (apollo public KB / GCS), pipedrive-vs-apollo → Pipedrive (kb-cms.pipedriveassets.com). Per Ian's review: screenshots are **spaced** from the DecisionTree above (`.figure.post-screenshot { margin-top: 2.5rem }`) and **capped at 600px** centered (`Figure` gained a `class` prop). **Deferred** (no clean official UI sourceable headlessly; sites lazy-load or are SPAs): Smartlead, Gong, Salesforce Flow → those posts keep their 3 data visuals. Ian can drop a login screenshot into `public/screenshots/<tool>.png` + add the same `<Figure>` block.
+
+**B. Comparison-format variety (PR #49, merge `8075dc4`).** Every comparison using the identical 3-column card table read as an AI tell. Added two alternate formats: **`<ToolBreakdown>`** (new `src/components/post/ToolBreakdown.astro`, section-per-product editorial blocks) and a **`compact`** mode on `<ComparisonTable>` (slim at-a-glance rows, no pros/cons). Retrofit: make-vs-zapier-vs-n8n + gong-vs-outreach-vs-salesloft + pipedrive-vs-apollo → ToolBreakdown; apollo-vs-clay-vs-linkedin + lemlist-vs-smartlead-vs-instantly → compact. (pipedrive-vs-apollo was the one Ian flagged as "format stinks" — converted from its sparse 2-col card table; verified on the regenerated preview before merge.) Engine updater `n8n/update-engine-comparison-formats.mjs` adds the ToolBreakdown import + a **COMPARISON FORMAT rotation** rule (pick one of three by fit, do not default to the card table) + Humanize parity (8→9 imports, ToolBreakdown in the component list, a format-verify line).
+
+**C. Engine re-deployed LIVE** via `deploy-engine.mjs --apply` **after** both component PRs merged (ordering matters: the engine emits `<ToolBreakdown>`, which had to be on master first or a scheduled run's PR would fail to build). Verified live: ToolBreakdown import + COMPARISON FORMAT section present, node count 24, active. The 16 staged Notion topics remain `Suggested` so nothing auto-fired during the gap.
+
+**Verification:** `npm run build` clean at 100 pages throughout; both new formats confirmed in compiled HTML; pipedrive-vs-apollo ToolBreakdown verified on the live #48 preview (Playwright element shot) before merging; live engine confirmed via API GET.
 
 ---
 
