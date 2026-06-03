@@ -23,6 +23,7 @@ import MyTake from '@/components/post/MyTake.astro';
 import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
 import DecisionTree from '@/components/post/DecisionTree.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
 <style>{`
@@ -96,68 +97,36 @@ Every RevOps team I talk to in 2026 is sitting on a mountain of conversation dat
   { number: "$100K+", label: "Combined annual spend", description: "A mid-market team running Gong plus Outreach or Salesloft plus a CRM is typically spending six figures annually on platforms before any enrichment or automation tooling." }
 ]} />
 
-<ComparisonTable
-  title="Gong vs Outreach vs Salesloft: 2026 Comparison"
+<ToolBreakdown
+  title="Gong vs Outreach vs Salesloft, broken down"
   tools={[
     {
       name: "Gong",
-      tagline: "Revenue intelligence and deal forecasting from conversation data",
-      pros: [
-        "Best-in-class call transcription and AI-driven deal risk scoring",
-        "Forecasting module with rep-level pipeline health signals",
-        "Strong coaching workflows with moment-level call annotations",
-        "Broad CRM integration including Salesforce and HubSpot"
-      ],
-      cons: [
-        "Conversation intelligence is passive without a downstream action trigger",
-        "Forecasting accuracy still depends on clean CRM hygiene upstream",
-        "Pricing is opaque and typically negotiated at $1,400 to $1,600 per seat per year",
-        "Limited native sequence or outreach automation"
-      ],
-      pricing: "Approx. $1,400 to $1,600/seat/yr (negotiated)",
+      tagline: "The intelligence backbone",
+      body: "Gong's call transcription and AI deal-risk scoring are best in class, the forecasting module surfaces rep-level pipeline health, and coaching workflows annotate calls down to the moment. The catch is that Gong is passive: it tells you a deal went dark but does little to act on it, and forecasting accuracy still rides on clean CRM hygiene upstream. Pricing is opaque, usually negotiated around $1,400 to $1,600 per seat per year.",
+      highlights: ["Best-in-class transcription and deal-risk scoring", "Rep-level forecasting plus moment-level coaching"],
+      pricing: "~$1,400 to $1,600/seat/yr (negotiated)",
       affiliateSlug: "gong",
       ctaLabel: "Visit Gong",
-      highlight: false
-    },
-    {
-      name: "Outreach",
-      tagline: "Sales execution platform built for high-volume sequencing and rep workflow",
-      pros: [
-        "Most mature sequence and task automation engine in the category",
-        "Strong bi-directional Salesforce sync with field-level control",
-        "Kaia AI assistant surfaces objection handling in real time",
-        "Deep API for custom automation triggers via Make or n8n"
-      ],
-      cons: [
-        "UI complexity is real and onboarding takes longer than it should",
-        "Reporting requires significant configuration to be useful",
-        "Call intelligence (Kaia) lags Gong in transcript quality and deal signals",
-        "Pricing has crept up significantly, often $150 to $180 per seat per month"
-      ],
-      pricing: "Approx. $150 to $180/seat/mo (negotiated)",
-      affiliateSlug: "outreach",
-      ctaLabel: "Visit Outreach",
       highlight: true
     },
     {
+      name: "Outreach",
+      tagline: "The execution engine",
+      body: "Outreach has the most mature sequence and task automation in the category, strong bi-directional Salesforce sync with field-level control, and a deep API you can trigger from Make or n8n. The UI is genuinely complex and onboarding drags, reporting needs real configuration to be useful, and its Kaia call intelligence still trails Gong on transcript quality. Expect $150 to $180 per seat per month after the recent price creep.",
+      highlights: ["Most mature sequence and task automation", "Deep API for Make or n8n triggers"],
+      pricing: "~$150 to $180/seat/mo (negotiated)",
+      affiliateSlug: "outreach",
+      ctaLabel: "Visit Outreach"
+    },
+    {
       name: "Salesloft",
-      tagline: "Revenue workflow platform focused on deal management and coaching",
-      pros: [
-        "Deals module gives pipeline visibility closest to a lightweight CRM view",
-        "Rhythm AI prioritizes rep tasks based on buyer signals across email and call",
-        "Better enterprise coaching infrastructure than Outreach",
-        "Cleaner UI and faster admin onboarding than Outreach"
-      ],
-      cons: [
-        "Sequencing automation has fewer conditional branch options than Outreach",
-        "Native integration depth with HubSpot is weaker than with Salesforce",
-        "Conversation intelligence still catching up to Gong on model accuracy",
-        "Less active developer ecosystem for custom webhook triggers"
-      ],
-      pricing: "Approx. $125 to $165/seat/mo (negotiated)",
+      tagline: "The deal-management and coaching play",
+      body: "Salesloft's Deals module gives pipeline visibility closest to a lightweight CRM, Rhythm AI prioritizes rep tasks from buyer signals across email and call, and its enterprise coaching infrastructure beats Outreach with a cleaner admin experience. Sequencing has fewer conditional branches than Outreach, HubSpot integration is weaker than its Salesforce depth, and its conversation intelligence is still catching up to Gong.",
+      highlights: ["Deals module plus Rhythm task prioritization", "Stronger enterprise coaching than Outreach"],
+      pricing: "~$125 to $165/seat/mo (negotiated)",
       affiliateSlug: "salesloft",
-      ctaLabel: "Visit Salesloft",
-      highlight: false
+      ctaLabel: "Visit Salesloft"
     }
   ]}
 />

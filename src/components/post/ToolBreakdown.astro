@@ -1,0 +1,160 @@
+---
+// Section-per-product comparison: each tool gets its own editorial block
+// (name, who-it's-for tagline, a narrative paragraph, optional highlights, CTA)
+// instead of a side-by-side card grid. Use this to vary comparison posts away
+// from the repetitive 3-column table look. Pairs with <ComparisonTable compact>
+// and the full <ComparisonTable> as the three rotating comparison formats.
+//
+// USAGE in MDX posts:
+//   import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+//
+//   <ToolBreakdown
+//     title="The three tools, broken down"
+//     tools={[
+//       {
+//         name: 'Clay',
+//         tagline: 'Best when enrichment IS the workflow',
+//         body: 'Clay runs waterfall enrichment across 75+ providers in one table...',
+//         highlights: ['Waterfall across 75+ sources', 'AI columns for personalization'],
+//         pricing: 'From $149/mo',
+//         affiliateSlug: 'clay',
+//         ctaLabel: 'Try Clay',
+//         highlight: true,
+//       },
+//       { name: 'Zapier', ... },
+//     ]}
+//   />
+
+interface Tool {
+  name: string;
+  tagline?: string;
+  body: string;
+  highlights?: string[];
+  pricing?: string;
+  affiliateSlug?: string;
+  ctaLabel?: string;
+  highlight?: boolean;
+}
+
+interface Props {
+  title?: string;
+  tools: Tool[];
+}
+
+const { title, tools } = Astro.props;
+---
+
+<section class="tool-breakdown">
+  {title && <h3 class="tool-breakdown-title">{title}</h3>}
+  {tools.map((tool) => (
+    <div class={`tbd-item ${tool.highlight ? 'tbd-item--highlight' : ''}`}>
+      <div class="tbd-head">
+        <h4 class="tbd-name">
+          {tool.name}
+          {tool.highlight && <span class="tbd-pick">Top pick</span>}
+        </h4>
+        {tool.pricing && <span class="tbd-price">{tool.pricing}</span>}
+      </div>
+      {tool.tagline && <p class="tbd-tagline">{tool.tagline}</p>}
+      <p class="tbd-body">{tool.body}</p>
+      {tool.highlights && tool.highlights.length > 0 && (
+        <ul class="tbd-highlights">
+          {tool.highlights.map((h) => <li>{h}</li>)}
+        </ul>
+      )}
+      {tool.affiliateSlug && (
+        <a
+          href={`/go/${tool.affiliateSlug}`}
+          class="tbd-cta"
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+        >
+          {tool.ctaLabel || `Try ${tool.name}`} &rarr;
+        </a>
+      )}
+    </div>
+  ))}
+</section>
+
+<style>
+  .tool-breakdown {
+    margin: 2.5rem 0;
+  }
+  .tool-breakdown-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    color: var(--text);
+  }
+  .tbd-item {
+    border-left: 3px solid var(--border);
+    padding: 0.35rem 0 0.35rem 1.25rem;
+    margin-bottom: 1.75rem;
+  }
+  .tbd-item:last-child { margin-bottom: 0; }
+  .tbd-item--highlight {
+    border-left-color: var(--accent);
+  }
+  .tbd-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .tbd-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .tbd-pick {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent-contrast, #fff);
+    background: var(--accent);
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+  }
+  .tbd-price {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .tbd-tagline {
+    font-weight: 600;
+    color: var(--accent-dim, var(--accent));
+    font-size: 0.95rem;
+    margin: 0.35rem 0 0.5rem;
+  }
+  .tbd-body {
+    color: var(--text);
+    margin: 0 0 0.75rem;
+    line-height: 1.65;
+  }
+  .tbd-highlights {
+    margin: 0 0 0.85rem;
+    padding-left: 1.125rem;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+  .tbd-highlights li { margin-bottom: 0.2rem; }
+  .tbd-highlights li::marker { color: var(--accent); }
+  .tbd-cta {
+    display: inline-block;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--accent);
+    border: 1px solid var(--accent-dim);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.95rem;
+    transition: background 0.15s;
+  }
+  .tbd-cta:hover { background: var(--accent-glow); }
+</style>

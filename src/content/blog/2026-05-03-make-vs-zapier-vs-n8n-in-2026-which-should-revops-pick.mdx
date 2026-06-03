@@ -20,36 +20,39 @@ import PullQuote from '@/components/post/PullQuote.astro';
 import MyTake from '@/components/post/MyTake.astro';
 import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
 Most RevOps teams pick their automation platform the same way they pick a CRM: whoever got there first wins, and now you're stuck maintaining 200 Zaps built by a sales ops analyst who left in 2023. In 2026, the gap between these three platforms has widened enough that a wrong choice costs real money and real engineering hours. [Make](/go/make) (formerly Integromat), Zapier, and [n8n](/go/n8n) have each staked out very different territory — and the right answer depends almost entirely on whether you're optimizing for speed, cost, or control.
 
 <div class="quick-answer"><strong>Quick answer:</strong> n8n wins for technical RevOps teams who want control and low cost at scale; Make wins for complex multi-step logic at mid-market; Zapier is only justified if your team refuses to learn anything new.</div>
 
-<StatRow stats={[
-  { number: "$50/mo", label: "n8n Cloud Pro", description: "50,000 executions, unlimited workflows. Self-hosted on a $20 VPS goes effectively to zero." },
-  { number: "$160/mo", label: "Make Teams plan", description: "200,000 ops. Roughly 5x the volume Zapier gives you at the same price point." },
-  { number: "$800–$1,200/mo", label: "Zapier at 200K tasks", description: "Professional / Team tier. The bill that forces every growing RevOps team to have a platform conversation." }
-]} />
+<style>{`
+  .quick-answer,
+  .stat-row-wrapper {
+    display: block !important;
+    visibility: visible !important;
+  }
+`}</style>
+
+<div class="stat-row-wrapper">
+  <StatRow stats={[
+    { number: "$50/mo", label: "n8n Cloud Pro", description: "50,000 executions, unlimited workflows. Self-hosted on a $20 VPS goes effectively to zero." },
+    { number: "$160/mo", label: "Make Teams plan", description: "200,000 ops. Roughly 5x the volume Zapier gives you at the same price point." },
+    { number: "$800–$1,200/mo", label: "Zapier at 200K tasks", description: "Professional / Team tier. The bill that forces every growing RevOps team to have a platform conversation." }
+  ]} />
+</div>
 
 ## At a glance
 
-<ComparisonTable
-  title="Make vs Zapier vs n8n — RevOps in 2026"
+<ToolBreakdown
+  title="The three platforms, broken down"
   tools={[
     {
       name: "n8n",
-      tagline: "Best for technical RevOps + cost-sensitive scale",
-      pros: [
-        "Self-host for ~$20/mo, no per-op pricing",
-        "First-class AI agent + LangChain nodes",
-        "Error Trigger workflows for instance-wide alerting",
-        "JS Code nodes — drop into custom logic anywhere"
-      ],
-      cons: [
-        "Smaller native app catalog (closing fast)",
-        "Self-hosting requires someone who can manage Docker + Postgres"
-      ],
+      tagline: "Best for technical RevOps and cost-sensitive scale",
+      body: "n8n is where I land technical RevOps teams that care about cost at volume. Self-host it for roughly $20 a month with no per-operation tax, drop into JavaScript Code nodes for any custom logic, and wire Error Trigger workflows for instance-wide alerting. The native app catalog is smaller than Zapier's, but it is closing fast, and self-hosting assumes someone on the team is comfortable with Docker and Postgres.",
+      highlights: ["Self-host for ~$20/mo, no per-op pricing", "First-class AI agent nodes plus JS Code nodes anywhere"],
       pricing: "Free self-hosted; ~$50/mo Cloud Pro",
       affiliateSlug: "n8n",
       ctaLabel: "Try n8n",
@@ -57,36 +60,19 @@ Most RevOps teams pick their automation platform the same way they pick a CRM: w
     },
     {
       name: "Make",
-      tagline: "Pragmatic mid-market choice",
-      pros: [
-        "Native error routes (table-stakes for production)",
-        "Iterators + aggregators handle real list logic",
-        "OpenAI module + HTTP for credible AI workflows",
-        "Visual canvas accessible to non-engineers"
-      ],
-      cons: [
-        "Self-host gated to enterprise plans",
-        "Cost-per-op still beats Zapier but isn't free at high scale"
-      ],
-      pricing: "Free → ~$9/mo entry; ~$160/mo at 200K ops",
+      tagline: "The pragmatic mid-market choice",
+      body: "Make is the sensible middle ground. The visual canvas is approachable for non-engineers, native error routes make it credible in production, and iterators plus aggregators handle the real list logic that Zapier simply cannot. Cost per operation beats Zapier but is not free at high volume, and self-hosting is gated behind enterprise plans, so the bill still climbs as you scale.",
+      highlights: ["Native error routes, iterators, and aggregators", "Visual canvas a non-engineer can run"],
+      pricing: "Free, ~$9/mo entry, ~$160/mo at 200K ops",
       affiliateSlug: "make",
       ctaLabel: "Try Make"
     },
     {
       name: "Zapier",
       tagline: "Only justified for simple, low-volume Zaps",
-      pros: [
-        "Largest native app catalog",
-        "Fastest path to a 'working' automation",
-        "Familiar to non-technical operators"
-      ],
-      cons: [
-        "Per-task pricing tax compounds fast",
-        "Error handling is genuinely embarrassing for the price",
-        "No real iteration, anemic branching, late + awkward sub-workflows",
-        "AI is a checkbox feature, not a capability"
-      ],
-      pricing: "Free → $19.99/mo Starter; $800+/mo at high volume"
+      body: "Zapier earns its place only for simple, low-volume automations. It has the largest app catalog and the fastest path to a working Zap, which is why non-technical operators reach for it first. But the per-task pricing tax compounds quickly, error handling is poor for the price, and there is no real iteration or branching. Treat it as a starter tool, not a platform you scale on.",
+      highlights: ["Largest native app catalog", "Fastest path to a working automation"],
+      pricing: "Free, $19.99/mo Starter, $800+/mo at high volume"
     }
   ]}
 />
