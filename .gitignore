@@ -36,3 +36,5 @@ qa-review.md
 
 # Local screenshots (manual captures for debugging / PR review)
 screenshots/
+# ...but public/screenshots/ holds real, served site assets (tool product shots)
+!public/screenshots/
