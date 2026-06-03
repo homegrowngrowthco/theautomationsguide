@@ -327,7 +327,7 @@
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
-          "name": "GitHub PAT"
+          "name": "Github PAT"
         }
       }
     },
@@ -371,7 +371,7 @@
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
-          "name": "GitHub PAT"
+          "name": "Github PAT"
         }
       }
     },
@@ -422,7 +422,7 @@
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
-          "name": "GitHub PAT"
+          "name": "Github PAT"
         }
       }
     },
@@ -481,7 +481,7 @@
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
-          "name": "GitHub PAT"
+          "name": "Github PAT"
         }
       }
     },
@@ -527,7 +527,7 @@
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
-          "name": "GitHub PAT"
+          "name": "Github PAT"
         }
       }
     },
@@ -573,7 +573,7 @@
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
-          "name": "GitHub PAT"
+          "name": "Github PAT"
         }
       }
     },
@@ -895,7 +895,7 @@
       "main": [
         [
           {
-            "node": "Check Idempotency",
+            "node": "Check Idempotency MDX",
             "type": "main",
             "index": 0
           }
