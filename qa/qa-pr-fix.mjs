@@ -64,6 +64,14 @@ PRESERVE:
 - All existing /go/<slug> affiliate links
 - The voice / opinions of the post — only fix LAYOUT/STRUCTURE, not the writing
 
+NEVER (the content width is intentional and approved — do NOT "fix" it):
+- NEVER change the content or container width, line length, or "readability width". The site's wide, full-container desktop layout is a deliberate design choice. Wide body text is NOT a bug.
+- NEVER add or change \`max-width\`, \`width\`, \`margin: auto\` centering, on \`article\`, \`.prose\`, \`.post-body\`, \`.container\`, \`.container--wide\`, or any global/page-level selector.
+- NEVER add a \`<style>\` block (or inline style) that targets a global selector (article, .prose, .post-body, body, etc.). Only ever style a class that is unique to this post.
+- NEVER use \`!important\`.
+- NEVER wrap a component in a new \`<div>\` to restyle or constrain its width.
+- IGNORE any review item about "prose too wide", "content too wide", "text column too wide", "line length", or content-width — these are not issues. If every issue is width-related, output the post UNCHANGED.
+
 ISSUES TO FIX:
 ${issues.map((i, n) => `${n + 1}. [${i.severity}] (${i.viewport}) ${i.description}\n   → Suggested fix: ${i.suggestedFix}`).join('\n')}
 

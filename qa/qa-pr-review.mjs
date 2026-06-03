@@ -67,13 +67,13 @@ Identify ONLY visible layout problems that look unprofessional or sloppy:
 - Vertical spacing too loose / too tight between sections
 - Mobile cards inflated with excessive whitespace
 - Misalignment between text and adjacent visuals (SideBySide top alignment)
-- Reading lines too wide
 - Anything that breaks visual rhythm
 
 Do NOT critique:
 - Copy quality, factual claims, SEO
 - Design style choices that are intentional (dark theme, teal accent, etc)
 - Anything that's a feature of the design system, not a bug
+- CONTENT WIDTH / LINE LENGTH. The body text intentionally spans the full ~1232px container to match the components and use the full desktop width. Wide reading lines are a DELIBERATE design choice, not a bug. NEVER flag "prose too wide", "content too wide", "lines too long/wide", or suggest a max-width / narrower text column / centering the text. The content column and the components are meant to be the same full width.
 
 Output ONLY a JSON object, no surrounding prose, no markdown fences. Schema:
 {
