@@ -117,6 +117,12 @@ The calculus flips when you start running multiple Clay tables, enrichment water
   </Fragment>
 </SideBySide>
 
+<Figure caption="A real n8n workflow: a webhook fires enrichment, branches on ICP fit, then routes to Smartlead or a Slack alert.">
+  <a href="/go/n8n" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas showing a webhook trigger feeding enrichment, a HubSpot step, an ICP branch, and Smartlead and Slack nodes." loading="lazy" />
+  </a>
+</Figure>
+
 ## The error handling gap that actually matters
 
 This is where I see the most production pain with clients. Clay's webhook behavior has a few quirks that middleware needs to handle gracefully. The 30-second timeout means a slow downstream API (a Clearbit fallback or a Salesforce upsert that lags) will cause Clay to mark the webhook as failed and stop retrying. [Clay's documentation on HTTP request columns](https://docs.clay.com) confirms this timeout behavior, but it is easy to miss on a first read-through.
