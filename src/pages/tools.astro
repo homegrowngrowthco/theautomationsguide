@@ -61,7 +61,7 @@ const articleCount = (slug: string) => {
                   )}
                 </div>
                 <div class="tool-card-header">
-                  <h3><a href={`/tools/${tool.slug}`}>{tool.name}</a></h3>
+                  <h3><a class="tool-card-title-link" href={`/tools/${tool.slug}`}>{tool.name}</a></h3>
                   <span class={`tool-badge${tool.badgeFree ? ' tool-badge--free' : ''}`}>{tool.badge}</span>
                 </div>
                 <p>{tool.blurb}</p>
@@ -92,6 +92,18 @@ const articleCount = (slug: string) => {
 <style>
   .tool-card h3 a { color: inherit; text-decoration: none; }
   .tool-card h3 a:hover { color: var(--accent); }
+  /* Whole card is a single click target for the tool's hub page. The title
+     link's ::after stretches over the entire (position:relative) card, so a
+     click anywhere on the card navigates to /tools/<slug> without nesting
+     anchors. Inner interactive elements (Try CTA, article link) are lifted
+     above the cover with z-index so they stay independently clickable. */
+  .tool-card-title-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-lg);
+  }
+  .tool-card:hover h3 a { color: var(--accent); }
   .tool-card-actions {
     display: flex;
     align-items: center;
@@ -102,6 +114,10 @@ const articleCount = (slug: string) => {
        blurb length or whether the optional article link is present. */
     margin-top: auto;
     min-height: 2.4rem;
+  }
+  .tool-card-actions > * {
+    position: relative;
+    z-index: 1;
   }
   .tool-articles-link {
     font-size: 0.85rem;
