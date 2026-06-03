@@ -22,6 +22,7 @@ import PullQuote from '@/components/post/PullQuote.astro';
 import MyTake from '@/components/post/MyTake.astro';
 import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
+import DecisionTree from '@/components/post/DecisionTree.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
 Most outbound debates frame [Lemlist](/go/lemlist) and [Apollo](/go/apollo) as direct competitors fighting for the same budget line. In practice, I've watched them serve completely different jobs on the same team, and the teams that treat them as substitutes almost always underperform the teams that know exactly which problem each one solves. The real question in 2026 is not which tool is better. It is whether your bottleneck is data, delivery, or both.
@@ -101,59 +102,29 @@ If your team is already buying a data source, whether that is ZoomInfo, [Clay](/
 
   </Fragment>
   <Fragment slot="right">
-    <Figure caption="Decision tree: Lemlist vs Apollo vs both">
-      <svg viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
-        {/* Start node */}
-        <rect x="110" y="10" width="140" height="40" rx="6" fill="#14a890" />
-        <text x="180" y="35" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">Do you need B2B data?</text>
-
-        {/* Arrow down-left: No */}
-        <line x1="140" y1="50" x2="70" y2="110" stroke="#94a3b8" stroke-width="1.5" />
-        <text x="88" y="88" text-anchor="middle" font-size="11" fill="#64748b">No</text>
-
-        {/* Arrow down-right: Yes */}
-        <line x1="220" y1="50" x2="290" y2="110" stroke="#94a3b8" stroke-width="1.5" />
-        <text x="272" y="88" text-anchor="middle" font-size="11" fill="#64748b">Yes</text>
-
-        {/* Left node: No data needed */}
-        <rect x="10" y="110" width="130" height="40" rx="6" fill="#0ea5e9" />
-        <text x="75" y="128" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">High-volume sends</text>
-        <text x="75" y="143" text-anchor="middle" font-size="11" fill="#e0f2fe">(500+ contacts/mo)?</text>
-
-        {/* Right node: Yes data needed */}
-        <rect x="220" y="110" width="130" height="40" rx="6" fill="#0ea5e9" />
-        <text x="285" y="128" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">Sequencing only</text>
-        <text x="285" y="143" text-anchor="middle" font-size="11" fill="#e0f2fe">or data + seq both?</text>
-
-        {/* Left-left arrow: No (small volume) */}
-        <line x1="50" y1="150" x2="50" y2="200" stroke="#94a3b8" stroke-width="1.5" />
-        <text x="38" y="178" text-anchor="middle" font-size="11" fill="#64748b">No</text>
-
-        {/* Left-right arrow: Yes (high volume) */}
-        <line x1="100" y1="150" x2="180" y2="200" stroke="#94a3b8" stroke-width="1.5" />
-        <text x="148" y="182" text-anchor="middle" font-size="11" fill="#64748b">Yes</text>
-
-        {/* Right-left arrow: Seq only */}
-        <line x1="250" y1="150" x2="180" y2="200" stroke="#94a3b8" stroke-width="1.5" />
-        <text x="200" y="178" text-anchor="middle" font-size="11" fill="#64748b">Seq only</text>
-
-        {/* Right-right arrow: Both */}
-        <line x1="320" y1="150" x2="320" y2="200" stroke="#94a3b8" stroke-width="1.5" />
-        <text x="337" y="178" text-anchor="middle" font-size="11" fill="#64748b">Both</text>
-
-        {/* Result: Lemlist only */}
-        <rect x="10" y="200" width="110" height="40" rx="6" fill="#10b981" />
-        <text x="65" y="223" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Lemlist only</text>
-
-        {/* Result: Layer both */}
-        <rect x="130" y="200" width="110" height="40" rx="6" fill="#f59e0b" />
-        <text x="185" y="223" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Layer both</text>
-
-        {/* Result: Apollo only */}
-        <rect x="265" y="200" width="85" height="40" rx="6" fill="#10b981" />
-        <text x="308" y="223" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Apollo only</text>
-      </svg>
-    </Figure>
+    <DecisionTree
+      caption="Lemlist vs Apollo vs both"
+      footer="Past three senders, layering Apollo data with Lemlist sending wins most often."
+      tree={{
+        question: "Do you need a B2B data source?",
+        branches: [
+          { label: "No", next: {
+              question: "Sending 500+ contacts a month?",
+              branches: [
+                { label: "No", result: { title: "Lemlist only", note: "Clean list, deliverability focus", tone: "alt" } },
+                { label: "Yes", result: { title: "Layer both", note: "Lemlist sending at scale", tone: "primary" } },
+              ],
+            } },
+          { label: "Yes", next: {
+              question: "Sequencing only, or data and sequencing both?",
+              branches: [
+                { label: "Seq only", result: { title: "Layer both", note: "Apollo data, Lemlist sending", tone: "primary" } },
+                { label: "Both", result: { title: "Apollo only", note: "One roof, straightforward motion", tone: "alt" } },
+              ],
+            } },
+        ],
+      }}
+    />
   </Fragment>
 </SideBySide>
 

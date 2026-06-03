@@ -22,6 +22,7 @@ import PullQuote from '@/components/post/PullQuote.astro';
 import MyTake from '@/components/post/MyTake.astro';
 import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
+import DecisionTree from '@/components/post/DecisionTree.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
 If you run outbound for a B2B SaaS team in 2026, you have already cycled through at least one of these three platforms and probably have opinions about all of them. [Lemlist](/go/lemlist), [Smartlead](/go/smartlead), and [Instantly](/go/instantly) occupy the same shelf space but serve meaningfully different operator profiles. Lemlist is the creative personalization play. Smartlead is the infrastructure-first, scale-or-die choice. Instantly is the fastest path from zero to booked meetings for a lean team. The nuances matter a lot once you factor in your [Clay](/go/clay) data layer, your sending volume, and how much personalization overhead your team can actually sustain.
@@ -151,39 +152,23 @@ Lemlist sits in an interesting middle position. It earns its place when your ICP
     **If your primary bottleneck is speed to launch,** Instantly wins on setup friction. From account creation to first send is under two hours, even with proper warm-up configuration. The [Instantly warm-up setup guide](https://help.instantly.ai/en/articles/6449844-email-warm-up-guide) is among the clearest product documentation in the category.
   </Fragment>
   <Fragment slot="right">
-    <Figure caption="Decision tree: which cold email platform fits your outbound motion">
-      <svg viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
-        {/* Root */}
-        <rect x="110" y="10" width="140" height="40" rx="6" fill="#14a890" />
-        <text x="180" y="35" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Clay in your stack?</text>
-
-        {/* Yes branch */}
-        <line x1="180" y1="50" x2="80" y2="110" stroke="#14a890" stroke-width="2"/>
-        <text x="100" y="90" text-anchor="middle" font-size="11" fill="#14a890">Yes</text>
-        <rect x="20" y="110" width="120" height="40" rx="6" fill="#0ea5e9" />
-        <text x="80" y="130" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">High volume</text>
-        <text x="80" y="144" text-anchor="middle" font-size="11" fill="#fff">( 20+ inboxes)?</text>
-
-        {/* No branch from root */}
-        <line x1="180" y1="50" x2="290" y2="110" stroke="#14a890" stroke-width="2"/>
-        <text x="260" y="90" text-anchor="middle" font-size="11" fill="#14a890">No</text>
-        <rect x="230" y="110" width="110" height="40" rx="6" fill="#10b981" />
-        <text x="285" y="135" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">Instantly</text>
-
-        {/* Yes from high volume */}
-        <line x1="80" y1="150" x2="60" y2="210" stroke="#0ea5e9" stroke-width="2"/>
-        <text x="52" y="190" text-anchor="middle" font-size="11" fill="#0ea5e9">Yes</text>
-        <rect x="10" y="210" width="100" height="40" rx="6" fill="#f59e0b" />
-        <text x="60" y="235" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">Smartlead</text>
-
-        {/* No from high volume */}
-        <line x1="80" y1="150" x2="160" y2="210" stroke="#0ea5e9" stroke-width="2"/>
-        <text x="140" y="190" text-anchor="middle" font-size="11" fill="#0ea5e9">No</text>
-        <rect x="115" y="210" width="120" height="40" rx="6" fill="#ec4899" />
-        <text x="175" y="228" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">Creative ICP?</text>
-        <text x="175" y="242" text-anchor="middle" font-size="10" fill="#fff">Use Lemlist</text>
-      </svg>
-    </Figure>
+    <DecisionTree
+      caption="Which cold email platform fits your outbound motion"
+      footer="Common path: start on Instantly, build your Clay waterfall, then migrate to Smartlead past 15 sending accounts."
+      tree={{
+        question: "Is Clay in your stack?",
+        branches: [
+          { label: "Yes", next: {
+              question: "High volume (20+ inboxes)?",
+              branches: [
+                { label: "Yes", result: { title: "Smartlead", note: "Most accommodating API at scale", tone: "primary" } },
+                { label: "No", result: { title: "Lemlist", note: "If your ICP rewards visual personalization", tone: "alt" } },
+              ],
+            } },
+          { label: "No", result: { title: "Instantly", note: "Live in an afternoon, the network does the lifting", tone: "alt" } },
+        ],
+      }}
+    />
   </Fragment>
 </SideBySide>
 

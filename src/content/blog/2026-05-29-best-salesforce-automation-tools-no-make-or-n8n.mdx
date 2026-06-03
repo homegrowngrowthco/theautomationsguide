@@ -22,6 +22,7 @@ import PullQuote from '@/components/post/PullQuote.astro';
 import MyTake from '@/components/post/MyTake.astro';
 import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
+import DecisionTree from '@/components/post/DecisionTree.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
 <style>{`
@@ -140,52 +141,23 @@ The right call depends almost entirely on where your data lives and how much cro
     **Choose [Pipedrive](/go/pipedrive)** if you are a sales-led team under 50 reps who needs deal automation without RevOps overhead. It will not scale to enterprise complexity. For straightforward pipeline automation, it is the lowest-friction option in this comparison by a wide margin.
   </Fragment>
   <Fragment slot="right">
-    <Figure caption="Automation tool selection by org complexity and CRM maturity" style="margin-top: 0;">
-      <svg viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
-        {/* Start node */}
-        <rect x="100" y="10" width="160" height="40" rx="8" fill="#14a890" />
-        <text x="180" y="35" text-anchor="middle" font-size="13" font-weight="bold" fill="white">Already on Salesforce?</text>
-
-        {/* Yes arrow */}
-        <line x1="180" y1="50" x2="180" y2="80" stroke="#94a3b8" stroke-width="2" />
-        <polygon points="175,78 185,78 180,86" fill="#94a3b8" />
-        <text x="188" y="68" font-size="11" fill="#64748b">Yes</text>
-
-        {/* Flow box */}
-        <rect x="110" y="86" width="140" height="40" rx="8" fill="#0ea5e9" />
-        <text x="180" y="106" text-anchor="middle" font-size="13" font-weight="bold" fill="white">Use Salesforce Flow</text>
-        <text x="180" y="120" text-anchor="middle" font-size="11" fill="#e0f2fe">native, no middleware</text>
-
-        {/* No arrow from top */}
-        <line x1="120" y1="30" x2="50" y2="30" stroke="#94a3b8" stroke-width="2" />
-        <line x1="50" y1="30" x2="50" y2="150" stroke="#94a3b8" stroke-width="2" />
-        <polygon points="45,148 55,148 50,156" fill="#94a3b8" />
-        <text x="56" y="95" font-size="11" fill="#64748b">No</text>
-
-        {/* Team size decision */}
-        <rect x="0" y="156" width="100" height="40" rx="8" fill="#14a890" />
-        <text x="50" y="172" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Team over</text>
-        <text x="50" y="186" text-anchor="middle" font-size="11" font-weight="bold" fill="white">50 reps?</text>
-
-        {/* Yes to HubSpot */}
-        <line x1="100" y1="176" x2="160" y2="176" stroke="#94a3b8" stroke-width="2" />
-        <polygon points="158,171 158,181 166,176" fill="#94a3b8" />
-        <text x="118" y="170" font-size="11" fill="#64748b">Yes</text>
-
-        <rect x="166" y="156" width="100" height="40" rx="8" fill="#10b981" />
-        <text x="216" y="172" text-anchor="middle" font-size="13" font-weight="bold" fill="white">HubSpot</text>
-        <text x="216" y="186" text-anchor="middle" font-size="11" fill="#d1fae5">full GTM platform</text>
-
-        {/* No to Pipedrive */}
-        <line x1="50" y1="196" x2="50" y2="230" stroke="#94a3b8" stroke-width="2" />
-        <polygon points="45,228 55,228 50,236" fill="#94a3b8" />
-        <text x="56" y="218" font-size="11" fill="#64748b">No</text>
-
-        <rect x="0" y="236" width="100" height="40" rx="8" fill="#f59e0b" />
-        <text x="50" y="252" text-anchor="middle" font-size="13" font-weight="bold" fill="white">Pipedrive</text>
-        <text x="50" y="266" text-anchor="middle" font-size="11" fill="#fef3c7">simple pipeline ops</text>
-      </svg>
-    </Figure>
+    <DecisionTree
+      caption="Automation tool selection by org complexity and CRM maturity"
+      footer="Most middleware migrates to native Flow in a two-week sprint. The blocker is usually politics, not capability."
+      tree={{
+        question: "Already on Salesforce?",
+        branches: [
+          { label: "Yes", result: { title: "Salesforce Flow", note: "Native, no middleware or per-run cost", tone: "primary" } },
+          { label: "No", next: {
+              question: "Team over 50 reps?",
+              branches: [
+                { label: "Yes", result: { title: "HubSpot", note: "Full GTM platform, one schema", tone: "primary" } },
+                { label: "No", result: { title: "Pipedrive", note: "Simple pipeline ops, low overhead", tone: "alt" } },
+              ],
+            } },
+        ],
+      }}
+    />
   </Fragment>
 </SideBySide>
 

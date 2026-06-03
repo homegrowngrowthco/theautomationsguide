@@ -22,6 +22,7 @@ import PullQuote from '@/components/post/PullQuote.astro';
 import MyTake from '@/components/post/MyTake.astro';
 import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
+import DecisionTree from '@/components/post/DecisionTree.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
 <style>{`
@@ -167,61 +168,31 @@ The comparison most teams run is the wrong one. They evaluate Gong, Outreach, an
 
 Gong is genuinely exceptional at surfacing that a deal has gone dark, that a champion appeared on calls regularly and then vanished three weeks ago, or that competitive mentions spiked across the last two deal stages. The problem is that Gong's native action layer is thin. It can push a field to Salesforce and trigger a notification. That is mostly it. Outreach has deeper action capabilities inside its own sequence engine, but the trigger logic between Gong signals and Outreach actions is not native. Salesloft's Rhythm AI is the most interesting attempt at closing this loop natively, but it is still maturing and it is Salesforce-first in ways that frustrate HubSpot shops.
 
-<div style="display: flex; align-items: flex-start; gap: 1.5rem; flex-wrap: wrap;">
-  <div style="flex: 1; min-width: 280px;">
+<SideBySide>
+  <Fragment slot="left">
+    **Choosing by team motion**
 
-**Choosing by team motion**
+    If your team runs high-volume outbound with SDRs working hundreds of accounts, Outreach's sequence engine is still the most battle-tested option available. I have seen clients run 10,000 touch sequences per month through it with conditional branching on email opens, reply detection, and CRM stage changes. Salesloft's cadence engine handles all of that more rigidly, and the difference shows at volume.
 
-If your team runs high-volume outbound with SDRs working hundreds of accounts, Outreach's sequence engine is still the most battle-tested option available. I have seen clients run 10,000 touch sequences per month through it with conditional branching on email opens, reply detection, and CRM stage changes. Salesloft's cadence engine handles all of that more rigidly, and the difference shows at volume.
+    If your AEs own complex, multi-stakeholder deals with cycles running 90 days or longer, Salesloft's Deals module and Rhythm prioritization genuinely changes rep behavior in ways a pure sequence tool cannot. I watched one enterprise team cut their average deal review prep time in half after moving pipeline management into Salesloft. That is not a marginal improvement.
 
-If your AEs own complex, multi-stakeholder deals with cycles running 90 days or longer, Salesloft's Deals module and Rhythm prioritization genuinely changes rep behavior in ways a pure sequence tool cannot. I watched one enterprise team cut their average deal review prep time in half after moving pipeline management into Salesloft. That is not a marginal improvement.
-
-If your leadership team needs forecast accuracy and coaching visibility, Gong is not optional. No other tool in this category gives a VP of Sales the ability to walk into a board meeting with call-evidence-backed forecasts. But Gong paired with nothing downstream becomes an expensive archive. Full stop.
-
-  </div>
-  <div style="flex: 1; min-width: 280px; width: 100%;">
-    <Figure caption="Decision tree: matching platform to primary GTM motion">
-      <svg viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg" style="min-width: 280px; width: 100%; height: auto; display: block;">
-        <rect x="100" y="10" width="160" height="44" rx="6" fill="#14a890" />
-        <text x="180" y="28" text-anchor="middle" font-size="11" font-weight="600" fill="#fff" font-family="sans-serif">Primary GTM need?</text>
-        <text x="180" y="46" text-anchor="middle" font-size="10" fill="#b5f2e6" font-family="sans-serif">Start here</text>
-
-        <line x1="120" y1="54" x2="60" y2="110" stroke="#94a3b8" stroke-width="1.5" />
-        <line x1="180" y1="54" x2="180" y2="110" stroke="#94a3b8" stroke-width="1.5" />
-        <line x1="240" y1="54" x2="300" y2="110" stroke="#94a3b8" stroke-width="1.5" />
-
-        <text x="72" y="102" text-anchor="middle" font-size="9" fill="#64748b" font-family="sans-serif">Forecast +</text>
-        <text x="72" y="113" text-anchor="middle" font-size="9" fill="#64748b" font-family="sans-serif">Coaching</text>
-
-        <text x="180" y="102" text-anchor="middle" font-size="9" fill="#64748b" font-family="sans-serif">High-volume</text>
-        <text x="180" y="113" text-anchor="middle" font-size="9" fill="#64748b" font-family="sans-serif">Outbound</text>
-
-        <text x="292" y="102" text-anchor="middle" font-size="9" fill="#64748b" font-family="sans-serif">Complex</text>
-        <text x="292" y="113" text-anchor="middle" font-size="9" fill="#64748b" font-family="sans-serif">Enterprise Deals</text>
-
-        <rect x="20" y="118" width="104" height="36" rx="5" fill="#f59e0b" />
-        <text x="72" y="133" text-anchor="middle" font-size="11" font-weight="600" fill="#fff" font-family="sans-serif">Gong</text>
-        <text x="72" y="147" text-anchor="middle" font-size="9" fill="#fef3c7" font-family="sans-serif">+ action layer</text>
-
-        <rect x="128" y="118" width="104" height="36" rx="5" fill="#0ea5e9" />
-        <text x="180" y="133" text-anchor="middle" font-size="11" font-weight="600" fill="#fff" font-family="sans-serif">Outreach</text>
-        <text x="180" y="147" text-anchor="middle" font-size="9" fill="#e0f2fe" font-family="sans-serif">+ Gong signals</text>
-
-        <rect x="236" y="118" width="104" height="36" rx="5" fill="#10b981" />
-        <text x="288" y="133" text-anchor="middle" font-size="11" font-weight="600" fill="#fff" font-family="sans-serif">Salesloft</text>
-        <text x="288" y="147" text-anchor="middle" font-size="9" fill="#d1fae5" font-family="sans-serif">Deals + Rhythm</text>
-
-        <rect x="84" y="194" width="192" height="44" rx="6" fill="#262b32" />
-        <text x="180" y="212" text-anchor="middle" font-size="11" font-weight="600" fill="#fff" font-family="sans-serif">Bridge gaps with</text>
-        <text x="180" y="228" text-anchor="middle" font-size="11" font-weight="600" fill="#b5f2e6" font-family="sans-serif">Make or n8n</text>
-
-        <line x1="72" y1="154" x2="150" y2="194" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
-        <line x1="180" y1="154" x2="180" y2="194" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
-        <line x1="288" y1="154" x2="210" y2="194" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3" />
-      </svg>
-    </Figure>
-  </div>
-</div>
+    If your leadership team needs forecast accuracy and coaching visibility, Gong is not optional. No other tool in this category gives a VP of Sales the ability to walk into a board meeting with call-evidence-backed forecasts. But Gong paired with nothing downstream becomes an expensive archive. Full stop.
+  </Fragment>
+  <Fragment slot="right">
+    <DecisionTree
+      caption="Matching platform to primary GTM motion"
+      footer="Whichever you pick, bridge the gaps with Make or n8n so a signal in one tool fires the next action automatically."
+      tree={{
+        question: "Primary GTM need?",
+        branches: [
+          { label: "Forecast + coaching", result: { title: "Gong", note: "Add a downstream action layer", tone: "primary" } },
+          { label: "High-volume outbound", result: { title: "Outreach", note: "Feed it Gong signals", tone: "alt" } },
+          { label: "Complex enterprise deals", result: { title: "Salesloft", note: "Deals module + Rhythm", tone: "alt" } },
+        ],
+      }}
+    />
+  </Fragment>
+</SideBySide>
 
 ## The action-trigger layer none of them fully solve natively
 

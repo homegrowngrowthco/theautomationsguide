@@ -22,6 +22,7 @@ import PullQuote from '@/components/post/PullQuote.astro';
 import MyTake from '@/components/post/MyTake.astro';
 import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
+import DecisionTree from '@/components/post/DecisionTree.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
 <PullQuote>Outreach built the sales engagement category, but in 2026 it is losing the retention battle, and RevOps teams are voting with their migrations.</PullQuote>
@@ -123,44 +124,23 @@ Second: do you have a dedicated call recording tool already? If yes, you do not 
 Third: how many active sequences do you maintain? Under 20, migration is a weekend project. Over 50, budget a sprint and assign a RevOps owner or the migration will stall.
 </Fragment>
 <Fragment slot="right">
-<Figure caption="Outreach replacement decision tree based on CRM and team size">
-<div style="overflow-x: auto;">
-<svg viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif" style="min-width: 560px; display: block;">
-  <rect x="110" y="10" width="140" height="40" rx="6" fill="#14a890" />
-  <text x="180" y="35" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">Your CRM?</text>
-
-  <line x1="130" y1="50" x2="70" y2="100" stroke="#94a3b8" stroke-width="1.5" />
-  <text x="85" y="90" text-anchor="middle" font-size="11" fill="#64748b">HubSpot</text>
-
-  <line x1="230" y1="50" x2="290" y2="100" stroke="#94a3b8" stroke-width="1.5" />
-  <text x="275" y="90" text-anchor="middle" font-size="11" fill="#64748b">Salesforce</text>
-
-  <rect x="10" y="100" width="130" height="40" rx="6" fill="#0ea5e9" />
-  <text x="75" y="125" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Sales Hub Pro</text>
-
-  <rect x="220" y="100" width="130" height="40" rx="6" fill="#0ea5e9" />
-  <text x="285" y="125" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Need prospecting?</text>
-
-  <line x1="285" y1="140" x2="245" y2="185" stroke="#94a3b8" stroke-width="1.5" />
-  <text x="248" y="178" text-anchor="middle" font-size="11" fill="#64748b">Yes</text>
-
-  <line x1="285" y1="140" x2="325" y2="185" stroke="#94a3b8" stroke-width="1.5" />
-  <text x="323" y="178" text-anchor="middle" font-size="11" fill="#64748b">No</text>
-
-  <rect x="180" y="188" width="90" height="36" rx="6" fill="#22c55e" />
-  <text x="225" y="210" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Apollo</text>
-
-  <rect x="280" y="188" width="75" height="36" rx="6" fill="#22c55e" />
-  <text x="318" y="210" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Outreach</text>
-  <text x="318" y="222" text-anchor="middle" font-size="10" fill="#dcfce7">or Salesloft</text>
-
-  <line x1="75" y1="140" x2="75" y2="185" stroke="#94a3b8" stroke-width="1.5" />
-  <rect x="20" y="185" width="110" height="36" rx="6" fill="#22c55e" />
-  <text x="75" y="207" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">Add Gong</text>
-  <text x="75" y="219" text-anchor="middle" font-size="10" fill="#dcfce7">for call intel</text>
-</svg>
-</div>
-</Figure>
+<DecisionTree
+  caption="Outreach replacement by CRM and team setup"
+  footer="Audit your real usage first. Most teams only use about 40% of what Outreach bills them for."
+  tree={{
+    question: "What is your primary CRM?",
+    branches: [
+      { label: "HubSpot", result: { title: "Sales Hub Pro", note: "Pair with Gong for call intel", tone: "primary" } },
+      { label: "Salesforce", next: {
+          question: "Need a prospecting layer?",
+          branches: [
+            { label: "Yes", result: { title: "Apollo", note: "Sequences logged back to Salesforce", tone: "alt" } },
+            { label: "No", result: { title: "Outreach or Salesloft", note: "Keep the sequencer you have", tone: "neutral" } },
+          ],
+        } },
+    ],
+  }}
+/>
 </Fragment>
 </SideBySide>
 

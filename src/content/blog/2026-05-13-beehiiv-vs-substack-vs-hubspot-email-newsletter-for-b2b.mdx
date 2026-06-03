@@ -22,6 +22,7 @@ import PullQuote from '@/components/post/PullQuote.astro';
 import MyTake from '@/components/post/MyTake.astro';
 import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
+import DecisionTree from '@/components/post/DecisionTree.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
 Most GTM operators treat newsletter infrastructure as an afterthought — something you bolt on after the outbound motion is already humming. That's backwards. An owned audience is the one channel your ESP can't blacklist, your ad platform can't throttle, and your competitor can't buy their way in front of. If you're running cold outbound through [Apollo](/go/apollo) or [Smartlead](/go/smartlead) and ignoring a parallel inbound flywheel via newsletter, you're leaving real pipeline on the table. The question isn't whether to build one. It's which platform won't get in your way.
@@ -124,58 +125,23 @@ For everyone else — SDR leaders building thought leadership lists, demand gen 
     **Stick with HubSpot email if** you're already on Marketing Hub Professional, your newsletter content is purely nurture-stage (not acquisition-stage), and you have fewer than 25,000 contacts. Above that threshold, the cost-per-send math breaks hard against you versus Beehiiv's flat $99/month pricing.
   </Fragment>
   <Fragment slot="right">
-    <Figure caption="Decision tree: Beehiiv vs Substack vs HubSpot for B2B newsletter operators">
-      <svg viewBox="0 0 360 320" xmlns="http://www.w3.org/2000/svg" style="font-family: sans-serif; font-size: 11px;">
-        {/* Root */}
-        <rect x="100" y="10" width="160" height="36" rx="6" fill="#14a890" />
-        <text x="180" y="24" text-anchor="middle" fill="white" font-weight="bold">Building owned audience?</text>
-        <text x="180" y="38" text-anchor="middle" fill="white">Start here</text>
-
-        {/* Stem to Q1 */}
-        <line x1="180" y1="46" x2="180" y2="68" stroke="#94a3b8" stroke-width="1.5" />
-
-        {/* Q1 */}
-        <rect x="80" y="68" width="200" height="34" rx="6" fill="#262b32" />
-        <text x="180" y="84" text-anchor="middle" fill="white">Need automation</text>
-        <text x="180" y="97" text-anchor="middle" fill="white">or CRM sync?</text>
-
-        {/* Q1 → No (left) → Substack */}
-        <line x1="120" y1="102" x2="60" y2="140" stroke="#94a3b8" stroke-width="1.5" />
-        <text x="78" y="126" fill="#94a3b8" font-size="10">No</text>
-
-        {/* Q1 → Yes (right) → Q2 */}
-        <line x1="240" y1="102" x2="300" y2="140" stroke="#94a3b8" stroke-width="1.5" />
-        <text x="270" y="126" fill="#94a3b8" font-size="10">Yes</text>
-
-        {/* Leaf left: Substack */}
-        <rect x="10" y="140" width="100" height="40" rx="6" fill="#262b32" stroke="#14a890" stroke-width="1.5" />
-        <text x="60" y="158" text-anchor="middle" fill="#b5f2e6" font-weight="bold">Substack</text>
-        <text x="60" y="172" text-anchor="middle" fill="#64748b">(low ceiling)</text>
-
-        {/* Q2: Deep in HubSpot? */}
-        <rect x="240" y="140" width="120" height="34" rx="6" fill="#262b32" />
-        <text x="300" y="156" text-anchor="middle" fill="white">Deep in HubSpot</text>
-        <text x="300" y="169" text-anchor="middle" fill="white">already?</text>
-
-        {/* Q2 → No (left) → Beehiiv */}
-        <line x1="260" y1="174" x2="200" y2="230" stroke="#94a3b8" stroke-width="1.5" />
-        <text x="218" y="208" fill="#94a3b8" font-size="10">No</text>
-
-        {/* Q2 → Yes (right) → HubSpot */}
-        <line x1="340" y1="174" x2="320" y2="230" stroke="#94a3b8" stroke-width="1.5" />
-        <text x="338" y="208" fill="#94a3b8" font-size="10">Yes</text>
-
-        {/* Leaf middle: Beehiiv (operator default) */}
-        <rect x="150" y="230" width="120" height="44" rx="6" fill="#14a890" />
-        <text x="210" y="250" text-anchor="middle" fill="white" font-weight="bold">Beehiiv</text>
-        <text x="210" y="265" text-anchor="middle" fill="#e6fbf6">operator default</text>
-
-        {/* Leaf right: HubSpot Email */}
-        <rect x="270" y="230" width="80" height="44" rx="6" fill="#262b32" stroke="#14a890" stroke-width="1.5" />
-        <text x="310" y="250" text-anchor="middle" fill="#b5f2e6" font-weight="bold">HubSpot</text>
-        <text x="310" y="265" text-anchor="middle" fill="#64748b">(if &lt;25k contacts)</text>
-      </svg>
-    </Figure>
+    <DecisionTree
+      caption="Beehiiv vs Substack vs HubSpot for B2B newsletter operators"
+      footer="Most operators land on Beehiiv: owned audience plus CRM sync, without HubSpot's per-contact cost."
+      tree={{
+        question: "Need automation or CRM sync?",
+        branches: [
+          { label: "No", result: { title: "Substack", note: "Fast start, low ceiling", tone: "alt" } },
+          { label: "Yes", next: {
+              question: "Already deep in HubSpot?",
+              branches: [
+                { label: "No", result: { title: "Beehiiv", note: "Operator default", tone: "primary" } },
+                { label: "Yes", result: { title: "HubSpot email", note: "If under 25k contacts", tone: "neutral" } },
+              ],
+            } },
+        ],
+      }}
+    />
   </Fragment>
 </SideBySide>
 
