@@ -29,93 +29,125 @@ Mid-market outbound teams are quietly cycling off [Apollo](/go/apollo) — not b
 
 <div class="quick-answer"><strong>Quick answer:</strong> Clay is the most flexible Apollo alternative for enrichment-heavy workflows, LinkedIn Sales Nav owns intent-based prospecting, Kaspr punches above its weight for European mobile data, and ZoomInfo is only worth it if you're running enterprise plays with intent signals baked into the budget.</div>
 
-<StatRow stats={[
-  { number: "22%", label: "Average bounce rate", description: "Reported by outbound teams using Apollo at 5K+ monthly exports without additional email verification layers" },
-  { number: "75+", label: "Clay data sources", description: "Clay's waterfall enrichment pulls from over 75 providers, dramatically increasing match rates vs. a single-database approach" },
-  { number: "4–6×", label: "ZoomInfo cost premium", description: "ZoomInfo typically runs 4–6x the annual cost of Apollo for comparable seat counts, making the ROI math tight for most mid-market teams" }
-]} />
+<div class="stat-row-scroll">
+  <StatRow stats={[
+    { number: "22%", label: "Average bounce rate", description: "Reported by outbound teams using Apollo at 5K+ monthly exports without additional email verification layers" },
+    { number: "75+", label: "Clay data sources", description: "Clay's waterfall enrichment pulls from over 75 providers, dramatically increasing match rates vs. a single-database approach" },
+    { number: "4–6×", label: "ZoomInfo cost premium", description: "ZoomInfo typically runs 4–6x the annual cost of Apollo for comparable seat counts, making the ROI math tight for most mid-market teams" }
+  ]} />
+</div>
 
-<ComparisonTable
-  title="Apollo Alternatives for Mid-Market Outbound (2026)"
-  tools={[
-    {
-      name: "Clay",
-      tagline: "Enrichment-first prospecting with waterfall logic",
-      pros: [
-        "75+ enrichment sources in a single waterfall",
-        "Native AI research rows for personalization at scale",
-        "Integrates directly with Smartlead, Outreach, and HubSpot",
-        "Transparent credit-based pricing — you control spend"
-      ],
-      cons: [
-        "Steeper learning curve than point-and-click prospecting tools",
-        "Not a sequence sender — you still need a separate outreach tool",
-        "Credit costs add up fast on large enrichment runs"
-      ],
-      pricing: "From $149/mo (Starter); Pro runs ~$800/mo for serious volume",
-      affiliateSlug: "clay",
-      ctaLabel: "Try Clay",
-      highlight: true
-    },
-    {
-      name: "LinkedIn Sales Navigator",
-      tagline: "First-party intent data from the world's largest B2B graph",
-      pros: [
-        "Real-time account and contact activity signals",
-        "TeamLink and org chart visibility unmatched elsewhere",
-        "Native CRM sync to Salesforce and HubSpot",
-        "Lead lists stay fresh as people change jobs"
-      ],
-      cons: [
-        "No email or direct dial export natively — needs Kaspr or Clay to unlock",
-        "Boolean search is clunky compared to Apollo's filters",
-        "Per-seat pricing balloons quickly for larger SDR teams"
-      ],
-      pricing: "~$99/mo per seat (Core); Advanced tiers $169+/mo",
-      affiliateSlug: null,
-      ctaLabel: "View Sales Nav",
-      highlight: false
-    },
-    {
-      name: "Kaspr",
-      tagline: "European mobile data with GDPR compliance built in",
-      pros: [
-        "Best-in-class mobile number coverage for EMEA markets",
-        "LinkedIn Chrome extension for instant enrichment",
-        "GDPR-compliant data sourcing — audit trail included",
-        "Affordable entry point for smaller outbound teams"
-      ],
-      cons: [
-        "US database is noticeably thinner than Apollo's",
-        "No built-in sequencing or outreach functionality",
-        "Limited firmographic filtering vs. ZoomInfo or Apollo"
-      ],
-      pricing: "Free tier available; paid plans from ~$49/mo per user",
-      affiliateSlug: null,
-      ctaLabel: "Try Kaspr",
-      highlight: false
-    },
-    {
-      name: "ZoomInfo",
-      tagline: "Enterprise-grade database with buyer intent and org charts",
-      pros: [
-        "Deepest org chart and buying committee data available",
-        "Intent signals (Bombora integration) for timing-based outreach",
-        "Comprehensive technographic and firmographic filtering",
-        "Strong Salesforce bi-directional sync"
-      ],
-      cons: [
-        "Annual contract pricing starts at ~$15K — rarely negotiable",
-        "UI is dated and workflows feel slow vs. modern alternatives",
-        "Overkill for teams that don't have a named-account motion"
-      ],
-      pricing: "Starts ~$15,000/yr; most mid-market contracts run $20–40K",
-      affiliateSlug: null,
-      ctaLabel: "View ZoomInfo",
-      highlight: false
+<style>{`
+  @media (max-width: 640px) {
+    .stat-row-scroll :global([class*="stat"]),
+    .stat-row-scroll :global([class*="card"]),
+    .stat-row-scroll :global(> div > div),
+    .stat-row-scroll :global(.stat-row > *) {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
     }
-  ]}
-/>
+  }
+`}</style>
+
+<div class="comparison-table-scroll">
+  <ComparisonTable
+    title="Apollo Alternatives for Mid-Market Outbound (2026)"
+    tools={[
+      {
+        name: "Clay",
+        tagline: "Enrichment-first prospecting with waterfall logic",
+        pros: [
+          "75+ enrichment sources in a single waterfall",
+          "Native AI research rows for personalization at scale",
+          "Integrates directly with Smartlead, Outreach, and HubSpot",
+          "Transparent credit-based pricing — you control spend"
+        ],
+        cons: [
+          "Steeper learning curve than point-and-click prospecting tools",
+          "Not a sequence sender — you still need a separate outreach tool",
+          "Credit costs add up fast on large enrichment runs"
+        ],
+        pricing: "From $149/mo (Starter); Pro runs ~$800/mo for serious volume",
+        affiliateSlug: "clay",
+        ctaLabel: "Try Clay",
+        highlight: true
+      },
+      {
+        name: "LinkedIn Sales Navigator",
+        tagline: "First-party intent data from the world's largest B2B graph",
+        pros: [
+          "Real-time account and contact activity signals",
+          "TeamLink and org chart visibility unmatched elsewhere",
+          "Native CRM sync to Salesforce and HubSpot",
+          "Lead lists stay fresh as people change jobs"
+        ],
+        cons: [
+          "No email or direct dial export natively — needs Kaspr or Clay to unlock",
+          "Boolean search is clunky compared to Apollo's filters",
+          "Per-seat pricing balloons quickly for larger SDR teams"
+        ],
+        pricing: "~$99/mo per seat (Core); Advanced tiers $169+/mo",
+        affiliateSlug: null,
+        ctaLabel: "View Sales Nav",
+        highlight: false
+      },
+      {
+        name: "Kaspr",
+        tagline: "European mobile data with GDPR compliance built in",
+        pros: [
+          "Best-in-class mobile number coverage for EMEA markets",
+          "LinkedIn Chrome extension for instant enrichment",
+          "GDPR-compliant data sourcing — audit trail included",
+          "Affordable entry point for smaller outbound teams"
+        ],
+        cons: [
+          "US database is noticeably thinner than Apollo's",
+          "No built-in sequencing or outreach functionality",
+          "Limited firmographic filtering vs. ZoomInfo or Apollo"
+        ],
+        pricing: "Free tier available; paid plans from ~$49/mo per user",
+        affiliateSlug: null,
+        ctaLabel: "Try Kaspr",
+        highlight: false
+      },
+      {
+        name: "ZoomInfo",
+        tagline: "Enterprise-grade database with buyer intent and org charts",
+        pros: [
+          "Deepest org chart and buying committee data available",
+          "Intent signals (Bombora integration) for timing-based outreach",
+          "Comprehensive technographic and firmographic filtering",
+          "Strong Salesforce bi-directional sync"
+        ],
+        cons: [
+          "Annual contract pricing starts at ~$15K — rarely negotiable",
+          "UI is dated and workflows feel slow vs. modern alternatives",
+          "Overkill for teams that don't have a named-account motion"
+        ],
+        pricing: "Starts ~$15,000/yr; most mid-market contracts run $20–40K",
+        affiliateSlug: null,
+        ctaLabel: "View ZoomInfo",
+        highlight: false
+      }
+    ]}
+  />
+</div>
+
+<style>{`
+  .comparison-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  @media (max-width: 767px) {
+    .comparison-table-scroll :global([class*="grid"]),
+    .comparison-table-scroll :global([class*="card-grid"]),
+    .comparison-table-scroll :global(.comparison-grid) {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(220px, 1fr));
+      min-width: 880px;
+    }
+  }
+`}</style>
 
 ## How to Choose the Right Apollo Alternative
 
