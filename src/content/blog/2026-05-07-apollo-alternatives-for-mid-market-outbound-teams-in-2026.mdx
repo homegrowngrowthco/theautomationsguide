@@ -22,6 +22,7 @@ import PullQuote from '@/components/post/PullQuote.astro';
 import MyTake from '@/components/post/MyTake.astro';
 import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
+import DecisionTree from '@/components/post/DecisionTree.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
 Mid-market outbound teams are quietly cycling off [Apollo](/go/apollo) — not because the product is broken, but because the economics and data quality stop making sense right around the 3,000–5,000 contact-per-month mark. Bounce rates creep up. Mobile dials hit voicemail farms. The "unlimited exports" pitch loses its shine when 20% of your list is outdated. If you're re-evaluating your prospecting stack heading into the back half of 2026, this breakdown covers the four alternatives worth actually pressure-testing.
@@ -133,44 +134,17 @@ Cost structure matters more than most teams admit upfront. Apollo's "unlimited" 
     **If you're building a programmatic, enrichment-heavy outbound motion** — think Clay tables pulling LinkedIn + Clearbit + custom webhooks — Clay is the only tool in this list architected for that workflow natively.
   </Fragment>
   <Fragment slot="right">
-    <Figure caption="Apollo alternative decision tree for mid-market outbound teams">
-      <svg viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif" font-size="12">
-        {/* Root */}
-        <rect x="110" y="10" width="140" height="40" rx="6" fill="#14a890" />
-        <text x="180" y="26" text-anchor="middle" fill="white" font-weight="bold">Primary Pain Point?</text>
-        <text x="180" y="42" text-anchor="middle" fill="white">Start here</text>
-
-        {/* Branch: Data Quality */}
-        <line x1="145" y1="50" x2="70" y2="110" stroke="#94a3b8" stroke-width="1.5"/>
-        <rect x="10" y="110" width="120" height="40" rx="6" fill="#0ea5e9" />
-        <text x="70" y="126" text-anchor="middle" fill="white" font-weight="bold">Stale data /</text>
-        <text x="70" y="142" text-anchor="middle" fill="white">high bounces</text>
-
-        {/* Branch: Intent */}
-        <line x1="215" y1="50" x2="290" y2="110" stroke="#94a3b8" stroke-width="1.5"/>
-        <rect x="230" y="110" width="120" height="40" rx="6" fill="#0ea5e9" />
-        <text x="290" y="126" text-anchor="middle" fill="white" font-weight="bold">Wrong timing /</text>
-        <text x="290" y="142" text-anchor="middle" fill="white">low reply rates</text>
-
-        {/* Data Quality → Clay */}
-        <line x1="70" y1="150" x2="70" y2="200" stroke="#94a3b8" stroke-width="1.5"/>
-        <rect x="10" y="200" width="120" height="40" rx="6" fill="#10b981" />
-        <text x="70" y="216" text-anchor="middle" fill="white" font-weight="bold">→ Clay</text>
-        <text x="70" y="232" text-anchor="middle" fill="white">waterfall enrichment</text>
-
-        {/* Intent → SalesNav or ZoomInfo */}
-        <line x1="290" y1="150" x2="290" y2="200" stroke="#94a3b8" stroke-width="1.5"/>
-        <rect x="230" y="200" width="120" height="40" rx="6" fill="#10b981" />
-        <text x="290" y="216" text-anchor="middle" fill="white" font-weight="bold">→ Sales Nav</text>
-        <text x="290" y="232" text-anchor="middle" fill="white">or ZoomInfo Intent</text>
-
-        {/* EMEA note */}
-        <line x1="70" y1="240" x2="160" y2="265" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4"/>
-        <rect x="110" y="255" width="140" height="28" rx="6" fill="#f59e0b" />
-        <text x="180" y="266" text-anchor="middle" fill="white" font-weight="bold">EMEA focus?</text>
-        <text x="180" y="278" text-anchor="middle" fill="white">→ Add Kaspr</text>
-      </svg>
-    </Figure>
+    <DecisionTree
+      caption="Apollo alternative decision tree for mid-market outbound teams"
+      footer="EMEA-focused book of business? Add Kaspr for mobile data coverage Apollo misses."
+      tree={{
+        question: "Primary pain point?",
+        branches: [
+          { label: "Stale data, high bounces", result: { title: "Clay", note: "Waterfall enrichment across providers", tone: "primary" } },
+          { label: "Wrong timing, low replies", result: { title: "Sales Navigator", note: "Or ZoomInfo intent for timing signals", tone: "alt" } },
+        ],
+      }}
+    />
   </Fragment>
 </SideBySide>
 

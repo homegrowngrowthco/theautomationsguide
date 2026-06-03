@@ -22,6 +22,7 @@ import PullQuote from '@/components/post/PullQuote.astro';
 import MyTake from '@/components/post/MyTake.astro';
 import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
+import DecisionTree from '@/components/post/DecisionTree.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
 If your Instantly bill quietly doubled in the last two quarters without a proportional lift in booked meetings, you are not alone. The teams I work with at Homegrown Growth Co. are hitting two distinct breaking points: warm-up seat costs that scale faster than pipeline, and a wave of Google and Microsoft compliance tightening that is making aggressively warmed domains a liability rather than an asset. Neither problem is entirely Instantly's fault. But both are reasons to re-evaluate whether it is still the right infrastructure for where your outbound program is headed.
@@ -154,48 +155,29 @@ If your ICP research is mature enough that you are personalizing at the individu
     **Budget constrained and need multi-channel?** [Apollo](/go/apollo) sequences deserve a look here too. The data and sequencing in one platform trades deliverability sophistication for cost efficiency at the sub-20-inbox level.
   </Fragment>
   <Fragment slot="right">
-    <Figure caption="Decision tree: picking your Instantly alternative" style="margin-top: 0;">
-      <svg viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
-        <rect x="100" y="10" width="160" height="40" rx="8" fill="#e6fbf6" stroke="#14a890" stroke-width="1.5"/>
-        <text x="180" y="35" text-anchor="middle" font-size="12" font-weight="600" fill="#0d8c78">Volume over 500/day?</text>
-
-        <line x1="140" y1="50" x2="60" y2="110" stroke="#14a890" stroke-width="1.5"/>
-        <text x="80" y="90" text-anchor="middle" font-size="10" fill="#0d8c78">Yes</text>
-
-        <line x1="220" y1="50" x2="300" y2="110" stroke="#cdc7b3" stroke-width="1.5"/>
-        <text x="280" y="90" text-anchor="middle" font-size="10" fill="#262b32">No</text>
-
-        <rect x="10" y="110" width="130" height="40" rx="8" fill="#e6fbf6" stroke="#14a890" stroke-width="1.5"/>
-        <text x="75" y="128" text-anchor="middle" font-size="11" font-weight="600" fill="#0d8c78">Need LinkedIn</text>
-        <text x="75" y="143" text-anchor="middle" font-size="11" font-weight="600" fill="#0d8c78">steps?</text>
-
-        <rect x="220" y="110" width="130" height="40" rx="8" fill="#e6fbf6" stroke="#14a890" stroke-width="1.5"/>
-        <text x="285" y="128" text-anchor="middle" font-size="11" font-weight="600" fill="#0d8c78">On Pipedrive</text>
-        <text x="285" y="143" text-anchor="middle" font-size="11" font-weight="600" fill="#0d8c78">already?</text>
-
-        <line x1="40" y1="150" x2="40" y2="210" stroke="#14a890" stroke-width="1.5"/>
-        <text x="28" y="185" text-anchor="middle" font-size="10" fill="#0d8c78">Yes</text>
-        <rect x="5" y="210" width="80" height="36" rx="8" fill="#ffffff" stroke="#14a890" stroke-width="1.5"/>
-        <text x="45" y="232" text-anchor="middle" font-size="12" font-weight="700" fill="#0d8c78">Lemlist</text>
-
-        <line x1="110" y1="150" x2="140" y2="210" stroke="#cdc7b3" stroke-width="1.5"/>
-        <text x="138" y="185" text-anchor="middle" font-size="10" fill="#262b32">No</text>
-        <rect x="95" y="210" width="95" height="36" rx="8" fill="#ffffff" stroke="#14a890" stroke-width="1.5"/>
-        <text x="143" y="232" text-anchor="middle" font-size="12" font-weight="700" fill="#0d8c78">Smartlead</text>
-
-        <line x1="250" y1="150" x2="250" y2="210" stroke="#14a890" stroke-width="1.5"/>
-        <text x="238" y="185" text-anchor="middle" font-size="10" fill="#0d8c78">Yes</text>
-        <rect x="205" y="210" width="105" height="36" rx="8" fill="#ffffff" stroke="#14a890" stroke-width="1.5"/>
-        <text x="258" y="228" text-anchor="middle" font-size="11" font-weight="700" fill="#0d8c78">Pipedrive</text>
-        <text x="258" y="241" text-anchor="middle" font-size="11" font-weight="700" fill="#0d8c78">Sequences</text>
-
-        <line x1="330" y1="150" x2="330" y2="210" stroke="#cdc7b3" stroke-width="1.5"/>
-        <text x="343" y="185" text-anchor="middle" font-size="10" fill="#262b32">No</text>
-        <rect x="305" y="210" width="50" height="36" rx="8" fill="#ffffff" stroke="#cdc7b3" stroke-width="1.5"/>
-        <text x="330" y="228" text-anchor="middle" font-size="10" fill="#262b32">Smartlead</text>
-        <text x="330" y="241" text-anchor="middle" font-size="10" fill="#262b32">or Lemlist</text>
-      </svg>
-    </Figure>
+    <DecisionTree
+      caption="Picking your Instantly alternative"
+      footer="Pull your warm-up spend first. If it is over 40% of the bill, Smartlead's unlimited model pays for itself fast."
+      tree={{
+        question: "Volume over 500 emails a day?",
+        branches: [
+          { label: "Yes", next: {
+              question: "Need LinkedIn steps?",
+              branches: [
+                { label: "Yes", result: { title: "Lemlist", note: "Native LinkedIn touches", tone: "primary" } },
+                { label: "No", result: { title: "Smartlead", note: "Unlimited warm-up at scale", tone: "primary" } },
+              ],
+            } },
+          { label: "No", next: {
+              question: "Already on Pipedrive?",
+              branches: [
+                { label: "Yes", result: { title: "Pipedrive Sequences", note: "Already in your plan, consolidate", tone: "alt" } },
+                { label: "No", result: { title: "Smartlead or Lemlist", note: "Either fits sub-scale sending", tone: "neutral" } },
+              ],
+            } },
+        ],
+      }}
+    />
   </Fragment>
 </SideBySide>
 
