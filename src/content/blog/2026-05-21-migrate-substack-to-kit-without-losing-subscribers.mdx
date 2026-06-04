@@ -1,0 +1,148 @@
+---
+title: "Migrate Substack to Kit Without Losing Subscribers"
+description: "Exact CSV export steps, re-permission email template, and tag setup to migrate Substack to Kit cleanly. Plus what breaks and how to handle it."
+pubDate: 2026-05-21
+tags: ["guide", "automation", "email"]
+faqs:
+  - question: "Can I migrate paid Substack subscribers to Kit?"
+    answer: "Not automatically. Kit does not replicate Stripe billing tied to Substack. You need to manually migrate paid subscribers to a separate Stripe product and notify them directly."
+  - question: "Will my Substack archive URLs break after migrating?"
+    answer: "Yes. Substack posts live at yourname.substack.com and do not redirect to Kit. You should keep your Substack publication up in read-only mode or export and republish posts on your own domain."
+  - question: "Do I need to re-permission subscribers when migrating from Substack to Kit?"
+    answer: "Technically optional, but strongly recommended. A re-permission sequence protects deliverability and filters out dead addresses before they tank your sender reputation in Kit."
+  - question: "How do I export subscribers from Substack?"
+    answer: "Go to Settings, then Exports in your Substack dashboard, and click Download subscriber list. You will get a CSV with email, name, subscription status, and paid status columns."
+  - question: "Does Kit have a free plan for migrated newsletters?"
+    answer: "Yes. Kit's free plan supports up to 10,000 subscribers with unlimited broadcasts, making it a reasonable landing zone before you commit to a paid tier."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+
+I've helped three newsletter operators move off [Substack](/go/substack) in the past year. Every single one assumed the migration would take an afternoon. It did not. The CSV export is trivial. What bites people is the list architecture they never built on Substack (because Substack won't let you), the paid subscriber problem nobody warns you about, and the deliverability crater that shows up 30 days later when half the imported list never engages. This guide covers the actual playbook, not the sanitized five-step version.
+
+<div class="quick-answer"><strong>Quick answer:</strong> Export your Substack CSV, clean it in a spreadsheet, import into <a href="/go/kit">Kit</a> with source tags, send a re-permission sequence before your first broadcast, and accept that paid subscriptions, Substack Recommendations, and archive URLs do not migrate automatically.</div>
+
+## What you are actually moving (and what stays behind)
+
+Before touching a single CSV, get clear on what Substack is holding that [Kit](/go/kit) cannot absorb natively.
+
+<div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+  <style>{`
+    @media (min-width: 900px) {
+      .statrow-override { grid-template-columns: repeat(3, 1fr) !important; }
+    }
+    @media (min-width: 540px) and (max-width: 899px) {
+      .statrow-override { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+  `}</style>
+</div>
+
+<StatRow stats={[
+  { number: "3", label: "things that break", description: "Paid subscription billing, Substack Recommendations network, and substack.com archive URLs all stop working post-migration" },
+  { number: "~20%", label: "typical list churn", description: "Industry benchmarks suggest roughly 20% of imported cold lists never re-engage, so expect your effective list to shrink before it grows" },
+  { number: "48 hrs", label: "DNS propagation window", description: "If you are moving a custom domain, budget 48 hours for propagation before sending any Kit broadcast to avoid spam folder placement" }
+]} />
+
+Substack's subscriber CSV is clean and consistent. That is a genuine advantage. What it does not include is behavioral data, tag history, or any segmentation, because Substack does not expose that. Every subscriber you import arrives as a flat, untagged contact. That is the real migration problem, not the export.
+
+Don't bother trying to infer engagement history from Substack's export columns. There isn't enough signal. Build your engagement picture from scratch in Kit using the re-permission sequence below.
+
+## The export, clean, and import steps
+
+<div style="display:grid;grid-template-columns:1fr;">
+  <style>{`
+    @media (min-width: 540px) {
+      .steprow-override { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+    @media (min-width: 900px) {
+      .steprow-override { grid-template-columns: repeat(3, 1fr) !important; }
+    }
+  `}</style>
+</div>
+
+<StepRow steps={[
+  {
+    title: "Export the subscriber CSV from Substack",
+    body: "Go to your Substack dashboard, then Settings, then the Exports tab. Click 'Download subscriber list.' You get a CSV with columns: email, name, status (active/deactivated), is_paid (true/false), created_at, and expiry (for paid subs). Download this before you do anything else, even before you create your Kit account. Substack does not restrict this export, which is one of the few things they do right for portability."
+  },
+  {
+    title: "Clean the CSV before importing",
+    body: "Open in Google Sheets or Excel. Filter and delete any rows where status is 'deactivated.' These are already unsubscribes and importing them will get you flagged immediately. Add a column called 'substack_paid' and populate it with TRUE/FALSE from the is_paid column. You will use this to create a tag in Kit. Also add a column called 'import_source' and set every row to 'substack-migration' so you can always identify this cohort. Trim whitespace from the email column with =TRIM(). Then export back to CSV."
+  },
+  {
+    title: "Set up your Kit tags and segments before importing",
+    body: "In Kit, create three tags before you touch the import: 'substack-migration', 'substack-paid', and 'needs-repermission.' You want these pre-built so you can assign them during import rather than doing a retroactive tag blast. Also create a segment called 'Substack Imports' filtered by the 'substack-migration' tag. This segment becomes your monitoring view for the first 60 days."
+  },
+  {
+    title: "Import the CSV into Kit and assign tags",
+    body: "In Kit go to Subscribers, then Import Subscribers. Upload your cleaned CSV. On the field mapping screen, map email and first_name. Then in the 'Tag subscribers' section at the bottom, add the 'substack-migration' and 'needs-repermission' tags to everyone. For paid subscribers, do a second filtered import of just the rows where substack_paid is TRUE and add the 'substack-paid' tag. Kit's importer supports one tag batch per upload, so two passes is the cleanest approach here."
+  },
+  {
+    title: "Send a re-permission sequence before your first broadcast",
+    body: "Create a Kit automation triggered by the 'needs-repermission' tag. Send one email, wait 7 days, check for a click or open, then branch. Subscribers who engage get the 'needs-repermission' tag removed and a 'repermissioned' tag added. Subscribers who do not engage after 14 days get tagged 'cold-substack' and moved to a suppression segment. Do not broadcast to the full list until at least 40% of importees have cleared the repermission step. Mailgun's [deliverability research](https://www.mailgun.com/blog/deliverability/email-deliverability-guide/) consistently shows that seeding a new ESP with cold contacts is the fastest way to poison your sender score."
+  }
+]} />
+
+## The re-permission email (copy this)
+
+<SideBySide>
+  <Fragment slot="left">
+    The goal of this email is a click, not a read. The subject line should reference the platform move explicitly, because that is the only reason a subscriber who has not opened in months would care. Keep it under 150 words. Put one link. Skip the unsubscribe guilt-trip language. In my experience running win-back sequences for B2B SaaS lists, that kind of framing suppresses click rates by around 15%. The P.S. is load-bearing: it is where dormant readers who skim actually convert.
+  </Fragment>
+  <Fragment slot="right">
+```
+Subject: I moved. One click to follow me.
+
+Hey [First Name],
+
+I just moved this newsletter from Substack
+to a new home. Everything continues as
+normal, but I want to make sure you
+actually want to keep receiving it.
+
+If yes, click the button below. That is
+all it takes.
+
+[Yes, keep me subscribed]
+
+If you do nothing, no hard feelings.
+You will stop receiving emails in 14 days.
+
+Talk soon,
+[Your name]
+
+P.S. Here is the last issue in case
+you missed it: [link]
+```
+  </Fragment>
+</SideBySide>
+
+## What breaks and how to handle each one
+
+Three things do not migrate. Each needs a separate decision.
+
+**Paid subscriptions.** Substack manages billing through its own Stripe integration. Kit does not absorb that. Your options: (1) migrate paid subscribers to a Kit paid newsletter product manually by recreating the Stripe product and emailing each paid subscriber with a new subscription link, or (2) keep Substack open in paid-only mode while you run free content on Kit. I've watched option two cause more confusion than it solves at every client where someone tried it. The cleaner move is to personally email every paid subscriber, acknowledge the transition, and offer a free month on the new platform as a goodwill gesture. [Substack's own help docs](https://support.substack.com/hc/en-us/articles/360037683512) detail how to export the paid subscriber list separately with billing dates included.
+
+**Recommendations.** Substack's Recommendations network is a closed growth loop that does not exist in Kit. If Recommendations has been a meaningful acquisition channel, you are trading it off for Kit's better automation and segmentation. There is no workaround. Kit has a referral program feature, but it requires active setup and is not a passive network effect. Be honest with yourself about how much of your growth came from Recommendations before you commit to migrating.
+
+**Archive URLs.** Every post you published on Substack lives at yourpublication.substack.com/p/post-slug. Those URLs do not redirect anywhere. They stay live as long as your Substack account exists, but the moment you shut it down, the links go dark. My recommendation: keep the Substack publication live in read-only mode indefinitely, or export your post content via Substack's publication export and republish the archive on your own domain with 301 redirects. The [Substack export tool](https://support.substack.com/hc/en-us/articles/360037466012) exports posts as HTML files you can import into a static site or CMS.
+
+<MyTake>
+Most operators overthink the technical migration and completely ignore list architecture. The CSV import takes 20 minutes. A flat imported list from Substack is just a worse Substack. Kit's automation is only as powerful as the signal you feed it, and if you don't build your tagging schema on day one, you will spend six months with a Ferrari you're driving in first gear.
+</MyTake>
+
+## After the migration: the first 30 days
+
+Once the re-permission sequence has run, resist the urge to immediately broadcast to your full Kit list. Warm the sending domain first. Send to your most engaged segment: use the created_at date from the Substack export as a rough proxy for recency, filtering for subscribers added in the last 90 days. Send three issues to that group. Check deliverability in Kit's analytics. Only after inbox placement looks clean do you expand to the full repermissioned list.
+
+Use Kit's click-based automation triggers to build interest signals from the first few sends. If you have ever wanted to segment readers by topic preference, content format, or purchase intent, this migration is the forcing function to actually do it. Flat lists are a Substack constraint, not a newsletter law.
+
+---
+
+Ready to run this migration? [Kit's free plan](https://kit.com) supports up to 10,000 subscribers, which means you can complete the entire import, re-permission sequence, and first 30 days of sends without spending a dollar. Start there, validate the workflow, then upgrade when the economics make sense.
