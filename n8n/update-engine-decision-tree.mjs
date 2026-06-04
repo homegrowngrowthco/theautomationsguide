@@ -16,6 +16,12 @@
 //    SideBySide import (still present), and sanitizeMdx() is still needed for
 //    process-flow SVGs.
 //
+// CRITICAL: JSX examples use SPACED braces `tree={ { ... } }`, never literal `{{`/`}}`.
+// The node body is an n8n expression `={{ JSON.stringify(...) }}` and n8n treats `{{`/`}}`
+// as the expression delimiters — a literal inner `}}` closes the expression early and the
+// run dies with "invalid syntax" (broke the 2026-06-04 run; see fix-engine-double-braces.mjs).
+// Spaced `{ {` renders identically in MDX. (Same family as the no-backticks/${} rule below.)
+//
 // CRITICAL: the Generate Draft / Humanize bodies are n8n expressions
 // (={{ JSON.stringify({ ... prompt-as-template-literal ... }) }}). All injected
 // text MUST avoid backticks and ${ } or it breaks the template literal at
@@ -49,7 +55,7 @@ if (!genBody.includes(dtImport)) {
 const oldSkeleton =
   '- <SideBySide><Fragment slot="left">decision criteria text — 2-3 short paragraphs</Fragment><Fragment slot="right"><Figure caption="..."><svg viewBox="0 0 360 260" xmlns="http://www.w3.org/2000/svg">{/* simple decision tree, 3-4 boxes */}</svg></Figure></Fragment></SideBySide>';
 const newSkeleton =
-  '- <SideBySide><Fragment slot="left">decision criteria text, 2-3 short paragraphs</Fragment><Fragment slot="right"><DecisionTree caption="..." footer="optional one-line recommendation" tree={{ question: "...", branches: [ { label: "Yes", result: { title: "Use X", note: "why", tone: "primary" } }, { label: "No", result: { title: "Use Y", note: "why", tone: "alt" } } ] }} /></Fragment></SideBySide>';
+  '- <SideBySide><Fragment slot="left">decision criteria text, 2-3 short paragraphs</Fragment><Fragment slot="right"><DecisionTree caption="..." footer="optional one-line recommendation" tree={ { question: "...", branches: [ { label: "Yes", result: { title: "Use X", note: "why", tone: "primary" } }, { label: "No", result: { title: "Use Y", note: "why", tone: "alt" } } ] } } /></Fragment></SideBySide>';
 if (genBody.includes(oldSkeleton)) {
   genBody = genBody.replace(oldSkeleton, newSkeleton);
   changes.push('Generate Draft: swapped skeleton SVG tree for <DecisionTree>');
@@ -59,7 +65,7 @@ if (genBody.includes(oldSkeleton)) {
 const decisionSection =
   'DECISION TREES — use the <DecisionTree> component, never a hand-drawn SVG:\n' +
   '- Any "which should you pick" or "how to choose" branch renders as <DecisionTree>, not an inline <svg>. The component is responsive, on-brand, and robust. Hand-drawn SVG decision trees are banned.\n' +
-  '- Schema: tree={{ question: "string", branches: [ { label: "string", result: { title: "string", note: "string", tone: "primary" } } ] }}. A branch may nest another decision with next: { question, branches } instead of result. Optional caption="string" and footer="string" props.\n' +
+  '- Schema: tree={ { question: "string", branches: [ { label: "string", result: { title: "string", note: "string", tone: "primary" } } ] } }. A branch may nest another decision with next: { question, branches } instead of result. Optional caption="string" and footer="string" props.\n' +
   '- tone values: "primary" = the recommended pick (teal), "alt" = a viable alternative (amber), "neutral" = a fallback (muted). Give the main recommendation tone "primary".\n' +
   '- One question per node, 2-3 branches, nest at most one level deep.\n' +
   '\n' +
