@@ -5,13 +5,13 @@ pubDate: 2026-05-08
 tags: ["guide", "automation", "outbound"]
 faqs:
   - question: "What is the cheapest outbound sales stack for a small B2B team?"
-    answer: "Apollo Basic ($49/mo) + Smartlead Starter ($39/mo) + n8n self-hosted (~$10/mo on a VPS) gets you a full outbound engine for around $98–$120/mo total."
+    answer: "Apollo Basic ($49/mo) + Smartlead Starter ($39/mo) + n8n self-hosted (~$10/mo on a VPS) gets you a full outbound engine for around $98-$120/mo total."
   - question: "Is Apollo good enough for a bootstrapped startup?"
-    answer: "Yes. Apollo's $49/mo Basic plan includes 1,000 export credits/mo and decent email/phone data — enough to run 3–5 active sequences for a solo founder or small SDR team."
+    answer: "Yes. Apollo's $49/mo Basic plan includes 1,000 export credits/mo and decent email/phone data, enough to run 3-5 active sequences for a solo founder or small SDR team."
   - question: "Can n8n replace Zapier for outbound automation on a budget?"
-    answer: "Absolutely. Self-hosted n8n has no per-task pricing, so high-volume enrichment and routing workflows that would cost $50–$200/mo on Zapier run essentially free."
+    answer: "Absolutely. Self-hosted n8n has no per-task pricing, so high-volume enrichment and routing workflows that would cost $50-$200/mo on Zapier run essentially free."
   - question: "What sending limits does Smartlead have on the starter plan?"
-    answer: "Smartlead's Starter plan ($39/mo) supports unlimited email accounts and up to 6,000 emails/mo — more than enough for a sub-$200 stack running 200–400 prospects/mo."
+    answer: "Smartlead's Starter plan ($39/mo) supports unlimited email accounts and up to 6,000 emails/mo, more than enough for a sub-$200 stack running 200-400 prospects/mo."
   - question: "Do I need a paid CRM for this stack to work?"
     answer: "No. HubSpot's free CRM tier handles contact storage and basic deal tracking well enough until you're closing enough revenue to justify a paid seat."
 ---
@@ -24,66 +24,31 @@ import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
-Most "build your outbound stack" posts are written by people who already cleared a Series A. They'll casually drop Outreach ($150/seat), Clay's Scale plan ($800/mo), and Salesforce into a single recommendation and call it "lean." If you're a bootstrapped founder or a two-person GTM team trying to generate pipeline without torching runway, that advice isn't just useless — it's a little insulting. This post is the other thing: a concrete, math-backed stack that caps at $200/mo and actually sends emails, scores replies, and routes hot leads to a CRM.
+Most "build your outbound stack" posts are written by people who already cleared a Series A. They'll casually drop Outreach ($150/seat), Clay's Scale plan ($800/mo), and Salesforce into a single recommendation and call it "lean." If you're a bootstrapped founder or a two-person GTM team trying to generate pipeline without torching runway, that advice isn't just useless, it's a little insulting. This post is the other thing: a concrete, math-backed stack that caps at $200/mo and actually sends emails, scores replies, and routes hot leads to a CRM.
 
-<div class="quick-answer"><strong>Quick answer:</strong> Apollo Basic + Smartlead Starter + self-hosted n8n running on a $10 VPS gets you a production-grade outbound engine for roughly $100–$120/mo, with room to add HubSpot free CRM and still stay well under the $200 ceiling.</div>
+<div class="quick-answer"><strong>Quick answer:</strong> Apollo Basic + Smartlead Starter + self-hosted n8n running on a $10 VPS gets you a production-grade outbound engine for roughly $100-$120/mo, with room to add HubSpot free CRM and still stay well under the $200 ceiling.</div>
 
-<PullQuote>The tools that power a $10K MRR outbound motion and a $500K MRR outbound motion are more similar than vendors want you to believe — the difference is process, not price tier.</PullQuote>
+<PullQuote>The tools that power a $10K MRR outbound motion and a $500K MRR outbound motion are more similar than vendors want you to believe, the difference is process, not price tier.</PullQuote>
 
-<style>{`
-  .stat-row-fix [data-stat-item] {
-    padding: 12px 16px !important;
-  }
-  @media (max-width: 640px) {
-    .stat-row-fix [data-stat-item] {
-      padding: 12px 16px !important;
-      margin-top: 0 !important;
-      margin-bottom: 0 !important;
-    }
-    .stat-row-fix [data-stat-list] {
-      gap: 0 !important;
-    }
-  }
-`}</style>
+
 
 <div class="stat-row-fix">
   <StatRow stats={[
-    { number: "$98", label: "Core stack cost", description: "Apollo Basic ($49) + Smartlead Starter ($39) + $10 VPS for n8n — the irreducible minimum for a functioning outbound system" },
-    { number: "6,000", label: "Emails/mo on Smartlead Starter", description: "Enough to run 250–400 active prospects through a 10–15 touch sequence with headroom for warm-up traffic" },
+    { number: "$98", label: "Core stack cost", description: "Apollo Basic ($49) + Smartlead Starter ($39) + $10 VPS for n8n, the irreducible minimum for a functioning outbound system" },
+    { number: "6,000", label: "Emails/mo on Smartlead Starter", description: "Enough to run 250-400 active prospects through a 10-15 touch sequence with headroom for warm-up traffic" },
     { number: "1,000", label: "Apollo export credits/mo on Basic", description: "At a 30% connect rate and 5% reply rate, that's 150 conversations started per month from a single operator" }
   ]} />
 </div>
 
 ## The Stack: What Goes Where and Why
 
-The organizing principle here is separation of concerns. [Apollo](/go/apollo) does prospecting and data — treat it as a search engine, not a sending tool. [Smartlead](/go/smartlead) owns deliverability and sequencing. It manages inbox rotation, warm-up, and reply detection so you're not babysitting sender reputation. [n8n](/go/n8n) self-hosted is the glue: it moves records between tools, fires enrichment calls, applies routing logic, and pushes qualified replies into your CRM without per-task pricing hanging over every workflow run.
+The organizing principle here is separation of concerns. [Apollo](/go/apollo) does prospecting and data, treat it as a search engine, not a sending tool. [Smartlead](/go/smartlead) owns deliverability and sequencing. It manages inbox rotation, warm-up, and reply detection so you're not babysitting sender reputation. [n8n](/go/n8n) self-hosted is the glue: it moves records between tools, fires enrichment calls, applies routing logic, and pushes qualified replies into your CRM without per-task pricing hanging over every workflow run.
 
 [HubSpot's](/go/hubspot) free CRM tier sits at the end of the pipeline as the record of truth. Not glamorous. But it handles contact storage, deal stages, and basic activity logging well enough for a team running under 500 active prospects at a time. When you outgrow it, you'll have the revenue to justify upgrading. You're not there yet, and that's fine.
 
-One strong opinion before we go further: don't use Apollo's built-in sequencer on this budget. The sending infrastructure isn't where Apollo earns its money — the data is. Hand off to Smartlead the moment a prospect hits a sequence. You'll get better deliverability and cleaner reply routing almost immediately.
+One strong opinion before we go further: don't use Apollo's built-in sequencer on this budget. The sending infrastructure isn't where Apollo earns its money, the data is. Hand off to Smartlead the moment a prospect hits a sequence. You'll get better deliverability and cleaner reply routing almost immediately.
 
-<style>{`
-  .comparison-table-scroll {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .comparison-table-scroll [data-comparison-grid],
-  .comparison-table-scroll [data-card-container] {
-    min-width: 600px;
-  }
-  @media (max-width: 640px) {
-    .comparison-table-scroll [data-card],
-    .comparison-table-scroll [class*="card"] {
-      padding: 1rem !important;
-    }
-    .comparison-table-scroll [data-feature-item],
-    .comparison-table-scroll [class*="feature-item"],
-    .comparison-table-scroll li {
-      gap: 4px !important;
-      margin-bottom: 4px !important;
-    }
-  }
-`}</style>
+
 
 <div class="comparison-table-scroll">
   <ComparisonTable title="Under-$200 Outbound Stack: Tool Breakdown" tools={[
@@ -120,7 +85,7 @@ One strong opinion before we go further: don't use Apollo's built-in sequencer o
     {
       name: "HubSpot Free CRM",
       tagline: "Deal & contact management",
-      pros: ["Genuinely free — no credit card trap", "Good enough contact/deal views for sub-500 prospects", "Native integrations for later upgrades"],
+      pros: ["Genuinely free, no credit card trap", "Good enough contact/deal views for sub-500 prospects", "Native integrations for later upgrades"],
       cons: ["Sequences and some automation locked behind paid tiers", "Reporting is limited"],
       pricing: "$0",
       affiliateSlug: "hubspot",
@@ -132,46 +97,28 @@ One strong opinion before we go further: don't use Apollo's built-in sequencer o
 
 ## The Automation Layer: What n8n Actually Does Here
 
-Most budget stack guides go completely shallow on this part. They list the tools, gesture vaguely at "connect them with Zapier," and move on. That's the wrong call. The automation layer is the entire point — without it you're just doing manual CSV imports across three browser tabs and wondering why nothing scales.
+Most budget stack guides go completely shallow on this part. They list the tools, gesture vaguely at "connect them with Zapier," and move on. That's the wrong call. The automation layer is the entire point, without it you're just doing manual CSV imports across three browser tabs and wondering why nothing scales.
 
 Here's the core workflow loop that keeps this stack running without a full-time ops person:
 
 <div style="container-type: inline-size;">
-  <style>{`
-    @container (max-width: 900px) and (min-width: 520px) {
-      .step-row-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        overflow-x: unset !important;
-      }
-      .step-row-grid > * {
-        min-width: unset !important;
-      }
-    }
-    @container (max-width: 519px) {
-      .step-row-grid {
-        overflow-x: auto !important;
-      }
-      .step-row-grid > * {
-        min-width: 160px !important;
-      }
-    }
-  `}</style>
+  
   <StepRow steps={[
     {
       title: "Export prospects from Apollo with verified emails",
-      body: "Filter your Apollo search to your ICP — title, headcount, industry, funding stage. Export in batches of 250 max. It keeps your monthly credits clean and forces focus. Download the CSV with email verification status included; drop every 'risky' and 'invalid' row before importing anywhere else."
+      body: "Filter your Apollo search to your ICP, title, headcount, industry, funding stage. Export in batches of 250 max. It keeps your monthly credits clean and forces focus. Download the CSV with email verification status included; drop every 'risky' and 'invalid' row before importing anywhere else."
     },
     {
       title: "Import to Smartlead campaign via CSV or API",
-      body: "Smartlead accepts a direct CSV import into a campaign. Map first name, company, and any personalization variables you're using — e.g., {{recent_funding}} or {{tech_stack}}. Assign the campaign to your rotated inbox pool. Cap daily send limits per inbox at 30–40 to stay comfortably inside deliverability safe zones."
+      body: "Smartlead accepts a direct CSV import into a campaign. Map first name, company, and any personalization variables you're using, e.g., {{recent_funding}} or {{tech_stack}}. Assign the campaign to your rotated inbox pool. Cap daily send limits per inbox at 30-40 to stay comfortably inside deliverability safe zones."
     },
     {
       title: "n8n listens for Smartlead reply webhooks",
-      body: "Smartlead fires a webhook on every reply event. In n8n, create a Webhook trigger node pointed at your instance URL. Parse the payload for reply sentiment — Smartlead tags replies as positive, negative, or out-of-office. Route positive replies down one branch, OOOs to a follow-up delay branch, negatives straight to a suppression list update."
+      body: "Smartlead fires a webhook on every reply event. In n8n, create a Webhook trigger node pointed at your instance URL. Parse the payload for reply sentiment, Smartlead tags replies as positive, negative, or out-of-office. Route positive replies down one branch, OOOs to a follow-up delay branch, negatives straight to a suppression list update."
     },
     {
       title: "Enrich positive replies and push to HubSpot",
-      body: "For positive replies, fire an HTTP Request node to Apollo's Person Enrich endpoint — included in your Basic plan — to pull LinkedIn URL, phone, and seniority data. Then hit HubSpot's Contacts API to create or update the contact record and open a Deal in pipeline stage 'Replied — Needs Call.' Assign to owner via round-robin if you have more than one rep."
+      body: "For positive replies, fire an HTTP Request node to Apollo's Person Enrich endpoint, included in your Basic plan, to pull LinkedIn URL, phone, and seniority data. Then hit HubSpot's Contacts API to create or update the contact record and open a Deal in pipeline stage 'Replied, Needs Call.' Assign to owner via round-robin if you have more than one rep."
     },
     {
       title: "Suppress bounces and unsubscribes back to Apollo",
@@ -182,7 +129,7 @@ Here's the core workflow loop that keeps this stack running without a full-time 
 
 <SideBySide>
   <Fragment slot="left">
-    **The trap most teams hit:** they wire up the forward path — prospect to sequence to reply — and leave every feedback loop disconnected. Bounces stack up in Apollo because nothing writes them back. Unsubscribes from Smartlead go nowhere, so the same contact gets re-exported six weeks later and you've now burned a compliance risk on someone who already opted out. The n8n suppression workflow is tedious to build and non-negotiable to have. Ninety minutes once, runs indefinitely.
+    **The trap most teams hit:** they wire up the forward path, prospect to sequence to reply, and leave every feedback loop disconnected. Bounces stack up in Apollo because nothing writes them back. Unsubscribes from Smartlead go nowhere, so the same contact gets re-exported six weeks later and you've now burned a compliance risk on someone who already opted out. The n8n suppression workflow is tedious to build and non-negotiable to have. Ninety minutes once, runs indefinitely.
   </Fragment>
   <Fragment slot="right">
     ```json
@@ -226,7 +173,7 @@ Here's the core workflow loop that keeps this stack running without a full-time 
 </SideBySide>
 
 <MyTake>
-  Teams that won't spin up a $10 Hetzner VPS for self-hosted n8n almost always end up paying $60–$150/mo for a managed automation tool — then six months later they're complaining that outbound is too expensive. The managed tools aren't the problem. The decision to avoid twenty minutes of Linux setup is. If that genuinely feels like too much, this isn't the right stack for you, and there's no shame in that. But don't let the VPS step be the reason you overpay for the rest of the system.
+  Teams that won't spin up a $10 Hetzner VPS for self-hosted n8n almost always end up paying $60-$150/mo for a managed automation tool, then six months later they're complaining that outbound is too expensive. The managed tools aren't the problem. The decision to avoid twenty minutes of Linux setup is. If that genuinely feels like too much, this isn't the right stack for you, and there's no shame in that. But don't let the VPS step be the reason you overpay for the rest of the system.
 </MyTake>
 
 ## The Real Budget Ceiling and When to Upgrade
@@ -242,6 +189,6 @@ Here's the full math, explicitly:
 | Google Workspace (2 inboxes) | Business Starter | $14 |
 | **Total** | | **$112/mo** |
 
-That leaves $88 of headroom before you hit $200. Use it for a dedicated sending domain ($15/yr amortized to nearly nothing), keep the rest in reserve toward Clay's Starter plan when you're ready to add waterfall enrichment. Clay is the right next tool in this progression — not a fancier CRM, not a LinkedIn automation add-on.
+That leaves $88 of headroom before you hit $200. Use it for a dedicated sending domain ($15/yr amortized to nearly nothing), keep the rest in reserve toward Clay's Starter plan when you're ready to add waterfall enrichment. Clay is the right next tool in this progression, not a fancier CRM, not a LinkedIn automation add-on.
 
-The upgrade triggers are straightforward. When you're consistently exhausting your 1,000 Apollo export credits before month-end, step up to the next Apollo tier or layer in Clay for enrichment. When Smartlead's 6,000-email cap becomes a real ceiling — meaning you've actually hit it, not just that it sounds low — move to their Growth plan at $79/mo. You're still under $200 even then. The point of this stack design is that you replace one component at a time. There's no forcing function that blows up the whole system when you grow.
+The upgrade triggers are straightforward. When you're consistently exhausting your 1,000 Apollo export credits before month-end, step up to the next Apollo tier or layer in Clay for enrichment. When Smartlead's 6,000-email cap becomes a real ceiling, meaning you've actually hit it, not just that it sounds low, move to their Growth plan at $79/mo. You're still under $200 even then. The point of this stack design is that you replace one component at a time. There's no forcing function that blows up the whole system when you grow.

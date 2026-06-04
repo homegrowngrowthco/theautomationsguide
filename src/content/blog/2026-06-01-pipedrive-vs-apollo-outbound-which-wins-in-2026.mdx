@@ -26,40 +26,7 @@ import DecisionTree from '@/components/post/DecisionTree.astro';
 import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
-<style>{`
-  /* Fix 1: StatRow three-card grid — prevent uneven wrap at 768px */
-  .stat-row-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-  }
-  @media (max-width: 767px) {
-    .stat-row-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-  .stat-row-grid > * {
-    min-width: 200px;
-  }
 
-  /* Fix 2: Cap prose content width at 720px on wide viewports */
-  .prose-content {
-    max-width: 720px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  /* Fix 3: Reduce ComparisonTable card padding and list-item gap on mobile */
-  @media (max-width: 480px) {
-    .comparison-table-card {
-      padding: 16px;
-    }
-    .comparison-table-card li {
-      margin-top: 8px;
-      margin-bottom: 8px;
-    }
-  }
-`}</style>
 
 <div class="prose-content">
 

@@ -1,6 +1,6 @@
 ---
 title: "The RevOps Tech Stack in 2025: Tools That Actually Move the Needle"
-description: "A practical breakdown of the automation tools powering modern revenue operations teams — from CRM orchestration to AI-assisted routing."
+description: "A practical breakdown of the automation tools powering modern revenue operations teams, from CRM orchestration to AI-assisted routing."
 pubDate: 2026-03-15
 updatedDate: 2026-04-22
 author: "The Automations Guide"
@@ -9,11 +9,11 @@ faqs:
   - question: "What are the four layers of a modern RevOps tech stack?"
     answer: "CRM (the system of record), data enrichment (filling the gaps), automation middleware (connecting tools), and the activation layer (taking action on signals via sequences, tasks, and alerts)."
   - question: "Which RevOps tools should I invest in first?"
-    answer: "Most teams already have CRM. The next-highest-leverage investments are data enrichment (Clay or Apollo) and automation middleware (Make or n8n) — most teams underspend on these two layers."
+    answer: "Most teams already have CRM. The next-highest-leverage investments are data enrichment (Clay or Apollo) and automation middleware (Make or n8n), most teams underspend on these two layers."
   - question: "Do I need both Clay and Apollo for enrichment?"
     answer: "They overlap. Apollo includes a contact database with basic enrichment; Clay layers 50+ data sources for deeper enrichment. Most teams pick one based on whether their primary need is contact data (Apollo) or enrichment depth (Clay)."
   - question: "How does AI-assisted routing fit into a RevOps stack?"
-    answer: "AI-assisted routing handles the messy lead-to-rep matching that breaks rule-based round-robins — territory ambiguity, SDR-to-AE handoff, account hierarchy. It typically lives in the activation layer rather than replacing it."
+    answer: "AI-assisted routing handles the messy lead-to-rep matching that breaks rule-based round-robins, territory ambiguity, SDR-to-AE handoff, account hierarchy. It typically lives in the activation layer rather than replacing it."
 ---
 
 import SideBySide from '@/components/post/SideBySide.astro';
@@ -26,20 +26,20 @@ import ComparisonTable from '@/components/ComparisonTable.astro';
 
 If you've ever sat in a quarterly planning meeting watching someone manually pull data from three different spreadsheets into a HubSpot dashboard, you already understand the RevOps automation problem.
 
-The issue isn't a lack of tools. It's that most teams accumulate tools reactively — one fire at a time — until they have a Frankenstein stack that requires a full-time engineer just to hold together.
+The issue isn't a lack of tools. It's that most teams accumulate tools reactively, one fire at a time, until they have a Frankenstein stack that requires a full-time engineer just to hold together.
 
 This post is about building intentionally. Here's how high-performing RevOps teams are structuring their automation stacks in 2025.
 
-<div class="quick-answer"><strong>Quick answer:</strong> Modern RevOps stacks converge on four layers — CRM, enrichment, automation middleware, and activation. Most teams have layer 1 covered and underspend on layers 2 and 3, where the highest leverage actually lives.</div>
+<div class="quick-answer"><strong>Quick answer:</strong> Modern RevOps stacks converge on four layers, CRM, enrichment, automation middleware, and activation. Most teams have layer 1 covered and underspend on layers 2 and 3, where the highest leverage actually lives.</div>
 
 ## The Core Four (and what sits beneath them)
 
 Modern RevOps stacks converge on four functional layers:
 
-1. **CRM** — the system of record ([HubSpot](/go/hubspot), Salesforce, [Pipedrive](/go/pipedrive))
-2. **Data enrichment** — filling the gaps ([Clay](/go/clay), [Apollo](/go/apollo), Clearbit/Breeze)
-3. **Automation middleware** — connecting the dots ([Make](/go/make), Zapier, [n8n](/go/n8n))
-4. **Activation layer** — taking action on signals (Salesloft, Outreach, Apollo Sequences)
+1. **CRM**, the system of record ([HubSpot](/go/hubspot), Salesforce, [Pipedrive](/go/pipedrive))
+2. **Data enrichment**, filling the gaps ([Clay](/go/clay), [Apollo](/go/apollo), Clearbit/Breeze)
+3. **Automation middleware**, connecting the dots ([Make](/go/make), Zapier, [n8n](/go/n8n))
+4. **Activation layer**, taking action on signals (Salesloft, Outreach, Apollo Sequences)
 
 Most teams already have #1. The fight is usually in #2 and #3.
 
@@ -55,10 +55,10 @@ Manual lead assignment is a tax on speed-to-lead, and speed-to-lead directly pre
 - Round-robin fairness logic
 - Account ownership (to avoid rep conflicts)
 
-Tools like **LeanData**, **Chili Piper**, and native HubSpot workflows all solve this differently — but the pattern is the same: capture a signal, enrich it, route it, notify the rep, log the action.
+Tools like **LeanData**, **Chili Piper**, and native HubSpot workflows all solve this differently, but the pattern is the same: capture a signal, enrich it, route it, notify the rep, log the action.
 
 ### Sales-to-CS handoff
-This is where revenue leaks. A deal closes, the AE files the paperwork, and the CSM gets a Slack message with a name and a contract value. That's not a handoff — it's a hope.
+This is where revenue leaks. A deal closes, the AE files the paperwork, and the CSM gets a Slack message with a name and a contract value. That's not a handoff, it's a hope.
 
 Automated handoffs should trigger a:
 - New HubSpot deal stage change
@@ -69,7 +69,7 @@ Automated handoffs should trigger a:
 All of this can be built in Make or HubSpot workflows in under a day.
 
 ### Churn signal monitoring
-The best CS teams aren't reacting to churn — they're predicting it. Automated playbooks can watch for:
+The best CS teams aren't reacting to churn, they're predicting it. Automated playbooks can watch for:
 
 - Drop in product usage (via API)
 - NPS dip after a survey trigger
@@ -91,7 +91,7 @@ This deserves its own post (and we [wrote it](/blog/2026-05-03-make-vs-zapier-vs
       pros: [
         "Visual canvas, full branching + iteration",
         "Generous operation tiers vs Zapier",
-        "Native error routes — production-ready"
+        "Native error routes, production-ready"
       ],
       cons: [
         "Steeper learning curve than Zapier",
@@ -140,12 +140,12 @@ Most RevOps teams outgrow Zapier's logic limits within a year of scaling. Make i
 
 ## Where to start
 
-If you're building from scratch, don't try to automate everything at once. Pick the highest-friction handoff in your current process — the one that causes the most dropped balls — and automate that first.
+If you're building from scratch, don't try to automate everything at once. Pick the highest-friction handoff in your current process, the one that causes the most dropped balls, and automate that first.
 
 Ship one workflow. Learn what breaks. Then expand.
 
 <MyTake>
-The teams with the best RevOps automation don't have the most tools — they have the fewest tools doing the most work. Every time I've audited a stack with 12+ active SaaS subscriptions in the GTM layer, at least three of them are doing 80% of the same job and nobody can tell you which one is authoritative. Cut before you add.
+The teams with the best RevOps automation don't have the most tools, they have the fewest tools doing the most work. Every time I've audited a stack with 12+ active SaaS subscriptions in the GTM layer, at least three of them are doing 80% of the same job and nobody can tell you which one is authoritative. Cut before you add.
 </MyTake>
 
-The teams with the best RevOps automation don't have the most tools — they have the most consistent execution on a small number of high-leverage flows.
+The teams with the best RevOps automation don't have the most tools, they have the most consistent execution on a small number of high-leverage flows.
