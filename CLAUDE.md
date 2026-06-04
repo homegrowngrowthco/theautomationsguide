@@ -1,4 +1,28 @@
-# Session Log — last updated 2026-06-03
+# Session Log — last updated 2026-06-04
+
+## Quick reference — recent additions (Session 20, 2026-06-04)
+
+Final editorial-polish round before letting the engine run: professionalism + SEO/GEO/AI-citability + affiliate conversion. Shipped in **PR #54** (merge `b558960`) + an engine redeploy. An editorial audit (3 explore agents) found the foundation strong; these are the polish gaps.
+
+**Layout-level (uplifts ALL ~20 existing posts immediately — reads existing frontmatter, no post-body edits):**
+- **Visible FAQ** ([src/components/post/PostFaqs.astro](src/components/post/PostFaqs.astro)) rendered from frontmatter `faqs`, which were JSON-LD-only before (invisible to readers + on-page AI). Always-expanded, anchor ids, matches the FAQPage JSON-LD (Google parity). 27/28 posts now show it.
+- **Enriched BlogPosting + author JSON-LD** in [BlogPostLayout.astro](src/layouts/BlogPostLayout.astro): `image` (the OG png), `mainEntityOfPage`, `keywords` (tags), `inLanguage`, `isAccessibleForFree`, `publisher.logo`, and **`about`/`mentions`** = the compared tools (via `postMentionsTool()` over the registry → SoftwareApplication entities at `/tools/<slug>`), plus author `sameAs` + conditional `jobTitle`. Links posts into the tool entity graph for GEO.
+- **TableOfContents** ([src/components/post/TableOfContents.astro](src/components/post/TableOfContents.astro)) — full-width collapsible top block of H2 jump-links (NOT a sidebar, to avoid touching the single-column reading layout); hidden < 3 H2s (20/28 show it). `headings` passed from `[slug].astro`.
+- **RelatedPosts** ([src/components/post/RelatedPosts.astro](src/components/post/RelatedPosts.astro)) — tag-scored top-3 (fallback to recent), computed in `[slug].astro`.
+- **Inline affiliate-disclosure** microcopy under the byline (FTC-correct placement).
+- **Per-post OG images** — `astro-og-canvas@0.7.0` (devDep, Astro-4-compatible, wasm/build-time, free), endpoint [src/pages/og/[...route].ts](src/pages/og/[...route].ts) → `/og/<slug>.png` (branded cream/teal card). Wired into `og:image` + `twitter:image` (BaseLayout) + JSON-LD `image`; `/og/` excluded from the sitemap filter. 28 generated; verified served 200 on the preview. **No `og:image` existed before** so purely additive.
+
+**New body components (NEW engine posts only; existing bodies untouched):** [KeyTakeaways](src/components/post/KeyTakeaways.astro) (after quick-answer), [Sources](src/components/post/Sources.astro) (cited links, end), [BottomLine](src/components/post/BottomLine.astro) (verdict + recommended `/go` CTA, end). Wired via [n8n/update-engine-editorial.mjs](n8n/update-engine-editorial.mjs): 3 imports (12→15), KeyTakeaways after quick-answer + BottomLine/Sources at the COMPARISON close, Humanize parity. Single-brace JSX only; **braces verified 1/1, 13 expression bodies compile**. Re-deployed live via `deploy-engine.mjs --apply` AFTER the PR merged (components must exist on master first) + verified (imports present, active).
+
+**`/disclosure` refreshed**: live-program list corrected (Make/Apollo/Clay/Beehiiv/Smartlead/Kit) + a "How we test" methodology section. **RSS left as-is** — full-content for component-laden MDX needs the experimental Container API (fragile); deferred.
+
+**Verification:** build clean; all JSON-LD parses (BlogPosting enriched + FAQPage + BreadcrumbList); empty-state guards hold (no empty FAQ/TOC chrome: 0/0); Playwright desktop+mobile QA of every new block; existing reading column unchanged; Netlify preview green + OG image 200.
+
+**Revert:** `git revert -m 1 b558960`; engine — re-run `deploy-engine.mjs --apply` against `git show 217a123~1:n8n/blog-post-engine.json`. Each new block is additive + guarded (partial revert safe).
+
+**Open (next):** Ian flagged **PR #51** (an engine-generated post) with squished 3-column comparison + an awkward flowchart space (yes/no nesting he dislikes) — scrap that post + fix the root causes so future posts avoid both. (In progress.)
+
+---
 
 ## Quick reference — recent additions (Session 19, 2026-06-03)
 
