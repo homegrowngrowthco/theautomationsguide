@@ -44,11 +44,15 @@ import ComparisonTable from '@/components/ComparisonTable.astro';
     }
   }
 
+  .stat-row-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1rem !important;
+  }
+
   @media (max-width: 900px) {
     .stat-row-grid {
-      display: flex !important;
-      flex-direction: column !important;
-      gap: 1rem !important;
+      grid-template-columns: 1fr !important;
     }
     .stat-row-grid > * {
       width: 100% !important;
@@ -60,17 +64,16 @@ import ComparisonTable from '@/components/ComparisonTable.astro';
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 640px) {
     .stat-row-grid {
-      display: grid !important;
-      grid-template-columns: 1fr 1fr !important;
-      grid-template-rows: auto auto !important;
+      grid-template-columns: 1fr !important;
+      overflow: visible !important;
     }
-    .stat-row-grid > *:last-child {
-      grid-column: 1 / -1 !important;
-      max-width: 50% !important;
-      margin-left: auto !important;
-      margin-right: auto !important;
+    .stat-row-grid > * {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      box-sizing: border-box !important;
     }
   }
 
