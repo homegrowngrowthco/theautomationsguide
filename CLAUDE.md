@@ -28,6 +28,12 @@ After the Session 19 PRs, Ian reviewed and asked for two changes; both shipped (
 
 **Verification:** `npm run build` clean at 100 pages throughout; both new formats confirmed in compiled HTML; pipedrive-vs-apollo ToolBreakdown verified on the live #48 preview (Playwright element shot) before merging; live engine confirmed via API GET.
 
+### Session 19 follow-up #2 (2026-06-04) — engine hotfix + last 4 screenshots
+
+**D. Engine broke on the first run with the new prompt, hotfixed (commit `86ce22c`, deployed live).** The 2026-06-04 08:00 scheduled run failed at Generate Draft with `invalid syntax`. Root cause: the DecisionTree schema I added (Session 19) used **literal `tree={{ … }}`**, and the node body is itself an n8n expression `={{ JSON.stringify(...) }}` — n8n treats `{{`/`}}` as the expression delimiters, so the first inner `}}` closed the expression early. **Same family as the Session 10 backtick break, and my `new Function` compile-test passed because the JS is valid — only n8n's tokenizer breaks.** Fix [n8n/fix-engine-double-braces.mjs](n8n/fix-engine-double-braces.mjs): keep only the outer `={{ }}`, space every inner `{{`→`{ {` and `}}`→`} }` (renders identically in MDX; single braces were always fine). Deployed via `deploy-engine.mjs --apply`, verified live (exactly 1 `{{` / 1 `}}`, active). Reset the stuck topic **"Kit vs Beehiiv"** Generating→Queued so the next run retries it. `update-engine-decision-tree.mjs` source also spaced + a CRITICAL comment added; memory `feedback_no_backticks_in_template_literal_prompts` extended to cover `{{`/`}}`. (The Morning Briefing / daily-briefing workflow was unaffected.)
+
+**E. Product visuals for the last 4 comparison posts (PR #50, merge `eb6aa5a`) — screenshot coverage now complete on all 11.** Ian pointed at specific product pages and said "screenshots **or features**." Their UI is client-loaded, so I rendered each page with Playwright and element-captured the real visual: lemlist-vs-smartlead-vs-instantly → Smartlead waterfall-verification engine; instantly-alternatives → Smartlead lead view; gong-vs-outreach-vs-salesloft → Gong AI Composer; best-salesforce → Salesforce Flow Builder (from help docs). Each validated by eye, linked to `/go/<slug>`, `post-screenshot` (spaced + 600px). No more deferred screenshots.
+
 ---
 
 ## Quick reference — recent additions (Session 18, 2026-06-03)
