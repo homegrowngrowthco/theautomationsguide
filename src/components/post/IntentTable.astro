@@ -1,0 +1,176 @@
+---
+// Job-to-be-Done comparison table: a scannable intent x tool matrix. Rows are
+// decision dimensions (e.g. "AI Philosophy", "Best For", "Team Fit"), columns
+// are the tools. Different lens from <ComparisonTable> (which is pros/cons):
+// this is organized by intent, which reads fast and is friendly to AI search.
+//
+// USAGE in MDX posts:
+//   import IntentTable from '@/components/post/IntentTable.astro';
+//
+//   <IntentTable
+//     title="Motion vs Reclaim vs Akiflow, by job to be done"
+//     caption="Pick the philosophy that matches how you actually work."
+//     cols={[
+//       { name: 'Motion', affiliateSlug: 'motion', ctaLabel: 'Try Motion', highlight: true },
+//       { name: 'Reclaim', affiliateSlug: 'reclaim' },
+//       { name: 'Akiflow', affiliateSlug: 'akiflow' },
+//     ]}
+//     rows={[
+//       { label: 'AI philosophy', cells: ['Aggressive: rewrites your schedule', 'Defensive: holds space for habits', 'Assisted: consolidates, you block'] },
+//       { label: 'Best for', cells: ['Shifting deadlines', 'Defending focus time', 'Multi-tool task chaos'] },
+//       { label: 'Team fit', cells: ['Small teams', 'Google Workspace cultures', 'Mostly individuals'] },
+//     ]}
+//   />
+
+interface Col {
+  name: string;
+  affiliateSlug?: string;
+  ctaLabel?: string;
+  highlight?: boolean;
+}
+interface Row {
+  label: string;
+  cells: string[];
+}
+interface Props {
+  title?: string;
+  caption?: string;
+  cols: Col[];
+  rows: Row[];
+}
+
+const { title, caption, cols, rows } = Astro.props;
+const hasCta = cols.some((c) => c.affiliateSlug);
+---
+
+<section class="intent-table">
+  {title && <h3 class="intent-table-title">{title}</h3>}
+  <div class="it-scroll">
+    <table class="it-table" style={`--cols: ${cols.length}`}>
+      <thead>
+        <tr>
+          <th class="it-corner" scope="col"></th>
+          {cols.map((c) => (
+            <th scope="col" class={c.highlight ? 'it-col--highlight' : ''}>
+              {c.name}
+              {c.highlight && <span class="it-pick">Top pick</span>}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr>
+            <th scope="row" class="it-rowlabel">{row.label}</th>
+            {cols.map((c, i) => (
+              <td class={c.highlight ? 'it-col--highlight' : ''}>{row.cells[i]}</td>
+            ))}
+          </tr>
+        ))}
+        {hasCta && (
+          <tr class="it-cta-row">
+            <th scope="row" class="it-rowlabel"></th>
+            {cols.map((c) => (
+              <td class={c.highlight ? 'it-col--highlight' : ''}>
+                {c.affiliateSlug && (
+                  <a
+                    href={`/go/${c.affiliateSlug}`}
+                    class="it-cta"
+                    target="_blank"
+                    rel="noopener noreferrer sponsored"
+                  >
+                    {c.ctaLabel || `Try ${c.name}`} &rarr;
+                  </a>
+                )}
+              </td>
+            ))}
+          </tr>
+        )}
+      </tbody>
+    </table>
+  </div>
+  {caption && <p class="it-caption">{caption}</p>}
+</section>
+
+<style>
+  .intent-table { margin: 2.5rem 0; }
+  .intent-table-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    color: var(--text);
+  }
+  /* Horizontal scroll on narrow screens rather than crushing the columns. */
+  .it-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+  }
+  .it-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 520px;
+    font-size: 0.9rem;
+  }
+  .it-table th,
+  .it-table td {
+    padding: 0.7rem 0.9rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+  }
+  .it-table tr > :last-child { border-right: none; }
+  .it-table tbody tr:last-child th,
+  .it-table tbody tr:last-child td { border-bottom: none; }
+  /* Column headers (tool names) */
+  .it-table thead th {
+    background: var(--bg-secondary);
+    font-weight: 700;
+    color: var(--text);
+    font-size: 0.95rem;
+  }
+  .it-pick {
+    display: inline-block;
+    margin-left: 0.4rem;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent-contrast, #fff);
+    background: var(--accent);
+    padding: 0.1rem 0.4rem;
+    border-radius: 999px;
+    vertical-align: middle;
+  }
+  /* Row labels (the intent dimensions) */
+  .it-rowlabel {
+    background: var(--bg-secondary);
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  td { color: var(--text); }
+  .it-col--highlight { background: var(--accent-glow); }
+  .it-cta-row td { padding-top: 0.85rem; padding-bottom: 0.85rem; }
+  .it-cta {
+    display: inline-block;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--accent);
+    border: 1px solid var(--accent-dim);
+    border-radius: 0.5rem;
+    padding: 0.35rem 0.7rem;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+  .it-cta:hover { background: var(--accent-glow); }
+  .it-caption {
+    margin-top: 0.85rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: center;
+  }
+</style>

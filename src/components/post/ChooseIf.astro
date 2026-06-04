@@ -1,0 +1,177 @@
+---
+// "Choose X if..." quick-filter cards — the primary decision aid for "which
+// tool is for me?" sections. Readers self-select by their actual situation
+// instead of walking a Yes/No tree. Scales to 2-4 tools, stacks on mobile.
+// One of the rotating decision/comparison formats (with ToolBreakdown,
+// ComparisonTable full/compact, IntentTable, SpectrumBar, DecisionTree).
+//
+// USAGE in MDX posts:
+//   import ChooseIf from '@/components/post/ChooseIf.astro';
+//
+//   <ChooseIf
+//     title="Which one is for you?"
+//     tools={[
+//       {
+//         name: 'Motion',
+//         conditions: [
+//           'You have a volatile meeting schedule and hard project deadlines',
+//           'You want software to calculate when to do the work',
+//         ],
+//         pricing: 'From $19/mo',
+//         affiliateSlug: 'motion',
+//         ctaLabel: 'Try Motion',
+//         highlight: true,
+//       },
+//       { name: 'Reclaim', conditions: [...] },
+//     ]}
+//   />
+
+import { tools as toolRegistry } from '../../data/tools';
+
+interface Tool {
+  name: string;
+  conditions: string[];
+  pricing?: string;
+  affiliateSlug?: string;
+  ctaLabel?: string;
+  highlight?: boolean;
+  logo?: string;
+}
+
+interface Props {
+  title?: string;
+  tools: Tool[];
+}
+
+const { title, tools } = Astro.props;
+
+const logoByKey: Record<string, string> = {};
+for (const t of toolRegistry) {
+  if (!t.logo) continue;
+  logoByKey[t.slug.toLowerCase()] = t.logo;
+  logoByKey[t.name.toLowerCase()] = t.logo;
+  for (const a of t.aliases || []) logoByKey[a.toLowerCase()] = t.logo;
+}
+const resolveLogo = (t: Tool) =>
+  t.logo || logoByKey[(t.affiliateSlug || '').toLowerCase()] || logoByKey[t.name.toLowerCase()] || null;
+---
+
+<section class="chooseif">
+  {title && <h3 class="chooseif-title">{title}</h3>}
+  <div class="chooseif-grid" style={`--cols: ${tools.length}`}>
+    {tools.map((tool) => {
+      const logo = resolveLogo(tool);
+      return (
+        <div class={`ci-card ${tool.highlight ? 'ci-card--highlight' : ''}`}>
+          <div class="ci-head">
+            <p class="ci-prompt">Choose <span class="ci-name">{tool.name}</span> if</p>
+            {logo && <img class="ci-logo" src={logo} alt={`${tool.name} logo`} loading="lazy" />}
+          </div>
+          <ul class="ci-list">
+            {tool.conditions.map((c) => <li>{c}</li>)}
+          </ul>
+          <div class="ci-foot">
+            {tool.pricing && <span class="ci-price">{tool.pricing}</span>}
+            {tool.affiliateSlug && (
+              <a
+                href={`/go/${tool.affiliateSlug}`}
+                class="ci-cta"
+                target="_blank"
+                rel="noopener noreferrer sponsored"
+              >
+                {tool.ctaLabel || `Try ${tool.name}`} &rarr;
+              </a>
+            )}
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</section>
+
+<style>
+  .chooseif { margin: 2.5rem 0; }
+  .chooseif-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    color: var(--text);
+  }
+  .chooseif-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  @media (min-width: 640px) {
+    .chooseif-grid { grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); }
+  }
+  .ci-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+  }
+  .ci-card--highlight {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .ci-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .ci-prompt {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .ci-name { color: var(--text); font-weight: 700; }
+  .ci-logo { height: 26px; width: auto; max-width: 90px; object-fit: contain; flex-shrink: 0; }
+  .ci-list {
+    margin: 0 0 1rem;
+    padding-left: 1.15rem;
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1.55;
+    flex: 1;
+  }
+  .ci-list li { margin-bottom: 0.5rem; }
+  .ci-list li:last-child { margin-bottom: 0; }
+  .ci-list li::marker { color: var(--accent); }
+  .ci-foot {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--border);
+  }
+  .ci-price { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+  .ci-cta {
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--accent);
+    border: 1px solid var(--accent-dim);
+    border-radius: 0.5rem;
+    padding: 0.45rem 0.85rem;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+  .ci-card--highlight .ci-cta {
+    background: var(--accent);
+    color: var(--accent-contrast, #fff);
+    border-color: var(--accent);
+  }
+  .ci-cta:hover { background: var(--accent-glow); }
+  .ci-card--highlight .ci-cta:hover { opacity: 0.9; background: var(--accent); }
+</style>
