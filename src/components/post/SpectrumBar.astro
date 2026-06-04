@@ -1,0 +1,152 @@
+---
+// Static spectrum / "two philosophies" matrix. For 2-tool comparisons where the
+// real decider is operating style, not features: each dimension is a labeled
+// spectrum with a marker leaning toward one tool. Static (no JS). Use for 2-way
+// posts only (a spectrum implies two poles); use ChooseIf / IntentTable for 3+.
+//
+// USAGE in MDX posts:
+//   import SpectrumBar from '@/components/post/SpectrumBar.astro';
+//
+//   <SpectrumBar
+//     leftLabel="Motion"
+//     rightLabel="Reclaim"
+//     caption="The real decider is how you want AI to treat your calendar."
+//     dimensions={[
+//       { name: 'Control style', leftPole: 'Autopilot: AI macro-manages my day', rightPole: 'Guardrails: I manage it, AI protects it', lean: 'left' },
+//       { name: 'Calendar view', leftPole: 'Fluid: shifts with deadlines', rightPole: 'Predictable: stable habits and blocks', lean: 'right' },
+//       { name: 'Primary pain', leftPole: 'Shifting project deadlines', rightPole: 'Meetings eating deep work', position: 35 },
+//     ]}
+//   />
+
+interface Dimension {
+  name: string;
+  leftPole: string;
+  rightPole: string;
+  /** 0 = fully left tool, 100 = fully right tool. Overrides `lean`. */
+  position?: number;
+  lean?: 'left' | 'center' | 'right';
+}
+interface Props {
+  title?: string;
+  caption?: string;
+  leftLabel: string;
+  rightLabel: string;
+  dimensions: Dimension[];
+}
+
+const { title, caption, leftLabel, rightLabel, dimensions } = Astro.props;
+const posFor = (d: Dimension) =>
+  typeof d.position === 'number'
+    ? Math.max(4, Math.min(96, d.position))
+    : d.lean === 'left'
+      ? 16
+      : d.lean === 'right'
+        ? 84
+        : 50;
+---
+
+<figure class="spectrum">
+  {title && <h3 class="spectrum-title">{title}</h3>}
+  <div class="sp-poles">
+    <span class="sp-tool">{leftLabel}</span>
+    <span class="sp-tool sp-tool--right">{rightLabel}</span>
+  </div>
+  <div class="sp-dims">
+    {dimensions.map((d) => (
+      <div class="sp-dim">
+        <p class="sp-dim-name">{d.name}</p>
+        <div class="sp-row">
+          <span class="sp-pole">{d.leftPole}</span>
+          <div class="sp-track">
+            <span class="sp-marker" style={`left: ${posFor(d)}%`}></span>
+          </div>
+          <span class="sp-pole sp-pole--right">{d.rightPole}</span>
+        </div>
+      </div>
+    ))}
+  </div>
+  {caption && <figcaption class="sp-caption">{caption}</figcaption>}
+</figure>
+
+<style>
+  .spectrum {
+    margin: 2.5rem 0;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 0.85rem;
+    padding: 1.5rem 1.5rem 1.25rem;
+  }
+  .spectrum-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+    color: var(--text);
+  }
+  .sp-poles {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent-dim, var(--accent));
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .sp-dim { margin-top: 1.1rem; }
+  .sp-dim-name {
+    margin: 0 0 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .sp-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 0.85rem;
+  }
+  .sp-pole {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+  .sp-pole--right { text-align: right; }
+  .sp-track {
+    position: relative;
+    width: 120px;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(to right, var(--accent), var(--accent-amber, #f59e0b));
+    flex-shrink: 0;
+  }
+  .sp-marker {
+    position: absolute;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--bg-card, #fff);
+    border: 3px solid var(--accent-dim, var(--accent));
+    transform: translate(-50%, -50%);
+    box-shadow: var(--shadow-sm, 0 1px 2px rgba(0,0,0,0.15));
+  }
+  .sp-caption {
+    margin-top: 1.1rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: center;
+  }
+  @media (max-width: 560px) {
+    .sp-row { grid-template-columns: 1fr; gap: 0.5rem; justify-items: start; }
+    .sp-pole--right { text-align: left; }
+    .sp-track { width: 100%; }
+    .sp-pole::before { content: ""; }
+  }
+</style>
