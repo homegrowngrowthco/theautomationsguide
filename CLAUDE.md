@@ -46,6 +46,17 @@ Six edits from Ian's review (all verified locally via Playwright, deployed):
 
 **Open thread:** Ian proposed alternatives to decision trees (spectrum/slider matrix, "If/Then" quick-filter cards, JTBD comparison table) and asked for thoughts before building. Recommendation pending in chat: adopt **If/Then "Choose X if" cards** as the primary decision aid + a **JTBD intent table**, fold both into the engine's format rotation, and demote DecisionTree to genuinely-sequential decisions only.
 
+### Session 19 follow-up #4 (2026-06-04) — decision-aid formats (PR #53, merge `0204c74`)
+
+Ian approved building all three alternatives. Shipped as reusable components (all verified via a scratch page using his Motion/Reclaim/Akiflow data, then deleted):
+- **[ChooseIf.astro](src/components/post/ChooseIf.astro)** — "Choose X if" self-select cards (2-4 tools), the new **default** for "which is for me" decisions. Auto-resolves logos from the tools registry; highlight = filled-teal CTA.
+- **[IntentTable.astro](src/components/post/IntentTable.astro)** — job-to-be-done matrix: intent rows (Best for / AI philosophy / Team fit) x tool columns, highlighted column, CTA row, horizontal-scroll on mobile.
+- **[SpectrumBar.astro](src/components/post/SpectrumBar.astro)** — static TWO-tool philosophy spectrum: a marker leans toward each tool per dimension (`lean` left/center/right or `position` 0-100). No JS.
+
+**Engine** ([n8n/update-engine-decision-aids.mjs](n8n/update-engine-decision-aids.mjs)): COMPARISON FORMAT rotation expanded **3 -> 6** options (the model now prefers ChooseIf/IntentTable for self-select decisions); **DecisionTree demoted to genuinely-sequential decisions only** ("what is your CRM? then volume?"). Humanize import count 9 -> 12 + component list updated. All JSX examples single-brace (no `{{`); braces verified 1/1, 13 expression bodies compile. Re-deployed live via `deploy-engine.mjs --apply` (ordering: components on master first) + verified.
+
+So the engine now rotates across SEVEN content treatments (StatRow + the 6 comparison/decision formats), which should fully kill the "every post looks identical" AI-tell. Existing posts keep their (now-fixed) DecisionTrees; the demotion only affects new generation.
+
 ---
 
 ## Quick reference — recent additions (Session 18, 2026-06-03)
