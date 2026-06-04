@@ -1,9 +1,14 @@
 ---
 // Section-per-product comparison: each tool gets its own editorial block
-// (name, who-it's-for tagline, a narrative paragraph, optional highlights, CTA)
-// instead of a side-by-side card grid. Use this to vary comparison posts away
-// from the repetitive 3-column table look. Pairs with <ComparisonTable compact>
-// and the full <ComparisonTable> as the three rotating comparison formats.
+// (name, who-it's-for tagline, a narrative paragraph, highlights, pricing, CTA)
+// instead of a side-by-side card grid. One of the three rotating comparison
+// formats alongside the full <ComparisonTable> and <ComparisonTable compact>.
+//
+// Layout: a header (name + prominent pricing, brand logo in the top-right when
+// known) over a two-column body (narrative left, highlight bullets right) to
+// keep each tool compact. Logos auto-resolve from the tools registry by
+// affiliateSlug / name / alias; pass `logo` to override or to set one the
+// registry doesn't have.
 //
 // USAGE in MDX posts:
 //   import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
@@ -14,7 +19,7 @@
 //       {
 //         name: 'Clay',
 //         tagline: 'Best when enrichment IS the workflow',
-//         body: 'Clay runs waterfall enrichment across 75+ providers in one table...',
+//         body: 'Clay runs waterfall enrichment across 75+ providers...',
 //         highlights: ['Waterfall across 75+ sources', 'AI columns for personalization'],
 //         pricing: 'From $149/mo',
 //         affiliateSlug: 'clay',
@@ -25,6 +30,8 @@
 //     ]}
 //   />
 
+import { tools as toolRegistry } from '../../data/tools';
+
 interface Tool {
   name: string;
   tagline?: string;
@@ -34,6 +41,8 @@ interface Tool {
   affiliateSlug?: string;
   ctaLabel?: string;
   highlight?: boolean;
+  /** Public path to a brand logo; overrides the registry auto-resolution. */
+  logo?: string;
 }
 
 interface Props {
@@ -42,38 +51,59 @@ interface Props {
 }
 
 const { title, tools } = Astro.props;
+
+// Build a logo lookup (slug + name + aliases, lowercased) from the registry so
+// any tool we already have a brand mark for renders one automatically.
+const logoByKey: Record<string, string> = {};
+for (const t of toolRegistry) {
+  if (!t.logo) continue;
+  logoByKey[t.slug.toLowerCase()] = t.logo;
+  logoByKey[t.name.toLowerCase()] = t.logo;
+  for (const a of t.aliases || []) logoByKey[a.toLowerCase()] = t.logo;
+}
+const resolveLogo = (t: Tool) =>
+  t.logo ||
+  logoByKey[(t.affiliateSlug || '').toLowerCase()] ||
+  logoByKey[t.name.toLowerCase()] ||
+  null;
 ---
 
 <section class="tool-breakdown">
   {title && <h3 class="tool-breakdown-title">{title}</h3>}
-  {tools.map((tool) => (
-    <div class={`tbd-item ${tool.highlight ? 'tbd-item--highlight' : ''}`}>
-      <div class="tbd-head">
-        <h4 class="tbd-name">
-          {tool.name}
-          {tool.highlight && <span class="tbd-pick">Top pick</span>}
-        </h4>
-        {tool.pricing && <span class="tbd-price">{tool.pricing}</span>}
+  {tools.map((tool) => {
+    const logo = resolveLogo(tool);
+    return (
+      <div class={`tbd-item ${tool.highlight ? 'tbd-item--highlight' : ''}`}>
+        {logo && <img class="tbd-logo" src={logo} alt={`${tool.name} logo`} loading="lazy" />}
+        <div class="tbd-head">
+          <h4 class="tbd-name">
+            {tool.name}
+            {tool.highlight && <span class="tbd-pick">Top pick</span>}
+          </h4>
+          {tool.tagline && <p class="tbd-tagline">{tool.tagline}</p>}
+          {tool.pricing && <p class="tbd-price">{tool.pricing}</p>}
+        </div>
+        <div class="tbd-cols">
+          <p class="tbd-body">{tool.body}</p>
+          {tool.highlights && tool.highlights.length > 0 && (
+            <ul class="tbd-highlights">
+              {tool.highlights.map((h) => <li>{h}</li>)}
+            </ul>
+          )}
+        </div>
+        {tool.affiliateSlug && (
+          <a
+            href={`/go/${tool.affiliateSlug}`}
+            class="tbd-cta"
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+          >
+            {tool.ctaLabel || `Try ${tool.name}`} &rarr;
+          </a>
+        )}
       </div>
-      {tool.tagline && <p class="tbd-tagline">{tool.tagline}</p>}
-      <p class="tbd-body">{tool.body}</p>
-      {tool.highlights && tool.highlights.length > 0 && (
-        <ul class="tbd-highlights">
-          {tool.highlights.map((h) => <li>{h}</li>)}
-        </ul>
-      )}
-      {tool.affiliateSlug && (
-        <a
-          href={`/go/${tool.affiliateSlug}`}
-          class="tbd-cta"
-          target="_blank"
-          rel="noopener noreferrer sponsored"
-        >
-          {tool.ctaLabel || `Try ${tool.name}`} &rarr;
-        </a>
-      )}
-    </div>
-  ))}
+    );
+  })}
 </section>
 
 <style>
@@ -87,21 +117,24 @@ const { title, tools } = Astro.props;
     color: var(--text);
   }
   .tbd-item {
+    position: relative;
     border-left: 3px solid var(--border);
     padding: 0.35rem 0 0.35rem 1.25rem;
-    margin-bottom: 1.75rem;
+    margin-bottom: 1.5rem;
   }
   .tbd-item:last-child { margin-bottom: 0; }
-  .tbd-item--highlight {
-    border-left-color: var(--accent);
+  .tbd-item--highlight { border-left-color: var(--accent); }
+  /* Brand logo, top-right corner (when we have one for this tool). */
+  .tbd-logo {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    height: 30px;
+    width: auto;
+    max-width: 120px;
+    object-fit: contain;
   }
-  .tbd-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
+  .tbd-head { padding-right: 130px; }
   .tbd-name {
     font-size: 1.2rem;
     font-weight: 700;
@@ -121,32 +154,48 @@ const { title, tools } = Astro.props;
     padding: 0.1rem 0.45rem;
     border-radius: 999px;
   }
-  .tbd-price {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    white-space: nowrap;
-  }
   .tbd-tagline {
     font-weight: 600;
     color: var(--accent-dim, var(--accent));
     font-size: 0.95rem;
-    margin: 0.35rem 0 0.5rem;
+    margin: 0.3rem 0 0.4rem;
+  }
+  /* Prominent pricing. */
+  .tbd-price {
+    margin: 0 0 0.75rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  /* Two-column body: narrative left, highlight bullets right (saves vertical space). */
+  .tbd-cols {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem 1.5rem;
+    align-items: start;
+  }
+  @media (min-width: 640px) {
+    .tbd-cols { grid-template-columns: 1.6fr 1fr; }
   }
   .tbd-body {
     color: var(--text);
-    margin: 0 0 0.75rem;
-    line-height: 1.65;
+    margin: 0;
+    line-height: 1.6;
   }
   .tbd-highlights {
-    margin: 0 0 0.85rem;
+    margin: 0;
     padding-left: 1.125rem;
     font-size: 0.9rem;
     color: var(--text);
+    align-self: center;
   }
-  .tbd-highlights li { margin-bottom: 0.2rem; }
+  .tbd-highlights li { margin-bottom: 0.3rem; }
+  .tbd-highlights li:last-child { margin-bottom: 0; }
   .tbd-highlights li::marker { color: var(--accent); }
   .tbd-cta {
     display: inline-block;
+    margin-top: 0.85rem;
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;
@@ -157,4 +206,8 @@ const { title, tools } = Astro.props;
     transition: background 0.15s;
   }
   .tbd-cta:hover { background: var(--accent-glow); }
+  @media (max-width: 480px) {
+    .tbd-logo { height: 24px; max-width: 90px; }
+    .tbd-head { padding-right: 100px; }
+  }
 </style>

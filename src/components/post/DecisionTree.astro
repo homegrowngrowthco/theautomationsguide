@@ -49,9 +49,9 @@ const Self = (await import('./DecisionTree.astro')).default;
 ---
 
 {nested ? (
-  <div class="dtree-node">
+  <div class="dtree-node dtree-node--nested">
     <div class="dtree-q">{tree.question}</div>
-    <div class="dtree-branches" style={`--dtree-bus-inset: ${50 / tree.branches.length}%`}>
+    <div class="dtree-branches dtree-branches--nested">
       {tree.branches.map((b) => (
         <div class="dtree-branch">
           <span class="dtree-label">{b.label}</span>
@@ -234,6 +234,41 @@ const Self = (await import('./DecisionTree.astro')).default;
   }
   /* Nested decisions: tighter, no card chrome (the outer card frames it). */
   .dtree-node .dtree-node { margin-top: 0; }
+
+  /* Nested sub-decisions render as a clean labeled vertical list instead of the
+     horizontal bus: each answer is its own row, [LABEL] beside its result,
+     grouped under the question by a teal guide line. Fixes the misread where a
+     stacked nested question looked like a linear "Yes -> leaf -> No" chain. */
+  .dtree-node--nested { align-items: flex-start; width: 100%; }
+  .dtree-branches--nested {
+    flex-direction: column;
+    align-items: stretch;
+    flex-wrap: nowrap;
+    gap: 0.6rem;
+    margin: 0.55rem 0 0 0.4rem;
+    padding: 0 0 0 0.9rem;
+    border-left: 2px solid var(--accent-dim);
+  }
+  .dtree-branches--nested::before,
+  .dtree-branches--nested::after { display: none; }
+  .dtree-branches--nested > .dtree-branch {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6rem;
+    max-width: none;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .dtree-branches--nested > .dtree-branch::before { display: none; }
+  .dtree-branches--nested .dtree-label { flex: 0 0 auto; align-self: center; }
+  .dtree-branches--nested > .dtree-branch > .dtree-leaf {
+    flex: 1 1 auto;
+    width: auto;
+    text-align: left;
+    align-items: flex-start;
+  }
+  /* A nested branch that itself holds another decision: let it take the row. */
+  .dtree-branches--nested > .dtree-branch > .dtree-node { flex: 1 1 auto; width: auto; }
 
   @media (max-width: 560px) {
     .dtree-branches { flex-direction: column; align-items: stretch; gap: 0.85rem; padding-top: 0.85rem; }

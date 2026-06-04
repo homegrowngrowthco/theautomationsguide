@@ -3,34 +3,35 @@
 // Form ID: d41efc59-7041-482b-8178-6d238e6c3cfa
 // To swap publications later, replace the data-beehiiv-form ID below + the form ID in this comment.
 //
-// Beehiiv's loader.js renders the subscribe form inline where the script tag sits. The wrapper
-// markup below provides our editorial framing (heading + sub + note); Beehiiv handles the form
-// itself + delivery.
+// Beehiiv's loader.js renders the subscribe form (a ~290px iframe) inline where the script tag
+// sits. We can't restyle inside that cross-origin iframe, so to keep the section compact the copy
+// sits BESIDE the form on desktop (two columns) rather than stacked above it.
 const BEEHIIV_FORM_ID = 'd41efc59-7041-482b-8178-6d238e6c3cfa';
 ---
 
 <section class="email-signup">
-  <div class="email-signup-inner">
-    <p class="email-signup-eyebrow">Free Newsletter</p>
-    <h3 class="email-signup-heading">
-      Get weekly automation playbooks for RevOps teams. No fluff.
-    </h3>
-    <p class="email-signup-sub">
-      Join RevOps and GTM operators who get our best automation guides, tool reviews,
-      and workflow templates — delivered every week.
-    </p>
+  <div class="email-signup-grid">
+    <div class="email-signup-copy">
+      <p class="email-signup-eyebrow">Free Newsletter</p>
+      <h3 class="email-signup-heading">
+        Get weekly automation playbooks for RevOps teams. No fluff.
+      </h3>
+      <p class="email-signup-sub">
+        Join RevOps and GTM operators who get our best automation guides, tool reviews,
+        and workflow templates, delivered every week.
+      </p>
+      <p class="email-signup-note">No spam. Unsubscribe anytime.</p>
+    </div>
 
     <div class="beehiiv-form-wrapper">
       <script async src="https://subscribe-forms.beehiiv.com/v3/loader.js" data-beehiiv-form={BEEHIIV_FORM_ID}></script>
     </div>
-
-    <p class="email-signup-note">No spam. Unsubscribe anytime.</p>
   </div>
 </section>
 
 <style>
   .beehiiv-form-wrapper {
-    margin: 1.5rem 0 0.75rem;
+    margin: 0;
     min-height: 80px;
   }
 </style>
