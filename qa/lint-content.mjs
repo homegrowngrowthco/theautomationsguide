@@ -109,8 +109,10 @@ function lintFile(file) {
     if (!KNOWN.has(tag) && !imported.has(tag)) hard.push(`<${tag}> is not a known component and is not imported (hallucinated tag?).`);
   }
 
-  // WARN — quality
-  if (STYLE_BLOCK.test(body)) warn.push('contains a <style> block (engine strips these; remove — components are self-styled).');
+  // HARD — a <style> block in a post is never wanted: components are self-styled, the
+  // engine sanitizer strips them, and they're the vehicle the QA auto-fixer used to
+  // sneak grid/flex squish wrappers back in. Block them outright.
+  if (/<style[\s>]/i.test(body)) hard.push('contains a <style> block. Components are self-styled and responsive; per-post CSS (esp. grid/flex column overrides) squishes them. Remove it.');
   const desc = (fm.match(/^description:\s*["']?(.*?)["']?\s*$/m) || [])[1] || '';
   if (desc && (desc.length < 70 || desc.length > 165)) warn.push(`meta description is ${desc.length} chars (aim 70-165).`);
   if (!/^faqs:/m.test(fm)) warn.push('no faqs in frontmatter (misses the visible FAQ + FAQPage schema).');
