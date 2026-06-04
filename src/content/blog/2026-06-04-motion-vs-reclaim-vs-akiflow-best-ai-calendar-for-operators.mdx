@@ -30,11 +30,35 @@ Every RevOps operator I know runs the same background process: a constant mental
 
 <div class="quick-answer"><strong>Quick answer:</strong> Motion is the most aggressive auto-scheduler and the right call for operators with shifting project deadlines, Reclaim is the gentler habit-defender for teams already living in Google Calendar, and Akiflow is the task-consolidation layer for people who want one inbox before the calendar even gets involved.</div>
 
-<StatRow stats={[
-  { number: "$19/mo", label: "Motion individual plan", description: "Annual billing; team plan drops to $12/user/mo. Motion reportedly pays affiliates around $50 per paid subscriber, signaling high LTV confidence." },
-  { number: "4.6/5", label: "Reclaim on G2", description: "Based on G2 user reviews as of early 2025, with particular praise for the Slack status sync and habit scheduling features." },
-  { number: "12+", label: "Task sources in Akiflow", description: "Akiflow aggregates tasks from Asana, Linear, Notion, Todoist, Gmail, and more into a single daily planning view." }
-]} />
+<style>{`
+  .stat-row-3up {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  @media (max-width: 600px) {
+    .stat-row-3up {
+      grid-template-columns: 1fr;
+    }
+  }
+  .decision-tree-figure img,
+  .decision-tree-figure svg,
+  .decision-tree-figure > * {
+    max-width: 100%;
+    height: auto;
+  }
+  .decision-tree-figure {
+    overflow-x: auto;
+  }
+`}</style>
+
+<div class="stat-row-3up">
+  <StatRow stats={[
+    { number: "$19/mo", label: "Motion individual plan", description: "Annual billing; team plan drops to $12/user/mo. Motion reportedly pays affiliates around $50 per paid subscriber, signaling high LTV confidence." },
+    { number: "4.6/5", label: "Reclaim on G2", description: "Based on G2 user reviews as of early 2025, with particular praise for the Slack status sync and habit scheduling features." },
+    { number: "12+", label: "Task sources in Akiflow", description: "Akiflow aggregates tasks from Asana, Linear, Notion, Todoist, Gmail, and more into a single daily planning view." }
+  ]} />
+</div>
 
 ## What each tool actually does differently
 
@@ -107,47 +131,49 @@ If you're evaluating these for a RevOps team rather than just yourself, the team
     If your actual problem is task chaos across tools and you can't even get to the scheduling question, start with Akiflow. It fixes the input problem first.
   </Fragment>
   <Fragment slot="right">
-    <DecisionTree
-      caption="Which AI calendar tool fits your workflow?"
-      footer="Most RevOps operators land on Motion or Reclaim. Akiflow is the right first step if your task intake is broken."
-      tree={{
-        question: "Do you want AI to auto-schedule your tasks without asking?",
-        branches: [
-          {
-            label: "Yes",
-            result: {
-              title: "Use Motion",
-              note: "Full autopilot: Motion rebuilds your day around deadlines and meetings automatically.",
-              tone: "primary"
-            }
-          },
-          {
-            label: "No",
-            next: {
-              question: "Is your main pain task chaos across multiple tools?",
-              branches: [
-                {
-                  label: "Yes",
-                  result: {
-                    title: "Use Akiflow",
-                    note: "Consolidate all task sources first, then time-block manually.",
-                    tone: "alt"
+    <div class="decision-tree-figure">
+      <DecisionTree
+        caption="Which AI calendar tool fits your workflow?"
+        footer="Most RevOps operators land on Motion or Reclaim. Akiflow is the right first step if your task intake is broken."
+        tree={{
+          question: "Do you want AI to auto-schedule your tasks without asking?",
+          branches: [
+            {
+              label: "Yes",
+              result: {
+                title: "Use Motion",
+                note: "Full autopilot: Motion rebuilds your day around deadlines and meetings automatically.",
+                tone: "primary"
+              }
+            },
+            {
+              label: "No",
+              next: {
+                question: "Is your main pain task chaos across multiple tools?",
+                branches: [
+                  {
+                    label: "Yes",
+                    result: {
+                      title: "Use Akiflow",
+                      note: "Consolidate all task sources first, then time-block manually.",
+                      tone: "alt"
+                    }
+                  },
+                  {
+                    label: "No",
+                    result: {
+                      title: "Use Reclaim",
+                      note: "Defend your existing calendar habits with smarter blocking and Slack sync.",
+                      tone: "neutral"
+                    }
                   }
-                },
-                {
-                  label: "No",
-                  result: {
-                    title: "Use Reclaim",
-                    note: "Defend your existing calendar habits with smarter blocking and Slack sync.",
-                    tone: "neutral"
-                  }
-                }
-              ]
+                ]
+              }
             }
-          }
-        ]
-      }}
-    />
+          ]
+        }}
+      />
+    </div>
   </Fragment>
 </SideBySide>
 
