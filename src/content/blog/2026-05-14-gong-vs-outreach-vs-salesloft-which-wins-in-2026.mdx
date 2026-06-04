@@ -26,66 +26,7 @@ import DecisionTree from '@/components/post/DecisionTree.astro';
 import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
-<style>{`
-  @media (max-width: 640px) {
-    .comparison-table-grid {
-      display: block !important;
-    }
-    .comparison-table-grid > * {
-      display: block !important;
-      width: 100% !important;
-      min-width: 0 !important;
-    }
-  }
 
-  @media (max-width: 480px) {
-    .comparison-table-grid > * {
-      padding: 1rem !important;
-    }
-  }
-
-  @media (max-width: 900px) {
-    .stat-row-grid {
-      display: flex !important;
-      flex-direction: column !important;
-      gap: 1rem !important;
-    }
-    .stat-row-grid > * {
-      width: 100% !important;
-      max-width: 100% !important;
-    }
-    .stat-row-grid .stat-description,
-    .stat-row-grid p {
-      font-size: 0.875rem !important;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .stat-row-grid {
-      display: grid !important;
-      grid-template-columns: 1fr 1fr !important;
-      grid-template-rows: auto auto !important;
-    }
-    .stat-row-grid > *:last-child {
-      grid-column: 1 / -1 !important;
-      max-width: 50% !important;
-      margin-left: auto !important;
-      margin-right: auto !important;
-    }
-  }
-
-  .side-by-side-flex {
-    align-items: flex-start !important;
-  }
-
-  @media (max-width: 900px) {
-    .side-by-side-flex figure,
-    .side-by-side-flex .figure {
-      min-width: 280px !important;
-      width: 100% !important;
-    }
-  }
-`}</style>
 
 Every RevOps team I talk to in 2026 is sitting on a mountain of conversation data and wondering why pipeline still feels like a mystery. They have Gong recording every call, Outreach or Salesloft sequencing every touch, and a CRM drowning in synced fields. What they rarely have is a system that turns a signal from one of those platforms into an action in another. That gap, not the tools themselves, is where deals die.
 

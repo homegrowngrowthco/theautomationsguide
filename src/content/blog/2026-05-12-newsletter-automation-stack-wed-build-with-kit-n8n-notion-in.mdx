@@ -11,9 +11,9 @@ faqs:
   - question: "How do you do behavior-based tagging in Kit?"
     answer: "Use PostHog to capture site events, push them to n8n via webhook, and have n8n apply tags or move subscribers into sequences in Kit based on the event payload."
   - question: "How much does this newsletter automation stack cost per month?"
-    answer: "Roughly $100–$145/month at scale: Kit Creator (~$50–90 depending on list size), n8n Cloud Starter ($20), PostHog free tier, and Notion Plus ($16)."
+    answer: "Roughly $100-$145/month at scale: Kit Creator (~$50-90 depending on list size), n8n Cloud Starter ($20), PostHog free tier, and Notion Plus ($16)."
   - question: "What is Kit used for in a newsletter automation stack?"
-    answer: "Kit handles subscriber storage, sequences, broadcasts, tagging, and landing pages — it's the delivery and segmentation layer the rest of the stack writes into."
+    answer: "Kit handles subscriber storage, sequences, broadcasts, tagging, and landing pages, it's the delivery and segmentation layer the rest of the stack writes into."
 ---
 
 import SideBySide from '@/components/post/SideBySide.astro';
@@ -24,42 +24,29 @@ import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
-Most newsletter stacks are either wildly over-engineered (Salesforce Marketing Cloud for a 12k-subscriber list — yes, I've seen it) or dangerously under-built (one Mailchimp automation with zero behavioral signal). The sweet spot in 2026 is a three-tool stack: [Kit](/go/kit) handles delivery and segmentation, [n8n](/go/n8n) is the automation brain that wires everything together, and Notion is the editorial and segment planning layer your whole team can read without writing a SQL query. Here's exactly how we'd build it.
+Most newsletter stacks are either wildly over-engineered (Salesforce Marketing Cloud for a 12k-subscriber list, yes, I've seen it) or dangerously under-built (one Mailchimp automation with zero behavioral signal). The sweet spot in 2026 is a three-tool stack: [Kit](/go/kit) handles delivery and segmentation, [n8n](/go/n8n) is the automation brain that wires everything together, and Notion is the editorial and segment planning layer your whole team can read without writing a SQL query. Here's exactly how we'd build it.
 
-<div class="quick-answer"><strong>Quick answer:</strong> Kit + n8n + Notion gives you a behaviorally-aware, operationally transparent newsletter stack for roughly $130/month — covering welcome sequences, PostHog-driven behavioral tagging, and churn re-engagement without a single no-code dependency on Zapier's pricing tiers.</div>
+<div class="quick-answer"><strong>Quick answer:</strong> Kit + n8n + Notion gives you a behaviorally-aware, operationally transparent newsletter stack for roughly $130/month, covering welcome sequences, PostHog-driven behavioral tagging, and churn re-engagement without a single no-code dependency on Zapier's pricing tiers.</div>
 
-<PullQuote>The newsletters that compound in 2026 aren't the ones with the best writing — they're the ones that deliver the right content to the right subscriber at the right moment, automatically.</PullQuote>
+<PullQuote>The newsletters that compound in 2026 aren't the ones with the best writing, they're the ones that deliver the right content to the right subscriber at the right moment, automatically.</PullQuote>
 
 <StatRow stats={[
   { number: "47%", label: "Higher open rates", description: "Behaviorally segmented email campaigns see up to 47% higher open rates versus broadcast-only lists (Mailchimp 2024 benchmark data)" },
-  { number: "3", label: "Tools, that's it", description: "Kit, n8n, and Notion cover 95% of newsletter automation needs — adding more tools past this adds complexity without proportional ROI" },
-  { number: "$130/mo", label: "All-in monthly cost", description: "Kit Creator ($50–90) + n8n Cloud Starter ($20) + Notion Plus ($16) + PostHog free tier = under $145/month at up to 10k subscribers" }
+  { number: "3", label: "Tools, that's it", description: "Kit, n8n, and Notion cover 95% of newsletter automation needs, adding more tools past this adds complexity without proportional ROI" },
+  { number: "$130/mo", label: "All-in monthly cost", description: "Kit Creator ($50-90) + n8n Cloud Starter ($20) + Notion Plus ($16) + PostHog free tier = under $145/month at up to 10k subscribers" }
 ]} />
 
-<style>{`
-  @media (max-width: 600px) {
-    .stat-row-card {
-      padding-top: 12px !important;
-      padding-bottom: 12px !important;
-    }
-  }
-`}</style>
+
 
 ## The Stack and Why Each Tool Earns Its Seat
 
-Kit is the anchor. It stores subscribers, sends sequences and broadcasts, manages tags, and hosts your opt-in forms and landing pages. Critically, it has a clean API and a native n8n node — which means you're not hacking together Zapier webhooks just to apply a tag. The Creator plan is the minimum viable tier here; it unlocks automations and sequences, which you need for everything below.
+Kit is the anchor. It stores subscribers, sends sequences and broadcasts, manages tags, and hosts your opt-in forms and landing pages. Critically, it has a clean API and a native n8n node, which means you're not hacking together Zapier webhooks just to apply a tag. The Creator plan is the minimum viable tier here; it unlocks automations and sequences, which you need for everything below.
 
-[n8n](/go/n8n) is the connective tissue. It runs your automation logic: listening for PostHog events, deciding which tag to apply, hitting Kit's API, updating Notion, and handling re-engagement timers. If you've been using Zapier for this, you're overpaying and under-automating. n8n's branching logic and sub-workflows handle complexity that Zapier multi-step zaps make ugly and expensive. Self-host on a $6/month VPS or use n8n Cloud Starter at $20/month — your call based on how much you want to babysit Docker.
+[n8n](/go/n8n) is the connective tissue. It runs your automation logic: listening for PostHog events, deciding which tag to apply, hitting Kit's API, updating Notion, and handling re-engagement timers. If you've been using Zapier for this, you're overpaying and under-automating. n8n's branching logic and sub-workflows handle complexity that Zapier multi-step zaps make ugly and expensive. Self-host on a $6/month VPS or use n8n Cloud Starter at $20/month, your call based on how much you want to babysit Docker.
 
-Notion is the operations layer. Every segment definition, tag taxonomy, editorial calendar, and re-engagement threshold lives in a Notion database your team can edit without touching the automation itself. n8n reads from Notion via API to make dynamic decisions. Update a segment threshold in Notion, and the automation adapts on its next run — no workflow editor required.
+Notion is the operations layer. Every segment definition, tag taxonomy, editorial calendar, and re-engagement threshold lives in a Notion database your team can edit without touching the automation itself. n8n reads from Notion via API to make dynamic decisions. Update a segment threshold in Notion, and the automation adapts on its next run, no workflow editor required.
 
-<style>{`
-  @media (max-width: 1024px) {
-    .side-by-side-stack {
-      flex-direction: column !important;
-    }
-  }
-`}</style>
+
 
 <SideBySide>
 <Fragment slot="left">
@@ -67,13 +54,13 @@ Notion is the operations layer. Every segment definition, tag taxonomy, editoria
 
 | Tool | Plan | Cost |
 |---|---|---|
-| Kit | Creator (up to 10k subs) | $50–$90 |
+| Kit | Creator (up to 10k subs) | $50-$90 |
 | n8n | Cloud Starter | $20 |
 | Notion | Plus | $16 |
 | PostHog | Free tier (up to 1M events) | $0 |
-| **Total** | | **$86–$126/mo** |
+| **Total** | | **$86-$126/mo** |
 
-PostHog's free tier comfortably covers a sub-50k monthly visitor site. If you're above that, budget $45–$80/month for PostHog Scale — still well under $200 all-in and still beating any ESP-native "behavioral" add-on by a wide margin.
+PostHog's free tier comfortably covers a sub-50k monthly visitor site. If you're above that, budget $45-$80/month for PostHog Scale, still well under $200 all-in and still beating any ESP-native "behavioral" add-on by a wide margin.
 </Fragment>
 <Fragment slot="right">
 <Figure caption="Newsletter automation stack data flow: PostHog → n8n → Kit + Notion">
@@ -111,41 +98,35 @@ PostHog's free tier comfortably covers a sub-50k monthly visitor site. If you're
 
 ## The Three Automations That Actually Matter
 
-Skip the 12-automation fantasy. Seriously — don't build more than these three until they're running clean and you have 90 days of data. They cover 90% of your newsletter's revenue and retention surface area.
+Skip the 12-automation fantasy. Seriously, don't build more than these three until they're running clean and you have 90 days of data. They cover 90% of your newsletter's revenue and retention surface area.
 
 **Automation 1: Welcome Sequence (Day 0 → Day 14)**
 
-This one lives entirely inside Kit — no n8n required until the very end. New subscriber hits your opt-in form → Kit fires a 5-email sequence: Day 0 (instant, your single best piece of content), Day 2 (origin story — why this newsletter exists and who it's for), Day 5 (your framework or most-forwarded piece), Day 9 (a specific actionable tip with an explicit reply prompt), Day 14 (soft pitch or community invite). The n8n hook activates post-sequence: on Day 15, n8n checks Kit's API to see if the subscriber opened at least 2 of those 5 emails. Opened 2+? Apply tag `engaged-post-welcome`. Opened fewer? Fork them into the re-engagement flow in Automation 3.
+This one lives entirely inside Kit, no n8n required until the very end. New subscriber hits your opt-in form → Kit fires a 5-email sequence: Day 0 (instant, your single best piece of content), Day 2 (origin story, why this newsletter exists and who it's for), Day 5 (your framework or most-forwarded piece), Day 9 (a specific actionable tip with an explicit reply prompt), Day 14 (soft pitch or community invite). The n8n hook activates post-sequence: on Day 15, n8n checks Kit's API to see if the subscriber opened at least 2 of those 5 emails. Opened 2+? Apply tag `engaged-post-welcome`. Opened fewer? Fork them into the re-engagement flow in Automation 3.
 
 **Automation 2: Behavioral Tagging via PostHog → n8n → Kit**
 
-<style>{`
-  @media (max-width: 900px) {
-    .step-row-grid {
-      grid-template-columns: repeat(2, 1fr) !important;
-    }
-  }
-`}</style>
+
 
 <StepRow steps={[
   { title: "Instrument PostHog on your site", body: "Add PostHog's JS snippet and capture three custom events: `article_read` (with slug and category as properties), `pricing_page_visited`, and `tool_review_clicked`. These three events cover most monetization-relevant behavioral signals without turning your event schema into a mess." },
-  { title: "Identify subscribers in PostHog", body: "When a subscriber confirms their email — Kit fires a webhook on confirmation — call PostHog's identify API with their email as the distinct_id. Now PostHog events are tied to a known subscriber, not an anonymous session. Anonymous event data is noise; don't let it pollute your tagging logic." },
+  { title: "Identify subscribers in PostHog", body: "When a subscriber confirms their email, Kit fires a webhook on confirmation, call PostHog's identify API with their email as the distinct_id. Now PostHog events are tied to a known subscriber, not an anonymous session. Anonymous event data is noise; don't let it pollute your tagging logic." },
   { title: "Build the n8n webhook receiver", body: "Set up an n8n webhook node as a PostHog destination via PostHog → Data Pipelines → Webhooks. Filter immediately for identified users only. If you skip this filter, you'll spend hours debugging phantom tags applied to anonymous sessions." },
-  { title: "Write the tagging logic in n8n", body: "Use a Switch node: if `article_category === 'cold-email'`, call Kit's API to add tag `interest:cold-email`. If `pricing_page_visited` fires twice within 7 days, add tag `purchase-intent`. The numeric thresholds — two visits, seven days — should read from your Notion database, not be hardcoded in the workflow." },
-  { title: "Push segment updates back to Notion", body: "After Kit is updated, have n8n write a log row to your Notion Segment Activity database — timestamp, hashed subscriber email, tag applied. This gives you an auditable record of segment growth over time. You'll want this when someone asks why a subscriber got a particular email." }
+  { title: "Write the tagging logic in n8n", body: "Use a Switch node: if `article_category === 'cold-email'`, call Kit's API to add tag `interest:cold-email`. If `pricing_page_visited` fires twice within 7 days, add tag `purchase-intent`. The numeric thresholds, two visits, seven days, should read from your Notion database, not be hardcoded in the workflow." },
+  { title: "Push segment updates back to Notion", body: "After Kit is updated, have n8n write a log row to your Notion Segment Activity database, timestamp, hashed subscriber email, tag applied. This gives you an auditable record of segment growth over time. You'll want this when someone asks why a subscriber got a particular email." }
 ]} />
 
 **Automation 3: Churn Re-Engagement**
 
-n8n runs a scheduled workflow every Monday at 7am. It queries Kit's API for subscribers tagged `engaged-post-welcome` who haven't opened anything in 60 days. For each one: send a single plain-text re-engagement email ("Still want these? One click to stay on the list — no hard feelings either way"). Wait 7 days. Check opens via Kit's API. No open → unsubscribe via Kit API, log the removal to Notion. Opened → apply tag `re-engaged`, enqueue in a 3-email "best-of" sequence pulled from your Notion editorial database. Clean list, better deliverability, honest metrics. The 60-day threshold lives in Notion — change it to 45 days next quarter without touching a single workflow node.
+n8n runs a scheduled workflow every Monday at 7am. It queries Kit's API for subscribers tagged `engaged-post-welcome` who haven't opened anything in 60 days. For each one: send a single plain-text re-engagement email ("Still want these? One click to stay on the list, no hard feelings either way"). Wait 7 days. Check opens via Kit's API. No open → unsubscribe via Kit API, log the removal to Notion. Opened → apply tag `re-engaged`, enqueue in a 3-email "best-of" sequence pulled from your Notion editorial database. Clean list, better deliverability, honest metrics. The 60-day threshold lives in Notion, change it to 45 days next quarter without touching a single workflow node.
 
 <MyTake>
-Most newsletter operators spend weeks building elaborate drip sequences when their list hygiene is actually the problem. A 40% inactive rate tanks deliverability for your engaged subscribers too — you're essentially penalizing the people who actually read you. Build Automation 3 first, before anything else. Your open rates will jump 8–15 points within 30 days, almost entirely because the denominator got honest.
+Most newsletter operators spend weeks building elaborate drip sequences when their list hygiene is actually the problem. A 40% inactive rate tanks deliverability for your engaged subscribers too, you're essentially penalizing the people who actually read you. Build Automation 3 first, before anything else. Your open rates will jump 8-15 points within 30 days, almost entirely because the denominator got honest.
 </MyTake>
 
 ## Build This Once, Then Leave It Alone
 
-The discipline of this stack is Notion as the single configuration surface. Tag taxonomies, re-engagement thresholds, sequence enrollment rules — all of it lives in Notion databases that n8n reads at runtime. Your writers and operators tune behavior without touching a workflow. When you need to tighten the inactivity window from 60 to 45 days, you update one Notion field. The automation adapts on its next Monday run.
+The discipline of this stack is Notion as the single configuration surface. Tag taxonomies, re-engagement thresholds, sequence enrollment rules, all of it lives in Notion databases that n8n reads at runtime. Your writers and operators tune behavior without touching a workflow. When you need to tighten the inactivity window from 60 to 45 days, you update one Notion field. The automation adapts on its next Monday run.
 
 No workflow editor. No redeployment. No "can you update this in the automation for me" Slack messages eating up your afternoon.
 

@@ -57,22 +57,25 @@ if (images.length === 0) {
   process.exit(1);
 }
 
-const PROMPT = `You are a senior front-end designer reviewing the layout of a blog post on theautomationsguide.com (Astro + MDX, Forbes-style 1280px container, dark theme, components: SideBySide, StatRow, ComparisonTable, PullQuote, MyTake, StepRow, Figure).
+const PROMPT = `You are a senior front-end designer reviewing the layout of a blog post on theautomationsguide.com (Astro + MDX, Forbes-style 1280px container, LIGHT theme: cream/off-white background, dark slate text, teal accent). The post may use any of these self-styled components: SideBySide, StatRow, ComparisonTable, PullQuote, MyTake, StepRow, Figure, DecisionTree, ChooseIf, IntentTable, SpectrumBar, ToolBreakdown, KeyTakeaways, Sources, BottomLine, PostFaqs, TableOfContents, RelatedPosts.
 
 Review these 4 screenshots of /${slug.replace(/_/g, '/')} (mobile 375px, tablet 768px, desktop 1280px, wide 1440px).
 
-Identify ONLY visible layout problems that look unprofessional or sloppy:
-- Width inconsistencies (e.g. header at one width, content below at another)
-- Components overflowing or wrapping awkwardly (3-card row that wraps to 2+1, etc)
-- Vertical spacing too loose / too tight between sections
-- Mobile cards inflated with excessive whitespace
-- Misalignment between text and adjacent visuals (SideBySide top alignment)
-- Anything that breaks visual rhythm
+Identify ONLY visible layout problems that look unprofessional or sloppy. Pay particular attention to these recurring defects:
+- SQUISHED / CRAMPED COMPONENTS: a multi-column row (StatRow, ToolBreakdown, ComparisonTable, IntentTable) whose columns are too narrow, with text wrapping mid-word or numbers colliding. Especially a 3-column row forced narrow on tablet/mobile instead of stacking.
+- EMPTY COLUMN GAPS: a grid/row with a blank or near-empty column, or large dead whitespace beside a component (e.g. a 3-col grid holding only 2 cards leaving an empty third slot).
+- AWKWARD DECISION TREES: a DecisionTree or yes/no flowchart with orphaned branches, overlapping connector lines, lopsided spacing, or a node floating with empty space around it. (Ian dislikes literal yes/no tree layouts — flag them if they look unbalanced.)
+- OVERSIZED EMBEDS / IMAGES: a Figure, screenshot, or embed that's blown up far larger than the content column or that dwarfs surrounding text.
+- Width inconsistencies (header at one width, content below at another).
+- Components overflowing the container or wrapping awkwardly (3-card row that wraps to 2+1).
+- Vertical spacing too loose / too tight between sections; mobile cards inflated with excessive whitespace.
+- Misalignment between text and adjacent visuals (SideBySide top alignment).
+- Anything that breaks visual rhythm.
 
 Do NOT critique:
-- Copy quality, factual claims, SEO
-- Design style choices that are intentional (dark theme, teal accent, etc)
-- Anything that's a feature of the design system, not a bug
+- Copy quality, factual claims, SEO.
+- Design style choices that are intentional (the light cream theme, teal accent, full-width components).
+- Anything that's a feature of the design system, not a bug.
 - CONTENT WIDTH / LINE LENGTH. The body text intentionally spans the full ~1232px container to match the components and use the full desktop width. Wide reading lines are a DELIBERATE design choice, not a bug. NEVER flag "prose too wide", "content too wide", "lines too long/wide", or suggest a max-width / narrower text column / centering the text. The content column and the components are meant to be the same full width.
 
 Output ONLY a JSON object, no surrounding prose, no markdown fences. Schema:

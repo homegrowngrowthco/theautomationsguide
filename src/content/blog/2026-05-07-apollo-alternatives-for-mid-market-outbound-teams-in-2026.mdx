@@ -9,7 +9,7 @@ faqs:
   - question: "Is Apollo good for mid-market outbound?"
     answer: "Apollo works well at lower volumes, but mid-market teams running 5,000+ contacts per month frequently report duplicate records, stale emails, and mobile number gaps that hurt deliverability and connect rates."
   - question: "How does Clay compare to Apollo for lead enrichment?"
-    answer: "Clay uses a waterfall enrichment model pulling from 75+ data sources, which means higher match rates than Apollo's single-database approach — especially for niche verticals or international markets."
+    answer: "Clay uses a waterfall enrichment model pulling from 75+ data sources, which means higher match rates than Apollo's single-database approach, especially for niche verticals or international markets."
   - question: "Is ZoomInfo worth the price over Apollo?"
     answer: "For enterprise AEs working named accounts, ZoomInfo's org chart data and buyer intent signals justify the premium. For high-volume SDR sequencing, the cost-per-contact math rarely works out."
   - question: "Does LinkedIn Sales Navigator replace Apollo?"
@@ -25,7 +25,7 @@ import Figure from '@/components/post/Figure.astro';
 import DecisionTree from '@/components/post/DecisionTree.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
-Mid-market outbound teams are quietly cycling off [Apollo](/go/apollo) — not because the product is broken, but because the economics and data quality stop making sense right around the 3,000–5,000 contact-per-month mark. Bounce rates creep up. Mobile dials hit voicemail farms. The "unlimited exports" pitch loses its shine when 20% of your list is outdated. If you're re-evaluating your prospecting stack heading into the back half of 2026, this breakdown covers the four alternatives worth actually pressure-testing.
+Mid-market outbound teams are quietly cycling off [Apollo](/go/apollo), not because the product is broken, but because the economics and data quality stop making sense right around the 3,000-5,000 contact-per-month mark. Bounce rates creep up. Mobile dials hit voicemail farms. The "unlimited exports" pitch loses its shine when 20% of your list is outdated. If you're re-evaluating your prospecting stack heading into the back half of 2026, this breakdown covers the four alternatives worth actually pressure-testing.
 
 <div class="quick-answer"><strong>Quick answer:</strong> Clay is the most flexible Apollo alternative for enrichment-heavy workflows, LinkedIn Sales Nav owns intent-based prospecting, Kaspr punches above its weight for European mobile data, and ZoomInfo is only worth it if you're running enterprise plays with intent signals baked into the budget.</div>
 
@@ -33,20 +33,11 @@ Mid-market outbound teams are quietly cycling off [Apollo](/go/apollo) — not b
   <StatRow stats={[
     { number: "22%", label: "Average bounce rate", description: "Reported by outbound teams using Apollo at 5K+ monthly exports without additional email verification layers" },
     { number: "75+", label: "Clay data sources", description: "Clay's waterfall enrichment pulls from over 75 providers, dramatically increasing match rates vs. a single-database approach" },
-    { number: "4–6×", label: "ZoomInfo cost premium", description: "ZoomInfo typically runs 4–6x the annual cost of Apollo for comparable seat counts, making the ROI math tight for most mid-market teams" }
+    { number: "4-6×", label: "ZoomInfo cost premium", description: "ZoomInfo typically runs 4-6x the annual cost of Apollo for comparable seat counts, making the ROI math tight for most mid-market teams" }
   ]} />
 </div>
 
-<style>{`
-  @media (max-width: 640px) {
-    .stat-row-scroll :global([class*="stat"]),
-    .stat-row-scroll :global([class*="card"]),
-    .stat-row-scroll :global(> div > div),
-    .stat-row-scroll :global(.stat-row > *) {
-      padding-block: 0.75rem;
-    }
-  }
-`}</style>
+
 
 <div class="comparison-table-scroll">
   <ComparisonTable
@@ -59,11 +50,11 @@ Mid-market outbound teams are quietly cycling off [Apollo](/go/apollo) — not b
           "75+ enrichment sources in a single waterfall",
           "Native AI research rows for personalization at scale",
           "Integrates directly with Smartlead, Outreach, and HubSpot",
-          "Transparent credit-based pricing — you control spend"
+          "Transparent credit-based pricing, you control spend"
         ],
         cons: [
           "Steeper learning curve than point-and-click prospecting tools",
-          "Not a sequence sender — you still need a separate outreach tool",
+          "Not a sequence sender, you still need a separate outreach tool",
           "Credit costs add up fast on large enrichment runs"
         ],
         pricing: "From $149/mo (Starter); Pro runs ~$800/mo for serious volume",
@@ -81,7 +72,7 @@ Mid-market outbound teams are quietly cycling off [Apollo](/go/apollo) — not b
           "Lead lists stay fresh as people change jobs"
         ],
         cons: [
-          "No email or direct dial export natively — needs Kaspr or Clay to unlock",
+          "No email or direct dial export natively, needs Kaspr or Clay to unlock",
           "Boolean search is clunky compared to Apollo's filters",
           "Per-seat pricing balloons quickly for larger SDR teams"
         ],
@@ -96,7 +87,7 @@ Mid-market outbound teams are quietly cycling off [Apollo](/go/apollo) — not b
         pros: [
           "Best-in-class mobile number coverage for EMEA markets",
           "LinkedIn Chrome extension for instant enrichment",
-          "GDPR-compliant data sourcing — audit trail included",
+          "GDPR-compliant data sourcing, audit trail included",
           "Affordable entry point for smaller outbound teams"
         ],
         cons: [
@@ -119,11 +110,11 @@ Mid-market outbound teams are quietly cycling off [Apollo](/go/apollo) — not b
           "Strong Salesforce bi-directional sync"
         ],
         cons: [
-          "Annual contract pricing starts at ~$15K — rarely negotiable",
+          "Annual contract pricing starts at ~$15K, rarely negotiable",
           "UI is dated and workflows feel slow vs. modern alternatives",
           "Overkill for teams that don't have a named-account motion"
         ],
-        pricing: "Starts ~$15,000/yr; most mid-market contracts run $20–40K",
+        pricing: "Starts ~$15,000/yr; most mid-market contracts run $20-40K",
         affiliateSlug: null,
         ctaLabel: "View ZoomInfo",
         highlight: false
@@ -132,69 +123,24 @@ Mid-market outbound teams are quietly cycling off [Apollo](/go/apollo) — not b
   />
 </div>
 
-<style>{`
-  .comparison-table-scroll {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  @media (min-width: 481px) and (max-width: 767px) {
-    .comparison-table-scroll :global([class*="grid"]),
-    .comparison-table-scroll :global([class*="card-grid"]),
-    .comparison-table-scroll :global(.comparison-grid) {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      min-width: unset;
-    }
-  }
-  @media (max-width: 480px) {
-    .comparison-table-scroll :global([class*="grid"]),
-    .comparison-table-scroll :global([class*="card-grid"]),
-    .comparison-table-scroll :global(.comparison-grid) {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(220px, 1fr));
-      min-width: 880px;
-    }
-  }
-  .comparison-table-scroll :global([class*="card-grid"]),
-  .comparison-table-scroll :global([class*="grid"]),
-  .comparison-table-scroll :global(.comparison-grid) {
-    align-items: stretch;
-  }
-  .comparison-table-scroll :global([class*="comparison-card"]),
-  .comparison-table-scroll :global([class*="card"]) {
-    display: flex;
-    flex-direction: column;
-  }
-  .comparison-table-scroll :global([class*="comparison-card"] > [class*="body"]),
-  .comparison-table-scroll :global([class*="card"] > [class*="body"]),
-  .comparison-table-scroll :global([class*="comparison-card"] > [class*="content"]),
-  .comparison-table-scroll :global([class*="card"] > [class*="content"]) {
-    flex: 1;
-  }
-  @media (max-width: 480px) {
-    .comparison-table-scroll :global([class*="comparison-card"]),
-    .comparison-table-scroll :global([class*="card"]) {
-      padding: 16px;
-    }
-  }
-`}</style>
+
 
 ## How to Choose the Right Apollo Alternative
 
 The decision isn't about which tool has the bigger database. It's about identifying where in your outbound workflow the current stack is leaking.
 
-If your issue is bounce rates and stale data, Apollo's single-source model is the structural problem — and [Clay](/go/clay)'s waterfall enrichment is the most direct fix. Don't bother bolting Neverbounce onto an Apollo export and calling it a solution; you're paying twice to compensate for a data quality gap that will still hurt you on mobile. If your issue is reaching the right person at the right company at the right moment, Sales Navigator's activity signals will outperform any static database, full stop.
+If your issue is bounce rates and stale data, Apollo's single-source model is the structural problem, and [Clay](/go/clay)'s waterfall enrichment is the most direct fix. Don't bother bolting Neverbounce onto an Apollo export and calling it a solution; you're paying twice to compensate for a data quality gap that will still hurt you on mobile. If your issue is reaching the right person at the right company at the right moment, Sales Navigator's activity signals will outperform any static database, full stop.
 
-Cost structure matters more than most teams admit upfront. Apollo's "unlimited" positioning obscures real costs once you layer in verification tools like Neverbounce or Zerobounce to scrub exports. Clay is explicit about credit consumption, which makes budget forecasting straightforward. ZoomInfo locks you into a $15K+ annual contract before you've validated fit — a serious risk for any team mid-ICP pivot.
+Cost structure matters more than most teams admit upfront. Apollo's "unlimited" positioning obscures real costs once you layer in verification tools like Neverbounce or Zerobounce to scrub exports. Clay is explicit about credit consumption, which makes budget forecasting straightforward. ZoomInfo locks you into a $15K+ annual contract before you've validated fit, a serious risk for any team mid-ICP pivot.
 
 <div class="side-by-side-apollo">
   <SideBySide>
     <Fragment slot="left">
-      **If your SDR team is primarily US-focused and volume is under 3K contacts/month**, Apollo still makes sense — the ROI is clear and the sequencing is solid. Push past that threshold and data quality becomes a real deliverability liability.
+      **If your SDR team is primarily US-focused and volume is under 3K contacts/month**, Apollo still makes sense, the ROI is clear and the sequencing is solid. Push past that threshold and data quality becomes a real deliverability liability.
 
       **If you're running EMEA or have strong European ICP coverage**, Kaspr plus Sales Navigator is a credible stack that most Apollo alternatives can't match on mobile data quality.
 
-      **If you're building a programmatic, enrichment-heavy outbound motion** — think Clay tables pulling LinkedIn + Clearbit + custom webhooks — Clay is the only tool in this list architected for that workflow natively.
+      **If you're building a programmatic, enrichment-heavy outbound motion**, think Clay tables pulling LinkedIn + Clearbit + custom webhooks, Clay is the only tool in this list architected for that workflow natively.
     </Fragment>
     <Fragment slot="right">
       <DecisionTree
@@ -212,19 +158,7 @@ Cost structure matters more than most teams admit upfront. Apollo's "unlimited" 
   </SideBySide>
 </div>
 
-<style>{`
-  .side-by-side-apollo :global([class*="side-by-side"]),
-  .side-by-side-apollo :global([class*="sidebyside"]),
-  .side-by-side-apollo :global([class*="two-col"]) {
-    align-items: flex-start;
-  }
-  .side-by-side-apollo :global([class*="side-by-side"] > *),
-  .side-by-side-apollo :global([class*="sidebyside"] > *),
-  .side-by-side-apollo :global([class*="two-col"] > *) {
-    margin-top: 0;
-    padding-top: 0;
-  }
-`}</style>
+
 
 <Figure class="post-screenshot" caption="Clay's waterfall enrichment: find, enrich, and build sequences from a single table.">
   <a href="/go/clay" target="_blank" rel="noopener noreferrer sponsored">
@@ -233,13 +167,13 @@ Cost structure matters more than most teams admit upfront. Apollo's "unlimited" 
 </Figure>
 
 <MyTake>
-Apollo's data problem is structural — not a bug they'll fix in the next release. They pull from the same underlying data brokers as every other single-source tool, and that model has a freshness ceiling that no product roadmap can engineer around. The teams winning in 2026 aren't hunting for a better Apollo. They're building waterfall logic that treats no single provider as authoritative. Clay is the practical way to do that without a full engineering build.
+Apollo's data problem is structural, not a bug they'll fix in the next release. They pull from the same underlying data brokers as every other single-source tool, and that model has a freshness ceiling that no product roadmap can engineer around. The teams winning in 2026 aren't hunting for a better Apollo. They're building waterfall logic that treats no single provider as authoritative. Clay is the practical way to do that without a full engineering build.
 </MyTake>
 
 ## The Stack That Actually Wins
 
-The most effective mid-market outbound stack right now isn't "Apollo plus a sequencer." It's Sales Navigator for targeting and intent signals, [Clay](/go/clay) for enrichment and personalization, and [Smartlead](/go/smartlead) or Outreach for delivery. That's three tools doing three distinct jobs — and none of them trying to be the other.
+The most effective mid-market outbound stack right now isn't "Apollo plus a sequencer." It's Sales Navigator for targeting and intent signals, [Clay](/go/clay) for enrichment and personalization, and [Smartlead](/go/smartlead) or Outreach for delivery. That's three tools doing three distinct jobs, and none of them trying to be the other.
 
-Kaspr slots in as a mobile enrichment layer for EMEA-heavy books of business. ZoomInfo only pencils out if your AEs are running a named-account motion where org chart depth and Bombora intent data genuinely influence deal timing. At $20–40K annually, it had better.
+Kaspr slots in as a mobile enrichment layer for EMEA-heavy books of business. ZoomInfo only pencils out if your AEs are running a named-account motion where org chart depth and Bombora intent data genuinely influence deal timing. At $20-40K annually, it had better.
 
-Teams over-invested in Apollo at scale aren't stuck. They're one workflow rebuild away from a materially better connected rate — and the rebuild is more straightforward than most ops leads expect once you've mapped where the data is actually going stale.
+Teams over-invested in Apollo at scale aren't stuck. They're one workflow rebuild away from a materially better connected rate, and the rebuild is more straightforward than most ops leads expect once you've mapped where the data is actually going stale.
