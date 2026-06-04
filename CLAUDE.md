@@ -20,7 +20,7 @@ Final editorial-polish round before letting the engine run: professionalism + SE
 
 **Revert:** `git revert -m 1 b558960`; engine — re-run `deploy-engine.mjs --apply` against `git show 217a123~1:n8n/blog-post-engine.json`. Each new block is additive + guarded (partial revert safe).
 
-**Open (next):** Ian flagged **PR #51** (an engine-generated post) with squished 3-column comparison + an awkward flowchart space (yes/no nesting he dislikes) — scrap that post + fix the root causes so future posts avoid both. (In progress.)
+**PR #51 formatting bugs — RESOLVED (commit `f378472`, deployed live).** Ian flagged a generated post (Motion vs Reclaim vs Akiflow) with (1) a StatRow squished into 1/3 width and (2) an awkward `<SideBySide>`+yes/no `<DecisionTree>`. Root causes, fixed engine-side for all future posts: (1) the model had wrapped `<StatRow>` in a per-post `<style>.stat-row-3up{grid-template-columns:repeat(3,1fr)}</style>` + `<div>` (StatRow is one self-contained element, so the 3-col wrapper put it in 1/3); `sanitizeMdx()` now **strips all post-level `<style>` blocks** (components are self-styled + responsive; the bare div left behind is harmless) via [n8n/update-engine-layout-hygiene.mjs](n8n/update-engine-layout-hygiene.mjs). (2) Removed the hardcoded `<SideBySide><DecisionTree>` "how to choose" skeleton step (empty-column gap + the yes/no tree); the rotating COMPARISON FORMAT block already covers compare+decide (prefers ChooseIf/IntentTable). Plus a LAYOUT prompt rule + Humanize verify (no `<style>`/grid-width wrapper divs). PR #51 closed + branch deleted. Note: existing live posts still carry their (QA'd, rendering-OK) `<style>` wrappers; the strip only affects newly-generated posts.
 
 ---
 
