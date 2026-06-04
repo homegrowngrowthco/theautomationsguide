@@ -11,9 +11,27 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content } = await post.render();
+const { Content, headings } = await post.render();
+
+// Related posts: score other posts by shared-tag count; if none overlap, fall
+// back to the most recent. Top 3. (Build-time, no new data.)
+const all = await getCollection('blog', ({ data }) => !data.draft);
+const tagset = new Set((post.data.tags ?? []).map((t) => t.toLowerCase()));
+const scored = all
+  .filter((p) => p.slug !== post.slug)
+  .map((p) => ({
+    p,
+    score: (p.data.tags ?? []).filter((t) => tagset.has(t.toLowerCase())).length,
+  }))
+  .sort((a, b) => b.score - a.score || b.p.data.pubDate.valueOf() - a.p.data.pubDate.valueOf());
+const pool = scored.some((s) => s.score > 0) ? scored.filter((s) => s.score > 0) : scored;
+const related = pool.slice(0, 3).map((s) => ({
+  slug: s.p.slug,
+  title: s.p.data.title,
+  description: s.p.data.description,
+}));
 ---
 
-<BlogPostLayout post={post}>
+<BlogPostLayout post={post} headings={headings} related={related}>
   <Content />
 </BlogPostLayout>

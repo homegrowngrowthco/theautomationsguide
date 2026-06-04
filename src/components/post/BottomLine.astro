@@ -1,0 +1,77 @@
+---
+// "Bottom line" — end-of-post verdict + the recommended tool's CTA. Captures the
+// highest-intent moment (a reader who scrolled to the end). Emitted by the engine
+// at the close of a comparison post. The CTA reuses the /go/<slug> affiliate
+// pattern (PostHog affiliate_click tracking, sponsored rel).
+//
+// USAGE:
+//   <BottomLine
+//     verdict="For most mid-market RevOps teams, Clay plus a lightweight sender wins."
+//     pick="Clay"
+//     affiliateSlug="clay"
+//     ctaLabel="Try Clay"
+//   />
+
+interface Props {
+  verdict: string;
+  pick?: string;
+  affiliateSlug?: string;
+  ctaLabel?: string;
+}
+const { verdict, pick, affiliateSlug, ctaLabel } = Astro.props;
+---
+
+<aside class="bottom-line" aria-label="Bottom line">
+  <p class="bottom-line-label">Bottom line</p>
+  <p class="bottom-line-verdict">{verdict}</p>
+  {affiliateSlug && (
+    <a
+      href={`/go/${affiliateSlug}`}
+      class="bottom-line-cta"
+      target="_blank"
+      rel="noopener noreferrer sponsored"
+    >
+      {ctaLabel || (pick ? `Try ${pick}` : 'Get started')} &rarr;
+    </a>
+  )}
+</aside>
+
+<style>
+  .bottom-line {
+    margin: 2.5rem 0 0;
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent);
+    border-left-width: 4px;
+    border-radius: 0.6rem;
+    padding: 1.25rem 1.4rem;
+  }
+  .bottom-line-label {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent-dim, var(--accent));
+    margin: 0 0 0.5rem;
+  }
+  .bottom-line-verdict {
+    margin: 0 0 1rem;
+    color: var(--text);
+    font-size: 1.02rem;
+    line-height: 1.6;
+    font-weight: 600;
+  }
+  .bottom-line-cta {
+    display: inline-block;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--accent-contrast, #fff);
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 0.5rem;
+    padding: 0.6rem 1.1rem;
+    transition: opacity 0.15s;
+  }
+  .bottom-line-cta:hover { opacity: 0.9; }
+</style>

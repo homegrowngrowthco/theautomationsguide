@@ -1,0 +1,88 @@
+---
+// "Keep reading" — up to 3 related posts (scored by shared tags in [slug].astro),
+// rendered at the end of a post for dwell-time + internal-link equity. Renders
+// nothing when there are no candidates.
+
+interface RelatedPost {
+  slug: string;
+  title: string;
+  description: string;
+}
+interface Props {
+  posts?: RelatedPost[];
+}
+
+const { posts = [] } = Astro.props;
+---
+
+{posts.length > 0 && (
+  <section class="related-posts" aria-labelledby="related-posts-heading">
+    <h2 id="related-posts-heading" class="related-posts-title">Keep reading</h2>
+    <div class="related-posts-grid">
+      {posts.map((p) => (
+        <a class="related-post-card" href={`/blog/${p.slug}/`}>
+          <span class="related-post-card-title">{p.title}</span>
+          <span class="related-post-card-desc">{p.description}</span>
+          <span class="related-post-card-more">Read more &rarr;</span>
+        </a>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  .related-posts {
+    margin: 2.5rem 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .related-posts-title {
+    font-size: 1.3rem;
+    margin: 0 0 1.25rem;
+    color: var(--text);
+  }
+  .related-posts-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  @media (min-width: 700px) {
+    .related-posts-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  .related-post-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 0.6rem;
+    padding: 1.1rem 1.2rem;
+    text-decoration: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .related-post-card:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.08));
+  }
+  .related-post-card-title {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 0.98rem;
+    line-height: 1.35;
+  }
+  .related-post-card-desc {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .related-post-card-more {
+    margin-top: auto;
+    color: var(--accent);
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+</style>

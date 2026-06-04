@@ -1,0 +1,52 @@
+---
+// "Sources" — consolidates the external citations a post already links inline into
+// a visible references list at the end. Pages that visibly cite credible sources
+// get cited back (a strong GEO + E-E-A-T signal). Emitted by the engine; renders
+// nothing if empty.
+
+interface Source {
+  label: string;
+  url: string;
+}
+interface Props {
+  title?: string;
+  sources: Source[];
+}
+const { title = 'Sources', sources } = Astro.props;
+---
+
+{sources && sources.length > 0 && (
+  <section class="post-sources" aria-labelledby="post-sources-heading">
+    <h2 id="post-sources-heading" class="post-sources-title">{title}</h2>
+    <ul class="post-sources-list">
+      {sources.map((s) => (
+        <li>
+          <a href={s.url} target="_blank" rel="noopener noreferrer">{s.label}</a>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<style>
+  .post-sources {
+    margin: 2.25rem 0 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+  .post-sources-title {
+    font-size: 1.1rem;
+    margin: 0 0 0.75rem;
+    color: var(--text);
+  }
+  .post-sources-list {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  .post-sources-list li { margin-bottom: 0.35rem; }
+  .post-sources-list a { color: var(--accent); text-decoration: none; word-break: break-word; }
+  .post-sources-list a:hover { text-decoration: underline; }
+</style>
