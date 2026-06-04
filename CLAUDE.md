@@ -34,6 +34,18 @@ After the Session 19 PRs, Ian reviewed and asked for two changes; both shipped (
 
 **E. Product visuals for the last 4 comparison posts (PR #50, merge `eb6aa5a`) — screenshot coverage now complete on all 11.** Ian pointed at specific product pages and said "screenshots **or features**." Their UI is client-loaded, so I rendered each page with Playwright and element-captured the real visual: lemlist-vs-smartlead-vs-instantly → Smartlead waterfall-verification engine; instantly-alternatives → Smartlead lead view; gong-vs-outreach-vs-salesloft → Gong AI Composer; best-salesforce → Salesforce Flow Builder (from help docs). Each validated by eye, linked to `/go/<slug>`, `post-screenshot` (spaced + 600px). No more deferred screenshots.
 
+### Session 19 follow-up #3 (2026-06-04) — formatting polish + brand (PR #52, merge `fbb2d97`)
+
+Six edits from Ian's review (all verified locally via Playwright, deployed):
+- **ToolBreakdown** ([src/components/post/ToolBreakdown.astro](src/components/post/ToolBreakdown.astro)): narrative left / highlight bullets right (cuts vertical space), brand **logo top-right auto-resolved** from the tools registry (matches affiliateSlug/name/alias; nothing for tools without a registry logo), **prominent pricing**. Engine prompt hints a second pricing tier.
+- **DecisionTree** ([src/components/post/DecisionTree.astro](src/components/post/DecisionTree.astro)): nested sub-decisions now render as a **labeled vertical list under a teal guide line** (`.dtree-branches--nested` / `.dtree-node--nested`), each answer its own row. Fixes the funky "Yes -> Use Akiflow -> No -> Use Reclaim" misread on deep trees (top-level horizontal branching unchanged).
+- **Newsletter** ([src/components/EmailSignup.astro](src/components/EmailSignup.astro) + global.css): copy sits **beside** the Beehiiv form on desktop (2-col grid) instead of stacked above it, ~halving the section height; tighter padding; fixed an em dash. (The Beehiiv form is a fixed ~290px cross-origin iframe we can't restyle internally, so beside-not-above is the lever.)
+- **Last name removed site-wide** (now just "Ian"): JSON-LD founder.name, About (hero + meta), privacy, AuthorNote, and BOTH engine prompts (`blog-post-engine.json` + `update-engine-v5.mjs`). No "Chamberland" left in `src/`.
+- **Socials:** header LinkedIn icon now -> **TAG company page** (`linkedin.com/company/the-automations-guide/`); new **X icon** -> `x.com/the_automations`; org JSON-LD `sameAs` = company LI + X + HGC. **Personal LinkedIn kept only on the About page** (the author card now links to `/about` instead). Founder Person entity in JSON-LD still carries the personal LI (mirrors About).
+- **Engine re-deployed** (name scrub + pricing hint) via `deploy-engine.mjs --apply`, verified live (no "Ian Chamberland", 1/1 braces, active).
+
+**Open thread:** Ian proposed alternatives to decision trees (spectrum/slider matrix, "If/Then" quick-filter cards, JTBD comparison table) and asked for thoughts before building. Recommendation pending in chat: adopt **If/Then "Choose X if" cards** as the primary decision aid + a **JTBD intent table**, fold both into the engine's format rotation, and demote DecisionTree to genuinely-sequential decisions only.
+
 ---
 
 ## Quick reference — recent additions (Session 18, 2026-06-03)
