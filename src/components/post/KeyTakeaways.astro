@@ -1,0 +1,49 @@
+---
+// "Key takeaways" — a short, scannable bullet summary placed right after the
+// quick-answer. The single most "quotable" element for AI answer engines (they
+// preferentially lift compact extractable summaries) and a fast scan for readers.
+// Emitted by the engine into new posts; renders nothing if items is empty.
+
+interface Props {
+  title?: string;
+  items: string[];
+}
+const { title = 'Key takeaways', items } = Astro.props;
+---
+
+{items && items.length > 0 && (
+  <aside class="key-takeaways" aria-label={title}>
+    <p class="key-takeaways-title">{title}</p>
+    <ul class="key-takeaways-list">
+      {items.map((it) => <li>{it}</li>)}
+    </ul>
+  </aside>
+)}
+
+<style>
+  .key-takeaways {
+    margin: 1.75rem 0;
+    background: var(--accent-glow);
+    border: 1px solid var(--accent-dim);
+    border-radius: 0.6rem;
+    padding: 1.1rem 1.35rem;
+  }
+  .key-takeaways-title {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent-dim, var(--accent));
+    margin: 0 0 0.6rem;
+  }
+  .key-takeaways-list {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .key-takeaways-list li { margin-bottom: 0.4rem; }
+  .key-takeaways-list li:last-child { margin-bottom: 0; }
+  .key-takeaways-list li::marker { color: var(--accent); }
+</style>

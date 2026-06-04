@@ -1,0 +1,78 @@
+---
+// On-page table of contents — a full-width collapsible block at the top of the
+// article (NOT a sidebar, to avoid restructuring the single-column reading layout).
+// Renders H2 jump-links from the post's `headings` (Astro injects matching ids on
+// the headings). Helps navigation/dwell-time + gives search engines section links.
+// Renders nothing for short posts (< 3 H2s).
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+interface Props {
+  headings?: Heading[];
+}
+
+const { headings = [] } = Astro.props;
+const h2s = headings.filter((h) => h.depth === 2 && h.text?.trim());
+const show = h2s.length >= 3;
+---
+
+{show && (
+  <details class="post-toc" open>
+    <summary class="post-toc-summary">On this page</summary>
+    <nav aria-label="Table of contents">
+      <ol class="post-toc-list">
+        {h2s.map((h) => (
+          <li><a href={`#${h.slug}`}>{h.text}</a></li>
+        ))}
+      </ol>
+    </nav>
+  </details>
+)}
+
+<style>
+  .post-toc {
+    margin: 1.5rem 0 2rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 0.6rem;
+    padding: 0.85rem 1.25rem;
+  }
+  .post-toc-summary {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    cursor: pointer;
+    list-style: none;
+  }
+  .post-toc-summary::-webkit-details-marker { display: none; }
+  .post-toc-summary::after {
+    content: "+";
+    float: right;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .post-toc[open] .post-toc-summary::after { content: "\2212"; }
+  .post-toc-list {
+    margin: 0.85rem 0 0;
+    padding-left: 1.2rem;
+    columns: 2;
+    column-gap: 2rem;
+  }
+  .post-toc-list li { margin-bottom: 0.4rem; break-inside: avoid; }
+  .post-toc-list a {
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  .post-toc-list a:hover { color: var(--accent); text-decoration: underline; }
+  @media (max-width: 560px) {
+    .post-toc-list { columns: 1; }
+  }
+</style>

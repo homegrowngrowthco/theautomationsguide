@@ -761,6 +761,14 @@ main { flex: 1; }
 
 .post-meta-sep { color: var(--text-faint); }
 
+.post-disclosure {
+  margin: 0.5rem 0 0;
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+.post-disclosure a { color: var(--text-muted); text-decoration: underline; }
+.post-disclosure a:hover { color: var(--accent); }
+
 /* ── About page ────────────────────────────────── */
 .about-hero {
   padding: 5rem 0 3rem;

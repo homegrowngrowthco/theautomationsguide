@@ -1,0 +1,79 @@
+---
+// Renders the post's frontmatter `faqs` as a visible on-page FAQ section.
+// Until now faqs only emitted FAQPage JSON-LD (invisible to readers + on-page AI
+// extraction). Rendering them visibly is prime real estate for AI answer engines,
+// Google "People Also Ask", and dwell time — and makes the JSON-LD match visible
+// content (which Google requires). Always-expanded (no accordion/JS) so the text
+// is directly extractable. Each question gets an anchor id for deep links.
+//
+// Rendered by BlogPostLayout from post.data.faqs; renders nothing when absent.
+
+interface Faq {
+  question: string;
+  answer: string;
+}
+interface Props {
+  faqs?: Faq[];
+}
+
+const { faqs } = Astro.props;
+const slugify = (s: string) =>
+  'faq-' +
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .slice(0, 60);
+---
+
+{faqs && faqs.length > 0 && (
+  <section class="post-faqs" aria-labelledby="post-faqs-heading">
+    <h2 id="post-faqs-heading" class="post-faqs-title">Frequently asked questions</h2>
+    <div class="post-faqs-list">
+      {faqs.map((faq) => (
+        <div class="post-faq">
+          <h3 id={slugify(faq.question)} class="post-faq-q">{faq.question}</h3>
+          <p class="post-faq-a">{faq.answer}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  .post-faqs {
+    margin: 2.5rem 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .post-faqs-title {
+    font-size: 1.4rem;
+    margin: 0 0 1.25rem;
+    color: var(--text);
+  }
+  .post-faqs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+  .post-faq {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 0.6rem;
+    padding: 1rem 1.25rem;
+  }
+  .post-faq-q {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 0.4rem;
+    scroll-margin-top: 5rem;
+  }
+  .post-faq-a {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.65;
+    font-size: 0.95rem;
+  }
+</style>

@@ -2,14 +2,35 @@
 import BaseLayout from './BaseLayout.astro';
 import EmailSignup from '../components/EmailSignup.astro';
 import AuthorNote from '../components/AuthorNote.astro';
+import PostFaqs from '../components/post/PostFaqs.astro';
+import TableOfContents from '../components/post/TableOfContents.astro';
+import RelatedPosts from '../components/post/RelatedPosts.astro';
+import { tools, postMentionsTool } from '../data/tools';
 import type { CollectionEntry } from 'astro:content';
+import type { MarkdownHeading } from 'astro';
 
 interface Props {
   post: CollectionEntry<'blog'>;
+  headings?: MarkdownHeading[];
+  related?: { slug: string; title: string; description: string }[];
 }
 
-const { post } = Astro.props;
+const { post, headings = [], related = [] } = Astro.props;
 const { title, description, pubDate, updatedDate, author, tags, faqs } = post.data;
+
+// Per-post OG image (build-time PNG at /og/<slug>.png). Used for og:image,
+// twitter:image, and the BlogPosting `image`.
+const ogImage = new URL(`/og/${post.slug}.png`, Astro.site).toString();
+
+// Tools this post compares, for JSON-LD about/mentions (entity-graph signal).
+const mentionedTools = tools
+  .filter((t) => postMentionsTool(t, post))
+  .map((t) => ({
+    '@type': 'SoftwareApplication',
+    name: t.name,
+    applicationCategory: 'BusinessApplication',
+    url: new URL(`/tools/${t.slug}`, Astro.site).toString(),
+  }));
 
 const wordCount = post.body.split(/\s+/).filter(Boolean).length;
 const readTime = Math.max(1, Math.round(wordCount / 200));
@@ -28,23 +49,36 @@ const formattedUpdatedDate = updatedDate?.toLocaleDateString('en-US', {
 
 const postUrl = new URL(`/blog/${post.slug}`, Astro.site).toString();
 
+const isNamedAuthor = author && author !== 'The Automations Guide';
 const blogPostingSchema = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
   headline: title,
   description: description,
   url: postUrl,
+  mainEntityOfPage: postUrl,
+  image: ogImage,
+  inLanguage: 'en-US',
+  isAccessibleForFree: true,
   datePublished: pubDate.toISOString(),
   dateModified: (updatedDate ?? pubDate).toISOString(),
+  ...(tags.length ? { keywords: tags.join(', ') } : {}),
+  ...(mentionedTools.length ? { about: mentionedTools, mentions: mentionedTools } : {}),
   author: {
     '@type': 'Person',
     name: author,
     url: 'https://theautomationsguide.com/about',
+    ...(isNamedAuthor ? { jobTitle: 'Founder, Homegrown Growth Co' } : {}),
+    sameAs: ['https://theautomationsguide.com/about', 'https://homegrowngrowth.co'],
   },
   publisher: {
     '@type': 'Organization',
     name: 'The Automations Guide',
     url: 'https://theautomationsguide.com',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://theautomationsguide.com/hgc-logo.png',
+    },
   },
 };
 
@@ -62,7 +96,7 @@ const faqSchema =
     : null;
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} ogImage={ogImage}>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)} />
     {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
@@ -90,7 +124,12 @@ const faqSchema =
             </>
           )}
         </div>
+        <p class="post-disclosure">
+          Some links are affiliate links. <a href="/disclosure">Disclosure</a>.
+        </p>
       </header>
+
+      <TableOfContents headings={headings} />
 
       <div class="prose">
         <slot />
@@ -105,6 +144,8 @@ const faqSchema =
         </div>
       )}
 
+      <PostFaqs faqs={faqs} />
+
       <EmailSignup />
 
       <hr class="divider" />
@@ -115,6 +156,8 @@ const faqSchema =
           Enjoying this? Share it with your team.
         </p>
       </div>
+
+      <RelatedPosts posts={related} />
 
       <AuthorNote />
     </article>

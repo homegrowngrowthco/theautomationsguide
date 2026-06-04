@@ -14,6 +14,7 @@ export default defineConfig({
       filter: (page) => {
         const path = new URL(page).pathname;
         if (path.startsWith('/go/')) return false;
+        if (path.startsWith('/og/')) return false; // per-post OG images, not indexable pages
         return !NOINDEX_PATHS.includes(path);
       },
     }),
