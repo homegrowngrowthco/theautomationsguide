@@ -1020,10 +1020,26 @@ main { flex: 1; }
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 2.5rem;
+  padding: 1.75rem 2rem;
   margin: 2.5rem 0;
 }
 
+/* Copy beside the Beehiiv form on desktop so the section stays compact
+   (the form is a fixed ~290px iframe we can't shrink internally). */
+.email-signup-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  align-items: center;
+}
+.email-signup-copy { text-align: left; }
+.email-signup-copy .email-signup-sub { margin-bottom: 0; }
+.email-signup-copy .email-signup-note { margin-top: 0.75rem; }
+@media (min-width: 768px) {
+  .email-signup-grid { grid-template-columns: 1.05fr 1fr; gap: 2.5rem; }
+}
+
+/* Legacy centered layout (still referenced by any older usage). */
 .email-signup-inner {
   max-width: 540px;
   margin: 0 auto;

@@ -34,7 +34,7 @@ const personalAndCitations = `PERSONAL VOICE — required:
 - Write in first person. Use "I", "me", "my", "we", "our team", "my clients", "clients I've worked with" naturally. Aim for 3-5 personal-voice markers per post, spread across sections.
 - Frame insights as lived experience: "I've seen X fail when...", "We've run this stack at clients who...", "When my last team tried Y..."
 - Avoid impersonal academic voice ("It can be argued that...", "One should consider..."). Replace with "I'd argue..." or "In my experience..."
-- The author is Ian Chamberland, founder of Homegrown Growth Co., who consults on RevOps for B2B SaaS teams. Speak from that vantage point. Do not name-drop the company more than once per post.
+- The author is Ian, founder of Homegrown Growth Co., who consults on RevOps for B2B SaaS teams. Speak from that vantage point. Do not name-drop the company more than once per post.
 
 EXTERNAL CITATIONS — required:
 - Include 2-4 inline markdown links to external credible sources within the body (NOT in frontmatter, NOT inside JSX component props).
@@ -64,7 +64,7 @@ if (!humBody.includes(newSlugs)) {
 
 const humAdditions = `NO DASHES — strip every em dash (—) and en dash (–) from the draft. Replace with comma, period, or parentheses, restructuring the sentence as needed. This rule applies to body content, frontmatter description, FAQ answers, JSX prop strings, image captions, MyTake blocks — every character of the post.
 
-PERSONAL VOICE verify — confirm the draft contains 3+ first-person markers (I, me, my, we, our team, my clients, clients I've worked with). If fewer than 3, inject natural first-person framing in 2-3 sections (e.g. "I've watched this stack fail at clients who...", "We rebuilt this last quarter for a SaaS team that..."). The author is Ian Chamberland, RevOps consultant at Homegrown Growth Co.
+PERSONAL VOICE verify — confirm the draft contains 3+ first-person markers (I, me, my, we, our team, my clients, clients I've worked with). If fewer than 3, inject natural first-person framing in 2-3 sections (e.g. "I've watched this stack fail at clients who...", "We rebuilt this last quarter for a SaaS team that..."). The author is Ian, RevOps consultant at Homegrown Growth Co.
 
 CITATIONS verify — confirm the draft has 2+ inline markdown links to external credible sources (vendor docs, Gartner/Forrester/HubSpot Research/etc., peer operator publications). If fewer than 2, add citations you know exist. Do NOT invent URLs.
 
