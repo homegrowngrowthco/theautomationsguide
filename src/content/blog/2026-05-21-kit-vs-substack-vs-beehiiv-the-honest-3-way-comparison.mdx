@@ -1,0 +1,197 @@
+---
+title: "Kit vs Substack vs Beehiiv: The Honest 3-Way Comparison"
+description: "Kit, Substack, and Beehiiv compared on what operators actually own: list portability, domain control, monetization cuts, and paid tier economics."
+pubDate: 2026-05-21
+tags: ["comparison", "email-marketing", "newsletter"]
+faqs:
+  - question: "Does Substack let you export your subscriber list?"
+    answer: "Yes, Substack lets you export a CSV of subscribers, but you lose the payment relationships and Substack keeps its network data. Migrating paid subscribers away is operationally painful."
+  - question: "What percentage does Beehiiv take from paid subscriptions?"
+    answer: "Beehiiv charges 0% transaction fees on paid subscriptions across all paid plans. You keep 100% of subscription revenue minus Stripe's standard processing fee."
+  - question: "Is Kit good for selling digital products?"
+    answer: "Kit has a native commerce layer for selling digital products and tip jars directly, with no platform fee on sales. It suits creators who want automation plus product sales in one place."
+  - question: "Can you use a custom domain on Substack?"
+    answer: "Substack supports custom domains on its paid Author Pro plan, but your publication still lives inside Substack's ecosystem and SEO authority flows to their domain by default unless configured."
+  - question: "Which newsletter platform is best for B2B operators?"
+    answer: "Beehiiv is the strongest choice for B2B operators who want analytics, referral programs, and monetization without platform dependency. Kit wins if you need deep automation tied to a product funnel."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+
+Every RevOps team eventually gets the same request from a founder or content lead: "we should start a newsletter." I've had this conversation with B2B SaaS clients more times than I can count, and the answer keeps getting murkier as Substack grows its cultural cachet, [Beehiiv](/go/beehiiv) matures into a serious media operating system, and [Kit](/go/kit) (formerly ConvertKit) doubles down on creator commerce. The differences that matter aren't the features listed on a pricing page. They're what happens when you want to leave, who takes a cut when you charge subscribers, and whether your SEO equity lives on your domain or theirs.
+
+<div class="quick-answer"><strong>Quick answer:</strong> Beehiiv wins for operators who want zero revenue cuts and serious growth tooling, Kit wins if automation and product funnels are the core use case, and Substack is a distribution bet that slowly converts your audience into a tenant relationship you can't easily exit.</div>
+
+<StatRow stats={[
+  { number: "10%", label: "Substack's take", description: "Substack charges a flat 10% of all paid subscription revenue, on top of Stripe fees, with no way to negotiate it down regardless of volume." },
+  { number: "0%", label: "Beehiiv's platform fee", description: "Beehiiv takes zero percent of paid subscription revenue on Scale and above plans. Stripe's ~2.9% plus 30 cents is your only transaction cost." },
+  { number: "600K+", label: "Kit creators", description: "Kit reported over 600,000 creators on the platform as of 2024, with a commerce layer that processed tens of millions in creator product sales." }
+]} />
+
+<style>{`
+  /* Fix 2: Reduce StatRow card vertical padding on mobile */
+  @media (max-width: 639px) {
+    .stat-row-card {
+      padding-top: 16px !important;
+      padding-bottom: 16px !important;
+    }
+  }
+
+  /* Fix 1: Keep ComparisonTable in 3-column layout down to 640px with horizontal scroll fallback */
+  @media (max-width: 768px) and (min-width: 640px) {
+    .comparison-table-grid {
+      grid-template-columns: repeat(3, 1fr) !important;
+      overflow-x: auto !important;
+    }
+  }
+  @media (max-width: 639px) {
+    .comparison-table-grid {
+      grid-template-columns: repeat(3, minmax(220px, 1fr)) !important;
+      overflow-x: auto !important;
+    }
+  }
+
+  /* Fix 3: Top-align both children in the SideBySide that contains the flowchart Figure */
+  .side-by-side-flowchart {
+    align-items: flex-start !important;
+  }
+`}</style>
+
+<ComparisonTable
+  title="Kit vs Substack vs Beehiiv: What Operators Actually Own"
+  tools={[
+    {
+      name: "Kit",
+      tagline: "Automation-first for creator-led funnels",
+      pros: [
+        "Best-in-class visual automation builder",
+        "Native digital product and tip jar commerce (0% platform fee)",
+        "Full list export anytime, no friction",
+        "Deep tagging and segmentation for funnel logic",
+        "Strong API and Zapier/Make integrations"
+      ],
+      cons: [
+        "Newsletter UX is less polished than Beehiiv or Substack",
+        "Referral and growth tooling requires third-party apps",
+        "Free plan limits automations to 1 sequence",
+        "Analytics are functional but not operator-grade"
+      ],
+      pricing: "Free up to 10K subscribers (limited). Creator plan starts at $25/mo. No platform fee on sales.",
+      affiliateSlug: "kit",
+      ctaLabel: "Try Kit free",
+      highlight: false
+    },
+    {
+      name: "Beehiiv",
+      tagline: "Media-operator grade growth and monetization stack",
+      pros: [
+        "0% take rate on paid subscriptions (Scale plan and above)",
+        "Built-in referral program, boosts, and ad network",
+        "Custom domain with full SEO control out of the box",
+        "Operator-grade analytics: open rates, click maps, subscriber attribution",
+        "Clean export: full subscriber data portable anytime"
+      ],
+      cons: [
+        "Automation builder is basic compared to Kit",
+        "No native digital product sales (outside subscriptions)",
+        "Scale plan ($99/mo) required to unlock 0% fees and full feature set",
+        "Smaller ecosystem of native integrations vs Kit"
+      ],
+      pricing: "Launch plan free up to 2,500 subscribers. Scale at $99/mo unlocks full monetization suite.",
+      affiliateSlug: "beehiiv",
+      ctaLabel: "Try Beehiiv free",
+      highlight: true
+    },
+    {
+      name: "Substack",
+      tagline: "Built-in audience discovery at the cost of platform lock-in",
+      pros: [
+        "Network effect: Substack Recommendations drives organic discovery",
+        "Zero upfront cost to start",
+        "Frictionless reader experience and mobile app",
+        "Brand recognition draws readers who trust the platform"
+      ],
+      cons: [
+        "10% platform fee on ALL paid subscription revenue, forever",
+        "SEO authority defaults to substack.com, not your domain",
+        "Migrating paid subscribers is operationally painful",
+        "No automation, no tagging, no segmentation",
+        "Analytics are shallow: no attribution, no funnel visibility"
+      ],
+      pricing: "Free to start. 10% of all paid subscription revenue plus Stripe fees. No way to reduce this at scale.",
+      affiliateSlug: "",
+      ctaLabel: "Visit Substack",
+      highlight: false
+    }
+  ]}
+/>
+
+## How to choose
+
+The real question is simple: which platform treats your audience as your asset versus as a shared resource it gets to monetize alongside you? Kit and [Beehiiv](/go/beehiiv) both let you export your full list, use your own domain from day one, and keep the economics of a paid newsletter largely intact. [Substack](https://substack.com) makes discovery easier early on and charges you permanently for it.
+
+For B2B newsletters running as a demand gen channel, automation depth matters as much as deliverability. Kit's sequences and tagging logic connect naturally with CRMs like HubSpot or [Pipedrive](/go/pipedrive) in ways Beehiiv doesn't yet match. But if the newsletter itself is a revenue line, or you're building a media property, Beehiiv's 0% take rate and referral infrastructure compound hard at scale. Do the math: at 1,000 paid subscribers at $10 per month, Substack's 10% cut costs you $1,200 per year. At 5,000 paid subscribers, that's $6,000 per year in platform fees paid to a landlord, and every dollar of that audience equity lives on real estate you don't own.
+
+My clients who started on Substack because it felt free almost universally wish they'd picked a destination platform first. The migration pain is real and it's not just technical.
+
+<SideBySide class="side-by-side-flowchart">
+  <Fragment slot="left">
+    **You should pick Kit if** your newsletter is one node in a larger automation funnel: you're selling a course, a cohort, a SaaS product, or a service, and you need sequences, tags, and product checkout to live in the same system. Kit's integrations with [Zapier](https://zapier.com/apps/convertkit/integrations) and its native commerce layer make it the right substrate for creator-led go-to-market. Don't bother bolting a third-party referral tool onto Kit either; if referral growth is a priority, go to Beehiiv instead.
+
+    **You should pick Beehiiv if** the newsletter is itself the product or the primary distribution channel, you want analytics you can actually act on, and you're planning to monetize via paid tiers or sponsorships. The [Beehiiv ad network](https://www.beehiiv.com/blog/beehiiv-ad-network) also gives you a third monetization lever that neither Kit nor Substack can match. The $99/month Scale plan pays for itself fast once you have even 500 paid subscribers at $10/month.
+
+    **You should pick Substack only if** you're starting from zero, have no existing list, and want the network's discovery engine to do early acquisition work. Treat it as a launchpad, not a home. Set a migration trigger before you even publish your first issue, something like: "When I hit 200 paid subscribers, I move." That threshold is low enough that the migration is still manageable.
+  </Fragment>
+  <Fragment slot="right">
+    <Figure caption="Newsletter platform decision tree: operator ownership lens">
+      <svg viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+        <rect x="100" y="10" width="160" height="44" rx="8" fill="#6366f1" />
+        <text x="180" y="28" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Is automation central</text>
+        <text x="180" y="44" text-anchor="middle" font-size="12" font-weight="bold" fill="white">to your funnel?</text>
+
+        <line x1="180" y1="54" x2="180" y2="74" stroke="#94a3b8" stroke-width="2"/>
+
+        <rect x="100" y="74" width="160" height="44" rx="8" fill="#0ea5e9" />
+        <text x="180" y="92" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Is the newsletter</text>
+        <text x="180" y="108" text-anchor="middle" font-size="12" font-weight="bold" fill="white">the revenue line?</text>
+
+        <line x1="110" y1="96" x2="60" y2="150" stroke="#94a3b8" stroke-width="2"/>
+        <text x="72" y="134" text-anchor="middle" font-size="10" fill="#64748b">Yes (auto)</text>
+
+        <line x1="250" y1="96" x2="300" y2="150" stroke="#94a3b8" stroke-width="2"/>
+        <text x="290" y="134" text-anchor="middle" font-size="10" fill="#64748b">No (funnel)</text>
+
+        <line x1="180" y1="118" x2="180" y2="150" stroke="#94a3b8" stroke-width="2"/>
+        <text x="180" y="143" text-anchor="middle" font-size="10" fill="#64748b">No list yet</text>
+
+        <rect x="10" y="150" width="100" height="36" rx="8" fill="#10b981" />
+        <text x="60" y="164" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Use Beehiiv</text>
+        <text x="60" y="178" text-anchor="middle" font-size="10" fill="white">0% take rate</text>
+
+        <rect x="130" y="150" width="100" height="36" rx="8" fill="#f59e0b" />
+        <text x="180" y="164" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Start Substack</text>
+        <text x="180" y="178" text-anchor="middle" font-size="10" fill="white">plan migration early</text>
+
+        <rect x="250" y="150" width="100" height="36" rx="8" fill="#6366f1" />
+        <text x="300" y="164" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Use Kit</text>
+        <text x="300" y="178" text-anchor="middle" font-size="10" fill="white">sequences + commerce</text>
+      </svg>
+    </Figure>
+  </Fragment>
+</SideBySide>
+
+<MyTake>
+Substack's 10% fee isn't a transaction cost. It's a perpetual equity stake in your audience that you hand over voluntarily, and it compounds against you. I've watched operators migrate off Substack at 2,000 paid subscribers and the process is painful enough that most just accept the fee instead of fixing it. They rationalize it as a distribution cost. It isn't. It's a tax on not making the right infrastructure decision at the start.
+</MyTake>
+
+## The ownership question decides everything
+
+After running this evaluation for multiple clients at Homegrown Growth Co., the pattern is consistent: the platform that feels cheapest at launch is almost always the most expensive at maturity. [Beehiiv's pricing documentation](https://www.beehiiv.com/pricing) is unusually transparent about what each tier actually unlocks, and that 0% fee structure on Scale is genuinely differentiated from anything else in this category. [Kit's automation documentation](https://help.kit.com/en/articles/2502549-the-visual-automation-builder) shows how deep the sequencing logic goes, which matters when your newsletter is feeding a product funnel rather than standing alone.
+
+Pick based on where you intend to be in 18 months. Not where you are today. Migrating a paid subscriber list mid-flight is the kind of operational problem that costs more in lost momentum, subscriber churn, and team hours than any monthly platform fee you were trying to dodge in month one.
