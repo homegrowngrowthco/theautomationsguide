@@ -1,0 +1,103 @@
+name: Topic backlog builder
+
+# Surfaces the highest-leverage NET-NEW comparison/alternatives/best-of topics from
+# the known tool universe (src/data/tools.ts + AFFILIATE_PIPELINE.md), dedups them
+# against everything already published or staged, and stages the survivors in the
+# Notion Content Calendar as Status:Suggested.
+#
+# Status:Suggested NEVER auto-publishes - the publishing engine only fires on
+# Status:Queued, which stays a human decision. This job just keeps a fresh, deduped
+# idea backlog topped up so the queue never runs dry.
+#
+# Runs weekly (Sunday 06:00 UTC, before the publishing week). Trigger manually via
+# the Actions tab; set dry_run=true to preview a batch (artifact + summary) WITHOUT
+# writing anything to Notion.
+#
+# Required repo secrets:
+#   ANTHROPIC_API_KEY  - already present (used by the QA pipeline)
+#   NOTION_TOKEN       - the Notion internal integration token shared with the engine
+#                        (from notion.so/profile/integrations; n8n won't expose it via API)
+# Optional:
+#   SLACK_WEBHOOK_URL  - NOT yet a repo secret; add it to get a "N topics staged" ping
+#   NOTION_DATABASE_ID - repo variable; overrides the default Content Calendar id
+
+on:
+  schedule:
+    - cron: '0 6 * * 0'   # Sundays 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      count:
+        description: 'How many topics to propose'
+        required: false
+        default: '25'
+      dry_run:
+        description: 'Preview only - do NOT write to Notion'
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Resolve run config
+        id: cfg
+        run: |
+          COUNT="${{ github.event.inputs.count || '25' }}"
+          # Scheduled runs always stage. Manual runs stage unless dry_run=true.
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            STAGE=""
+            echo "Manual dry run - will NOT write to Notion."
+          else
+            STAGE="--stage"
+          fi
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "stage=$STAGE" >> "$GITHUB_OUTPUT"
+
+      - name: Build (and stage) the backlog
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ vars.NOTION_DATABASE_ID }}
+        run: node backlog/build-backlog.mjs --count=${{ steps.cfg.outputs.count }} ${{ steps.cfg.outputs.stage }}
+
+      - name: Publish batch to the run summary
+        if: always()
+        run: |
+          if [ -f backlog/backlog-batch.md ]; then
+            cat backlog/backlog-batch.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No batch produced." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload batch artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backlog-batch
+          path: |
+            backlog/backlog-batch.md
+            backlog/backlog-batch.json
+          if-no-files-found: ignore
+
+      - name: Slack - topics staged
+        if: steps.cfg.outputs.stage == '--stage' && env.SLACK_WEBHOOK_URL != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          COUNT=$(node -e "const b=require('./backlog/backlog-batch.json');process.stdout.write(String(b.topics.length))" 2>/dev/null || echo "?")
+          curl -sS -X POST -H 'content-type: application/json' "$SLACK_WEBHOOK_URL" \
+            -d "{\"text\":\":bulb: *Topic backlog refreshed* - $COUNT new topics staged in the Notion Content Calendar as Suggested. Review and flip the best ones to Queued to publish.\"}"

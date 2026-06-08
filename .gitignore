@@ -38,3 +38,7 @@ qa-review.md
 screenshots/
 # ...but public/screenshots/ holds real, served site assets (tool product shots)
 !public/screenshots/
+
+# Topic backlog builder output (regenerable each run; see backlog/README.md)
+backlog/backlog-batch.json
+backlog/backlog-batch.md
