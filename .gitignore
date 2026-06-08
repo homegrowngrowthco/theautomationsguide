@@ -42,3 +42,6 @@ screenshots/
 # Topic backlog builder output (regenerable each run; see backlog/README.md)
 backlog/backlog-batch.json
 backlog/backlog-batch.md
+# Tool LP builder output (regenerable each run; see backlog/build-tool-lp.mjs)
+backlog/lp-batch.json
+backlog/lp-batch.md

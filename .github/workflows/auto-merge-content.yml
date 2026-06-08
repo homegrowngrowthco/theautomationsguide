@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Find and merge stale content PRs
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           STALE_DAYS: ${{ github.event.inputs.stale_days || '14' }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

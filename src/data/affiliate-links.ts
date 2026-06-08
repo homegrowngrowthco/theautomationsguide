@@ -272,6 +272,43 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: 'Pipeline (not yet applied). Affiliate program available; verify commission on application.',
   },
+
+  // --- LP-builder additions (pending; /go/<slug> falls back to homepage + UTM until approved). ---
+  maildoso: {
+    name: "Maildoso",
+    url: '',
+    homepageFallback: "https://www.maildoso.com/",
+    status: 'pending',
+    notes: "Pipeline (not yet applied). Affiliate program availability to verify on application.",
+  },
+  trigify: {
+    name: "Trigify",
+    url: '',
+    homepageFallback: "https://www.trigify.io/",
+    status: 'pending',
+    notes: "Pipeline (not yet applied). Affiliate program availability to verify on application.",
+  },
+  fullenrich: {
+    name: "FullEnrich",
+    url: '',
+    homepageFallback: "https://www.fullenrich.com/",
+    status: 'pending',
+    notes: "Pipeline (not yet applied). FullEnrich runs a referral or affiliate program; commission structure and terms should be verified directly on their partner page.",
+  },
+  attio: {
+    name: "Attio",
+    url: '',
+    homepageFallback: "https://attio.com/",
+    status: 'pending',
+    notes: "Pipeline (not yet applied). Attio runs a partner program; affiliate or referral terms should be confirmed directly with their partnerships team.",
+  },
+  'bland-ai': {
+    name: "Bland AI",
+    url: '',
+    homepageFallback: "https://www.bland.ai/",
+    status: 'pending',
+    notes: "Pipeline (not yet applied). Affiliate program availability to verify on application.",
+  },
 };
 
 /**

@@ -879,6 +879,160 @@ export const tools: Tool[] = [
       },
     ],
   },
+
+  // --- LP-builder additions (listed:false; flip to listed:true + add a logo once approved/published). ---
+  {
+    slug: "maildoso",
+    name: "Maildoso",
+    category: "Cold Email & Deliverability",
+    badge: "Free trial",
+    ctaLabel: "Try Maildoso",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["Maildoso", "maildoso"],
+    blurb: "Maildoso provisions and warms cold email inboxes and sending domains so outbound teams avoid the spam folder without managing infrastructure themselves.",
+    bestFor: "Outbound sales teams or agencies that send high volumes of cold email and want managed domain and inbox setup without a dedicated deliverability engineer.",
+    body: [
+      "Maildoso sits in what is still a relatively new and narrowing category: managed inbox and domain infrastructure for cold email. Rather than requiring users to manually purchase domains, configure DNS records, and run warmup sequences, Maildoso handles provisioning, warmup, and ongoing reputation monitoring as a service. The angle is operational simplicity for teams that want clean sending infrastructure without owning the plumbing. It targets agencies running multi-client campaigns and in-house SDR teams scaling past a handful of sending accounts.",
+      "In a RevOps stack, Maildoso sits one layer below the sequencer. Teams typically connect it alongside tools like Instantly, Smartlead, or Lemlist, which handle sequence logic and personalization, while Maildoso supplies the warmed inboxes. Buyers comparing options in this infrastructure layer will also look at Inframail, Mailreef, and the managed inbox features built into Instantly itself. The differentiator to evaluate is how many inboxes are included per billing tier, what warmup methodology is used, and whether the tool monitors deliverability reactively or proactively rotates domains under pressure.",
+    ],
+    faqs: [
+      {
+        question: "What exactly does Maildoso do?",
+        answer: "Maildoso creates and warms email inboxes and sending domains on your behalf, so you can plug ready-to-send accounts into your cold email sequencer without manual DNS setup or warmup campaigns.",
+      },
+      {
+        question: "How does Maildoso compare to Inframail or Instantly's built-in inboxes?",
+        answer: "All three provision inboxes for cold email, but the differences come down to pricing model (per inbox vs. flat fee), warmup approach, and how tightly the inboxes are coupled to a specific sequencing platform. Maildoso is sequencer-agnostic, which matters if you switch tools or run multiple senders.",
+      },
+      {
+        question: "Who should probably not use Maildoso?",
+        answer: "Teams sending fewer than a few hundred emails per week will likely find the overhead of a dedicated inbox infrastructure tool unnecessary compared to simply warming inboxes manually inside their existing sequencer.",
+      },
+    ],
+  },
+  {
+    slug: "trigify",
+    name: "Trigify",
+    category: "Website Visitor ID & Signals",
+    badge: "Free trial",
+    ctaLabel: "Try Trigify",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["Trigify", "trigify.io"],
+    blurb: "Trigify surfaces LinkedIn and social activity signals so sales teams can trigger outreach at the moment a prospect shows relevant buying behavior.",
+    bestFor: "B2B sales teams doing LinkedIn-led outreach who want to prioritize prospects based on real-time social engagement rather than static list data.",
+    body: [
+      "Trigify is in a new and still-forming category that sits at the intersection of social listening and sales signal detection. It monitors LinkedIn activity, including job changes, post engagement, and company-level signals, and turns those events into outreach triggers. The core value proposition is timing: rather than reaching out to a cold list, reps contact prospects at a moment when a signal suggests relevance or intent. This distinguishes it from traditional website visitor identification tools, which are IP-based and limited to people who land on your own domain.",
+      "In a GTM stack, Trigify typically feeds a sales engagement platform or a CRM workflow, passing enriched signal data to a sequencer or alerting an SDR directly. Buyers evaluating this category will compare it against Aware (LinkedIn engagement tracking), Taplio for personal brand analytics, and broader intent platforms like Bombora or G2 Buyer Intent that capture different signal types. The honest trade-off is coverage versus signal specificity: social signals from Trigify are high-intent but narrower in volume than IP-based or third-party intent networks.",
+    ],
+    faqs: [
+      {
+        question: "What kind of signals does Trigify track?",
+        answer: "Trigify primarily tracks LinkedIn-based signals such as post engagement, profile activity, job changes, and company hiring patterns, then surfaces these as triggers for outreach workflows.",
+      },
+      {
+        question: "How does Trigify compare to a traditional website visitor ID tool like Clearbit Reveal or Leadfeeder?",
+        answer: "Website visitor ID tools identify companies visiting your own site via IP lookup, while Trigify captures off-site social signals regardless of whether a prospect has visited your domain. The two approaches are complementary rather than directly competitive.",
+      },
+      {
+        question: "Who is Trigify not a good fit for?",
+        answer: "Teams selling into markets where prospects are not active on LinkedIn, or companies that lack the SDR capacity to act on real-time signals, will not get full value from the tool.",
+      },
+    ],
+  },
+  {
+    slug: "fullenrich",
+    name: "FullEnrich",
+    category: "Lead Data & Enrichment",
+    badge: "Free tier available",
+    badgeFree: true,
+    ctaLabel: "Try FullEnrich",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["FullEnrich", "Full Enrich", "fullenrich"],
+    blurb: "FullEnrich runs contact enrichment queries across multiple data providers in sequence, improving email and phone match rates compared to relying on a single source.",
+    bestFor: "RevOps teams and growth marketers who need high match-rate contact data but want to avoid paying for a full Clay subscription or managing multiple data provider contracts separately.",
+    body: [
+      "FullEnrich is a waterfall enrichment tool, a category that has emerged clearly only in the last two years. The idea is straightforward: instead of querying one data provider and accepting whatever match rate that vendor offers, the tool fires the same lookup sequentially (or in parallel) across multiple providers, Apollo, Hunter, Dropcontact, and others, and returns the first verified result. This materially improves match rates for email and mobile phone data, particularly for European contacts where US-centric databases have historically poor coverage. FullEnrich packages this logic into a relatively simple interface with CSV upload, API access, and CRM integrations.",
+      "The most common comparison a buyer will run is FullEnrich versus Clay. Clay is a broader data orchestration and workflow platform that also supports waterfall enrichment but requires more setup and carries a higher price point, making it better suited to teams who want to build complex enrichment and personalization workflows. FullEnrich is narrower in scope and positioned for teams that specifically want better contact data match rates without the learning curve. Other comparisons include Findymail (email-focused waterfall), Prospeo, and Enrow. The deciding factors are usually the provider mix in the waterfall, credit pricing, and CRM or sequencer native integrations.",
+    ],
+    faqs: [
+      {
+        question: "What is waterfall enrichment and why does it matter?",
+        answer: "Waterfall enrichment means querying multiple data sources in sequence until a verified result is found, which consistently produces higher match rates than any single provider can deliver on its own.",
+      },
+      {
+        question: "How does FullEnrich compare to Clay?",
+        answer: "Clay is a full data orchestration platform where waterfall enrichment is one feature among many, while FullEnrich focuses specifically on contact enrichment match rates with a simpler setup. Teams wanting just better email and phone data will find FullEnrich faster to implement; teams wanting to build conditional workflows, AI personalization, or complex multi-step automations will likely outgrow it.",
+      },
+      {
+        question: "Does FullEnrich work for non-US contact lists?",
+        answer: "Yes, and European coverage is one of the explicit selling points, since the waterfall includes providers with stronger EMEA data than purely US-centric databases like Apollo.",
+      },
+    ],
+  },
+  {
+    slug: "attio",
+    name: "Attio",
+    category: "CRM",
+    badge: "Free tier available",
+    badgeFree: true,
+    ctaLabel: "Try Attio",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["Attio", "attio"],
+    blurb: "Attio is a flexible, data-model-first CRM built for modern GTM teams that need custom objects, real-time enrichment, and AI-assisted workflows without heavy admin overhead.",
+    bestFor: "Fast-growing B2B startups and scale-ups that have outgrown spreadsheets but find Salesforce or HubSpot too rigid or too expensive to configure for their specific sales motion.",
+    body: [
+      "Attio takes a different structural approach from legacy CRMs by treating the data model as a first-class concern rather than an afterthought. Users can define custom objects, attributes, and relationships without needing a Salesforce admin, and the interface surfaces records, lists, and views in a way that resembles a modern database tool more than a traditional sales CRM. The platform has added AI features progressively, including automated data enrichment on contact and company records, AI-assisted note summarization, and workflow triggers based on record changes. It also has a developer-friendly API, which matters for RevOps teams connecting it to enrichment tools, product analytics, or data warehouses.",
+      "Attio competes most directly with HubSpot CRM (at the free and starter tiers), Pipedrive, and newer entrants like Twenty (open source) and Folk. At the enterprise end, teams will compare it against Salesforce, though Attio is explicitly not targeting that complexity level yet. The strongest case for Attio over HubSpot is schema flexibility and a cleaner interface without the addon-driven cost creep that HubSpot is known for. The strongest case for HubSpot over Attio is ecosystem maturity, the number of native integrations, and marketing automation depth. Attio is growing fast and is worth evaluating for any team starting a CRM search in 2025 or 2026.",
+    ],
+    faqs: [
+      {
+        question: "Is Attio a real CRM or more of a database tool?",
+        answer: "Attio is a fully functional CRM with pipelines, contact and company management, email sync, and workflow automation, but its data model flexibility means it can also behave like a structured database, which is intentional and a core differentiator.",
+      },
+      {
+        question: "How does Attio compare to HubSpot?",
+        answer: "HubSpot has a much larger native integration library and more mature marketing automation, while Attio offers more flexible data modeling and tends to be more cost-predictable at early growth stages. Teams that primarily need CRM plus sales engagement will often find Attio sufficient; teams wanting CRM plus email marketing plus ads management in one platform will find HubSpot more complete.",
+      },
+      {
+        question: "Does Attio work for non-SaaS or non-tech companies?",
+        answer: "The product is general enough to work outside tech, but the interface and positioning skew toward software-native teams; companies that rely heavily on phone-based sales or field sales workflows may find the tool less optimized for their motion.",
+      },
+    ],
+  },
+  {
+    slug: "bland-ai",
+    name: "Bland AI",
+    category: "AI Voice & Dialers",
+    badge: "Paid",
+    ctaLabel: "Try Bland AI",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["Bland AI", "Bland.ai", "bland-ai"],
+    blurb: "Bland AI is an AI phone calling platform that lets businesses deploy programmable voice agents for inbound and outbound calls at scale without human agents on every line.",
+    bestFor: "Operations and RevOps teams that need to automate high-volume phone touchpoints, including lead qualification, appointment reminders, or inbound triage, where call scripting is predictable enough for an AI agent to handle.",
+    body: [
+      "Bland AI sits in what is genuinely a brand-new category as of 2024 and 2025: AI voice infrastructure for business calling. The platform provides an API and a no-code interface to build voice agents that can conduct real phone calls, handle turn-based conversation, process responses, and take defined actions such as booking a meeting or routing to a human. Voice quality and latency have improved significantly at the infrastructure level, making conversational AI calling plausible for scripted workflows in a way that was not commercially viable two years ago. Bland AI positions itself as infrastructure, meaning it targets developers and RevOps builders as much as end-user sales teams.",
+      "The AI voice calling category has several credible players emerging simultaneously, and buyers should compare Bland AI against Vapi (also developer-focused voice API infrastructure), Retell AI (similar positioning), and ElevenLabs Conversational AI (which adds voice quality depth). On the sales-tool side, traditional dialers like Aircall, Kixie, and Orum are adding AI features, but they are building from a human-agent-first model. The honest buyer question is whether the use case requires full AI autonomy (Bland, Vapi, Retell) or AI assist on top of human calls (Orum, Kixie). Compliance around AI calling disclosure requirements (TCPA in the US and equivalents elsewhere) is a real due-diligence item in this category.",
+    ],
+    faqs: [
+      {
+        question: "What is Bland AI and how is it different from a regular auto-dialer?",
+        answer: "Bland AI conducts full two-way phone conversations using an AI voice agent, not just automated playback. Unlike a predictive dialer that connects a human rep when someone answers, Bland AI's agent handles the conversation end-to-end based on a defined script or prompt.",
+      },
+      {
+        question: "How does Bland AI compare to Vapi or Retell AI?",
+        answer: "All three are developer-oriented AI voice infrastructure platforms with similar core capabilities; differences come down to latency benchmarks, supported telephony providers, pricing per minute, voice model options, and the depth of their no-code workflow builders for non-developer users.",
+      },
+      {
+        question: "Are there legal risks to using AI calling tools like Bland AI?",
+        answer: "Yes, regulations including TCPA in the US require disclosure that a caller is an AI in many contexts, and rules vary by country and call type. Buyers should verify compliance requirements for their specific use case before deploying at volume.",
+      },
+    ],
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body

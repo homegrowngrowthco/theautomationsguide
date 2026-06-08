@@ -1,5 +1,25 @@
 # Session Log — last updated 2026-06-08
 
+## Quick reference — recent additions (Session 23, 2026-06-08)
+
+Picked up the two actionable open items after the Session 22 backlog builder: the **LP-builder** (the @high monetizable-supply track) and the **Node 20 action bump** (the ~2026-06-16 deadline item). Both done + verified. NOT yet committed (on `master`; awaiting Ian's go to branch + PR).
+
+**1. Tool LP-builder ([backlog/build-tool-lp.mjs](backlog/build-tool-lp.mjs)) + first 5 first-mover LPs shipped.** The companion to `build-backlog.mjs`: most top backlog topics come back flagged "needs LP", and an LP is what makes a post double as an internal-link + affiliate hook, so LP build rate is the real volume-ramp pacer. The script generates a full `/tools/<slug>` hub entry per tool (blurb, bestFor, 2 positioning paragraphs, 3 FAQs) + the matching pending `/go/<slug>` affiliate entry, then splices both into the registries, exactly mirroring how the Session 17 pipeline tools were added by hand.
+- **Input modes:** `--tools="A,B,C"` (explicit), `--from-backlog` (anchors flagged `needsLP` in `backlog/backlog-batch.json`), `--from-stars` (the ⭐ first-mover tools in AFFILIATE_PIPELINE.md's Full backlog). `--count=N` caps; `--model=` overrides (default `claude-sonnet-4-6`).
+- **ONE batched Claude call** writes all LPs as strict JSON (neutral/editorial voice, named real competitors, June-2026 framing). Grounded with each tool's category + note parsed from AFFILIATE_PIPELINE.md, and told the existing 17 category labels to reuse.
+- **Deterministic guards** (LLM not trusted to sanitize, per `feedback_deterministic_sanitizer_over_prompt`): strip em/en dashes; enforce kebab slug matching the affiliate-links key convention; require >=2 body paragraphs + >=3 FAQs (drops thin content); dedupe within batch; **drop any tool already in tools.ts (idempotent/re-runnable)**; and **strip a leading "Best for" off `bestFor`** (the template renders `Best for: <bestFor>`, so the model's "Best for ..." phrasing double-rendered, the one real bug caught in review). Aliases kept distinctive (e.g. `Bland AI`/`Bland.ai`, never bare `Bland`) so no false post-matches.
+- **Homepage reachability check:** a lightweight GET on each proposed homepage annotates the preview with the HTTP status, so a wrong `/go` fallback URL surfaces immediately (per `feedback_validate_status_with_content`). All 5 returned 200.
+- **Two-phase, review-then-apply** (mirrors the backlog builder): a plain run writes `backlog/lp-batch.{json,md}` (git-ignored) for eyeballing and changes nothing; `--apply` splices fresh output; **`--apply-cached` re-sanitizes and splices the exact reviewed `lp-batch.json`** so what ships is what was reviewed (no unreviewed regeneration). I used `--apply-cached` after reviewing.
+- **Shipped LPs:** Maildoso (Cold Email & Deliverability), Trigify (Website Visitor ID & Signals), FullEnrich (Lead Data & Enrichment), Attio (CRM), Bland AI (AI Voice & Dialers). All `listed:false` (indexable hub + in sitemap, but OFF the homepage strip/`/tools` grid until a program is approved or an article publishes) + `status:'pending'` affiliate entries (homepage+UTM fallback). tools.ts 29 -> 34 entries.
+
+**2. Node 20 action bump (the deadline item).** `qa-content-pr.yml` + `auto-merge-content.yml` still ran Node-20-runtime actions (GitHub forces Node 24 ~2026-06-16). Bumped to match the already-done `topic-backlog.yml`: `actions/checkout@v4->v6`, `actions/setup-node@v4->v6`, `actions/github-script@v7->v8` (v8 is the Node 24 runtime). All three workflows now clean (grep confirmed no `@v4`/`@v7` left).
+
+**Verification:** `node --check` clean on the builder; live dry-run generated all 5 LPs dash-free with all homepages 200; `--apply-cached` spliced cleanly; `npm run build` clean at **75 pages** (+10: 5 hubs + 5 redirects); each `/tools/<slug>` confirmed in `dist` with FAQPage JSON-LD, rendered bestFor (no double-prefix), `/go/<slug>` CTA, present in sitemap, `/go/` excluded, and absent from the `/tools` grid (listed:false honored).
+
+**Revert:** all additive + uncommitted. To undo the LP content: delete the 5 `LP-builder additions` entries from [src/data/tools.ts](src/data/tools.ts) + [src/data/affiliate-links.ts](src/data/affiliate-links.ts) (each block is fenced by a `// --- LP-builder additions` comment). The builder script + workflow bumps are independently revert-safe. Memory: extend `project_tag_topic_backlog_builder`.
+
+---
+
 ## Quick reference — recent additions (Session 22, 2026-06-08)
 
 **Topic Backlog Builder** — a standing topic-discovery engine, SEPARATE from the publishing engine, built after Ian asked whether to ramp publishing volume (toward 2/day, 7 days/week). The finding that shaped it: raw topic supply is NOT the constraint (the known universe yields 100+ viable posts), so the lever is a tool that keeps the queue topped up with deduped, ranked, net-new ideas. Shipped in **PR #57** (merge `bee15f5`) + a follow-up action-version bump (`48eebc8`).
