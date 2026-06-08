@@ -1,4 +1,22 @@
-# Session Log — last updated 2026-06-04
+# Session Log — last updated 2026-06-08
+
+## Quick reference — recent additions (Session 22, 2026-06-08)
+
+**Topic Backlog Builder** — a standing topic-discovery engine, SEPARATE from the publishing engine, built after Ian asked whether to ramp publishing volume (toward 2/day, 7 days/week). The finding that shaped it: raw topic supply is NOT the constraint (the known universe yields 100+ viable posts), so the lever is a tool that keeps the queue topped up with deduped, ranked, net-new ideas. Shipped in **PR #57** (merge `bee15f5`) + a follow-up action-version bump (`48eebc8`).
+
+- **[backlog/build-backlog.mjs](backlog/build-backlog.mjs)** — parses a ~104-tool universe (`src/data/tools.ts` 29 tools-with-LP + the "Full backlog" section of [AFFILIATE_PIPELINE.md](AFFILIATE_PIPELINE.md), ~75 more by category with first-mover stars; regex, no TS loader, same pattern as `lint-content.mjs`). Builds a dedup corpus from every published `src/content/blog/*.mdx` (title+tags → tool set) + the Content Calendar. ONE Claude (`claude-sonnet-4-6`) call proposes ranked net-new comparison/alternatives/best-of topics, told what is already covered. A **deterministic dedup guard** (one shared `norm()` helper, per `feedback_unified_fuzzy_match_key`) then hard-drops exact keyword/title/tool-set collisions + within-batch dupes and flags partial overlaps — the LLM is NOT trusted to dedup. No em dashes (sanitized, not just prompted). Outputs `backlog/backlog-batch.{json,md}` (git-ignored).
+- **`--stage` flag** — with `NOTION_TOKEN` set, the dedup corpus becomes a LIVE query of the whole Content Calendar (any status), and survivors are created as **`Status:Suggested`**. It NEVER sets `Queued` (what the publishing engine fires on), so the human publish gate stays intact. DB id defaults to the engine's `topicsDatabaseId` `62f34586-4f78-4b83-b2ac-105f500d059e`, Notion-Version `2022-06-28`, Bearer header — matching the engine's `httpHeaderAuth` "Notion Integration Token" credential (probed off the live engine; n8n won't expose the value via API).
+- **[.github/workflows/topic-backlog.yml](.github/workflows/topic-backlog.yml)** — runs it weekly (Sun 06:00 UTC) + manual dispatch with a `dry_run` preview. Run summary + artifact + optional Slack ping. **Hosted on GitHub Actions, not n8n** (deliberate): the universe + corpus are repo files the script already parses, so CI keeps the script as the single source of truth instead of duplicating ~100 lines of parsing into n8n Code nodes. The publishing engine stays in n8n; only topic discovery lives here.
+- **Secrets:** Ian added `NOTION_TOKEN` (the existing "TAG - Content Engine" integration's Internal Integration Secret — an access token, NOT OAuth) and `SLACK_WEBHOOK_URL` (was NOT previously a repo secret; the engine's webhook is hardcoded in n8n). `ANTHROPIC_API_KEY` already existed.
+- **Actions bumped** to Node24-era versions (`checkout@v6`, `setup-node@v6`, `upload-artifact@v7`) to clear the Node 20 deprecation (GitHub forces Node 24 ~2026-06-16). The other two workflows (`qa-content-pr.yml`, `auto-merge-content.yml`) still need the same bump — left as a `@low` TODO.
+
+**Verification:** `node --check` clean; local dry-run works (uses the CONTENT_CALENDAR.md snapshot when no token); the within-batch dedup guard fired on a real collision. A `dry_run:true` CI dispatch (run `27136633692`) confirmed the token end-to-end: read **82 live Content Calendar rows + 30 published posts** for dedup, proposed 25, **zero writes to Notion**.
+
+**Next / strategic takeaway:** first REAL stage is the **Sun 2026-06-14** schedule (or a manual `dry_run:false` run). The volume-ramp pacers are NOT supply but (1) young-domain SEO/scaled-content risk (watch GSC indexation) and (2) monetizable-topic supply gated by `/tools/<slug>` LP build rate — most top first-mover topics come back flagged "needs LP", so a parallel **LP-builder** is the recommended follow-up (now a `@high` TODO). [TODO.md](TODO.md) re-ranked; the stale "re-import engine" item dropped (superseded by `deploy-engine.mjs`). Memory: `project_tag_topic_backlog_builder`.
+
+**Revert:** `git revert -m 1 bee15f5` (or just delete `.github/workflows/topic-backlog.yml` to stop it); `git revert 48eebc8` for the action bump. Additive only — no change to the publishing engine, the site, or existing workflows.
+
+---
 
 ## Quick reference — recent additions (Session 21, 2026-06-04)
 
