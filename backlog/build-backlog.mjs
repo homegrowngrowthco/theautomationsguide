@@ -1,0 +1,403 @@
+// Topic Backlog Builder - Phase 1 (known-universe ranking + dedup).
+//
+// WHAT THIS IS
+//   A standalone "topic engine" that surfaces the highest-leverage NET-NEW
+//   comparison/alternatives/best-of topics from the tools we already know about
+//   (the tools.ts registry + the AFFILIATE_PIPELINE.md backlog), ranks them, and
+//   guarantees they do NOT cannibalize anything already published or staged.
+//
+//   Phase 1 writes a ranked batch to local files ONLY (backlog-batch.json + .md)
+//   so Ian can eyeball quality. NOTHING is written to Notion here. Once the output
+//   is trusted, this logic is promoted into an n8n workflow whose dedup corpus is a
+//   live Notion query instead of the local CONTENT_CALENDAR.md snapshot.
+//
+// HOW IT WORKS
+//   1. Load the universe: tools.ts (slug/name/category/listed/aliases) + the
+//      "Full backlog" section of AFFILIATE_PIPELINE.md (~72 more tools, by
+//      category, with first-mover stars).
+//   2. Load existing coverage (the dedup corpus): every published src/content/blog
+//      post (title + tags -> tool set) + the 16 CONTENT_CALENDAR.md staged rows.
+//   3. ONE Claude call proposes N ranked net-new topics, each anchored on a
+//      universe tool, told what is already covered so it avoids overlap.
+//   4. A DETERMINISTIC dedup guard (one shared normalize helper) hard-drops exact
+//      collisions and flags partial overlaps. The LLM is not trusted to dedup.
+//   5. Sanitize (no em/en dashes) + sort + write backlog-batch.{json,md}.
+//
+// USAGE (run from the project root so dotenv finds ./.env with ANTHROPIC_API_KEY):
+//   node backlog/build-backlog.mjs            # default 25 topics
+//   node backlog/build-backlog.mjs --count=40 # more
+//   node backlog/build-backlog.mjs --model=claude-opus-4-8  # override model
+
+import 'dotenv/config';
+import Anthropic from '@anthropic-ai/sdk';
+import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(HERE, '..');
+const r = (...p) => readFileSync(join(ROOT, ...p), 'utf8');
+
+const COUNT = Number((process.argv.find((a) => a.startsWith('--count=')) || '').split('=')[1]) || 25;
+const MODEL = (process.argv.find((a) => a.startsWith('--model=')) || '').split('=')[1] || 'claude-sonnet-4-6';
+
+// --stage writes the kept topics to the live Notion Content Calendar as
+// Status:Suggested (the publishing engine only fires on Status:Queued, so staged
+// rows never auto-publish). Requires NOTION_TOKEN. The DB id defaults to the same
+// Content Calendar the engine reads (Config.topicsDatabaseId); override via env.
+const STAGE = process.argv.includes('--stage');
+const NOTION_TOKEN = process.env.NOTION_TOKEN;
+const NOTION_DB = process.env.NOTION_DATABASE_ID || '62f34586-4f78-4b83-b2ac-105f500d059e';
+const NOTION_VERSION = '2022-06-28'; // matches the live engine's Notion-Version header
+
+if (!process.env.ANTHROPIC_API_KEY) {
+  console.error('ANTHROPIC_API_KEY not set. Add it to .env (project root) or your environment.');
+  process.exit(1);
+}
+if (STAGE && !NOTION_TOKEN) {
+  console.error('--stage requires NOTION_TOKEN (the Notion integration token shared with the engine).');
+  process.exit(1);
+}
+
+// ---- ONE shared normalize helper (every join/dedup uses this; duplicating it
+// across functions silently collapses or splits matches). ----
+const norm = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+// Strip em/en dashes deterministically rather than relying on a prompt rule.
+const dedash = (s) => (s || '').replace(/\s*[—–]\s*/g, ', ');
+
+// ---------- 1. UNIVERSE: tools.ts ----------
+function parseToolsTs() {
+  const src = r('src', 'data', 'tools.ts');
+  const region = src.slice(src.indexOf('export const tools'));
+  const marks = [...region.matchAll(/slug:\s*'([^']+)'/g)];
+  const tools = [];
+  for (let i = 0; i < marks.length; i++) {
+    const start = marks[i].index;
+    const end = i + 1 < marks.length ? marks[i + 1].index : region.indexOf('];', start);
+    const block = region.slice(start, end);
+    const name = (block.match(/name:\s*'([^']+)'/) || [])[1];
+    const category = (block.match(/category:\s*'([^']+)'/) || [])[1];
+    const aliasRaw = (block.match(/aliases:\s*\[([^\]]*)\]/) || [])[1] || '';
+    const aliases = [...aliasRaw.matchAll(/'([^']+)'/g)].map((m) => m[1]);
+    tools.push({
+      slug: marks[i][1],
+      name: name || marks[i][1],
+      category: category || 'Uncategorized',
+      hasLP: true, // every tools.ts entry has a /tools/<slug> hub
+      listed: !/listed:\s*false/.test(block),
+      firstMover: false,
+      aliases: aliases.length ? aliases : [name || marks[i][1]],
+    });
+  }
+  return tools;
+}
+
+// ---------- 1b. UNIVERSE: AFFILIATE_PIPELINE.md "Full backlog" (~72 more) ----------
+function parsePipelineBacklog() {
+  const md = r('AFFILIATE_PIPELINE.md');
+  const start = md.indexOf('## Full backlog');
+  const end = md.indexOf('## Already in the main registry');
+  const region = md.slice(start, end < 0 ? undefined : end);
+  const lines = region.split(/\r?\n/);
+  const out = [];
+  let category = 'Uncategorized';
+  for (const line of lines) {
+    const h = line.match(/^###\s+(.*)$/);
+    if (h) {
+      category = h[1].replace(/[⭐🔎✅]/g, '').replace(/\s+/g, ' ').trim();
+      continue;
+    }
+    if (!line.trim().startsWith('|')) continue;
+    const cells = line.split('|').map((c) => c.trim());
+    // cells[0] is '' (leading pipe). First real cell is cells[1].
+    const first = cells[1] || '';
+    if (!first || /^-+$/.test(first) || first.toLowerCase() === 'tool') continue; // header/separator
+    if (/~~/.test(first)) continue; // excluded (e.g. ~~Koala~~)
+    const name = first.replace(/\*\*/g, '').replace(/[⭐🔎✅]/g, '').trim();
+    if (!name) continue;
+    const notes = (cells[3] || '') + ' ' + (cells[2] || '');
+    out.push({
+      slug: norm(name),
+      name,
+      category,
+      hasLP: false,
+      listed: false,
+      firstMover: /⭐/.test(line), // a star anywhere in the row
+      aliases: [name],
+    });
+  }
+  return out;
+}
+
+// ---------- 2. EXISTING COVERAGE (dedup corpus) ----------
+function aliasHit(aliases, hay) {
+  const h = ' ' + norm(hay) + ' ';
+  return aliases.some((a) => h.includes(norm(a)) && norm(a).length >= 3);
+}
+
+function parsePublishedPosts(universe) {
+  const dir = join(ROOT, 'src', 'content', 'blog');
+  const files = readdirSync(dir).filter((f) => f.endsWith('.mdx'));
+  const posts = [];
+  for (const f of files) {
+    const src = readFileSync(join(dir, f), 'utf8');
+    const fm = src.match(/^---([\s\S]*?)---/);
+    const block = fm ? fm[1] : '';
+    const title = (block.match(/title:\s*['"]?(.+?)['"]?\s*$/m) || [])[1] || f.replace(/\.mdx$/, '');
+    const tagsRaw = (block.match(/tags:\s*\[([^\]]*)\]/) || [])[1] || '';
+    const hay = `${title} ${tagsRaw} ${f}`;
+    const toolset = universe.filter((t) => aliasHit(t.aliases, hay)).map((t) => t.slug);
+    posts.push({ source: 'published', title: title.trim(), keyword: norm(title), toolset: [...new Set(toolset)].sort() });
+  }
+  return posts;
+}
+
+function parseCalendarRows(universe) {
+  const md = r('CONTENT_CALENDAR.md');
+  const rows = [];
+  for (const line of md.split(/\r?\n/)) {
+    if (!line.trim().startsWith('|')) continue;
+    const cells = line.split('|').map((c) => c.trim());
+    // | # | Topic | Anchor | Also | Target keyword | Priority | Pub | Angle |
+    if (!/^\d+$/.test(cells[1] || '')) continue; // only numbered data rows
+    const topic = cells[2] || '';
+    const keyword = cells[5] || '';
+    const hay = `${topic} ${cells[3]} ${cells[4]} ${keyword}`;
+    const toolset = universe.filter((t) => aliasHit(t.aliases, hay)).map((t) => t.slug);
+    rows.push({ source: 'staged', title: topic, keyword: norm(keyword) || norm(topic), toolset: [...new Set(toolset)].sort() });
+  }
+  return rows;
+}
+
+// ---------- 2b. LIVE Notion corpus + staging (only when NOTION_TOKEN present) ----------
+async function notionApi(method, path, body) {
+  const res = await fetch(`https://api.notion.com/v1${path}`, {
+    method,
+    headers: {
+      Authorization: `Bearer ${NOTION_TOKEN}`,
+      'Notion-Version': NOTION_VERSION,
+      'content-type': 'application/json',
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const text = await res.text();
+  let json = null; try { json = text ? JSON.parse(text) : null; } catch { json = { _raw: text }; }
+  return { ok: res.ok, status: res.status, json };
+}
+
+// Pull EVERY Content Calendar row (any status) so the dedup corpus reflects what
+// is already published, queued, generating, or staged - superseding the local
+// CONTENT_CALENDAR.md snapshot once a token is available.
+async function fetchNotionCalendar(universe) {
+  const rows = [];
+  let cursor;
+  do {
+    const res = await notionApi('POST', `/databases/${NOTION_DB}/query`, { page_size: 100, start_cursor: cursor });
+    if (!res.ok) throw new Error(`Notion query failed (${res.status}): ${JSON.stringify(res.json).slice(0, 300)}`);
+    for (const page of res.json.results || []) {
+      const props = page.properties || {};
+      const title = (props.Topic?.title || []).map((t) => t.plain_text).join('');
+      const kw = (props['Target Keyword']?.rich_text || []).map((t) => t.plain_text).join('');
+      const hay = `${title} ${kw}`;
+      const toolset = universe.filter((t) => aliasHit(t.aliases, hay)).map((t) => t.slug);
+      rows.push({ source: 'notion', title: title.trim(), keyword: norm(kw) || norm(title), toolset: [...new Set(toolset)].sort() });
+    }
+    cursor = res.json.has_more ? res.json.next_cursor : undefined;
+  } while (cursor);
+  return rows;
+}
+
+async function stageToNotion(kept) {
+  let created = 0;
+  const failed = [];
+  for (const t of kept) {
+    const note = [t.rationale, t.needsLP ? '[needs LP]' : '', t.alsoCovers.length ? `Also covers: ${t.alsoCovers.join(', ')}` : '']
+      .filter(Boolean).join(' ').slice(0, 1900);
+    const body = {
+      parent: { database_id: NOTION_DB },
+      properties: {
+        Topic: { title: [{ text: { content: t.topic.slice(0, 1900) } }] },
+        Status: { select: { name: 'Suggested' } },
+        Priority: { select: { name: t.priority } },
+        Tag: { select: { name: t.tag } },
+        'Target Keyword': { rich_text: [{ text: { content: (t.targetKeyword || '').slice(0, 1900) } }] },
+        Notes: { rich_text: [{ text: { content: note } }] },
+      },
+    };
+    const res = await notionApi('POST', '/pages', body);
+    if (res.ok) { created++; } else { failed.push(`${t.topic} (${res.status}: ${JSON.stringify(res.json).slice(0, 160)})`); }
+  }
+  return { created, failed };
+}
+
+// ---------- 3. PROPOSE via Claude (single batched call) ----------
+function buildPrompt(universe, covered, count) {
+  const toolLines = universe
+    .map((t) => `- ${t.name} [${t.category}]${t.firstMover ? ' (first-mover)' : ''}${t.hasLP ? ' (has LP)' : ''}`)
+    .join('\n');
+  const coveredLines = covered.map((c) => `- ${c.title} (${c.source})`).join('\n');
+  // NOTE: no backtick characters in this prompt (it lives inside a template literal).
+  return [
+    'You are the topic strategist for The Automations Guide, a RevOps/GTM automation blog.',
+    'Its edge is being the EARLY, ideally first, neutral comparison for tools before their category crowds, then riding branded and category search. Each post should anchor on one tool that has an affiliate landing page so it doubles as an internal-link and affiliate hook.',
+    '',
+    'TOOL UNIVERSE (anchor every topic on one of these; strongly prefer tools marked (first-mover) and (has LP)):',
+    toolLines,
+    '',
+    'ALREADY COVERED (published or staged) - do NOT propose anything that overlaps these in tool set or search intent:',
+    coveredLines,
+    '',
+    `TASK: propose the ${count} highest-leverage NET-NEW topics. Favor: thin-competition first-mover categories (AI SDR agents, AI voice, visitor ID, AI agent builders, GEO/AI-search), tools that tie back to the site core (n8n, Make, HubSpot, Apollo, Clay), and decisions with real buyer search demand. Mix formats: "X vs Y vs Z", "X alternatives", "best <category> tools", "migrate X to Y".`,
+    '',
+    'Return STRICT JSON only, no prose, in this shape:',
+    '{"topics":[{"topic":"...","anchorTool":"...","alsoCovers":["..."],"targetKeyword":"...","tag":"comparison|tools|automation|revops|guide","priority":"High|Medium|Low","firstMover":true,"needsLP":false,"rationale":"one sentence on why this wins"}]}',
+    'Rules: anchorTool MUST be a universe tool by name. tag MUST be one of the five listed. needsLP=true if the anchor tool has no LP. Do NOT use em dashes or en dashes anywhere; use commas or periods. Keep titles natural, not keyword-stuffed.',
+  ].join('\n');
+}
+
+async function propose(universe, covered, count) {
+  const client = new Anthropic();
+  const prompt = buildPrompt(universe, covered, count);
+  let res;
+  try {
+    res = await client.messages.create({
+      model: MODEL,
+      max_tokens: 6000,
+      messages: [{ role: 'user', content: prompt }],
+    });
+  } catch (err) {
+    console.error('Anthropic API call failed:', err.message);
+    process.exit(1);
+  }
+  const raw = res.content[0]?.type === 'text' ? res.content[0].text.trim() : '';
+  const m = raw.match(/\{[\s\S]*\}/);
+  if (!m) { console.error('Model did not return JSON. Raw:', raw.slice(0, 500)); process.exit(1); }
+  let parsed;
+  try { parsed = JSON.parse(m[0]); } catch (e) { console.error('JSON parse failed:', e.message, '\nRaw:', raw.slice(0, 500)); process.exit(1); }
+  return Array.isArray(parsed.topics) ? parsed.topics : [];
+}
+
+// ---------- 4. DETERMINISTIC dedup guard ----------
+function signature(toolset) { return [...new Set(toolset)].sort().join('|'); }
+
+// Resolve an LLM-supplied tool name to a universe tool. Exact on name/alias first,
+// then a prefix fallback so "Profound" -> "Profound / AthenaHQ" and "Artisan" ->
+// "Artisan (Ava)" still match (the pipeline doc parenthesizes/slashes some names).
+function makeResolver(universe) {
+  const exact = new Map();
+  for (const t of universe) { exact.set(norm(t.name), t); for (const a of t.aliases) exact.set(norm(a), t); }
+  return (name) => {
+    const n = norm(name);
+    if (!n) return null;
+    if (exact.has(n)) return exact.get(n);
+    if (n.length < 4) return null; // avoid spurious short-token matches (n8n, etc.)
+    for (const t of universe) { const tn = norm(t.name); if (tn.startsWith(n) || n.startsWith(tn)) return t; }
+    for (const t of universe) for (const a of t.aliases) { const an = norm(a); if (an.length >= 4 && (an.startsWith(n) || n.startsWith(an))) return t; }
+    return null;
+  };
+}
+
+function dedup(proposals, universe, covered) {
+  const resolve = makeResolver(universe);
+  const coveredKeywords = new Set(covered.map((c) => c.keyword));
+  const coveredTitles = new Set(covered.map((c) => norm(c.title)));
+  const coveredSigs = new Set(covered.map((c) => signature(c.toolset)).filter((s) => s.length));
+  const coveredAnchors = new Map(); // slug -> [titles] for partial-overlap warnings
+  for (const c of covered) for (const s of c.toolset) (coveredAnchors.get(s) || coveredAnchors.set(s, []).get(s)).push(c.title);
+
+  const seenInBatch = new Set();
+  const kept = [];
+  const dropped = [];
+
+  for (const p of proposals) {
+    const topic = dedash(p.topic || '');
+    const anchor = resolve(p.anchorTool || '');
+    const toolSlugs = [anchor?.slug, ...(p.alsoCovers || []).map((n) => resolve(n)?.slug)].filter(Boolean);
+    const sig = signature(toolSlugs);
+    const kw = norm(p.targetKeyword || '') || norm(topic);
+
+    if (!anchor) { dropped.push({ topic, reason: 'anchor not in universe' }); continue; }
+    if (coveredKeywords.has(kw) || coveredTitles.has(norm(topic))) { dropped.push({ topic, reason: 'keyword/title already covered' }); continue; }
+    if (sig && coveredSigs.has(sig)) { dropped.push({ topic, reason: 'identical tool set already covered' }); continue; }
+    if (seenInBatch.has(kw) || seenInBatch.has(sig)) { dropped.push({ topic, reason: 'duplicate within this batch' }); continue; }
+    seenInBatch.add(kw); if (sig) seenInBatch.add(sig);
+
+    const overlapWith = toolSlugs.flatMap((s) => coveredAnchors.get(s) || []);
+    kept.push({
+      topic,
+      anchorTool: anchor.name,
+      alsoCovers: (p.alsoCovers || []).map(dedash),
+      targetKeyword: dedash(p.targetKeyword || ''),
+      tag: ['comparison', 'tools', 'automation', 'revops', 'guide'].includes(p.tag) ? p.tag : 'comparison',
+      priority: ['High', 'Medium', 'Low'].includes(p.priority) ? p.priority : 'Medium',
+      firstMover: !!p.firstMover || anchor.firstMover,
+      needsLP: anchor.hasLP ? false : true,
+      rationale: dedash(p.rationale || ''),
+      overlapWarning: overlapWith.length ? `shares a tool with: ${[...new Set(overlapWith)].slice(0, 3).join('; ')}` : '',
+    });
+  }
+
+  const rank = { High: 0, Medium: 1, Low: 2 };
+  kept.sort((a, b) => (rank[a.priority] - rank[b.priority]) || (Number(b.firstMover) - Number(a.firstMover)));
+  return { kept, dropped };
+}
+
+// ---------- 5. OUTPUT ----------
+function writeOutputs(kept, dropped, meta) {
+  writeFileSync(join(HERE, 'backlog-batch.json'), JSON.stringify({ meta, topics: kept, dropped }, null, 2));
+  const md = [
+    `# Topic backlog batch (${kept.length} topics)`,
+    '',
+    `Generated by build-backlog.mjs. Model: ${meta.model}. Universe: ${meta.universe} tools. Dedup corpus: ${meta.covered} covered topics. Dropped as duplicate/invalid: ${dropped.length}.`,
+    '',
+    'Eyeball this, then (Phase 2) the n8n workflow stages the approved rows in Notion as Suggested. Nothing here is queued or published automatically.',
+    '',
+    '| # | Priority | Topic | Anchor (LP?) | Also covers | Target keyword | Tag | First-mover | Note |',
+    '|---|---|---|---|---|---|---|---|---|',
+    ...kept.map((t, i) =>
+      `| ${i + 1} | ${t.priority} | ${t.topic} | ${t.anchorTool}${t.needsLP ? ' (needs LP)' : ''} | ${t.alsoCovers.join(', ')} | ${t.targetKeyword} | ${t.tag} | ${t.firstMover ? 'yes' : ''} | ${t.rationale}${t.overlapWarning ? ` [${t.overlapWarning}]` : ''} |`
+    ),
+    '',
+    dropped.length ? '## Dropped (not silently truncated)' : '',
+    ...dropped.map((d) => `- ${d.topic} - ${d.reason}`),
+  ].join('\n');
+  writeFileSync(join(HERE, 'backlog-batch.md'), md);
+}
+
+// ---------- main ----------
+async function main() {
+  const universeRaw = [...parseToolsTs(), ...parsePipelineBacklog()];
+  // de-dup the universe itself by normalized name (tools.ts wins, keeps hasLP)
+  const seen = new Map();
+  for (const t of universeRaw) if (!seen.has(norm(t.name))) seen.set(norm(t.name), t);
+  const universe = [...seen.values()];
+
+  // Dedup corpus: published posts (always, local) + calendar rows. When a Notion
+  // token is present, query the LIVE calendar (covers queued/generating/published
+  // too); otherwise fall back to the committed CONTENT_CALENDAR.md snapshot.
+  const calendar = NOTION_TOKEN ? await fetchNotionCalendar(universe) : parseCalendarRows(universe);
+  const covered = [...parsePublishedPosts(universe), ...calendar];
+
+  console.log(`Universe: ${universe.length} tools (${universe.filter((t) => t.hasLP).length} with LP, ${universe.filter((t) => t.firstMover).length} first-mover).`);
+  console.log(`Dedup corpus: ${covered.length} covered topics (${covered.filter((c) => c.source === 'published').length} published, ${calendar.length} calendar via ${NOTION_TOKEN ? 'live Notion' : 'local snapshot'}).`);
+  console.log(`Proposing ${COUNT} topics via ${MODEL}...`);
+
+  const proposals = await propose(universe, covered, COUNT);
+  const { kept, dropped } = dedup(proposals, universe, covered);
+
+  writeOutputs(kept, dropped, { model: MODEL, universe: universe.length, covered: covered.length, proposed: proposals.length, staged: STAGE });
+  console.log(`\nProposed ${proposals.length} -> kept ${kept.length}, dropped ${dropped.length} as duplicate/invalid.`);
+  console.log(`Wrote backlog/backlog-batch.json and backlog/backlog-batch.md`);
+  if (dropped.length) console.log('Dropped:', dropped.map((d) => `${d.topic} (${d.reason})`).join(' | '));
+
+  if (STAGE) {
+    console.log(`\nStaging ${kept.length} topics to Notion Content Calendar (Status: Suggested)...`);
+    const { created, failed } = await stageToNotion(kept);
+    console.log(`Staged ${created}/${kept.length} as Suggested. ${failed.length} failed.`);
+    if (failed.length) { console.error('Failed:', failed.join(' | ')); process.exit(1); }
+  } else {
+    console.log('(dry run - not staged to Notion; pass --stage with NOTION_TOKEN to push)');
+  }
+}
+
+main().catch((e) => { console.error('\nFatal:', e.message || e); process.exit(1); });
