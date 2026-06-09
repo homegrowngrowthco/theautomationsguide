@@ -148,10 +148,10 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   },
   rb2b: {
     name: 'RB2B',
-    url: '',
+    url: 'https://rb2b.com/?via=theautomationsguide',
     homepageFallback: 'https://www.rb2b.com/',
-    status: 'pending',
-    notes: 'Pipeline (not yet applied). ~20% on referred deals via a third-party affiliate platform. Verify on application.',
+    status: 'live',
+    notes: 'Approved 2026-06-09. Affiliate link via their referral program (?via=theautomationsguide).',
   },
   warmly: {
     name: 'Warmly',
@@ -162,10 +162,10 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   },
   'relevance-ai': {
     name: 'Relevance AI',
-    url: '',
+    url: 'https://relevanceai.com/?via=theautomationsguide',
     homepageFallback: 'https://relevanceai.com/',
-    status: 'pending',
-    notes: 'Pipeline (not yet applied). Affiliate program, no upfront fee. Verify commission on application.',
+    status: 'live',
+    notes: 'Approved 2026-06-09. Affiliate link via their referral program (?via=theautomationsguide).',
   },
   pabbly: {
     name: 'Pabbly',
@@ -197,10 +197,10 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   },
   'cal-com': {
     name: 'Cal.com',
-    url: '',
+    url: 'https://refer.cal.com/theautomationsguide',
     homepageFallback: 'https://cal.com/',
-    status: 'pending',
-    notes: 'Pipeline (not yet applied). 20% recurring for 12 months (cal.com/affiliate-program). Verify on application.',
+    status: 'live',
+    notes: 'Approved 2026-06-09. 20% recurring for 12 months. Affiliate link via refer.cal.com.',
   },
   lindy: {
     name: 'Lindy',

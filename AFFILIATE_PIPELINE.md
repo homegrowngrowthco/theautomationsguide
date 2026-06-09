@@ -25,16 +25,16 @@ All 20 have a confirmed self-serve program (no sales call) and an unlisted landi
 
 | # | Tool | Program / platform | Est. commission (verify) | Landing page | Applied? | Approved? |
 |---|---|---|---|---|---|---|
-| 1 | **Instantly** | Affiliate (verify platform) | Verify | `/tools/instantly` LP | ☐ | ☐ |
-| 2 | **AiSDR** | PartnerStack | ~20% first-year rev share | `/tools/aisdr` LP | ☐ | ☐ |
-| 3 | **RB2B** | 3rd-party affiliate | ~20% on referred deals | `/tools/rb2b` LP | ☐ | ☐ |
-| 4 | **Warmly** | Affiliate (verify platform) | Verify | `/tools/warmly` LP | ☐ | ☐ |
-| 5 | **Relevance AI** | Affiliate (no upfront) | Verify | `/tools/relevance-ai` LP | ☐ | ☐ |
-| 6 | **Pabbly** | Affiliate | Recurring/lifetime (verify) | `/tools/pabbly` LP | ☐ | ☐ |
-| 7 | **Lusha** | PartnerStack | ~20% first 12 mo | `/tools/lusha` LP | ☐ | ☐ |
-| 8 | **Synthflow** | PartnerStack | ~20% for 12 mo | `/tools/synthflow` LP | ☐ | ☐ |
-| 9 | **Surfer** | PartnerStack | CPA-based (up to ~125% CPA) | `/tools/surfer` LP | ☐ | ☐ |
-| 10 | **Cal.com** | Direct (cal.com/affiliate-program) | 20% recurring 12 mo | `/tools/cal-com` LP | ☐ | ☐ |
+| 1 | **Instantly** | Affiliate (verify platform) | Verify | `/tools/instantly` LP | ☑ | ☐ |
+| 2 | **AiSDR** | PartnerStack | ~20% first-year rev share | `/tools/aisdr` LP | ☑ | ☐ |
+| 3 | **RB2B** | 3rd-party affiliate | ~20% on referred deals | `/tools/rb2b` LP | ☑ | ☑ (live 2026-06-09) |
+| 4 | **Warmly** | Affiliate (verify platform) | Verify | `/tools/warmly` LP | ☑ | ☐ |
+| 5 | **Relevance AI** | Affiliate (no upfront) | Verify | `/tools/relevance-ai` LP | ☑ | ☑ (live 2026-06-09) |
+| 6 | **Pabbly** | Affiliate | Recurring/lifetime (verify) | `/tools/pabbly` LP | ☑ | ☐ |
+| 7 | **Lusha** | PartnerStack | ~20% first 12 mo | `/tools/lusha` LP | ☑ | ☐ |
+| 8 | **Synthflow** | PartnerStack | ~20% for 12 mo | `/tools/synthflow` LP | ☑ | ☐ |
+| 9 | **Surfer** | PartnerStack | CPA-based (up to ~125% CPA) | `/tools/surfer` LP | ☑ | ☐ |
+| 10 | **Cal.com** | Direct (cal.com/affiliate-program) | 20% recurring 12 mo | `/tools/cal-com` LP | ☑ | ☑ (live 2026-06-09) |
 
 ### Wave 2 — next (11-20)
 

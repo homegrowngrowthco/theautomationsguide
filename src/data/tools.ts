@@ -48,6 +48,9 @@ export const toolCategories = [
   'CRM',
   'Outbound & Lead Generation',
   'Newsletter Platform',
+  'Website Visitor ID & Signals',
+  'AI Agents',
+  'Scheduling',
 ];
 
 export const tools: Tool[] = [
@@ -248,7 +251,8 @@ export const tools: Tool[] = [
     badgeFree: true,
     ctaLabel: 'Try RB2B',
     ctaPrimary: true,
-    listed: false,
+    logo: '/brand/tools/rb2b.png',
+    listed: true,
     aliases: ['RB2B'],
     blurb:
       'RB2B identifies the individual people visiting your website (not just the company) and pushes those person-level signals straight to Slack so sales can act in minutes.',
@@ -320,7 +324,8 @@ export const tools: Tool[] = [
     badgeFree: true,
     ctaLabel: 'Try Relevance AI',
     ctaPrimary: true,
-    listed: false,
+    logo: '/brand/tools/relevance-ai.webp',
+    listed: true,
     aliases: ['Relevance AI'],
     blurb:
       'Relevance AI is a no-code platform for building AI agents and multi-step "AI teams" that do real GTM work, from research to data entry to outreach drafting.',
@@ -497,7 +502,8 @@ export const tools: Tool[] = [
     badgeFree: true,
     ctaLabel: 'Try Cal.com',
     ctaPrimary: true,
-    listed: false,
+    logo: '/brand/tools/cal-com.png',
+    listed: true,
     aliases: ['Cal.com'],
     blurb:
       'Cal.com is the open-source scheduling platform, an extensible Calendly alternative you can self-host or run as a hosted product, with deep routing and workflow hooks.',

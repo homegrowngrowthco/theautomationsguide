@@ -8,6 +8,9 @@ const categorySubs: Record<string, string> = {
   'CRM': 'The system of record at the center of your GTM motion.',
   'Outbound & Lead Generation': 'Enrichment, contact data, and cold email tools that fill the top of your funnel.',
   'Newsletter Platform': 'The tool we use to publish, and recommend to anyone serious about owned audience.',
+  'Website Visitor ID & Signals': 'De-anonymize site traffic and turn intent signals into outreach.',
+  'AI Agents': 'No-code platforms for building AI agents that do real GTM work.',
+  'Scheduling': 'Booking and scheduling tools that remove friction from the calendar.',
 };
 
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);

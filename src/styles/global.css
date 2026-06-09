@@ -441,7 +441,11 @@ main { flex: 1; }
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 1.75rem 2.5rem;
+  gap: 1.5rem 2.5rem;
+  /* Capped width so the growing set wraps into ~two balanced centered rows
+     instead of one ever-longer line, keeping the section compact. */
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .logo-strip-item {
@@ -455,7 +459,7 @@ main { flex: 1; }
 .logo-strip-item:hover { opacity: 1; transform: translateY(-1px); text-decoration: none; }
 
 .logo-strip-item img {
-  height: 30px;
+  height: 32px;
   width: auto;
   display: block;
 }
