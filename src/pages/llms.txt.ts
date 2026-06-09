@@ -7,7 +7,7 @@ export const GET: APIRoute = async () => {
 
   const articleLines = posts
     .map((post) => {
-      const url = `https://theautomationsguide.com/blog/${post.slug}`;
+      const url = `https://theautomationsguide.com/blog/${post.slug}/`;
       return `- [${post.data.title}](${url}): ${post.data.description}`;
     })
     .join('\n');
@@ -20,8 +20,8 @@ export const GET: APIRoute = async () => {
 
 ## Core Pages
 - [Home](https://theautomationsguide.com/): Overview of the publication
-- [About](https://theautomationsguide.com/about): Mission and editorial approach
-- [Blog](https://theautomationsguide.com/blog): All articles
+- [About](https://theautomationsguide.com/about/): Mission and editorial approach
+- [Blog](https://theautomationsguide.com/blog/): All articles
 
 ## Articles
 ${articleLines}

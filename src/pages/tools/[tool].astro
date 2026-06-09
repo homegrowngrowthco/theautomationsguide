@@ -39,7 +39,7 @@ const faqSchema =
       <p>{tool.blurb}</p>
       <div class="tool-hub-actions">
         <a
-          href={`/go/${tool.slug}`}
+          href={`/go/${tool.slug}/`}
           class={`btn ${tool.ctaPrimary ? 'btn--primary' : 'btn--ghost'}`}
           target="_blank"
           rel="noopener noreferrer sponsored"
@@ -72,7 +72,7 @@ const faqSchema =
     {posts.length > 0 ? (
       <div class="card-grid">
         {posts.map((post) => (
-          <a href={`/blog/${post.slug}`} class="post-card">
+          <a href={`/blog/${post.slug}/`} class="post-card">
             {post.data.tags.length > 0 && (
               <div class="post-card-tags">
                 {post.data.tags.slice(0, 3).map((t) => (
@@ -99,7 +99,7 @@ const faqSchema =
     ) : (
       <p style="color:var(--text-muted);font-size:1.0625rem;">
         We haven't published a dedicated article on {tool.name} yet — it's on the list. In the
-        meantime, browse the <a href="/blog">full blog</a> or see all our <a href="/tools">tools</a>.
+        meantime, browse the <a href="/blog/">full blog</a> or see all our <a href="/tools/">tools</a>.
       </p>
     )}
 
@@ -115,7 +115,7 @@ const faqSchema =
       </section>
     )}
 
-    <p class="mt-lg"><a href="/tools">&larr; All tools</a></p>
+    <p class="mt-lg"><a href="/tools/">&larr; All tools</a></p>
   </div>
 
   {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}

@@ -8,6 +8,12 @@ const NOINDEX_PATHS = ['/search/', '/privacy/', '/terms/', '/disclosure/'];
 
 export default defineConfig({
   site: 'https://theautomationsguide.com',
+  // Canonical URL form is trailing-slash (directory output + sitemap + canonical
+  // tags all already emit it). Setting these explicitly keeps internal links and
+  // the dev server aligned to the one indexable form so we stop feeding Google the
+  // redirecting no-slash variant. Output is unchanged (directory is Astro's default).
+  trailingSlash: 'always',
+  build: { format: 'directory' },
   integrations: [
     mdx(),
     sitemap({
