@@ -110,6 +110,16 @@ jobs:
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
         run: npm ci
 
+      # Compile the site in-CI BEFORE the Netlify wait. This is the real MDX
+      # compiler, so it catches the whole class the regex linter can't: bare
+      # {{merge_tags}} parsed as JSX expressions (ReferenceError), unclosed SVG
+      # attribute quotes, hallucinated/broken JSX. Fails in ~30s with the actual
+      # error instead of a 5-min opaque "Netlify deploy preview failed" timeout,
+      # and runs before the Playwright install so failures are cheap.
+      - name: Build site (catch MDX compile errors fast)
+        if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        run: npm run build
+
       - name: Install Playwright Chromium
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
         run: npx playwright install --with-deps chromium
