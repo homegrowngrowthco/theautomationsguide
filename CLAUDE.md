@@ -1,5 +1,19 @@
 # Session Log — last updated 2026-06-09
 
+## Quick reference — recent additions (Session 26, 2026-06-09)
+
+**GSC live index audit + orphan-LP internal-link fix (follow-up to Session 25's PR #63, now merged `cc85638`).** After deploying the trailing-slash fix, ran a live Search Console URL Inspection audit of all 71 sitemap URLs and fixed the actual discovery gap it surfaced.
+
+**1. Live GSC audit ([gsc-index-status.py](gsc-index-status.py)).** New root-level script (couldn't go in `scripts/` — that's a tracked Node file, not a dir) adapted from [homegrown-growthco/scripts/gsc-index-status.py](../homegrown-growthco/scripts/gsc-index-status.py): inspects every sitemap URL via the URL Inspection API and prints a table + an explicit "NEEDS INDEXING" list. Shares auth with the homegrown script (OAuth user creds at `~/.gsc/`, read-only `webmasters.readonly`, venv `C:\Users\Ian\.venvs\gsc`); same Google account owns both properties so the cached token works. Takes a host arg (`python gsc-index-status.py https://homegrowngrowth.co` reuses it). **Result: 39 indexed / 32 `URL is unknown to Google`** (i.e. never crawled, NOT crawled-and-rejected). Zero live "Redirect error"/"Crawled-not-indexed" on canonical URLs, confirming the Session-25 diagnosis (the GSC UI report was historical/no-slash noise). The 32 = the 9 newest blog posts + 23 `/tools/` LPs. Full list exported to `gsc-needs-indexing-2026-06-09.csv` (gitignored artifact) for Ian to work through Request Indexing (he's at the daily cap, starting 2026-06-10).
+
+**2. Root cause of the 23 tool LPs: orphaned pages.** 22 of them are `listed:false` (kept off the homepage strip + `/tools` grid per the Session-17 pipeline design), so their ONLY inbound link was the sitemap → Googlebot never found them. (rb2b + relevance-ai are `listed:true` but were only surfaced today in Session 24, so the homepage just hasn't been recrawled — time fixes those.)
+
+**3. Fix ([tools.astro](src/pages/tools.astro), branch `fix/tools-index-internal-links`).** Added an "Every tool we cover" A-Z text-link index at the bottom of `/tools` linking ALL 34 tool hubs (neutral links, not promoted cards, so it doesn't change which tools are featured in the category grid above). This gives every `listed:false` hub an internal link from the already-indexed `/tools/` page → a crawl path. Self-maintaining (any future tool auto-appears). Build clean; dist confirms 34 `/tools/<slug>/` links incl. all former orphans.
+
+**Revert:** PR #63 `git revert -m 1 cc85638`; this PR `git revert -m 1 <merge-sha>` (additive: one `<section>` + CSS in tools.astro, one script, gitignore).
+
+---
+
 ## Quick reference — recent additions (Session 25, 2026-06-09)
 
 **Trailing-slash canonicalization to fix Google Search Console index issues (branch `fix/trailing-slash-canonical-links`).** Ian reported GSC refusing to index the site for weeks (Redirect Error / Page-with-redirect / Crawled-not-indexed buckets). Investigated live with curl: the **production redirect setup is mechanically correct** (every canonical page 200s at its trailing-slash URL, no-slash forms do a clean single 301, www→apex + http→https work, no loops/chains). Root cause was a **signal mismatch**: the sitemap + `<link rel="canonical">` + 200-served pages all use the **trailing-slash** form (Astro directory format default), but nearly every internal `<a href>` and every JSON-LD URL was written **without** a trailing slash, so the site's own discovery path + structured-data canonical pointed Google at the redirecting non-canonical form of every URL. On a young domain that wastes crawl budget and feeds the redirect/duplicate buckets.

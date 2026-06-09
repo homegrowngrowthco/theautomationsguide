@@ -90,6 +90,28 @@ const articleCount = (slug: string) => {
       </div>
     </section>
   ))}
+
+  {/* Full A-Z index of every tool guide. The category grid above only renders
+      listed (promoted) tools, so the pipeline hubs (listed:false) had no
+      internal link anywhere except the sitemap and were never crawled
+      ("URL is unknown to Google" in GSC). Linking every hub from this indexed
+      page gives Googlebot a crawl path to all of them. Neutral text links, not
+      promoted cards, so it doesn't change which tools are featured above. */}
+  <section class="section" style="border-top:1px solid var(--border);background:var(--bg-secondary);">
+    <div class="container--wide">
+      <div class="tools-category">
+        <h2 class="tools-category-heading">Every tool we cover</h2>
+        <p class="tools-category-sub">The full library of tool guides, including ones we're still evaluating.</p>
+      </div>
+      <ul class="tool-index">
+        {[...tools]
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((tool) => (
+            <li><a href={`/tools/${tool.slug}/`}>{tool.name}</a></li>
+          ))}
+      </ul>
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
@@ -129,4 +151,19 @@ const articleCount = (slug: string) => {
     white-space: nowrap;
   }
   .tool-articles-link:hover { color: var(--accent); text-decoration: none; }
+  /* A-Z index of every tool guide (internal-link path to all hubs). */
+  .tool-index {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 0.5rem 1.5rem;
+  }
+  .tool-index a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+  }
+  .tool-index a:hover { color: var(--accent); text-decoration: underline; }
 </style>

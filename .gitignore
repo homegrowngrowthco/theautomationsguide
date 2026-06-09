@@ -45,3 +45,7 @@ backlog/backlog-batch.md
 # Tool LP builder output (regenerable each run; see backlog/build-tool-lp.mjs)
 backlog/lp-batch.json
 backlog/lp-batch.md
+
+# GSC index-status audit artifacts (regenerable via gsc-index-status.py)
+gsc-needs-indexing-*.csv
+gsc-*.log
