@@ -59,7 +59,7 @@ const { title, tools, compact = false } = Astro.props;
           {tool.pricing && <span class="ccompact-price">{tool.pricing}</span>}
           {tool.affiliateSlug && (
             <a
-              href={`/go/${tool.affiliateSlug}`}
+              href={`/go/${tool.affiliateSlug}/`}
               class="ccompact-cta"
               target="_blank"
               rel="noopener noreferrer sponsored"
@@ -105,7 +105,7 @@ const { title, tools, compact = false } = Astro.props;
         {tool.affiliateSlug && (
           <div class="comparison-actions">
             <a
-              href={`/go/${tool.affiliateSlug}`}
+              href={`/go/${tool.affiliateSlug}/`}
               class={`comparison-cta ${tool.highlight ? 'comparison-cta--primary' : 'comparison-cta--ghost'}`}
               target="_blank"
               rel="noopener noreferrer sponsored"

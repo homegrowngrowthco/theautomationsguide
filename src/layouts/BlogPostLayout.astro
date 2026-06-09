@@ -29,7 +29,7 @@ const mentionedTools = tools
     '@type': 'SoftwareApplication',
     name: t.name,
     applicationCategory: 'BusinessApplication',
-    url: new URL(`/tools/${t.slug}`, Astro.site).toString(),
+    url: new URL(`/tools/${t.slug}/`, Astro.site).toString(),
   }));
 
 const wordCount = post.body.split(/\s+/).filter(Boolean).length;
@@ -47,7 +47,7 @@ const formattedUpdatedDate = updatedDate?.toLocaleDateString('en-US', {
   day: 'numeric',
 });
 
-const postUrl = new URL(`/blog/${post.slug}`, Astro.site).toString();
+const postUrl = new URL(`/blog/${post.slug}/`, Astro.site).toString();
 
 const isNamedAuthor = author && author !== 'The Automations Guide';
 const blogPostingSchema = {
@@ -67,14 +67,14 @@ const blogPostingSchema = {
   author: {
     '@type': 'Person',
     name: author,
-    url: 'https://theautomationsguide.com/about',
+    url: 'https://theautomationsguide.com/about/',
     ...(isNamedAuthor ? { jobTitle: 'Founder, Homegrown Growth Co' } : {}),
-    sameAs: ['https://theautomationsguide.com/about', 'https://homegrowngrowth.co'],
+    sameAs: ['https://theautomationsguide.com/about/', 'https://homegrowngrowth.co'],
   },
   publisher: {
     '@type': 'Organization',
     name: 'The Automations Guide',
-    url: 'https://theautomationsguide.com',
+    url: 'https://theautomationsguide.com/',
     logo: {
       '@type': 'ImageObject',
       url: 'https://theautomationsguide.com/hgc-logo.png',
@@ -125,7 +125,7 @@ const faqSchema =
           )}
         </div>
         <p class="post-disclosure">
-          Some links are affiliate links. <a href="/disclosure">Disclosure</a>.
+          Some links are affiliate links. <a href="/disclosure/">Disclosure</a>.
         </p>
       </header>
 
@@ -151,7 +151,7 @@ const faqSchema =
       <hr class="divider" />
 
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
-        <a href="/blog" class="btn btn--ghost">&larr; Back to Blog</a>
+        <a href="/blog/" class="btn btn--ghost">&larr; Back to Blog</a>
         <p style="font-size:0.8rem;color:var(--text-faint)">
           Enjoying this? Share it with your team.
         </p>

@@ -27,7 +27,7 @@ const articleCount = (slug: string) => {
   <!-- Affiliate disclosure -->
   <div class="container--wide" style="padding-top:2rem;">
     <div class="affiliate-notice">
-      <strong>Affiliate Disclosure:</strong> Some links on this page are affiliate links. If you sign up or purchase through them, we earn a commission at no extra cost to you. We only list tools we'd genuinely recommend to a fellow RevOps practitioner — our editorial opinions are not influenced by affiliate relationships. <a href="/disclosure">Read the full disclosure</a>.
+      <strong>Affiliate Disclosure:</strong> Some links on this page are affiliate links. If you sign up or purchase through them, we earn a commission at no extra cost to you. We only list tools we'd genuinely recommend to a fellow RevOps practitioner — our editorial opinions are not influenced by affiliate relationships. <a href="/disclosure/">Read the full disclosure</a>.
     </div>
   </div>
 
@@ -64,13 +64,13 @@ const articleCount = (slug: string) => {
                   )}
                 </div>
                 <div class="tool-card-header">
-                  <h3><a class="tool-card-title-link" href={`/tools/${tool.slug}`}>{tool.name}</a></h3>
+                  <h3><a class="tool-card-title-link" href={`/tools/${tool.slug}/`}>{tool.name}</a></h3>
                   <span class={`tool-badge${tool.badgeFree ? ' tool-badge--free' : ''}`}>{tool.badge}</span>
                 </div>
                 <p>{tool.blurb}</p>
                 <div class="tool-card-actions">
                   <a
-                    href={`/go/${tool.slug}`}
+                    href={`/go/${tool.slug}/`}
                     class={`btn ${tool.ctaPrimary ? 'btn--primary' : 'btn--ghost'}`}
                     target="_blank"
                     rel="noopener noreferrer sponsored"
@@ -78,7 +78,7 @@ const articleCount = (slug: string) => {
                     {tool.ctaLabel} &rarr;
                   </a>
                   {count > 0 && (
-                    <a href={`/tools/${tool.slug}`} class="tool-articles-link">
+                    <a href={`/tools/${tool.slug}/`} class="tool-articles-link">
                       {count} article{count === 1 ? '' : 's'} &rarr;
                     </a>
                   )}

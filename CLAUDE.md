@@ -1,5 +1,26 @@
 # Session Log — last updated 2026-06-09
 
+## Quick reference — recent additions (Session 25, 2026-06-09)
+
+**Trailing-slash canonicalization to fix Google Search Console index issues (branch `fix/trailing-slash-canonical-links`).** Ian reported GSC refusing to index the site for weeks (Redirect Error / Page-with-redirect / Crawled-not-indexed buckets). Investigated live with curl: the **production redirect setup is mechanically correct** (every canonical page 200s at its trailing-slash URL, no-slash forms do a clean single 301, www→apex + http→https work, no loops/chains). Root cause was a **signal mismatch**: the sitemap + `<link rel="canonical">` + 200-served pages all use the **trailing-slash** form (Astro directory format default), but nearly every internal `<a href>` and every JSON-LD URL was written **without** a trailing slash, so the site's own discovery path + structured-data canonical pointed Google at the redirecting non-canonical form of every URL. On a young domain that wastes crawl budget and feeds the redirect/duplicate buckets.
+
+**Fix = standardize internal links + JSON-LD onto the already-canonical trailing-slash form** (NOT no-slash, which would fight Astro/Netlify defaults). Touches only `.astro`/`.ts`/`.mjs` + config — **zero content MDX changed**:
+- **[astro.config.mjs](astro.config.mjs):** added `trailingSlash: 'always'` + `build: { format: 'directory' }` (explicit hardening; directory is already the default so output/sitemap unchanged — value is dev-server strictness + documented intent).
+- **Indexable links → slash:** `/blog/<slug>/`, `/tools/<slug>/`, `/blog/?tag=` across [index.astro](src/pages/index.astro), [blog/index.astro](src/pages/blog/index.astro), [tools.astro](src/pages/tools.astro), [tools/[tool].astro](src/pages/tools/[tool].astro).
+- **JSON-LD / canonical signals → slash:** [BlogPostLayout.astro](src/layouts/BlogPostLayout.astro) `postUrl` (drives BlogPosting `url`+`mainEntityOfPage`), tool `about`/`mentions` urls, author/publisher urls; [BaseLayout.astro](src/layouts/BaseLayout.astro) org url + breadcrumb crumb urls.
+- **Nav/footer/utility → slash:** `/blog/`, `/tools/`, `/about/`, `/disclosure/`, `/privacy/`, `/terms/`, search `action="/search/"` across BaseLayout + about/terms/404/AuthorNote + [llms.txt.ts](src/pages/llms.txt.ts).
+- **Affiliate CTA `/go/<slug>/` → slash** in the 7 Astro components (ComparisonTable, ChooseIf, IntentTable, ToolBreakdown, BottomLine, tools.astro, tools/[tool].astro) so the money buttons skip a 301 hop. **Deliberately left no-slash:** the ~30 existing MDX posts' inline `[Make](/go/make)` prose links + the n8n engine prompt — `/go/*` is sitemap-excluded + never indexed, so zero SEO benefit and a live n8n deploy is disproportionate. They keep working via the existing 301.
+
+**Out of scope (correctly):** "Crawled, currently not indexed" is Google's trust/quality call on a ~5-week scaled-content domain — this change removes wasted crawl hops but indexing is a time+authority grind, not a config toggle. The 404s (`/affiliate-disclosure/`, `/wp-admin/...`, `/lorem-ipsum-.../`) are correct 404s of legacy WordPress-era/spam URLs. The single `//` double-slash GSC URL has no source in code (slugs carry no slashes) and 301s cleanly.
+
+**Ian to do in GSC (cannot automate):** confirm registered sitemap is `sitemap-index.xml`; click **Validate Fix** on the Redirect-Error + Page-with-redirect reports after deploy; **Request Indexing** for the 5-10 best posts; expect the Crawled-not-indexed bucket to clear slowly.
+
+**Verification:** `npm run build` clean at **115 pages** (Pagefind indexed 76); `git diff --name-only` = 17 source files, no `.mdx`; grep of `src/` for no-slash internal links = **0 remaining**; built `dist/index.html` hrefs all end in `/` (incl. `/blog/?tag=`); blog-post JSON-LD `url`/`mainEntityOfPage`/tool-url end in `/`, canonical unchanged, `og:image` still `.png`; `/go/<slug>/` + `/search/` build as directories with meta-refresh intact; sitemap still trailing-slash with 0 `/go/` entries. (Note: `lint-content --all` shows 2 PRE-EXISTING hard failures in `2026-05-21-kit-vs-substack-vs-beehiiv` (`<style>` block) + `2026-05-22-best-mailchimp-alternatives` (inline grid wrapper) — untouched by this PR; the CI content gate only lints changed posts so they don't block it, but worth a cleanup pass.)
+
+**Revert:** `git revert -m 1 <merge-sha>` — every change is a string/config edit (add a `/`); no schema/route/data changes.
+
+---
+
 ## Quick reference — recent additions (Session 24, 2026-06-09)
 
 Affiliate Wave-1 approvals + a durable fix for the MDX build-break class + PR cleanup. Shipped across PRs #61, #62, #60 (plus #59 merged, #37 closed).
