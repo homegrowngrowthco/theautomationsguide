@@ -309,6 +309,64 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: "Pipeline (not yet applied). Affiliate program availability to verify on application.",
   },
+
+  // --- LP-builder additions (pending; /go/<slug> falls back to homepage + UTM until approved). ---
+  mailforge: {
+    name: "Mailforge",
+    url: '',
+    homepageFallback: "https://www.mailforge.ai/",
+    status: 'pending',
+    notes: "Pipeline (not yet applied). Affiliate program availability to verify on application.",
+  },
+  surfe: {
+    name: "Surfe",
+    url: '',
+    homepageFallback: "https://www.surfe.com/",
+    status: 'pending',
+    notes: "Pipeline (not yet applied). Surfe runs a referral and affiliate program; commission structure and terms are available on application through their website.",
+  },
+  leadmagic: {
+    name: "LeadMagic",
+    url: '',
+    homepageFallback: "https://www.leadmagic.io/",
+    status: 'pending',
+    notes: "Pipeline (not yet applied). Affiliate program availability to verify on application.",
+  },
+  bettercontact: {
+    name: "BetterContact",
+    url: '',
+    homepageFallback: "https://www.bettercontact.rocks/",
+    status: 'pending',
+    notes: "Pipeline (not yet applied). Affiliate program availability to verify on application.",
+  },
+  vector: {
+    name: "Vector",
+    url: '',
+    homepageFallback: "https://www.vector.co/",
+    status: 'pending',
+    notes: "Pipeline (not yet applied). Affiliate program availability to verify on application.",
+  },
+  vapi: {
+    name: "Vapi",
+    url: '',
+    homepageFallback: "https://vapi.ai/",
+    status: 'pending',
+    notes: "Pipeline (not yet applied). Affiliate program availability to verify on application.",
+  },
+  circleback: {
+    name: "Circleback",
+    url: '',
+    homepageFallback: "https://www.circleback.ai/",
+    status: 'pending',
+    notes: "Pipeline (not yet applied). Affiliate program availability to verify on application.",
+  },
+  fillout: {
+    name: "Fillout",
+    url: '',
+    homepageFallback: "https://www.fillout.com/",
+    status: 'pending',
+    notes: "Pipeline (not yet applied). Fillout runs an affiliate program; details on commission rates and terms are available through their website.",
+  },
 };
 
 /**
