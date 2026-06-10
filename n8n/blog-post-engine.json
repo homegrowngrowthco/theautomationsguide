@@ -18,7 +18,7 @@
           "interval": [
             {
               "field": "cronExpression",
-              "expression": "0 8 * * 1-5"
+              "expression": "0 8 * * *"
             }
           ]
         }
@@ -800,6 +800,69 @@
         3980,
         600
       ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-empty-queue",
+              "leftValue": "={{ ($json.results || []).length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "tag00001-0000-0000-0000-0000000000fe",
+      "name": "Queue Empty?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.slackWebhookUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ text: ':warning: *Blog engine: no Queued topic today.* The daily run found an empty Content Calendar queue, so no post was generated. Flip a Suggested topic to Queued (or run the backlog builder) to resume daily publishing.' }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "tag00001-0000-0000-0000-0000000000fd",
+      "name": "Slack Queue Empty",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        520
+      ]
     }
   ],
   "connections": {
@@ -841,6 +904,11 @@
         [
           {
             "node": "Parse Topic",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Queue Empty?",
             "type": "main",
             "index": 0
           }
@@ -1036,6 +1104,18 @@
             "index": 0
           }
         ]
+      ]
+    },
+    "Queue Empty?": {
+      "main": [
+        [
+          {
+            "node": "Slack Queue Empty",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
       ]
     }
   },
