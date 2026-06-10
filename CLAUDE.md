@@ -1,4 +1,4 @@
-# Session Log — last updated 2026-06-09
+# Session Log — last updated 2026-06-10
 
 ## Quick reference — recent additions (Session 26, 2026-06-09)
 
@@ -11,6 +11,10 @@
 **3. Fix ([tools.astro](src/pages/tools.astro), branch `fix/tools-index-internal-links`).** Added an "Every tool we cover" A-Z text-link index at the bottom of `/tools` linking ALL 34 tool hubs (neutral links, not promoted cards, so it doesn't change which tools are featured in the category grid above). This gives every `listed:false` hub an internal link from the already-indexed `/tools/` page → a crawl path. Self-maintaining (any future tool auto-appears). Build clean; dist confirms 34 `/tools/<slug>/` links incl. all former orphans.
 
 **Revert:** PR #63 `git revert -m 1 cc85638`; this PR `git revert -m 1 <merge-sha>` (additive: one `<section>` + CSS in tools.astro, one script, gitignore).
+
+### Session 26 follow-up (2026-06-10) — GSC re-run + Request-Indexing pass
+
+Re-ran [gsc-index-status.py](gsc-index-status.py) (read-only; no code/output changes). **Result unchanged from 06-09: 39 indexed / 32 `URL is unknown to Google`**, all in the never-crawled bucket (zero Redirect/Crawled-not-indexed on canonical URLs) — confirms no movement yet, expected given the orphan-link fix is fresh and Request Indexing was capped. Notable since 06-09: six `listed:true` tool hubs now **Submitted and indexed** (cal-com, clay, instantly, kit, make, beehiiv, crawled 06-09). Ian began working the NEEDS-INDEXING list in GSC, front-loaded the 9 blog posts, hit the daily quota, and is deferring the **22 `/tools/` hubs + rb2b to 2026-06-11**. No CSV exported this run (the 06-09 `gsc-needs-indexing-2026-06-09.csv` still covers it).
 
 ---
 
