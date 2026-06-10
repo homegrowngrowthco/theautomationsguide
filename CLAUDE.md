@@ -20,9 +20,11 @@
 
 **6. Second first-mover LP batch (PR #70, OPEN).** With the dedup fixed, `--from-stars --count=8` proposed 8 genuinely-new tools; applied via `--apply-cached`: **Mailforge, Surfe, LeadMagic, BetterContact, Vector, Vapi, Circleback, Fillout** (tools.ts 35→43). All `listed:false` + `status:pending` (indexable `/tools/<slug>` hubs, off the homepage strip/grid until a program approves or an article publishes). Verified: build clean, each renders FAQPage JSON-LD + `/go` CTA, all 8 in sitemap + `/tools` A-Z index, homepages 200, 0 dashes, lint 0-hard. **Open for Ian to eyeball the deploy preview + merge.**
 
-**For Ian:** (a) merge **#68** in the GitHub UI (workflow scope) → unblocks Part B; (b) review/merge **#70** (8 new LPs). Note: GitHub's GraphQL API was 401'ing late-session (REST fine) — #69/#70 were created/merged via REST; if `gh pr` GraphQL is still down, it's a transient GitHub issue.
+**7. Part B — engine now posts 7 days/week + no-queued-topic alert (PR #72, DEPLOYED LIVE).** After Ian merged #68 (Part A green), flipped the engine Schedule Trigger cron `0 8 * * 1-5`→`0 8 * * *` and added a **side branch** off "Get Next Topic" via idempotent updater [n8n/update-engine-daily-and-empty-alert.mjs](n8n/update-engine-daily-and-empty-alert.mjs): IF "Queue Empty?" (`results.length == 0`) → "Slack Queue Empty", so an empty Content Calendar queue pings Slack instead of silently skipping the day. **Additive only — the existing Get Next Topic → Parse Topic happy path is untouched, so the alert can't break post generation.** Deployed via `deploy-engine.mjs --apply` + GET-verified live: "Blog Post Engine — TAG (v3)" active=true, cron `0 8 * * *`, node count 24→26, both new nodes + the `Queue Empty?[true]→Slack Queue Empty` wiring present. **Supply dependency:** the cron doesn't create topics — needs ≥7 `Queued`/week (backlog builder auto-stages Suggested Sun 6/14; Ian flips to Queued) or the alert fires.
 
-**Revert:** each PR `git revert -m 1 <sha>`; component guards are behavior-preserving for well-formed input; LPs via the fenced "LP-builder additions" blocks.
+**Status:** Part A + Part B both shipped. #68 merged by Ian; #65/#66/#67/#69/#70/#71/#72 merged. GitHub's GraphQL API was 401'ing late-session (REST fine) — #69–#72 were created/merged via REST.
+
+**Revert:** each PR `git revert -m 1 <sha>` (component guards behavior-preserving for well-formed input; LPs via the fenced "LP-builder additions" blocks). Engine cron: re-run `deploy-engine.mjs --apply` against the prior `blog-post-engine.json` (restore `0 8 * * 1-5`) or set cron back + delete the 2 alert nodes.
 
 ---
 
