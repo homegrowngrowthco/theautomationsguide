@@ -34,7 +34,7 @@ interface Props {
   dimensions: Dimension[];
 }
 
-const { title, caption, leftLabel, rightLabel, dimensions } = Astro.props;
+const { title, caption, leftLabel, rightLabel, dimensions = [] } = Astro.props;
 const posFor = (d: Dimension) =>
   typeof d.position === 'number'
     ? Math.max(4, Math.min(96, d.position))

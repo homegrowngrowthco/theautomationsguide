@@ -18,7 +18,7 @@ interface Props {
   stats: Stat[];
 }
 
-const { stats } = Astro.props;
+const { stats = [] } = Astro.props;
 ---
 
 <div class="stat-row" style={`--cols: ${stats.length}`}>

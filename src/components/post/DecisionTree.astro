@@ -44,15 +44,25 @@ interface Props {
   nested?: boolean;
 }
 
-const { tree, caption, footer, nested = false } = Astro.props;
+const { tree: rawTree, caption, footer, nested = false } = Astro.props;
+// Guard a malformed/missing prop so a bad LLM-emitted tree degrades instead of
+// crashing the whole build (feedback_deterministic_sanitizer_over_prompt).
+const tree = rawTree ?? { question: '', branches: [] };
+const branches = tree.branches ?? [];
 const Self = (await import('./DecisionTree.astro')).default;
+// At the root, if ANY top-level branch nests another decision, render the whole
+// tree as the vertical labeled list (the nested layout) rather than the
+// horizontal bus — mixed leaf+nested branches cram badly in the fixed-width
+// horizontal columns (the PR #65 flowchart defect). Fixed at the source so every
+// future post renders cleanly regardless of tree shape.
+const useVertical = !nested && branches.some((b) => b?.next);
 ---
 
 {nested ? (
   <div class="dtree-node dtree-node--nested">
     <div class="dtree-q">{tree.question}</div>
     <div class="dtree-branches dtree-branches--nested">
-      {tree.branches.map((b) => (
+      {branches.map((b) => (
         <div class="dtree-branch">
           <span class="dtree-label">{b.label}</span>
           {b.next ? (
@@ -70,10 +80,13 @@ const Self = (await import('./DecisionTree.astro')).default;
 ) : (
   <figure class="dtree">
     <div class="dtree-flow">
-      <div class="dtree-node">
+      <div class={`dtree-node${useVertical ? ' dtree-node--nested' : ''}`}>
         <div class="dtree-q dtree-q--root">{tree.question}</div>
-        <div class="dtree-branches" style={`--dtree-bus-inset: ${50 / tree.branches.length}%`}>
-          {tree.branches.map((b) => (
+        <div
+          class={`dtree-branches${useVertical ? ' dtree-branches--nested' : ''}`}
+          style={useVertical ? undefined : `--dtree-bus-inset: ${50 / (branches.length || 1)}%`}
+        >
+          {branches.map((b) => (
             <div class="dtree-branch">
               <span class="dtree-label">{b.label}</span>
               {b.next ? (
