@@ -34,34 +34,7 @@ Every RevOps team eventually gets the same request from a founder or content lea
   { number: "600K+", label: "Kit creators", description: "Kit reported over 600,000 creators on the platform as of 2024, with a commerce layer that processed tens of millions in creator product sales." }
 ]} />
 
-<style>{`
-  /* Fix 2: Reduce StatRow card vertical padding on mobile */
-  @media (max-width: 639px) {
-    .stat-row-card {
-      padding-top: 16px !important;
-      padding-bottom: 16px !important;
-    }
-  }
 
-  /* Fix 1: Keep ComparisonTable in 3-column layout down to 640px with horizontal scroll fallback */
-  @media (max-width: 768px) and (min-width: 640px) {
-    .comparison-table-grid {
-      grid-template-columns: repeat(3, 1fr) !important;
-      overflow-x: auto !important;
-    }
-  }
-  @media (max-width: 639px) {
-    .comparison-table-grid {
-      grid-template-columns: repeat(3, minmax(220px, 1fr)) !important;
-      overflow-x: auto !important;
-    }
-  }
-
-  /* Fix 3: Top-align both children in the SideBySide that contains the flowchart Figure */
-  .side-by-side-flowchart {
-    align-items: flex-start !important;
-  }
-`}</style>
 
 <ComparisonTable
   title="Kit vs Substack vs Beehiiv: What Operators Actually Own"
