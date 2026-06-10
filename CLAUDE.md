@@ -1,5 +1,31 @@
 # Session Log — last updated 2026-06-10
 
+## Quick reference — recent additions (Session 28, 2026-06-10)
+
+**Executed the Session-27 QA-hardening plan (Part A) end to end, plus a found-and-fixed LP-builder dedup bug and a second first-mover LP batch.** Five PRs: #65, #66, #67, #69 MERGED; #68 (workflow) + #70 (LP content) OPEN for Ian.
+
+**1. PR #65 merged** (`488286a`) — the Instantly-alternatives post fixes from Session 27 shipped. (Its red `qa` check was the known Netlify-wait timeout; the Netlify deploy-preview itself was green.)
+
+**2. Part A2 — component guards + shape-agnostic DecisionTree (PR #66, merge `a720671`).** Added `(prop ?? [])` / destructuring defaults to every unguarded array access in the 8 post components (ToolBreakdown, ChooseIf, StatRow, IntentTable, SpectrumBar, DecisionTree, StepRow, [ComparisonTable](src/components/ComparisonTable.astro) + nested `tool.pros`/`cons`/`conditions`/`row.cells`) so a malformed LLM-emitted prop **degrades, never crashes the build**. [DecisionTree.astro](src/components/post/DecisionTree.astro): when **any** top-level branch nests another decision, the whole tree now renders the vertical labeled-list layout instead of the cramped horizontal `max-width:14rem` bus — the exact PR #65 flowchart defect, fixed at the source. Verified via a throwaway fixture post (mixed-shape tree rendered vertical, Playwright-confirmed; degraded props kept the build green).
+
+**3. Part A1/A3 — deterministic render-acceptance gate + registry checks (PR #67, merge `af36f3a`).**
+- **[qa/render-acceptance.mjs](qa/render-acceptance.mjs)** (A1, NEW) — parses the BUILT `dist/blog/<slug>/index.html` with `linkedom` (new devDep) and hard-fails on rendered-result invariants the regex linter + compiler can't see: post actually rendered (non-empty + `<h1>`), every DecisionTree source branch rendered (rendered `.dtree-leaf`/`.dtree-q` ≥ source `result:`/`question:` counts), and every registry-backed tool logo actually shows up (`.tbd-logo`/`.ci-logo`). `--post|--slug|--all`; needs `npm run build` first.
+- **[qa/lint-content.mjs](qa/lint-content.mjs)** (A3) — added **registry integrity** (a `tools.ts` `logo:` path pointing at a missing file → HARD) and **logo completeness** (a tool compared in a ToolBreakdown/ChooseIf with no registry logo → WARN, deliberately not hard so it can't wedge the daily auto-merge pipeline — the engine compares many legitimately logo-less tools).
+- **[qa/registry.mjs](qa/registry.mjs)** (NEW) — shared registry/MDX-parse helpers (logo map, affiliate status, brace-matched `extractTagBlocks`, `refdLogoSlugs`) imported by both gates so they can't drift (`feedback_unified_fuzzy_match_key`). Uses a **quote-agnostic** `slug:\s*['"]...` read (the same bug class that bit the LP builder — see #6).
+- npm scripts `qa:lint` / `qa:render`; QA README documents the gates. Cleared the 2 Session-25-flagged pre-existing HARD lint failures with `--fix`, so `lint --all` + `render-acceptance --all` are both **0-hard across all 34 posts**. Three negative tests confirmed each gate fails when it should (dropped DecisionTree branch, broken logo path, lost logo render).
+
+**4. Part A4 — CI wiring + stop-silent-failures (PR #68, OPEN — Ian merges in UI, workflow scope).** [qa-content-pr.yml](.github/workflows/qa-content-pr.yml): render-acceptance hard gate after `npm run build`; the auto-fix path must build **and** pass render-acceptance before it's pushed (a bad fix fails the job instead of landing); **`failure()` steps** post a "manual review needed" PR comment + Slack on ANY failed step (gate/build/Netlify/fixer crash) — the exact PR #65 silent-death gap; Netlify-wait 5→8 min. **Ian must merge this in the GitHub UI** (`reference_gh_token_no_workflow_scope`). Part A is "green" once #68 is merged and a content PR exercises the gate — that gates Part B.
+
+**5. LP-builder dedup quote-bug (PR #69, merge `c3126b7`).** [backlog/build-tool-lp.mjs](backlog/build-tool-lp.mjs) emits `tools.ts` entries via `JSON.stringify` (**double-quoted**) but `parseToolsTs` read `slug:`/`name:`/`category:` **single-quote-only**, so it was blind to its own 5 prior (Session-23) additions → re-proposed 3 already-shipped tools and would have spliced **duplicate** registry entries on `--apply`. Fixed: quote-agnostic read (`['"]`). (`feedback_scripts_are_source_of_truth`.)
+
+**6. Second first-mover LP batch (PR #70, OPEN).** With the dedup fixed, `--from-stars --count=8` proposed 8 genuinely-new tools; applied via `--apply-cached`: **Mailforge, Surfe, LeadMagic, BetterContact, Vector, Vapi, Circleback, Fillout** (tools.ts 35→43). All `listed:false` + `status:pending` (indexable `/tools/<slug>` hubs, off the homepage strip/grid until a program approves or an article publishes). Verified: build clean, each renders FAQPage JSON-LD + `/go` CTA, all 8 in sitemap + `/tools` A-Z index, homepages 200, 0 dashes, lint 0-hard. **Open for Ian to eyeball the deploy preview + merge.**
+
+**For Ian:** (a) merge **#68** in the GitHub UI (workflow scope) → unblocks Part B; (b) review/merge **#70** (8 new LPs). Note: GitHub's GraphQL API was 401'ing late-session (REST fine) — #69/#70 were created/merged via REST; if `gh pr` GraphQL is still down, it's a transient GitHub issue.
+
+**Revert:** each PR `git revert -m 1 <sha>`; component guards are behavior-preserving for well-formed input; LPs via the fenced "LP-builder additions" blocks.
+
+---
+
 ## Quick reference — recent additions (Session 27, 2026-06-10)
 
 **Reworked the engine-generated "Instantly Alternatives 2026" post (PR #65) + 3 site-wide post-layout changes Ian requested, then root-caused why formatting defects keep reaching him and wrote a QA-hardening + daily-scheduling + cost plan for next session.** PR #65 fixes are SHIPPED to the branch (`content/2026-06-10-instantly-alternatives-2026-when-youve-hit-the-limits`, commit `0acf2f0`, pushed) but **PR #65 is still OPEN** — merge it first next session. The QA/scheduling/cost work is a written plan (approval pending), NOT yet built.
