@@ -1076,6 +1076,253 @@ export const tools: Tool[] = [
       },
     ],
   },
+
+  // --- LP-builder additions (listed:false; flip to listed:true + add a logo once approved/published). ---
+  {
+    slug: "mailforge",
+    name: "Mailforge",
+    category: "Cold Email & Deliverability",
+    badge: "Free trial",
+    ctaLabel: "Try Mailforge",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["Mailforge", "mailforge.ai"],
+    blurb: "Mailforge provisions and warms cold email inboxes and domains at scale, built as part of the Salesforge ecosystem for high-volume outbound teams.",
+    bestFor: "Outbound teams running multi-inbox cold email campaigns who need infrastructure management separate from their sequencing tool.",
+    body: [
+      "Mailforge handles the infrastructure layer of cold email: domain purchasing, mailbox provisioning, DNS configuration, and warmup sequences. It sits inside the Salesforge product family, meaning it is designed to feed sending capacity directly into Salesforge sequences, though the inboxes it creates can be routed to other senders. The tool is aimed at teams that want to scale sending volume without manually managing dozens of Google Workspace or Microsoft 365 accounts.",
+      "In a RevOps stack, Mailforge occupies the deliverability and inbox layer that tools like Instantly and Smartlead bundle into their platforms but that many teams prefer to keep modular. Buyers comparing options will typically look at Instantly's inbox management features, Smartlead's agency infrastructure, and Infraforge (also in the Salesforge ecosystem) alongside Mailforge, depending on whether they want an all-in-one or a separated infra layer.",
+    ],
+    faqs: [
+      {
+        question: "What does Mailforge actually do?",
+        answer: "Mailforge automates the setup and warmup of cold email domains and inboxes, removing the manual work of configuring DNS records and gradually increasing send volume to build sender reputation.",
+      },
+      {
+        question: "How does Mailforge compare to Instantly for inbox management?",
+        answer: "Instantly bundles inbox rotation and warmup inside its sequencing platform, while Mailforge is a standalone infrastructure tool inside the Salesforge ecosystem, which suits teams that want to separate infra from sequencing.",
+      },
+      {
+        question: "Who should not use Mailforge?",
+        answer: "Teams already satisfied with the inbox management inside Instantly or Smartlead may not need a separate infra tool. Mailforge makes the most sense if you are using Salesforge for sequencing or want modular control over your sending infrastructure.",
+      },
+    ],
+  },
+  {
+    slug: "surfe",
+    name: "Surfe",
+    category: "Lead Data & Enrichment",
+    badge: "Free tier available",
+    badgeFree: true,
+    ctaLabel: "Try Surfe",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["Surfe", "Surfe.com"],
+    blurb: "Surfe is a Chrome extension that syncs LinkedIn activity directly to your CRM and enriches contacts with verified email and phone data in one click.",
+    bestFor: "Sales reps who prospect on LinkedIn and want contact data and CRM updates to happen without leaving the browser.",
+    body: [
+      "Surfe embeds a sidebar inside LinkedIn that lets reps push profiles, messages, and notes into HubSpot, Salesforce, Pipedrive, or other connected CRMs without switching tabs. It also surfaces contact enrichment data, including work email and mobile number, directly on the LinkedIn profile page. The enrichment layer pulls from multiple data providers, which puts it in the emerging waterfall enrichment category where sequential data sources are queried until a verified result is returned. Waterfall enrichment as a defined product category is relatively new, with purpose-built tools emerging since roughly 2023.",
+      "In a GTM stack, Surfe replaces the manual copy-paste workflow between LinkedIn and CRM and reduces the need for a separate prospecting tool for reps who live in LinkedIn. Buyers will naturally compare it to Dux-Soup and Phantombuster for LinkedIn automation, to Clay for enrichment depth, and to the native LinkedIn Sales Navigator CRM integrations, depending on how much of the workflow they want automated versus controlled.",
+    ],
+    faqs: [
+      {
+        question: "What is Surfe?",
+        answer: "Surfe is a Chrome extension that adds a CRM sync panel to LinkedIn, letting sales reps save contacts, log messages, and enrich email and phone data without leaving the LinkedIn interface.",
+      },
+      {
+        question: "How does Surfe compare to Clay for enrichment?",
+        answer: "Clay is a workflow builder that runs enrichment at scale across large lists using hundreds of data sources, while Surfe is rep-facing and optimized for one-at-a-time prospecting directly from LinkedIn profiles.",
+      },
+      {
+        question: "Does Surfe work with CRMs other than Salesforce and HubSpot?",
+        answer: "Surfe supports several CRMs including Pipedrive and Copper in addition to Salesforce and HubSpot; buyers should confirm current integration availability on the Surfe website before committing.",
+      },
+    ],
+  },
+  {
+    slug: "leadmagic",
+    name: "LeadMagic",
+    category: "Lead Data & Enrichment",
+    badge: "Free tier available",
+    badgeFree: true,
+    ctaLabel: "Try LeadMagic",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["LeadMagic", "leadmagic.io"],
+    blurb: "LeadMagic is a pay-as-you-go enrichment API and waterfall tool that finds verified work emails and mobile numbers from LinkedIn profiles and company data.",
+    bestFor: "RevOps teams and growth engineers who want low-cost, credits-based enrichment they can plug into Clay, n8n, or custom workflows.",
+    body: [
+      "LeadMagic provides enrichment as a service through an API and a simple UI, covering work email lookup, mobile number finding, and LinkedIn profile resolution. It is positioned in the waterfall enrichment category, a relatively new segment (prominent since 2023 to 2024) where multiple underlying data vendors are queried in sequence to maximize match rates without the buyer paying for a single expensive exclusive data license. Pricing is credits-based and designed to be cost-competitive against sourcing the same data through tools with larger feature sets bundled in.",
+      "LeadMagic fits RevOps stacks as a data sourcing node inside Clay tables, Make or n8n workflows, or any system that accepts API calls. Teams compare it directly to Datagma, Prospeo, and Hunter for email finding, and to Waterfall (the standalone product) or Clay's own waterfall logic for multi-source enrichment. Its advantage is usually cost per verified contact; its limitation is that it provides less workflow orchestration than Clay and less CRM context than Surfe.",
+    ],
+    faqs: [
+      {
+        question: "What is LeadMagic and how does it work?",
+        answer: "LeadMagic is a credits-based enrichment service that takes LinkedIn URLs or company domain inputs and returns verified work emails and mobile numbers by querying multiple underlying data sources.",
+      },
+      {
+        question: "How does LeadMagic compare to Clay for enrichment?",
+        answer: "Clay is a full workflow and enrichment orchestration platform with a spreadsheet interface, while LeadMagic is a focused enrichment API best used as a data node inside Clay or another automation tool.",
+      },
+      {
+        question: "Who should not use LeadMagic?",
+        answer: "Teams that want a self-contained prospecting platform with sequencing, CRM sync, and enrichment in one place will find LeadMagic too narrow; it is built for technical buyers comfortable using APIs or no-code automation builders.",
+      },
+    ],
+  },
+  {
+    slug: "bettercontact",
+    name: "BetterContact",
+    category: "Lead Data & Enrichment",
+    badge: "Free trial",
+    ctaLabel: "Try BetterContact",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["BetterContact", "Better Contact", "bettercontact.rocks"],
+    blurb: "BetterContact is a waterfall enrichment tool that runs contact lists through 20-plus data sources sequentially to return the highest-confidence email and phone matches.",
+    bestFor: "Outbound teams and agencies that have contact lists with gaps and want to maximize verified mobile and email match rates before sequencing.",
+    body: [
+      "BetterContact is built specifically around the waterfall enrichment model, a category that has formalized over 2023 to 2025 as a response to the fragmentation of B2B contact data across many competing vendors. Rather than locking buyers into one data provider, BetterContact queries Apollo, Dropcontact, Hunter, Datagma, and a range of other sources in a defined priority order, stopping when a verified result is found and billing only for successful matches. The result is typically a higher match rate on mobile numbers in particular, which is harder to source from any single provider.",
+      "In a GTM stack, BetterContact is most commonly placed between a list-building or ICP filtering step and a cold email or calling sequence. Teams using Clay will compare BetterContact to building their own waterfall logic inside Clay using individual API enrichment steps; the tradeoff is setup time versus flexibility. Other direct comparisons include Findymail for email-only enrichment and Prospeo. BetterContact's differentiation is the managed multi-source waterfall with a simple CSV or API interface that does not require workflow-building skill.",
+    ],
+    faqs: [
+      {
+        question: "What is waterfall enrichment and why does BetterContact use it?",
+        answer: "Waterfall enrichment means querying multiple data providers in sequence and stopping when a verified result is found, which improves match rates compared to relying on a single data source. BetterContact manages this process so buyers do not have to build it themselves.",
+      },
+      {
+        question: "How does BetterContact compare to building a waterfall inside Clay?",
+        answer: "Clay gives more control over enrichment logic and connects to broader workflow automation, but requires setup time; BetterContact is faster to deploy for teams whose only goal is maximizing contact match rates.",
+      },
+      {
+        question: "Does BetterContact charge for failed enrichment attempts?",
+        answer: "BetterContact's model is designed to charge only for successful matches, but buyers should confirm the exact credit and billing rules on their current pricing page before running large lists.",
+      },
+    ],
+  },
+  {
+    slug: "vector",
+    name: "Vector",
+    category: "Website Visitor ID & Signals",
+    badge: "Free trial",
+    ctaLabel: "Try Vector",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["Vector", "vector.co"],
+    blurb: "Vector identifies the individual people visiting your website, not just companies, and routes that signal data into outbound workflows for timely follow-up.",
+    bestFor: "B2B sales and marketing teams that want to act on person-level website intent signals rather than account-level company identification alone.",
+    body: [
+      "Vector sits in the website visitor identification category and focuses on person-level identification, meaning it attempts to resolve individual visitor identities rather than only the company or IP range. Person-level visitor ID is a relatively new capability in this space, enabled by identity graph partnerships and pixel-based matching, and it carries meaningful privacy and compliance considerations that buyers should evaluate carefully for their region. Vector surfaces identified visitors with contact details and integrates with CRMs and sequencing tools so SDRs can prioritize outreach to people who have already shown intent.",
+      "The search query 'RB2B vs Vector' has meaningful demand, which reflects that RB2B is the most direct competitor in the person-level identification niche. Buyers will also compare Vector to Clearbit Reveal and Koala for account-level intent, to 6sense and Bombora for broader intent data, and to Warmly for a more orchestration-heavy approach to visitor identification and routing. Vector's positioning leans toward simplicity of setup and actionable person-level output rather than deep account intelligence.",
+    ],
+    faqs: [
+      {
+        question: "What does Vector do differently from standard website visitor ID tools?",
+        answer: "Most visitor ID tools return a company name and firmographics; Vector focuses on resolving the individual person visiting the page, which allows outbound teams to reach a specific contact rather than just the account.",
+      },
+      {
+        question: "How does Vector compare to RB2B?",
+        answer: "Both tools target person-level website visitor identification and are frequently compared directly; buyers typically evaluate match rates, integration depth, pricing model, and geographic coverage to choose between them.",
+      },
+      {
+        question: "Are there privacy or compliance concerns with person-level visitor ID?",
+        answer: "Yes, identifying individual website visitors involves data privacy considerations that vary by jurisdiction, particularly under GDPR in Europe; buyers should review their legal obligations before deploying any person-level identification tool.",
+      },
+    ],
+  },
+  {
+    slug: "vapi",
+    name: "Vapi",
+    category: "AI Voice & Dialers",
+    badge: "Free tier available",
+    badgeFree: true,
+    ctaLabel: "Try Vapi",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["Vapi", "vapi.ai"],
+    blurb: "Vapi is a developer-first API platform for building and deploying AI voice agents that can make and receive phone calls with low latency and configurable voices.",
+    bestFor: "Developers and technical GTM teams building custom AI calling workflows, appointment setters, or inbound voice agents without managing telephony infrastructure.",
+    body: [
+      "Vapi provides the infrastructure layer for AI voice: telephony, speech-to-text, LLM routing, and text-to-speech assembled into a single API that developers call to spin up voice agents. AI voice as a product category is genuinely new, with meaningful commercial adoption accelerating from 2024 onward, and Vapi is positioned as the infrastructure provider rather than a packaged sales dialer. Builders connect their own LLM prompts, choose voice providers such as ElevenLabs or Deepgram, and define call flows, meaning the final agent behavior is determined by what the builder configures.",
+      "In a GTM stack, Vapi enables use cases ranging from AI-powered outbound prospecting calls to inbound lead qualification and scheduling. Teams evaluate it against Bland AI and Retell AI, which occupy the same developer-focused AI voice infra space, and against higher-level packaged tools like AirCall's AI features or Dialpad AI for teams that want less configuration. The tradeoff is clear: Vapi gives more flexibility and lower per-minute cost at the expense of requiring engineering resources to build the agent experience.",
+    ],
+    faqs: [
+      {
+        question: "What is Vapi and what can it be used for?",
+        answer: "Vapi is an API platform for building AI phone call agents; common use cases include outbound prospecting, inbound lead qualification, appointment booking, and customer support automation.",
+      },
+      {
+        question: "How does Vapi compare to Bland AI?",
+        answer: "Both are developer-focused AI voice infrastructure platforms; buyers typically compare them on latency, supported voice providers, pricing per minute, and the quality of their documentation and SDKs.",
+      },
+      {
+        question: "Who should not use Vapi?",
+        answer: "Non-technical sales or marketing teams without developer resources should look at packaged AI dialer products instead; Vapi requires meaningful engineering work to configure and maintain a production-quality voice agent.",
+      },
+    ],
+  },
+  {
+    slug: "circleback",
+    name: "Circleback",
+    category: "Meeting Intelligence",
+    badge: "Free tier available",
+    badgeFree: true,
+    ctaLabel: "Try Circleback",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["Circleback", "circleback.ai"],
+    blurb: "Circleback is an AI meeting notetaker that records, transcribes, and summarizes calls, then writes structured follow-up actions and can push them to your CRM automatically.",
+    bestFor: "Sales reps and customer success teams who want accurate meeting summaries and automatic CRM updates without manually logging call notes.",
+    body: [
+      "Circleback joins meetings via a bot or native integration, produces a transcript, and then generates opinionated summaries that include action items attributed to specific participants. Its differentiation from older transcription tools is the post-meeting automation layer: it can draft follow-up emails, log call outcomes to CRM fields, and push tasks to project management tools, reducing the manual work that follows a sales or CS call. The product is newer to a category that also includes well-established tools, which means it is actively developing integrations and features.",
+      "In a RevOps stack, Circleback fits between the calendar and CRM, capturing conversation data that would otherwise require manual entry. Buyers compare it most directly to Otter.ai, Fireflies.ai, and Fathom for transcription and summaries, and to Gong and Chorus (now ZoomInfo Conversation Intelligence) for teams that also want revenue intelligence, deal risk scoring, and manager coaching tools. Circleback's positioning is generally lighter-weight and faster to deploy than Gong, with a focus on workflow automation over sales analytics.",
+    ],
+    faqs: [
+      {
+        question: "What is Circleback and how does it differ from basic transcription tools?",
+        answer: "Circleback records and transcribes meetings but also generates structured summaries, action items, and automated CRM updates, going further than tools that only produce a raw transcript.",
+      },
+      {
+        question: "How does Circleback compare to Fathom?",
+        answer: "Both are AI notetakers with free tiers targeting sales and GTM teams; buyers typically compare them on summary quality, CRM integration depth, and pricing for team plans.",
+      },
+      {
+        question: "Does Circleback work with all video conferencing platforms?",
+        answer: "Circleback supports major platforms including Zoom, Google Meet, and Microsoft Teams; buyers should verify current integration coverage and bot join behavior on the Circleback website.",
+      },
+    ],
+  },
+  {
+    slug: "fillout",
+    name: "Fillout",
+    category: "Scheduling",
+    badge: "Free tier available",
+    badgeFree: true,
+    ctaLabel: "Try Fillout",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["Fillout", "fillout.com"],
+    blurb: "Fillout is a form builder and scheduling tool that combines customizable multi-step forms with calendar booking and lead routing, designed for GTM and product teams.",
+    bestFor: "Revenue teams that want flexible forms with built-in scheduling and routing logic without stitching together separate form and booking tools.",
+    body: [
+      "Fillout lets teams build forms that go beyond simple data collection: conditional logic, multi-step flows, payment collection, and calendar scheduling can all live inside a single Fillout form without external integrations. It connects natively to tools including HubSpot, Salesforce, Airtable, and Notion, and includes logic for routing form respondents to different calendar owners based on their answers, which replaces a common hack of combining Typeform with Calendly and a separate routing layer. The product is newer to its category and has grown partly by targeting teams frustrated by the limitations or pricing of established form tools.",
+      "In a GTM stack, Fillout covers inbound lead capture, demo request routing, and scheduling in one place. Buyers compare it to Typeform for form UX, to Tally for cost and simplicity, to Calendly for scheduling, and to Chili Piper for enterprise-grade meeting routing with more CRM integration depth. Fillout's position is between the simplicity of Tally and the complexity of Chili Piper, making it relevant for growth-stage teams that need more than a basic form but less than a full revenue routing platform.",
+    ],
+    faqs: [
+      {
+        question: "What is Fillout and what makes it different from Typeform?",
+        answer: "Fillout is a form and scheduling platform that adds built-in calendar booking and conditional routing to the form flow, whereas Typeform focuses on the form experience and requires separate tools for scheduling.",
+      },
+      {
+        question: "How does Fillout compare to Chili Piper for meeting routing?",
+        answer: "Chili Piper is focused on enterprise revenue routing with deep Salesforce integration and round-robin assignment logic, while Fillout is a broader form platform with scheduling included, suited to smaller or less complex routing needs.",
+      },
+      {
+        question: "Who should not use Fillout?",
+        answer: "Enterprise teams with complex territory-based routing rules, SLA requirements, and deep Salesforce workflow dependencies will likely need a dedicated routing tool like Chili Piper or LeanData rather than Fillout.",
+      },
+    ],
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
