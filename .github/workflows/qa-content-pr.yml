@@ -1,23 +1,30 @@
 name: QA + auto-fix content PRs
 
-# Visual QA loop for engine-generated content PRs.
+# QA pipeline for engine-generated content PRs.
 #
 # Flow:
 #   1. PR opened or pushed on a `content/` branch (or any push to that branch).
-#   2. Wait for Netlify deploy preview to be SUCCESS for the head commit.
-#   3. Capture Playwright screenshots of the new post at 4 breakpoints.
-#   4. Send to Claude Vision (qa/qa-pr-review.mjs), get JSON verdict.
-#   5. If shouldFix=true AND we haven't already attempted 2 fixes on this branch:
-#      - Ask Claude to rewrite the .mdx (qa/qa-pr-fix.mjs) given the issues
-#      - Commit + push with `[qa-fix-N]` marker — this triggers a re-run
-#   6. If shouldFix=true AND we've already attempted 2 fixes:
-#      - Post a PR comment with the issues + Slack-ping
-#      - Stop (no more autofixes; manual review needed)
-#   7. If shouldFix=false: post a green QA-pass comment and exit.
+#   2. Deterministic gates (no API key, no browser, fail fast + cheap):
+#      - qa/lint-content.mjs --post : syntax/structure + registry integrity.
+#      - npm run build : the real MDX compiler.
+#      - qa/render-acceptance.mjs --post : the BUILT page actually rendered
+#        (post present, DecisionTree branches all rendered, tool logos present).
+#   3. Wait for Netlify deploy preview to be SUCCESS for the head commit (~8 min).
+#   4. Capture Playwright screenshots of the new post at 4 breakpoints.
+#   5. Send to Claude Vision (qa/qa-pr-review.mjs), get JSON verdict.
+#   6. If shouldFix=true AND < 2 prior fixes: ask Claude to rewrite the .mdx
+#      (qa/qa-pr-fix.mjs, scoped to MDX spacing/ordering). The fix must BUILD and
+#      pass render-acceptance before it is pushed — a bad fix fails the job
+#      instead of landing. Commit + push with `[qa-fix-N]` → re-run.
+#   7. If shouldFix=true AND 2 prior fixes: PR comment + Slack, manual review.
+#   8. If shouldFix=false: green QA-pass comment.
+#   9. On ANY step failure (a gate, build, Netlify timeout, fixer crash): the
+#      failure() steps at the end post a manual-review comment + Slack so a
+#      defect/infra problem never dies silently (the PR #65 gap).
 #
 # Retry tracking: we count commits in this PR matching `[qa-fix-N]`. Hard cap at 2
 # fix attempts to prevent infinite loops + cost runaway. Each loop costs roughly
-# $0.05–$0.10 in Anthropic API calls.
+# $0.05-$0.10 in Anthropic API calls.
 
 on:
   pull_request:
@@ -114,11 +121,23 @@ jobs:
       # compiler, so it catches the whole class the regex linter can't: bare
       # {{merge_tags}} parsed as JSX expressions (ReferenceError), unclosed SVG
       # attribute quotes, hallucinated/broken JSX. Fails in ~30s with the actual
-      # error instead of a 5-min opaque "Netlify deploy preview failed" timeout,
+      # error instead of an opaque "Netlify deploy preview failed" timeout,
       # and runs before the Playwright install so failures are cheap.
       - name: Build site (catch MDX compile errors fast)
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
         run: npm run build
+
+      # Deterministic RENDERED-result gate (the layer the regex linter + compiler
+      # can't cover). Parses the BUILT dist/blog/<slug>/index.html and hard-fails
+      # if the post didn't render, a DecisionTree branch was dropped/cramped, or a
+      # registry-backed tool logo didn't show up — the exact PR #65 defect class.
+      # Runs before the expensive Playwright install / Vision review so a bad
+      # render fails fast and cheap, with a named error.
+      - name: Render-acceptance gate (deterministic, post-build)
+        if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        env:
+          POST: ${{ steps.slug.outputs.post }}
+        run: node qa/render-acceptance.mjs --post "$POST"
 
       - name: Install Playwright Chromium
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
@@ -133,8 +152,8 @@ jobs:
         with:
           script: |
             const sha = process.env.HEAD_SHA;
-            const maxAttempts = 30;     // up to ~5 min
-            const intervalMs = 10_000;
+            const maxAttempts = 48;     // up to ~8 min (the local build gate already
+            const intervalMs = 10_000;  // validated compilation; this only gates the screenshot step)
             for (let i = 0; i < maxAttempts; i++) {
               const { data: statuses } = await github.rest.repos.listCommitStatusesForRef({
                 owner: context.repo.owner, repo: context.repo.repo, ref: sha,
@@ -200,9 +219,15 @@ jobs:
             --post "${{ steps.slug.outputs.post }}" \
             --review qa-review.json
 
-      - name: Verify the fix builds
+      # A bad auto-fix must NEVER be pushed. Build AND render-acceptance must both
+      # pass before the commit step runs — if the fixer's edit broke compilation
+      # or rendering, the job fails here (before push), the working-tree change is
+      # discarded, and the failure path below pings for manual review.
+      - name: Verify the fix builds and renders
         if: steps.decide.outputs.branch == 'fix'
-        run: npm run build
+        run: |
+          npm run build
+          node qa/render-acceptance.mjs --post "${{ steps.slug.outputs.post }}"
 
       - name: Commit and push the fix
         if: steps.decide.outputs.branch == 'fix'
@@ -297,3 +322,39 @@ jobs:
               issue_number: context.payload.pull_request.number,
               body: `✅ **QA pass** ${attemptInfo}\n\n_${review.summary}_\n\nReady for human review on the deploy preview.`,
             });
+
+      # STOP SILENT FAILURES. If ANY prior step failed — the deterministic lint or
+      # render-acceptance gate, the build, the Netlify wait/timeout, or the Vision
+      # fixer crashing — the job ends red with nothing posted to the PR and no
+      # ping (the exact gap on PR #65). These two steps run on failure() so a real
+      # defect or infra problem always reaches Ian for manual review.
+      - name: Comment on PR — QA failed (manual review)
+        if: failure() && steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: [
+                `🚨 **QA failed — manual review needed.**`,
+                ``,
+                `A QA step failed (deterministic lint/render gate, build, Netlify preview, or the auto-fixer). This PR did **not** pass QA and was not auto-fixed.`,
+                ``,
+                `See the failed run for the specific step + error: ${runUrl}`,
+                ``,
+                `Fix the post on the branch, or close the PR.`,
+              ].join('\n'),
+            });
+
+      - name: Slack — QA failed (manual review)
+        if: failure() && steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true' && env.SLACK_WEBHOOK_URL != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          curl -sS -X POST -H 'content-type: application/json' "$SLACK_WEBHOOK_URL" \
+            -d "{\"text\":\"🚨 *QA failed on a content PR (manual review needed)*\nPR: $PR_URL\nFailed run: $RUN_URL\"}"
