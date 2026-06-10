@@ -7,6 +7,8 @@
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro",
+    "qa:lint": "node qa/lint-content.mjs --all",
+    "qa:render": "node qa/render-acceptance.mjs --all",
     "qa:screenshots": "node qa/qa-screenshots.mjs",
     "qa:review": "node qa/qa-claude-review.mjs",
     "qa": "npm run qa:screenshots && npm run qa:review"
@@ -21,6 +23,7 @@
     "@anthropic-ai/sdk": "^0.95.1",
     "astro-og-canvas": "^0.7.0",
     "dotenv": "^17.4.2",
+    "linkedom": "^0.18.12",
     "pagefind": "^1.5.2",
     "playwright": "^1.59.1"
   }

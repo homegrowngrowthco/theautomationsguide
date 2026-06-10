@@ -1,6 +1,28 @@
 # QA scripts
 
-Automated visual QA for the site — Playwright screenshots at 4 breakpoints, optionally piped to Claude Sonnet for a layout review pass.
+Two layers: **deterministic gates** (plain Node, $0, run in CI as hard gates) and **visual QA** (Playwright + Claude Vision).
+
+## Deterministic gates (no API key, no browser)
+
+Run in CI on every content PR and locally. They catch the *class* of formatting/render defect that used to reach Ian, deterministically.
+
+```bash
+npm run build        # render-acceptance reads dist/, so build first
+npm run qa:lint      # syntax/structure: bad /go + /tools slugs, em dashes, <style>/grid squish
+                     #   wrappers, hallucinated components, + registry integrity & logo completeness
+npm run qa:render    # RENDERED result: post actually rendered, DecisionTree branches all render,
+                     #   registry-backed tool logos actually show up in the HTML
+```
+
+- [`lint-content.mjs`](lint-content.mjs) — `--post <path> | --slug <slug> | --all [--fix]`. Source-side. `--fix` auto-corrects the safe class (strips `<style>`/multi-column wrappers, em dashes). Exit 1 on any HARD violation.
+- [`render-acceptance.mjs`](render-acceptance.mjs) — `--post | --slug | --all`. Parses built `dist/blog/<slug>/index.html` (via `linkedom`) and asserts rendered-result invariants. **Requires `npm run build` first.** Exit 1 on any HARD violation.
+- [`registry.mjs`](registry.mjs) — shared registry/MDX-parse helpers (one source of truth for "does this tool have a logo" + "which tools a post references"), imported by both so they can't drift apart.
+
+The two are complementary on logos: `qa:lint` warns when a compared tool has **no logo in the registry** (source gap); `qa:render` hard-fails when the registry **says** a tool has a logo but it **didn't render** (render-path regression).
+
+## Visual QA (Playwright + Claude Vision)
+
+Playwright screenshots at 4 breakpoints, optionally piped to Claude Sonnet for a layout review pass.
 
 ## Setup (one-time)
 

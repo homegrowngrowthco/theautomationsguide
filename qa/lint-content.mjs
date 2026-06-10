@@ -14,8 +14,9 @@
 // happens upstream in the engine's sanitizeMdx(); this is the backstop + hard gate
 // for the class that needs a human/engine (bad slugs, bad props, hallucinated tags).
 
-import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
+import { loadLogoRegistry, loadAffiliateStatus, refdLogoSlugs } from './registry.mjs';
 
 const BLOG_DIR = 'src/content/blog';
 const args = process.argv.slice(2);
@@ -32,6 +33,11 @@ const readSlugs = () => {
   return { affiliate, toolSlugs };
 };
 const { affiliate, toolSlugs } = readSlugs();
+
+// A3 — logo registry: which tools carry a logo, each tool's affiliate status, and
+// integrity of the logo paths themselves.
+const { entries: toolEntries, logoByKey } = loadLogoRegistry();
+const affiliateStatus = loadAffiliateStatus();
 
 // Components readers may use; a capitalized <Tag> not in here and not imported is suspicious.
 const KNOWN = new Set([
@@ -100,6 +106,19 @@ function lintFile(file) {
     if (!toolSlugs.has(m[1])) hard.push(`/tools/${m[1]} → "${m[1]}" is not a tool slug (would 404).`);
   }
 
+  // A3 — registry completeness: a tool compared in a logo-bearing component
+  // (ToolBreakdown/ChooseIf) with no logo in the registry renders logo-less (the
+  // PR #65 Lemlist/Reply.io gap). WARN, not hard: the engine compares many tools
+  // that legitimately have no brand asset, so a hard gate would wedge the daily
+  // auto-merge pipeline. The warn is loud (CI log + the manual-review ping) so a
+  // gap gets a logo sourced before it ships. The unambiguous case (a logo: path
+  // pointing at a missing file) is the HARD registry-integrity check below.
+  for (const slug of new Set(refdLogoSlugs(body))) {
+    if (logoByKey.has(slug)) continue;
+    const status = affiliateStatus.get(slug) || 'unknown';
+    warn.push(`tool "${slug}" is compared in a ToolBreakdown/ChooseIf block but has no logo in tools.ts → it renders without a brand logo (affiliate status: ${status}). Source a logo + add a logo: field.`);
+  }
+
   // component usage vs imports
   const imported = new Set([...body.matchAll(/import\s+([A-Za-z0-9]+)\s+from/g)].map((m) => m[1]));
   const used = new Set([...body.matchAll(/<([A-Z][A-Za-z0-9]+)/g)].map((m) => m[1]));
@@ -130,6 +149,21 @@ else if (args.includes('--all')) files = readdirSync(BLOG_DIR).filter((f) => /\.
 else { console.error('Usage: --post <path> | --slug <slug> | --all [--fix]'); process.exit(2); }
 
 let hardTotal = 0, warnTotal = 0;
+
+// A3 — registry integrity (global, runs once): every tools.ts `logo:` path must
+// point at a real file under public/. A dangling path renders a broken <img>.
+const registryHard = [];
+for (const e of toolEntries) {
+  if (e.logo && !existsSync(path.join('public', e.logo))) {
+    registryHard.push(`tools.ts "${e.slug}" logo: ${e.logo} → file missing at public${e.logo}.`);
+  }
+}
+if (registryHard.length) {
+  console.log('\nsrc/data/tools.ts (logo registry)');
+  registryHard.forEach((h) => console.log(`  ✗ HARD: ${h}`));
+  hardTotal += registryHard.length;
+}
+
 for (const file of files) {
   const { hard, warn } = lintFile(file);
   if (hard.length || warn.length) {
