@@ -50,7 +50,7 @@ interface Props {
   tools: Tool[];
 }
 
-const { title, tools } = Astro.props;
+const { title, tools = [] } = Astro.props;
 
 // Build a logo lookup (slug + name + aliases, lowercased) from the registry so
 // any tool we already have a brand mark for renders one automatically.

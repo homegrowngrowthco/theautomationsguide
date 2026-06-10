@@ -43,7 +43,7 @@ interface Props {
   tools: Tool[];
 }
 
-const { title, tools } = Astro.props;
+const { title, tools = [] } = Astro.props;
 
 const logoByKey: Record<string, string> = {};
 for (const t of toolRegistry) {
@@ -68,7 +68,7 @@ const resolveLogo = (t: Tool) =>
             {logo && <img class="ci-logo" src={logo} alt={`${tool.name} logo`} loading="lazy" />}
           </div>
           <ul class="ci-list">
-            {tool.conditions.map((c) => <li>{c}</li>)}
+            {(tool.conditions ?? []).map((c) => <li>{c}</li>)}
           </ul>
           <div class="ci-foot">
             {tool.pricing && <span class="ci-price">{tool.pricing}</span>}

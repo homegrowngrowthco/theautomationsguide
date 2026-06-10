@@ -40,7 +40,7 @@ interface Props {
   compact?: boolean;
 }
 
-const { title, tools, compact = false } = Astro.props;
+const { title, tools = [], compact = false } = Astro.props;
 ---
 
 <section class:list={['comparison-table', compact && 'comparison-table--compact']}>
@@ -85,14 +85,14 @@ const { title, tools, compact = false } = Astro.props;
         <div class="comparison-section">
           <strong class="comparison-section-label">What it's good at</strong>
           <ul class="comparison-list comparison-list--pros">
-            {tool.pros.map((p) => <li>{p}</li>)}
+            {(tool.pros ?? []).map((p) => <li>{p}</li>)}
           </ul>
         </div>
 
         <div class="comparison-section">
           <strong class="comparison-section-label">Where it falls short</strong>
           <ul class="comparison-list comparison-list--cons">
-            {tool.cons.map((c) => <li>{c}</li>)}
+            {(tool.cons ?? []).map((c) => <li>{c}</li>)}
           </ul>
         </div>
 

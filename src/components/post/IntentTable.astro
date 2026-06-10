@@ -39,7 +39,7 @@ interface Props {
   rows: Row[];
 }
 
-const { title, caption, cols, rows } = Astro.props;
+const { title, caption, cols = [], rows = [] } = Astro.props;
 const hasCta = cols.some((c) => c.affiliateSlug);
 ---
 
@@ -63,7 +63,7 @@ const hasCta = cols.some((c) => c.affiliateSlug);
           <tr>
             <th scope="row" class="it-rowlabel">{row.label}</th>
             {cols.map((c, i) => (
-              <td class={c.highlight ? 'it-col--highlight' : ''}>{row.cells[i]}</td>
+              <td class={c.highlight ? 'it-col--highlight' : ''}>{(row.cells ?? [])[i]}</td>
             ))}
           </tr>
         ))}

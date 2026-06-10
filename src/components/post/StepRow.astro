@@ -17,7 +17,7 @@ interface Props {
   steps: Step[];
 }
 
-const { steps } = Astro.props;
+const { steps = [] } = Astro.props;
 ---
 
 <div class="step-row" style={`--cols: ${steps.length}`}>
