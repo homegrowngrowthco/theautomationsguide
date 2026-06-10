@@ -75,14 +75,19 @@ const kebab = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace
 function parseToolsTs() {
   const src = r('src', 'data', 'tools.ts');
   const region = src.slice(src.indexOf('export const tools'));
-  const marks = [...region.matchAll(/slug:\s*'([^']+)'/g)];
+  // Match BOTH quote styles: the original hand-written entries are single-quoted,
+  // but this builder's own emitter writes double-quoted literals (JSON.stringify).
+  // A single-quote-only read was blind to every tool this script had previously
+  // added (maildoso/trigify/fullenrich/attio/bland-ai), so it re-proposed them and
+  // would have spliced DUPLICATES. Read quote-agnostically (feedback_unified_fuzzy_match_key).
+  const marks = [...region.matchAll(/slug:\s*['"]([^'"]+)['"]/g)];
   const tools = [];
   for (let i = 0; i < marks.length; i++) {
     const start = marks[i].index;
     const end = i + 1 < marks.length ? marks[i + 1].index : region.indexOf('];', start);
     const block = region.slice(start, end);
-    const name = (block.match(/name:\s*'([^']+)'/) || [])[1] || marks[i][1];
-    const category = (block.match(/category:\s*'([^']+)'/) || [])[1] || '';
+    const name = (block.match(/name:\s*['"]([^'"]+)['"]/) || [])[1] || marks[i][1];
+    const category = (block.match(/category:\s*['"]([^'"]+)['"]/) || [])[1] || '';
     tools.push({ slug: marks[i][1], name, category });
   }
   return tools;
