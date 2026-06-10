@@ -4,9 +4,7 @@ Tracked by todo-sync (see ../todo-sync/CONVENTION.md). Open tasks below, most im
 
 ## TODO
 
-- [ ] Merge PR #68 in the GitHub UI (QA render gate + stop-silent-failures; workflow scope = UI-only), then it + a content PR exercising the gate = "Part A green" which unblocks daily posting @high [.github/workflows/qa-content-pr.yml](.github/workflows/qa-content-pr.yml)
-- [ ] Part B: flip engine cron `0 8 * * 1-5`→`0 8 * * *` + add a "no queued topic" Slack alert, deploy via deploy-engine.mjs --apply (do AFTER #68 merged; needs >=7 topics Queued/week) @high [n8n/deploy-engine.mjs](n8n/deploy-engine.mjs)
-- [ ] Review/merge PR #70 (8 new first-mover LPs: Mailforge, Surfe, LeadMagic, BetterContact, Vector, Vapi, Circleback, Fillout) @high [src/data/tools.ts](src/data/tools.ts)
+- [ ] Keep >=7 topics Queued/week in the Content Calendar now that the engine posts daily (else the new "Slack Queue Empty" alert fires + the day is skipped); backlog builder auto-stages Suggested Sun 2026-06-14, flip the best to Queued @high [backlog/README.md](backlog/README.md)
 - [ ] Apply to affiliate Wave 1 (10 tools, landing pages already live) @high [AFFILIATE_PIPELINE.md](AFFILIATE_PIPELINE.md)
 - [ ] Request Indexing in GSC for the 32 not-yet-indexed URLs (9 newest posts + 23 tool LPs, all "URL is unknown to Google"); work top-down by priority, daily-cap limited, start 2026-06-10 @high [gsc-needs-indexing-2026-06-09.csv](gsc-needs-indexing-2026-06-09.csv)
 - [ ] Re-run the GSC audit ~2026-06-16 to verify indexing recovery after the trailing-slash (PR #63) + /tools A-Z index (PR #64) fixes, and catch any stragglers still "unknown to Google" — `C:\Users\Ian\.venvs\gsc\Scripts\python gsc-index-status.py` (or ask Claude to run it) @med [gsc-index-status.py](gsc-index-status.py)
