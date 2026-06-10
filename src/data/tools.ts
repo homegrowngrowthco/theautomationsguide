@@ -144,6 +144,42 @@ export const tools: Tool[] = [
     aliases: ['Smartlead'],
   },
   {
+    slug: 'lemlist',
+    name: 'Lemlist',
+    category: 'Outbound & Lead Generation',
+    badge: 'Free trial',
+    ctaLabel: 'Try Lemlist',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/lemlist.svg',
+    aliases: ['Lemlist'],
+    blurb:
+      'Lemlist is a multichannel sequencer built around personalization, with image and video personalization, LinkedIn steps, and Lemwarm warmup baked into the sequence builder.',
+    bestFor:
+      'Teams whose reply rates depend on standout, personalized outreach to mid-market or enterprise buyers, not raw volume.',
+    body: [
+      'Lemlist sits in a different category than pure volume senders like Instantly or Smartlead. Its personalization engine, which includes dynamic images, video thumbnails, and custom landing pages, is genuinely best-in-class and can move reply rates materially on campaigns where generic outreach flatlines.',
+      'The tradeoff is cost and throughput: pricing is per user and the platform is not built for bulk plain-text sending. It is the right pick when the lever is message quality and multichannel touches (email plus LinkedIn) rather than how many inboxes you can run.',
+    ],
+    faqs: [
+      {
+        question: 'What makes Lemlist different from Instantly or Smartlead?',
+        answer:
+          'Lemlist leads on personalization (images, video, landing pages) and multichannel steps, where Instantly and Smartlead focus on high-volume email deliverability.',
+      },
+      {
+        question: 'Does Lemlist include email warmup?',
+        answer:
+          'Yes. Lemwarm is built in, with a decent warmup pool, though it is smaller than dedicated infrastructure tools like Smartlead.',
+      },
+      {
+        question: 'Is Lemlist expensive?',
+        answer:
+          'It is priced per user, so a multi-seat SDR team adds up quickly. The math works best when average deal size is high and personalization drives the conversion.',
+      },
+    ],
+  },
+  {
     slug: 'beehiiv',
     name: 'Beehiiv',
     category: 'Newsletter Platform',
@@ -575,6 +611,7 @@ export const tools: Tool[] = [
     ctaLabel: 'Try Reply.io',
     ctaPrimary: true,
     listed: false,
+    logo: '/brand/tools/reply-io.webp',
     aliases: ['Reply.io'],
     blurb:
       'Reply.io is a multichannel sales engagement platform with email, LinkedIn, and calls, plus Jason, an AI SDR layer that automates prospecting and replies.',

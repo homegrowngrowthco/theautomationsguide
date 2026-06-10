@@ -58,13 +58,24 @@ const show = h2s.length >= 3;
     font-weight: 700;
   }
   .post-toc[open] .post-toc-summary::after { content: "\2212"; }
+  /* Horizontal inline list: jump-links sit on one line (wrapping only when they
+     run out of room), separated by a faint dot. Keeps the TOC to a compact strip
+     so it doesn't push the article body down. */
   .post-toc-list {
-    margin: 0.85rem 0 0;
-    padding-left: 1.2rem;
-    columns: 2;
-    column-gap: 2rem;
+    margin: 0.6rem 0 0;
+    padding-left: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    row-gap: 0.3rem;
   }
-  .post-toc-list li { margin-bottom: 0.4rem; break-inside: avoid; }
+  .post-toc-list li { margin: 0; }
+  .post-toc-list li:not(:last-child)::after {
+    content: "\00b7";
+    margin: 0 0.65rem;
+    color: var(--text-faint);
+  }
   .post-toc-list a {
     color: var(--text);
     text-decoration: none;
@@ -72,10 +83,4 @@ const show = h2s.length >= 3;
     line-height: 1.4;
   }
   .post-toc-list a:hover { color: var(--accent); text-decoration: underline; }
-  /* Single column up to the wide desktop container. Two columns only kick in where
-     there's real horizontal room; below that, balancing short links across 2 columns
-     reads lopsided/cramped (esp. on tablet), so keep one clean column. */
-  @media (max-width: 900px) {
-    .post-toc-list { columns: 1; }
-  }
 </style>

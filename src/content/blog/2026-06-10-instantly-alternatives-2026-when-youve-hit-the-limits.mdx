@@ -126,20 +126,12 @@ For teams running a real SDR motion with a CRM, managed handoffs, and call steps
     question: "What is your primary reason for leaving Instantly?",
     branches: [
       {
-        label: "Sending volume or mailbox limits",
-        next: {
-          question: "Do you need CRM sync and call steps, or just email?",
-          branches: [
-            {
-              label: "Just email volume",
-              result: { title: "Smartlead", note: "Unlimited mailboxes on Pro, larger warmup pool, similar UX to Instantly", tone: "primary" }
-            },
-            {
-              label: "Full SDR workflow with CRM",
-              result: { title: "Reply.io", note: "Native dialer, HubSpot/Salesforce sync, task queues for reps", tone: "alt" }
-            }
-          ]
-        }
+        label: "Volume or mailbox limits, email only",
+        result: { title: "Smartlead", note: "Unlimited mailboxes on Pro, larger warmup pool, similar UX to Instantly", tone: "primary" }
+      },
+      {
+        label: "Full SDR workflow with CRM and call steps",
+        result: { title: "Reply.io", note: "Native dialer, HubSpot/Salesforce sync, task queues for reps", tone: "alt" }
       },
       {
         label: "Low reply rates, sequences feel generic",

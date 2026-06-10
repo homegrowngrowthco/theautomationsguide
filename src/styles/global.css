@@ -1285,10 +1285,8 @@ main { flex: 1; }
 
 /* ── Quick Answer (GEO-optimised TL;DR block) ──── */
 .quick-answer {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0 0.4em;
+  display: block;
+  line-height: 1.6;
   border-left: 3px solid var(--accent);
   background: var(--accent-glow);
   padding: 0.9rem 1.25rem;
@@ -1297,7 +1295,7 @@ main { flex: 1; }
   font-size: 1rem;
   color: var(--text);
 }
-.quick-answer strong { color: var(--accent); }
+.quick-answer strong { color: var(--accent); margin-right: 0.35em; }
 .quick-answer p { margin: 0; }
 
 /* ── Post related tags ─────────────────────────── */

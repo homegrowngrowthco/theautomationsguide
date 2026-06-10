@@ -18,6 +18,11 @@ interface Props {
 const { post, headings = [], related = [] } = Astro.props;
 const { title, description, pubDate, updatedDate, author, tags, faqs } = post.data;
 
+// Byline person. Posts without an explicit author fall back to the org name
+// ("The Automations Guide"); show the human (Ian) there instead, since the brand
+// is already appended after the name and in the publisher schema.
+const displayAuthor = !author || author === 'The Automations Guide' ? 'Ian' : author;
+
 // Per-post OG image (build-time PNG at /og/<slug>.png). Used for og:image,
 // twitter:image, and the BlogPosting `image`.
 const ogImage = new URL(`/og/${post.slug}.png`, Astro.site).toString();
@@ -49,7 +54,7 @@ const formattedUpdatedDate = updatedDate?.toLocaleDateString('en-US', {
 
 const postUrl = new URL(`/blog/${post.slug}/`, Astro.site).toString();
 
-const isNamedAuthor = author && author !== 'The Automations Guide';
+const isNamedAuthor = displayAuthor !== 'The Automations Guide';
 const blogPostingSchema = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
@@ -66,7 +71,7 @@ const blogPostingSchema = {
   ...(mentionedTools.length ? { about: mentionedTools, mentions: mentionedTools } : {}),
   author: {
     '@type': 'Person',
-    name: author,
+    name: displayAuthor,
     url: 'https://theautomationsguide.com/about/',
     ...(isNamedAuthor ? { jobTitle: 'Founder, Homegrown Growth Co' } : {}),
     sameAs: ['https://theautomationsguide.com/about/', 'https://homegrowngrowth.co'],
@@ -112,7 +117,7 @@ const faqSchema =
         )}
         <h1>{title}</h1>
         <div class="post-meta">
-          <span>By {author}</span>
+          <span>By {displayAuthor} @ The Automations Guide</span>
           <span class="post-meta-sep">&middot;</span>
           <time datetime={pubDate.toISOString()}>{formattedPubDate}</time>
           <span class="post-meta-sep">&middot;</span>
@@ -124,9 +129,6 @@ const faqSchema =
             </>
           )}
         </div>
-        <p class="post-disclosure">
-          Some links are affiliate links. <a href="/disclosure/">Disclosure</a>.
-        </p>
       </header>
 
       <TableOfContents headings={headings} />
@@ -160,6 +162,10 @@ const faqSchema =
       <RelatedPosts posts={related} />
 
       <AuthorNote />
+
+      <p class="post-disclosure">
+        Some links are affiliate links. <a href="/disclosure/">Disclosure</a>.
+      </p>
     </article>
   </div>
 </BaseLayout>
