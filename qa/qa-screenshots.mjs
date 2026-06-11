@@ -5,12 +5,24 @@
 //   1. Build + preview the site:    npm run build && npm run preview
 //   2. In another terminal:          npm run qa:screenshots
 //
+// Scope to a single post (what CI does — a PR only changes one post):
+//   node qa/qa-screenshots.mjs --slug <post-slug>
+// Without --slug, every static page + every blog post is captured (local dev
+// or a manual full-site sweep).
+//
 // Override the base URL to screenshot a deploy preview instead:
 //   QA_BASE_URL=https://deploy-preview-N--theautomationsguide.netlify.app npm run qa:screenshots
 
 import { chromium } from 'playwright';
 import { readdirSync, mkdirSync, rmSync, existsSync } from 'node:fs';
 import path from 'node:path';
+
+const args = process.argv.slice(2);
+const getArg = (flag) => {
+  const i = args.indexOf(flag);
+  return i >= 0 ? args[i + 1] : null;
+};
+const onlySlug = getArg('--slug');
 
 const BASE_URL = process.env.QA_BASE_URL || 'http://localhost:4321';
 const OUT_DIR = './qa-screenshots';
@@ -30,11 +42,19 @@ const MAX_SCREENSHOT_HEIGHT = 7500;
 
 const STATIC_PAGES = ['/', '/blog', '/tools', '/about', '/search'];
 
-const blogPosts = readdirSync('./src/content/blog')
-  .filter((f) => f.endsWith('.mdx') || f.endsWith('.md'))
-  .map((f) => `/blog/${f.replace(/\.(mdx|md)$/, '')}`);
-
-const PAGES = [...STATIC_PAGES, ...blogPosts];
+// With --slug, capture ONLY that post (the slugify below maps /blog/<slug> to
+// the `blog_<slug>` dir the Vision bot reads — same slug the render-acceptance
+// and mobile-overflow gates use). This is what CI passes, so a one-post PR
+// shoots ~4 screenshots instead of all ~35 posts. Without it, full-site sweep.
+let PAGES;
+if (onlySlug) {
+  PAGES = [`/blog/${onlySlug}`];
+} else {
+  const blogPosts = readdirSync('./src/content/blog')
+    .filter((f) => f.endsWith('.mdx') || f.endsWith('.md'))
+    .map((f) => `/blog/${f.replace(/\.(mdx|md)$/, '')}`);
+  PAGES = [...STATIC_PAGES, ...blogPosts];
+}
 
 function slugify(url) {
   if (url === '/') return 'home';
