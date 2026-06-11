@@ -44,7 +44,7 @@ let PROJECT_ID = process.env.POSTHOG_PROJECT_ID || '';
 // existing-state lookups that make the plan accurate) need it.
 if (!KEY && APPLY) {
   console.error('POSTHOG_PERSONAL_API_KEY not set. Add it to .env in the repo root (a phx_... personal key,');
-  console.error('NOT the phc_ ingest key). PostHog -> Settings -> Personal API keys; scope: insight + dashboard write.');
+  console.error('NOT the phc_ ingest key). PostHog -> Settings -> Personal API keys; scopes: dashboard:read, dashboard:write, insight:read, insight:write.');
   process.exit(1);
 }
 
@@ -147,8 +147,16 @@ async function listAll(path) {
 
 async function resolveProjectId() {
   if (PROJECT_ID) return PROJECT_ID;
+  // A project-SCOPED personal key (the common case) is rejected by the org-level
+  // /api/projects/ list with a 403, but resolves the `@current` alias to its own
+  // project. Try that first; fall back to the org list for all-projects keys.
+  const cur = await api('GET', '/api/projects/@current/');
+  if (cur.ok && cur.json?.id != null) {
+    console.log(`Resolved project via @current: "${cur.json.name}" (id ${cur.json.id}).`);
+    return String(cur.json.id);
+  }
   const res = await api('GET', '/api/projects/');
-  if (!res.ok) throw new Error(`Could not list projects (${res.status}). Check the key/host. ${JSON.stringify(res.json).slice(0, 300)}`);
+  if (!res.ok) throw new Error(`Could not resolve a project (@current ${cur.status}, list ${res.status}). Set POSTHOG_PROJECT_ID in .env (the number in your PostHog URL: us.posthog.com/project/<ID>/...). ${JSON.stringify(res.json).slice(0, 200)}`);
   const projects = res.json?.results || [];
   if (!projects.length) throw new Error('No PostHog projects visible to this key.');
   if (projects.length > 1)
