@@ -25,13 +25,13 @@ All 20 have a confirmed self-serve program (no sales call) and an unlisted landi
 
 | # | Tool | Program / platform | Est. commission (verify) | Landing page | Applied? | Approved? |
 |---|---|---|---|---|---|---|
-| 1 | **Instantly** | Affiliate (verify platform) | Verify | `/tools/instantly` LP | ☑ | ☐ |
+| 1 | **Instantly** | Referral (refer.instantly.ai) | Verify | `/tools/instantly` LP | ☑ | ☑ (live 2026-06-11) |
 | 2 | **AiSDR** | PartnerStack | ~20% first-year rev share | `/tools/aisdr` LP | ☑ | ☐ |
 | 3 | **RB2B** | 3rd-party affiliate | ~20% on referred deals | `/tools/rb2b` LP | ☑ | ☑ (live 2026-06-09) |
 | 4 | **Warmly** | Affiliate (verify platform) | Verify | `/tools/warmly` LP | ☑ | ☐ |
 | 5 | **Relevance AI** | Affiliate (no upfront) | Verify | `/tools/relevance-ai` LP | ☑ | ☑ (live 2026-06-09) |
-| 6 | **Pabbly** | Affiliate | Recurring/lifetime (verify) | `/tools/pabbly` LP | ☑ | ☐ |
-| 7 | **Lusha** | PartnerStack | ~20% first 12 mo | `/tools/lusha` LP | ☑ | ☐ |
+| 6 | **Pabbly** | Affiliate (per-product) | Recurring/lifetime | `/tools/pabbly` LP | ☑ | ☑ (live 2026-06-11, Pabbly Connect) |
+| 7 | **Lusha** | PartnerStack | ~20% first 12 mo | `/tools/lusha` LP | ☑ | ☑ (live 2026-06-11) |
 | 8 | **Synthflow** | PartnerStack | ~20% for 12 mo | `/tools/synthflow` LP | ☑ | ☐ |
 | 9 | **Surfer** | PartnerStack | CPA-based (up to ~125% CPA) | `/tools/surfer` LP | ☑ | ☐ |
 | 10 | **Cal.com** | Direct (cal.com/affiliate-program) | 20% recurring 12 mo | `/tools/cal-com` LP | ☑ | ☑ (live 2026-06-09) |
@@ -184,9 +184,28 @@ Build landing pages + apply as content warrants. ⭐ = strongest first-mover opp
 ---
 
 ## Already in the main registry (not part of this pipeline)
-- **Live:** Make, Apollo, Clay, Beehiiv, Smartlead, Kit
-- **Pending:** Pipedrive (PartnerStack Network approval), Lemlist (apply when a Smartlead-alt post lands)
+- **Live:** Make, Apollo, Clay, Beehiiv, Smartlead, Kit, Lemlist (live 2026-06-11, get.lemlist.com)
+- **Pending:** Pipedrive (PartnerStack Network approval)
 - **Rejected (re-apply at ~1K visits/mo):** HubSpot, n8n
+
+## Pabbly — other product links (use when a relevant post lands)
+`/go/pabbly` points at **Pabbly Connect (Recurring)** — the automation product our content compares. Pabbly issues a distinct affiliate link per product (same `affurl` base, different `?target=`). Park these here and wire a product-specific `/go/<slug>` slug only when a post covers that product:
+- Pabbly Connect (Recurring) — `?target=9Z2AHyhSldo6KI1Fn` ← **in use as `/go/pabbly`**
+- Pabbly Connect (One-Time) — `?target=nMfdbf0I90K3UdJn`
+- Pabbly Connect Agency (Recurring) — `?target=P7X6LsuPmxWoqqRp`
+- Pabbly Subscription Billing (Recurring) — `?target=w4UQrrgZ05qQUQa5n`
+- Pabbly Subscription Billing (One-Time) — `?target=GdNZ27XC4L7d1Z1umo`
+- Pabbly Email Marketing (Recurring) — `?target=vqgM0VwdWh6GoJgn`
+- Pabbly Chatflow (Recurring) — `?target=3WkXqse1cUZ2J9Gqq`
+- Pabbly Form Builder (Recurring) — `?target=JWZ1eBi6KuFVa4Kfn`
+- Pabbly Email Verification — `?target=q1BHyhSldoCFO1Fn`
+- Pabbly Plus (Recurring) — `?target=b1BHyhSldo6RN1Fn`
+- Pabbly Hook (One-Time) — `?target=5RL6LsuPmxWkTfRp`
+- Pabbly Chat (One-Time) — `?target=WPbgtsZ1YXMjxTfRp`
+- Black Friday Pabbly — `?target=gvvAZ1woDCGnckqiq`
+- Pabbly Free Account Signup — `?target=R90zZ1MAwZ1ruZ2wfPo`
+- Pabbly Homepage — `?target=tm576znNj1Z0Tagzn`
+- Base: `https://payments.pabbly.com/api/affurl/RVYZ07kQyUZ0Z1HUKZ1m/LbwNxEMRwQxp5wyq?target=<id>`
 
 ## Notes
 - Prefer self-serve platforms first; many AI startups host on **PartnerStack, Rewardful, Tolt, or FirstPromoter**, which approve without a sales call.

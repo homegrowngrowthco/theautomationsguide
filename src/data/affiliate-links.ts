@@ -81,10 +81,10 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   },
   lemlist: {
     name: 'Lemlist',
-    url: '',
+    url: 'https://get.lemlist.com/dj5hqvgo1g1g',
     homepageFallback: 'https://lemlist.com/',
-    status: 'pending',
-    notes: 'Recurring on subscription, % varies.',
+    status: 'live',
+    notes: 'Approved 2026-06-11. Referral link (get.lemlist.com). Recurring on subscription, % varies.',
   },
   kit: {
     name: 'Kit',
@@ -134,10 +134,10 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   // Commission/platform notes are from June-2026 research; verify exact terms on application.
   instantly: {
     name: 'Instantly',
-    url: '',
+    url: 'https://refer.instantly.ai/rpo8nmijrywl',
     homepageFallback: 'https://instantly.ai/',
-    status: 'pending',
-    notes: 'Pipeline (not yet applied). Affiliate program available; verify commission + platform on application.',
+    status: 'live',
+    notes: 'Approved 2026-06-11. Referral link (refer.instantly.ai).',
   },
   aisdr: {
     name: 'AiSDR',
@@ -169,17 +169,17 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   },
   pabbly: {
     name: 'Pabbly',
-    url: '',
+    url: 'https://payments.pabbly.com/api/affurl/RVYZ07kQyUZ0Z1HUKZ1m/LbwNxEMRwQxp5wyq?target=9Z2AHyhSldo6KI1Fn',
     homepageFallback: 'https://www.pabbly.com/',
-    status: 'pending',
-    notes: 'Pipeline (not yet applied). Affiliate program (recurring/lifetime, historically generous). Verify on application.',
+    status: 'live',
+    notes: 'Approved 2026-06-11. Points at Pabbly Connect (Recurring) — the automation product our content compares. Pabbly runs a separate affiliate link per product; the other 15 are parked in AFFILIATE_PIPELINE.md for product-specific posts.',
   },
   lusha: {
     name: 'Lusha',
-    url: '',
+    url: 'https://partnerstack.lusha.com/fn90rbodn3k4-omvn4r',
     homepageFallback: 'https://www.lusha.com/',
-    status: 'pending',
-    notes: 'Pipeline (not yet applied). PartnerStack, ~20% for first 12 months. Verify on application.',
+    status: 'live',
+    notes: 'Approved 2026-06-11. PartnerStack link, ~20% for first 12 months.',
   },
   synthflow: {
     name: 'Synthflow',
