@@ -7,18 +7,21 @@ Two layers: **deterministic gates** (plain Node, $0, run in CI as hard gates) an
 Run in CI on every content PR and locally. They catch the *class* of formatting/render defect that used to reach Ian, deterministically.
 
 ```bash
-npm run build        # render-acceptance reads dist/, so build first
+npm run build        # render-acceptance + mobile-overflow read dist/, so build first
 npm run qa:lint      # syntax/structure: bad /go + /tools slugs, em dashes, <style>/grid squish
                      #   wrappers, hallucinated components, + registry integrity & logo completeness
 npm run qa:render    # RENDERED result: post actually rendered, DecisionTree branches all render,
                      #   registry-backed tool logos actually show up in the HTML
+npm run qa:overflow  # LAYOUT: renders each post at 390px and fails on SEVERE mobile overflow
+                     #   (a component clipped >96px past the viewport, e.g. a cramped nested flowchart)
 ```
 
 - [`lint-content.mjs`](lint-content.mjs) — `--post <path> | --slug <slug> | --all [--fix]`. Source-side. `--fix` auto-corrects the safe class (strips `<style>`/multi-column wrappers, em dashes). Exit 1 on any HARD violation.
 - [`render-acceptance.mjs`](render-acceptance.mjs) — `--post | --slug | --all`. Parses built `dist/blog/<slug>/index.html` (via `linkedom`) and asserts rendered-result invariants. **Requires `npm run build` first.** Exit 1 on any HARD violation.
+- [`mobile-overflow.mjs`](mobile-overflow.mjs) — `--post | --slug | --all`. The one browser-based deterministic gate: serves `dist/` and renders each post in headless Chromium at **390px**, hard-failing if any post-content element is laid out more than **96px (25% of viewport)** past the right edge. `linkedom` has no layout engine, so this is the only gate that catches *visual* clipping like PR #74's nested flowchart. Exempts `pre`/`code` and `overflow-x:auto/scroll` elements (long URLs and wide tables that scroll internally are fine). Tuned to fail #74's pre-fix render while passing all existing posts. **Requires `npm run build` first.** Runs in CI in the deterministic tier, *before* the Netlify wait, so it catches this class even when the Netlify step times out (which skips the Vision bot). Exit 1 on any overflow.
 - [`registry.mjs`](registry.mjs) — shared registry/MDX-parse helpers (one source of truth for "does this tool have a logo" + "which tools a post references"), imported by both so they can't drift apart.
 
-The two are complementary on logos: `qa:lint` warns when a compared tool has **no logo in the registry** (source gap); `qa:render` hard-fails when the registry **says** a tool has a logo but it **didn't render** (render-path regression).
+The two logo gates are complementary: `qa:lint` warns when a compared tool has **no logo in the registry** (source gap); `qa:render` hard-fails when the registry **says** a tool has a logo but it **didn't render** (render-path regression). And `qa:overflow` covers the layer neither can: *visual* breakage that only appears once the page is actually laid out.
 
 ## Visual QA (Playwright + Claude Vision)
 

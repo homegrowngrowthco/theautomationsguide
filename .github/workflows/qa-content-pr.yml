@@ -9,8 +9,10 @@ name: QA + auto-fix content PRs
 #      - npm run build : the real MDX compiler.
 #      - qa/render-acceptance.mjs --post : the BUILT page actually rendered
 #        (post present, DecisionTree branches all rendered, tool logos present).
-#   3. Wait for Netlify deploy preview to be SUCCESS for the head commit (~8 min).
-#   4. Capture Playwright screenshots of the new post at 4 breakpoints.
+#   3. Mobile-overflow gate (headless Chromium, 390px) — deterministic, local.
+#   4. Serve the built dist locally (astro preview) + capture Playwright
+#      screenshots of the new post at 4 breakpoints. NO Netlify dependency — the
+#      Netlify wait used to run here and a timeout skipped visual QA entirely.
 #   5. Send to Claude Vision (qa/qa-pr-review.mjs), get JSON verdict.
 #   6. If shouldFix=true AND < 2 prior fixes: ask Claude to rewrite the .mdx
 #      (qa/qa-pr-fix.mjs, scoped to MDX spacing/ordering). The fix must BUILD and
@@ -18,9 +20,9 @@ name: QA + auto-fix content PRs
 #      instead of landing. Commit + push with `[qa-fix-N]` → re-run.
 #   7. If shouldFix=true AND 2 prior fixes: PR comment + Slack, manual review.
 #   8. If shouldFix=false: green QA-pass comment.
-#   9. On ANY step failure (a gate, build, Netlify timeout, fixer crash): the
-#      failure() steps at the end post a manual-review comment + Slack so a
-#      defect/infra problem never dies silently (the PR #65 gap).
+#   9. On ANY step failure (a gate, build, local preview/screenshots, fixer
+#      crash): the failure() steps at the end post a manual-review comment +
+#      Slack so a defect never dies silently (the PR #65 gap).
 #
 # Retry tracking: we count commits in this PR matching `[qa-fix-N]`. Hard cap at 2
 # fix attempts to prevent infinite loops + cost runaway. Each loop costs roughly
@@ -143,40 +145,44 @@ jobs:
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
         run: npx playwright install --with-deps chromium
 
-      - name: Wait for Netlify deploy preview
+      # Deterministic MOBILE-OVERFLOW gate. render-acceptance uses linkedom (no
+      # layout), so it can't see "this component is clipped off the right edge at
+      # 390px" — the class that reached Ian on PR #74's flowchart. This renders the
+      # BUILT post in headless Chromium at 390px and hard-fails on SEVERE overflow
+      # (an element >96px past the viewport edge; minor table/price overflow is
+      # exempt, as are pre/code and overflow-x:auto elements). Runs against the
+      # local dist with NO Netlify and NO API dependency, BEFORE the Netlify wait,
+      # so this class is caught even when the Netlify step times out (which skips
+      # the Vision bot). Validated to fail #74's pre-fix render and pass all 35
+      # existing posts.
+      - name: Mobile-overflow gate (deterministic, post-build)
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
-        id: wait-preview
-        uses: actions/github-script@v8
-        env:
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        with:
-          script: |
-            const sha = process.env.HEAD_SHA;
-            const maxAttempts = 48;     // up to ~8 min (the local build gate already
-            const intervalMs = 10_000;  // validated compilation; this only gates the screenshot step)
-            for (let i = 0; i < maxAttempts; i++) {
-              const { data: statuses } = await github.rest.repos.listCommitStatusesForRef({
-                owner: context.repo.owner, repo: context.repo.repo, ref: sha,
-              });
-              const netlify = statuses.find(s => s.context === 'netlify/theautomationsguide/deploy-preview');
-              if (netlify?.state === 'success' && netlify.target_url) {
-                core.setOutput('preview_url', netlify.target_url);
-                core.info(`Netlify ready: ${netlify.target_url}`);
-                return;
-              }
-              if (netlify?.state === 'failure' || netlify?.state === 'error') {
-                core.setFailed(`Netlify deploy preview failed: ${netlify.description}`);
-                return;
-              }
-              core.info(`Waiting for Netlify (attempt ${i + 1}/${maxAttempts})... current state: ${netlify?.state || 'pending'}`);
-              await new Promise(r => setTimeout(r, intervalMs));
-            }
-            core.setFailed('Netlify deploy preview did not complete within timeout window.');
+        run: node qa/mobile-overflow.mjs --slug "${{ steps.slug.outputs.slug }}"
+
+      # Serve the already-built dist/ locally instead of waiting on the Netlify
+      # deploy preview. The Netlify wait was the engine's biggest QA flake: it ran
+      # BEFORE the Vision review, so a timeout SKIPPED visual QA entirely — the gap
+      # that let PR #74's flowchart reach the live preview. The local build is the
+      # exact PR-head build (`npm run build` ran above), renders identically for
+      # layout QA, and has no external dependency. Netlify still builds its own
+      # preview independently for human review on the PR.
+      - name: Serve built dist (astro preview)
+        if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        run: |
+          npx astro preview --port 4321 &
+          # Wait until the preview server answers (max ~30s) before screenshotting.
+          for i in $(seq 1 30); do
+            if curl -sSf -o /dev/null "http://localhost:4321/"; then
+              echo "astro preview is up."; exit 0
+            fi
+            sleep 1
+          done
+          echo "astro preview did not come up within 30s."; exit 1
 
       - name: Capture screenshots
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
         env:
-          QA_BASE_URL: ${{ steps.wait-preview.outputs.preview_url }}
+          QA_BASE_URL: http://localhost:4321
         run: node qa/qa-screenshots.mjs
 
       - name: Run Claude Vision review
@@ -228,6 +234,7 @@ jobs:
         run: |
           npm run build
           node qa/render-acceptance.mjs --post "${{ steps.slug.outputs.post }}"
+          node qa/mobile-overflow.mjs --slug "${{ steps.slug.outputs.slug }}"
 
       - name: Commit and push the fix
         if: steps.decide.outputs.branch == 'fix'
@@ -341,7 +348,7 @@ jobs:
               body: [
                 `🚨 **QA failed — manual review needed.**`,
                 ``,
-                `A QA step failed (deterministic lint/render gate, build, Netlify preview, or the auto-fixer). This PR did **not** pass QA and was not auto-fixed.`,
+                `A QA step failed (deterministic lint / render-acceptance / mobile-overflow gate, build, local preview/screenshots, or the auto-fixer). This PR did **not** pass QA and was not auto-fixed.`,
                 ``,
                 `See the failed run for the specific step + error: ${runUrl}`,
                 ``,

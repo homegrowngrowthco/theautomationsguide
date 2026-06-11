@@ -45,6 +45,12 @@ GA4 (`G-RKWHJ95P3H`) is live as of the design-refresh deploy. The CSP in [public
 3. **Top content** — pageviews grouped by `/blog/<slug>` path, to see which posts earn attention.
 4. **Newsletter** — Beehiiv handles signup analytics; in PostHog, watch traffic to `/#newsletter` and autocaptured submits on the signup form for on-site intent.
 
+### Building them — `analytics/posthog-setup.mjs`
+These are codified as a one-shot, idempotent setup script that creates the 4 above as **6 insights** pinned to a **TAG Overview** dashboard via the PostHog management API. See [analytics/README.md](analytics/README.md). To run the live create:
+1. PostHog -> Settings -> Personal API keys -> create a key (`phx_...`) with insight + dashboard **write** scopes (the `phc_` key above is write-only ingest and can't drive the management API).
+2. Add `POSTHOG_PERSONAL_API_KEY=phx_...` to the repo-root `.env`.
+3. `node analytics/posthog-setup.mjs` (dry run, writes the definitions for review), then `node analytics/posthog-setup.mjs --apply`.
+
 ## Division of labor
 - **PostHog** is the product-analytics source of truth: per-event detail, the `affiliate_click` funnel, autocapture, and custom funnels/dashboards.
 - **GA4** is for Google-native reporting and Search Console integration (query data, channel grouping) that Google reports best on.

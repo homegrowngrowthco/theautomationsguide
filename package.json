@@ -9,6 +9,7 @@
     "astro": "astro",
     "qa:lint": "node qa/lint-content.mjs --all",
     "qa:render": "node qa/render-acceptance.mjs --all",
+    "qa:overflow": "node qa/mobile-overflow.mjs --all",
     "qa:screenshots": "node qa/qa-screenshots.mjs",
     "qa:review": "node qa/qa-claude-review.mjs",
     "qa": "npm run qa:screenshots && npm run qa:review"
