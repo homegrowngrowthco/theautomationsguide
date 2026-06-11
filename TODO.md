@@ -4,11 +4,14 @@ Tracked by todo-sync (see ../todo-sync/CONVENTION.md). Open tasks below, most im
 
 ## TODO
 
-- [ ] Keep >=7 topics Queued/week in the Content Calendar now that the engine posts daily (else the new "Slack Queue Empty" alert fires + the day is skipped); backlog builder auto-stages Suggested Sun 2026-06-14, flip the best to Queued @high [backlog/README.md](backlog/README.md)
+- [ ] Keep the Content Calendar queue topped up now that the engine posts daily (else the "Slack Queue Empty" alert fires + the day is skipped). COVERED THROUGH ~JULY 2026 as of 2026-06-10 (Ian queued ~3 weeks ahead; may swap some out as the engine produces better content), so not urgent — revisit late June. Backlog builder auto-stages Suggested Sun 2026-06-14; flip the best to Queued when topping up @low [backlog/README.md](backlog/README.md)
 - [ ] Apply to affiliate Wave 1 (10 tools, landing pages already live) @high [AFFILIATE_PIPELINE.md](AFFILIATE_PIPELINE.md)
 - [ ] Request Indexing in GSC for the 32 not-yet-indexed URLs (9 newest posts + 23 tool LPs, all "URL is unknown to Google"); work top-down by priority, daily-cap limited, start 2026-06-10 @high [gsc-needs-indexing-2026-06-09.csv](gsc-needs-indexing-2026-06-09.csv)
 - [ ] Re-run the GSC audit ~2026-06-16 to verify indexing recovery after the trailing-slash (PR #63) + /tools A-Z index (PR #64) fixes, and catch any stragglers still "unknown to Google" — `C:\Users\Ian\.venvs\gsc\Scripts\python gsc-index-status.py` (or ask Claude to run it) @med [gsc-index-status.py](gsc-index-status.py)
+- [x] Add real Anthropic token-usage/cost logging to the engine (Compute Cost + Log Cost to Slack tail off the social branch; ~$0.17/article; LIVE on n8n 2026-06-11) @med [n8n/update-engine-usage-logging.mjs](n8n/update-engine-usage-logging.mjs)
+- [x] Build the PostHog dashboards setup script (analytics/posthog-setup.mjs; live apply pending Ian's key, see open @high item) @low [analytics/README.md](analytics/README.md)
 - [x] Generate LPs for the remaining first-mover star tools via `build-tool-lp.mjs --from-stars` (8 applied in PR #70: Mailforge/Surfe/LeadMagic/BetterContact/Vector/Vapi/Circleback/Fillout; fixed the dedup quote-bug in #69 first) @med [backlog/build-tool-lp.mjs](backlog/build-tool-lp.mjs)
+- [ ] Create a PostHog personal API key (phx_, insight+dashboard write scopes), add `POSTHOG_PERSONAL_API_KEY` to root `.env`, then `node analytics/posthog-setup.mjs --apply` to build the TAG Overview dashboard (affiliate funnel + traffic + top content). Script + dry-run done; just needs the key. @high [analytics/README.md](analytics/README.md)
 - [ ] Apply to affiliate Wave 2 (tools 11 to 20) @med [AFFILIATE_PIPELINE.md](AFFILIATE_PIPELINE.md)
 - [ ] Review the first auto-staged backlog batch (Sun 2026-06-14) and flip the best to Queued; then make it weekly BAU @med [backlog/README.md](backlog/README.md)
 - [ ] Decide the volume-ramp cadence and watch GSC indexation as the governor (supply is solved by the backlog builder; LP build rate + domain trust are the real pacers) @med [CLAUDE.md](CLAUDE.md)
@@ -16,7 +19,6 @@ Tracked by todo-sync (see ../todo-sync/CONVENTION.md). Open tasks below, most im
 - [ ] Create LinkedIn Company Page, send URL for sameAs @med [OFF_SITE_SEO_CHECKLIST.md](OFF_SITE_SEO_CHECKLIST.md)
 - [ ] Verify Beehiiv signup form renders and a test signup attributes to source page @med [OFF_SITE_SEO_CHECKLIST.md](OFF_SITE_SEO_CHECKLIST.md)
 - [ ] Re-apply Pipedrive when PartnerStack Network approves; apply Lemlist when Smartlead-alt post lands @med [AFFILIATE_PROGRAMS.md](AFFILIATE_PROGRAMS.md)
-- [ ] Build PostHog dashboards (traffic, affiliate_click funnel, signup) @low [ANALYTICS.md](ANALYTICS.md)
 - [ ] Verify GA4 Realtime shows a live visit on production @low [ANALYTICS.md](ANALYTICS.md)
 - [ ] Set up Microsoft Clarity (free heatmaps/session recordings; complements existing PostHog) @low [ANALYTICS.md](ANALYTICS.md)
 - [ ] Re-apply HubSpot and n8n affiliate programs once traffic reaches ~1K visits/mo @low [AFFILIATE_PROGRAMS.md](AFFILIATE_PROGRAMS.md)
