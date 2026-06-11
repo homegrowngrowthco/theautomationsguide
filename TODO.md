@@ -23,6 +23,7 @@ Tracked by todo-sync (see ../todo-sync/CONVENTION.md). Open tasks below, most im
 - [ ] Verify GA4 Realtime shows a live visit on production @low [ANALYTICS.md](ANALYTICS.md)
 - [ ] Set up Microsoft Clarity (free heatmaps/session recordings; complements existing PostHog) @low [ANALYTICS.md](ANALYTICS.md)
 - [ ] Re-apply HubSpot and n8n affiliate programs once traffic reaches ~1K visits/mo @low [AFFILIATE_PROGRAMS.md](AFFILIATE_PROGRAMS.md)
+- [ ] Pointer-ize TAG's open-task tracking to a single source of truth (TODO.md): the CLAUDE.md "Master Next Steps" checklist + the separate "TAG Tasks" Notion DB are a second task system that can drift. Decide one canonical surface. Part of the cross-project tracking-system roll-out @low [todo-sync ROADMAP](../todo-sync/ROADMAP.md)
 - [x] Build the /tools/<slug> LP-builder + ship LPs for the first 5 first-mover tools (Maildoso, Trigify, FullEnrich, Attio, Bland AI) @high [backlog/build-tool-lp.mjs](backlog/build-tool-lp.mjs)
 - [x] Bump Node 20 actions in qa-content-pr.yml + auto-merge-content.yml (checkout/setup-node@v6, github-script@v8) before ~2026-06-16 @low [.github/workflows](.github/workflows)
 - [x] Build the topic backlog builder (GHA-scheduled, dedup, stages Suggested) @high [backlog/README.md](backlog/README.md)
