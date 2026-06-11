@@ -143,6 +143,20 @@ jobs:
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
         run: npx playwright install --with-deps chromium
 
+      # Deterministic MOBILE-OVERFLOW gate. render-acceptance uses linkedom (no
+      # layout), so it can't see "this component is clipped off the right edge at
+      # 390px" — the class that reached Ian on PR #74's flowchart. This renders the
+      # BUILT post in headless Chromium at 390px and hard-fails on SEVERE overflow
+      # (an element >96px past the viewport edge; minor table/price overflow is
+      # exempt, as are pre/code and overflow-x:auto elements). Runs against the
+      # local dist with NO Netlify and NO API dependency, BEFORE the Netlify wait,
+      # so this class is caught even when the Netlify step times out (which skips
+      # the Vision bot). Validated to fail #74's pre-fix render and pass all 35
+      # existing posts.
+      - name: Mobile-overflow gate (deterministic, post-build)
+        if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        run: node qa/mobile-overflow.mjs --slug "${{ steps.slug.outputs.slug }}"
+
       - name: Wait for Netlify deploy preview
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
         id: wait-preview
@@ -228,6 +242,7 @@ jobs:
         run: |
           npm run build
           node qa/render-acceptance.mjs --post "${{ steps.slug.outputs.post }}"
+          node qa/mobile-overflow.mjs --slug "${{ steps.slug.outputs.slug }}"
 
       - name: Commit and push the fix
         if: steps.decide.outputs.branch == 'fix'
