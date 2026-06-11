@@ -99,61 +99,34 @@ If your team is already running HubSpot for marketing and you're evaluating whet
 
 If you're evaluating fresh, without existing HubSpot investment, and your sequences are straightforward (three emails, one follow-up call), Pipedrive at $49/seat is a rational choice. The [Pipedrive help docs on workflow automations](https://support.pipedrive.com/en/article/workflow-automation) show how far you can push the native engine before needing the Campaigns add-on. Where Pipedrive breaks down is when you need branching logic (if a contact opened email 2 but didn't reply, send variant B), per-rep sequence performance reporting, or multi-channel steps. Those require either upgrading to HubSpot or reaching for an external tool, which defeats the consolidation goal entirely.
 
-<DecisionTree
-  caption="Choosing between HubSpot Sequences and Pipedrive for outbound"
-  tree={{
-    question: "Are you already paying for HubSpot (any tier)?",
-    branches: [
-      {
-        label: "Yes",
-        next: {
-          question: "Do you need multi-step sequences with call tasks or branching logic?",
-          branches: [
-            {
-              label: "Yes",
-              result: {
-                title: "Upgrade to HubSpot Sales Hub Pro",
-                note: "The CRM-trigger enrollment and task injection justify the $90/seat cost if you are already in the HubSpot ecosystem.",
-                tone: "primary"
-              }
-            },
-            {
-              label: "No, just 2-3 automated emails",
-              result: {
-                title: "HubSpot Sequences still, or evaluate Pipedrive",
-                note: "If your workflow is simple, Pipedrive Professional saves real money. But if the rest of your stack is HubSpot, switching adds complexity.",
-                tone: "alt"
-              }
-            }
-          ]
-        }
-      },
-      {
-        label: "No, evaluating fresh",
-        next: {
-          question: "Does your outbound process need conditional branches or rep-level sequence reporting?",
-          branches: [
-            {
-              label: "Yes",
-              result: {
-                title: "Start with HubSpot Sales Hub Pro",
-                note: "The reporting and logic depth is worth the cost at scale. Pipedrive will hit its ceiling quickly.",
-                tone: "primary"
-              }
-            },
-            {
-              label: "No, simple linear sequences",
-              result: {
-                title: "Pipedrive Professional + Campaigns",
-                note: "At $49/seat plus the Campaigns add-on, this is the more affordable consolidation play for lean outbound teams.",
-                tone: "alt"
-              }
-            }
-          ]
-        }
-      }
-    ]
-  }}
+<ChooseIf
+  title="Which one fits your outbound?"
+  tools={[
+    {
+      name: 'HubSpot Sales Hub Pro',
+      conditions: [
+        'You need branching logic (a contact opened email 2 but did not reply, so send variant B)',
+        'Your sequences mix automated emails with call tasks or other channels',
+        'You want per-rep sequence reporting (reply rate by sequence, broken down by rep)',
+        'Your CRM and the rest of your stack already live in HubSpot',
+      ],
+      pricing: '$90/seat/mo (Sales Hub Pro)',
+      affiliateSlug: 'hubspot',
+      ctaLabel: 'See HubSpot',
+      highlight: true,
+    },
+    {
+      name: 'Pipedrive Professional',
+      conditions: [
+        'Your outbound is straightforward and linear (a few emails plus one follow-up call)',
+        'Cost matters more than reporting depth and you do not need conditional branches',
+        'You are evaluating fresh, with no existing HubSpot investment to consolidate around',
+      ],
+      pricing: '$49/seat/mo + Campaigns add-on',
+      affiliateSlug: 'pipedrive',
+      ctaLabel: 'See Pipedrive',
+    },
+  ]}
 />
 
 <MyTake>
