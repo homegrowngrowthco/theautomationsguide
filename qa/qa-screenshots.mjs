@@ -62,7 +62,14 @@ async function run() {
       const page = await ctx.newPage();
 
       try {
-        await page.goto(`${BASE_URL}${url}`, { waitUntil: 'networkidle', timeout: 15000 });
+        // The site is trailingSlash:'always' + directory format. A static host
+        // like `astro preview` serves dist/<path>/index.html at the SLASH URL and
+        // 404s the non-slash form (Netlify redirects it, which masked this). Always
+        // request the canonical trailing-slash URL so the screenshot is the real
+        // page, not a 404. (slug/slugify above stays on the non-slash form so the
+        // output filename keeps matching qa-pr-review.mjs's `blog_<slug>` lookup.)
+        const target = url.endsWith('/') ? url : `${url}/`;
+        await page.goto(`${BASE_URL}${target}`, { waitUntil: 'networkidle', timeout: 15000 });
 
         // Measure full page height. If it would exceed Anthropic Vision's 8000px
         // limit, clip the screenshot to MAX_SCREENSHOT_HEIGHT instead.
