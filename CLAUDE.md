@@ -1130,15 +1130,11 @@ Or edit the two constants at the top of the file directly. Script validates both
 - [x] (2026-05-13) **Navbar mobile hamburger drawer + tablet CTA specificity fix** (PR #23). Mobile <768px shows a hamburger that opens a drawer (Blog/Tools/About + search + Newsletter CTA + LinkedIn). Tablet 768-1023px hides the CTA + LinkedIn icon via `.btn.nav-cta { display: none }` (specificity 0,2,0).
 - [x] [DEPLOYMENT.md](DEPLOYMENT.md) — rollback safety guide pinned at repo root.
 
-### Open / pending — tracked in Notion
+### Open / pending — tracked in TODO.md
 
-**Canonical source of truth for all TheAutomationsGuide to-do items:**
+**Canonical source of truth for all TheAutomationsGuide open tasks:** [TODO.md](TODO.md) — synced to the root `TODO.md` rollup + the `Project Tasks` Notion database by todo-sync.
 
-➡️ **[TAG Tasks Notion database](https://www.notion.so/df30d3d41bc14e94a4f9d760c521d69f)** (under `TAG - Content Engine` workspace)
-
-Sortable by Due Date / Priority / Category. Statuses: `Not started` → `In progress` → `Done` (or `Waiting` if blocked on an external response). Recurring items (monthly engine audit, quarterly key rotation, etc.) live there too.
-
-**Going forward, do not add new to-do items to this CLAUDE.md file.** Add them to the Notion DB. This section exists only to point you there. Past Sessions' completed work is preserved in the Quick reference sections above for historical context.
+**Going forward, do not add new to-do items to this CLAUDE.md file, and do not use the old "TAG Tasks" Notion DB** (`df30d3d4…`, `TAG - Content Engine` workspace) — it is **DEPRECATED as of 2026-06-11** in favor of the single cross-project tracker (one task system everywhere). Add open tasks to [TODO.md](TODO.md) and re-rank the `## TODO` block on each add (per `../todo-sync/CONVENTION.md`). Before archiving the old DB, eyeball it once for any still-open item not already in TODO.md; recurring cadence items it held (monthly engine audit, quarterly key rotation) can move to a future `OPERATIONS.md`. Past Sessions' completed work is preserved in the Quick reference sections above for historical context.
 
 ### Revert paths (in case anything breaks)
 
