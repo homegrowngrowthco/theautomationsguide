@@ -65,9 +65,10 @@ PRESERVE:
 - The voice / opinions of the post — only fix LAYOUT/STRUCTURE, not the writing
 
 SCOPE — you may ONLY fix things expressible in this post's own MDX content:
-- Reordering or removing components, fixing a malformed/missing prop, splitting an overlong StatRow into two, correcting bad content, removing a stray inline-style or wrapper div that someone added by hand.
+- Fixing genuinely broken MDX: a malformed/missing prop VALUE, a typo in prose, a stray hand-added inline-style or wrapper div, reordering two adjacent blocks. That is the whole safe surface.
 - You CANNOT change how a component looks internally — its column count, padding, gaps, max-height, overflow, responsive breakpoints, or grid/flex layout all live in the component's own .astro file, which you are NOT editing. Injecting CSS to override them does not work (and historically reintroduced squish bugs).
-- If a review item is about a component's internal layout/styling/responsiveness (e.g. "TableOfContents wraps awkwardly on tablet", "ToolBreakdown columns unequal", "card padding too large", "accordion gap too loose"), you CANNOT fix it here. Leave it for manual review. If EVERY issue is component-internal or width-related, output the post COMPLETELY UNCHANGED.
+- You CANNOT restructure a component's prop ARRAY to change its visual density. Do NOT split one <StatRow> into two (its stats stack one-per-row on mobile BY DESIGN). Do NOT split, merge, add, or drop items in StatRow/ChooseIf/ComparisonTable/SideBySide/StepRow/ToolBreakdown/IntentTable/SpectrumBar/DecisionTree to change how many show per row. "Cramped/narrow on mobile or tablet" for these is the component's own responsive behavior, NOT a content bug.
+- If a review item is about a component's internal layout/styling/responsiveness/density (e.g. "TableOfContents wraps awkwardly on tablet", "ToolBreakdown columns unequal", "StatRow cramped on mobile", "ChooseIf narrow on tablet", "card padding too large"), you CANNOT fix it here. Leave it for manual review. If EVERY issue is component-internal, density, or width-related, output the post COMPLETELY UNCHANGED.
 
 NEVER (these reintroduce the exact bugs we're trying to prevent):
 - NEVER add a \`<style>\` block of ANY kind, for ANY selector (global OR a post-unique class). Zero \`<style>\` blocks. The deterministic lint gate hard-fails on them.
@@ -131,6 +132,24 @@ function sanitizeFix(s) {
   return out;
 }
 fixed = sanitizeFix(fixed);
+
+// Deterministic structural guard (prompt rules alone are not trusted — the fixer
+// has repeatedly split a fine 3-up <StatRow> into 2-up + 1-up to chase a Vision
+// "cramped on mobile" flag, which is the component's own responsive behavior, not
+// an MDX bug). If the count of ANY structural component tag changed, the "fix" is
+// a band-aid: discard it and leave the post UNCHANGED for manual review.
+const STRUCT_TAGS = ['StatRow', 'ChooseIf', 'ComparisonTable', 'SideBySide', 'StepRow', 'ToolBreakdown', 'IntentTable', 'SpectrumBar', 'DecisionTree'];
+const tagCounts = (s) => Object.fromEntries(STRUCT_TAGS.map((t) => [t, (s.match(new RegExp('<' + t + '[\\s/>]', 'g')) || []).length]));
+const before = tagCounts(post);
+const after = tagCounts(fixed);
+const structChanged = STRUCT_TAGS.filter((t) => before[t] !== after[t]);
+if (structChanged.length) {
+  console.error(
+    `Blocked a structural component change (${structChanged.map((t) => `${t} ${before[t]}->${after[t]}`).join(', ')}). ` +
+    `That is a band-aid for component-responsive behavior, not an MDX fix. Leaving the post UNCHANGED for manual review.`,
+  );
+  process.exit(0); // no write: "Commit and push" sees no diff and skips; the Vision issues comment routes it to a human.
+}
 
 writeFileSync(postPath, fixed);
 console.error(`✓ Wrote fix to ${postPath} (${fixed.length} chars)`);
