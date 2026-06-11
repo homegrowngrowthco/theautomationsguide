@@ -12,6 +12,20 @@
 
 **Revert:** Part 1 — delete `analytics/` (additive, nothing else touched). Part 2 — `git revert -m 1 <sha>` for the JSON + re-run `deploy-engine.mjs --apply` against the prior `blog-post-engine.json` to drop the 2 live nodes (or delete "Compute Cost" + "Log Cost to Slack" in the n8n UI).
 
+### Session 29 follow-up (2026-06-11) — flowchart QA: component fix + mobile-overflow gate + flat-tree engine rule
+
+Ian flagged PR #74's flowchart as "horrific, especially on mobile" and asked why QA didn't catch it. Three things shipped:
+
+**1. DecisionTree mobile fix (PR #76, merged `44c2724`).** A fully-nested tree (every top branch leads to a sub-question) renders the vertical labeled-list layout, but that layout had **no mobile handling for the nested rows**: they stayed `[LABEL]`-beside-content, so at ~340px the content **clipped off the right edge** (leaves overflowing +190px) and the centered labels stranded huge empty vertical gaps. Fix in [DecisionTree.astro](src/components/post/DecisionTree.astro): on `<=560px` stack `[LABEL]` ABOVE its content (full-width) + tighten per-level indent; desktop polish top-aligns the label when a row holds a sub-decision (`:has(> .dtree-node)`). Verified against #74's actual post (mobile 1419px->1043px, no clipping).
+
+**2. Mobile-overflow QA gate ([qa/mobile-overflow.mjs](qa/mobile-overflow.mjs), NEW).** Root cause of why it reached Ian: the qa job's ONLY failing step was the **Netlify-wait timeout** (infra), which runs BEFORE the Vision review + auto-fixer, so those were **skipped** — and `render-acceptance` uses `linkedom` (no layout engine) so it can't see visual clipping. New deterministic gate serves `dist/` + renders each post in headless Chromium at **390px**, hard-failing on SEVERE overflow (an element >96px / 25% of viewport past the edge; `pre`/`code` + `overflow-x:auto` exempt). **Validated: fails #74's pre-fix render (+203/+190px), passes all 35 existing posts (0 false positives).** Wired into [qa-content-pr.yml](.github/workflows/qa-content-pr.yml) right after the Playwright install + BEFORE the Netlify wait (so this class is caught even when Netlify times out) and into the auto-fix verify step; `npm run qa:overflow`. **Ian merges the PR in the UI** (touches a workflow file, `reference_gh_token_no_workflow_scope`).
+
+**3. Engine flat-tree rule (live).** [n8n/update-engine-flat-trees.mjs](n8n/update-engine-flat-trees.mjs) (idempotent, sentinel `Keep the tree FLAT`, token self-check) adds a Generate Draft rule + Humanize verify: keep `<DecisionTree>` FLAT (one question, 2-4 leaf branches, no nested sub-questions; use `<ChooseIf>`/`<IntentTable>` if two levels are needed). Shrinks the surface so the cramped-nested shape stops being generated. Deployed live via `deploy-engine.mjs --apply` + GET-verified (both prompts carry it, 1/1 braces, active unchanged).
+
+**Deferred (recommended next):** point the Vision bot at a LOCAL preview build instead of waiting on Netlify, so the Netlify-wait timeout stops skipping the visual-review/auto-fix steps entirely (the overflow gate already removes the dependency for the overflow class, but the broader Vision pass still hangs off Netlify).
+
+**Revert:** PR #76 `git revert -m 1 44c2724`; the gate + flat-tree are additive — `git revert -m 1 <sha>` + re-run `deploy-engine.mjs --apply` against the prior `blog-post-engine.json` for the engine.
+
 ---
 
 ## Quick reference — recent additions (Session 28, 2026-06-10)
