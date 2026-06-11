@@ -26,6 +26,20 @@ Ian flagged PR #74's flowchart as "horrific, especially on mobile" and asked why
 
 **Revert:** PR #76 `git revert -m 1 44c2724`; the gate + flat-tree are additive — `git revert -m 1 <sha>` + re-run `deploy-engine.mjs --apply` against the prior `blog-post-engine.json` for the engine.
 
+### Session 29 follow-up #2 (2026-06-11) — executed the deferred Vision-bot-to-local move + flattened PR #74; found+fixed two more things
+
+Continued straight from follow-up #1. Four PRs (#78/#79/#80 merged; #74 content branch ready).
+
+**1. Vision bot off Netlify, onto a local build (PR #78, merge `e19071b`).** The deferred item from follow-up #1. [qa-content-pr.yml](.github/workflows/qa-content-pr.yml): replaced the "Wait for Netlify deploy preview" github-script step (the up-to-8-min wait whose timeout ran BEFORE the Vision review, skipping it) with a background `npx astro preview --port 4321` over the already-built `dist/` + a curl readiness poll; `qa-screenshots` now points at `http://localhost:4321`. Anthropic Vision cost unchanged (same screenshots), faster, no external dependency. Netlify still builds its own preview for human review. Pre-flight-verified `qa-pr-review.mjs` reads screenshots from disk, not a URL. Ian merged in the UI (workflow scope).
+
+**2. Trailing-slash screenshot bug the local move EXPOSED (PR #79, merge `46f225d`).** First #74 re-run "passed" but the Vision verdict said it reviewed "a default Astro 404 page" — a FALSE pass. Root cause: `qa-screenshots.mjs` requested `/blog/<slug>` (no trailing slash); the site is `trailingSlash:'always'` + directory format, so a static host (`astro preview`) serves `dist/<path>/index.html` only at the SLASH URL and 404s the non-slash form (Netlify had been redirecting it, masking the bug). Fix: request the canonical trailing-slash URL in the `goto` (slug/slugify stay non-slash so the `blog_<slug>` filename lookup still matches). Verified 200 + real `<h1>`. **Lesson: reading the Vision verdict text caught a green-but-wrong check.**
+
+**3. Auto-fixer structural guard (PR #80, merge `531639f`).** With the Vision bot now actually running every PR, its trigger-happiness surfaced: it false-flagged the fine 3-up `<StatRow>` as "cramped on mobile" (it stacks one-per-row by design, render verified perfect) and the auto-fixer band-aided it by **splitting the row into a 2-up + a lonely 1-up** ([qa-fix-1] on #74) — the recurring StatRow misdiagnosis (Sessions 21/24). Hardened [qa/qa-pr-fix.mjs](qa/qa-pr-fix.mjs): removed the "splitting an overlong StatRow into two" license, forbade restructuring any component prop ARRAY, and added a **deterministic structural guard** — if the count of any structural component tag (StatRow/ChooseIf/ComparisonTable/SideBySide/StepRow/ToolBreakdown/IntentTable/SpectrumBar/DecisionTree) changed vs the original, discard the fix (exit 0, no commit → routes to a human). Unit-tested (blocks the split, allows prose fixes). Memory `reference_tag_qa_autofixer_injects_css` extended.
+
+**4. Flattened PR #74's tree (content branch, HEAD `cb2a326`).** Per Ian: the component fix killed #74's mobile clipping, but the nested labeled-list still read narrow/left-clustered on desktop (the inherent limit of nesting on wide screens). Replaced the nested `<DecisionTree>` with `<ChooseIf>` "Choose X if…" cards (HubSpot Sales Hub Pro vs Pipedrive Professional, `/go/hubspot` + `/go/pipedrive` CTAs) — full-width balanced cards on desktop, clean vertical stack on mobile (Playwright-verified both). Dropped the auto-fixer's StatRow band-aid + merged master (hardened fixer) into the branch via force-push. lint/build/render-acceptance/mobile-overflow all clean. **Ready for Ian to merge once its QA run is green.**
+
+**Revert:** PR #78 `git revert -m 1 e19071b`; #79 `git revert -m 1 46f225d`; #80 `git revert -m 1 531639f`. All additive/behavioral; #74 is content.
+
 ---
 
 ## Quick reference — recent additions (Session 28, 2026-06-10)
