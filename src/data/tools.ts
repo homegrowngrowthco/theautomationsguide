@@ -47,6 +47,8 @@ export const toolCategories = [
   'Workflow Automation',
   'CRM',
   'Outbound & Lead Generation',
+  'Cold Email & Deliverability',
+  'Lead Data & Enrichment',
   'Newsletter Platform',
   'Website Visitor ID & Signals',
   'AI Agents',
@@ -150,7 +152,7 @@ export const tools: Tool[] = [
     badge: 'Free trial',
     ctaLabel: 'Try Lemlist',
     ctaPrimary: false,
-    listed: false,
+    listed: true,
     logo: '/brand/tools/lemlist.svg',
     aliases: ['Lemlist'],
     blurb:
@@ -216,7 +218,8 @@ export const tools: Tool[] = [
     badge: 'Free trial',
     ctaLabel: 'Try Instantly',
     ctaPrimary: true,
-    listed: false,
+    listed: true,
+    logo: '/brand/tools/instantly.webp',
     aliases: ['Instantly'],
     blurb:
       'Instantly is a high-volume cold email platform built around deliverability, with unlimited sending accounts, built-in warmup, and a B2B lead database in one place.',
@@ -396,7 +399,8 @@ export const tools: Tool[] = [
     badge: 'Paid (lifetime deals)',
     ctaLabel: 'Try Pabbly',
     ctaPrimary: true,
-    listed: false,
+    listed: true,
+    logo: '/brand/tools/pabbly.svg',
     aliases: ['Pabbly'],
     blurb:
       'Pabbly Connect is a budget-friendly Zapier alternative with flat pricing that does not charge per internal step, popular for high-volume automations on a fixed cost.',
@@ -432,7 +436,8 @@ export const tools: Tool[] = [
     badgeFree: true,
     ctaLabel: 'Try Lusha',
     ctaPrimary: true,
-    listed: false,
+    listed: true,
+    logo: '/brand/tools/lusha.svg',
     aliases: ['Lusha'],
     blurb:
       'Lusha is a B2B contact data tool known for accurate direct dials and emails, with a browser extension that pulls verified contacts straight from LinkedIn.',
