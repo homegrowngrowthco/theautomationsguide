@@ -49,3 +49,6 @@ backlog/lp-batch.md
 # GSC index-status audit artifacts (regenerable via gsc-index-status.py)
 gsc-needs-indexing-*.csv
 gsc-*.log
+
+# PostHog setup artifact (insight/dashboard definitions + created ids; see analytics/README.md)
+analytics/posthog-insights.json

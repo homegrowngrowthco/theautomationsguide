@@ -863,6 +863,49 @@
         1120,
         520
       ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Sum Anthropic token usage across the 3 Claude calls in this run and compute\n// an estimated USD cost. Pricing per 1M tokens (claude-api skill, 2026-06-11):\n// Sonnet 4.6 $3 in / $15 out; Haiku 4.5 $1 in / $5 out. Cache multipliers on the\n// input rate: 5-min cache write 1.25x, cache read 0.1x.\nfunction usageOf(j) {\n  const u = (j && j.usage) || {};\n  return {\n    inp: u.input_tokens || 0,\n    out: u.output_tokens || 0,\n    cw: u.cache_creation_input_tokens || 0,\n    cr: u.cache_read_input_tokens || 0,\n  };\n}\nfunction costOf(u, inRate, outRate) {\n  return (u.inp * inRate + u.cw * inRate * 1.25 + u.cr * inRate * 0.1 + u.out * outRate) / 1e6;\n}\nlet draftJson = {}, humanJson = {}, socialJson = {}, carry = {};\ntry { draftJson = $('Generate Draft').first().json || {}; } catch (e) {}\ntry { humanJson = $('Humanize').first().json || {}; } catch (e) {}\ntry { socialJson = $('Generate Social Outputs').first().json || {}; } catch (e) {}\ntry { carry = $('Parse Social Outputs').first().json || {}; } catch (e) {}\nconst draft = usageOf(draftJson), human = usageOf(humanJson), social = usageOf(socialJson);\nconst SONNET_IN = 3, SONNET_OUT = 15, HAIKU_IN = 1, HAIKU_OUT = 5;\nconst costDraft = costOf(draft, SONNET_IN, SONNET_OUT);\nconst costHuman = costOf(human, SONNET_IN, SONNET_OUT);\nconst costSocial = costOf(social, HAIKU_IN, HAIKU_OUT);\nconst total = costDraft + costHuman + costSocial;\nconst sonnetIn = draft.inp + draft.cw + draft.cr + human.inp + human.cw + human.cr;\nconst sonnetOut = draft.out + human.out;\nconst haikuIn = social.inp + social.cw + social.cr;\nconst haikuOut = social.out;\nconst cacheRead = draft.cr + human.cr + social.cr;\nfunction k(n) { return n >= 1000 ? (n / 1000).toFixed(1) + 'k' : String(n); }\nconst title = carry.title || carry.blogTopic || 'post';\nlet costLine = ':moneybag: *Cost ~$' + total.toFixed(3) + '* for \"' + title + '\"  |  ' +\n  'Sonnet ' + k(sonnetIn) + ' in / ' + k(sonnetOut) + ' out  |  ' +\n  'Haiku ' + k(haikuIn) + ' in / ' + k(haikuOut) + ' out';\nif (cacheRead > 0) costLine = costLine + '  |  ' + k(cacheRead) + ' cache-read';\nreturn [{ json: Object.assign({}, carry, {\n  costLine: costLine,\n  costUsd: Number(total.toFixed(4)),\n  costBreakdown: {\n    draft: Number(costDraft.toFixed(4)),\n    humanize: Number(costHuman.toFixed(4)),\n    social: Number(costSocial.toFixed(4)),\n  },\n  tokens: { sonnetIn: sonnetIn, sonnetOut: sonnetOut, haikuIn: haikuIn, haikuOut: haikuOut },\n}) }];"
+      },
+      "id": "tag00001-0000-0000-0000-0000000000fb",
+      "name": "Compute Cost",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4200,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.slackWebhookUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ text: $('Compute Cost').first().json.costLine }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "tag00001-0000-0000-0000-0000000000fc",
+      "name": "Log Cost to Slack",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4420,
+        800
+      ]
     }
   ],
   "connections": {
@@ -1102,6 +1145,11 @@
             "node": "Save LinkedIn Post",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Compute Cost",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -1116,6 +1164,17 @@
           }
         ],
         []
+      ]
+    },
+    "Compute Cost": {
+      "main": [
+        [
+          {
+            "node": "Log Cost to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },
