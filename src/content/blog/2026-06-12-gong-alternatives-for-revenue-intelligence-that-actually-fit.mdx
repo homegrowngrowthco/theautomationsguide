@@ -112,30 +112,31 @@ If you need managers reviewing calls and developing reps, Aircall or Outreach Ka
 
 Then look at your CRM. If you're on Salesforce, Outreach's native integration runs deeper than anything else on this list. If you're on HubSpot, Aircall's native sync will serve you better than forcing Gong's HubSpot connector, which I've found unreliable in production environments (missed activity logs, duplicate contact creation, inconsistent deal association). If you're already in [Pipedrive](/go/pipedrive), the answer is almost always to stay and expand there rather than add a separate intelligence layer on top.
 
-<DecisionTree
-  caption="Pick your Gong alternative based on team size and primary use case"
-  tree={{
-    question: "What is your primary revenue intelligence need?",
-    branches: [
-      {
-        label: "Call coaching and rep development, 15+ reps, enterprise motion",
-        result: { title: "Outreach (Kaia)", note: "Conversation AI embedded in your sequencing platform. One vendor, one contract.", tone: "primary" }
-      },
-      {
-        label: "Call coaching and rep development, under 15 reps, phone-first",
-        result: { title: "Aircall", note: "Lightweight coaching, clean CRM sync, no enterprise overhead.", tone: "alt" }
-      },
-      {
-        label: "Deal visibility and forecast accuracy, on Salesforce",
-        result: { title: "Outreach", note: "Deal intelligence boards and AI forecasting sit natively in Outreach's Salesforce-connected workflow.", tone: "primary" }
-      },
-      {
-        label: "Deal visibility and forecast accuracy, on Pipedrive or HubSpot (SMB)",
-        result: { title: "Pipedrive Revenue Intelligence", note: "If you're already in Pipedrive, this is the lowest-friction path to deal health and forecasting.", tone: "alt" }
-      }
-    ]
-  }}
-/>
+<Figure caption="Pick your Gong alternative based on team size and primary use case">
+  <DecisionTree
+    tree={{
+      question: "What is your primary revenue intelligence need?",
+      branches: [
+        {
+          label: "Call coaching and rep development, 15+ reps, enterprise motion",
+          result: { title: "Outreach (Kaia)", note: "Conversation AI embedded in your sequencing platform. One vendor, one contract.", tone: "primary" }
+        },
+        {
+          label: "Call coaching and rep development, under 15 reps, phone-first",
+          result: { title: "Aircall", note: "Lightweight coaching, clean CRM sync, no enterprise overhead.", tone: "alt" }
+        },
+        {
+          label: "Deal visibility and forecast accuracy, on Salesforce",
+          result: { title: "Outreach", note: "Deal intelligence boards and AI forecasting sit natively in Outreach's Salesforce-connected workflow.", tone: "primary" }
+        },
+        {
+          label: "Deal visibility and forecast accuracy, on Pipedrive or HubSpot (SMB)",
+          result: { title: "Pipedrive Revenue Intelligence", note: "If you're already in Pipedrive, this is the lowest-friction path to deal health and forecasting.", tone: "alt" }
+        }
+      ]
+    }}
+  />
+</Figure>
 
 <MyTake>
 Most teams that buy Gong are buying legitimacy for the sales function, not utility. There's a cargo-cult quality to it: "serious sales teams use Gong." But in my experience at Homegrown Growth Co., teams with disciplined CRM hygiene and a real coaching cadence get 80% of Gong's value from Aircall plus a well-configured HubSpot or Salesforce pipeline view, at about a third of the cost. The tool is not the discipline. Buying a fancier tool to paper over weak process is just expensive wallpaper.
