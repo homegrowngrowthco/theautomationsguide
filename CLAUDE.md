@@ -18,6 +18,18 @@ Root cause of the QA miss: every existing gate checks post **structure** (render
 
 **Revert:** `git revert -m 1 54b764e` — all CSS/string/asset edits + one additive script.
 
+### Session 31 follow-up (2026-06-12) — QA run investigation: auto-fixer fails the job on a correct decline
+
+Ian asked me to investigate GHA **run 27414522866** (the daily engine's content PR #85, "Gong alternatives"). The `qa` job went red at **Apply Claude fix**, but the **content was clean** — the harness failed, not the post.
+
+**Root cause:** the Vision bot returned `shouldFix:true` with 3 "major" component-internal issues (incl. a hallucinated "illegible flowchart" — on mobile the DecisionTree renders as the legible vertical labeled-list, no flowchart exists; plus the recurring ChooseIf/StatRow "over-padded/cramped" misreads from Sessions 21/24/29). The job branched to auto-fix; the fixer model **correctly declined** and returned a prose explanation instead of MDX; [qa/qa-pr-fix.mjs](qa/qa-pr-fix.mjs) hit its `!startsWith('---')` branch and did `process.exit(1)` → **failed the whole job** on a verdict it was right to decline. Verified the post locally (checked out the branch + built): 0px overflow at 375/768, DecisionTree = clean vertical list, ChooseIf stacks to single-column cards — all flags false positives.
+
+**Actions:** (1) **merged PR #85** (`aaf0c3b`) — content was never the problem. (2) **PR #86 MERGED** (`fd5ac9c`, Ian merged in UI — workflow scope): **#1** [qa/qa-pr-fix.mjs](qa/qa-pr-fix.mjs) treats "no editable MDX returned" like the existing band-aid path (no write, `exit 0`, route to human) instead of `exit 1`; **#2** [qa-content-pr.yml](.github/workflows/qa-content-pr.yml) — the commit step emits `pushed=true/false`, "fix applied" is gated on `pushed==true`, and a new honest **"auto-fix declined → manual review"** comment fires on `pushed==false` (the old comment fired unconditionally on the fix branch, falsely promising a fix + a re-run; this also repairs the band-aid path's mislabel). Net: a component-internal/false-positive verdict ends **green with the post untouched + an accurate manual-review note**, not a red blocking job; real crashes still fail loudly via build/render-acceptance gates + `failure()` ping. Validated `node --check` + js-yaml parse (26 steps).
+
+**Deferred to a separate session (#3, the deeper root cause):** harden the Vision-bot prompt ([qa/qa-pr-review.mjs](qa/qa-pr-review.mjs)) so it stops false-flagging the deliberately-stacked components (ChooseIf/StatRow/DecisionTree-vertical-list) as cramped/illegible — that's what marks fine posts `shouldFix:true` in the first place.
+
+**Revert:** PR #86 `git revert -m 1 fd5ac9c` (both edits additive/behavioral).
+
 ---
 
 ## Quick reference — recent additions (Session 30, 2026-06-11)
