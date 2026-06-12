@@ -30,6 +30,16 @@ Ian asked me to investigate GHA **run 27414522866** (the daily engine's content 
 
 **Revert:** PR #86 `git revert -m 1 fd5ac9c` (both edits additive/behavioral).
 
+### Session 31 follow-up #2 (2026-06-12) — DONE: #3 Vision-prompt hardening (PR #87 MERGED `acfc62f`)
+
+Closed out the deferred #3. The prompt's own "recurring defects" bullets were *inviting* the false positives (the "SQUISHED / CRAMPED COMPONENTS" bullet named StatRow/ChooseIf/etc.; "AWKWARD DECISION TREES" invited flagging the legible vertical list). **Natural-language-only** edits — the verdict JSON schema + `severity`/`viewport` enums are byte-identical, so [qa-content-pr.yml](.github/workflows/qa-content-pr.yml) (`shouldFix` branch) and [qa-pr-fix.mjs](qa/qa-pr-fix.mjs) (`blocker|major` filter) parsing is untouched (this is why it's a plain `qa/` PR, no UI-merge needed).
+
+**[qa/qa-pr-review.mjs](qa/qa-pr-review.mjs) (the auto-fix bot):** (1) re-scoped SQUISHED/CRAMPED to fire only on genuine *multi-column* collisions (a single-column stack is explicitly NOT cramped); (2) re-scoped AWKWARD DECISION TREES to exclude the vertical labeled-list; (3) two emphatic "correct by design" carve-outs (mobile single-column stacks for StatRow/ChooseIf/ComparisonTable/ToolBreakdown/IntentTable/SideBySide which only go multi-column at >=640px + the DecisionTree vertical list, connectors hidden <=560px by design), covering the tablet 2-4-across grid too, mirroring the proven content-width carve-out; (4) a **CRITICAL shouldFix rule** — shouldFix=true ONLY when a blocker/major exists; minor nitpicks never trigger a fix (this was the last residual: v1 of the edit downgraded everything major→minor but still set shouldFix:true, which still routes to the fix branch). **[qa/qa-claude-review.mjs](qa/qa-claude-review.mjs) (human report):** same carve-outs + dropped its "text too wide" bullet that contradicted the full-width design.
+
+**Verified live, before/after on identical screenshots** of the 2026-06-12 Gong-alternatives post (the actual Session-31 false positive): OLD prompt = `shouldFix:true`, confidence **HIGH**, **4 major** issues (ChooseIf mobile+tablet, StatRow "cramped/run together", DecisionTree "connectors overlapping" — exactly the documented misreads). NEW prompt = `shouldFix:false`, high confidence, **0 issues**, stable across **3 consecutive runs**. (Did NOT separately test a true-positive case; the genuine-defect bullets are all retained + the deterministic gates — mobile-overflow@390, render-acceptance — backstop real structural breaks, and the change deliberately biases toward false-negatives on these component classes only.)
+
+**Revert:** PR #87 `git revert -m 1 acfc62f` — pure prompt-string changes, no behavior/schema/dependency change.
+
 ---
 
 ## Quick reference — recent additions (Session 30, 2026-06-11)
