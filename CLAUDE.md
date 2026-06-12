@@ -1,4 +1,24 @@
-# Session Log — last updated 2026-06-11
+# Session Log — last updated 2026-06-12
+
+## Quick reference — recent additions (Session 31, 2026-06-12)
+
+**Ian: "the mobile homepage looks like trash, I thought we did QA?" Three visual defects that passed every gate green, fixed + a new deterministic guard for the class. PR #84 MERGED (`54b764e`).**
+
+Root cause of the QA miss: every existing gate checks post **structure** (render-acceptance/linkedom) or **horizontal overflow** (mobile-overflow at 390px) — none check **visual balance** or **brand-image backgrounds**, and the Vision bot only runs on `content/` PRs, not homepage/component changes. So "all green" was true and meaningless here.
+
+**1. "Tools we cover" logo strip ([global.css](src/styles/global.css)).** Logos were normalized on **height only** (`height:32px;width:auto`) in a `flex-wrap` row, so a wide wordmark (Cal.com) ballooned while a compact mark (KIT) stayed tiny and rows wrapped ragged (4/2/2/2, centered). Fixed to **equal-width cells capped on BOTH axes** (`flex:0 0 33.333%` mobile / `20%` desktop, img `max-height:28px;max-width:100%;object-fit:contain`) → consistent visual weight, centered trailing rows. Wordmark fallback also constrained (ellipsis) so it can't overflow its cell.
+
+**2. beehiiv.png white box ([public/brand/tools/beehiiv.png](public/brand/tools/beehiiv.png)).** Shipped `hasAlpha:false`, pure-white background → sat in a white box on the cream page. Rebuilt as a transparent navy mark via per-pixel inverse-luminance alpha (sharp). (First attempt with a sharp `.linear` invert mask came out inverted — switched to explicit raw per-pixel: `alpha=255-luminance`, RGB forced to `#0a0a14`.)
+
+**3. Hero flowchart on mobile ([global.css](src/styles/global.css)).** The `.hero-visual` had `order:-1` at `<=860px`, **forcing the decorative SVG node-diagram above the headline** when stacked (the "janky af, shouldn't be at the top" report). Removed the flip (copy leads everywhere) + **hide the diagram on phones `<=600px`** (it's `aria-hidden`, purely decorative, cramped at phone width); tablets 600-860px keep it below the copy. Desktop unchanged.
+
+**4. New deterministic guard ([qa/lint-logos.mjs](qa/lint-logos.mjs)) — the class fix.** Samples each raster logo's 4 corners; **HARD-fails if all 4 are opaque** (a baked-in background rectangle — the beehiiv class) + WARNs on aspect-ratio outliers. `npm run qa:logos`; **`sharp` pinned as a devDep** (was transitive via astro-og-canvas) + lockfile updated; wired as a CI step right after `npm ci` in [qa-content-pr.yml](.github/workflows/qa-content-pr.yml) (cheap, no build needed). Tested both ways: passes the 8 current logos (0 hard), fails (exit 1) on the original opaque beehiiv.
+
+**Verification:** local prod build clean (135 pages), 0px mobile overflow at 320/375/390, Playwright shots of the strip (3-col balanced grid, no white box) + hero (phone copy-only, tablet copy-then-flowchart) + desktop (5-col strip, side-by-side hero unchanged). NOT viewed on the Netlify preview — flagged to Ian. (Touches a workflow file → Ian merged #84 in the UI, `reference_gh_token_no_workflow_scope`.)
+
+**Revert:** `git revert -m 1 54b764e` — all CSS/string/asset edits + one additive script.
+
+---
 
 ## Quick reference — recent additions (Session 30, 2026-06-11)
 
