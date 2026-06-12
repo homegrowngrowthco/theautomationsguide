@@ -37,8 +37,12 @@ Focus on layout issues that would look unprofessional or sloppy:
 - Vertical spacing that's too loose or too tight between sections
 - Mobile cards that feel inflated/wasteful
 - Misalignment between text and adjacent visuals
-- Text that runs too wide to read comfortably
 - Anything that breaks the visual rhythm of the page
+
+Do NOT flag these intentional, correct-by-design layouts:
+- STACKED / SINGLE-COLUMN MOBILE CARDS. On mobile (and often tablet), the card components (StatRow, ChooseIf, ComparisonTable, ToolBreakdown, IntentTable, SideBySide) deliberately collapse to a single full-width column, one card/stat per row (they go multi-column only at >=640px). A one-card-per-row mobile stack is correct, never call it "cramped", "squished", "too narrow", "wasted space", or "unbalanced".
+- THE DECISIONTREE VERTICAL LIST. A DecisionTree shown as a vertical labeled-list (left guide-line, each branch on its own full-width row, no horizontal connectors) is its intended legible layout, not a broken or "illegible flowchart". On mobile its connectors are intentionally hidden.
+- CONTENT / PROSE WIDTH. The body text intentionally spans the full container width to match the components; wide reading lines are deliberate. Never flag "text too wide" or suggest a narrower column.
 
 If everything looks fine across all four breakpoints, say "No issues."
 Otherwise, output a concise bullet list. Each bullet should be one specific, actionable issue.
