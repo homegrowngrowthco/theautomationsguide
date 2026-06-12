@@ -10,6 +10,7 @@
     "qa:lint": "node qa/lint-content.mjs --all",
     "qa:render": "node qa/render-acceptance.mjs --all",
     "qa:overflow": "node qa/mobile-overflow.mjs --all",
+    "qa:logos": "node qa/lint-logos.mjs",
     "qa:screenshots": "node qa/qa-screenshots.mjs",
     "qa:review": "node qa/qa-claude-review.mjs",
     "qa": "npm run qa:screenshots && npm run qa:review"
@@ -26,6 +27,7 @@
     "dotenv": "^17.4.2",
     "linkedom": "^0.18.12",
     "pagefind": "^1.5.2",
-    "playwright": "^1.59.1"
+    "playwright": "^1.59.1",
+    "sharp": "^0.33.5"
   }
 }
