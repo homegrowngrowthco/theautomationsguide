@@ -11,7 +11,7 @@ Last updated: 2026-05-03 EOD
 
 ## Social & Brand Signals
 
-- [ ] **Create LinkedIn Company Page for The Automations Guide.** Send URL — gets added to `sameAs` in `src/layouts/BaseLayout.astro`.
+- [x] **Create LinkedIn Company Page for The Automations Guide.** Created 2026-06-12: `https://www.linkedin.com/company/the-automations-guide/`, already in the org `sameAs` in `src/layouts/BaseLayout.astro` + live in the built JSON-LD (`dist/index.html` + `/about/`).
   - Note: company pages have ~3-5× lower organic reach than personal accounts. Consider also posting from Ian's personal LinkedIn (`/in/ianchamberland/`) for amplification.
 - [ ] **Create Twitter/X account** (optional) — same drill, send URL when ready
 - [ ] Add site URL to LinkedIn bio, GitHub profile, email signature
