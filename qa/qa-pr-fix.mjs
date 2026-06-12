@@ -110,13 +110,22 @@ try {
 
 let fixed = res.content[0]?.type === 'text' ? res.content[0].text.trim() : '';
 
-if (!fixed.startsWith('---')) {
-  console.error('Fix output missing frontmatter. First 300 chars:', fixed.substring(0, 300));
-  process.exit(1);
-}
-if (!fixed.includes("import SideBySide from '@/components/post/SideBySide.astro'")) {
-  console.error('Fix output missing required import block.');
-  process.exit(1);
+// The prompt tells the model to return the post UNCHANGED when every flagged
+// issue is component-internal (CSS the MDX fixer can't touch). In practice it
+// often returns a short prose decline instead ("All three issues are about
+// component-internal layout...") rather than echoing the whole file. That is a
+// correct "nothing to fix in MDX" outcome, NOT a failure — treat it exactly like
+// the band-aid path below: no write, exit 0, let the Vision-issues comment route
+// it to a human. Exiting non-zero here used to fail the whole job on a verdict
+// the fixer was right to decline (e.g. PR #85 / run 27414522866).
+if (!fixed.startsWith('---') || !fixed.includes("import SideBySide from '@/components/post/SideBySide.astro'")) {
+  console.error(
+    'Fixer did not return an editable MDX document (no frontmatter / import block) — ' +
+    'the model declined, which means the flagged issues are component-internal or otherwise ' +
+    'not MDX-expressible. Leaving the post UNCHANGED for manual review. First 300 chars:',
+    fixed.substring(0, 300),
+  );
+  process.exit(0); // no write: "Commit and push" sees no diff and routes to a human.
 }
 
 // Deterministic guardrail: the fixer's LLM cannot be trusted to honor the hard
