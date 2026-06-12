@@ -413,9 +413,16 @@ main { flex: 1; }
 }
 
 @media (max-width: 860px) {
+  /* Stacked: copy leads, the decorative flowchart follows it (no order flip —
+     it used to be forced above the headline, which read as janky on phones). */
   .hero-split { grid-template-columns: 1fr; gap: 2rem; }
-  .hero-visual { order: -1; }
   .hero-visual svg { max-width: 380px; }
+}
+
+@media (max-width: 600px) {
+  /* The node diagram is purely decorative (aria-hidden) and gets cramped at
+     phone width — drop it so the hero is just the headline, copy, and CTAs. */
+  .hero-visual { display: none; }
 }
 
 /* ── Tools-we-cover logo strip ─────────────────── */
@@ -441,35 +448,50 @@ main { flex: 1; }
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem 2.5rem;
-  /* Capped width so the growing set wraps into ~two balanced centered rows
-     instead of one ever-longer line, keeping the section compact. */
+  row-gap: 1.75rem;
   max-width: 900px;
   margin: 0 auto;
 }
 
+/* Equal-width cells: every logo gets the same bounding box and is capped on
+   BOTH axes, so a wide wordmark (Cal.com) and a compact mark (KIT) read at a
+   consistent visual weight instead of ballooning/shrinking by width alone.
+   3 per row on mobile, 5 on desktop; centered trailing rows. */
 .logo-strip-item {
-  display: inline-flex;
+  flex: 0 0 33.333%;
+  display: flex;
   align-items: center;
-  height: 34px;
+  justify-content: center;
+  height: 40px;
+  padding: 0 0.85rem;
   opacity: 0.85;
   transition: opacity 0.15s, transform 0.15s;
+}
+
+@media (min-width: 600px) {
+  .logo-strip-item { flex-basis: 20%; }
 }
 
 .logo-strip-item:hover { opacity: 1; transform: translateY(-1px); text-decoration: none; }
 
 .logo-strip-item img {
-  height: 32px;
+  max-height: 28px;
+  max-width: 100%;
   width: auto;
+  object-fit: contain;
   display: block;
 }
 
 .logo-strip-wordmark {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 1.25rem;
+  font-size: 1.05rem;
   letter-spacing: -0.01em;
   color: var(--text);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── Browse-by-topic tiles ─────────────────────── */

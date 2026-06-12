@@ -119,6 +119,16 @@ jobs:
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
         run: npm ci
 
+      # Deterministic LOGO-ASSET gate. The post-scoped gates check post structure
+      # and horizontal overflow, never the brand images themselves — so a logo
+      # shipped with a baked-in solid background (beehiiv.png was pure white, so it
+      # sat in a white box on the cream homepage strip) passed everything green.
+      # This samples each raster logo's corners and hard-fails on an opaque
+      # background. Cheap, no build needed; runs right after deps.
+      - name: Logo-asset gate (deterministic)
+        if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        run: npm run qa:logos
+
       # Compile the site in-CI BEFORE the Netlify wait. This is the real MDX
       # compiler, so it catches the whole class the regex linter can't: bare
       # {{merge_tags}} parsed as JSX expressions (ReferenceError), unclosed SVG
