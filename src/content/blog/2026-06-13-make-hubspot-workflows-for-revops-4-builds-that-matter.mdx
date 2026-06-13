@@ -1,0 +1,209 @@
+---
+title: "Make + HubSpot Workflows for RevOps: 4 Builds That Matter"
+description: "Step-by-step guide to building lead routing, deal tagging, and sequence triggers with Make and HubSpot. Includes free n8n alternatives."
+pubDate: 2026-06-13
+tags: ["guide", "automation", "hubspot"]
+faqs:
+  - question: "What can Make do with HubSpot that native workflows can't?"
+    answer: "Make can branch logic across multiple apps simultaneously, handle webhook payloads with nested JSON, and write back to HubSpot based on data from external sources like Clearbit or Clay. Native HubSpot workflows are limited to HubSpot-owned data and a single linear execution path."
+  - question: "Is Make or n8n better for HubSpot automation?"
+    answer: "Make is faster to configure for teams already using a visual builder, but n8n is self-hostable and free for most RevOps use cases if you have someone who can manage a cloud instance. Both have solid HubSpot modules."
+  - question: "How do I trigger a HubSpot sequence from Make?"
+    answer: "Use the HubSpot module to enroll a contact via the Sequences API endpoint, passing the contact ID and sequence ID. You must use a Sales Hub Seat license and the contact must not already be active in a sequence."
+  - question: "Can Make handle HubSpot lead routing across territories?"
+    answer: "Yes. Make can pull territory or account data from an external source like a Google Sheet or Salesforce, then use a Router module to assign HubSpot contact owner based on matching logic that HubSpot workflows cannot cross-reference externally."
+  - question: "What is the cost difference between Make and n8n for HubSpot workflows?"
+    answer: "Make starts at around 9 USD per month for 10,000 operations. n8n is free if self-hosted, or starts at 20 USD per month on n8n Cloud. For low-to-mid volume RevOps automation, n8n self-hosted is effectively zero marginal cost."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import DecisionTree from '@/components/post/DecisionTree.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+[HubSpot](/go/hubspot) workflows are genuinely good at linear, single-object automation. Lifecycle stage changes, simple task creation, internal emails when a deal moves stages. But every RevOps practitioner I know hits the same wall within six months: the moment your logic needs to reach outside HubSpot, read from a spreadsheet, branch across two objects simultaneously, or call an endpoint that returns nested JSON, native workflows tap out. That is exactly where [Make](/go/make) earns its seat in the stack.
+
+<div class="quick-answer"><strong>Quick answer:</strong> Make fills the gaps HubSpot workflows can't touch by acting as a stateful middleware layer, and the four builds below cover the revenue-critical ones I deploy at almost every B2B SaaS client.</div>
+
+<KeyTakeaways items={[
+  "HubSpot workflows max out at single-object linear logic. Make handles multi-app branching, external lookups, and nested API responses.",
+  "Lead routing with territory logic, deal tagging from enrichment, sequence enrollment triggers, and Slack-to-CRM feedback loops are the four highest-ROI builds.",
+  "Every Make scenario in this post has a direct n8n equivalent for teams that want zero per-operation cost.",
+  "You need a HubSpot Private App token with the correct scopes for each module. Skipping scope planning causes silent failures.",
+  "These builds typically take 2-4 hours to ship in Make and 4-6 hours in n8n if you are new to the tool."
+]} />
+
+<StatRow stats={[
+  { number: "62%", label: "of HubSpot users", description: "say they need a third-party tool to automate cross-object workflows, per G2 user reviews" },
+  { number: "9 USD/mo", label: "Make Core plan", description: "covers 10,000 operations, enough for a 200-seat sales team running all four workflows below at typical volume" },
+  { number: "4x", label: "faster lead response", description: "when routing is automated vs. manual queue review, per HubSpot Research on lead response time" }
+]} />
+
+## Why Make Belongs in Your HubSpot Stack
+
+HubSpot workflows execute one object at a time and can only branch on properties that already live inside HubSpot. That sounds obvious until you realize what it rules out. You cannot look up a rep's current quota attainment in Salesforce before routing. You cannot check a Google Sheet for territory mappings. And you cannot parse a Clearbit or [Clay](/go/clay) webhook payload that returns deeply nested firmographic data and write it back to the right contact fields conditionally.
+
+Make solves this by treating HubSpot as one node in a larger directed graph. Every scenario is a sequence of modules. Make passes a data bundle between them, you call an external API, transform the response with a built-in function, run a Router to branch on the result, and write back to HubSpot in the same execution. No code required, though you can drop JavaScript into a Tools module when the logic gets messy.
+
+My strong opinion: stop trying to solve cross-object problems inside HubSpot's workflow builder. You will end up with a Frankenstein of workaround properties and enrollment triggers that nobody can audit six months later. Build the external logic in Make where it belongs and keep HubSpot workflows for what they are actually good at.
+
+<SideBySide>
+<Fragment slot="left">
+
+**Where teams get burned before the first scenario runs**
+
+The most common failure mode I see is scope misconfiguration on the HubSpot Private App. Make's HubSpot modules require specific OAuth scopes, and if your Private App is missing `crm.objects.contacts.write` or `sales-email-read`, the scenario will authenticate fine and then fail silently on the first real record. Always create a dedicated Private App per environment (dev and prod) and audit scopes before you build anything.
+
+</Fragment>
+<Fragment slot="right">
+
+```
+Minimum scopes for the 4 workflows below:
+
+crm.objects.contacts.read
+crm.objects.contacts.write
+crm.objects.deals.read
+crm.objects.deals.write
+crm.objects.owners.read
+sales-email-read          (sequence enrollment)
+crm.schemas.contacts.read
+timeline                  (activity logging)
+```
+
+</Fragment>
+</SideBySide>
+
+## The Four Builds
+
+### Workflow 1: Territory-Based Lead Routing
+
+HubSpot can round-robin by owner. It cannot route based on data that lives outside HubSpot. I use this build whenever a client has territory maps maintained in Google Sheets or Airtable that need to drive owner assignment in real time. Round-robin is a cop-out for teams that haven't done the work to define territories. Do the territory work first, then automate the routing.
+
+<StepRow steps={[
+  {
+    title: "Trigger: HubSpot webhook on Contact Created",
+    body: "In Make, add a HubSpot module set to 'Watch New Contacts'. Set the filter to only fire when Lead Source is not blank and Lifecycle Stage equals Lead. This avoids firing on manual imports with no source data."
+  },
+  {
+    title: "Lookup: Google Sheets module to match territory",
+    body: "Add a Google Sheets 'Search Rows' module. Pass the contact's State or Zip Code property. Your sheet has columns: Zip Prefix, Region, Owner Email, Owner HubSpot ID. Return the matching Owner HubSpot ID."
+  },
+  {
+    title: "Router: branch on match found vs. not found",
+    body: "Add a Router with two branches. Branch 1 runs when the Sheets lookup returned a non-empty Owner HubSpot ID. Branch 2 catches unmapped territories and assigns to a round-robin fallback owner list you hard-code in a Set Variable module."
+  },
+  {
+    title: "Write: HubSpot Update Contact module",
+    body: "Map the Owner HubSpot ID from the Sheets lookup to the hubspot_owner_id field. Also set a custom property like Territory Routing Source to 'Make' so you can audit which contacts were auto-routed vs. manually assigned."
+  },
+  {
+    title: "Notify: Slack module to alert the assigned rep",
+    body: "Post a Slack message to the rep's DM using their Slack ID (store this in your Sheets territory map alongside the HubSpot Owner ID). Include contact name, company, and a direct link to the HubSpot record using the contact ID in the URL."
+  }
+]} />
+
+**n8n equivalent:** Use the HubSpot Trigger node on Contact Created, a Google Sheets node with the Lookup operation, an IF node for the match branch, and a HubSpot node with the Update operation. The logic is identical. The interface is just node-based instead of module-based.
+
+---
+
+### Workflow 2: Deal Tagging from Enrichment Webhooks
+
+When [Clay](/go/clay) or Clearbit posts enrichment data to a webhook, HubSpot has no native way to parse the response and conditionally apply deal tags or custom properties. Make handles this cleanly, and it is honestly the build I recommend first to any team running outbound, because bad ICP scoring at the top of the funnel costs you far more than the Make subscription.
+
+<StepRow steps={[
+  {
+    title: "Trigger: Make webhook (instant)",
+    body: "Create a custom webhook in Make. Paste the webhook URL into Clay as a webhook export destination or into Clearbit's enrichment webhook settings. Make will auto-detect the schema on first hit."
+  },
+  {
+    title: "Parse: JSON module to extract firmographic fields",
+    body: "Use Make's built-in JSON parsing to pull employee count, industry, funding stage, and tech stack from the payload. Clay payloads are usually nested two levels deep. Map each to a named variable for cleaner downstream references."
+  },
+  {
+    title: "Branch: Router on ICP criteria",
+    body: "Set up Router branches for your ICP tiers. Example: Branch A fires if employee count is between 50 and 500 AND funding stage is Series A or later. Branch B fires for everything else. Each branch sets a Deal Tag variable and an ICP Score variable."
+  },
+  {
+    title: "Write: HubSpot Update Deal or Update Contact",
+    body: "Push the ICP Tier, ICP Score, and enrichment timestamp back to HubSpot as custom properties on the Contact or associated Deal. This makes the data available to native HubSpot workflows for downstream sequencing or rep tasks."
+  }
+]} />
+
+---
+
+### Workflow 3: Sequence Enrollment Triggers Based on External Signals
+
+HubSpot can enroll contacts in sequences based on internal properties. It has no mechanism for external signals like G2 intent, Bombora surges, or product usage hitting a threshold. I have built this exact workflow for three SaaS clients in the past year, and in every case it cut the time between a signal firing and a rep following up from over 48 hours to under 10 minutes.
+
+<StepRow steps={[
+  {
+    title: "Trigger: webhook from intent or product data source",
+    body: "Bombora, G2 Buyer Intent, or your product database posts a webhook to Make when a target account hits a signal threshold (e.g. three intent surges in seven days, or a freemium account hits the usage limit)."
+  },
+  {
+    title: "Lookup: HubSpot Search Contact by email or domain",
+    body: "Use HubSpot's Search API module in Make to find the matching contact by email or company domain from the webhook payload. Return the Contact ID and check the Active Sequence field to avoid double-enrollment."
+  },
+  {
+    title: "Gate: filter on enrollment eligibility",
+    body: "Add a Make Filter (the lightning bolt between modules) that only continues if: Active Sequence is false, Lifecycle Stage is Lead or MQL, and the last sequence enrollment was more than 14 days ago. This prevents burning contacts with repeat triggers."
+  },
+  {
+    title: "Enroll: HubSpot Sequences API call via HTTP module",
+    body: "Use Make's HTTP module to POST to the HubSpot Sequences enrollment endpoint. Pass the contact ID, sequence ID, and the assigned owner's user ID. The contact must have an email and the owner must have a Sales Hub seat or enrollment will fail silently."
+  },
+  {
+    title: "Log: create HubSpot Timeline event",
+    body: "After enrollment, write a Timeline API event to the contact record documenting the trigger source, signal type, and enrollment timestamp. This is critical for attribution when marketing asks why a contact entered a sequence."
+  }
+]} />
+
+Per [HubSpot's Sequences API documentation](https://developers.hubspot.com/docs/api/crm/sequences), the enrolling user must have an assigned Sales Hub seat. Check this before you build. It is the single most common reason this workflow fails in QA.
+
+---
+
+### Workflow 4: Slack-to-HubSpot Deal Feedback Loop
+
+Reps leave deal intelligence in Slack, not in HubSpot. That is not laziness. It is a context-switching problem, and the solution is not to yell at reps to log their notes. The solution is to make Slack the data entry point.
+
+<StepRow steps={[
+  {
+    title: "Trigger: Slack Shortcut or slash command",
+    body: "Set up a Slack workflow that fires when a rep uses a message shortcut or types a slash command in your deal-room channel. The Slack workflow collects: Deal Name, Next Step, Competitor Mentioned, and Confidence Score via a form modal."
+  },
+  {
+    title: "Trigger in Make: watch Slack for workflow submissions",
+    body: "Use Make's Slack module to watch for workflow step submissions or incoming webhooks from Slack. Alternatively, have the Slack workflow POST directly to a Make webhook URL."
+  },
+  {
+    title: "Match: search HubSpot deals by name",
+    body: "Use HubSpot Search Deals by name (partial match) and return the top result. If multiple matches exist, use the Iterator and Array Aggregator to pick the one with the most recent activity date."
+  },
+  {
+    title: "Write: update deal properties and create note",
+    body: "Push the Next Step to the deal's Next Step property, update the Competitor field, set the new Confidence Score, and create a HubSpot Note on the deal with the full Slack text and the submitting rep's name. Set note timestamp to now."
+  }
+]} />
+
+<MyTake>
+The Slack feedback loop looks like a rep-enablement win. It is actually a data quality trap if you build it wrong. Every client I have deployed this for saw note volume spike immediately, and then note usefulness crater within 60 days because reps treated the modal like a form to blast through in three seconds. Keep the form to four fields maximum. Make Competitor Mentioned a dropdown, not free text. Free text competitor fields are where your CRM data goes to die.
+</MyTake>
+
+## Make vs. n8n for HubSpot Automation
+
+For teams deciding whether to absorb Make's operation costs or self-host [n8n](/go/n8n) instead, the answer is mostly a function of infrastructure comfort and monthly volume. I default to Make for clients without an in-house engineer. For technical teams already running containerized workloads on Railway or Render, n8n self-hosted is effectively free and the [HubSpot node coverage](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.hubspot/) is solid enough to replicate every workflow in this post.
+
+<ChooseIf title="Make or n8n for HubSpot Automation?" tools={[
+  {
+    name
