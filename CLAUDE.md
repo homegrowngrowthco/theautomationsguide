@@ -1,5 +1,19 @@
 # Session Log — last updated 2026-06-14
 
+## Quick reference — recent additions (Session 33, 2026-06-14)
+
+**Full SEO audit of the live site + fixed the one material finding (mobile Core Web Vitals). Shipped to prod via PR #91 (merge `0691ac6`).**
+
+**1. Full SEO audit ([AUDIT-SEO-2026-06-14.md](AUDIT-SEO-2026-06-14.md)).** Technical (curl: robots/sitemap/redirects/headers) + on-page (built `dist/` scan) + indexing (GSC URL Inspection) + performance (Lighthouse prod). Verdict: exceptionally clean foundation — Lighthouse **SEO 1.00** everywhere, **0 hard on-page issues** (0 missing canonical / 0 duplicate titles / 0 multi-H1 across 89 indexable pages), correct rich JSON-LD (BlogPosting/FAQPage/SoftwareApplication/BreadcrumbList/Person/Org), clean single-hop redirects, AI crawlers allowed, sitemap excludes `/go/`+`/og/`+noindex. **Indexing: 67/89 indexed** — the 22 unindexed are brand-new pages awaiting first crawl (6 Session-32 `/teams` + `/playbooks` hubs, 5 recent posts, 11 newest `/tools` hubs); Request-Indexing list is in TODO.md. (GSC OAuth token re-consented this session — cached again, so `/audit-seo` + `gsc-index-status.py` won't hang on auth next time.) Non-critical findings logged in the report: homepage + 53 hub pages have no `og:image` fallback (M-1); 82/89 titles >62 chars (M-2); a11y 0.91 with frame-title/heading-order quick wins (M-3); em-dash `<title>` separator on 88/89 (L-1).
+
+**2. Reusable SEO tooling.** [qa/seo-scan.mjs](qa/seo-scan.mjs) (`npm run qa:seo`) — noindex-aware sitewide on-page scanner (title/desc length, canonical/og/H1 presence, dup titles), slots into the existing qa/ gate suite. [.claude/commands/audit-seo.md](.claude/commands/audit-seo.md) — full-site SEO audit command (technical → indexing → on-page → perf → report).
+
+**3. C-1 mobile Core Web Vitals fix (the material finding), DEPLOYED.** Mobile was failing sitewide (Perf 0.65, LCP ~7.5-7.8s; desktop fine at 0.99). Root cause: the **beehiiv newsletter embed** ([EmailSignup.astro](src/components/EmailSignup.astro)) loaded `v3/loader.js` eagerly on every page → ~25 sub-requests (Stimulus app, flatpickr, its own webfont + GTM container `GTM-WJXL7FH`, a Cloudflare challenge), plus **PostHog + GA4** ([Analytics.astro](src/components/Analytics.astro)) loaded eagerly. Fix: lazy-load the beehiiv embed via IntersectionObserver (600px early, 290px space reserve = CLS-safe, `<noscript>` fallback) + defer PostHog/GA4 to first-interaction OR `requestIdleCallback` (3s ceiling), mirroring homegrowngrowth.co. Tradeoff (accepted): a visitor who bounces in <~3s without interacting isn't counted. **Prod after deploy: home mobile 0.65→0.83 (LCP 7.8s→3.4s); post 0.67→0.86 (LCP 7.5s→3.2s); CLS 0; a11y/BP/SEO unchanged.** Fonts left render-blocking on purpose — a non-blocking print-swap was tested but added font-swap CLS on text-heavy posts with no reliable LCP gain; deferred as the CLS-safe follow-up (the remaining LCP gap to <2.5s, now in TODO.md).
+
+**Verification:** build clean (141 pages); prod homepage/post initial load carry **zero** eager beehiiv/analytics requests (both load on demand). **Revert:** `git revert -m 1 0691ac6` — all changes additive/behavioral (defer-loading + new tooling files), no schema/route/content change.
+
+---
+
 ## Quick reference — recent additions (Session 32, 2026-06-14)
 
 **Ian: identity/E-E-A-T + GEO + IA overhaul (About headshot + full name, answer-first byline/TL;DR on every post, audience nav, de-cluttered blog index). Site changes on branch `feat/eeat-geo-nav-overhaul` (PR open for Ian to review on the Netlify preview, not merged). Engine deployed LIVE.**
