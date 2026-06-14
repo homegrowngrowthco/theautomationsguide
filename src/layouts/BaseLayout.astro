@@ -22,6 +22,8 @@ const robotsContent = noindex
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const siteName = 'The Automations Guide';
+const fontsHref =
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;800&family=Source+Serif+4:wght@600&display=swap';
 const fullTitle = title === siteName ? title : `${title} — ${siteName}`;
 const currentPath = Astro.url.pathname;
 
@@ -115,10 +117,7 @@ const breadcrumbSchema = {
          JetBrains Mono (labels/code), Outfit (wordmark). -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;800&family=Source+Serif+4:wght@600&display=swap"
-    />
+    <link rel="stylesheet" href={fontsHref} />
 
     <!-- Open Graph -->
     <meta property="og:title" content={fullTitle} />

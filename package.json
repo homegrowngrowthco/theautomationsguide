@@ -11,6 +11,7 @@
     "qa:render": "node qa/render-acceptance.mjs --all",
     "qa:overflow": "node qa/mobile-overflow.mjs --all",
     "qa:logos": "node qa/lint-logos.mjs",
+    "qa:seo": "node qa/seo-scan.mjs",
     "qa:screenshots": "node qa/qa-screenshots.mjs",
     "qa:review": "node qa/qa-claude-review.mjs",
     "qa": "npm run qa:screenshots && npm run qa:review"

@@ -23,15 +23,50 @@ const BEEHIIV_FORM_ID = 'd41efc59-7041-482b-8178-6d238e6c3cfa';
       <p class="email-signup-note">No spam. Unsubscribe anytime.</p>
     </div>
 
-    <div class="beehiiv-form-wrapper">
-      <script async src="https://subscribe-forms.beehiiv.com/v3/loader.js" data-beehiiv-form={BEEHIIV_FORM_ID}></script>
+    <div class="beehiiv-form-wrapper" data-beehiiv-form={BEEHIIV_FORM_ID}>
+      <noscript>
+        <a href="/#newsletter" class="btn btn--primary">Subscribe to the newsletter</a>
+      </noscript>
     </div>
   </div>
 </section>
 
+<script is:inline define:vars={{ BEEHIIV_FORM_ID }}>
+  // Lazy-load the beehiiv embed: its loader.js pulls ~25 sub-requests (a Stimulus
+  // app, flatpickr, its own webfont + GTM container, a Cloudflare challenge), which
+  // tanked mobile LCP/TBT when it ran on initial load. The form is below the fold on
+  // every page it appears, so we defer the loader until the wrapper nears the
+  // viewport (600px early, so it's ready before the user scrolls to it).
+  (function () {
+    const script = document.currentScript;
+    const wrap = script && script.previousElementSibling;
+    if (!wrap || !wrap.classList.contains('beehiiv-form-wrapper')) return;
+    let loaded = false;
+    function load() {
+      if (loaded) return;
+      loaded = true;
+      const s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://subscribe-forms.beehiiv.com/v3/loader.js';
+      s.setAttribute('data-beehiiv-form', BEEHIIV_FORM_ID);
+      wrap.appendChild(s);
+    }
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        if (entries.some((e) => e.isIntersecting)) { io.disconnect(); load(); }
+      }, { rootMargin: '600px' });
+      io.observe(wrap);
+    } else {
+      load();
+    }
+  })();
+</script>
+
 <style>
   .beehiiv-form-wrapper {
     margin: 0;
-    min-height: 80px;
+    /* Reserve the ~290px the beehiiv iframe occupies so the lazy injection
+       doesn't shift layout (keeps CLS at 0). */
+    min-height: 290px;
   }
 </style>
