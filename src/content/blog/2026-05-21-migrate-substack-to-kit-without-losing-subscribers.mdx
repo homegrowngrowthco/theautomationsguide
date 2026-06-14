@@ -1,6 +1,7 @@
 ---
 title: "Migrate Substack to Kit Without Losing Subscribers"
 description: "Exact CSV export steps, re-permission email template, and tag setup to migrate Substack to Kit cleanly. Plus what breaks and how to handle it."
+tldr: "Export your Substack CSV, clean it in a spreadsheet, import into Kit with source tags, send a re-permission sequence before your first broadcast, and accept that paid subscriptions, Substack Recommendations, and archive URLs do not migrate automatically."
 pubDate: 2026-05-21
 tags: ["guide", "automation", "email"]
 faqs:
@@ -25,8 +26,6 @@ import Figure from '@/components/post/Figure.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
 I've helped three newsletter operators move off [Substack](/go/substack) in the past year. Every single one assumed the migration would take an afternoon. It did not. The CSV export is trivial. What bites people is the list architecture they never built on Substack (because Substack won't let you), the paid subscriber problem nobody warns you about, and the deliverability crater that shows up 30 days later when half the imported list never engages. This guide covers the actual playbook, not the sanitized five-step version.
-
-<div class="quick-answer"><strong>Quick answer:</strong> Export your Substack CSV, clean it in a spreadsheet, import into <a href="/go/kit">Kit</a> with source tags, send a re-permission sequence before your first broadcast, and accept that paid subscriptions, Substack Recommendations, and archive URLs do not migrate automatically.</div>
 
 ## What you are actually moving (and what stays behind)
 

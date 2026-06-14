@@ -1,6 +1,7 @@
 ---
 title: "Cheap Outbound Sales Stack for Small B2B Teams Under $200/mo"
 description: "Apollo starter + Smartlead + n8n self-hosted gives bootstrapped B2B teams a full outbound engine for under $200/mo. Here's the exact math and setup."
+tldr: "Apollo Basic + Smartlead Starter + self-hosted n8n running on a $10 VPS gets you a production-grade outbound engine for roughly $100-$120/mo, with room to add HubSpot free CRM and still stay well under the $200 ceiling."
 pubDate: 2026-05-08
 tags: ["guide", "automation", "outbound"]
 faqs:
@@ -26,11 +27,7 @@ import ComparisonTable from '@/components/ComparisonTable.astro';
 
 Most "build your outbound stack" posts are written by people who already cleared a Series A. They'll casually drop Outreach ($150/seat), Clay's Scale plan ($800/mo), and Salesforce into a single recommendation and call it "lean." If you're a bootstrapped founder or a two-person GTM team trying to generate pipeline without torching runway, that advice isn't just useless, it's a little insulting. This post is the other thing: a concrete, math-backed stack that caps at $200/mo and actually sends emails, scores replies, and routes hot leads to a CRM.
 
-<div class="quick-answer"><strong>Quick answer:</strong> Apollo Basic + Smartlead Starter + self-hosted n8n running on a $10 VPS gets you a production-grade outbound engine for roughly $100-$120/mo, with room to add HubSpot free CRM and still stay well under the $200 ceiling.</div>
-
 <PullQuote>The tools that power a $10K MRR outbound motion and a $500K MRR outbound motion are more similar than vendors want you to believe, the difference is process, not price tier.</PullQuote>
-
-
 
 <div class="stat-row-fix">
   <StatRow stats={[
@@ -47,8 +44,6 @@ The organizing principle here is separation of concerns. [Apollo](/go/apollo) do
 [HubSpot's](/go/hubspot) free CRM tier sits at the end of the pipeline as the record of truth. Not glamorous. But it handles contact storage, deal stages, and basic activity logging well enough for a team running under 500 active prospects at a time. When you outgrow it, you'll have the revenue to justify upgrading. You're not there yet, and that's fine.
 
 One strong opinion before we go further: don't use Apollo's built-in sequencer on this budget. The sending infrastructure isn't where Apollo earns its money, the data is. Hand off to Smartlead the moment a prospect hits a sequence. You'll get better deliverability and cleaner reply routing almost immediately.
-
-
 
 <div class="comparison-table-scroll">
   <ComparisonTable title="Under-$200 Outbound Stack: Tool Breakdown" tools={[

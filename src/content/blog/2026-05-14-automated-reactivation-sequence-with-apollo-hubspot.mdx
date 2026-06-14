@@ -1,6 +1,7 @@
 ---
 title: "Automated Reactivation Sequence with Apollo + HubSpot"
 description: "Build a dead-pipeline reactivation workflow using HubSpot segments, Apollo sequences, and bi-directional outcome syncing. Step-by-step RevOps playbook."
+tldr: "Build a dynamic HubSpot list of stalled or closed-lost contacts, export them to an Apollo sequence via the native integration, and configure Apollo to write reply and meeting outcomes back to HubSpot deal properties so your pipeline reflects reality."
 pubDate: 2026-05-14
 tags: ["guide", "automation", "apollo"]
 faqs:
@@ -25,8 +26,6 @@ import Figure from '@/components/post/Figure.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
 Every RevOps team I've worked with has the same graveyard sitting in their CRM: deals closed-lost or stalled 90-plus days ago, contacts who went cold mid-cycle, and a pipeline that quietly rotted while the team chased net-new. Nobody has a real playbook for it. The reactivation motion gets deprioritized because it feels manual, awkward, and hard to attribute. What I want to show you is a fully automated reactivation sequence that uses [HubSpot](/go/hubspot) for segmentation and deal management, [Apollo](/go/apollo) for multi-step sequencing, and a clean bi-directional sync so every outcome lands back in your CRM without a rep lifting a finger.
-
-<div class="quick-answer"><strong>Quick answer:</strong> Build a dynamic HubSpot list of stalled or closed-lost contacts, export them to an Apollo sequence via the native integration, and configure Apollo to write reply and meeting outcomes back to HubSpot deal properties so your pipeline reflects reality.</div>
 
 ## Why Dead Pipeline Is a Better Bet Than You Think
 

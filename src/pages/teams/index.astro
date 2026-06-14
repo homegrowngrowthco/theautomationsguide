@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { audiences, getAudiencePosts } from '../../data/audiences';
+
+const counts = await Promise.all(
+  audiences.map(async (a) => [a.slug, (await getAudiencePosts(a)).length] as const),
+);
+const countBySlug = Object.fromEntries(counts);
+---
+
+<BaseLayout
+  title="Browse by Team"
+  description="RevOps and GTM automation guides, tool reviews, and playbooks organized by team: sales, RevOps, marketing, and founders."
+>
+  <div class="container--wide">
+    <div class="page-header">
+      <h1>Find the playbooks for your team</h1>
+      <p>RevOps and GTM automation, organized by who you are and the problems you own.</p>
+    </div>
+
+    <div class="card-grid">
+      {audiences.map((a) => (
+        <a href={`/teams/${a.slug}/`} class="post-card">
+          <h2>{a.navLabel}</h2>
+          <p>{a.description}</p>
+          <div class="post-card-meta">
+            <span>{countBySlug[a.slug]} article{countBySlug[a.slug] === 1 ? '' : 's'}</span>
+            <span class="post-meta-sep">&middot;</span>
+            <span>View guides &rarr;</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

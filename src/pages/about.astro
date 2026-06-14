@@ -4,18 +4,39 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <BaseLayout
   title="About"
-  description="The Automations Guide is published by Homegrown Growth Co, a fractional RevOps consultancy founded by Ian, with 8 years of revenue operations experience."
+  description="The Automations Guide is published by Homegrown Growth Co, a fractional RevOps consultancy founded by Ian Chamberland, with 8 years of revenue operations experience."
 >
   <div class="container--wide">
     <div class="about-hero">
-      <p class="section-label">About this site</p>
-      <h1>RevOps and automation, from operators who've shipped it.</h1>
-      <p style="color:var(--text-muted);font-size:1.0625rem;line-height:1.75;max-width:580px;margin-top:1rem;">
-        The Automations Guide is published by <a href="https://homegrowngrowth.co" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">Homegrown Growth Co</a>,
-        a fractional RevOps consultancy founded by Ian. Eight years inside high-growth
-        GTM teams, from data analyst to Head of Global Revenue Operations, building the systems
-        and automations that make revenue predictable.
-      </p>
+      <div class="about-hero-inner">
+        <div class="about-hero-copy">
+          <p class="section-label">About this site</p>
+          <h1>RevOps and automation, from operators who've shipped it.</h1>
+          <p class="about-hero-lede">
+            The Automations Guide is published by <a href="https://homegrowngrowth.co" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">Homegrown Growth Co</a>,
+            a fractional RevOps consultancy founded by Ian Chamberland. Eight years inside high-growth
+            GTM teams, from data analyst to Head of Global Revenue Operations, building the systems
+            and automations that make revenue predictable.
+          </p>
+        </div>
+        <aside class="about-hero-photo">
+          <img
+            src="/images/ian-headshot.jpg"
+            alt="Ian Chamberland, founder of Homegrown Growth Co."
+            width="180"
+            height="219"
+            loading="eager"
+          />
+          <p class="about-hero-name">Ian Chamberland</p>
+          <p class="about-hero-role">Founder, Homegrown Growth Co</p>
+          <a class="about-hero-linkedin" href="https://www.linkedin.com/in/ianchamberland/" target="_blank" rel="noopener noreferrer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+            </svg>
+            Connect on LinkedIn
+          </a>
+        </aside>
+      </div>
     </div>
 
     <div class="about-content">
@@ -29,7 +50,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <p>
           This site exists to be the resource we wish existed when we were figuring out which
           tools to buy, which workflows to build first, and which vendor claims to ignore.
-          Everything here comes from direct experience inside real RevOps teams — not from
+          Everything here comes from direct experience inside real RevOps teams, not from
           reading documentation or regurgitating feature lists.
         </p>
 
@@ -37,13 +58,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <p>
           HGC was founded because the same pattern kept repeating: growing businesses stuck
           with overpriced agencies, junior admins, or no ops support at all. Real RevOps work
-          requires senior judgment <em>and</em> the willingness to build the thing — most
+          requires senior judgment <em>and</em> the willingness to build the thing. Most
           providers do one or the other.
         </p>
         <p>
           We work directly with founders, executives, and GTM leaders who want a senior thought
           partner who'll also implement the change and prove the ROI. The Automations Guide is
-          the public extension of that work — the playbooks, comparisons, and tactics we use in
+          the public extension of that work, the playbooks, comparisons, and tactics we use in
           client engagements, written down and shared.
         </p>
         <p>
@@ -54,25 +75,25 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <h2>What this site covers</h2>
         <p>
           The Automations Guide focuses on the automation layer underneath modern revenue
-          operations — the middleware, the CRM workflows, the data plumbing that makes GTM
+          operations: the middleware, the CRM workflows, the data plumbing that makes GTM
           motions run (or not run) smoothly.
         </p>
 
         <h3>Specifically:</h3>
         <ul>
-          <li>Automation platform comparisons — Zapier, Make, n8n, and where each actually breaks</li>
+          <li>Automation platform comparisons: Zapier, Make, n8n, and where each actually breaks</li>
           <li>HubSpot and Salesforce workflow automation, including the edge cases the docs skip</li>
           <li>Sales-to-CS handoff automation and the handoff failure modes we've personally shipped</li>
           <li>Lead routing, scoring, and enrichment with Clay, Apollo, and HubSpot</li>
-          <li>RevOps tech stack decisions — what to buy, what to skip, what order to build</li>
-          <li>AI-assisted automation in GTM contexts — what's actually useful vs. hype</li>
+          <li>RevOps tech stack decisions: what to buy, what to skip, what order to build</li>
+          <li>AI-assisted automation in GTM contexts: what's actually useful vs. hype</li>
         </ul>
 
         <h2>How we approach recommendations</h2>
         <p>
           We only write about tools we've actually used in a real environment. That means we've
           paid for them, hit their limits, submitted support tickets, and migrated off them when
-          something better came along. The write-ups here reflect that — when a tool is genuinely
+          something better came along. The write-ups here reflect that: when a tool is genuinely
           good, when it's overpriced for what it does, and when we'd recommend starting with the
           free tier indefinitely.
         </p>
@@ -86,8 +107,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <h2>Get in touch</h2>
         <p>
           Questions, topic suggestions, or want to talk about your RevOps stack?
-          Reach Ian at <a href="mailto:ian@theautomationsguide.com">ian@theautomationsguide.com</a>
-          or connect on <a href="https://www.linkedin.com/in/ianchamberland/" target="_blank" rel="noopener noreferrer">LinkedIn</a>.
+          Reach Ian Chamberland at <a href="mailto:ian@theautomationsguide.com">ian@theautomationsguide.com</a>.
+          You can also connect with him on <a href="https://www.linkedin.com/in/ianchamberland/" target="_blank" rel="noopener noreferrer">LinkedIn</a>.
         </p>
       </div>
     </div>
