@@ -4,7 +4,7 @@ Tracked by todo-sync (see ../todo-sync/CONVENTION.md). Open tasks below, most im
 
 ## TODO
 
-- [ ] Request Indexing in GSC for the 22 not-yet-indexed URLs from the 2026-06-14 audit — Tier 1 (do first): the 6 new `/teams/*` + `/playbooks/` hubs + 5 recent posts; Tier 2: 11 newest `/tools/*` hubs. All "URL is unknown to Google" except `/tools/warmly/` (crawled-not-indexed, no action). Daily-cap limited; full URL list in [AUDIT-SEO-2026-06-14.md](AUDIT-SEO-2026-06-14.md) @high [gsc-index-status.py](gsc-index-status.py)
+- [ ] Request Indexing in GSC for Tier 2 — the 11 newest `/tools/*` hubs (Tier 1, the 6 `/teams/*` + `/playbooks/` hubs + 5 recent posts, was submitted 2026-06-14 ✓). All "URL is unknown to Google" except `/tools/warmly/` (crawled-not-indexed, no action). Full URL list in [AUDIT-SEO-2026-06-14.md](AUDIT-SEO-2026-06-14.md) @med [gsc-index-status.py](gsc-index-status.py)
 - [ ] Font-loading optimization (C-1 follow-up): un-block the Google Fonts CSS in a CLS-safe way to pull mobile LCP under 2.5s (it's ~3.3s after the beehiiv/analytics deferral). A naive print-media swap was tested but adds font-swap CLS on text-heavy posts; needs fallback-metric matching (`size-adjust`) or self-hosting @med [src/layouts/BaseLayout.astro](src/layouts/BaseLayout.astro)
 - [ ] Apply to affiliate Wave 2 (tools 11 to 20) @med [AFFILIATE_PIPELINE.md](AFFILIATE_PIPELINE.md)
 - [ ] Review the first auto-staged backlog batch (Sun 2026-06-14) and flip the best to Queued; then make it weekly BAU @med [backlog/README.md](backlog/README.md)
