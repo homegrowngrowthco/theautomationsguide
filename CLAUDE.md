@@ -1,5 +1,21 @@
 # Session Log — last updated 2026-06-14
 
+## Quick reference — recent additions (Session 34, 2026-06-14)
+
+**Prepped the AI side of three manual, human-only GTM tasks so Ian can copy-paste each step (no applications submitted, no LinkedIn page created, no Beehiiv import, no GSC action — all Ian's). Docs only, committed `eca6e13`.**
+
+**1. Wave-2 affiliate applications ([APPLICATIONS.md](APPLICATIONS.md)).** Paste-ready doc for tools 11-20 ([AFFILIATE_PIPELINE.md](AFFILIATE_PIPELINE.md) rows 11-20: Lindy, Reply.io, KrispCall, Laxis, Close, Nutshell, GetResponse, AdCreative.ai, Motion, Brevo). A top "Standard answers" block (site URL, long-form audience, **~5K/mo traffic** per Ian, promo-methods, reusable "how will you promote us" paragraph, live-affiliate track record) + a per-tool block each carrying program/network, est. commission, the `/tools/<slug>/` hub to cite, real relevant post links (AdCreative.ai → its dedicated 2026-06-08 review; others → hub + 1-2 mapped comparison posts), a tool-specific promo angle, and `Applied/Approved` checkboxes mirroring the pipeline.
+
+**2. LinkedIn + Beehiiv ([LINKEDIN_BEEHIIV.md](LINKEDIN_BEEHIIV.md)).** Section A: full from-scratch LinkedIn Company Page setup (name, slug `the-automations-guide`, tagline <120 chars, About <2,000 chars, Specialties list, first post) drawn from [about.astro](src/pages/about.astro) + homepage voice. Section B: ready-to-paste first-issue copy for both Beehiiv templates (Daily "The Briefing" = 1 feature + 3 links + sponsor; Weekly "The Guide" = 1 feature + 5 updates + 1 review + sponsor), populated with real posts/tools + `/go/<slug>` sponsor links, plus the per-send edit checklist. The HTML shells already exist in [brand-kit/beehiiv/](brand-kit/beehiiv/); this supplies the words.
+
+**3. GSC Tier-2 ([GSC-TIER2-CHECKLIST.md](GSC-TIER2-CHECKLIST.md)).** Ordered Request-Indexing checklist of the **10** unindexed `/tools/*` hubs from [AUDIT-SEO-2026-06-14.md](AUDIT-SEO-2026-06-14.md) (bettercontact, circleback, fillout, fullenrich, leadmagic, lemlist, mailforge, surfe, vapi, vector), trailing-slash/canonical form; `/tools/warmly/` listed as the 11th but **monitor-only** (crawled-not-indexed = no action).
+
+**4. [TODO.md](TODO.md) annotated** (4 inline `(PREPPED ...)` notes on the affiliate/LinkedIn/Beehiiv/GSC items; no items added/removed, order preserved, drift lint clean).
+
+**Flag for Ian:** TODO.md still lists "Create LinkedIn Company Page" as open, but [OFF_SITE_SEO_CHECKLIST.md](OFF_SITE_SEO_CHECKLIST.md) + ops-log #281 mark it done (created 2026-06-12, `sameAs` live). Ian chose from-scratch setup this session (treating the existing page as a stub) — reconcile whether to close that TODO or downgrade the checklist's "done." **Revert:** `git revert eca6e13` (additive docs).
+
+---
+
 ## Quick reference — recent additions (Session 33, 2026-06-14)
 
 **Full SEO audit of the live site + fixed the one material finding (mobile Core Web Vitals). Shipped to prod via PR #91 (merge `0691ac6`).**
