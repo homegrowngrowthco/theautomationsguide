@@ -152,6 +152,74 @@ a:hover { text-decoration: underline; }
   background: var(--bg-secondary);
 }
 
+/* ── Teams dropdown ────────────────────────────── */
+.nav-dropdown { position: relative; }
+
+.nav-dropdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--text-muted);
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius);
+  transition: color 0.15s, background 0.15s;
+}
+.nav-dropdown-toggle:hover,
+.nav-dropdown-toggle[aria-current="page"],
+.nav-dropdown[data-open="true"] .nav-dropdown-toggle {
+  color: var(--text);
+  background: var(--bg-secondary);
+}
+.nav-dropdown-caret { transition: transform 0.15s; flex-shrink: 0; }
+.nav-dropdown[data-open="true"] .nav-dropdown-caret { transform: rotate(180deg); }
+
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  min-width: 210px;
+  list-style: none;
+  margin: 0;
+  padding: 0.4rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  display: none;
+  flex-direction: column;
+  gap: 0.1rem;
+  z-index: 200;
+}
+.nav-dropdown:hover .nav-dropdown-menu,
+.nav-dropdown:focus-within .nav-dropdown-menu,
+.nav-dropdown[data-open="true"] .nav-dropdown-menu {
+  display: flex;
+}
+.nav-dropdown-menu a {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+.nav-dropdown-menu a:hover,
+.nav-dropdown-menu a[aria-current="page"] {
+  color: var(--text);
+  background: var(--bg-secondary);
+}
+.nav-dropdown-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 0.35rem 0.25rem;
+}
+
 /* Right-side nav cluster: links + search + CTA + icons.
    On desktop/tablet: inline flex row.
    On mobile (<768px): becomes a drawer toggled by the hamburger button. */
@@ -282,6 +350,27 @@ a:hover { text-decoration: underline; }
     border-radius: var(--radius);
     font-size: 1.05rem;
   }
+
+  /* Teams dropdown renders inline in the drawer (no hover popover) */
+  .nav-dropdown { width: 100%; }
+  .nav-dropdown-toggle {
+    width: 100%;
+    justify-content: space-between;
+    font-size: 1.05rem;
+    padding: 0.75rem 0.75rem;
+  }
+  .nav-dropdown:hover .nav-dropdown-menu,
+  .nav-dropdown:focus-within .nav-dropdown-menu { display: none; }
+  .nav-dropdown-menu {
+    position: static;
+    box-shadow: none;
+    border: none;
+    background: transparent;
+    padding: 0 0 0.25rem 0.75rem;
+    min-width: 0;
+  }
+  .nav-dropdown[data-open="true"] .nav-dropdown-menu { display: flex; }
+  .nav-dropdown-menu a { font-size: 1rem; }
 
   .nav-actions {
     flex-direction: column;
@@ -787,6 +876,14 @@ main { flex: 1; }
 
 .post-meta-sep { color: var(--text-faint); }
 
+/* Byline links to /about for crawler-verifiable authorship (E-E-A-T). */
+.post-byline-author {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+}
+.post-byline-author:hover { color: var(--accent); text-decoration: underline; }
+
 .post-disclosure {
   margin: 0.5rem 0 0;
   font-size: 0.78rem;
@@ -801,11 +898,85 @@ main { flex: 1; }
   border-bottom: 1px solid var(--border);
 }
 
+.about-hero-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2.5rem;
+}
+
+.about-hero-copy { flex: 1 1 440px; min-width: 0; }
+
 .about-hero h1 {
   font-size: clamp(2rem, 4vw, 2.75rem);
   font-weight: 800;
   letter-spacing: -0.03em;
   margin-bottom: 1rem;
+}
+
+.about-hero-lede {
+  color: var(--text-muted);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  max-width: 580px;
+  margin-top: 1rem;
+}
+
+/* Headshot + identity card (right column on desktop, top on mobile) */
+.about-hero-photo {
+  flex: 0 0 200px;
+  width: 200px;
+  text-align: center;
+}
+
+.about-hero-photo img {
+  width: 180px;
+  height: auto;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  display: block;
+  margin: 0 auto 0.85rem;
+}
+
+.about-hero-name {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.about-hero-role {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  margin: 0.15rem 0 0.85rem;
+}
+
+.about-hero-linkedin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  border: 1px solid var(--accent-dim);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  background: var(--accent-glow);
+  transition: background 0.15s, color 0.15s;
+}
+
+.about-hero-linkedin:hover {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  text-decoration: none;
+}
+
+/* On narrow screens, stack and float the headshot to the top (face-first) */
+@media (max-width: 720px) {
+  .about-hero-inner { flex-direction: column; align-items: stretch; gap: 1.5rem; }
+  .about-hero-photo { order: -1; width: 100%; flex-basis: auto; }
 }
 
 .about-content {
@@ -965,9 +1136,27 @@ main { flex: 1; }
 .tag-filter {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.5rem;
   margin-top: 1.25rem;
 }
+
+/* "Filter by Topic" dropdown — holds the long tail of tags behind the pillars. */
+.topic-select-input {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: lowercase;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.topic-select-input:hover { border-color: var(--accent); color: var(--text); }
+.topic-select-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* The [hidden] attribute's UA `display:none` loses to `.post-card { display:flex }`,
    so the tag filter needs a higher-specificity rule to actually hide cards. */
@@ -1319,6 +1508,32 @@ main { flex: 1; }
 }
 .quick-answer strong { color: var(--accent); margin-right: 0.35em; }
 .quick-answer p { margin: 0; }
+
+/* ── Post TL;DR (frontmatter-driven, answer-first block at top of post) ── */
+.post-tldr {
+  margin: 0 0 2rem;
+  background: var(--accent-glow);
+  border: 1px solid var(--accent-dim);
+  border-left-width: 4px;
+  border-radius: 0.6rem;
+  padding: 1.1rem 1.35rem;
+}
+.post-tldr-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-dim, var(--accent));
+  margin: 0 0 0.4rem;
+}
+.post-tldr-text {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  font-weight: 600;
+}
 
 /* ── Post related tags ─────────────────────────── */
 .post-related-tags {

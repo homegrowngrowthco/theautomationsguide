@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { audiences, getAudiencePosts, type Audience } from '../../data/audiences';
+
+export async function getStaticPaths() {
+  return audiences.map((a) => ({ params: { role: a.slug }, props: { audience: a } }));
+}
+
+interface Props {
+  audience: Audience;
+}
+
+const { audience } = Astro.props;
+const posts = await getAudiencePosts(audience);
+const teamWord = audience.navLabel.replace(/^For /, '');
+---
+
+<BaseLayout title={audience.title} description={audience.description}>
+  <div class="container--wide">
+    <div class="page-header">
+      <p class="section-label">For {teamWord} teams</p>
+      <h1>{audience.title}</h1>
+      <p>{audience.description}</p>
+    </div>
+
+    {posts.length > 0 ? (
+      <div class="card-grid">
+        {posts.map((post) => <PostCard post={post} />)}
+      </div>
+    ) : (
+      <div style="text-align:center;padding:5rem 0;color:var(--text-muted);">
+        <p style="font-size:1.125rem;">
+          New guides for this team are on the way. <a href="/blog/">Browse all articles</a> in the meantime.
+        </p>
+      </div>
+    )}
+  </div>
+</BaseLayout>

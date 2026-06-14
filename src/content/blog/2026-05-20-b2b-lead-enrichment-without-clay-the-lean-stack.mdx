@@ -1,6 +1,7 @@
 ---
 title: "B2B Lead Enrichment Without Clay: The Lean Stack"
 description: "Clay alternatives for lead enrichment automation using Apollo and Make or n8n. Built for teams under 3 SDRs who don't need to pay Clay prices."
+tldr: "Apollo handles the enrichment data layer, Make or n8n handles the automation and CRM routing, and together they replace Clay's core enrichment workflows for small outbound teams at a significantly lower price point."
 pubDate: 2026-05-20
 tags: ["guide", "automation", "lead-enrichment"]
 faqs:
@@ -25,8 +26,6 @@ import Figure from '@/components/post/Figure.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
 Every RevOps operator I talk to has the same reaction when they see a [Clay](/go/clay) quote for a two-person SDR team: genuine sticker shock, followed by a hunt for alternatives. Clay is excellent software. I use it with larger clients and recommend it without hesitation when the workflow complexity justifies it. But if you have fewer than three SDRs running outbound, you are almost certainly paying for a Ferrari to do grocery runs. There is a composable stack using [Apollo](/go/apollo) and [Make](/go/make) or [n8n](/go/n8n) that handles 80% of what Clay does at roughly 30% of the cost. I have been running it for clients at Homegrown Growth Co. for the past 18 months.
-
-<div class="quick-answer"><strong>Quick answer:</strong> Apollo handles the enrichment data layer, Make or n8n handles the automation and CRM routing, and together they replace Clay's core enrichment workflows for small outbound teams at a significantly lower price point.</div>
 
 <PullQuote>Clay is overkill for most teams under three SDRs. The real unlock is separating the data layer from the automation layer and owning each one independently.</PullQuote>
 

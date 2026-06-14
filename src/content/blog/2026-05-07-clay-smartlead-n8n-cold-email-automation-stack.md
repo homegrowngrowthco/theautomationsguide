@@ -1,13 +1,12 @@
 ---
 title: "Clay + Smartlead + n8n Cold Email Automation Stack"
 description: "Step-by-step guide to building a cold email machine with Clay, Smartlead, and n8n. Covers enrichment, routing logic, and sending with real workflow triggers."
+tldr: "Build your list in Clay, use n8n to handle routing logic and data normalization, then push clean, segmented contacts into Smartlead campaigns via API, with explicit fallback branches for enrichment failures and field mismatches."
 pubDate: 2026-05-07
 tags: ["guide", "automation", "cold-email"]
 ---
 
 Most cold email guides hand you a tool recommendation and a vague "connect it with Zapier" wave of the hand. What they skip is the messy middle: what happens when Clay returns a null job title, when a lead's company size puts them in two different sequences, or when Smartlead's API rejects a contact because the email field is formatted wrong. Those edge cases are where campaigns die. This post walks the exact Clay → n8n → Smartlead workflow I'd build for a RevOps team sending 500-2,000 contacts per week, including the fallback conditions most tutorials quietly pretend don't exist.
-
-<div class="quick-answer"><strong>Quick answer:</strong> Build your list in Clay, use n8n to handle routing logic and data normalization, then push clean, segmented contacts into Smartlead campaigns via API, with explicit fallback branches for enrichment failures and field mismatches.</div>
 
 ## Step 1: Build and Enrich Your List in Clay
 

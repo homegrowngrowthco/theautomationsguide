@@ -1,6 +1,7 @@
 ---
 title: "5 RevOps Automation Mistakes Killing Your Pipeline Data"
 description: "These 5 RevOps automation mistakes corrupt pipeline data quality at the source. Learn the exact tool fixes for HubSpot, Clay, Zapier, and more."
+tldr: "The five most common RevOps automation mistakes killing pipeline data quality are: skipping a deduplication layer before CRM sync, missing enrichment on inbound leads, silent multi-step Zapier/Make failures, over-relying on a single data provider, and syncing bi-directionally without a field authority map."
 pubDate: 2026-05-04
 tags: ["revops", "automation", "pipeline-data-quality"]
 faqs:
@@ -23,8 +24,6 @@ import Figure from '@/components/post/Figure.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
 Your pipeline dashboard looks healthy until someone actually tries to work the data. Then you've got 400 duplicate company records in [HubSpot](/go/hubspot), leads with no industry field routed to the wrong sequence, enrichment that ran on 60% of inbound because a Zap silently errored out three weeks ago, and a CRM your reps have quietly stopped trusting. Pipeline data quality problems almost never come from lazy reps. They come from RevOps automation built fast, iterated faster, and never audited, compounding quietly until a board QBR exposes the rot.
-
-<div class="quick-answer"><strong>Quick answer:</strong> The five most common RevOps automation mistakes killing pipeline data quality are: skipping a deduplication layer before CRM sync, missing enrichment on inbound leads, silent multi-step Zapier/Make failures, over-relying on a single data provider, and syncing bi-directionally without a field authority map.</div>
 
 <PullQuote>
 Pipeline data quality problems almost never come from lazy reps. They come from automation built fast, iterated faster, and never audited.

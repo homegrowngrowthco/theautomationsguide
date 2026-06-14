@@ -1,4 +1,26 @@
-# Session Log — last updated 2026-06-12
+# Session Log — last updated 2026-06-14
+
+## Quick reference — recent additions (Session 32, 2026-06-14)
+
+**Ian: identity/E-E-A-T + GEO + IA overhaul (About headshot + full name, answer-first byline/TL;DR on every post, audience nav, de-cluttered blog index). Site changes on branch `feat/eeat-geo-nav-overhaul` (PR open for Ian to review on the Netlify preview, not merged). Engine deployed LIVE.**
+
+**1. Identity + "Ian Chamberland" everywhere.** [about.astro](src/pages/about.astro) hero is now two-column: headshot ([public/images/ian-headshot.jpg], copied from homegrown-growthco) + name + role + a prominent "Connect on LinkedIn" button at the top (mobile: photo stacks first via `order:-1`). Surname added to founder JSON-LD ([BaseLayout.astro](src/layouts/BaseLayout.astro)), the author card ([AuthorNote.astro](src/components/AuthorNote.astro)), [privacy.astro](src/pages/privacy.astro), and the about meta/intro/contact. Also stripped 8 pre-existing em-dashes from the About prose + 1 in the author bio (`feedback_no_em_dashes`).
+
+**2. Global byline + TL;DR (existing + future).** [BlogPostLayout.astro](src/layouts/BlogPostLayout.astro): byline is now "By Ian Chamberland" linked to `/about/` with `rel="author"` (the `displayAuthor` fallback flip drives JSON-LD `author.name` too), one file, all posts. Added optional `tldr` (+ `audiences`) to the [content schema](src/content/config.ts); the layout renders a bolded `.post-tldr` answer box at the very top of each post. Backfilled all 36 posts via [backfill-tldr.mjs](backfill-tldr.mjs) (lifts each inline `quick-answer` div into `tldr:` frontmatter + removes the now-duplicate div; CRLF-aware + uses a function replacer so a `$` in pricing text stays literal, both bit me on the first run). Bottom "Bottom line" CTA kept at the end.
+
+**3. Engine (future posts), DEPLOYED LIVE.** [n8n/update-engine-tldr.mjs](n8n/update-engine-tldr.mjs) (idempotent, token-self-check, no new `{{`/backtick/`${` tokens) edits [blog-post-engine.json](n8n/blog-post-engine.json): frontmatter emits `tldr:`, the 3 inline quick-answer skeleton bullets + QUICK ANSWER RULES become TL;DR-frontmatter rules, author voice = "Ian Chamberland"; Humanize preserve-list keeps tldr, drops the quick-answer bullet. Deployed via `deploy-engine.mjs --apply` (28 nodes, active unchanged, GET-verified, 0 quick-answer refs). **Timing note:** engine is now AHEAD of the live site, so merge the site PR before the next 8am cron post or one new post briefly renders without a visible answer block on the old layout.
+
+**4. Nav overhaul + audience hubs.** [BaseLayout.astro](src/layouts/BaseLayout.astro) nav is now **Teams (dropdown) | Playbooks | Tool Reviews | Latest** (green Newsletter CTA + search + social icons untouched). Teams dropdown = new accessible vanilla-JS toggle + hover/focus CSS, renders inline in the mobile drawer; items For Sales/RevOps/Marketing/Founders + About. New [audiences.ts](src/data/audiences.ts) maps each role to REAL topic tags (taxonomy is dominated by `automation` 27/36 + `comparison` 17, so those are excluded as audience signals; only `tech stack` is multi-word). [teams/[role].astro](src/pages/teams/[role].astro) + [teams/index.astro](src/pages/teams/index.astro) + [playbooks.astro](src/pages/playbooks.astro) reuse a new shared [PostCard.astro](src/components/PostCard.astro). Hub counts: Sales 17 / RevOps 12 / Marketing 7 / Founders 10 / Playbooks 7. Footer + breadcrumb labels aligned.
+
+**5. Blog index ([blog/index.astro](src/pages/blog/index.astro)).** H1 to "The RevOps & GTM Automation Blog", keyword-rich subhead + meta. Tag farm (~35 buttons) replaced by **All + 5 pillar buttons** (Cold Email/CRM/Workflow Automation/Lead Enrichment/Newsletter, each OR-matching a tag group) **+ a "Filter by Topic" select** holding all tags. Filter JS generalized to group/single-tag matching with `?tag=` URL sync; the `data-tags` delimiter switched from space to `|` so the multi-word `tech stack` tag filters correctly (PostCard + the filter both updated).
+
+**Verification:** `npm run build` clean (142 pages); qa:lint 0 hard / qa:render 0 hard / qa:overflow 0 / qa:logos clean; 0 em/en dashes in content; Playwright desktop+mobile confirmed About (2-col / stacked photo-first), post (TL;DR box + linked byline), Teams dropdown (desktop popover + mobile drawer), blog filters (Cold Email 15, tech stack 2, URL sync); rendered JSON-LD author + homepage founder = "Ian Chamberland".
+
+**Revert:** site = close the PR (or `git revert -m 1 <merge-sha>` after merge). Engine = re-run `deploy-engine.mjs --apply` against the prior `blog-post-engine.json`, or `git revert` the JSON + redeploy.
+
+**Open follow-ups:** (a) "Workflow Automation" pillar maps to platform tags only (~3 posts), NOT the `automation` catch-all (would be ~27), broaden if Ian prefers; (b) "Tool Reviews" points at the existing /tools hub (no separate articles-only /reviews page built).
+
+---
 
 ## Quick reference — recent additions (Session 31, 2026-06-12)
 
