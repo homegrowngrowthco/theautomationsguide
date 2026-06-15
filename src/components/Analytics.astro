@@ -19,9 +19,13 @@ const POSTHOG_HOST = 'https://us.i.posthog.com';
 // Defaults to the live property id; override per-environment with PUBLIC_GA4_ID
 // in Netlify env (or local .env) if needed. See ANALYTICS.md.
 const GA4_MEASUREMENT_ID = import.meta.env.PUBLIC_GA4_ID || 'G-RKWHJ95P3H';
+
+// Microsoft Clarity — free heatmaps + session recordings, complements PostHog.
+// Loaded on the same deferred path as GA4/PostHog to protect mobile LCP.
+const CLARITY_PROJECT_ID = import.meta.env.PUBLIC_CLARITY_ID || 'wx8no58ptx';
 ---
 
-<script is:inline define:vars={{ POSTHOG_KEY, POSTHOG_HOST, GA4_MEASUREMENT_ID }}>
+<script is:inline define:vars={{ POSTHOG_KEY, POSTHOG_HOST, GA4_MEASUREMENT_ID, CLARITY_PROJECT_ID }}>
   // Don't track localhost / preview by default — keeps real-traffic numbers clean.
   // Override by setting window.localStorage.setItem('posthog_track_local', '1') in the browser console.
   const host = window.location.hostname;
@@ -65,6 +69,16 @@ const GA4_MEASUREMENT_ID = import.meta.env.PUBLIC_GA4_ID || 'G-RKWHJ95P3H';
       autocapture: true,
       disable_session_recording: true,
     });
+
+    // ── Microsoft Clarity ──
+    if (CLARITY_PROJECT_ID) {
+      (function (c, l, a, r, i) {
+        c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+        const t = l.createElement(r); t.async = 1;
+        t.src = 'https://www.clarity.ms/tag/' + i;
+        const y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+      })(window, document, 'clarity', 'script', CLARITY_PROJECT_ID);
+    }
   }
 
   if (trackingEnabled) {
