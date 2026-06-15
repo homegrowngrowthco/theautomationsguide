@@ -39,8 +39,13 @@ const BEEHIIV_FORM_ID = 'd41efc59-7041-482b-8178-6d238e6c3cfa';
   // viewport (600px early, so it's ready before the user scrolls to it).
   (function () {
     const script = document.currentScript;
-    const wrap = script && script.previousElementSibling;
-    if (!wrap || !wrap.classList.contains('beehiiv-form-wrapper')) return;
+    // The script sits after the <section>, so its previousElementSibling is the
+    // section, NOT the wrapper (which is nested inside). Look up the wrapper within
+    // that section, falling back to a document-wide lookup.
+    const prev = script && script.previousElementSibling;
+    const wrap = (prev && prev.querySelector && prev.querySelector('.beehiiv-form-wrapper'))
+      || document.querySelector('.beehiiv-form-wrapper');
+    if (!wrap) return;
     let loaded = false;
     function load() {
       if (loaded) return;
