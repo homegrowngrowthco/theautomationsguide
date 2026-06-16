@@ -16,6 +16,18 @@
 
 > Note: Sessions 35/36 entries live on the unmerged `batch-solo-todos-2026-06-15` branch; this master entry intentionally follows Session 34 here.
 
+### Session 37 follow-up (2026-06-16) — code-block "black box" fix + PR #95 polish + merged
+
+Ian reviewed the (now-merged) Lemlist-vs-Instantly post and flagged two visual issues; both fixed, then **PR #95 MERGED** (`25cecbe`).
+
+**1. Code blocks rendered as a blank black box (PR #98, merge `2865106`) — sitewide, DEPLOYED LIVE.** Astro's default Shiki theme (`github-dark`) stamps an inline dark `background-color` on every `<pre>`, overriding the cream `.prose pre` rule in [global.css](src/styles/global.css); a plaintext (no-language) fence emits no per-token colors, so `.prose pre code { color: var(--text) }` (ink) lands on the dark inline bg = invisible. Several LIVE posts with plaintext/config fences were affected, not just this one. Fix: `markdown: { syntaxHighlight: false }` in [astro.config.mjs](astro.config.mjs) → clean `<pre><code>` with no inline styles, so the cream/ink design system fully controls code blocks (MDX inherits via `extendMarkdownConfig`). Verified: build clean (143 pages), **0** `github-dark`/dark inline bg in `dist`. Tradeoff (accepted): code blocks are now monochrome ink-on-cream, which matches what the CSS already targeted. **Revert:** `git revert -m 1 2865106` (restores the github-dark default).
+
+**2. "How the stacks actually look" comparison polish.** The right SideBySide pane was a raw ASCII diagram in a code block while the left was prose (asymmetric, AI-looking). First reformatted both panes to parallel bullet lists (bold lead-ins, Playwright-verified desktop + 390px); then per Ian **cut the SideBySide entirely** (+ its now-unused import) because it repeated the two stack paragraphs directly above it and the `<SpectrumBar>` already carries the robust comparison. The section now flows `<SpectrumBar>` → two concrete stack paragraphs → `<ChooseIf>`. Final component lineup: KeyTakeaways → StatRow → SpectrumBar → (stack paragraphs) → ChooseIf → MyTake → BottomLine → Sources.
+
+**3. PR #95 MERGED** (`25cecbe`) — the first post on the new `<ChooseIf>` decision-card standard, code-block fix inherited from master.
+
+**Revert:** PR #98 `git revert -m 1 2865106`; PR #95 is content (`git revert` its squash commit).
+
 ---
 
 ## Quick reference — recent additions (Session 34, 2026-06-14)
