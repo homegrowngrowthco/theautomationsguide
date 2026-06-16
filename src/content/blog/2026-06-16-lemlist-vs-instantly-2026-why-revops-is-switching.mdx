@@ -116,13 +116,16 @@ If you're a RevOps operator at a 30-to-500 person B2B SaaS company, you have a C
 The deliverability argument for Instantly (more inboxes, more rotation, more volume) is real but increasingly short-term. Google and Microsoft have continued tightening bulk sender policies throughout 2024 and 2025. The [Google Postmaster Tools documentation](https://support.google.com/mail/answer/9981691) is explicit: high-volume rotating inbox strategies are exactly what their spam classifiers are trained to catch. Burning through warmup pools is not a moat. It's a treadmill.
 
 <DecisionTree
-  question="Which tool fits your outbound setup?"
-  branches={[
-    { label: "Agency or high-volume SDR farm, no CRM dependency", result: "Instantly. It's purpose-built for this. Use it without apology." },
-    { label: "Mid-market B2B SaaS, CRM-connected outbound, GDPR exposure", result: "Lemlist. Native HubSpot/Salesforce sync, compliance controls, and personalization depth all point here." },
-    { label: "Small team, low volume, just getting started", result: "Lemlist still. The CRM habits you build early matter, and the $22/month difference doesn't justify the middleware debt you'll accumulate with Instantly." },
-    { label: "Enterprise, dedicated deliverability team, separate sending domains", result: "Evaluate both. At true enterprise scale the compliance and attribution arguments shift; Instantly's infrastructure may be worth the integration investment." }
-  ]}
+  caption="Lemlist vs Instantly: which fits your outbound setup"
+  tree={{
+    question: "Which tool fits your outbound setup?",
+    branches: [
+      { label: "Agency or high-volume SDR farm, no CRM dependency", result: { title: "Instantly", note: "Purpose-built for high-volume sending. Use it without apology.", tone: "alt" } },
+      { label: "Mid-market B2B SaaS, CRM-connected outbound, GDPR exposure", result: { title: "Lemlist", note: "Native HubSpot/Salesforce sync, compliance controls, and personalization depth all point here.", tone: "primary" } },
+      { label: "Small team, low volume, just getting started", result: { title: "Lemlist still", note: "The CRM habits you build early matter, and the $22/month difference doesn't justify the middleware debt you'll accumulate with Instantly.", tone: "primary" } },
+      { label: "Enterprise, dedicated deliverability team, separate sending domains", result: { title: "Evaluate both", note: "At true enterprise scale the compliance and attribution arguments shift; Instantly's infrastructure may be worth the integration investment.", tone: "neutral" } }
+    ]
+  }}
 />
 
 <MyTake>
