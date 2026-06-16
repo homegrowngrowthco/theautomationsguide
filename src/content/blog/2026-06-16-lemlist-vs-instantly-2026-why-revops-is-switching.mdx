@@ -23,7 +23,6 @@ import PullQuote from '@/components/post/PullQuote.astro';
 import MyTake from '@/components/post/MyTake.astro';
 import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
-import DecisionTree from '@/components/post/DecisionTree.astro';
 import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
 import ChooseIf from '@/components/post/ChooseIf.astro';
 import IntentTable from '@/components/post/IntentTable.astro';
@@ -115,17 +114,31 @@ If you're a RevOps operator at a 30-to-500 person B2B SaaS company, you have a C
 
 The deliverability argument for Instantly (more inboxes, more rotation, more volume) is real but increasingly short-term. Google and Microsoft have continued tightening bulk sender policies throughout 2024 and 2025. The [Google Postmaster Tools documentation](https://support.google.com/mail/answer/9981691) is explicit: high-volume rotating inbox strategies are exactly what their spam classifiers are trained to catch. Burning through warmup pools is not a moat. It's a treadmill.
 
-<DecisionTree
-  caption="Lemlist vs Instantly: which fits your outbound setup"
-  tree={{
-    question: "Which tool fits your outbound setup?",
-    branches: [
-      { label: "Agency or high-volume SDR farm, no CRM dependency", result: { title: "Instantly", note: "Purpose-built for high-volume sending. Use it without apology.", tone: "alt" } },
-      { label: "Mid-market B2B SaaS, CRM-connected outbound, GDPR exposure", result: { title: "Lemlist", note: "Native HubSpot/Salesforce sync, compliance controls, and personalization depth all point here.", tone: "primary" } },
-      { label: "Small team, low volume, just getting started", result: { title: "Lemlist still", note: "The CRM habits you build early matter, and the $22/month difference doesn't justify the middleware debt you'll accumulate with Instantly.", tone: "primary" } },
-      { label: "Enterprise, dedicated deliverability team, separate sending domains", result: { title: "Evaluate both", note: "At true enterprise scale the compliance and attribution arguments shift; Instantly's infrastructure may be worth the integration investment.", tone: "neutral" } }
-    ]
-  }}
+<ChooseIf
+  title="Which one fits your outbound setup?"
+  tools={[
+    {
+      name: "Lemlist",
+      conditions: [
+        "You're a mid-market B2B SaaS team running CRM-connected outbound",
+        "You have GDPR exposure and want compliance controls built in",
+        "You're a small team and want clean CRM habits from day one"
+      ],
+      affiliateSlug: "lemlist",
+      ctaLabel: "Try Lemlist",
+      highlight: true
+    },
+    {
+      name: "Instantly",
+      conditions: [
+        "You're an agency or a high-volume SDR farm",
+        "Your outbound has no real CRM dependency",
+        "Raw sending volume and inbox rotation are the whole game"
+      ],
+      affiliateSlug: "instantly",
+      ctaLabel: "Try Instantly"
+    }
+  ]}
 />
 
 <MyTake>
