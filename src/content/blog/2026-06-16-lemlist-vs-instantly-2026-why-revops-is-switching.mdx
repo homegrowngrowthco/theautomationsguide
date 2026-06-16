@@ -82,27 +82,27 @@ The [Lemlist](/go/lemlist) stack for the same company: Lemlist connected nativel
   <Fragment slot="left">
     **The Instantly stack tax**
 
-    The part nobody puts in the Instantly pricing comparison: the glue layer. Every Instantly deployment I've audited for a client has at least two of these running in the background: a Zap pushing replied contacts to HubSpot, a Clay workflow enriching before send, a Google Sheet manually tracking unsubscribes, and a cron job someone set up in 2024 that nobody remembers. When any one of these breaks (and they do break), the CRM gets dirty, compliance records go stale, and you find out three months later when legal asks for an opt-out audit.
+    The line item nobody puts in the pricing comparison is the glue layer. Every Instantly deployment I've audited runs at least two of these in the background:
+
+    - A Zap pushing replied contacts into HubSpot
+    - A Clay workflow enriching records before send
+    - A Google Sheet someone updates by hand for unsubscribes
+    - A cron job set up in 2024 that nobody remembers
+
+    When one breaks (and they break), the CRM goes dirty, compliance records go stale, and you find out three months later when legal asks for an opt-out audit.
   </Fragment>
   <Fragment slot="right">
-    **What the Lemlist CRM sync actually covers**
+    **What Lemlist's native sync covers**
 
-    ```
-    Lemlist -> HubSpot (native, real-time)
+    One HubSpot connection, real-time and two-way. Every event writes straight to the contact record:
 
-    Contact enrolled in sequence
-      -> Activity logged on contact timeline
-    Email opened / clicked
-      -> Engagement score updated
-    Reply received
-      -> Contact owner notified, deal stage triggered
-    Unsubscribe recorded
-      -> HubSpot marketing opt-out set to TRUE
-    Bounce recorded
-      -> Contact marked invalid, removed from sequences
+    - **Enrolled in a sequence:** logged to the contact timeline
+    - **Opened or clicked:** engagement score updates
+    - **Reply received:** owner notified, deal stage advances
+    - **Unsubscribe:** HubSpot marketing opt-out set to true
+    - **Bounce:** contact marked invalid, pulled from sequences
 
-    No Zapier. No webhooks. No manual cleanup.
-    ```
+    No Zapier, no webhooks, no manual cleanup.
   </Fragment>
 </SideBySide>
 
