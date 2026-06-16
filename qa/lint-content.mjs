@@ -46,6 +46,30 @@ const KNOWN = new Set([
   'KeyTakeaways', 'Sources', 'BottomLine', 'Fragment',
 ]);
 
+// DecisionTree is RETIRED for NEW posts (Session 37): its nested
+// tree={{branches:[{result:{...}}]}} prop shape was the top source of render/QA
+// errors. The engine no longer emits it (decision graphic is now <ChooseIf>). These
+// 14 posts shipped a valid tree before the retirement and still render fine, so they
+// are grandfathered; any OTHER post containing <DecisionTree> hard-fails. (CI lints
+// only the changed post, so this never touches the grandfathered set unless one is
+// edited — at which point migrate it to <ChooseIf>.)
+const DECISIONTREE_GRANDFATHERED = new Set([
+  '2026-05-07-apollo-alternatives-for-mid-market-outbound-teams-in-2026.mdx',
+  '2026-05-13-beehiiv-vs-substack-vs-hubspot-email-newsletter-for-b2b.mdx',
+  '2026-05-14-gong-vs-outreach-vs-salesloft-which-wins-in-2026.mdx',
+  '2026-05-15-clay-vs-zapier-for-b2b-lead-enrichment-workflows.mdx',
+  '2026-05-18-lemlist-vs-apollo-for-b2b-outbound-2026-pick.mdx',
+  '2026-05-19-why-revops-teams-are-abandoning-outreach-in-2026.mdx',
+  '2026-05-25-n8n-vs-make-for-cold-outbound-clay-webhooks-compared.mdx',
+  '2026-05-27-lemlist-vs-smartlead-vs-instantly-2026-cold-email-showdown.mdx',
+  '2026-05-28-outreach-alternatives-for-mid-market-revops-in-2026.mdx',
+  '2026-05-29-best-salesforce-automation-tools-no-make-or-n8n.mdx',
+  '2026-06-01-pipedrive-vs-apollo-outbound-which-wins-in-2026.mdx',
+  '2026-06-02-instantly-alternatives-2026-what-to-use-when-you-outgrow-it.mdx',
+  '2026-06-10-instantly-alternatives-2026-when-youve-hit-the-limits.mdx',
+  '2026-06-12-gong-alternatives-for-revenue-intelligence-that-actually-fit.mdx',
+]);
+
 const CAMEL_SVG = /(textAnchor|fontWeight|fontSize|fontFamily|strokeWidth|strokeDasharray|strokeLinecap|strokeLinejoin|markerEnd|markerStart|clipPath|fillOpacity|strokeOpacity)=/;
 const STYLE_BLOCK = /<style>[\s\S]*?<\/style>/g;
 const EN_EM_DASH = /[–—]/;
@@ -95,6 +119,8 @@ function lintFile(file) {
   const warn = [];
 
   // HARD — render/correctness breakers
+  if (/<DecisionTree[\s/>]/.test(body) && !DECISIONTREE_GRANDFATHERED.has(path.basename(file)))
+    hard.push('<DecisionTree> is retired (Session 37) — it was the top source of render/QA errors. Use <ChooseIf> ("Choose X if" cards) for the decision graphic, or <IntentTable> for a job-to-be-done matrix.');
   if (CAMEL_SVG.test(body)) hard.push('camelCase SVG attribute(s) (Astro drops them → broken layout). Use kebab-case.');
   if (EN_EM_DASH.test(body) || EN_EM_DASH.test(fm)) hard.push('em/en dash present (— or –). Use commas/periods.');
   for (const v of inlineLayoutHits(body)) hard.push(`inline multi-column layout wrapper (style="${v}") squishes components. Remove it; components are full-width.`);
