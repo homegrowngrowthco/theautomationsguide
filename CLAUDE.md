@@ -1,4 +1,22 @@
-# Session Log — last updated 2026-06-14
+# Session Log — last updated 2026-06-16
+
+## Quick reference — recent additions (Session 37, 2026-06-16)
+
+**Investigated PR #95's failure, then retired `<DecisionTree>` from the engine entirely per Ian (decision trees/flowcharts are the top source of post-generation/QA errors). Decision graphic is now `<ChooseIf>` cards. PR #96 merged + engine deployed live; PR #95 fixed and green.**
+
+**1. PR #95 failure root-caused + fixed.** The daily-engine post `2026-06-16-lemlist-vs-instantly...` hard-failed the **render-acceptance gate** ("DecisionTree: 4 leaf result(s) in source but only 0 rendered"). Root cause: the engine emitted the `<DecisionTree>` in the WRONG prop shape: flat top-level `question=`/`branches=` props with **string** `result` values, instead of the component's required single `tree={{ question, branches:[{ label, result:{ title, note, tone } }] }}` object. The `tree` prop was `undefined`, the malformed-prop guard in [DecisionTree.astro](src/components/post/DecisionTree.astro) degraded it to empty, and 0 of 4 branches rendered. The deterministic gate (Session 28) caught it correctly.
+
+**2. `<DecisionTree>` RETIRED for future posts (PR #96, merge `534ff00`) — engine DEPLOYED LIVE.** Ian's call: stop emitting decision trees, swap to a simpler/reliable graphic. Chose `<ChooseIf>` ("Choose X if" self-select cards) as the decision graphic (flat array props, never errors, already the Session-29 tree replacement). [n8n/update-engine-retire-decision-tree.mjs](n8n/update-engine-retire-decision-tree.mjs) (new, idempotent, token-self-checked): **Generate Draft** drops the DecisionTree import, replaces the whole DECISION TREES section with a DECISION GRAPHIC ban steering to `<ChooseIf>`/`<IntentTable>`, reworks skeleton + VISUALS; **Humanize** drops DecisionTree from the preserve list, converts any tree (svg or component) to `<ChooseIf>`, removes the FLATTEN verify, import count 15→14. Deployed via `deploy-engine.mjs --apply` + **live GET-verified** (active, 28 nodes, expression braces balanced, ban present, old section gone). Deterministic backstop in [qa/lint-content.mjs](qa/lint-content.mjs): `<DecisionTree>` in a NEW post HARD-fails (exit 1); the **14 existing live tree posts are grandfathered** (`DECISIONTREE_GRANDFATHERED` set) so `qa:lint --all` stays 0-hard. CI lints only the changed post, so live posts are untouched unless edited. Existing 14 posts keep their trees (Ian: future posts only).
+
+**3. PR #95 converted to the new standard + GREEN.** Replaced its `<DecisionTree>` with a 2-card `<ChooseIf>` (Lemlist vs Instantly; SpectrumBar stays the main comparison block), dropped the unused import. First adopter of the new policy; would otherwise have hard-failed the new lint ban (its filename isn't grandfathered). Build + lint + render-acceptance clean; QA run `27619465195` green. **Ready for Ian to merge.**
+
+**Verification:** updater idempotent (2nd run no-op); `qa:lint --all` 0 hard (all 36 posts); negative test (new post w/ a tree) hard-fails exit 1; deploy dry-run + apply + live GET all clean; PR #95 CI green.
+
+**Revert:** PR #96 `git revert 534ff00` (restores lint gate + JSON source); to roll the LIVE engine back, run `deploy-engine.mjs --apply` against the reverted `blog-post-engine.json`. PR #95 content = `git revert` its commit on the branch.
+
+> Note: Sessions 35/36 entries live on the unmerged `batch-solo-todos-2026-06-15` branch; this master entry intentionally follows Session 34 here.
+
+---
 
 ## Quick reference — recent additions (Session 34, 2026-06-14)
 
