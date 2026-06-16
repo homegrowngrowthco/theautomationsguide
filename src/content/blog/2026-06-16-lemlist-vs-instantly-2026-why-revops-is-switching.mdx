@@ -17,7 +17,6 @@ faqs:
     answer: "Lemlist is the stronger choice for teams with GDPR or CASL obligations. It includes built-in unsubscribe management, opt-out tracking, and data residency controls that Instantly lacks at the same depth."
 ---
 
-import SideBySide from '@/components/post/SideBySide.astro';
 import StatRow from '@/components/post/StatRow.astro';
 import PullQuote from '@/components/post/PullQuote.astro';
 import MyTake from '@/components/post/MyTake.astro';
@@ -77,34 +76,6 @@ This is where the comparison gets concrete, and where I see teams make expensive
 A typical Instantly stack at a 50-person B2B SaaS company looks like this: Instantly for sending, [Clay](/go/clay) for data enrichment and personalization variables, [Zapier](https://zapier.com) or [Make](/go/make) to push replied and bounced contacts back into HubSpot, and a manual process for unsubscribes because Instantly's opt-out handling does not natively sync to the CRM contact record. That stack works. I've built it. But it has three failure points, costs $100+ per month in middleware on top of the Instantly seat, and the compliance gap is a real legal exposure for any team selling into Europe or Canada.
 
 The [Lemlist](/go/lemlist) stack for the same company: Lemlist connected natively to HubSpot (two-way, real-time sync of enrollment, opens, clicks, replies, and unsubscribes), Clay for enrichment piped into Lemlist's personalization variables, and that's mostly it. Unsubscribes write back to the CRM contact as a marketing opt-out. Sequence activity lives in the contact timeline. Pipeline attribution works in HubSpot without custom field mapping. I've saved clients four to six hours per week in RevOps maintenance just by collapsing this stack.
-
-<SideBySide>
-  <Fragment slot="left">
-    **The Instantly stack tax**
-
-    The line item nobody puts in the pricing comparison is the glue layer. Every Instantly deployment I've audited runs at least two of these in the background:
-
-    - A Zap pushing replied contacts into HubSpot
-    - A Clay workflow enriching records before send
-    - A Google Sheet someone updates by hand for unsubscribes
-    - A cron job set up in 2024 that nobody remembers
-
-    When one breaks (and they break), the CRM goes dirty, compliance records go stale, and you find out three months later when legal asks for an opt-out audit.
-  </Fragment>
-  <Fragment slot="right">
-    **What Lemlist's native sync covers**
-
-    One HubSpot connection, real-time and two-way. Every event writes straight to the contact record:
-
-    - **Enrolled in a sequence:** logged to the contact timeline
-    - **Opened or clicked:** engagement score updates
-    - **Reply received:** owner notified, deal stage advances
-    - **Unsubscribe:** HubSpot marketing opt-out set to true
-    - **Bounce:** contact marked invalid, pulled from sequences
-
-    No Zapier, no webhooks, no manual cleanup.
-  </Fragment>
-</SideBySide>
 
 ## How to choose
 
