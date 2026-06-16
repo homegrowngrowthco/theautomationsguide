@@ -14,6 +14,16 @@ export default defineConfig({
   // redirecting no-slash variant. Output is unchanged (directory is Astro's default).
   trailingSlash: 'always',
   build: { format: 'directory' },
+  // Code blocks are styled by the cream/ink design system in global.css
+  // (.prose pre = cream bg + border, .prose pre code = ink text). Astro's default
+  // Shiki highlighter (github-dark) injects an inline dark background-color on
+  // <pre> that overrides that cream rule, and a plaintext (no-language) fence emits
+  // no per-token colors, so .prose pre code's ink text lands on the dark inline bg
+  // = an unreadable "blank black box". Disabling syntaxHighlight emits clean
+  // <pre><code> with no inline styles, letting the CSS fully control the look
+  // (cream box, ink monochrome text) on every post. MDX inherits this via
+  // extendMarkdownConfig (default true).
+  markdown: { syntaxHighlight: false },
   integrations: [
     mdx(),
     sitemap({
