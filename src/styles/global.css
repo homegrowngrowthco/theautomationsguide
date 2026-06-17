@@ -110,7 +110,7 @@ a:hover { text-decoration: underline; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2rem;
+  gap: 1.25rem;
 }
 
 .nav-logo {
@@ -141,8 +141,9 @@ a:hover { text-decoration: underline; }
   color: var(--text-muted);
   text-decoration: none;
   font-size: 1rem;
-  padding: 0.45rem 0.85rem;
+  padding: 0.45rem 0.7rem;
   border-radius: var(--radius);
+  white-space: nowrap;
   transition: color 0.15s, background 0.15s;
 }
 

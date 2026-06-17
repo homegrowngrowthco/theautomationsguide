@@ -4,7 +4,7 @@ import PostCard from '../components/PostCard.astro';
 import { getCollection } from 'astro:content';
 
 // "Playbooks" = the step-by-step / how-to content (guides, tutorials, workflows),
-// as opposed to the comparison-led "Tool Reviews" (which live under /tools/).
+// as opposed to the comparison-led head-to-heads (which live under /reviews/).
 const PLAYBOOK_TAGS = ['guide', 'tutorial', 'workflow', 'playbook'];
 
 const all = await getCollection('blog', ({ data }) => !data.draft);
