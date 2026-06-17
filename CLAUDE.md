@@ -1,4 +1,22 @@
-# Session Log — last updated 2026-06-16
+# Session Log — last updated 2026-06-17
+
+## Quick reference — recent additions (Session 38, 2026-06-17)
+
+**Reconciled the Session 35/36 divergence by splitting the parked `batch-solo-todos-2026-06-15` branch into 3 clean PRs off master, all merged + DEPLOYED LIVE. The Session-35 features now live on `master` (not a stranded branch); `batch-solo` deleted.**
+
+Why split: `batch-solo` bundled real unmerged Session-35 product code with stale logs, and merging it directly conflicted in 3 files (`CLAUDE.md`/`astro.config.mjs`/`public/_headers`) — and per Ian the risky font change wanted isolation. So rebuilt the work as independent PRs off current master instead of merging the branch.
+
+**1. Nav + /reviews hub (PR #100, merge `e6b5072`).** New [reviews.astro](src/pages/reviews.astro) `/reviews` comparisons hub (mirrors `/playbooks`, lists the `comparison`-tagged head-to-heads). [BaseLayout.astro](src/layouts/BaseLayout.astro) nav: added a "Comparisons" item, **promoted About to a top-level item after "Latest"** (removed from the Teams dropdown, which is now just the 4 audience links), and **renamed "Tool Reviews" → "Tools"** (header/footer/breadcrumb; homepage section `<h3>` left as descriptive content). `workflow-automation` tag added to the 6 platform posts + the blog-index pillar map. Nav-fit CSS in [global.css](src/styles/global.css) (`white-space:nowrap` on nav links + tighter `.nav-inner` gap 2rem→1.25rem + link padding) so the now-6-item bar stays single-line 920–1280px (it was wrapping "Tool Reviews"). Playwright-verified desktop/narrow/mobile-drawer.
+
+**2. Self-hosted fonts (PR #101, merge `1280426`) — the deferred S33 LCP fix.** Replaced the render-blocking Google Fonts `<link>` with self-hosted [@fontsource](src/layouts/BaseLayout.astro) imports + the **fontaine** Vite plugin ([astro.config.mjs](astro.config.mjs)) for metric-matched fallback faces (~0 CLS). Hand-merged so it **keeps** master's `markdown.syntaxHighlight:false` (the S37 code-block fix) and the Clarity CSP — only the two Google-Fonts hosts dropped. Verified on prod: **0** Google-Fonts refs, self-hosted woff2 loads (200), Clarity intact. **LCP-under-2.5s still needs a prod mobile Lighthouse run (follow-up).**
+
+**3. Grandfather kit-vs-beehiiv tree (PR #103, merge `6e388c3`).** The Kit-vs-Beehiiv post (PR #92, 2026-06-15) shipped a valid `<DecisionTree>` the same day as the S37 retirement and missed the grandfather scan, tripping `qa:lint --all` (1 hard). It renders fine; added to `DECISIONTREE_GRANDFATHERED` → `lint --all` back to 0 hard.
+
+**Verification:** all 3 merged to master + live on prod (curl-verified: 0 Google-Fonts refs, self-hosted woff2 200, "Tools" nav, About + Comparisons present, `/reviews/` 200, Clarity present). `qa:lint --all` 0 hard. **Revert:** `git revert` each squash — #100 `e6b5072` / #101 `1280426` (restores Google Fonts exactly) / #103 `6e388c3`.
+
+**Reconciliation note:** this closes the S35/36 gap. Session-35's features (fonts/reviews/tag) shipped here via #100/#101/#103, NOT via `batch-solo` (now deleted). Session 36's code (newsletter-form fix, Clarity) was already on `master` via PRs #93/#94 (see the S37 + S37-follow-up entries). Session-35's non-code decisions (LinkedIn reconcile, volume-ramp = hold 1/day) were docs-only and remain captured in STATUS.md / [TODO.md](TODO.md).
+
+---
 
 ## Quick reference — recent additions (Session 37, 2026-06-16)
 
@@ -14,7 +32,7 @@
 
 **Revert:** PR #96 `git revert 534ff00` (restores lint gate + JSON source); to roll the LIVE engine back, run `deploy-engine.mjs --apply` against the reverted `blog-post-engine.json`. PR #95 content = `git revert` its commit on the branch.
 
-> Note: Sessions 35/36 entries live on the unmerged `batch-solo-todos-2026-06-15` branch; this master entry intentionally follows Session 34 here.
+> Note: Sessions 35/36 were never written as standalone entries here (their work was stranded on `batch-solo`). Reconciled in Session 38 above — S35 features shipped via #100/#101/#103, S36 via #93/#94 (covered in the S37 entries). The S37 entry follows S34 here for that reason.
 
 ### Session 37 follow-up (2026-06-16) — code-block "black box" fix + PR #95 polish + merged
 
