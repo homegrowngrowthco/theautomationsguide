@@ -49,7 +49,7 @@ const KNOWN = new Set([
 // DecisionTree is RETIRED for NEW posts (Session 37): its nested
 // tree={{branches:[{result:{...}}]}} prop shape was the top source of render/QA
 // errors. The engine no longer emits it (decision graphic is now <ChooseIf>). These
-// 14 posts shipped a valid tree before the retirement and still render fine, so they
+// 15 posts shipped a valid tree before the retirement and still render fine, so they
 // are grandfathered; any OTHER post containing <DecisionTree> hard-fails. (CI lints
 // only the changed post, so this never touches the grandfathered set unless one is
 // edited — at which point migrate it to <ChooseIf>.)
@@ -68,6 +68,9 @@ const DECISIONTREE_GRANDFATHERED = new Set([
   '2026-06-02-instantly-alternatives-2026-what-to-use-when-you-outgrow-it.mdx',
   '2026-06-10-instantly-alternatives-2026-when-youve-hit-the-limits.mdx',
   '2026-06-12-gong-alternatives-for-revenue-intelligence-that-actually-fit.mdx',
+  // Merged 2026-06-15 (PR #92), same day as the retirement, so it missed the
+  // initial scan. Valid nested tree, renders fine (render-acceptance 0 hard).
+  '2026-06-15-kit-vs-beehiiv-2026-which-newsletter-platform-wins.mdx',
 ]);
 
 const CAMEL_SVG = /(textAnchor|fontWeight|fontSize|fontFamily|strokeWidth|strokeDasharray|strokeLinecap|strokeLinejoin|markerEnd|markerStart|clipPath|fillOpacity|strokeOpacity)=/;
