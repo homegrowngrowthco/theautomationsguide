@@ -55,6 +55,30 @@ export const toolCategories = [
   'Scheduling',
 ];
 
+/**
+ * Slug for a category's in-page anchor on the /tools index. Shared by the index
+ * page (section `id`) and the header "Tools" dropdown (jump-link `href`) so the
+ * two never drift. e.g. 'Cold Email & Deliverability' -> 'cold-email-deliverability'.
+ */
+export const categoryAnchor = (category: string): string =>
+  category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+/**
+ * Curated subset of categories surfaced in the header "Tools" dropdown as
+ * jump-links into the /tools index. Order matters. Deliberately a subset of
+ * `toolCategories`: the singleton categories (Enrichment, Visitor ID, Scheduling)
+ * are reached via the dropdown's "Browse all tools" tail link rather than
+ * cluttering the menu with one-tool rows.
+ */
+export const navToolCategories = [
+  'Workflow Automation',
+  'CRM',
+  'Outbound & Lead Generation',
+  'Cold Email & Deliverability',
+  'Newsletter Platform',
+  'AI Agents',
+];
+
 export const tools: Tool[] = [
   {
     slug: 'make',

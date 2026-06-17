@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
-import { tools, toolCategories, postMentionsTool } from '../data/tools';
+import { tools, toolCategories, categoryAnchor, postMentionsTool } from '../data/tools';
 
 const categorySubs: Record<string, string> = {
   'Workflow Automation': 'The middleware layer that connects your stack and runs your GTM playbooks.',
@@ -45,7 +45,7 @@ const articleCount = (slug: string) => {
   </section>
 
   {toolCategories.map((category, i) => (
-    <section class="section" style={i > 0 ? 'border-top:1px solid var(--border);' : undefined}>
+    <section class="section tools-cat-section" id={categoryAnchor(category)} style={i > 0 ? 'border-top:1px solid var(--border);' : undefined}>
       <div class="container--wide">
         <div class="tools-category">
           <h2 class="tools-category-heading">{category}</h2>
@@ -115,6 +115,9 @@ const articleCount = (slug: string) => {
 </BaseLayout>
 
 <style>
+  /* Offset anchor jumps (from the header "Tools" dropdown) so the sticky nav
+     doesn't cover the category heading. */
+  .tools-cat-section { scroll-margin-top: calc(var(--nav-h) + 0.5rem); }
   .tool-card h3 a { color: inherit; text-decoration: none; }
   .tool-card h3 a:hover { color: var(--accent); }
   /* Whole card is a single click target for the tool's hub page. The title
