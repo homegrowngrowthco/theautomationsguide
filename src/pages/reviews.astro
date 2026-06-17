@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import { getCollection } from 'astro:content';
+
+// "Comparisons" = the head-to-head, buyer-intent "X vs Y" content (the
+// `comparison`-tagged posts), as opposed to the how-to "Playbooks" (/playbooks/)
+// and the per-tool directory (/tools/). High purchase intent, so it gets its own
+// landing page instead of being buried in the tool directory.
+const COMPARISON_TAGS = ['comparison'];
+
+const all = await getCollection('blog', ({ data }) => !data.draft);
+const posts = all
+  .filter((p) => p.data.tags.some((t) => COMPARISON_TAGS.includes(t.toLowerCase())))
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+---
+
+<BaseLayout
+  title="Tool Comparisons & Head-to-Head Reviews"
+  description="Side-by-side comparisons of RevOps and GTM automation tools, Zapier vs Make vs n8n, Apollo vs Clay, and more, from operators who have run them in production."
+>
+  <div class="container--wide">
+    <div class="page-header">
+      <h1>Comparisons</h1>
+      <p>Head-to-head tool comparisons to help you pick the right stack, decided on real workflows, not vendor spec sheets.</p>
+    </div>
+
+    {posts.length > 0 ? (
+      <div class="card-grid">
+        {posts.map((post) => <PostCard post={post} />)}
+      </div>
+    ) : (
+      <div style="text-align:center;padding:5rem 0;color:var(--text-muted);">
+        <p style="font-size:1.125rem;">Comparisons are on the way. <a href="/blog/">Browse all articles</a>.</p>
+      </div>
+    )}
+  </div>
+</BaseLayout>
