@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
+import { FontaineTransform } from 'fontaine';
 
 // Pages we intentionally noindex — must be excluded from the sitemap, otherwise
 // GSC reports "Excluded by 'noindex' tag" (sitemap and page directive disagree).
@@ -24,6 +25,21 @@ export default defineConfig({
   // (cream box, ink monochrome text) on every post. MDX inherits this via
   // extendMarkdownConfig (default true).
   markdown: { syntaxHighlight: false },
+  vite: {
+    plugins: [
+      // Generate metric-matched fallback @font-face faces (size-adjust /
+      // ascent-override / descent-override) for the self-hosted @fontsource
+      // families so the swap from system fallback to the real webfont causes ~0
+      // layout shift (CLS). `fallbacks: {}` (an empty object, NOT omitted —
+      // fontaine 0.8 indexes fallbacks[family] and crashes on undefined) routes
+      // each family to its category-aware default local(): Arial for
+      // sans/display, Times New Roman/Georgia for the serif, Courier New for
+      // mono. The generated faces are named "<Family> fallback"; because our
+      // font stacks live in CSS custom properties (--font-*), which fontaine's
+      // font-family walk skips, we reference those names explicitly in global.css.
+      FontaineTransform.vite({ fallbacks: {} }),
+    ],
+  },
   integrations: [
     mdx(),
     sitemap({
