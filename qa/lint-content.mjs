@@ -27,7 +27,9 @@ const getArg = (f) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] :
 const readSlugs = () => {
   const al = readFileSync('src/data/affiliate-links.ts', 'utf-8');
   const block = al.slice(al.indexOf('affiliateLinks'), al.indexOf('\nexport function') >= 0 ? al.indexOf('\nexport function') : al.length);
-  const affiliate = new Set([...block.matchAll(/^\s{2}([a-z0-9-]+):\s*\{/gm)].map((m) => m[1]));
+  // Keys can be bare (zapier:) OR quoted when hyphenated ('reply-io': / "cal-com":).
+  // The optional quotes matter: 4 quoted keys were silently absent from this set before.
+  const affiliate = new Set([...block.matchAll(/^\s{2}['"]?([a-z0-9-]+)['"]?:\s*\{/gm)].map((m) => m[1]));
   const tools = readFileSync('src/data/tools.ts', 'utf-8');
   const toolSlugs = new Set([...tools.matchAll(/slug:\s*'([a-z0-9-]+)'/g)].map((m) => m[1]));
   return { affiliate, toolSlugs };
@@ -130,6 +132,14 @@ function lintFile(file) {
 
   for (const m of body.matchAll(/\/go\/([a-z0-9-]+)/g)) {
     if (!affiliate.has(m[1])) hard.push(`/go/${m[1]} → "${m[1]}" is not in affiliate-links.ts (would 404). Add it or fix the slug.`);
+  }
+  // Component-prop affiliate slugs (ComparisonTable/ToolBreakdown rows) — both the
+  // object form `affiliateSlug: "zapier"` and the JSX-attr form `affiliateSlug="zapier"`.
+  // These have no `/go/` prefix so the matcher above can't see them; an unregistered slug
+  // here renders a CTA that 404s at click time (audit 2026-06-17, C-1). Empty "" / null
+  // don't capture, so they're safely skipped.
+  for (const m of body.matchAll(/affiliateSlug\s*[:=]\s*['"]([a-z0-9-]+)['"]/g)) {
+    if (!affiliate.has(m[1])) hard.push(`affiliateSlug "${m[1]}" is not in affiliate-links.ts → its /go/${m[1]} CTA would 404. Add it or fix the slug.`);
   }
   for (const m of body.matchAll(/\/tools\/([a-z0-9-]+)/g)) {
     if (!toolSlugs.has(m[1])) hard.push(`/tools/${m[1]} → "${m[1]}" is not a tool slug (would 404).`);
