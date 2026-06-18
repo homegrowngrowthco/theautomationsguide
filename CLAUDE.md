@@ -1,4 +1,19 @@
-# Session Log — last updated 2026-06-17 (Session 39)
+# Session Log — last updated 2026-06-18 (Session 40)
+
+## Quick reference — recent additions (Session 40, 2026-06-18)
+
+**Ran a full-spectrum website audit (the companion to the SEO-only [AUDIT-SEO-2026-06-14.md](AUDIT-SEO-2026-06-14.md)). Deliverable: [AUDIT-FULL-2026-06-17.md](AUDIT-FULL-2026-06-17.md) at repo root (tracked). Findings only, NO fixes applied yet — Ian wants to work through critical + medium next.**
+
+Method: `npm run build` + full `qa` suite (lint-content/render-acceptance/mobile-overflow/lint-logos/seo-scan, all 0 hard) as the deterministic baseline; a 5-agent read-only static fan-out (content, code, affiliate, security, SEO); Lighthouse 12 simulated-mobile vs PROD across home/post/tools-index/tool-hub/reviews/teams; Playwright network capture + axe-class checks vs PROD. **Tally: 1 critical (+1 paired root-cause), 6 medium, 11 low.**
+
+- **🔴 C-1 (live revenue leak): 4 affiliate CTAs 404 at click time.** `affiliateSlug:` props for `zapier` (×2 posts), `canva`, `creatify` have NO `affiliate-links.ts` entry, so `go/[tool].astro` never generates the redirect → curl-confirmed `/go/zapier|canva|creatify/` = **404 on prod** (control `/go/clay/` = 200). Fix: add them as `no-program` entries w/ homepage fallback (pattern already used for gong/outreach/etc). **🔴 C-2 (root cause): the QA gate misses component-prop slugs** — `lint-content.mjs:131` only matches the prose `/go/` form, not `affiliateSlug:`, so this shipped past CI and WILL recur. Fix both in one PR (add an `affiliateSlug:` matcher to the lint).
+- **🟠 Mediums:** M-1 **WCAG color-contrast sitewide** (teal `#14a890` fails AA on light bg, 34 elems 2.71-2.98 + white-on-teal buttons; the SAME brand-token class HGC fixed with a darker teal-text token — highest-leverage medium); M-2 no og:image fallback (home + all non-post pages bare social card); M-3 88/97 titles over SERP width; M-4 ~111 prose affiliate links lack `rel=sponsored` (mitigated by internal /go); M-5 ~70 lines dead CSS in 47KB un-treeshaken global.css; M-6 Astro 2 majors behind (4 high advisories, mostly build-time; `npm audit fix` clears 2 non-breaking).
+- **🟢 Strong passes:** Performance FULLY resolved (Perf 97-100, LCP 1.6-2.3s, **CLS 0** every template — the old CWV-critical is gone); content 0 hard across 39 posts; **all 3 analytics firing live** (PostHog/GA4/Clarity — incl. the `y.clarity.ms/collect` endpoint that's silently CSP-blocked on HGC); CSP/headers tight + in-sync; FTC disclosure + component CTAs + newsletter injection + mobile-overflow all clean. Full coverage matrix in the doc.
+- **Lows (11):** em-dash title separator (`—`→`|`), homepage heading-order (h1→h3), 9 oldest tool hubs missing FAQPage schema, 3 meta-desc outliers, og:type=website on posts, 2 minor a11y (footer publisher link name-mismatch, disclosure link color-only), 8 logo-less compared tools, repeated inline-style idioms, latent 2-form newsletter fragility.
+
+**Next session: fix C-1+C-2 (one PR, ~30 min, stops the live 404s) → M-1 color-contrast → M-2/L-1/L-8 BaseLayout batch.** Fix sequencing + every file:line is in AUDIT-FULL-2026-06-17.md.
+
+---
 
 ## Quick reference — recent additions (Session 39, 2026-06-17)
 
