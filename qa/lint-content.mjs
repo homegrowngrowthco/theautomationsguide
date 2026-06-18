@@ -173,6 +173,11 @@ function lintFile(file) {
   if (/<style[\s>]/i.test(body)) hard.push('contains a <style> block. Components are self-styled and responsive; per-post CSS (esp. grid/flex column overrides) squishes them. Remove it.');
   const desc = (fm.match(/^description:\s*["']?(.*?)["']?\s*$/m) || [])[1] || '';
   if (desc && (desc.length < 70 || desc.length > 165)) warn.push(`meta description is ${desc.length} chars (aim 70-165).`);
+  // Title length (audit M-3): BaseLayout appends " | The Automations Guide" (+24),
+  // so a frontmatter title over ~60 chars truncates in the SERP and Google clips the
+  // differentiating end. Warn (engine-side prompt should target ~55).
+  const ttl = (fm.match(/^title:\s*["']?(.*?)["']?\s*$/m) || [])[1] || '';
+  if (ttl.length > 60) warn.push(`title is ${ttl.length} chars (>60 truncates in SERP once the " | The Automations Guide" suffix is added; aim <=60).`);
   if (!/^faqs:/m.test(fm)) warn.push('no faqs in frontmatter (misses the visible FAQ + FAQPage schema).');
   if (!/^title:/m.test(fm)) hard.push('frontmatter missing title.');
   if (!/^description:/m.test(fm)) hard.push('frontmatter missing description.');
