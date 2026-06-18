@@ -52,10 +52,11 @@
   --border-strong: #cdc7b3;
   --text:          #262b32;                         /* ink-700, matches logo */
   --text-muted:    #5e6671;
-  --text-faint:    #8b929e;
-  --accent:        var(--tag-teal-500);            /* #14a890 core brand */
+  --text-faint:    #656b76;                         /* darkened from #8b929e for WCAG AA (~4.9:1 on the warm panel); muted badge/meta text */
+  --accent:        var(--tag-teal-500);            /* #14a890 core brand — DECORATIVE only (dots/borders/fills) */
+  --accent-text:   var(--tag-teal-700);            /* #0a6d5e — teal for TEXT/links/icons on light (6.1:1 AA). See M-1. */
   --accent-dim:    var(--tag-teal-600);            /* #0d8c78 */
-  --accent-hover:  var(--tag-teal-700);            /* #0a6d5e — darker on hover (light bg) */
+  --accent-hover:  var(--tag-teal-800);            /* #084f44 — darker on hover (light bg) */
   --accent-glow:   var(--tag-teal-50);             /* #e6fbf6 soft teal tint */
   --accent-contrast: #ffffff;                      /* text/icon on a teal fill */
   --nav-bg:        rgba(253, 252, 248, 0.85);      /* translucent cream nav */
@@ -92,7 +93,7 @@ body {
 }
 
 img { max-width: 100%; display: block; }
-a { color: var(--accent); text-decoration: none; }
+a { color: var(--accent-text); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 /* ── Nav ───────────────────────────────────────── */
@@ -253,7 +254,7 @@ a:hover { text-decoration: underline; }
   border-radius: var(--radius);
   transition: color 0.15s, background 0.15s;
 }
-.nav-hamburger:hover { color: var(--accent); background: var(--bg-secondary); }
+.nav-hamburger:hover { color: var(--accent-text); background: var(--bg-secondary); }
 .nav-hamburger:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .nav-hamburger[aria-expanded="true"] .hb-line-top { transform: translate(0, 6px) rotate(45deg); }
 .nav-hamburger[aria-expanded="true"] .hb-line-mid { opacity: 0; }
@@ -433,7 +434,7 @@ main { flex: 1; }
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-text);
   margin-bottom: 1.25rem;
   padding: 0.3rem 0.75rem;
   border: 1px solid var(--accent-dim);
@@ -643,7 +644,7 @@ main { flex: 1; }
 }
 
 .btn--primary {
-  background: var(--accent);
+  background: var(--accent-text); /* teal-700 so white text passes AA (M-1) */
   color: var(--accent-contrast);
 }
 
@@ -704,7 +705,7 @@ main { flex: 1; }
   padding: 0.2rem 0.55rem;
   border-radius: 999px;
   background: var(--accent-glow);
-  color: var(--accent);
+  color: var(--accent-text);
   border: 1px solid var(--accent-dim);
   white-space: nowrap;
 }
@@ -780,7 +781,7 @@ main { flex: 1; }
 
 .prose p { margin-bottom: 1.25em; }
 
-.prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.prose a { color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; }
 .prose a:hover { color: var(--accent-hover); }
 
 .prose ul, .prose ol {
@@ -807,7 +808,7 @@ main { flex: 1; }
   border: 1px solid var(--border);
   padding: 0.15em 0.4em;
   border-radius: 4px;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .prose pre {
@@ -888,7 +889,7 @@ main { flex: 1; }
   font-weight: 600;
   text-decoration: none;
 }
-.post-byline-author:hover { color: var(--accent); text-decoration: underline; }
+.post-byline-author:hover { color: var(--accent-text); text-decoration: underline; }
 
 .post-disclosure {
   margin: 0.5rem 0 0;
@@ -896,7 +897,7 @@ main { flex: 1; }
   color: var(--text-faint);
 }
 .post-disclosure a { color: var(--text-muted); text-decoration: underline; }
-.post-disclosure a:hover { color: var(--accent); }
+.post-disclosure a:hover { color: var(--accent-text); }
 
 /* ── About page ────────────────────────────────── */
 .about-hero {
@@ -964,7 +965,7 @@ main { flex: 1; }
   gap: 0.4rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--accent-text);
   text-decoration: none;
   border: 1px solid var(--accent-dim);
   border-radius: 999px;
@@ -974,7 +975,7 @@ main { flex: 1; }
 }
 
 .about-hero-linkedin:hover {
-  background: var(--accent);
+  background: var(--accent-text); /* teal-700 so white text passes AA (M-1) */
   color: var(--accent-contrast);
   text-decoration: none;
 }
@@ -1077,7 +1078,7 @@ main { flex: 1; }
   transition: color 0.15s;
 }
 
-.footer-links a:hover { color: var(--accent); }
+.footer-links a:hover { color: var(--accent-text); }
 
 .footer-bottom {
   max-width: var(--max-w-wide);
@@ -1098,7 +1099,7 @@ main { flex: 1; }
   transition: color 0.15s;
 }
 
-.footer-bottom a:hover { color: var(--accent); }
+.footer-bottom a:hover { color: var(--accent-text); }
 
 .footer-bottom-sep {
   color: var(--border);
@@ -1182,7 +1183,7 @@ main { flex: 1; }
 }
 
 .tag--filter[aria-pressed="true"] {
-  background: var(--accent);
+  background: var(--accent-text); /* teal-700 so white text passes AA (M-1) */
   color: var(--accent-contrast);
   border-color: var(--accent);
 }
@@ -1205,13 +1206,13 @@ main { flex: 1; }
   border: none;
   padding: 0;
   font: inherit;
-  color: var(--accent);
+  color: var(--accent-text);
   cursor: pointer;
   text-decoration: underline;
 }
 
 /* ── Utilities ─────────────────────────────────── */
-.text-accent { color: var(--accent); }
+.text-accent { color: var(--accent-text); }
 .mt-sm { margin-top: 1rem; }
 .mt-md { margin-top: 2rem; }
 .mt-lg { margin-top: 3rem; }
@@ -1280,7 +1281,7 @@ main { flex: 1; }
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-text);
   margin-bottom: 0.75rem;
 }
 
@@ -1427,7 +1428,7 @@ main { flex: 1; }
 
 .tool-badge--free {
   background: var(--accent-glow);
-  color: var(--accent);
+  color: var(--accent-text);
   border-color: var(--accent-dim);
 }
 
@@ -1512,7 +1513,7 @@ main { flex: 1; }
   font-size: 1rem;
   color: var(--text);
 }
-.quick-answer strong { color: var(--accent); margin-right: 0.35em; }
+.quick-answer strong { color: var(--accent-text); margin-right: 0.35em; }
 .quick-answer p { margin: 0; }
 
 /* ── Post TL;DR (frontmatter-driven, answer-first block at top of post) ── */
@@ -1593,7 +1594,7 @@ main { flex: 1; }
   font-size: 1.45rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: var(--accent);
+  color: var(--accent-text);
   line-height: 1.1;
 }
 
@@ -1730,7 +1731,7 @@ main { flex: 1; }
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.1em;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .step-card-title {
