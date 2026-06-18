@@ -7,6 +7,26 @@ import { FontaineTransform } from 'fontaine';
 // GSC reports "Excluded by 'noindex' tag" (sitemap and page directive disagree).
 const NOINDEX_PATHS = ['/search/', '/privacy/', '/terms/', '/disclosure/'];
 
+// In-body markdown affiliate links — [Clay](/go/clay) — render as bare <a> with
+// no rel. The structured component CTAs already carry rel="noopener noreferrer
+// sponsored"; this stamps the same on every prose /go/ link at build so the whole
+// site is consistent (audit M-4). Self-contained hast walk, no extra deps.
+function rehypeAffiliateRel() {
+  return (tree) => {
+    const visit = (node) => {
+      if (
+        node.tagName === 'a' &&
+        typeof node.properties?.href === 'string' &&
+        node.properties.href.startsWith('/go/')
+      ) {
+        node.properties.rel = 'sponsored noopener noreferrer';
+      }
+      node.children?.forEach(visit);
+    };
+    visit(tree);
+  };
+}
+
 export default defineConfig({
   site: 'https://theautomationsguide.com',
   // Canonical URL form is trailing-slash (directory output + sitemap + canonical
@@ -24,7 +44,7 @@ export default defineConfig({
   // <pre><code> with no inline styles, letting the CSS fully control the look
   // (cream box, ink monochrome text) on every post. MDX inherits this via
   // extendMarkdownConfig (default true).
-  markdown: { syntaxHighlight: false },
+  markdown: { syntaxHighlight: false, rehypePlugins: [rehypeAffiliateRel] },
   vite: {
     plugins: [
       // Generate metric-matched fallback @font-face faces (size-adjust /
