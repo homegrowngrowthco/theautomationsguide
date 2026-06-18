@@ -1,5 +1,15 @@
 # Full Website Audit — theautomationsguide.com — 2026-06-17
 
+> **RESOLUTION (2026-06-18, Session 41):** The critical and **all 6 mediums** are fixed, merged to master, and deployed.
+> - **C-1 + C-2** → PR #109 (register zapier/canva/creatify + affiliateSlug lint matcher; also fixed a latent quoted-key parser bug). Prod-verified: `/go/{zapier,canva,creatify}/` now 200.
+> - **M-1** color-contrast → PR #110 (`--accent-text` teal-700 + darker fills/faint; Lighthouse color-contrast PASS, a11y 92→96).
+> - **M-2 / L-1 / L-8** → PR #111 (default `/og/default.png` card + `og:type=article` + ` | ` title separator). Prod-verified: og:image live.
+> - **M-6** → PR #112 (`npm audit fix` non-breaking; 12→9 vulns; Astro 4→6 major deferred/tracked).
+> - **M-5** → PR #113 (59 lines dead CSS removed).
+> - **M-4 / M-3** → PR #114 (rehype `rel="sponsored"` on prose /go/ links + title-length lint warning).
+>
+> **Remaining open:** lows L-2, L-3, L-4, L-5, L-6, L-7, L-9, L-10, and the deferred Astro 4→6 major migration (M-6 second half). See the Low section.
+
 **Verdict:** The site is in genuinely good shape. The 2026-06-14 SEO audit's one critical (mobile Core Web Vitals) is fully resolved (Perf 97-100, LCP 1.6-2.3s, CLS 0 across every template). Content, security headers, analytics, and the QA pipeline are all clean. There is **one true critical: four affiliate CTAs 404 at click time on production** (live revenue leak), enabled by a gap in the deterministic QA gate. Everything else is medium/low polish — and the single highest-leverage medium is the sitewide WCAG color-contrast fail (the same brand-token class HGC fixed in its own audit).
 
 This is the full-spectrum companion to [AUDIT-SEO-2026-06-14.md](AUDIT-SEO-2026-06-14.md) (which was SEO-only). Scope: performance, accessibility, conversion/affiliate funnel, content quality, code/template quality, security & headers, dependencies, SEO refresh, analytics integrity, cross-device visual.

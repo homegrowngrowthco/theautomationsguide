@@ -1,4 +1,19 @@
-# Session Log — last updated 2026-06-18 (Session 40)
+# Session Log — last updated 2026-06-18 (Session 41)
+
+## Quick reference — recent additions (Session 41, 2026-06-18)
+
+**Fixed the full audit's CRITICAL + ALL 6 MEDIUMS (+ lows L-1/L-8) — 6 PRs, all merged to master + deploying.** Resolution header added to [AUDIT-FULL-2026-06-17.md](AUDIT-FULL-2026-06-17.md).
+
+- **C-1 + C-2 (critical, PR #109 `7752547`):** registered `zapier`/`canva`/`creatify` in `affiliate-links.ts` (url:'' → homepage+UTM fallback, the gong/outreach pattern) so `/go/<slug>` generates; added an `affiliateSlug:` matcher (both `: "x"` and `="x"` forms) to `lint-content.mjs` so component-prop slugs can't 404 past CI again. The matcher immediately exposed a **latent parser bug** — the affiliate known-set regex `/^\s{2}([a-z0-9-]+):/` couldn't see *quoted* hyphenated keys, so `reply-io`/`relevance-ai`/`cal-com`/`bland-ai` were silently absent; made it quote-agnostic. **Prod-verified: `/go/{zapier,canva,creatify}/` = 200.**
+- **M-1 color-contrast (PR #110 `c04e37e`):** new `--accent-text` = teal-700 `#0a6d5e` (6.1:1) for all teal TEXT/links/icons; `--accent` stays teal-500 for decorative dots/borders/glow. White-on-teal fills (`.btn--primary`, about-hero LinkedIn hover, pressed filter tag) darkened to teal-700 (white 2.98→6.25:1). `--text-faint` `#8b929e`→`#656b76` (badges/meta, ~4.9:1 on the warm panel). **Lighthouse color-contrast PASS (was 34 fails), a11y 92→96.** Verified desktop+390px visually.
+- **M-2/L-1/L-8 (PR #111 `2b12079`):** default share card `/og/default.png` (same astro-og-canvas style, added a `default` page to `og/[...route].ts`) defaulted in BaseLayout + emitted unconditionally → every non-post page now has a branded card; `ogType` prop (BlogPostLayout passes `article`); title separator `—`→`|`.
+- **M-6 (PR #112 `fb928ca`):** `npm audit fix` non-breaking → 12→9 vulns (devalue + fast-xml-builder). Remaining 2 high + 7 moderate all chain from **Astro 4.16; the 4→6 major is DEFERRED/tracked** (build-time/dev-server advisories, no server shipped).
+- **M-5 (PR #113 `4f6c4b0`):** removed 59 lines dead CSS (legacy EmailSignup form + `.nav-dropdown-sep`/`.tool-cta`/`.hero-social-proof`). Kept interleaved LIVE selectors (`.email-signup-eyebrow/-heading/-sub/-note`, `.btn:disabled`) + the `.mt-*` scale (mt-lg is live).
+- **M-4/M-3 (PR #114 `9a0bf24`):** rehype plugin stamps `rel="sponsored noopener noreferrer"` on every prose `/go/` link at build; lint WARNING (not hard) when a frontmatter title >60 chars (7 surface today). M-3 engine-prompt tightening is the engine-side complement.
+
+**Remaining open = lows only** (L-2/L-3/L-4/L-5/L-6/L-7/L-9/L-10) + the deferred Astro 4→6 major. See TODO.md + the audit doc.
+
+---
 
 ## Quick reference — recent additions (Session 40, 2026-06-18)
 
