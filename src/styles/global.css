@@ -221,11 +221,6 @@ a:hover { text-decoration: underline; }
   color: var(--text);
   background: var(--bg-secondary);
 }
-.nav-dropdown-sep {
-  height: 1px;
-  background: var(--border);
-  margin: 0.35rem 0.25rem;
-}
 
 /* Right-side nav cluster: links + search + CTA + icons.
    On desktop/tablet: inline flex row.
@@ -1231,7 +1226,6 @@ main { flex: 1; }
 
   .card-grid { grid-template-columns: 1fr; }
   .tool-grid { grid-template-columns: 1fr; }
-  .email-input-row { flex-direction: column; }
 
   /* Long centered intro copy reads ragged on a narrow column — left-align the
      body text (headings stay centered) and ease the size down. */
@@ -1269,13 +1263,6 @@ main { flex: 1; }
   .email-signup-grid { grid-template-columns: 1.05fr 1fr; gap: 2.5rem; }
 }
 
-/* Legacy centered layout (still referenced by any older usage). */
-.email-signup-inner {
-  max-width: 540px;
-  margin: 0 auto;
-  text-align: center;
-}
-
 .email-signup-eyebrow {
   font-size: 0.78rem;
   font-weight: 700;
@@ -1301,44 +1288,12 @@ main { flex: 1; }
   line-height: 1.6;
 }
 
-.email-signup-form-placeholder {
-  margin: 0.25rem 0 0.25rem;
-}
-
-.email-input-row {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.email-input {
-  flex: 1;
-  min-width: 220px;
-  max-width: 320px;
-  padding: 0.65rem 1rem;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text);
-  font-size: 0.9rem;
-  font-family: var(--font);
-}
-
-.email-input::placeholder { color: var(--text-faint); }
-.email-input:disabled { opacity: 0.55; cursor: not-allowed; }
 .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .email-signup-note {
   font-size: 0.8rem;
   color: var(--text-faint);
   margin-top: 1rem;
-}
-
-.email-signup-launching {
-  font-size: 0.78rem;
-  color: var(--text-faint);
-  margin-top: 0.6rem;
 }
 
 /* ── Tool cards ────────────────────────────────── */
@@ -1432,10 +1387,6 @@ main { flex: 1; }
   border-color: var(--accent-dim);
 }
 
-.tool-cta {
-  align-self: flex-start;
-  margin-top: 0.25rem;
-}
 
 /* ── Affiliate notice ──────────────────────────── */
 .affiliate-notice {
@@ -1489,16 +1440,6 @@ main { flex: 1; }
 .tools-category-sub {
   color: var(--text-muted);
   font-size: 0.9375rem;
-}
-
-/* ── Author note callout ───────────────────────── */
-/* ── Hero social proof ─────────────────────────── */
-.hero-social-proof {
-  font-size: 0.8rem;
-  color: var(--text-faint);
-  letter-spacing: 0.02em;
-  margin: -1.5rem auto 2rem;
-  max-width: 580px;
 }
 
 /* ── Quick Answer (GEO-optimised TL;DR block) ──── */
