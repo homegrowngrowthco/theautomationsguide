@@ -367,6 +367,33 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: "Pipeline (not yet applied). Fillout runs an affiliate program; details on commission rates and terms are available through their website.",
   },
+
+  // --- Comparison-reference tools (audit 2026-06-17, C-1). These appear ONLY as
+  // ComparisonTable columns (affiliateSlug:) in head-to-head posts, not as tools we're
+  // driving affiliate revenue for. Registered with url:'' so /go/<slug> still generates
+  // and routes to homepage + UTM (the gong/outreach/salesforce pattern) — otherwise the
+  // comparison column's CTA 404s, which it was doing live before this fix.
+  zapier: {
+    name: "Zapier",
+    url: '',
+    homepageFallback: "https://zapier.com/",
+    status: 'pending',
+    notes: "Comparison-reference column (Clay-vs-Zapier, Pabbly-vs-Zapier-vs-Make). Zapier runs a partner/referral program; not yet applied. Falls back to homepage + UTM so /go/zapier routes.",
+  },
+  canva: {
+    name: "Canva",
+    url: '',
+    homepageFallback: "https://www.canva.com/",
+    status: 'pending',
+    notes: "Comparison-reference column (AdCreative-vs-Canva-vs-Creatify). Canva runs an affiliate program; not yet applied. Falls back to homepage + UTM so /go/canva routes.",
+  },
+  creatify: {
+    name: "Creatify",
+    url: '',
+    homepageFallback: "https://creatify.ai/",
+    status: 'pending',
+    notes: "Comparison-reference column (AdCreative-vs-Canva-vs-Creatify). Creatify runs an affiliate program; not yet applied. Falls back to homepage + UTM so /go/creatify routes.",
+  },
 };
 
 /**
