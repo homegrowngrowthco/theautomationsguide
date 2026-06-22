@@ -670,6 +670,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'krispcall',
+    logo: '/brand/tools/krispcall.png',
     name: 'KrispCall',
     category: 'AI Voice & Dialers',
     badge: 'Paid',
@@ -1351,6 +1352,32 @@ export const tools: Tool[] = [
         answer: "Enterprise teams with complex territory-based routing rules, SLA requirements, and deep Salesforce workflow dependencies will likely need a dedicated routing tool like Chili Piper or LeanData rather than Fillout.",
       },
     ],
+  },
+  {
+    slug: 'justcall',
+    name: 'JustCall',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try JustCall',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/justcall.png',
+    aliases: ['JustCall'],
+    blurb:
+      'JustCall is the AI-powered phone and SMS platform built for sales and support teams. Automate calls, texts, and follow-ups with 100+ integrations. Trusted by 6,000+ businesses. Try free.',
+  },
+  {
+    slug: 'aircall',
+    name: 'Aircall',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Aircall',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/aircall.png',
+    aliases: ['Aircall'],
+    blurb:
+      'AI-powered customer communications platform to unify channels, automate tasks, & provide insights. Integrate with CRM & helpdesk. 250+ integrations like Hubspot, Salesforce.',
   },
 ];
 
