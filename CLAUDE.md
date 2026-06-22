@@ -1,4 +1,19 @@
-# Session Log — last updated 2026-06-18 (Session 41)
+# Session Log — last updated 2026-06-22 (Session 42)
+
+## Quick reference — recent additions (Session 42, 2026-06-22)
+
+**Investigated why content PR #120 failed QA, then built auto-registration so an unregistered tool stops being a stopper. Two PRs (#125 infra + #120 content), both merged + prod-verified.**
+
+Ian: "PR 120 failed QA? I thought we fixed the QA fails?" **It wasn't a regression — the QA gate worked as designed.** PR #120 (bot post *KrispCall vs JustCall vs Aircall*) hard-failed the **`affiliateSlug` gate I added in S41**: its `<ChooseIf>`/`<BottomLine>` CTAs point at `/go/justcall` + `/go/aircall`, neither of which is in `affiliate-links.ts`, so they'd 404 at build. `krispcall` was already registered (so it passed); only the two unregistered tools tripped it. The gate caught a real defect — but per Ian, unregistered tools shouldn't be a manual stopper: "figure out a way to handle this automatically… just get the links/logos independently."
+
+- **New [qa/auto-register-tools.mjs](qa/auto-register-tools.mjs) (PR #125 `2e93900`).** For each tool a post references that isn't in the registries: (1) **resolves the homepage** by probing common TLDs (`.com/.io/.ai/.co/.app/.so/.dev`) and **verifying the page identifies as that tool** (normalized name in `<title>`/`og:site_name`/`og:title`), **scoring all candidates and picking the best** — this is load-bearing: a first-match-wins resolver registered the squatter `justcall.com` ("Just Call", an unrelated site) over the real `justcall.io`; scoring (name-in-title + has-og-image + has-apple-touch-icon + descriptive-title) correctly prefers `.io`. (2) **Sources a logo** from the site's own icons (apple-touch-icon → `rel=icon` → og:image) with a Google-favicon fallback, saved to `public/brand/tools/`. (3) **Appends** a `pending` affiliate-links entry (homepage fallback) + a `tools.ts` entry (or back-fills a logo on an existing one), HTML-entity-decoding the og:description blurb. **Idempotent** (CRLF-aware registry parse + a defensive guard in `addLogoToTool` — an early CRLF bug double-added `logo:` lines on re-run, caught + fixed before shipping), **key-free**, no new deps (Node global fetch).
+- **Wired into [qa-content-pr.yml](.github/workflows/qa-content-pr.yml)** as an **"Auto-register referenced tools"** step BEFORE the lint gate (runs on the runner's preinstalled Node, before `npm ci`). It commits the registry + logo additions to the PR branch (push via `GITHUB_TOKEN`, which by design **doesn't retrigger** the workflow). Anything it **can't confidently resolve is left untouched** → the deterministic lint gate still flags it for manual review. So a future post naming a brand-new tool self-heals instead of blocking.
+- **#120 unblocked.** Dogfooded the script to register `justcall` + `aircall` + a `krispcall` logo (shipped in #125); then updated #120's branch from master → its QA re-ran **green** (auto-register idempotently skipped, lint 0 hard/0 warn, was 2 hard + 3 warn) → squash-merged (`04ba570`). **Prod-verified: `/go/{justcall,aircall,krispcall}/` = 200.**
+- **Logo caveat:** sourced logos are best-effort — `justcall.png` is a 1KB favicon (low-res but passes the opaque-bg logo gate); a human can drop a higher-res mark into `public/brand/tools/` anytime. Tracked as an @low in TODO.md.
+
+**Revert:** PR #125 `git revert 2e93900` (additive: one script + one workflow step + registry/logo additions); PR #120 is content (`git revert 04ba570`).
+
+---
 
 ## Quick reference — recent additions (Session 41, 2026-06-18)
 
