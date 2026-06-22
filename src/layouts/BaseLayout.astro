@@ -84,6 +84,31 @@ const orgSchema = {
   ],
 };
 
+// --- JSON-LD: WebSite (homepage only) ---
+// Reinforces the brand entity ("The Automations Guide" as a named site, not just
+// the generic phrase) and declares the on-site search so Google can show a
+// sitelinks search box. Pairs with the Organization schema above.
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: siteName,
+  alternateName: 'Automations Guide',
+  url: 'https://theautomationsguide.com/',
+  publisher: {
+    '@type': 'Organization',
+    name: 'Homegrown Growth Co',
+    url: 'https://homegrowngrowth.co',
+  },
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: 'https://theautomationsguide.com/search/?q={search_term_string}',
+    },
+    'query-input': 'required name=search_term_string',
+  },
+};
+
 // --- JSON-LD: BreadcrumbList (all pages) ---
 const pathParts = currentPath.split('/').filter(Boolean);
 const segmentLabels: Record<string, string> = {
@@ -154,8 +179,9 @@ const breadcrumbSchema = {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{fullTitle}</title>
 
-    <!-- JSON-LD: Organization (homepage only) -->
+    <!-- JSON-LD: Organization + WebSite (homepage only) -->
     {isHomepage && <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />}
+    {isHomepage && <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />}
 
     <!-- JSON-LD: BreadcrumbList -->
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
