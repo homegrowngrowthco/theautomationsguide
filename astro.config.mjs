@@ -35,6 +35,10 @@ export default defineConfig({
   // redirecting no-slash variant. Output is unchanged (directory is Astro's default).
   trailingSlash: 'always',
   build: { format: 'directory' },
+  // Astro 7 changed the compressHTML default from `true` to `'jsx'`, which strips
+  // whitespace between inline elements and can subtly alter rendered prose spacing.
+  // Pin it back to the v6 behavior so the upgrade is output-preserving.
+  compressHTML: true,
   // Code blocks are styled by the cream/ink design system in global.css
   // (.prose pre = cream bg + border, .prose pre code = ink text). Astro's default
   // Shiki highlighter (github-dark) injects an inline dark background-color on
