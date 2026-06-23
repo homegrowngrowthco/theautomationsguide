@@ -17,7 +17,11 @@ pages['default'] = {
   tags: ['Guides · Reviews · Workflows'],
 } as (typeof posts)[number]['data'];
 
-export const { getStaticPaths, GET } = OGImageRoute({
+// astro-og-canvas 0.11 made OGImageRoute async (it returns a Promise), so it must
+// be awaited or the destructured getStaticPaths/GET are undefined (Astro 6 then
+// errors GetStaticPathsRequired on this dynamic route). Top-level await is fine in
+// an ESM endpoint module.
+export const { getStaticPaths, GET } = await OGImageRoute({
   param: 'route',
   pages,
   getImageOptions: (_path, page: (typeof posts)[number]['data']) => ({

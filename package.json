@@ -17,18 +17,18 @@
     "qa": "npm run qa:screenshots && npm run qa:review"
   },
   "dependencies": {
-    "@astrojs/mdx": "^4.3.14",
+    "@astrojs/mdx": "^5.0.6",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.3",
     "@fontsource/inter": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@fontsource/outfit": "^5.2.8",
     "@fontsource/source-serif-4": "^5.2.9",
-    "astro": "^5.18.2"
+    "astro": "^6.4.8"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.95.1",
-    "astro-og-canvas": "^0.7.0",
+    "astro-og-canvas": "^0.11.1",
     "dotenv": "^17.4.2",
     "fontaine": "^0.8.0",
     "linkedom": "^0.18.12",

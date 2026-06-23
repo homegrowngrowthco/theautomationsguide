@@ -1,5 +1,7 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
+// Astro 6: zod is no longer re-exported from astro:content; import from astro/zod.
+import { z } from 'astro/zod';
 
 const blog = defineCollection({
   // Astro 5 Content Layer API: the legacy `type: 'content'` collection is now a
