@@ -21,7 +21,7 @@ const date = post.data.pubDate.toLocaleDateString('en-US', {
 ---
 
 <a
-  href={`/blog/${post.slug}/`}
+  href={`/blog/${post.id}/`}
   class="post-card"
   data-tags={post.data.tags.map((t) => t.toLowerCase()).join('|')}
 >

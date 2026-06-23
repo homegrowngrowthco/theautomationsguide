@@ -169,7 +169,7 @@ const stripTools = tools.filter((t) => t.listed !== false);
       {recentPosts.length > 0 ? (
         <div class="card-grid">
           {recentPosts.map((post) => (
-            <a href={`/blog/${post.slug}/`} class="post-card">
+            <a href={`/blog/${post.id}/`} class="post-card">
               {post.data.tags.length > 0 && (
                 <div class="post-card-tags">
                   {post.data.tags.slice(0, 2).map((tag) => (

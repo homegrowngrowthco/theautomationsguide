@@ -7,7 +7,7 @@ import { getCollection } from 'astro:content';
 import { OGImageRoute } from 'astro-og-canvas';
 
 const posts = await getCollection('blog', ({ data }) => !data.draft);
-const pages = Object.fromEntries(posts.map((p) => [p.slug, p.data]));
+const pages = Object.fromEntries(posts.map((p) => [p.id, p.data]));
 
 // Default share card (M-2) — /og/default.png. Used by BaseLayout for every
 // non-post page (home, /blog, /about, /tools, /reviews, /playbooks, /teams/*)

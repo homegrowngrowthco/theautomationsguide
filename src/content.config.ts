@@ -1,7 +1,12 @@
 import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
 
 const blog = defineCollection({
-  type: 'content',
+  // Astro 5 Content Layer API: the legacy `type: 'content'` collection is now a
+  // glob loader pointing at the same folder. Entry ids are derived from the
+  // filename (e.g. 2026-06-16-foo.mdx -> "2026-06-16-foo"), identical to the old
+  // slug, so /blog/<id>/ and /og/<id>.png URLs are unchanged.
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
