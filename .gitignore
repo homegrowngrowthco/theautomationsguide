@@ -52,3 +52,6 @@ gsc-*.log
 
 # PostHog setup artifact (insight/dashboard definitions + created ids; see analytics/README.md)
 analytics/posthog-insights.json
+
+# QA breadcrumb (unresolved tools list for the failure ping)
+qa-unresolved-tools.txt

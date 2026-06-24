@@ -413,12 +413,35 @@ jobs:
         uses: actions/github-script@v8
         with:
           script: |
+            const fs = require('fs');
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              body: [
+            // If the auto-register step left unresolved tools, the failure is almost
+            // certainly the lint gate blocking on those /go/<slug> entries. Name them
+            // in plain English with the one thing a human needs to decide (the URL),
+            // so this doesn't need code review to unblock.
+            let unresolved = [];
+            try {
+              unresolved = fs.readFileSync('qa-unresolved-tools.txt', 'utf8')
+                .split('\n').filter(Boolean)
+                .map((l) => { const [slug, name] = l.split('\t'); return { slug, name: name || slug }; });
+            } catch { /* no breadcrumb -> generic message below */ }
+
+            let body;
+            if (unresolved.length) {
+              const list = unresolved.map((u) => `- **${u.name}** (\`affiliateSlug: "${u.slug}"\`)`).join('\n');
+              body = [
+                `🚨 **QA needs one thing from you — no code review required.**`,
+                ``,
+                `This post compares a tool I couldn't confirm the website for, so I didn't auto-register it (its \`/go/\` link would 404). I need you to confirm:`,
+                ``,
+                list,
+                ``,
+                `**Reply to this PR with the homepage URL** for each (e.g. \`otter = https://otter.ai\`) and whether we want to affiliate it. I'll register it and re-run QA — you don't need to touch the code.`,
+                ``,
+                `_(Other QA steps could also have failed; full log: ${runUrl})_`,
+              ].join('\n');
+            } else {
+              body = [
                 `🚨 **QA failed — manual review needed.**`,
                 ``,
                 `A QA step failed (deterministic lint / render-acceptance / mobile-overflow gate, build, local preview/screenshots, or the auto-fixer). This PR did **not** pass QA and was not auto-fixed.`,
@@ -426,7 +449,13 @@ jobs:
                 `See the failed run for the specific step + error: ${runUrl}`,
                 ``,
                 `Fix the post on the branch, or close the PR.`,
-              ].join('\n'),
+              ].join('\n');
+            }
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body,
             });
 
       - name: Slack — QA failed (manual review)
@@ -436,5 +465,11 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
+          if [ -s qa-unresolved-tools.txt ]; then
+            TOOLS=$(cut -f2 qa-unresolved-tools.txt | paste -sd, - | sed 's/,/, /g')
+            MSG="🚨 *Content PR needs one thing from you (no code review)*\nCouldn't confirm the website for: *${TOOLS}*. Reply on the PR with the homepage URL(s) and I'll register + re-run.\nPR: $PR_URL\nRun: $RUN_URL"
+          else
+            MSG="🚨 *QA failed on a content PR (manual review needed)*\nPR: $PR_URL\nFailed run: $RUN_URL"
+          fi
           curl -sS -X POST -H 'content-type: application/json' "$SLACK_WEBHOOK_URL" \
-            -d "{\"text\":\"🚨 *QA failed on a content PR (manual review needed)*\nPR: $PR_URL\nFailed run: $RUN_URL\"}"
+            -d "{\"text\":\"${MSG}\"}"

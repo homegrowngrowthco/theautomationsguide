@@ -337,6 +337,12 @@ async function main() {
   if (report.unresolved.length) {
     console.error(`\n[auto-register] could NOT resolve ${report.unresolved.length} tool(s); they will still trip the lint gate for manual review:`);
     for (const u of report.unresolved) console.error(`  - ${u.slug} (${u.name})`);
+    // Drop a machine-readable breadcrumb so the QA-failed PR comment / Slack ping
+    // can name the exact tool(s) in plain English ("couldn't confirm <tool>;
+    // reply with its URL") instead of a generic "a QA step failed". One
+    // `slug\tname` per line; not committed (auto-register only stages registries).
+    if (!DRY) writeFileSync(path.join(ROOT, 'qa-unresolved-tools.txt'),
+      report.unresolved.map((u) => `${u.slug}\t${u.name}`).join('\n') + '\n');
   }
   process.exit(0); // best-effort pre-step; the lint gate is the source of truth
 }
