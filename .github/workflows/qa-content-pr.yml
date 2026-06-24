@@ -80,7 +80,10 @@ jobs:
         id: slug
         run: |
           # The engine commits a single .mdx in src/content/blog/.
-          POST=$(git diff --name-only origin/master..HEAD -- 'src/content/blog/*.mdx' | head -1)
+          # Three-dot diff (merge-base..HEAD) so posts merged to master while this
+          # PR sat open aren't mis-detected as this branch's change; --diff-filter=d
+          # excludes deletions so we never hand the lint a path that isn't checked out.
+          POST=$(git diff --name-only --diff-filter=d origin/master...HEAD -- 'src/content/blog/*.mdx' | head -1)
           if [ -z "$POST" ]; then
             echo "No .mdx post changed in this PR; skipping QA."
             echo "skip=true" >> $GITHUB_OUTPUT
