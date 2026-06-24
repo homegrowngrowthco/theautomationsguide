@@ -1,4 +1,20 @@
-# Session Log — last updated 2026-06-22 (Session 42)
+# Session Log — last updated 2026-06-24 (Session 43)
+
+## Quick reference — recent additions (Session 43, 2026-06-24)
+
+**Content PR #128 (Laxis vs Fireflies vs Otter) failed QA again — root-caused TWO distinct pipeline bugs (not content, not a regression), fixed both durably, merged the post, then made the residual failure self-serve per Ian. Two PRs (#128 + #129), both merged to master.**
+
+Ian: "another error on PR 128 why does this keep happening? How am I supposed to be interacting with this so I don't have to keep going to you? I can't actually review code." The reds were genuinely pipeline bugs, not the post.
+
+- **Bug 1 — auto-register couldn't confirm `Otter.ai` (TLD-in-brand-name class).** The post names the tool `Otter.ai`, which `norm()`s to identity target `otterai`, but otter.ai's homepage `<title>` is "Otter Meeting Agent…" → normalizes to `otter…`, which does NOT contain `otterai`, so the page-identity check in `resolveHomepage()` failed and the tool fell through to the lint gate (HARD: `affiliateSlug "otter"` not in affiliate-links.ts). Laxis + Fireflies resolved fine (bare brand names); Otter was the only casualty. **Fix ([qa/auto-register-tools.mjs](qa/auto-register-tools.mjs)):** match page identity against the **clean slug** (`otter`) as well as the name — the slug is the canonical clean identifier and matches "Otter Meeting Agent". Generalizes to the whole class (Otter.ai / Reply.io / Bland.ai). Dogfooded locally (residential IP) → registered `otter`→`https://otter.ai/` + sourced an apple-icon logo ([public/brand/tools/otter.png](public/brand/tools/otter.png), 256×256, transparent corners → passes `lint-logos`). Idempotent on re-run.
+- **Bug 2 — stale-branch changed-post mis-detection (THE recurring one).** [qa-content-pr.yml](.github/workflows/qa-content-pr.yml) "Identify changed post slug" used `git diff --name-only origin/master..HEAD` (**two-dot = full tree diff between the two tips**). While #128 sat open, PRs #119 (GetResponse) + #127 (Reply.io) merged to master, so that diff reported those master-only posts as differences and `head -1` grabbed the alphabetically-first one (`2026-06-21-getresponse…`), which isn't on the branch → the lint opened a non-existent path → `ENOENT`, red. **Any content PR left open across another merge hits this.** **Fix:** three-dot `origin/master...HEAD` (changes since the merge-base, i.e. only this branch's post) + `--diff-filter=d` (exclude deletions). Also brought #128's branch up to date with master (the S42 precedent for #120). **PR #128 `c53c01e`** (squash-merged): both fixes + the Otter registration; QA re-ran **green** (qa pass) + Netlify preview green → **post published**.
+- **Residual policy — keep blocking, ping in plain English (Ian's choice).** The lint gate stays HARD on an unresolved tool (protects `/go/<slug>` affiliate links from 404ing — the S40/S41 revenue-leak guarantee). But the failure message was generic ("a QA step failed; see the run"), which needed code-literacy to action. **PR #129 `e5082e0`** (squash-merged): `auto-register-tools.mjs` writes any unresolved `slug\tname` to `qa-unresolved-tools.txt` (gitignored, not committed); the **QA-failed PR comment + Slack ping** read it and render a plain-English ask naming the exact tool and requesting only the homepage URL ("reply with `otter = https://otter.ai`"), falling back to the generic message for non-tool failures. So the only human action left on a content red is a one-line business call (what's the site + do we affiliate it), not a code review.
+
+**Verification:** otter resolves + lint-content 0 hard + lint-logos 0 hard (sharp) + auto-register idempotent; workflow YAML parses (js-yaml, 27 steps); PR #128 QA run `28101353145` = qa pass; both PRs squash-merged to `origin/master`.
+
+**Revert:** PR #128 `git revert c53c01e`; PR #129 `git revert e5082e0` (all additive — resolver match-broadening, a workflow diff flag, a registry+logo entry, and a failure-message breadcrumb).
+
+---
 
 ## Quick reference — recent additions (Session 42, 2026-06-22)
 
