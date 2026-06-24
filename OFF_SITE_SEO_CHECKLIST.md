@@ -6,21 +6,21 @@ Last updated: 2026-05-03 EOD
 
 - [x] Submit `https://theautomationsguide.com/sitemap-index.xml` in Google Search Console (2026-04-24)
 - [x] Set up Bing Webmaster Tools (2026-04-24)
-- [ ] Run URL Inspection → Request Indexing on homepage in GSC (after next push)
-- [ ] Run URL Inspection → Request Indexing on `/blog`, `/tools`, `/about`
+- [x] Run URL Inspection → Request Indexing on homepage in GSC (after next push)
+- [x] Run URL Inspection → Request Indexing on `/blog`, `/tools`, `/about`
 
 ## Social & Brand Signals
 
 - [x] **Create LinkedIn Company Page for The Automations Guide.** Created 2026-06-12: `https://www.linkedin.com/company/the-automations-guide/`, already in the org `sameAs` in `src/layouts/BaseLayout.astro` + live in the built JSON-LD (`dist/index.html` + `/about/`).
   - Note: company pages have ~3-5× lower organic reach than personal accounts. Consider also posting from Ian's personal LinkedIn (`/in/ianchamberland/`) for amplification.
-- [ ] **Create Twitter/X account** (optional) — same drill, send URL when ready
+- [x] **Create Twitter/X account** (optional) — same drill, send URL when ready. Created 2026-05-30 but was apparently missed so I added it here on 2026-06-23: `https://x.com/the_automations`
 - [ ] Add site URL to LinkedIn bio, GitHub profile, email signature
 
 ## Analytics
 
 - [x] Install PostHog (cloud free tier, 1M events/mo) — wired via `src/components/Analytics.astro`
 - [ ] Verify analytics fires correctly on production after next deploy (incognito test)
-- [ ] Set up PostHog dashboard: top pages by traffic, affiliate_click events by tool, signup funnel
+- [x] Set up PostHog dashboard: top pages by traffic, affiliate_click events by tool, signup funnel — DONE Session 29 (posthog-setup.mjs, dashboard 1699394 on project 408442, 2026-06-11)
 
 ## Newsletter
 
@@ -54,7 +54,7 @@ Run these searches in **ChatGPT, Perplexity, Claude, and Gemini**. Log whether t
 
 ## Affiliate Program Applications
 
-- [ ] **Tier 1** (apply this week — see `AFFILIATE_PROGRAMS.md`): HubSpot (email), Make, n8n, Apollo, Clay, Beehiiv, Smartlead, Pipedrive
+- [x] **Tier 1** (apply this week — see `AFFILIATE_PROGRAMS.md`): HubSpot (email), Make, n8n, Apollo, Clay, Beehiiv, Smartlead, Pipedrive — DONE Wave 1 complete (2026-06-14); see [AFFILIATE_PIPELINE.md](AFFILIATE_PIPELINE.md)
 - [ ] **Tier 2** (next 2 weeks): Webflow, ClickUp, Brevo, Hunter, Snov
 - [ ] **Tier 3** (week 3): Cal.com, Plausible, Tally, Mailshake, Reply.io
 - [ ] **Bonus list** (apply when content naturally mentions): Customer.io, LemonSqueezy, Mixmax, Mailerlite, Jotform
@@ -63,6 +63,6 @@ When approved: edit `src/data/affiliate-links.ts` → set `url` and change `stat
 
 ## Lead Magnets (when ready)
 
-- [ ] Build first lead magnet — recommended: free Notion template like "RevOps Stack Audit Template"
+- [x] Build first lead magnet — recommended: free Notion template like "RevOps Stack Audit Template" — DONE (RevOps Stack Audit Notion template, 2026-06-11)
 - [ ] Build second — comparison spreadsheet, e.g., "All RevOps tools compared at $X/mo budget tier"
 - [ ] Capture via Beehiiv-gated download
