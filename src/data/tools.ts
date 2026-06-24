@@ -1393,6 +1393,19 @@ export const tools: Tool[] = [
     blurb:
       'Fireflies takes notes, manages tasks, and automates workflows across meetings, email, chat, CRM, and your apps. Build a searchable knowledge base of your team’s work in one place.',
   },
+  {
+    slug: 'otter',
+    name: 'Otter.ai',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Otter.ai',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/otter.png',
+    aliases: ['Otter.ai'],
+    blurb:
+      'Otter.ai is featured in a comparison on The Automations Guide.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
