@@ -46,8 +46,9 @@ Paste-ready answers for the Wave-2 affiliate/partner applications listed in [AFF
 Each block: program/network, est. commission, the landing page to cite, and relevant published content to link. The `/tools/<slug>/` hub page is live for every tool. Use `https://theautomationsguide.com` + the paths below.
 
 ### 11. Lindy
-- Program / network: Affiliate (verify platform on the vendor site)
-- Est. commission: Verify
+- **Apply link: https://dash.partnerstack.com/application?company=lindy&group=creatorpartners** (PartnerStack "Creator Partners")
+- Program / network: PartnerStack
+- Est. commission: Verify (30% recurring reported on some directories)
 - Category we cover it in: AI Agents
 - Landing page to cite: `/tools/lindy/`
 - Relevant content: `/tools/lindy/` (hub) and our automation comparison `/blog/2026-05-03-make-vs-zapier-vs-n8n-in-2026-which-should-revops-pick/`
@@ -55,8 +56,9 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Applied: [ ]  Approved: [ ]
 
 ### 12. Reply.io
-- Program / network: Affiliate / partner (verify platform)
-- Est. commission: Verify
+- **Apply link: https://reply.io/affiliates/** (direct; own affiliate platform)
+- Program / network: Reply.io direct (own platform, not PartnerStack)
+- Est. commission: 20% recurring per sale
 - Category we cover it in: Sales Engagement
 - Landing page to cite: `/tools/reply-io/`
 - Relevant content: `/tools/reply-io/` (hub), `/blog/2026-05-28-outreach-alternatives-for-mid-market-revops-in-2026/`, `/blog/2026-05-19-why-revops-teams-are-abandoning-outreach-in-2026/`
@@ -64,8 +66,9 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Applied: [ ]  Approved: [ ]
 
 ### 13. KrispCall
+- **Apply link: https://krispcall.partnerstack.com/** (PartnerStack direct)
 - Program / network: PartnerStack
-- Est. commission: ~30% lifetime (verify)
+- Est. commission: 30% lifetime
 - Category we cover it in: AI Voice & Dialers
 - Landing page to cite: `/tools/krispcall/`
 - Relevant content: `/tools/krispcall/` (hub). Dialer comparison content (vs JustCall / CloudTalk) is on the roadmap.
@@ -73,8 +76,9 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Applied: [ ]  Approved: [ ]
 
 ### 14. Laxis
+- **Apply link: https://www.laxis.com/affiliate-program** (own page; PartnerStack-backed)
 - Program / network: PartnerStack
-- Est. commission: up to ~35% (30% first 12 months) (verify)
+- Est. commission: 25% for first 12 months
 - Category we cover it in: Meeting Intelligence
 - Landing page to cite: `/tools/laxis/`
 - Relevant content: `/tools/laxis/` (hub), `/blog/2026-06-12-gong-alternatives-for-revenue-intelligence-that-actually-fit/`, `/blog/2026-05-14-gong-vs-outreach-vs-salesloft-which-wins-in-2026/`
@@ -82,8 +86,9 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Applied: [ ]  Approved: [ ]
 
 ### 15. Close
-- Program / network: Affiliate (verify platform)
-- Est. commission: Recurring (verify)
+- **Apply link: https://dash.partnerstack.com/application?company=close&group=closeaffiliatepartner** (PartnerStack direct)
+- Program / network: PartnerStack
+- Est. commission: 30% for first 12 months
 - Category we cover it in: CRM
 - Landing page to cite: `/tools/close/`
 - Relevant content: `/tools/close/` (hub), `/blog/2026-06-11-hubspot-vs-pipedrive-for-outbound-sequences/`, `/blog/2026-06-01-pipedrive-vs-apollo-outbound-which-wins-in-2026/`
@@ -91,8 +96,9 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Applied: [ ]  Approved: [ ]
 
 ### 16. Nutshell
+- **Apply link: https://www.nutshell.com/partner-program/affiliate-partner-program** (affiliate-specific page; via PartnerStack)
 - Program / network: PartnerStack
-- Est. commission: ~20-40% first year (verify)
+- Est. commission: 20% recurring for first year
 - Category we cover it in: CRM
 - Landing page to cite: `/tools/nutshell/`
 - Relevant content: `/tools/nutshell/` (hub), `/blog/2026-06-11-hubspot-vs-pipedrive-for-outbound-sequences/`, `/blog/2026-06-01-pipedrive-vs-apollo-outbound-which-wins-in-2026/`
@@ -100,8 +106,9 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Applied: [ ]  Approved: [ ]
 
 ### 17. GetResponse
-- Program / network: Affiliate (verify; recurring vs bounty)
-- Est. commission: ~40-60% recurring 12 mo, or bounty (verify which)
+- **Apply link: https://dash.partnerstack.com/application?company=getresponse&group=default** (PartnerStack direct)
+- Program / network: PartnerStack
+- Est. commission: 40% recurring 12 mo (scales to 50% at 50 sales, 60% at 100 sales)
 - Category we cover it in: Email & Marketing Automation
 - Landing page to cite: `/tools/getresponse/`
 - Relevant content: `/tools/getresponse/` (hub), `/blog/2026-05-22-best-mailchimp-alternatives-for-creators-and-small-operators/`, `/blog/2026-05-13-beehiiv-vs-substack-vs-hubspot-email-newsletter-for-b2b/`
@@ -109,8 +116,9 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Applied: [ ]  Approved: [ ]
 
 ### 18. AdCreative.ai
-- Program / network: Affiliate (verify platform)
-- Est. commission: ~30% recurring rev share (verify)
+- **Apply link: https://dash.partnerstack.com/application?company=adcreative** (PartnerStack direct)
+- Program / network: PartnerStack
+- Est. commission: 30% recurring (scales up to 40% based on performance)
 - Category we cover it in: Advertising & Creative
 - Landing page to cite: `/tools/adcreative/`
 - Relevant content: **Dedicated published post** `/blog/2026-06-08-adcreativeai-vs-canva-vs-creatify-which-ai-ad-tool-wins/` plus the hub `/tools/adcreative/`
@@ -118,8 +126,9 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Applied: [ ]  Approved: [ ]
 
 ### 19. Motion
-- Program / network: Affiliate (verify platform)
-- Est. commission: ~$50 per paid subscription (verify)
+- **Apply link: https://affiliate.usemotion.com/** (affiliate resource center + apply)
+- Program / network: PartnerStack
+- Est. commission: $50 per paid subscription (60-day cookie)
 - Category we cover it in: Scheduling & Productivity
 - Landing page to cite: `/tools/motion/`
 - Relevant content: `/tools/motion/` (hub). Featured in productivity / workflow content for the people running GTM.
@@ -127,8 +136,9 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Applied: [ ]  Approved: [ ]
 
 ### 20. Brevo
-- Program / network: Affiliate (verify platform)
-- Est. commission: Verify
+- **Apply link: https://www.brevo.com/partners/affiliates/** (direct; via PartnerStack — use ian@theautomationsguide.com, NOT Gmail)
+- Program / network: PartnerStack
+- Est. commission: Fixed bounty per new paid referral (verify exact amount on apply page)
 - Category we cover it in: Email & Marketing Automation
 - Landing page to cite: `/tools/brevo/`
 - Relevant content: `/tools/brevo/` (hub), `/blog/2026-05-22-best-mailchimp-alternatives-for-creators-and-small-operators/`, `/blog/2026-05-13-beehiiv-vs-substack-vs-hubspot-email-newsletter-for-b2b/`
