@@ -706,6 +706,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'laxis',
+    logo: '/brand/tools/laxis.svg',
     name: 'Laxis',
     category: 'Meeting Intelligence',
     badge: 'Free tier available',
@@ -1378,6 +1379,19 @@ export const tools: Tool[] = [
     aliases: ['Aircall'],
     blurb:
       'AI-powered customer communications platform to unify channels, automate tasks, & provide insights. Integrate with CRM & helpdesk. 250+ integrations like Hubspot, Salesforce.',
+  },
+  {
+    slug: 'fireflies',
+    name: 'Fireflies',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Fireflies',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/fireflies.png',
+    aliases: ['Fireflies'],
+    blurb:
+      'Fireflies takes notes, manages tasks, and automates workflows across meetings, email, chat, CRM, and your apps. Build a searchable knowledge base of your team’s work in one place.',
   },
 ];
 
