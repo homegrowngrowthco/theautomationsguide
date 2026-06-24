@@ -126,7 +126,13 @@ function existingToolSlugs(src) {
 // unrelated site) from beating the real `justcall.io`.
 async function resolveHomepage(name, slug) {
   const bases = [...new Set([slug.replace(/-/g, ''), norm(name)])].filter(Boolean);
-  const target = norm(name);
+  // Identity targets: match the page against the CLEAN slug as well as the name.
+  // Brand names that bake in a TLD ("Otter.ai", "Reply.io") normalize to
+  // "otterai"/"replyio", but the site's <title> usually says the bare brand
+  // ("Otter Meeting Agent…"), so a name-only check fails. The slug ("otter") is
+  // the canonical clean identifier and matches.
+  const targets = [...new Set([norm(slug.replace(/-/g, '')), norm(name)])].filter((t) => t.length >= 2);
+  const matchesIdentity = (ident) => targets.some((t) => ident.includes(t));
   const candidates = [];
   for (const base of bases) {
     for (const tld of TLDS) {
@@ -139,10 +145,10 @@ async function resolveHomepage(name, slug) {
       const ogDesc = (head.match(/<meta[^>]+(?:property|name)=["']og:description["'][^>]+content=["']([^"']+)["']/i)
         || head.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i) || [])[1] || '';
       const ident = norm(`${title} ${ogSite} ${ogTitle}`);
-      if (!ident.includes(target)) continue; // identity must name the tool — host match alone is not enough
+      if (!matchesIdentity(ident)) continue; // identity must name the tool — host match alone is not enough
 
       let score = 0;
-      if (norm(title).startsWith(target) || norm(ogSite) === target) score += 100;
+      if (targets.some((t) => norm(title).startsWith(t)) || targets.some((t) => norm(ogSite) === t)) score += 100;
       else score += 50;
       if (/<meta[^>]+property=["']og:image["']/i.test(head)) score += 20; // real product sites ship social cards
       if (/rel=["'][^"']*apple-touch-icon/i.test(head)) score += 20;
