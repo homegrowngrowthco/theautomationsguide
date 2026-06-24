@@ -1,4 +1,20 @@
-# Session Log — last updated 2026-06-24 (Session 43)
+# Session Log — last updated 2026-06-24 (Session 44)
+
+## Quick reference — recent additions (Session 44, 2026-06-24)
+
+**Checklist audit (todo-system maintenance): found 3 genuinely-missing TODO entries + 4 stale-done items in TAG's checklist files. Added checklist-file-type policy to todo-sync/CONVENTION.md.**
+
+Context: `OFF_SITE_SEO_CHECKLIST.md` had two sections (Content Distribution, GEO Baseline Test) and a second Lead Magnets item with zero corresponding TODO entries — invisible to the tracker and Notion. Separately, 4 items marked `[ ]` in checklist files were already done.
+
+- **3 missing items added to [TODO.md](TODO.md)** (all `@low`): GEO baseline test (run 5 RevOps queries in ChatGPT/Perplexity/Claude/Gemini monthly, log citations); content distribution cadence (LinkedIn 3-5x/week, RevOps Co-op Slack, r/RevOps/IH/HN, newsletter swaps at 100+ subs, podcasts at 500+ subs); second lead magnet ("All RevOps tools at $X/mo budget tier" spreadsheet, Beehiiv-gated, at 100+ subs). `## TODO` block re-ranked by priority bucket (all `@high` → all `@med` → all `@low`).
+- **4 stale-done items closed in checklist files**: [OFF_SITE_SEO_CHECKLIST.md](OFF_SITE_SEO_CHECKLIST.md) — PostHog dashboard (`[x]`, done Session 29 / dashboard 1699394), Affiliate Tier 1 (`[x]`, Wave 1 complete 2026-06-14), first lead magnet (`[x]`, done 2026-06-11); [GSC-TIER2-CHECKLIST.md](GSC-TIER2-CHECKLIST.md) — all 10 `/tools/*` URLs (`[x]`) + completion header added.
+- **Checklist-file-type policy added to [todo-sync/CONVENTION.md](../todo-sync/CONVENTION.md)**: defines two types — *action queue* (must have ≥1 TODO.md entry) vs *runbook* (add `> RUNBOOK` header, no per-step TODO items) — plus done-item hygiene rule.
+
+**Verification:** `node todo-sync/sync-todos.mjs --dry-run` → drift lint clean, 14 TAG open tasks (was 11, +3 correct).
+
+**Commits:** TAG `9df31de` (3 files, pushed to master) + todo-sync `b70cc6c` (CONVENTION.md, pushed to main). See op #328.
+
+---
 
 ## Quick reference — recent additions (Session 43, 2026-06-24)
 
