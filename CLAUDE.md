@@ -1,4 +1,20 @@
-# Session Log — last updated 2026-06-24 (Session 44)
+# Session Log — last updated 2026-06-25 (Session 45)
+
+## Quick reference — recent additions (Session 45, 2026-06-25)
+
+**Diagnosed and fixed a ToolBreakdown desktop layout bug (green tagline text wrapping 2-3 lines due to long multi-tier pricing strings squeezing the flex row). Added prevention at two layers: upstream in the content engine prompt + downstream in the Vision QA gate. PR #132 open; pending merge + n8n deploy before merging PR #131 (Nutshell post).**
+
+Ian shared a screenshot of PR #131's Netlify preview — the green tagline in each ToolBreakdown card wrapped 2-3 lines because multi-tier CRM pricing strings (~90 chars each) consumed ~65% of the `.tbd-meta` flex row, forcing the tagline into a cramped sliver. Root cause: `.tbd-meta` used a flex row where tagline and pricing competed for the same line. The original spec assumed short prices like "From $14/mo." Discussion: CSS fix is reactive; two proactive prevention layers added.
+
+- **CSS fix ([src/components/post/ToolBreakdown.astro](src/components/post/ToolBreakdown.astro)):** changed `.tbd-meta` from `flex-wrap: wrap` (side-by-side) to `flex-direction: column` — tagline always spans full column width regardless of pricing length. Removed `flex: 1 1 12rem` from tagline and `text-align: right` from price. Net -8 lines CSS.
+- **Engine prompt guardrail ([n8n/blog-post-engine.json](n8n/blog-post-engine.json)):** tightened ToolBreakdown `pricing` spec from "entry tier plus one higher tier when useful" to "keep under 50 chars, abbreviated only, e.g. From $14/seat or Essential $14 / Pro $49/seat -- never list all tiers verbatim." Addresses root cause upstream before generation.
+- **Vision QA prompt ([qa/qa-pr-review.mjs](qa/qa-pr-review.mjs)):** added TOOL BREAKDOWN HEADER SQUEEZE to the named recurring-defects list — a 3-line-wrapping tagline on desktop is flagged as major. Catches this class if the engine ever outputs a long pricing string again.
+
+**PR #132** (`fix/tool-breakdown-tagline-wrap`, commits `660e152` CSS + `141bd2a` engine+Vision) — **revert:** `git revert 660e152 141bd2a`.
+
+**Next (requires Ian action):** QA pass on #132 → merge #132 → `node --env-file=../../restaurant-outreach/.env n8n/deploy-engine.mjs --apply` → merge PR #131.
+
+---
 
 ## Quick reference — recent additions (Session 44, 2026-06-24)
 
