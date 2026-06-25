@@ -186,6 +186,7 @@ const resolveLogo = (t: Tool) =>
     grid-template-columns: 1fr;
     gap: 0.75rem 1.5rem;
     align-items: start;
+    padding-right: 130px;
   }
   @media (min-width: 640px) {
     .tbd-cols { grid-template-columns: 1.6fr 1fr; }
@@ -223,7 +224,7 @@ const resolveLogo = (t: Tool) =>
   .tbd-highlights li::marker { color: var(--accent); }
   .tbd-cta {
     display: inline-block;
-    margin-top: 0.85rem;
+    margin-top: 0.4rem;
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;
@@ -237,5 +238,6 @@ const resolveLogo = (t: Tool) =>
   @media (max-width: 480px) {
     .tbd-logo { height: 24px; max-width: 90px; }
     .tbd-head { padding-right: 100px; }
+    .tbd-cols { padding-right: 100px; }
   }
 </style>
