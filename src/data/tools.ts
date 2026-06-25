@@ -743,6 +743,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'close',
+    logo: '/brand/tools/close.png',
     name: 'Close',
     category: 'CRM',
     badge: 'Free trial',
@@ -778,6 +779,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'nutshell',
+    logo: '/brand/tools/nutshell.png',
     name: 'Nutshell',
     category: 'CRM',
     badge: 'Free trial',
