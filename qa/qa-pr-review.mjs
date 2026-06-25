@@ -63,6 +63,7 @@ Review these 4 screenshots of /${slug.replace(/_/g, '/')} (mobile 375px, tablet 
 
 Identify ONLY visible layout problems that look unprofessional or sloppy. Pay particular attention to these recurring defects:
 - SQUISHED / CRAMPED COMPONENTS: a row that REMAINS multi-column at a width too narrow to hold it, so columns sit side-by-side and touch, with text wrapping mid-word or numbers/labels visibly colliding or overlapping. A component that has collapsed to ONE full-width card/stat per row is NOT cramped, that is the correct stacked layout (see the "correct by design" carve-outs below). Never flag a single-column stack.
+- TOOL BREAKDOWN HEADER SQUEEZE: in a ToolBreakdown component, each tool card has a green tagline beneath the tool name. If that tagline wraps to 3 or more lines on desktop (1280px), the header is being squeezed by a long pricing string beside it — flag as major.
 - EMPTY COLUMN GAPS: a grid/row with a blank or near-empty column, or large dead whitespace beside a component (e.g. a 3-col grid holding only 2 cards leaving an empty third slot).
 - AWKWARD DECISION TREES: a DecisionTree whose branches genuinely overlap, whose connector lines cross through text, or whose nodes are clipped/cut off. Do NOT flag the vertical labeled-list form (a left guide-line with each branch on its own full-width row and no horizontal connectors), that is its correct, legible layout, especially on mobile.
 - OVERSIZED EMBEDS / IMAGES: a Figure, screenshot, or embed that's blown up far larger than the content column or that dwarfs surrounding text.

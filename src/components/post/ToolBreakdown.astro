@@ -161,25 +161,19 @@ const resolveLogo = (t: Tool) =>
     padding: 0.1rem 0.45rem;
     border-radius: 999px;
   }
-  /* Sub-headline + pricing share one row: tagline grows and pushes the price
-     to the right edge of the text column; a long price wraps to its own line. */
   .tbd-meta {
     display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.15rem 1rem;
+    flex-direction: column;
+    gap: 0.2rem;
     margin: 0.3rem 0 0.5rem;
   }
   .tbd-tagline {
-    flex: 1 1 12rem;
     font-weight: 600;
     color: var(--accent-dim, var(--accent));
     font-size: 0.95rem;
     margin: 0;
   }
   .tbd-price {
-    flex: 0 1 auto;
-    text-align: right;
     margin: 0;
     font-size: 0.95rem;
     font-weight: 700;
