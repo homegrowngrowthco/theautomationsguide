@@ -1,4 +1,17 @@
-# Session Log — last updated 2026-06-25 (Session 45)
+# Session Log — last updated 2026-06-25 (Session 46)
+
+## Quick reference — recent additions (Session 46, 2026-06-25)
+
+**ToolBreakdown col alignment + CTA gap fixed (PR #135); Nutshell/Pipedrive/Close post published (PR #131); pre-guardrail content corrected (PR #136); tagline length guardrail added to engine prompt + deployed.**
+
+Two more ToolBreakdown issues surfaced after the S45 CSS fix landed:
+
+- **Highlights panel bleeding past the logo zone ([src/components/post/ToolBreakdown.astro](src/components/post/ToolBreakdown.astro)):** `.tbd-cols` lacked `padding-right: 130px` that `.tbd-head` already had, so the highlights panel's right edge extended 130px further right than the tagline/name text. Fixed. `.tbd-cta` margin-top also halved (0.85rem to 0.4rem) to cut dead space above the button. **PR #135** `e409a7f` (commit `ede8fb0`). Revert: `git revert ede8fb0`.
+- **Nutshell post content was pre-guardrail ([src/content/blog/2026-06-25-nutshell-vs-pipedrive-vs-close-best-affordable-sales-crm.mdx](src/content/blog/2026-06-25-nutshell-vs-pipedrive-vs-close-best-affordable-sales-crm.mdx)):** all 3 taglines were 85-101 chars (full-sentence constructions); all 3 pricing strings were 93-118 chars (all tiers listed verbatim). Both exceeded the S45 guardrails. Corrected inline: taglines to 50-61 chars, pricing to 41-50 chars. **PR #136** `45d8967`. Revert: `git revert 45d8967`.
+- **PR #131** `0486980` merged — Nutshell vs Pipedrive vs Close post is live on production.
+- **Engine tagline guardrail ([n8n/blog-post-engine.json](n8n/blog-post-engine.json)):** added `tagline (max 55 chars, punchy one-liner -- no full sentence, no colon)` to the ToolBreakdown spec, mirroring the S45 pricing guardrail. Deployed via `deploy-engine.mjs --apply`. Root cause of today's content bug: the LLM wrote full-sentence taglines (85-101 chars) because there was no constraint; the S45 fix only added a pricing constraint.
+
+---
 
 ## Quick reference — recent additions (Session 45, 2026-06-25)
 
