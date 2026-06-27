@@ -1,4 +1,26 @@
-# Session Log — last updated 2026-06-25 (Session 46)
+# Session Log — last updated 2026-06-27 (Session 47)
+
+## Quick reference — recent additions (Session 47, 2026-06-27)
+
+**GSC index-status audit: 105 sitemap URLs checked via URL Inspection API; 9 not indexed — all submitted to GSC by Ian.**
+
+Ran `theautomationsguide/gsc-index-status.py` against `sc-domain:theautomationsguide.com`. Results: 96 Submitted and indexed, 8 URL is unknown to Google, 1 Crawled - currently not indexed.
+
+URLs submitted to GSC (Ian used URL Inspection → Request Indexing for each):
+
+- `/blog/2026-05-08-cheap-outbound-sales-stack-for-small-b2b-teams-under-200mo/` — unknown to Google
+- `/blog/2026-06-21-getresponse-vs-brevo-vs-mailchimp-which-wins-in-2026/` — unknown to Google
+- `/blog/2026-06-26-lusha-vs-apollo-vs-zoominfo-b2b-contact-data-compared/` — unknown to Google (yesterday's post)
+- `/tools/aircall/` — unknown to Google
+- `/tools/fireflies/` — unknown to Google
+- `/tools/justcall/` — unknown to Google
+- `/tools/otter/` — unknown to Google
+- `/tools/vector/` — unknown to Google
+- `/tools/surfe/` — Crawled - currently not indexed (crawled 2026-06-17; thin-content risk; re-submitted)
+
+No code changes this session.
+
+---
 
 ## Quick reference — recent additions (Session 46, 2026-06-25)
 
