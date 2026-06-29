@@ -1408,6 +1408,19 @@ export const tools: Tool[] = [
     blurb:
       'Otter.ai is featured in a comparison on The Automations Guide.',
   },
+  {
+    slug: 'taplio',
+    name: 'Taplio',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Taplio',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/taplio.png',
+    aliases: ['Taplio'],
+    blurb:
+      'Taplio is featured in a comparison on The Automations Guide.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
