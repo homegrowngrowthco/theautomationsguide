@@ -921,6 +921,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'brevo',
+    logo: '/brand/tools/brevo.png',
     name: 'Brevo',
     category: 'Email & Marketing Automation',
     badge: 'Free tier available',
@@ -1420,6 +1421,45 @@ export const tools: Tool[] = [
     aliases: ['Taplio'],
     blurb:
       'Taplio is featured in a comparison on The Automations Guide.',
+  },
+  {
+    slug: 'loops',
+    name: 'Loops',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Loops',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/loops.png',
+    aliases: ['Loops'],
+    blurb:
+      'Loops is email marketing software for SaaS teams to send marketing, lifecycle, and transactional email from one product.',
+  },
+  {
+    slug: 'activecampaign',
+    name: 'ActiveCampaign',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try ActiveCampaign',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/activecampaign.png',
+    aliases: ['ActiveCampaign'],
+    blurb:
+      'Go beyond marketing automation with ActiveCampaign\'s autonomous marketing platform. Your team of AI agents handles email, SMS, WhatsApp and more for you, backed by billions of data points.',
+  },
+  {
+    slug: 'customerio',
+    name: 'Customer.io',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Customer.io',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/customerio.png',
+    aliases: ['Customer.io', 'Customerio'],
+    blurb:
+      'Customer.io is a messaging platform for sending behavioral emails, push notifications, and SMS to engage and retain your customers.',
   },
 ];
 
