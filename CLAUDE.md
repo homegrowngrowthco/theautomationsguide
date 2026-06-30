@@ -1,4 +1,43 @@
-# Session Log — last updated 2026-06-27 (Session 47)
+# Session Log — last updated 2026-06-30 (Session 48)
+
+## Quick reference — recent additions (Session 48, 2026-06-30)
+
+**PR #143 (Loops vs Customer.io vs Brevo) unblocked: customerio registered, handle-tool-reply workflow built, activecampaign.png logo fixed.**
+
+### Root issue investigated
+
+QA bot comment said "Reply with `customerio = https://customer.io` and I'll register it" but no `issue_comment` workflow existed. Ian had replied twice on the PR — nothing happened. Built the automation to make the promise real.
+
+### Changes shipped to PR branch (3 commits)
+
+**`35d8b82` — customerio registration:**
+- `src/data/affiliate-links.ts` — added `customerio` entry (`status: 'pending'`, `homepageFallback: 'https://customer.io/'`)
+- `src/data/tools.ts` — added `customerio` tool entry (category: Sales Engagement, blurb sourced from og:description)
+- `public/brand/tools/customerio.png` — downloaded from `customer.io/apple-touch-icon.png`; background knocked out (R=11, G=53, B=59 dark teal, Euclidean dist<30 → alpha=0) via PowerShell `System.Drawing` per-pixel; passes `lint-logos.mjs`
+
+**`a2763a6` — handle-tool-reply workflow + url-hint support:**
+- `qa/auto-register-tools.mjs` — added `--url-hint slug=url` flag (repeatable); skips TLD probe for that slug and fetches the human-confirmed URL directly for blurb + logo. Needed for dotted-domain tools like `customer.io` whose TLD probe would try `customerio.com` instead.
+- `.github/workflows/handle-tool-reply.yml` — new workflow: fires on `issue_comment` (PR only, write-access commenter only); parses `slug = url` pairs from comment body (slug normalized: lowercase, non-alphanumeric stripped except hyphens); gets PR branch; runs `auto-register-tools.mjs --post … --url-hint …`; commits registry/logo additions to PR branch (push re-triggers QA automatically); posts ✅ or ⚠️ result comment. Ian can now fix QA failures by replying on GitHub web or mobile — no VS Code required.
+
+**`189649a` — activecampaign.png background knockout:**
+- `public/brand/tools/activecampaign.png` — file was stored as `.png` but was actually a WebP (RIFF/WEBP header), no alpha channel, solid royal-blue background (R=0, G=76, B=255). `System.Drawing` can't handle WebP; used Node.js/sharp: `ensureAlpha()` + raw pixel walk, dist<40 from bg color → alpha=0; saved as true PNG. All 21 raster logos now pass `lint-logos.mjs` (0 hard, 0 warn).
+
+### Going forward
+
+When QA fails with the "needs a URL" comment, Ian replies on the PR (GitHub.com or mobile):
+```
+customerio = https://customer.io
+```
+`handle-tool-reply.yml` fires within seconds, registers the tool, pushes a commit, re-runs QA. No VS Code or Claude Code needed for this specific flow. The workflow becomes active on all future content PRs once PR #143 merges to master.
+
+### Key gotchas
+
+- **WebP-as-PNG trap**: `activecampaign.png` was a WebP (magic bytes `52 49 46 46` = `RIFF`) → `System.Drawing.Bitmap` threw "Parameter is not valid"; sharp handles WebP fine
+- **Dotted-domain TLD probe failure**: `auto-register-tools.mjs` probes `customerio.com`, `customerio.io`, etc. — none are the real site; `--url-hint` bypasses the probe
+- **PS 5.1 heredoc `=` mangling**: git commit messages containing `slug=url` must be written via `-F file` not `-m @'...'@` (PS splits on `=` in native-exe args)
+- **Worktree isolation**: used `C:\tmp\tag-pr143` worktree throughout; HEAD was detached → pushed via `git push origin HEAD:content/…`
+
+---
 
 ## Quick reference — recent additions (Session 47, 2026-06-27)
 
