@@ -1448,6 +1448,19 @@ export const tools: Tool[] = [
     blurb:
       'Go beyond marketing automation with ActiveCampaign\'s autonomous marketing platform. Your team of AI agents handles email, SMS, WhatsApp and more for you, backed by billions of data points.',
   },
+  {
+    slug: 'customerio',
+    name: 'Customer.io',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Customer.io',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/customerio.png',
+    aliases: ['Customer.io', 'Customerio'],
+    blurb:
+      'Customer.io is a messaging platform for sending behavioral emails, push notifications, and SMS to engage and retain your customers.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
