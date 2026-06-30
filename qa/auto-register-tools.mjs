@@ -22,6 +22,7 @@
 //   node qa/auto-register-tools.mjs --post <path/to/post.mdx>   # one post
 //   node qa/auto-register-tools.mjs --changed                   # git-changed posts vs origin/master
 //   node qa/auto-register-tools.mjs --post <p> --dry-run        # report only, no writes
+//   node qa/auto-register-tools.mjs --post <p> --url-hint slug=https://...  # skip TLD probe for slug
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
@@ -38,6 +39,18 @@ const FETCH_TIMEOUT = 9000;
 
 const args = process.argv.slice(2);
 const DRY = args.includes('--dry-run');
+
+// --url-hint slug=url (repeatable): human-confirmed URL for a slug the TLD probe
+// can't resolve (e.g. customer.io uses a dotted domain, not customerio.com).
+// Populated by the handle-tool-reply.yml workflow from PR comment replies.
+const urlHints = new Map();
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === '--url-hint' && args[i + 1]) {
+    const eq = args[i + 1].indexOf('=');
+    if (eq > 0) urlHints.set(args[i + 1].slice(0, eq), args[i + 1].slice(eq + 1));
+    i++;
+  }
+}
 
 // ---------- helpers ----------
 
@@ -125,6 +138,22 @@ function existingToolSlugs(src) {
 // the real product homepage. This is what stops `justcall.com` ("Just Call", an
 // unrelated site) from beating the real `justcall.io`.
 async function resolveHomepage(name, slug) {
+  // Human-confirmed URL from a PR comment reply — skip the TLD probe entirely.
+  // The human knows the site; we just fetch it to get the og:description and html
+  // needed for the blurb + logo steps downstream.
+  if (urlHints.has(slug)) {
+    const hintUrl = urlHints.get(slug);
+    const r = await fetchText(hintUrl);
+    if (r) {
+      const head = r.html.slice(0, 20000);
+      const ogDesc = (head.match(/<meta[^>]+(?:property|name)=["']og:description["'][^>]+content=["']([^"']+)["']/i)
+        || head.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i) || [])[1] || '';
+      const u = new URL(r.finalUrl);
+      return { score: 1000, homepage: `${u.protocol}//${u.host}/`, host: u.host, html: r.html, blurb: ogDesc.trim() };
+    }
+    console.error(`[auto-register] url-hint provided for ${slug} but fetch failed: ${hintUrl}`);
+    return null;
+  }
   const bases = [...new Set([slug.replace(/-/g, ''), norm(name)])].filter(Boolean);
   // Identity targets: match the page against the CLEAN slug as well as the name.
   // Brand names that bake in a TLD ("Otter.ai", "Reply.io") normalize to
