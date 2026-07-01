@@ -1,4 +1,37 @@
-# Session Log — last updated 2026-07-01 (Session 49)
+# Session Log — last updated 2026-07-01 (Session 50)
+
+## Quick reference — recent additions (Session 50, 2026-07-01)
+
+**PR #148 merged; 0 hard lint errors confirmed on master.**
+
+**`fix/affiliate-slugs-mailchimp-li-sales-nav` — 1 file, 14 insertions (commit `115957a`, squash-merged `ab3d672`):**
+
+- **[src/data/affiliate-links.ts](src/data/affiliate-links.ts):** Added `mailchimp` and `linkedin-sales-navigator` as `no-program` entries with Ian-supplied homepage fallback URLs:
+  - `mailchimp` → `https://mailchimp.com/pricing/marketing/`
+  - `linkedin-sales-navigator` → `https://business.linkedin.com/sell?trk=visit-product-website&src=li-rev-prod`
+
+Both were referenced as `affiliateSlug` in posts but missing from the registry, so their `/go/` redirects would 404 in prod. The `no-program` status + `homepageFallback` pattern means the route exists and redirects safely while no affiliate program is in place.
+
+### Verification
+
+- `node qa/lint-content.mjs --all` on master (`ab3d672`): **0 hard, 21 warnings** (was 2 hard before this PR)
+- `npx astro build` clean (179 pages)
+
+### Current state after all S49 + S50 PRs
+
+All 3 PRs from the S49/S50 cycle are merged to master:
+- **PR #146** (`13ceaeb`) — audit lows L-2/L-3/L-4/L-5/L-6/L-7 fixed
+- **PR #147** (`ca86714`) — docs/session-49-log
+- **PR #148** (`ab3d672`) — affiliate slugs mailchimp + linkedin-sales-navigator registered
+
+**Remaining open:** L-9 (8 logoless compared tools), L-10 (inline-style DRY-up), Astro 4→6 major — all @low.
+
+### Key notes
+
+- **Revert PR #148:** `git revert ab3d672`
+- Worktree: `C:\tmp\tag-affiliate-fix` (now pointing to master state post-rebase)
+
+---
 
 ## Quick reference — recent additions (Session 49, 2026-07-01)
 
