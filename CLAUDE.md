@@ -1,4 +1,35 @@
-# Session Log — last updated 2026-06-30 (Session 48)
+# Session Log — last updated 2026-07-01 (Session 49)
+
+## Quick reference — recent additions (Session 49, 2026-07-01)
+
+**Audit lows L-2/L-3/L-4/L-5/L-6/L-7 fixed in PR #146 (`fix/audit-lows`). Build clean (179 pages), render-acceptance 0 hard. 2 pre-existing hard lint errors surfaced.**
+
+### Changes shipped to PR branch (`604ca5b`)
+
+**`fix/audit-lows` — 7 files, 173 insertions, 7 deletions:**
+
+- **L-2 ([src/pages/index.astro](src/pages/index.astro)):** Bumped 4 feature tile headings `h3`→`h2`. The page had an h1→h3 skip (invalid heading order); adding an h2 before them is the fix.
+- **L-3 ([src/layouts/BaseLayout.astro](src/layouts/BaseLayout.astro)):** Removed `aria-label="Visit Homegrown Growth Co"` from the footer publisher link. The visible text "Published by Homegrown Growth Co" is descriptive and now serves as the accessible name, eliminating the WCAG 2.5.3 label-content mismatch.
+- **L-4 ([src/styles/global.css](src/styles/global.css)):** Added `.affiliate-notice a { text-decoration: underline; }`. The "Read the full disclosure" link on `/tools` was distinguishable from surrounding text by color only.
+- **L-5 ([src/components/EmailSignup.astro](src/components/EmailSignup.astro)):** Added a `MutationObserver` shim inside the existing lazy-load script. After beehiiv's `loader.js` injects the cross-origin iframe, the observer fires and sets `iframe.title = "Newsletter signup form"` — the only viable fix for a vendor-injected frame.
+- **L-6 ([src/data/tools.ts](src/data/tools.ts)):** Added 3 FAQs to each of the 9 oldest tool hubs that had none: `make`, `n8n`, `hubspot`, `pipedrive`, `clay`, `apollo`, `smartlead`, `beehiiv`, `kit`. These are the highest-traffic hubs — they now emit `FAQPage` JSON-LD in the built HTML (the same path used by all LP-builder tools since Session 17).
+- **L-7 ([src/content/blog/revops-automation-stack-2026.mdx](src/content/blog/revops-automation-stack-2026.mdx) + [2026-06-17-apollo-sequences-vs-hubspot-sequences-the-truth.mdx](src/content/blog/2026-06-17-apollo-sequences-vs-hubspot-sequences-the-truth.mdx)):** Two over-length meta descriptions trimmed: revops-stack 183→157 chars, apollo-sequences 169→130 chars.
+
+### Pre-existing hard lint errors surfaced (not introduced by this PR)
+
+Running `node qa/lint-content.mjs --all` revealed 2 hard errors pre-existing in master:
+- `affiliateSlug "mailchimp"` — not in `affiliate-links.ts` → `/go/mailchimp` CTA would 404
+- `affiliateSlug "linkedin-sales-navigator"` — not in `affiliate-links.ts` → `/go/linkedin-sales-navigator` CTA would 404
+
+Both are tracked in TODO.md @low for a follow-up PR. CI only lints the changed post (not all), so they shipped past gate. Same class as C-1/C-2 that were fixed in S41.
+
+### Key notes
+
+- **Worktree:** `C:\tmp\tag-lows` (`fix/audit-lows` branch) — separate from the main OneDrive repo per `feedback_no_git_churn_shared_onedrive_worktree`.
+- **Revert:** `git revert 604ca5b` after PR #146 squash-merges (single commit).
+- **Remaining open after this PR:** L-9 (8 logoless compared tools), L-10 (inline-style DRY-up), Astro 4→6 major — all @low.
+
+---
 
 ## Quick reference — recent additions (Session 48, 2026-06-30)
 
