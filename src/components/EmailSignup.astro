@@ -64,6 +64,18 @@ const BEEHIIV_FORM_ID = 'd41efc59-7041-482b-8178-6d238e6c3cfa';
     } else {
       load();
     }
+    // Beehiiv injects a cross-origin iframe we can't title at source; set it
+    // after injection so screen readers announce the form correctly (L-5).
+    if ('MutationObserver' in window) {
+      const mo = new MutationObserver(() => {
+        const iframe = wrap.querySelector('iframe');
+        if (iframe && !iframe.title) {
+          iframe.title = 'Newsletter signup form';
+          mo.disconnect();
+        }
+      });
+      mo.observe(wrap, { childList: true, subtree: true });
+    }
   })();
 </script>
 
