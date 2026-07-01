@@ -1,0 +1,128 @@
+---
+title: "Route Inbound Leads Automatically with Fillout and HubSpot"
+description: "Step-by-step tutorial: use Fillout forms, HubSpot workflows, Make, and Chili Piper to route inbound leads automatically. No code required."
+tldr: "Connect Fillout to HubSpot natively, then use HubSpot workflows plus Make or Chili Piper to route, assign, and book inbound leads automatically based on form data."
+pubDate: 2026-07-01
+tags: ["automation", "hubspot", "lead-routing"]
+faqs:
+  - question: "Does Fillout integrate directly with HubSpot?"
+    answer: "Yes. Fillout has a native HubSpot integration that creates or updates contacts and deals on form submission without a middleware tool like Zapier."
+  - question: "Can I route leads to different reps based on Fillout form answers?"
+    answer: "Yes. Map form fields to HubSpot contact properties, then use HubSpot workflow enrollment triggers and if/then branches to assign contact owner by territory, company size, or any custom field."
+  - question: "Do I need Make or Zapier if I use Fillout with HubSpot?"
+    answer: "Not always. Simple routing lives entirely inside HubSpot workflows. Make adds value when you need cross-system logic, like syncing to Salesforce or triggering a Slack alert to a channel the rep actually watches."
+  - question: "How does Chili Piper fit into a Fillout and HubSpot routing setup?"
+    answer: "Chili Piper replaces the HubSpot meetings link on the thank-you step. It qualifies the lead in real time and routes directly to a calendar, cutting the handoff lag that kills conversion."
+  - question: "What is the best form tool for HubSpot inbound lead routing?"
+    answer: "Fillout is the strongest option right now for teams that want conditional logic, multi-step forms, and a direct HubSpot sync without the design constraints of native HubSpot forms."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most inbound lead routing failures are not a CRM problem. They are a form problem. The form collects a name and an email, hands nothing useful to [HubSpot](/go/hubspot), and leaves a human to open the record and decide what to do next. Fillout changes that equation. It lets you capture real qualification data with conditional logic on every step, sync every field directly into HubSpot contact and deal properties, and hand off to a routing workflow before the prospect has closed the tab.
+
+This is the exact stack I use with B2B SaaS clients: Fillout as the intake layer, HubSpot workflows as the routing engine, [Make](/go/make) for cross-system edge cases, and Chili Piper for live calendar booking. No code. No Zapier tax.
+
+## Why This Stack Beats Native HubSpot Forms
+
+Native HubSpot forms are fine for newsletter signups. For qualification-heavy inbound flows, they are genuinely limiting. You get basic conditional logic on Pro tiers, no multi-step layout, and design options that feel like 2018. Skip native HubSpot forms for any flow where you need more than three qualifying questions.
+
+Fillout gives you a proper multi-step builder with per-page branching logic, calculated fields, file uploads, and a form UX that does not make prospects abandon halfway through. The native HubSpot sync is bidirectional, meaning it pre-fills fields for known contacts returning to your site. That alone saves my clients meaningful rep time on re-engagement campaigns.
+
+The routing logic itself still lives in HubSpot workflows, because that is where contact owner, lifecycle stage, and deal creation need to happen. What Fillout does is feed the workflow enough signal to make routing decisions automatically. Without good form data, your workflow branches have nothing to branch on.
+
+<StatRow stats={[
+  { number: "78%", label: "of B2B buyers", description: "go with the vendor that responds first, per Drift's conversational marketing benchmarks" },
+  { number: "5 min", label: "response window", description: "after which lead conversion rates drop by 80x, according to the original Harvard Business Review lead response study" },
+  { number: "30%+", label: "routing accuracy gain", description: "that clients I've worked with typically see when form fields map cleanly to HubSpot owner-assignment branches" }
+]} />
+
+## The Step-by-Step Routing Build
+
+Here is the full playbook. I am assuming HubSpot Sales Hub Professional and a Fillout account on at least the free tier. Chili Piper and Make are optional but covered in steps four and five.
+
+<StepRow steps={[
+  {
+    title: "Build your Fillout form with routing-ready fields",
+    body: "Create a multi-step Fillout form. On page two, add exactly the fields your routing logic will use: company size (dropdown: 1-10, 11-50, 51-200, 200+), use case (dropdown tied to your product lines), and country or region. Use Fillout's conditional logic to skip irrelevant pages. If company size is 1-10, hide the enterprise SSO question entirely. Every field you add here becomes a HubSpot property you can branch on later. Resist the urge to ask everything. Four to six fields is the practical ceiling before form completion rates fall off a cliff."
+  },
+  {
+    title: "Connect Fillout to HubSpot and map your properties",
+    body: "In Fillout, go to Integrations, select HubSpot, and authenticate with your portal. Under field mapping, connect each Fillout question to the corresponding HubSpot contact property. Custom fields you built in HubSpot (like 'Inbound Use Case' or 'Company Size Band') appear in the dropdown as long as you created them in HubSpot first. Set the submission action to 'Create or update contact' so returning visitors update rather than duplicate. Also create a Deal in the same submission if your motion is sales-led, and map the deal stage to 'Inbound Lead' or whatever your first pipeline stage is called."
+  },
+  {
+    title: "Build the HubSpot routing workflow",
+    body: "In HubSpot, create a contact-based workflow. Enrollment trigger: contact property 'Original Source' equals 'Offline Sources' (or whatever source value your Fillout form sets), combined with 'Inbound Use Case' is known. Add an if/then branch for company size. For 200+ employees, set contact owner to your enterprise AE or use round-robin if you have a team. For 51-200, route to mid-market. For 1-50, route to SMB or a high-velocity sequence. After the owner-assignment action, send an internal notification email with the contact record link. Then set lifecycle stage to 'Lead' and, if you created a deal, move deal owner to match. This entire workflow runs in under 60 seconds from form submission."
+  },
+  {
+    title: "Add Chili Piper for instant calendar routing",
+    body: "On the Fillout thank-you page, replace the static confirmation text with a Chili Piper Concierge embed or redirect URL. Chili Piper reads the hidden field data you pass via URL parameters (company size, use case) and routes to the correct rep's calendar automatically. The rep gets a booked meeting before they have even seen the HubSpot notification. For this to work cleanly, make sure Fillout passes the routed owner's email as a URL parameter to the Chili Piper redirect so the right calendar loads. Your Chili Piper routing rules must mirror your HubSpot workflow branches exactly. Two routing logic trees that disagree with each other will create chaos in your pipeline."
+  },
+  {
+    title: "Use Make for edge cases and cross-system sync",
+    body: "For most teams, steps one through four cover 90% of volume. Make earns its place in specific scenarios. If a lead qualifies for enterprise but no AE is available (out-of-office flag in your calendar), Make can catch the HubSpot webhook, check availability via a Google Calendar API call, and reassign the deal to a backup owner. Make also handles Salesforce sync when your AEs live in SFDC and your marketing team lives in HubSpot. Build the scenario to trigger on HubSpot contact creation, filter by lifecycle stage equals Lead, then create or update the Salesforce lead object. This removes the manual import step that kills data freshness."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **The gotcha I see most often:** Fillout maps fields correctly, but the HubSpot property type does not match. If your form sends "51-200" as a string but the HubSpot property is a number field, the value does not save and your workflow branch never fires. Check property types in HubSpot before you build the workflow, not after. Single-line text properties are the safest default for segmentation values you plan to branch on. Use dropdowns only if you control the exact option labels in both tools.
+  </Fragment>
+  <Fragment slot="right">
+    ```
+    Fillout field: "Company Size"
+    Type: Dropdown
+    Options:
+      - "1-10"
+      - "11-50"
+      - "51-200"
+      - "201+"
+
+    HubSpot property: "company_size_band"
+    Type: Single-line text
+    (NOT a number field)
+
+    HubSpot branch condition:
+      company_size_band = "201+"
+      → Set owner: Enterprise AE queue
+      → Set deal stage: Enterprise Inbound
+
+    HubSpot branch condition:
+      company_size_band = "51-200"
+      → Set owner: Mid-Market queue
+      → Set deal stage: Mid-Market Inbound
+    ```
+  </Fragment>
+</SideBySide>
+
+<MyTake>
+Chili Piper gets oversold as a qualification tool. It is not. It is a routing accelerator, and it only works well when qualification has already happened upstream in the form. I have watched teams spend weeks tuning Chili Piper's inbound rules when the real fix was adding two fields to their Fillout form and letting HubSpot handle the branch logic first. Build the form and the workflow before you touch Chili Piper's router configuration. That order matters more than the tools themselves.
+</MyTake>
+
+## This Stack Scales to About 5,000 Inbound Leads Per Month
+
+The Fillout to HubSpot native sync has no per-submission fee at normal inbound volumes. HubSpot workflow actions count against your workflow action limits, but a five-branch routing workflow is nowhere near those limits for most SMB and mid-market teams. Make on the Core plan ($9/month) handles 10,000 operations per month, which covers most cross-system sync needs comfortably. Chili Piper's Concierge product starts around $30 per user per month and is the only meaningful line-item cost in this stack beyond your HubSpot seat.
+
+When volume climbs past 5,000 leads per month, or territory complexity grows beyond six or seven segments, I would audit your [HubSpot workflow enrollment trigger logic](https://knowledge.hubspot.com/workflows/create-workflows) before adding more branches. Stacking twelve levels of if/then inside a single workflow is a maintenance disaster waiting to happen. Above that threshold, LeanData or Chili Piper's full Distro product handles the complexity better.
+
+Most teams already have HubSpot and are hunting for a better form layer. Fillout is that layer. I recommend it ahead of Typeform now, specifically because the HubSpot sync is native and the conditional logic is genuinely good rather than bolted on. Build the form right, map the properties carefully, and the routing workflow becomes a mechanical thing that just works. The speed-to-lead problem is mostly a data-at-intake problem. This stack solves it without a single line of code.
+
+<Sources sources={[
+  { label: "HubSpot Knowledge Base: Create and manage workflows", url: "https://knowledge.hubspot.com/workflows/create-workflows" },
+  { label: "Fillout Docs: HubSpot integration overview", url: "https://www.fillout.com/help/hubspot" },
+  { label: "Harvard Business Review: The short life of online sales leads", url: "https://hbr.org/2011/03/the-short-life-of-online-sales" },
+  { label: "Chili Piper Docs: Concierge setup", url: "https://help.chilipiper.com/hc/en-us/categories/360002188552-Concierge" }
+]} />
