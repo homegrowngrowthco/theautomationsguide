@@ -92,6 +92,23 @@ export const tools: Tool[] = [
     ctaPrimary: true,
     logo: '/brand/tools/make.svg',
     aliases: ['Make', 'Integromat'],
+    faqs: [
+      {
+        question: 'How does Make compare to Zapier?',
+        answer:
+          'Make offers more advanced logic, data transformation, and multi-step routing at a lower price point than Zapier. It is the better pick for complex workflows; Zapier is easier for simple one-step automations.',
+      },
+      {
+        question: 'Is Make free?',
+        answer:
+          'Make has a free tier with 1,000 operations per month. Paid plans start at $9/month for 10,000 operations. Operations-based pricing makes it significantly cheaper than Zapier at volume.',
+      },
+      {
+        question: 'Can Make connect to HubSpot?',
+        answer:
+          'Yes. Make has a native HubSpot integration covering contacts, deals, companies, workflows, and custom objects. Syncing HubSpot with other GTM tools is one of the most common RevOps use cases.',
+      },
+    ],
   },
   {
     slug: 'n8n',
@@ -105,6 +122,23 @@ export const tools: Tool[] = [
     ctaPrimary: false,
     logo: '/brand/tools/n8n.svg',
     aliases: ['n8n'],
+    faqs: [
+      {
+        question: 'What is n8n and who is it for?',
+        answer:
+          'n8n is an open-source workflow automation tool you can self-host for free or run on their managed cloud. It is ideal for engineering-forward RevOps teams who want full data control, no per-operation pricing, and the ability to write custom code nodes.',
+      },
+      {
+        question: 'Is n8n really free?',
+        answer:
+          'The self-hosted version is free and open-source with no usage limits. The managed cloud plan starts at $20/month. Self-hosting eliminates ongoing SaaS costs entirely, though it requires server management.',
+      },
+      {
+        question: 'How does n8n compare to Make?',
+        answer:
+          'Both are more powerful than Zapier for complex workflows. n8n wins on self-hosting (zero platform cost, full data control, no operation caps); Make wins on a more polished UI and broader native integration library. Teams with engineering resources often prefer n8n; teams without them prefer Make.',
+      },
+    ],
   },
   {
     slug: 'hubspot',
@@ -118,6 +152,23 @@ export const tools: Tool[] = [
     ctaPrimary: true,
     logo: '/brand/tools/hubspot.svg',
     aliases: ['HubSpot'],
+    faqs: [
+      {
+        question: 'What does HubSpot automate for RevOps teams?',
+        answer:
+          'HubSpot automates lead routing, deal stage progressions, contact lifecycle changes, email sequences, internal notifications, and data sync across your GTM stack. The workflow builder handles most RevOps automation use cases without requiring a separate tool.',
+      },
+      {
+        question: 'Is HubSpot free?',
+        answer:
+          'HubSpot has a genuinely useful free CRM tier. Automation workflows, sequences, and reporting depth require Starter ($20/month) or higher. Most RevOps teams run on Professional ($890/month) for full workflow automation.',
+      },
+      {
+        question: 'How does HubSpot compare to Salesforce?',
+        answer:
+          'HubSpot is easier to set up, maintain, and use for mid-market GTM teams. Salesforce is more customizable and better for enterprise-scale data models. Most teams under $50M ARR get more value from HubSpot; above that, the calculus depends on your ops complexity.',
+      },
+    ],
   },
   {
     slug: 'pipedrive',
@@ -131,6 +182,23 @@ export const tools: Tool[] = [
     ctaPrimary: false,
     logo: '/brand/tools/pipedrive.svg',
     aliases: ['Pipedrive'],
+    faqs: [
+      {
+        question: 'Who is Pipedrive best suited for?',
+        answer:
+          'Pipedrive is best for sales-led B2B teams that want a clean, pipeline-first CRM without HubSpot complexity or price. It is a strong fit for SMBs and mid-market teams where the sales rep experience matters more than marketing automation depth.',
+      },
+      {
+        question: 'Does Pipedrive have automation?',
+        answer:
+          "Yes. Pipedrive's Automations feature handles deal stage triggers, activity creation, email sending, and contact updates. It covers the core sales automation use cases starting on the Essential plan ($14/seat/month).",
+      },
+      {
+        question: 'How does Pipedrive compare to HubSpot?',
+        answer:
+          'Pipedrive is simpler, more opinionated, and cheaper per seat than HubSpot. HubSpot has deeper marketing automation, reporting, and ecosystem integrations. Pipedrive wins when the priority is a clean pipeline view for reps; HubSpot wins when RevOps needs to automate across marketing, sales, and CS.',
+      },
+    ],
   },
   {
     slug: 'clay',
@@ -143,6 +211,23 @@ export const tools: Tool[] = [
     ctaPrimary: true,
     logo: '/brand/tools/clay.webp',
     aliases: ['Clay'],
+    faqs: [
+      {
+        question: 'What does Clay do?',
+        answer:
+          'Clay is a data enrichment and prospecting platform that combines 50+ data sources (Clearbit, Apollo, LinkedIn, and more) in a spreadsheet-like interface. RevOps and sales teams use it to build targeted outbound lists, enrich CRM data, and trigger personalized messaging at scale.',
+      },
+      {
+        question: 'How much does Clay cost?',
+        answer:
+          'Clay pricing starts at $149/month (Starter) and scales with the number of credits (data lookups) you consume. Most high-volume outbound teams land on $349 to $699/month. It typically replaces several point-solution data tools, so the ROI math works for teams doing serious outbound.',
+      },
+      {
+        question: 'Is Clay better than Apollo for enrichment?',
+        answer:
+          'They serve different use cases. Apollo includes its own contact database plus sequencing as a one-stop outbound platform. Clay is a data orchestration layer that can pull from Apollo and 50+ other sources, giving you more enrichment depth and flexibility. High-performance outbound teams often use both.',
+      },
+    ],
   },
   {
     slug: 'apollo',
@@ -156,6 +241,23 @@ export const tools: Tool[] = [
     ctaPrimary: false,
     logo: '/brand/tools/apollo.svg',
     aliases: ['Apollo'],
+    faqs: [
+      {
+        question: 'What is Apollo.io used for?',
+        answer:
+          'Apollo is an all-in-one outbound platform combining a 275M+ B2B contact database, email sequencing, and CRM enrichment. RevOps teams use it to find prospects, run email campaigns, and keep HubSpot data current through its enrichment API.',
+      },
+      {
+        question: 'Is Apollo free?',
+        answer:
+          'Apollo has a free tier that includes limited contact credits, email sequences, and basic sequencing. Paid plans start at $49/user/month for more credits, calling, and automation. The free tier is genuinely usable for early-stage outbound.',
+      },
+      {
+        question: 'How does Apollo compare to ZoomInfo?',
+        answer:
+          'Apollo is significantly cheaper and offers a better free tier; ZoomInfo has a larger database and stronger data quality at the enterprise level. For most SMB and mid-market RevOps teams, Apollo delivers 80% of ZoomInfo value at 20% of the cost.',
+      },
+    ],
   },
   {
     slug: 'smartlead',
@@ -168,6 +270,23 @@ export const tools: Tool[] = [
     ctaPrimary: false,
     logo: '/brand/tools/smartlead.webp',
     aliases: ['Smartlead'],
+    faqs: [
+      {
+        question: 'What is Smartlead used for?',
+        answer:
+          'Smartlead is a cold email infrastructure platform built for high-volume outbound. It supports unlimited email inboxes, built-in warmup, inbox rotation, and detailed deliverability analytics. RevOps and sales teams use it to send at scale without burning domains.',
+      },
+      {
+        question: 'How does Smartlead compare to Instantly?',
+        answer:
+          'Smartlead and Instantly are the two dominant cold email platforms. Both support unlimited inboxes and warmup. Instantly has a cleaner UI and stronger community; Smartlead has more granular deliverability controls and more flexible API access.',
+      },
+      {
+        question: 'Does Smartlead integrate with HubSpot?',
+        answer:
+          'Yes. Smartlead integrates with HubSpot to sync contact data, update lead statuses when prospects reply, and trigger sequences based on CRM stage changes. You can also connect via Zapier, Make, or n8n for custom automation.',
+      },
+    ],
   },
   {
     slug: 'lemlist',
@@ -217,6 +336,23 @@ export const tools: Tool[] = [
     ctaPrimary: true,
     logo: '/brand/tools/beehiiv.png',
     aliases: ['Beehiiv'],
+    faqs: [
+      {
+        question: 'What makes Beehiiv different from Mailchimp or Substack?',
+        answer:
+          'Beehiiv is built specifically for serious newsletter publishers. It includes a native referral program, Boosts (paid cross-promotion network), paid subscriptions, and a strong free tier up to 2,500 subscribers. Substack is simpler but takes a revenue cut; Mailchimp lacks the publisher-specific monetization features.',
+      },
+      {
+        question: 'Is Beehiiv free?',
+        answer:
+          "Beehiiv's Launch plan is free for up to 2,500 subscribers with no revenue share. Paid plans start at $39/month (Scale) for growth features like referral programs and custom domains. It is one of the most generous free tiers in the newsletter space.",
+      },
+      {
+        question: 'Can Beehiiv integrate with my CRM?',
+        answer:
+          'Beehiiv connects to HubSpot and other platforms via Zapier, Make, and its native API. Common use cases include syncing new subscribers to HubSpot contacts and triggering CRM sequences when a subscriber hits a specific segment.',
+      },
+    ],
   },
   {
     slug: 'kit',
@@ -230,6 +366,23 @@ export const tools: Tool[] = [
     ctaPrimary: false,
     logo: '/brand/tools/kit.svg',
     aliases: ['Kit', 'ConvertKit'],
+    faqs: [
+      {
+        question: 'Who is Kit best for?',
+        answer:
+          'Kit is built for content creators and solo operators who want simple email sequences, audience segmentation, and clean subscriber management. It is a strong fit for newsletter writers, course creators, and solopreneurs rather than enterprise GTM teams.',
+      },
+      {
+        question: 'How does Kit compare to Beehiiv?',
+        answer:
+          'Kit is better for automation and audience segmentation; Beehiiv is better for native newsletter monetization (referral programs, Boosts, paid subscriptions). Kit wins when the priority is complex email sequences and tagging logic; Beehiiv wins when the goal is newsletter growth and direct monetization.',
+      },
+      {
+        question: 'Is Kit free?',
+        answer:
+          "Kit's free plan supports up to 10,000 subscribers with unlimited emails and one automation. Paid plans start at $25/month for advanced automations, integrations, and reporting. The free tier is one of the most generous in the email marketing category.",
+      },
+    ],
   },
 
   // --- Affiliate pipeline (Session 17). listed:false keeps these off the homepage
