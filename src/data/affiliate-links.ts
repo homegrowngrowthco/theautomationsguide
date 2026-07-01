@@ -450,6 +450,20 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
+  mailchimp: {
+    name: 'Mailchimp',
+    url: '',
+    homepageFallback: 'https://mailchimp.com/pricing/marketing/',
+    status: 'no-program',
+    notes: 'Comparison-reference only. No affiliate program applied for yet. Falls back to pricing page + UTM so /go/mailchimp routes.',
+  },
+  'linkedin-sales-navigator': {
+    name: 'LinkedIn Sales Navigator',
+    url: '',
+    homepageFallback: 'https://business.linkedin.com/sell?trk=visit-product-website&src=li-rev-prod',
+    status: 'no-program',
+    notes: 'Comparison-reference only. No public affiliate program (enterprise LinkedIn motion). Falls back to product page + UTM so /go/linkedin-sales-navigator routes.',
+  },
 };
 
 /**
