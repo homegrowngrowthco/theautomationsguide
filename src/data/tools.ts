@@ -1614,6 +1614,32 @@ export const tools: Tool[] = [
     blurb:
       'Customer.io is a messaging platform for sending behavioral emails, push notifications, and SMS to engage and retain your customers.',
   },
+  {
+    slug: 'folk',
+    name: 'folk',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try folk',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/folk.png',
+    aliases: ['folk'],
+    blurb:
+      'folk is featured in a comparison on The Automations Guide.',
+  },
+  {
+    slug: 'salesflare',
+    name: 'Salesflare',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Salesflare',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/salesflare.png',
+    aliases: ['Salesflare'],
+    blurb:
+      'Salesflare is featured in a comparison on The Automations Guide.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body

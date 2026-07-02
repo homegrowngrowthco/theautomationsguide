@@ -464,6 +464,20 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'no-program',
     notes: 'Comparison-reference only. No public affiliate program (enterprise LinkedIn motion). Falls back to product page + UTM so /go/linkedin-sales-navigator routes.',
   },
+  folk: {
+    name: 'folk',
+    url: '',
+    homepageFallback: 'https://www.folk.app/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  salesflare: {
+    name: 'Salesflare',
+    url: '',
+    homepageFallback: 'https://salesflare.com/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
 };
 
 /**
