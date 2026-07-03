@@ -1614,6 +1614,43 @@ export const tools: Tool[] = [
     blurb:
       'Customer.io is a messaging platform for sending behavioral emails, push notifications, and SMS to engage and retain your customers.',
   },
+  {
+    slug: 'bouncer',
+    name: 'Bouncer',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Bouncer',
+    ctaPrimary: false,
+    listed: false,
+    aliases: ['Bouncer'],
+    blurb:
+      'Bouncer is featured in a comparison on The Automations Guide.',
+  },
+  {
+    slug: 'zerobounce',
+    name: 'ZeroBounce',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try ZeroBounce',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/zerobounce.webp',
+    aliases: ['ZeroBounce'],
+    blurb:
+      'ZeroBounce is featured in a comparison on The Automations Guide.',
+  },
+  {
+    slug: 'mailreach',
+    name: 'MailReach',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try MailReach',
+    ctaPrimary: false,
+    listed: false,
+    aliases: ['MailReach'],
+    blurb:
+      'MailReach is featured in a comparison on The Automations Guide.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
