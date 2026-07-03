@@ -1626,6 +1626,32 @@ export const tools: Tool[] = [
     blurb:
       'Bouncer is featured in a comparison on The Automations Guide.',
   },
+  {
+    slug: 'zerobounce',
+    name: 'ZeroBounce',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try ZeroBounce',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/zerobounce.webp',
+    aliases: ['ZeroBounce'],
+    blurb:
+      'ZeroBounce is featured in a comparison on The Automations Guide.',
+  },
+  {
+    slug: 'mailreach',
+    name: 'MailReach',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try MailReach',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/mailreach.png',
+    aliases: ['MailReach'],
+    blurb:
+      'MailReach is featured in a comparison on The Automations Guide.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
