@@ -1,4 +1,41 @@
-# Session Log — last updated 2026-07-01 (Session 50)
+# Session Log — last updated 2026-07-03 (Session 51)
+
+## Quick reference — recent additions (Session 51, 2026-07-03)
+
+**Content PR #153 (ZeroBounce vs Bouncer vs MailReach) wouldn't update despite Ian replying the missing tool URLs repeatedly — root-caused a backtick-parsing bug in the S48 reply-handler, fixed it durably, unblocked + merged the post, and shipped proper logos. Three PRs (#153 content, #154 fix, #155 logos), all merged to master + prod-verified.**
+
+Ian: "I've responded multiple times with the missing links but Claude/GitHub are not updating... we went through this already and you validated it was working?" His replies were correctly formatted; the reply-handler was silently dropping them.
+
+### Root cause (the recurring "nothing happens when I reply")
+
+`handle-tool-reply.yml` (S48) parses `slug = url` pairs from the PR comment to auto-register the tool. Its capture was `/([A-Za-z0-9._-]+)\s*=\s*(https?:\/\/\S+)/` — `\S+` is greedy and swallows any trailing non-space char. Ian wrapped his replies in a markdown code span (`` `zerobounce = https://www.zerobounce.net/` ``), so the captured URL kept the **closing backtick**: `https://www.zerobounce.net/` + `` ` ``. The cleanup only stripped `.,;)` (not backticks), so `auto-register-tools.mjs` fetched the backticked URL, 404'd, resolved nothing, and the workflow posted "⚠️ no registry changes were made" on every reply. The run log confirmed it: `Parsed hints: ...zerobounce=https://www.zerobounce.net/\`` and `url-hint provided for zerobounce but fetch failed`.
+
+### 1. PR #154 — parser fix (`0bf58a3`, merged to master)
+
+- **[.github/workflows/handle-tool-reply.yml](.github/workflows/handle-tool-reply.yml):** URL capture now excludes whitespace AND markdown/quote wrappers — `(https?:\/\/[^\s\x60\x22'*<>)\]]+)`. Hex escapes `\x60` (backtick) + `\x22` (double-quote) are load-bearing: the parser runs inside a bash double-quoted `node -e "..."` string, so a literal backtick would trigger command substitution and a literal `"` would terminate the string. (Caught + fixed a literal `"..."` I'd first put in a code comment there.)
+- **[qa/auto-register-tools.mjs](qa/auto-register-tools.mjs):** `--url-hint` values get trailing wrappers stripped at the parse boundary too (defense-in-depth for any caller).
+- Verified by running the exact bash+node parse block against the real PR #153 comment body → clean `zerobounce=... mailreach=...` (no backtick). **`issue_comment` workflows run from the DEFAULT branch**, so this only fixes future replies once on master (which is why #153 itself had to be unblocked directly).
+
+### 2. PR #153 — unblocked + merged (`c183e34`, post live)
+
+Ran `auto-register-tools.mjs` with clean `--url-hint`s in a `C:\tmp\tag-pr153` worktree: zerobounce (`https://www.zerobounce.net/`), mailreach (`https://www.mailreach.co/`), bouncer all resolved (`unresolved: []`). Committed the registry additions to the content branch (`b2f1eaf`). **mailreach logo trap:** its only sourced icon was a white mark on a solid navy webclip → HARD-failed the opaque-corner logo gate, and knocking out the navy would leave an invisible white mark on the cream tool cards → dropped the logo so it rendered logo-less like bouncer (`705f877`). QA green → **merged #153** → post live; `/go/{zerobounce,bouncer,mailreach}/`=200 on prod (control `/go/clay/`=200).
+
+### 3. PR #155 — transparent SVG logos (`334f647`, merged)
+
+Follow-up so both compared tools show a brand mark:
+- **bouncer** — used usebouncer.com's dark logo variant (`2024/08/logo.svg`): navy wordmark + colored badge. The header logo (`Logo.svg`) was the white-wordmark version (invisible on cream).
+- **mailreach** — their wordmark SVG ships white-only (built for dark headers); recolored the 9 `fill="white"` to their brand charcoal `#26282d` (the color mailreach.co uses on its own light sections).
+- Both verified by rasterizing over the card bg (`#f6f4ec`) with sharp before shipping. **SVGs are skipped by [qa/lint-logos.mjs](qa/lint-logos.mjs)** (transparent by construction), and 10 tools already use `.svg` logos. `/brand/tools/{bouncer,mailreach}.svg`=200 on prod.
+
+### Key notes / gotchas
+
+- **Backtick-wrapped replies were the whole bug** — Ian did nothing wrong. Going forward either form works (post-#154); replying without backticks always did.
+- **White-on-dark webclip icons are a logo trap:** auto-register grabs apple-touch/webclip icons that are designed for dark headers → knocking out the bg yields an invisible mark on the cream cards. Prefer a site's dark logo variant, or recolor a monochrome wordmark to the brand's on-light text color.
+- **Worktrees:** `C:\tmp\tag-pr153` (content branch, now deletable) + `C:\tmp\tag-logos` for the logo PR, per the no-OneDrive-churn rule.
+- **Reverts:** `git revert c183e34` (#153 content) / `0bf58a3` (#154 fix) / `334f647` (#155 logos) — all independent.
+- **Residual:** the post `<title>` is 64 chars (soft SERP-truncation lint warning, pre-existing on the merged content — not touched). L-9 (logoless compared tools) still open @low for the original set.
+
+---
 
 ## Quick reference — recent additions (Session 50, 2026-07-01)
 
