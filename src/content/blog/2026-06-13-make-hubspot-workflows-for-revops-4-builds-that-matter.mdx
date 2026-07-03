@@ -1,7 +1,7 @@
 ---
 title: "Make + HubSpot Workflows for RevOps: 4 Builds That Matter"
 description: "Step-by-step guide to building lead routing, deal tagging, and sequence triggers with Make and HubSpot. Includes free n8n alternatives."
-pubDate: 2026-06-13
+pubDate: 2026-07-03
 tags: ["guide", "automation", "hubspot"]
 faqs:
   - question: "What can Make do with HubSpot that native workflows can't?"
@@ -204,6 +204,39 @@ The Slack feedback loop looks like a rep-enablement win. It is actually a data q
 
 For teams deciding whether to absorb Make's operation costs or self-host [n8n](/go/n8n) instead, the answer is mostly a function of infrastructure comfort and monthly volume. I default to Make for clients without an in-house engineer. For technical teams already running containerized workloads on Railway or Render, n8n self-hosted is effectively free and the [HubSpot node coverage](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.hubspot/) is solid enough to replicate every workflow in this post.
 
-<ChooseIf title="Make or n8n for HubSpot Automation?" tools={[
+<ChooseIf title="Make or n8n for HubSpot automation?" tools={[
   {
-    name
+    name: "Make",
+    conditions: [
+      "You want a RevOps generalist to own these workflows without an engineer on call",
+      "Your monthly volume fits comfortably inside the Core or Pro operation tiers",
+      "You value a managed runtime and the fastest path from idea to a working HubSpot automation"
+    ],
+    pricing: "Core from $9/mo (10k ops)",
+    affiliateSlug: "make",
+    ctaLabel: "Try Make",
+    highlight: true
+  },
+  {
+    name: "n8n",
+    conditions: [
+      "You are comfortable running a container on Railway or Render and want effectively free execution",
+      "Your workflows call custom code or internal APIs that low-code modules cannot reach",
+      "Your volume is high enough that per-operation pricing would sting every month"
+    ],
+    pricing: "Self-hosted free, Cloud from $24/mo",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n"
+  }
+]} />
+
+## The takeaway
+
+Native HubSpot workflows are the right tool until your logic needs to leave HubSpot. The four builds above (lead routing on external data, cross-object deal tagging, sequence enrollment from product signals, and the Slack write-back loop) are where I see mid-market RevOps teams get the fastest payback. Start with lead routing. It is the highest-leverage build, it exercises every Make pattern the other three reuse, and a broken router is visible within a day, so you learn your error-handling muscles early.
+
+<BottomLine
+  verdict="Make is the right default for RevOps teams that want these four HubSpot builds live this quarter without engineering support. Move to n8n only when self-hosting economics or custom code genuinely matter."
+  pick="Make"
+  affiliateSlug="make"
+  ctaLabel="Try Make"
+/>
