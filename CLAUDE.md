@@ -1,4 +1,39 @@
-# Session Log — last updated 2026-07-03 (Session 51)
+# Session Log — last updated 2026-07-03 (Session 52)
+
+## Quick reference — recent additions (Session 52, 2026-07-03 PM)
+
+**Full content-engine audit (Ian: "problems with consistent posting, missing images/links"). Unstuck all 3 open content PRs (#88 open 20 days, #150, #151 — all merged + live), fixed the engine defects that caused them, and rewired the auto-merge backstop from a silent 14-day fallback to a loud 2-day one.**
+
+### Consistency: why posts weren't going out
+
+The engine opens a PR every day at 8am ET without fail (execution history is clean). Publication was the bottleneck — it depends on a manual merge, and the auto-merge backstop only fired at **14 days** and **silently skipped any PR with a failing check, forever**:
+
+- **PR #88** (6/13): draft was truncated by `max_tokens: 4096` mid-`<ChooseIf>` → MDX build failed → sat failing for 20 days with zero pings. Completed the post's ending by hand (compile-verified with `@mdx-js/mdx` first), bumped pubDate, updated the branch (its 6/13-era branch predated `qa/auto-register-tools.mjs`, which 404'd the first QA rerun) → full QA pass → merged.
+- **PR #150** (7/2): the in-job auto-register push left the head sha with only an `action_required` run stub (the passing qa check lives on the pre-push sha), so the PR looked unreviewed; it had also gone merge-conflicted on the registries. Resolved via a merge commit taking master's registries (QA auto-register re-adds), full QA pass → merged.
+- **PR #151** (7/2): QA green since yesterday, just nobody merged it → merged.
+
+**[.github/workflows/auto-merge-content.yml](.github/workflows/auto-merge-content.yml) rewritten:** threshold 14d → **2d**; stuck PRs (failed checks, missing/non-success qa, changes-requested, Netlify red, merge conflict) past the threshold now **Slack-alert with the reason** instead of skipping silently; requires a successful `qa` check before merging, walking back over trailing `[auto-register]`/`[qa-fix-N]` bot commits (whose tree the passing run did test — the push happens inside that job before the gates run).
+
+### Engine fixes (n8n workflow `sjZADhZGIuz9tZHK`, applied live via MCP; JSON re-synced)
+
+- **Truncation guard (the #88 class):** new "Verify Draft Complete" Code node between Generate Draft and Humanize throws on `stop_reason === 'max_tokens'`; Parse Draft now throws the same for Humanize; `max_tokens` raised 4096 → **8192** on both Sonnet calls. Errors reach Slack via the existing errorWorkflow (`FTIVt7L1ZXleNUf6`).
+- **Missing images:** posts have shipped **zero images since 2026-06-05** — the prompt banned screenshots pending "a human later pass" that never happens, while `public/screenshots/` holds 11 real product screenshots May posts used. Generate Draft now carries a **SCREENSHOT LIBRARY** (all 11 files, slug-mapped) + the `<Figure class="post-screenshot">` + `/go/` wrap pattern, requiring ONE screenshot when the post covers a library tool and still banning invented paths (lint hard-fails dangling `src` as backstop).
+- **Missing/broken social links:** the social prompt's POST_URL was `/blog/<title-slug>` — the live URL is filename-based (`/blog/<date>-<slug>/`), so every tweet that did include a link **404'd**; the link was also "optional" for Twitter and absent from the LinkedIn spec entirely (while the Notion callout claimed "Live URL is in the body already"). Fixed the URL to `filename`-based with trailing slash, made it required in both outputs, and added a **deterministic append** in Parse Social Outputs (if the URL string is missing, append `Full post: <url>`), per the sanitizer-over-prompt rule.
+
+### Verification
+
+- #88 / #150 / #151 all `MERGED` (21:17–21:19 UTC), open content PRs: **0**. Full QA (build, render-acceptance, mobile-overflow, screenshots, Vision) passed on #88 + #150's final trees.
+- Engine validates clean (29 nodes, 0 errors; 3 pre-existing prompt-text warnings).
+- [n8n/blog-post-engine.json](n8n/blog-post-engine.json) re-pulled from live with credential ids re-placeholder-ized (deploy-engine.mjs convention), settings trimmed to `{executionOrder}` (PUT 400s on extra keys).
+
+### Key notes / gotchas
+
+- **`action_required` stub runs:** a GITHUB_TOKEN push from inside the qa job DOES create a pull_request run on the new head — permanently stuck `action_required` (the fork-PR approve API 403s on same-repo runs). The qa verdict must be read from the pre-push sha; auto-merge now does.
+- **Empty commits do not retrigger** pull_request workflows (tried on #150; no run was created). A real merge commit does.
+- **Next-run watch:** tomorrow's 8am post should include a library screenshot and social drafts ending in the correct live URL. If Haiku fights the required-URL instruction, the deterministic append covers it.
+- **Residual / future:** in-body internal links are still ~zero engine-wide (RelatedPosts covers related linking at the page level; an engine-side "link 2-3 recent posts" needs a slug feed to avoid hallucinated 404s — punted). Per-post screenshot library only covers 9 tools; add files to `public/screenshots/` + the prompt list together.
+
+---
 
 ## Quick reference — recent additions (Session 51, 2026-07-03)
 
