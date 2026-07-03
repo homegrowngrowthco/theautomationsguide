@@ -464,17 +464,24 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'no-program',
     notes: 'Comparison-reference only. No public affiliate program (enterprise LinkedIn motion). Falls back to product page + UTM so /go/linkedin-sales-navigator routes.',
   },
-  folk: {
-    name: 'folk',
+  bouncer: {
+    name: 'Bouncer',
     url: '',
-    homepageFallback: 'https://www.folk.app/',
+    homepageFallback: 'https://bouncer.com/',
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
-  salesflare: {
-    name: 'Salesflare',
+  zerobounce: {
+    name: 'ZeroBounce',
     url: '',
-    homepageFallback: 'https://salesflare.com/',
+    homepageFallback: 'https://www.zerobounce.net/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  mailreach: {
+    name: 'MailReach',
+    url: '',
+    homepageFallback: 'https://www.mailreach.co/',
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },

@@ -54,9 +54,17 @@ jobs:
           HINTS=$(node -e "
             const body = process.env.COMMENT_BODY;
             const pairs = [];
-            for (const m of body.matchAll(/([A-Za-z0-9._-]+)\s*=\s*(https?:\/\/\S+)/g)) {
+            // The URL capture excludes whitespace AND markdown/quote wrappers
+            // (backtick \x60, double-quote \x22, single-quote, asterisk, angle
+            // brackets, closing paren/bracket) so a reply like
+            //   \`zerobounce = https://www.zerobounce.net/\`
+            // doesn't leave a trailing backtick glued to the URL (which made the
+            // downstream fetch 404 and silently registered nothing). Hex escapes
+            // are used for backtick/double-quote because this runs inside a
+            // bash double-quoted node -e script.
+            for (const m of body.matchAll(/([A-Za-z0-9._-]+)\s*=\s*(https?:\/\/[^\s\x60\x22'*<>)\]]+)/g)) {
               const slug = m[1].toLowerCase().replace(/[^a-z0-9-]/g, '');
-              const url = m[2].replace(/[.,;)]+$/, '');
+              const url = m[2].replace(/[.,;:]+$/, '');
               if (slug && url) pairs.push(slug + '=' + url);
             }
             process.stdout.write(pairs.join(' '));

@@ -47,7 +47,15 @@ const urlHints = new Map();
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--url-hint' && args[i + 1]) {
     const eq = args[i + 1].indexOf('=');
-    if (eq > 0) urlHints.set(args[i + 1].slice(0, eq), args[i + 1].slice(eq + 1));
+    if (eq > 0) {
+      // Strip trailing markdown/quote wrappers (backtick, quotes, angle
+      // brackets, closing paren/bracket) that survive a copy-paste of a
+      // backtick-wrapped reply. Defense-in-depth: the reply-handler workflow
+      // already excludes these from its capture, but a dirty URL reaching
+      // here would fail the fetch and register nothing.
+      const url = args[i + 1].slice(eq + 1).replace(/[`'"<>)\]]+$/, '');
+      urlHints.set(args[i + 1].slice(0, eq), url);
+    }
     i++;
   }
 }
