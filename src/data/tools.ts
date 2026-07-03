@@ -1647,7 +1647,6 @@ export const tools: Tool[] = [
     ctaLabel: 'Try MailReach',
     ctaPrimary: false,
     listed: false,
-    logo: '/brand/tools/mailreach.png',
     aliases: ['MailReach'],
     blurb:
       'MailReach is featured in a comparison on The Automations Guide.',
