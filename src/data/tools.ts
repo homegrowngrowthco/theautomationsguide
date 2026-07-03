@@ -1622,6 +1622,7 @@ export const tools: Tool[] = [
     ctaLabel: 'Try Bouncer',
     ctaPrimary: false,
     listed: false,
+    logo: '/brand/tools/bouncer.svg',
     aliases: ['Bouncer'],
     blurb:
       'Bouncer is featured in a comparison on The Automations Guide.',
@@ -1647,6 +1648,7 @@ export const tools: Tool[] = [
     ctaLabel: 'Try MailReach',
     ctaPrimary: false,
     listed: false,
+    logo: '/brand/tools/mailreach.svg',
     aliases: ['MailReach'],
     blurb:
       'MailReach is featured in a comparison on The Automations Guide.',
