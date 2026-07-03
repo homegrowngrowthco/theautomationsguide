@@ -11,6 +11,7 @@
     "qa:render": "node qa/render-acceptance.mjs --all",
     "qa:overflow": "node qa/mobile-overflow.mjs --all",
     "qa:logos": "node qa/lint-logos.mjs",
+    "qa:seo": "node qa/seo-scan.mjs",
     "qa:screenshots": "node qa/qa-screenshots.mjs",
     "qa:review": "node qa/qa-claude-review.mjs",
     "qa": "npm run qa:screenshots && npm run qa:review"
@@ -19,12 +20,17 @@
     "@astrojs/mdx": "^3.1.9",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.1.6",
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/outfit": "^5.2.8",
+    "@fontsource/source-serif-4": "^5.2.9",
     "astro": "^4.16.0"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.95.1",
     "astro-og-canvas": "^0.7.0",
     "dotenv": "^17.4.2",
+    "fontaine": "^0.8.0",
     "linkedom": "^0.18.12",
     "pagefind": "^1.5.2",
     "playwright": "^1.59.1",

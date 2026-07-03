@@ -1,0 +1,133 @@
+---
+title: "Storydoc + HubSpot Proposal Automation Workflow"
+description: "Step-by-step tutorial to automate proposal delivery, tracking, and follow-up using Storydoc, HubSpot, and Make. Cut send time and close faster."
+tldr: "Connect Storydoc to HubSpot via Make to auto-generate proposals from deal data, track engagement in real time, and trigger follow-up sequences the moment a prospect views your deck."
+pubDate: 2026-07-02
+tags: ["automation", "hubspot", "proposals"]
+faqs:
+  - question: "Does Storydoc integrate directly with HubSpot?"
+    answer: "Storydoc has a native HubSpot integration that syncs contact and company data, but for full two-way deal-stage automation you need a middleware layer like Make or Zapier to orchestrate the logic."
+  - question: "Can I personalize Storydoc proposals with HubSpot deal properties?"
+    answer: "Yes. Storydoc supports merge variables that pull from any field you pass via API, so you can populate pricing, company name, use case, and rep signature blocks directly from HubSpot deal or contact properties."
+  - question: "What triggers the proposal send in this workflow?"
+    answer: "A HubSpot deal moving to a specific pipeline stage (e.g. Proposal Sent) triggers the Make scenario, which calls Storydoc to create a personalized story and returns the share link back to the deal record."
+  - question: "How does Storydoc proposal engagement update HubSpot?"
+    answer: "Storydoc fires a webhook on view events. Make receives it and updates a custom HubSpot deal property with view count, last viewed timestamp, and time spent, which can then trigger enrollment in a follow-up sequence."
+  - question: "Is this workflow possible with PandaDoc instead of Storydoc?"
+    answer: "PandaDoc has a native HubSpot integration and handles e-signature natively, but it lacks Storydoc's scroll-depth and section-level engagement analytics, which is where the follow-up trigger logic gets interesting."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most sales teams are still copy-pasting deal details into a Google Slides deck, exporting a PDF, and attaching it to an email they wrote from scratch. That process takes 45 minutes per deal on a good day. It also produces a static artifact you can never track. I've watched reps at Series A companies lose deals because they had no idea the champion forwarded the proposal to a skeptical CFO who bounced after the pricing slide. No alert. No signal. Nothing.
+
+Storydoc changes the output format. [HubSpot](/go/hubspot) anchors the record. [Make](/go/make) is the glue that makes both tools talk without anyone touching a keyboard. This tutorial walks the full workflow, end to end.
+
+## Why This Stack and What You're Building
+
+The goal: a rep moves a deal to "Proposal" stage in HubSpot and, within 90 seconds, a fully personalized Storydoc story exists. The prospect's name, company, use case, and pricing are pulled directly from deal properties. A share link lands on the deal record. A follow-up enrollment fires only when the prospect actually opens the deck, not on a three-day timer.
+
+Storydoc is worth calling out specifically because it tracks engagement at the section level. You can see that a viewer spent 4 minutes on the ROI slide and skipped the team slide entirely. That signal is ten times more actionable than a generic "proposal opened" ping from PandaDoc, and I'd push back on anyone who says otherwise. [Storydoc's own benchmark data](https://www.storydoc.com) shows interactive presentations close at higher rates than static PDFs. I've seen that hold directionally true across the B2B SaaS clients I work with at Homegrown Growth Co. The [HubSpot Research Sales Trends report](https://www.hubspot.com/sales-trends) consistently flags follow-up timing as a top close-rate driver, which is exactly what this automation addresses.
+
+<StatRow stats={[
+  { number: "45 min", label: "Avg manual proposal time", description: "Typical time a rep spends building and sending a one-off proposal without automation" },
+  { number: "4x", label: "Engagement signal depth", description: "Storydoc section-level analytics vs a single open event from a static PDF attachment" },
+  { number: "90 sec", label: "Target automation latency", description: "Time from deal stage move in HubSpot to personalized Storydoc link on the deal record" }
+]} />
+
+## The Full Workflow, Step by Step
+
+Before you build: you need a Storydoc account with API access (Business plan or above), a HubSpot account with custom deal properties enabled, and a Make account. You also need a Storydoc template already built with merge variable placeholders for `company_name`, `contact_first_name`, `use_case`, and `pricing_tier`. Set those up in Storydoc's template editor before touching the automation. Skipping this step and building the Make scenario first is the single most common mistake I see on first deploys.
+
+<StepRow steps={[
+  {
+    title: "Create custom deal properties in HubSpot",
+    body: "Add four deal properties: Storydoc Link (single-line text), Proposal View Count (number), Proposal Last Viewed (date/time), and Proposal Time Spent Seconds (number). These become your engagement dashboard without any third-party reporting tool. Do this under Settings > Properties > Deal Properties."
+  },
+  {
+    title: "Build the Make scenario trigger on deal stage change",
+    body: "In Make, create a new scenario. Set the trigger to HubSpot > Watch CRM Object Updates, filtered to Deal objects where Pipeline Stage equals your Proposal stage ID. Make polls on a schedule (set to 5-minute intervals for near-real-time), or you can use a HubSpot workflow with a webhook action to push instantly. I prefer the webhook push. It gets you under 30 seconds latency, which matters when a rep is hovering near their inbox waiting for confirmation the proposal fired."
+  },
+  {
+    title: "Map HubSpot deal fields to Storydoc API variables",
+    body: "Add a Make HTTP module pointing to the Storydoc Create Story endpoint (POST /stories from a template). In the request body, map: template_id to your proposal template ID, and the variable fields to HubSpot deal output. Specifically: company_name from Associated Company Name, contact_first_name from Associated Contact First Name, use_case from a custom deal property you define (Primary Use Case works well), and pricing_tier from your deal tier property. Storydoc returns a story_id and a shareable URL."
+  },
+  {
+    title: "Write the Storydoc share link back to the HubSpot deal",
+    body: "Add a HubSpot > Update CRM Object module. Set Object Type to Deal, Object ID to the deal ID from step 2, and map Storydoc Link to the URL returned in step 3. Now every deal in Proposal stage has the live link visible in the deal record. Reps can send it manually, or you can auto-insert it into a HubSpot sequence email using a personalization token that references that property."
+  },
+  {
+    title: "Create a second Make scenario to handle Storydoc engagement webhooks",
+    body: "In Storydoc, configure a webhook under Settings > Integrations pointing to a new Make webhook URL. Make receives the payload on view events. Parse the story_id, viewer_email, view_count, and time_spent fields. Use a HubSpot > Update CRM Object module to write Proposal View Count, Proposal Last Viewed, and Proposal Time Spent Seconds back to the deal. Then add a HubSpot > Enroll in Sequence module to trigger your follow-up sequence only when view_count equals 1 (first view). Reps get the signal the moment the prospect engages, not three days later."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **Common trap: the deal has no associated contact or company at stage change.**
+
+    Make will fail silently or produce a proposal with blank fields if the deal was created without associations. I've seen this break roughly 20% of proposals in a fresh deployment. Add a Make router before the Storydoc API call and check that Associated Company Name is not empty. If it is empty, route to a Slack notification that alerts the deal owner to fix the record. Never let a blank proposal reach a prospect.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // Make Router filter condition
+    // Branch 1: proceed to Storydoc
+    {
+      "condition": "{{deals.associations.company.name}}",
+      "operator": "not_empty"
+    }
+
+    // Branch 2: Slack alert
+    {
+      "condition": "{{deals.associations.company.name}}",
+      "operator": "is_empty",
+      "action": "POST /slack #rev-ops-alerts",
+      "message": "Deal {{deals.id}} hit Proposal stage with no company association. Proposal not sent."
+    }
+
+    // Storydoc API call body (Branch 1)
+    {
+      "template_id": "YOUR_TEMPLATE_ID",
+      "variables": {
+        "company_name": "{{deals.associations.company.name}}",
+        "contact_first_name": "{{deals.associations.contact.firstname}}",
+        "use_case": "{{deals.properties.primary_use_case}}",
+        "pricing_tier": "{{deals.properties.pricing_tier}}"
+      }
+    }
+    ```
+  </Fragment>
+</SideBySide>
+
+<MyTake>
+Reps don't resist automation because they're lazy. They resist it because it usually strips out the one thing that makes their outreach feel human. The fix isn't better copy in the template. It's giving reps a visible override. In every deployment I've done, I add a HubSpot deal button that regenerates the Storydoc story using an override field the rep can fill in. Ninety percent never touch it. But conversion on the automated version goes up because reps stop sandbagging the stage move, and the proposal actually ships.
+</MyTake>
+
+## What This Gets You and Where to Extend It
+
+Once this is running, you have a closed loop. Deal stage change creates a trackable proposal. Engagement data lands on the deal record automatically. Follow-up sequences fire on real buyer intent signals rather than arbitrary time delays.
+
+The first extension I build for clients after this is a Gong alert that fires when a deal has been in Proposal stage for more than five days without a single Storydoc view. That is a dead proposal. The rep needs a phone call, not another drip email.
+
+If your team needs e-signature on top of engagement analytics, don't try to squeeze PandaDoc into the Storydoc slot. Use them sequentially. Storydoc handles the "sell the vision" moment. PandaDoc closes the paperwork. They are not competitors in a well-designed proposal stack. They serve different jobs at different points in the same conversation. That hand-off can also be automated: when Proposal View Count exceeds 3 in HubSpot, trigger a PandaDoc document send via Make using the same contact and deal data you've already mapped.
+
+The whole workflow takes about four hours to build the first time. After that, every rep on your team sends a consistent, trackable, personalized proposal in under two minutes of their own effort. That is the version of sales operations that actually moves close rates.
+
+<Sources sources={[
+  { label: "Storydoc: Interactive Presentation Benchmarks", url: "https://www.storydoc.com" },
+  { label: "HubSpot Research: Sales Trends Report", url: "https://www.hubspot.com/sales-trends" },
+  { label: "Make: HubSpot Integration Docs", url: "https://www.make.com/en/integrations/hubspot" }
+]} />

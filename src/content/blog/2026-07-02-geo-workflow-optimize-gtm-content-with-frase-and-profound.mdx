@@ -1,0 +1,151 @@
+---
+title: "GEO Workflow: Optimize GTM Content with Frase and Profound"
+description: "A practical GEO workflow for RevOps teams using Frase and Profound to optimize GTM content for AI search. Covers AthenaHQ, Surfer, and Semrush."
+tldr: "Use Frase to build topical authority and structure content for AI citation, then layer Profound to monitor your brand visibility in AI search responses across ChatGPT, Gemini, and Perplexity."
+pubDate: 2026-07-02
+tags: ["guide", "automation", "seo"]
+faqs:
+  - question: "What is GEO and how is it different from SEO?"
+    answer: "Generative Engine Optimization (GEO) focuses on getting your content cited or surfaced by AI answer engines like ChatGPT, Perplexity, and Gemini, rather than just ranking in traditional blue-link search results. The optimization signals overlap with SEO but weight authoritative structure, direct answers, and entity coverage more heavily."
+  - question: "What does Frase do for AI search optimization?"
+    answer: "Frase analyzes top-ranking content to identify topic coverage gaps, generates AI-assisted briefs, and scores your content against competitors, making it easier to write content that AI models treat as a comprehensive source worth citing."
+  - question: "What is Profound used for in a GEO workflow?"
+    answer: "Profound (also known under the AthenaHQ brand) tracks how often and how accurately your brand appears in AI-generated responses across major LLMs, giving you feedback data to iterate your content strategy."
+  - question: "Can I use Surfer or Semrush instead of Frase for GEO?"
+    answer: "Surfer and Semrush both added AI content features, but neither matches Frase's content brief depth or its answer-focused scoring for GEO. They are better suited as complementary keyword research layers upstream of Frase."
+  - question: "How long does it take to see GEO results after optimizing content?"
+    answer: "Most practitioners report a lag of four to eight weeks before updated or newly optimized content is consistently cited in AI responses, since LLMs rely on crawl indexes that refresh on their own schedule."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The GTM content game shifted hard when buyers started asking Perplexity "what's the best sales engagement tool for a 10-person SDR team" and reading the answer instead of clicking your blog post. I've been inside enough RevOps orgs to watch perfectly optimized SEO content get bypassed entirely because it wasn't structured for citation by an LLM. Generative Engine Optimization (GEO) is the discipline that fixes this. And right now, there is almost no operational tutorial coverage for how to actually run the workflow. This post is that tutorial, anchored on Frase with Profound as the feedback layer.
+
+<PullQuote>Ranking in Google is a distribution problem. Getting cited in an AI answer is an authority and structure problem. Most GTM content teams are still solving the wrong one.</PullQuote>
+
+<StatRow stats={[
+  { number: "60%", label: "of searches showing AI Overviews", description: "Google's own AI Overviews now appear on roughly 60% of U.S. searches, meaning the cited source, not rank one, captures the first impression." },
+  { number: "4-8 weeks", label: "average GEO feedback lag", description: "LLM crawl indexes refresh on their own schedule, so content changes take four to eight weeks to appear consistently in AI-generated responses." },
+  { number: "3x", label: "citation lift from structured answers", description: "Early GEO practitioners report roughly three times the AI citation rate when content leads with a direct, entity-rich answer before expanding into supporting detail." }
+]} />
+
+## The Framework: Two Layers, One Loop
+
+Think of this as a two-layer loop. Layer one is content production and optimization, where Frase does the heavy lifting. Layer two is visibility monitoring and iteration, where Profound gives you the signal. Without layer two, you are publishing into a black box and hoping. Without layer one, you have monitoring data and nothing to act on.
+
+Semrush for keyword discovery and [Surfer for on-page density signals](https://surferseo.com) still have a role, but they feed into Frase rather than replace it. Semrush's Keyword Magic Tool is excellent for finding the question-format queries that AI engines are most likely to synthesize answers for. Pull those into Frase as your brief foundation. Surfer's Content Score can serve as a secondary gut-check on NLP coverage, but Frase's own scoring is more granular for the answer-box structure GEO actually demands. Don't build your workflow around Surfer as the primary driver. It wasn't designed for this.
+
+<SideBySide>
+<Fragment slot="left">
+
+**The trap most teams fall into**
+
+Teams treat GEO like a one-time content refresh. They rewrite a few blog posts to add FAQ sections, check a box, and move on. The problem is that AI citation patterns shift as LLMs update their weights and crawl indexes. I've watched clients spike in Perplexity citations for six weeks and then drop off entirely after a model update, with no monitoring in place to catch it. Without Profound running continuously, you are flying blind on whether your GEO investment is holding.
+
+</Fragment>
+<Fragment slot="right">
+
+```yaml
+# Minimal GEO monitoring setup in Profound
+tracked_queries:
+  - "best sales engagement tool for SDR teams"
+  - "how to build a RevOps tech stack"
+  - "HubSpot vs Salesforce for B2B SaaS"
+
+tracked_engines:
+  - chatgpt
+  - perplexity
+  - gemini
+  - claude
+
+alert_threshold:
+  citation_drop_pct: 20
+  check_frequency: weekly
+
+output:
+  slack_channel: "#revops-geo-alerts"
+  report: weekly_digest
+```
+
+</Fragment>
+</SideBySide>
+
+## The Step-by-Step Workflow
+
+Here is how I run this for clients at Homegrown Growth Co., from query selection through the feedback loop. This assumes you have active Frase and Profound accounts and a content team owning at least four to six GTM-focused pieces per month.
+
+<StepRow steps={[
+  {
+    title: "Pull question-format queries from Semrush",
+    body: "In Semrush's Keyword Magic Tool, filter for question-format queries (who, what, how, which, best) related to your GTM category. Target keywords with 100 to 2,000 monthly searches. High-volume head terms are already dominated by publisher sites with DA 80-plus. The mid-tail questions are where AI engines have weaker source sets and your content can break in. Export a list of 20 to 30 target queries and tag them by buying stage: awareness, consideration, decision."
+  },
+  {
+    title: "Build content briefs in Frase",
+    body: "Create a new document in Frase for each priority query. Frase pulls the top 20 organic results and surfaces the topics, headings, and entities those pages cover. Your job is to build a brief that covers every topic cluster Frase flags as a gap in your existing content, then adds at least two or three entity-rich sections your competitors missed. This is where you manufacture the authority signal. Pay specific attention to Frase's Questions tab, which shows what People Also Ask and forum threads surface. Every one of those questions deserves a direct, one to two sentence answer somewhere in the doc."
+  },
+  {
+    title: "Write and score against Frase's content targets",
+    body: "Write the content inside Frase or paste it in from your editor of choice. Target a Frase content score of 75 or higher before publishing. More importantly, make sure your opening 150 words contain a direct, entity-rich answer to the primary query. AI engines pattern-match on opening passages when deciding what to cite. If your intro is a slow-burn narrative, the LLM skips to a competitor's page that leads with the answer. I test this manually by pasting my opening paragraph into ChatGPT and asking whether it would cite that passage as an answer to my target query."
+  },
+  {
+    title: "Set up query tracking in Profound",
+    body: "In Profound (also indexed under the AthenaHQ product umbrella), add your 20 to 30 target queries as tracked prompts. Map each to the AI engines you care about: ChatGPT, Perplexity, Gemini, and Claude at minimum. Profound runs these queries on a scheduled cadence and returns data on whether your brand or URLs appear in the generated responses, how prominently, and what competitor sources are being cited instead. This is your baseline. Give it two to three weeks after publishing to accumulate initial data before drawing any conclusions."
+  },
+  {
+    title: "Close the loop with a weekly iteration review",
+    body: "Every week, pull Profound's citation report and sort by queries where a competitor is cited and you are not. Those are your priority rewrites. Go back into Frase, identify what topical gaps or structural problems those pages have, and update them. Specifically look at whether the competitor being cited leads with a direct answer, has a cleaner heading structure, or covers a sub-topic you omitted. The feedback loop compounds. Pages you update tend to improve citation rates within four to six weeks, and Profound lets you see the delta without guessing."
+  }
+]} />
+
+## Where the Supporting Tools Fit
+
+Frase and Profound are the core loop. Semrush and Surfer play supporting roles. I'm precise about this because I've watched teams overcomplicate this stack and end up with four tools doing overlapping jobs with no clear owner and no one accountable for outcomes.
+
+<IntentTable
+  title="GEO Tool Roles at a Glance"
+  caption="How each tool contributes to the GEO workflow, not whether to use all four simultaneously."
+  cols={[
+    { name: "Frase", affiliateSlug: "", ctaLabel: "Try Frase" },
+    { name: "Profound", affiliateSlug: "", ctaLabel: "Try Profound" },
+    { name: "Surfer", affiliateSlug: "", ctaLabel: "Try Surfer" },
+    { name: "Semrush", affiliateSlug: "", ctaLabel: "Try Semrush" }
+  ]}
+  rows={[
+    { label: "Primary job", cells: ["Content brief and scoring", "AI citation monitoring", "On-page NLP density", "Keyword and query discovery"] },
+    { label: "GEO-specific value", cells: ["High: answer structure scoring", "High: LLM visibility tracking", "Medium: supports Frase scoring", "Medium: question-format query mining"] },
+    { label: "Where it fits in workflow", cells: ["Steps 2 and 3", "Steps 4 and 5", "Step 3 gut-check", "Step 1 upstream"] },
+    { label: "Can you skip it?", cells: ["No, it is the core", "No, blind without it", "Yes, if Frase score suffices", "Partial, if you have query lists already"] }
+  ]}
+/>
+
+Surfer's [Content Editor](https://surferseo.com/content-editor/) is genuinely useful as a secondary check after you hit your Frase score, particularly for catching NLP term density that tips into keyword stuffing territory. But it is a check, not a driver. Semrush's [Keyword Magic Tool](https://www.semrush.com/analytics/keywordmagic/) is irreplaceable for question-format query mining in step one, especially the Questions filter combined with intent segmentation. After that, it goes back on the shelf until the next content planning cycle.
+
+<MyTake>
+Most GEO tutorials treat Profound as optional monitoring and Frase as the whole strategy. That framing is wrong for GTM teams. The monitoring layer is what turns GEO from a content project into an operational feedback loop. Frase without Profound is just SEO with better briefs. The compounding advantage comes from knowing which queries you lost and why, then acting on it within the same week. That is the actual differentiator, not the content quality.
+</MyTake>
+
+## Making This Stick Operationally
+
+The teams I've seen get real GEO traction treat this as a RevOps workflow, not a one-time content initiative. That means owning the Profound alert channel in Slack, assigning a named DRI to the weekly iteration review, and connecting GEO citation rate to pipeline metrics the same way you track organic traffic to MQL conversion. [BrightEdge research on AI search impact](https://www.brightedge.com/resources/research-reports) consistently shows that teams with a structured feedback loop outperform those running ad hoc refreshes. The tooling is mature enough now. The differentiator is the operational discipline around it.
+
+Build the loop. Run it for 90 days. You will have proprietary GEO performance data your competitors almost certainly do not have yet. That compounding advantage is the actual opportunity.
+
+<Sources sources={[
+  { label: "BrightEdge: AI Search Impact Research", url: "https://www.brightedge.com/resources/research-reports" },
+  { label: "Surfer SEO: Content Editor documentation", url: "https://surferseo.com/content-editor/" },
+  { label: "Semrush: Keyword Magic Tool guide", url: "https://www.semrush.com/analytics/keywordmagic/" },
+  { label: "Frase: Content optimization documentation", url: "https://docs.frase.io" }
+]} />

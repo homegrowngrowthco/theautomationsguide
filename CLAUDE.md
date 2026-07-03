@@ -1,4 +1,383 @@
-# Session Log — last updated 2026-06-12
+# Session Log — last updated 2026-07-03 (Session 51)
+
+## Quick reference — recent additions (Session 51, 2026-07-03)
+
+**Content PR #153 (ZeroBounce vs Bouncer vs MailReach) wouldn't update despite Ian replying the missing tool URLs repeatedly — root-caused a backtick-parsing bug in the S48 reply-handler, fixed it durably, unblocked + merged the post, and shipped proper logos. Three PRs (#153 content, #154 fix, #155 logos), all merged to master + prod-verified.**
+
+Ian: "I've responded multiple times with the missing links but Claude/GitHub are not updating... we went through this already and you validated it was working?" His replies were correctly formatted; the reply-handler was silently dropping them.
+
+### Root cause (the recurring "nothing happens when I reply")
+
+`handle-tool-reply.yml` (S48) parses `slug = url` pairs from the PR comment to auto-register the tool. Its capture was `/([A-Za-z0-9._-]+)\s*=\s*(https?:\/\/\S+)/` — `\S+` is greedy and swallows any trailing non-space char. Ian wrapped his replies in a markdown code span (`` `zerobounce = https://www.zerobounce.net/` ``), so the captured URL kept the **closing backtick**: `https://www.zerobounce.net/` + `` ` ``. The cleanup only stripped `.,;)` (not backticks), so `auto-register-tools.mjs` fetched the backticked URL, 404'd, resolved nothing, and the workflow posted "⚠️ no registry changes were made" on every reply. The run log confirmed it: `Parsed hints: ...zerobounce=https://www.zerobounce.net/\`` and `url-hint provided for zerobounce but fetch failed`.
+
+### 1. PR #154 — parser fix (`0bf58a3`, merged to master)
+
+- **[.github/workflows/handle-tool-reply.yml](.github/workflows/handle-tool-reply.yml):** URL capture now excludes whitespace AND markdown/quote wrappers — `(https?:\/\/[^\s\x60\x22'*<>)\]]+)`. Hex escapes `\x60` (backtick) + `\x22` (double-quote) are load-bearing: the parser runs inside a bash double-quoted `node -e "..."` string, so a literal backtick would trigger command substitution and a literal `"` would terminate the string. (Caught + fixed a literal `"..."` I'd first put in a code comment there.)
+- **[qa/auto-register-tools.mjs](qa/auto-register-tools.mjs):** `--url-hint` values get trailing wrappers stripped at the parse boundary too (defense-in-depth for any caller).
+- Verified by running the exact bash+node parse block against the real PR #153 comment body → clean `zerobounce=... mailreach=...` (no backtick). **`issue_comment` workflows run from the DEFAULT branch**, so this only fixes future replies once on master (which is why #153 itself had to be unblocked directly).
+
+### 2. PR #153 — unblocked + merged (`c183e34`, post live)
+
+Ran `auto-register-tools.mjs` with clean `--url-hint`s in a `C:\tmp\tag-pr153` worktree: zerobounce (`https://www.zerobounce.net/`), mailreach (`https://www.mailreach.co/`), bouncer all resolved (`unresolved: []`). Committed the registry additions to the content branch (`b2f1eaf`). **mailreach logo trap:** its only sourced icon was a white mark on a solid navy webclip → HARD-failed the opaque-corner logo gate, and knocking out the navy would leave an invisible white mark on the cream tool cards → dropped the logo so it rendered logo-less like bouncer (`705f877`). QA green → **merged #153** → post live; `/go/{zerobounce,bouncer,mailreach}/`=200 on prod (control `/go/clay/`=200).
+
+### 3. PR #155 — transparent SVG logos (`334f647`, merged)
+
+Follow-up so both compared tools show a brand mark:
+- **bouncer** — used usebouncer.com's dark logo variant (`2024/08/logo.svg`): navy wordmark + colored badge. The header logo (`Logo.svg`) was the white-wordmark version (invisible on cream).
+- **mailreach** — their wordmark SVG ships white-only (built for dark headers); recolored the 9 `fill="white"` to their brand charcoal `#26282d` (the color mailreach.co uses on its own light sections).
+- Both verified by rasterizing over the card bg (`#f6f4ec`) with sharp before shipping. **SVGs are skipped by [qa/lint-logos.mjs](qa/lint-logos.mjs)** (transparent by construction), and 10 tools already use `.svg` logos. `/brand/tools/{bouncer,mailreach}.svg`=200 on prod.
+
+### Key notes / gotchas
+
+- **Backtick-wrapped replies were the whole bug** — Ian did nothing wrong. Going forward either form works (post-#154); replying without backticks always did.
+- **White-on-dark webclip icons are a logo trap:** auto-register grabs apple-touch/webclip icons that are designed for dark headers → knocking out the bg yields an invisible mark on the cream cards. Prefer a site's dark logo variant, or recolor a monochrome wordmark to the brand's on-light text color.
+- **Worktrees:** `C:\tmp\tag-pr153` (content branch, now deletable) + `C:\tmp\tag-logos` for the logo PR, per the no-OneDrive-churn rule.
+- **Reverts:** `git revert c183e34` (#153 content) / `0bf58a3` (#154 fix) / `334f647` (#155 logos) — all independent.
+- **Residual:** the post `<title>` is 64 chars (soft SERP-truncation lint warning, pre-existing on the merged content — not touched). L-9 (logoless compared tools) still open @low for the original set.
+
+---
+
+## Quick reference — recent additions (Session 50, 2026-07-01)
+
+**PR #148 merged; 0 hard lint errors confirmed on master.**
+
+**`fix/affiliate-slugs-mailchimp-li-sales-nav` — 1 file, 14 insertions (commit `115957a`, squash-merged `ab3d672`):**
+
+- **[src/data/affiliate-links.ts](src/data/affiliate-links.ts):** Added `mailchimp` and `linkedin-sales-navigator` as `no-program` entries with Ian-supplied homepage fallback URLs:
+  - `mailchimp` → `https://mailchimp.com/pricing/marketing/`
+  - `linkedin-sales-navigator` → `https://business.linkedin.com/sell?trk=visit-product-website&src=li-rev-prod`
+
+Both were referenced as `affiliateSlug` in posts but missing from the registry, so their `/go/` redirects would 404 in prod. The `no-program` status + `homepageFallback` pattern means the route exists and redirects safely while no affiliate program is in place.
+
+### Verification
+
+- `node qa/lint-content.mjs --all` on master (`ab3d672`): **0 hard, 21 warnings** (was 2 hard before this PR)
+- `npx astro build` clean (179 pages)
+
+### Current state after all S49 + S50 PRs
+
+All 3 PRs from the S49/S50 cycle are merged to master:
+- **PR #146** (`13ceaeb`) — audit lows L-2/L-3/L-4/L-5/L-6/L-7 fixed
+- **PR #147** (`ca86714`) — docs/session-49-log
+- **PR #148** (`ab3d672`) — affiliate slugs mailchimp + linkedin-sales-navigator registered
+
+**Remaining open:** L-9 (8 logoless compared tools), L-10 (inline-style DRY-up), Astro 4→6 major — all @low.
+
+### Key notes
+
+- **Revert PR #148:** `git revert ab3d672`
+- Worktree: `C:\tmp\tag-affiliate-fix` (now pointing to master state post-rebase)
+
+---
+
+## Quick reference — recent additions (Session 49, 2026-07-01)
+
+**Audit lows L-2/L-3/L-4/L-5/L-6/L-7 fixed in PR #146 (`fix/audit-lows`). Build clean (179 pages), render-acceptance 0 hard. 2 pre-existing hard lint errors surfaced.**
+
+### Changes shipped to PR branch (`604ca5b`)
+
+**`fix/audit-lows` — 7 files, 173 insertions, 7 deletions:**
+
+- **L-2 ([src/pages/index.astro](src/pages/index.astro)):** Bumped 4 feature tile headings `h3`→`h2`. The page had an h1→h3 skip (invalid heading order); adding an h2 before them is the fix.
+- **L-3 ([src/layouts/BaseLayout.astro](src/layouts/BaseLayout.astro)):** Removed `aria-label="Visit Homegrown Growth Co"` from the footer publisher link. The visible text "Published by Homegrown Growth Co" is descriptive and now serves as the accessible name, eliminating the WCAG 2.5.3 label-content mismatch.
+- **L-4 ([src/styles/global.css](src/styles/global.css)):** Added `.affiliate-notice a { text-decoration: underline; }`. The "Read the full disclosure" link on `/tools` was distinguishable from surrounding text by color only.
+- **L-5 ([src/components/EmailSignup.astro](src/components/EmailSignup.astro)):** Added a `MutationObserver` shim inside the existing lazy-load script. After beehiiv's `loader.js` injects the cross-origin iframe, the observer fires and sets `iframe.title = "Newsletter signup form"` — the only viable fix for a vendor-injected frame.
+- **L-6 ([src/data/tools.ts](src/data/tools.ts)):** Added 3 FAQs to each of the 9 oldest tool hubs that had none: `make`, `n8n`, `hubspot`, `pipedrive`, `clay`, `apollo`, `smartlead`, `beehiiv`, `kit`. These are the highest-traffic hubs — they now emit `FAQPage` JSON-LD in the built HTML (the same path used by all LP-builder tools since Session 17).
+- **L-7 ([src/content/blog/revops-automation-stack-2026.mdx](src/content/blog/revops-automation-stack-2026.mdx) + [2026-06-17-apollo-sequences-vs-hubspot-sequences-the-truth.mdx](src/content/blog/2026-06-17-apollo-sequences-vs-hubspot-sequences-the-truth.mdx)):** Two over-length meta descriptions trimmed: revops-stack 183→157 chars, apollo-sequences 169→130 chars.
+
+### Pre-existing hard lint errors surfaced (not introduced by this PR)
+
+Running `node qa/lint-content.mjs --all` revealed 2 hard errors pre-existing in master:
+- `affiliateSlug "mailchimp"` — not in `affiliate-links.ts` → `/go/mailchimp` CTA would 404
+- `affiliateSlug "linkedin-sales-navigator"` — not in `affiliate-links.ts` → `/go/linkedin-sales-navigator` CTA would 404
+
+Both are tracked in TODO.md @low for a follow-up PR. CI only lints the changed post (not all), so they shipped past gate. Same class as C-1/C-2 that were fixed in S41.
+
+### Key notes
+
+- **Worktree:** `C:\tmp\tag-lows` (`fix/audit-lows` branch) — separate from the main OneDrive repo per `feedback_no_git_churn_shared_onedrive_worktree`.
+- **Revert:** `git revert 604ca5b` after PR #146 squash-merges (single commit).
+- **Remaining open after this PR:** L-9 (8 logoless compared tools), L-10 (inline-style DRY-up), Astro 4→6 major — all @low.
+
+---
+
+## Quick reference — recent additions (Session 48, 2026-06-30)
+
+**PR #143 (Loops vs Customer.io vs Brevo) unblocked: customerio registered, handle-tool-reply workflow built, activecampaign.png logo fixed.**
+
+### Root issue investigated
+
+QA bot comment said "Reply with `customerio = https://customer.io` and I'll register it" but no `issue_comment` workflow existed. Ian had replied twice on the PR — nothing happened. Built the automation to make the promise real.
+
+### Changes shipped to PR branch (3 commits)
+
+**`35d8b82` — customerio registration:**
+- `src/data/affiliate-links.ts` — added `customerio` entry (`status: 'pending'`, `homepageFallback: 'https://customer.io/'`)
+- `src/data/tools.ts` — added `customerio` tool entry (category: Sales Engagement, blurb sourced from og:description)
+- `public/brand/tools/customerio.png` — downloaded from `customer.io/apple-touch-icon.png`; background knocked out (R=11, G=53, B=59 dark teal, Euclidean dist<30 → alpha=0) via PowerShell `System.Drawing` per-pixel; passes `lint-logos.mjs`
+
+**`a2763a6` — handle-tool-reply workflow + url-hint support:**
+- `qa/auto-register-tools.mjs` — added `--url-hint slug=url` flag (repeatable); skips TLD probe for that slug and fetches the human-confirmed URL directly for blurb + logo. Needed for dotted-domain tools like `customer.io` whose TLD probe would try `customerio.com` instead.
+- `.github/workflows/handle-tool-reply.yml` — new workflow: fires on `issue_comment` (PR only, write-access commenter only); parses `slug = url` pairs from comment body (slug normalized: lowercase, non-alphanumeric stripped except hyphens); gets PR branch; runs `auto-register-tools.mjs --post … --url-hint …`; commits registry/logo additions to PR branch (push re-triggers QA automatically); posts ✅ or ⚠️ result comment. Ian can now fix QA failures by replying on GitHub web or mobile — no VS Code required.
+
+**`189649a` — activecampaign.png background knockout:**
+- `public/brand/tools/activecampaign.png` — file was stored as `.png` but was actually a WebP (RIFF/WEBP header), no alpha channel, solid royal-blue background (R=0, G=76, B=255). `System.Drawing` can't handle WebP; used Node.js/sharp: `ensureAlpha()` + raw pixel walk, dist<40 from bg color → alpha=0; saved as true PNG. All 21 raster logos now pass `lint-logos.mjs` (0 hard, 0 warn).
+
+### Going forward
+
+When QA fails with the "needs a URL" comment, Ian replies on the PR (GitHub.com or mobile):
+```
+customerio = https://customer.io
+```
+`handle-tool-reply.yml` fires within seconds, registers the tool, pushes a commit, re-runs QA. No VS Code or Claude Code needed for this specific flow. The workflow becomes active on all future content PRs once PR #143 merges to master.
+
+### Key gotchas
+
+- **WebP-as-PNG trap**: `activecampaign.png` was a WebP (magic bytes `52 49 46 46` = `RIFF`) → `System.Drawing.Bitmap` threw "Parameter is not valid"; sharp handles WebP fine
+- **Dotted-domain TLD probe failure**: `auto-register-tools.mjs` probes `customerio.com`, `customerio.io`, etc. — none are the real site; `--url-hint` bypasses the probe
+- **PS 5.1 heredoc `=` mangling**: git commit messages containing `slug=url` must be written via `-F file` not `-m @'...'@` (PS splits on `=` in native-exe args)
+- **Worktree isolation**: used `C:\tmp\tag-pr143` worktree throughout; HEAD was detached → pushed via `git push origin HEAD:content/…`
+
+---
+
+## Quick reference — recent additions (Session 47, 2026-06-27)
+
+**GSC index-status audit: 105 sitemap URLs checked via URL Inspection API; 9 not indexed — all submitted to GSC by Ian.**
+
+Ran `theautomationsguide/gsc-index-status.py` against `sc-domain:theautomationsguide.com`. Results: 96 Submitted and indexed, 8 URL is unknown to Google, 1 Crawled - currently not indexed.
+
+URLs submitted to GSC (Ian used URL Inspection → Request Indexing for each):
+
+- `/blog/2026-05-08-cheap-outbound-sales-stack-for-small-b2b-teams-under-200mo/` — unknown to Google
+- `/blog/2026-06-21-getresponse-vs-brevo-vs-mailchimp-which-wins-in-2026/` — unknown to Google
+- `/blog/2026-06-26-lusha-vs-apollo-vs-zoominfo-b2b-contact-data-compared/` — unknown to Google (yesterday's post)
+- `/tools/aircall/` — unknown to Google
+- `/tools/fireflies/` — unknown to Google
+- `/tools/justcall/` — unknown to Google
+- `/tools/otter/` — unknown to Google
+- `/tools/vector/` — unknown to Google
+- `/tools/surfe/` — Crawled - currently not indexed (crawled 2026-06-17; thin-content risk; re-submitted)
+
+No code changes this session.
+
+---
+
+## Quick reference — recent additions (Session 46, 2026-06-25)
+
+**ToolBreakdown col alignment + CTA gap fixed (PR #135); Nutshell/Pipedrive/Close post published (PR #131); pre-guardrail content corrected (PR #136); tagline length guardrail added to engine prompt + deployed.**
+
+Two more ToolBreakdown issues surfaced after the S45 CSS fix landed:
+
+- **Highlights panel bleeding past the logo zone ([src/components/post/ToolBreakdown.astro](src/components/post/ToolBreakdown.astro)):** `.tbd-cols` lacked `padding-right: 130px` that `.tbd-head` already had, so the highlights panel's right edge extended 130px further right than the tagline/name text. Fixed. `.tbd-cta` margin-top also halved (0.85rem to 0.4rem) to cut dead space above the button. **PR #135** `e409a7f` (commit `ede8fb0`). Revert: `git revert ede8fb0`.
+- **Nutshell post content was pre-guardrail ([src/content/blog/2026-06-25-nutshell-vs-pipedrive-vs-close-best-affordable-sales-crm.mdx](src/content/blog/2026-06-25-nutshell-vs-pipedrive-vs-close-best-affordable-sales-crm.mdx)):** all 3 taglines were 85-101 chars (full-sentence constructions); all 3 pricing strings were 93-118 chars (all tiers listed verbatim). Both exceeded the S45 guardrails. Corrected inline: taglines to 50-61 chars, pricing to 41-50 chars. **PR #136** `45d8967`. Revert: `git revert 45d8967`.
+- **PR #131** `0486980` merged — Nutshell vs Pipedrive vs Close post is live on production.
+- **Engine tagline guardrail ([n8n/blog-post-engine.json](n8n/blog-post-engine.json)):** added `tagline (max 55 chars, punchy one-liner -- no full sentence, no colon)` to the ToolBreakdown spec, mirroring the S45 pricing guardrail. Deployed via `deploy-engine.mjs --apply`. Root cause of today's content bug: the LLM wrote full-sentence taglines (85-101 chars) because there was no constraint; the S45 fix only added a pricing constraint.
+
+---
+
+## Quick reference — recent additions (Session 45, 2026-06-25)
+
+**Diagnosed and fixed a ToolBreakdown desktop layout bug (green tagline text wrapping 2-3 lines due to long multi-tier pricing strings squeezing the flex row). Added prevention at two layers: upstream in the content engine prompt + downstream in the Vision QA gate. PR #132 open; pending merge + n8n deploy before merging PR #131 (Nutshell post).**
+
+Ian shared a screenshot of PR #131's Netlify preview — the green tagline in each ToolBreakdown card wrapped 2-3 lines because multi-tier CRM pricing strings (~90 chars each) consumed ~65% of the `.tbd-meta` flex row, forcing the tagline into a cramped sliver. Root cause: `.tbd-meta` used a flex row where tagline and pricing competed for the same line. The original spec assumed short prices like "From $14/mo." Discussion: CSS fix is reactive; two proactive prevention layers added.
+
+- **CSS fix ([src/components/post/ToolBreakdown.astro](src/components/post/ToolBreakdown.astro)):** changed `.tbd-meta` from `flex-wrap: wrap` (side-by-side) to `flex-direction: column` — tagline always spans full column width regardless of pricing length. Removed `flex: 1 1 12rem` from tagline and `text-align: right` from price. Net -8 lines CSS.
+- **Engine prompt guardrail ([n8n/blog-post-engine.json](n8n/blog-post-engine.json)):** tightened ToolBreakdown `pricing` spec from "entry tier plus one higher tier when useful" to "keep under 50 chars, abbreviated only, e.g. From $14/seat or Essential $14 / Pro $49/seat -- never list all tiers verbatim." Addresses root cause upstream before generation.
+- **Vision QA prompt ([qa/qa-pr-review.mjs](qa/qa-pr-review.mjs)):** added TOOL BREAKDOWN HEADER SQUEEZE to the named recurring-defects list — a 3-line-wrapping tagline on desktop is flagged as major. Catches this class if the engine ever outputs a long pricing string again.
+
+**PR #132** (`fix/tool-breakdown-tagline-wrap`, commits `660e152` CSS + `141bd2a` engine+Vision) — **revert:** `git revert 660e152 141bd2a`.
+
+**Next (requires Ian action):** QA pass on #132 → merge #132 → `node --env-file=../../restaurant-outreach/.env n8n/deploy-engine.mjs --apply` → merge PR #131.
+
+---
+
+## Quick reference — recent additions (Session 44, 2026-06-24)
+
+**Checklist audit (todo-system maintenance): found 3 genuinely-missing TODO entries + 4 stale-done items in TAG's checklist files. Added checklist-file-type policy to todo-sync/CONVENTION.md.**
+
+Context: `OFF_SITE_SEO_CHECKLIST.md` had two sections (Content Distribution, GEO Baseline Test) and a second Lead Magnets item with zero corresponding TODO entries — invisible to the tracker and Notion. Separately, 4 items marked `[ ]` in checklist files were already done.
+
+- **3 missing items added to [TODO.md](TODO.md)** (all `@low`): GEO baseline test (run 5 RevOps queries in ChatGPT/Perplexity/Claude/Gemini monthly, log citations); content distribution cadence (LinkedIn 3-5x/week, RevOps Co-op Slack, r/RevOps/IH/HN, newsletter swaps at 100+ subs, podcasts at 500+ subs); second lead magnet ("All RevOps tools at $X/mo budget tier" spreadsheet, Beehiiv-gated, at 100+ subs). `## TODO` block re-ranked by priority bucket (all `@high` → all `@med` → all `@low`).
+- **4 stale-done items closed in checklist files**: [OFF_SITE_SEO_CHECKLIST.md](OFF_SITE_SEO_CHECKLIST.md) — PostHog dashboard (`[x]`, done Session 29 / dashboard 1699394), Affiliate Tier 1 (`[x]`, Wave 1 complete 2026-06-14), first lead magnet (`[x]`, done 2026-06-11); [GSC-TIER2-CHECKLIST.md](GSC-TIER2-CHECKLIST.md) — all 10 `/tools/*` URLs (`[x]`) + completion header added.
+- **Checklist-file-type policy added to [todo-sync/CONVENTION.md](../todo-sync/CONVENTION.md)**: defines two types — *action queue* (must have ≥1 TODO.md entry) vs *runbook* (add `> RUNBOOK` header, no per-step TODO items) — plus done-item hygiene rule.
+
+**Verification:** `node todo-sync/sync-todos.mjs --dry-run` → drift lint clean, 14 TAG open tasks (was 11, +3 correct).
+
+**Commits:** TAG `9df31de` (3 files, pushed to master) + todo-sync `b70cc6c` (CONVENTION.md, pushed to main). See op #328.
+
+---
+
+## Quick reference — recent additions (Session 43, 2026-06-24)
+
+**Content PR #128 (Laxis vs Fireflies vs Otter) failed QA again — root-caused TWO distinct pipeline bugs (not content, not a regression), fixed both durably, merged the post, then made the residual failure self-serve per Ian. Two PRs (#128 + #129), both merged to master.**
+
+Ian: "another error on PR 128 why does this keep happening? How am I supposed to be interacting with this so I don't have to keep going to you? I can't actually review code." The reds were genuinely pipeline bugs, not the post.
+
+- **Bug 1 — auto-register couldn't confirm `Otter.ai` (TLD-in-brand-name class).** The post names the tool `Otter.ai`, which `norm()`s to identity target `otterai`, but otter.ai's homepage `<title>` is "Otter Meeting Agent…" → normalizes to `otter…`, which does NOT contain `otterai`, so the page-identity check in `resolveHomepage()` failed and the tool fell through to the lint gate (HARD: `affiliateSlug "otter"` not in affiliate-links.ts). Laxis + Fireflies resolved fine (bare brand names); Otter was the only casualty. **Fix ([qa/auto-register-tools.mjs](qa/auto-register-tools.mjs)):** match page identity against the **clean slug** (`otter`) as well as the name — the slug is the canonical clean identifier and matches "Otter Meeting Agent". Generalizes to the whole class (Otter.ai / Reply.io / Bland.ai). Dogfooded locally (residential IP) → registered `otter`→`https://otter.ai/` + sourced an apple-icon logo ([public/brand/tools/otter.png](public/brand/tools/otter.png), 256×256, transparent corners → passes `lint-logos`). Idempotent on re-run.
+- **Bug 2 — stale-branch changed-post mis-detection (THE recurring one).** [qa-content-pr.yml](.github/workflows/qa-content-pr.yml) "Identify changed post slug" used `git diff --name-only origin/master..HEAD` (**two-dot = full tree diff between the two tips**). While #128 sat open, PRs #119 (GetResponse) + #127 (Reply.io) merged to master, so that diff reported those master-only posts as differences and `head -1` grabbed the alphabetically-first one (`2026-06-21-getresponse…`), which isn't on the branch → the lint opened a non-existent path → `ENOENT`, red. **Any content PR left open across another merge hits this.** **Fix:** three-dot `origin/master...HEAD` (changes since the merge-base, i.e. only this branch's post) + `--diff-filter=d` (exclude deletions). Also brought #128's branch up to date with master (the S42 precedent for #120). **PR #128 `c53c01e`** (squash-merged): both fixes + the Otter registration; QA re-ran **green** (qa pass) + Netlify preview green → **post published**.
+- **Residual policy — keep blocking, ping in plain English (Ian's choice).** The lint gate stays HARD on an unresolved tool (protects `/go/<slug>` affiliate links from 404ing — the S40/S41 revenue-leak guarantee). But the failure message was generic ("a QA step failed; see the run"), which needed code-literacy to action. **PR #129 `e5082e0`** (squash-merged): `auto-register-tools.mjs` writes any unresolved `slug\tname` to `qa-unresolved-tools.txt` (gitignored, not committed); the **QA-failed PR comment + Slack ping** read it and render a plain-English ask naming the exact tool and requesting only the homepage URL ("reply with `otter = https://otter.ai`"), falling back to the generic message for non-tool failures. So the only human action left on a content red is a one-line business call (what's the site + do we affiliate it), not a code review.
+
+**Verification:** otter resolves + lint-content 0 hard + lint-logos 0 hard (sharp) + auto-register idempotent; workflow YAML parses (js-yaml, 27 steps); PR #128 QA run `28101353145` = qa pass; both PRs squash-merged to `origin/master`.
+
+**Revert:** PR #128 `git revert c53c01e`; PR #129 `git revert e5082e0` (all additive — resolver match-broadening, a workflow diff flag, a registry+logo entry, and a failure-message breadcrumb).
+
+---
+
+## Quick reference — recent additions (Session 42, 2026-06-22)
+
+**Investigated why content PR #120 failed QA, then built auto-registration so an unregistered tool stops being a stopper. Two PRs (#125 infra + #120 content), both merged + prod-verified.**
+
+Ian: "PR 120 failed QA? I thought we fixed the QA fails?" **It wasn't a regression — the QA gate worked as designed.** PR #120 (bot post *KrispCall vs JustCall vs Aircall*) hard-failed the **`affiliateSlug` gate I added in S41**: its `<ChooseIf>`/`<BottomLine>` CTAs point at `/go/justcall` + `/go/aircall`, neither of which is in `affiliate-links.ts`, so they'd 404 at build. `krispcall` was already registered (so it passed); only the two unregistered tools tripped it. The gate caught a real defect — but per Ian, unregistered tools shouldn't be a manual stopper: "figure out a way to handle this automatically… just get the links/logos independently."
+
+- **New [qa/auto-register-tools.mjs](qa/auto-register-tools.mjs) (PR #125 `2e93900`).** For each tool a post references that isn't in the registries: (1) **resolves the homepage** by probing common TLDs (`.com/.io/.ai/.co/.app/.so/.dev`) and **verifying the page identifies as that tool** (normalized name in `<title>`/`og:site_name`/`og:title`), **scoring all candidates and picking the best** — this is load-bearing: a first-match-wins resolver registered the squatter `justcall.com` ("Just Call", an unrelated site) over the real `justcall.io`; scoring (name-in-title + has-og-image + has-apple-touch-icon + descriptive-title) correctly prefers `.io`. (2) **Sources a logo** from the site's own icons (apple-touch-icon → `rel=icon` → og:image) with a Google-favicon fallback, saved to `public/brand/tools/`. (3) **Appends** a `pending` affiliate-links entry (homepage fallback) + a `tools.ts` entry (or back-fills a logo on an existing one), HTML-entity-decoding the og:description blurb. **Idempotent** (CRLF-aware registry parse + a defensive guard in `addLogoToTool` — an early CRLF bug double-added `logo:` lines on re-run, caught + fixed before shipping), **key-free**, no new deps (Node global fetch).
+- **Wired into [qa-content-pr.yml](.github/workflows/qa-content-pr.yml)** as an **"Auto-register referenced tools"** step BEFORE the lint gate (runs on the runner's preinstalled Node, before `npm ci`). It commits the registry + logo additions to the PR branch (push via `GITHUB_TOKEN`, which by design **doesn't retrigger** the workflow). Anything it **can't confidently resolve is left untouched** → the deterministic lint gate still flags it for manual review. So a future post naming a brand-new tool self-heals instead of blocking.
+- **#120 unblocked.** Dogfooded the script to register `justcall` + `aircall` + a `krispcall` logo (shipped in #125); then updated #120's branch from master → its QA re-ran **green** (auto-register idempotently skipped, lint 0 hard/0 warn, was 2 hard + 3 warn) → squash-merged (`04ba570`). **Prod-verified: `/go/{justcall,aircall,krispcall}/` = 200.**
+- **Logo caveat:** sourced logos are best-effort — `justcall.png` is a 1KB favicon (low-res but passes the opaque-bg logo gate); a human can drop a higher-res mark into `public/brand/tools/` anytime. Tracked as an @low in TODO.md.
+
+**Revert:** PR #125 `git revert 2e93900` (additive: one script + one workflow step + registry/logo additions); PR #120 is content (`git revert 04ba570`).
+
+---
+
+## Quick reference — recent additions (Session 41, 2026-06-18)
+
+**Fixed the full audit's CRITICAL + ALL 6 MEDIUMS (+ lows L-1/L-8) — 6 PRs, all merged to master + deploying.** Resolution header added to [AUDIT-FULL-2026-06-17.md](AUDIT-FULL-2026-06-17.md).
+
+- **C-1 + C-2 (critical, PR #109 `7752547`):** registered `zapier`/`canva`/`creatify` in `affiliate-links.ts` (url:'' → homepage+UTM fallback, the gong/outreach pattern) so `/go/<slug>` generates; added an `affiliateSlug:` matcher (both `: "x"` and `="x"` forms) to `lint-content.mjs` so component-prop slugs can't 404 past CI again. The matcher immediately exposed a **latent parser bug** — the affiliate known-set regex `/^\s{2}([a-z0-9-]+):/` couldn't see *quoted* hyphenated keys, so `reply-io`/`relevance-ai`/`cal-com`/`bland-ai` were silently absent; made it quote-agnostic. **Prod-verified: `/go/{zapier,canva,creatify}/` = 200.**
+- **M-1 color-contrast (PR #110 `c04e37e`):** new `--accent-text` = teal-700 `#0a6d5e` (6.1:1) for all teal TEXT/links/icons; `--accent` stays teal-500 for decorative dots/borders/glow. White-on-teal fills (`.btn--primary`, about-hero LinkedIn hover, pressed filter tag) darkened to teal-700 (white 2.98→6.25:1). `--text-faint` `#8b929e`→`#656b76` (badges/meta, ~4.9:1 on the warm panel). **Lighthouse color-contrast PASS (was 34 fails), a11y 92→96.** Verified desktop+390px visually.
+- **M-2/L-1/L-8 (PR #111 `2b12079`):** default share card `/og/default.png` (same astro-og-canvas style, added a `default` page to `og/[...route].ts`) defaulted in BaseLayout + emitted unconditionally → every non-post page now has a branded card; `ogType` prop (BlogPostLayout passes `article`); title separator `—`→`|`.
+- **M-6 (PR #112 `fb928ca`):** `npm audit fix` non-breaking → 12→9 vulns (devalue + fast-xml-builder). Remaining 2 high + 7 moderate all chain from **Astro 4.16; the 4→6 major is DEFERRED/tracked** (build-time/dev-server advisories, no server shipped).
+- **M-5 (PR #113 `4f6c4b0`):** removed 59 lines dead CSS (legacy EmailSignup form + `.nav-dropdown-sep`/`.tool-cta`/`.hero-social-proof`). Kept interleaved LIVE selectors (`.email-signup-eyebrow/-heading/-sub/-note`, `.btn:disabled`) + the `.mt-*` scale (mt-lg is live).
+- **M-4/M-3 (PR #114 `9a0bf24`):** rehype plugin stamps `rel="sponsored noopener noreferrer"` on every prose `/go/` link at build; lint WARNING (not hard) when a frontmatter title >60 chars (7 surface today). M-3 engine-prompt tightening is the engine-side complement.
+
+**Remaining open = lows only** (L-2/L-3/L-4/L-5/L-6/L-7/L-9/L-10) + the deferred Astro 4→6 major. See TODO.md + the audit doc.
+
+---
+
+## Quick reference — recent additions (Session 40, 2026-06-18)
+
+**Ran a full-spectrum website audit (the companion to the SEO-only [AUDIT-SEO-2026-06-14.md](AUDIT-SEO-2026-06-14.md)). Deliverable: [AUDIT-FULL-2026-06-17.md](AUDIT-FULL-2026-06-17.md) at repo root (tracked). Findings only, NO fixes applied yet — Ian wants to work through critical + medium next.**
+
+Method: `npm run build` + full `qa` suite (lint-content/render-acceptance/mobile-overflow/lint-logos/seo-scan, all 0 hard) as the deterministic baseline; a 5-agent read-only static fan-out (content, code, affiliate, security, SEO); Lighthouse 12 simulated-mobile vs PROD across home/post/tools-index/tool-hub/reviews/teams; Playwright network capture + axe-class checks vs PROD. **Tally: 1 critical (+1 paired root-cause), 6 medium, 11 low.**
+
+- **🔴 C-1 (live revenue leak): 4 affiliate CTAs 404 at click time.** `affiliateSlug:` props for `zapier` (×2 posts), `canva`, `creatify` have NO `affiliate-links.ts` entry, so `go/[tool].astro` never generates the redirect → curl-confirmed `/go/zapier|canva|creatify/` = **404 on prod** (control `/go/clay/` = 200). Fix: add them as `no-program` entries w/ homepage fallback (pattern already used for gong/outreach/etc). **🔴 C-2 (root cause): the QA gate misses component-prop slugs** — `lint-content.mjs:131` only matches the prose `/go/` form, not `affiliateSlug:`, so this shipped past CI and WILL recur. Fix both in one PR (add an `affiliateSlug:` matcher to the lint).
+- **🟠 Mediums:** M-1 **WCAG color-contrast sitewide** (teal `#14a890` fails AA on light bg, 34 elems 2.71-2.98 + white-on-teal buttons; the SAME brand-token class HGC fixed with a darker teal-text token — highest-leverage medium); M-2 no og:image fallback (home + all non-post pages bare social card); M-3 88/97 titles over SERP width; M-4 ~111 prose affiliate links lack `rel=sponsored` (mitigated by internal /go); M-5 ~70 lines dead CSS in 47KB un-treeshaken global.css; M-6 Astro 2 majors behind (4 high advisories, mostly build-time; `npm audit fix` clears 2 non-breaking).
+- **🟢 Strong passes:** Performance FULLY resolved (Perf 97-100, LCP 1.6-2.3s, **CLS 0** every template — the old CWV-critical is gone); content 0 hard across 39 posts; **all 3 analytics firing live** (PostHog/GA4/Clarity — incl. the `y.clarity.ms/collect` endpoint that's silently CSP-blocked on HGC); CSP/headers tight + in-sync; FTC disclosure + component CTAs + newsletter injection + mobile-overflow all clean. Full coverage matrix in the doc.
+- **Lows (11):** em-dash title separator (`—`→`|`), homepage heading-order (h1→h3), 9 oldest tool hubs missing FAQPage schema, 3 meta-desc outliers, og:type=website on posts, 2 minor a11y (footer publisher link name-mismatch, disclosure link color-only), 8 logo-less compared tools, repeated inline-style idioms, latent 2-form newsletter fragility.
+
+**Next session: fix C-1+C-2 (one PR, ~30 min, stops the live 404s) → M-1 color-contrast → M-2/L-1/L-8 BaseLayout batch.** Fix sequencing + every file:line is in AUDIT-FULL-2026-06-17.md.
+
+---
+
+## Quick reference — recent additions (Session 39, 2026-06-17)
+
+**Tools header dropdown (PR #105, merge `094624a`) — DEPLOYED LIVE.** Scoped from Ian's "make the site more navigable" ask. Turned the header **Tools** nav item into a dropdown mirroring the Teams pattern: **Browse all tools** + 6 curated category jump-links (`/tools/#<anchor>`) into the existing `/tools` index. No new pages/routes.
+
+- **Pushback taken:** Playbooks deliberately left as a single link, not given a dropdown. It's a flat tag filter over only 13 thinly-tagged posts (tags collapse to ~"guide" 11 / "playbook" 10, heavily overlapping) — no real sub-taxonomy to split, a dropdown would show near-duplicate sparse sections. Tools, by contrast, already had a real `toolCategories` taxonomy + per-category `<section>`s on the index, so "sections" mapped onto existing structure.
+- **Curated, not exhaustive:** dropdown lists 6 of the 9 `toolCategories`. The 5 singleton categories (Enrichment/Visitor ID/Scheduling) are reached via "Browse all tools" rather than cluttering the menu with one-tool rows.
+- **Files:** [tools.ts](src/data/tools.ts) — shared `categoryAnchor()` helper + curated `navToolCategories` (single source so dropdown hrefs and index section ids can't drift); [tools.astro](src/pages/tools.astro) — `id={categoryAnchor(cat)}` on each category `<section>` + `scroll-margin-top:calc(var(--nav-h)+0.5rem)` so the sticky nav doesn't cover the heading on jump; [BaseLayout.astro](src/layouts/BaseLayout.astro) — Tools dropdown markup + **the `.nav-dropdown` JS refactored from a single `querySelector` to `querySelectorAll`** so both Teams and Tools work (opening one closes the other). That single→multiple refactor was the only real risk.
+- **Verification (headless desktop + 390px mobile):** both dropdowns toggle with sibling-close; all 6 anchors resolve to real sections; jump lands the heading below the sticky nav (heading y=161 vs nav-bottom y=72); mobile drawer expands inline, no horizontal overflow. `npm run build` + `qa:lint` + `qa:render` clean (0 hard). Curl-verified live on prod (6 anchored dropdown links + 9 anchored sections on `/tools`). **Revert:** `git revert 094624a` (nav + tools index only, no data/content change).
+
+---
+
+## Quick reference — recent additions (Session 38, 2026-06-17)
+
+**Reconciled the Session 35/36 divergence by splitting the parked `batch-solo-todos-2026-06-15` branch into 3 clean PRs off master, all merged + DEPLOYED LIVE. The Session-35 features now live on `master` (not a stranded branch); `batch-solo` deleted.**
+
+Why split: `batch-solo` bundled real unmerged Session-35 product code with stale logs, and merging it directly conflicted in 3 files (`CLAUDE.md`/`astro.config.mjs`/`public/_headers`) — and per Ian the risky font change wanted isolation. So rebuilt the work as independent PRs off current master instead of merging the branch.
+
+**1. Nav + /reviews hub (PR #100, merge `e6b5072`).** New [reviews.astro](src/pages/reviews.astro) `/reviews` comparisons hub (mirrors `/playbooks`, lists the `comparison`-tagged head-to-heads). [BaseLayout.astro](src/layouts/BaseLayout.astro) nav: added a "Comparisons" item, **promoted About to a top-level item after "Latest"** (removed from the Teams dropdown, which is now just the 4 audience links), and **renamed "Tool Reviews" → "Tools"** (header/footer/breadcrumb; homepage section `<h3>` left as descriptive content). `workflow-automation` tag added to the 6 platform posts + the blog-index pillar map. Nav-fit CSS in [global.css](src/styles/global.css) (`white-space:nowrap` on nav links + tighter `.nav-inner` gap 2rem→1.25rem + link padding) so the now-6-item bar stays single-line 920–1280px (it was wrapping "Tool Reviews"). Playwright-verified desktop/narrow/mobile-drawer.
+
+**2. Self-hosted fonts (PR #101, merge `1280426`) — the deferred S33 LCP fix.** Replaced the render-blocking Google Fonts `<link>` with self-hosted [@fontsource](src/layouts/BaseLayout.astro) imports + the **fontaine** Vite plugin ([astro.config.mjs](astro.config.mjs)) for metric-matched fallback faces (~0 CLS). Hand-merged so it **keeps** master's `markdown.syntaxHighlight:false` (the S37 code-block fix) and the Clarity CSP — only the two Google-Fonts hosts dropped. Verified on prod: **0** Google-Fonts refs, self-hosted woff2 loads (200), Clarity intact. **LCP-under-2.5s still needs a prod mobile Lighthouse run (follow-up).**
+
+**3. Grandfather kit-vs-beehiiv tree (PR #103, merge `6e388c3`).** The Kit-vs-Beehiiv post (PR #92, 2026-06-15) shipped a valid `<DecisionTree>` the same day as the S37 retirement and missed the grandfather scan, tripping `qa:lint --all` (1 hard). It renders fine; added to `DECISIONTREE_GRANDFATHERED` → `lint --all` back to 0 hard.
+
+**Verification:** all 3 merged to master + live on prod (curl-verified: 0 Google-Fonts refs, self-hosted woff2 200, "Tools" nav, About + Comparisons present, `/reviews/` 200, Clarity present). `qa:lint --all` 0 hard. **Revert:** `git revert` each squash — #100 `e6b5072` / #101 `1280426` (restores Google Fonts exactly) / #103 `6e388c3`.
+
+**Reconciliation note:** this closes the S35/36 gap. Session-35's features (fonts/reviews/tag) shipped here via #100/#101/#103, NOT via `batch-solo` (now deleted). Session 36's code (newsletter-form fix, Clarity) was already on `master` via PRs #93/#94 (see the S37 + S37-follow-up entries). Session-35's non-code decisions (LinkedIn reconcile, volume-ramp = hold 1/day) were docs-only and remain captured in STATUS.md / [TODO.md](TODO.md).
+
+---
+
+## Quick reference — recent additions (Session 37, 2026-06-16)
+
+**Investigated PR #95's failure, then retired `<DecisionTree>` from the engine entirely per Ian (decision trees/flowcharts are the top source of post-generation/QA errors). Decision graphic is now `<ChooseIf>` cards. PR #96 merged + engine deployed live; PR #95 fixed and green.**
+
+**1. PR #95 failure root-caused + fixed.** The daily-engine post `2026-06-16-lemlist-vs-instantly...` hard-failed the **render-acceptance gate** ("DecisionTree: 4 leaf result(s) in source but only 0 rendered"). Root cause: the engine emitted the `<DecisionTree>` in the WRONG prop shape: flat top-level `question=`/`branches=` props with **string** `result` values, instead of the component's required single `tree={{ question, branches:[{ label, result:{ title, note, tone } }] }}` object. The `tree` prop was `undefined`, the malformed-prop guard in [DecisionTree.astro](src/components/post/DecisionTree.astro) degraded it to empty, and 0 of 4 branches rendered. The deterministic gate (Session 28) caught it correctly.
+
+**2. `<DecisionTree>` RETIRED for future posts (PR #96, merge `534ff00`) — engine DEPLOYED LIVE.** Ian's call: stop emitting decision trees, swap to a simpler/reliable graphic. Chose `<ChooseIf>` ("Choose X if" self-select cards) as the decision graphic (flat array props, never errors, already the Session-29 tree replacement). [n8n/update-engine-retire-decision-tree.mjs](n8n/update-engine-retire-decision-tree.mjs) (new, idempotent, token-self-checked): **Generate Draft** drops the DecisionTree import, replaces the whole DECISION TREES section with a DECISION GRAPHIC ban steering to `<ChooseIf>`/`<IntentTable>`, reworks skeleton + VISUALS; **Humanize** drops DecisionTree from the preserve list, converts any tree (svg or component) to `<ChooseIf>`, removes the FLATTEN verify, import count 15→14. Deployed via `deploy-engine.mjs --apply` + **live GET-verified** (active, 28 nodes, expression braces balanced, ban present, old section gone). Deterministic backstop in [qa/lint-content.mjs](qa/lint-content.mjs): `<DecisionTree>` in a NEW post HARD-fails (exit 1); the **14 existing live tree posts are grandfathered** (`DECISIONTREE_GRANDFATHERED` set) so `qa:lint --all` stays 0-hard. CI lints only the changed post, so live posts are untouched unless edited. Existing 14 posts keep their trees (Ian: future posts only).
+
+**3. PR #95 converted to the new standard + GREEN.** Replaced its `<DecisionTree>` with a 2-card `<ChooseIf>` (Lemlist vs Instantly; SpectrumBar stays the main comparison block), dropped the unused import. First adopter of the new policy; would otherwise have hard-failed the new lint ban (its filename isn't grandfathered). Build + lint + render-acceptance clean; QA run `27619465195` green. **Ready for Ian to merge.**
+
+**Verification:** updater idempotent (2nd run no-op); `qa:lint --all` 0 hard (all 36 posts); negative test (new post w/ a tree) hard-fails exit 1; deploy dry-run + apply + live GET all clean; PR #95 CI green.
+
+**Revert:** PR #96 `git revert 534ff00` (restores lint gate + JSON source); to roll the LIVE engine back, run `deploy-engine.mjs --apply` against the reverted `blog-post-engine.json`. PR #95 content = `git revert` its commit on the branch.
+
+> Note: Sessions 35/36 were never written as standalone entries here (their work was stranded on `batch-solo`). Reconciled in Session 38 above — S35 features shipped via #100/#101/#103, S36 via #93/#94 (covered in the S37 entries). The S37 entry follows S34 here for that reason.
+
+### Session 37 follow-up (2026-06-16) — code-block "black box" fix + PR #95 polish + merged
+
+Ian reviewed the (now-merged) Lemlist-vs-Instantly post and flagged two visual issues; both fixed, then **PR #95 MERGED** (`25cecbe`).
+
+**1. Code blocks rendered as a blank black box (PR #98, merge `2865106`) — sitewide, DEPLOYED LIVE.** Astro's default Shiki theme (`github-dark`) stamps an inline dark `background-color` on every `<pre>`, overriding the cream `.prose pre` rule in [global.css](src/styles/global.css); a plaintext (no-language) fence emits no per-token colors, so `.prose pre code { color: var(--text) }` (ink) lands on the dark inline bg = invisible. Several LIVE posts with plaintext/config fences were affected, not just this one. Fix: `markdown: { syntaxHighlight: false }` in [astro.config.mjs](astro.config.mjs) → clean `<pre><code>` with no inline styles, so the cream/ink design system fully controls code blocks (MDX inherits via `extendMarkdownConfig`). Verified: build clean (143 pages), **0** `github-dark`/dark inline bg in `dist`. Tradeoff (accepted): code blocks are now monochrome ink-on-cream, which matches what the CSS already targeted. **Revert:** `git revert -m 1 2865106` (restores the github-dark default).
+
+**2. "How the stacks actually look" comparison polish.** The right SideBySide pane was a raw ASCII diagram in a code block while the left was prose (asymmetric, AI-looking). First reformatted both panes to parallel bullet lists (bold lead-ins, Playwright-verified desktop + 390px); then per Ian **cut the SideBySide entirely** (+ its now-unused import) because it repeated the two stack paragraphs directly above it and the `<SpectrumBar>` already carries the robust comparison. The section now flows `<SpectrumBar>` → two concrete stack paragraphs → `<ChooseIf>`. Final component lineup: KeyTakeaways → StatRow → SpectrumBar → (stack paragraphs) → ChooseIf → MyTake → BottomLine → Sources.
+
+**3. PR #95 MERGED** (`25cecbe`) — the first post on the new `<ChooseIf>` decision-card standard, code-block fix inherited from master.
+
+**Revert:** PR #98 `git revert -m 1 2865106`; PR #95 is content (`git revert` its squash commit).
+
+---
+
+## Quick reference — recent additions (Session 34, 2026-06-14)
+
+**Prepped the AI side of three manual, human-only GTM tasks so Ian can copy-paste each step (no applications submitted, no LinkedIn page created, no Beehiiv import, no GSC action — all Ian's). Docs only, committed `eca6e13`.**
+
+**1. Wave-2 affiliate applications ([APPLICATIONS.md](APPLICATIONS.md)).** Paste-ready doc for tools 11-20 ([AFFILIATE_PIPELINE.md](AFFILIATE_PIPELINE.md) rows 11-20: Lindy, Reply.io, KrispCall, Laxis, Close, Nutshell, GetResponse, AdCreative.ai, Motion, Brevo). A top "Standard answers" block (site URL, long-form audience, **~5K/mo traffic** per Ian, promo-methods, reusable "how will you promote us" paragraph, live-affiliate track record) + a per-tool block each carrying program/network, est. commission, the `/tools/<slug>/` hub to cite, real relevant post links (AdCreative.ai → its dedicated 2026-06-08 review; others → hub + 1-2 mapped comparison posts), a tool-specific promo angle, and `Applied/Approved` checkboxes mirroring the pipeline.
+
+**2. LinkedIn + Beehiiv ([LINKEDIN_BEEHIIV.md](LINKEDIN_BEEHIIV.md)).** Section A: full from-scratch LinkedIn Company Page setup (name, slug `the-automations-guide`, tagline <120 chars, About <2,000 chars, Specialties list, first post) drawn from [about.astro](src/pages/about.astro) + homepage voice. Section B: ready-to-paste first-issue copy for both Beehiiv templates (Daily "The Briefing" = 1 feature + 3 links + sponsor; Weekly "The Guide" = 1 feature + 5 updates + 1 review + sponsor), populated with real posts/tools + `/go/<slug>` sponsor links, plus the per-send edit checklist. The HTML shells already exist in [brand-kit/beehiiv/](brand-kit/beehiiv/); this supplies the words.
+
+**3. GSC Tier-2 ([GSC-TIER2-CHECKLIST.md](GSC-TIER2-CHECKLIST.md)).** Ordered Request-Indexing checklist of the **10** unindexed `/tools/*` hubs from [AUDIT-SEO-2026-06-14.md](AUDIT-SEO-2026-06-14.md) (bettercontact, circleback, fillout, fullenrich, leadmagic, lemlist, mailforge, surfe, vapi, vector), trailing-slash/canonical form; `/tools/warmly/` listed as the 11th but **monitor-only** (crawled-not-indexed = no action).
+
+**4. [TODO.md](TODO.md) annotated** (4 inline `(PREPPED ...)` notes on the affiliate/LinkedIn/Beehiiv/GSC items; no items added/removed, order preserved, drift lint clean).
+
+**Flag for Ian:** TODO.md still lists "Create LinkedIn Company Page" as open, but [OFF_SITE_SEO_CHECKLIST.md](OFF_SITE_SEO_CHECKLIST.md) + ops-log #281 mark it done (created 2026-06-12, `sameAs` live). Ian chose from-scratch setup this session (treating the existing page as a stub) — reconcile whether to close that TODO or downgrade the checklist's "done." **Revert:** `git revert eca6e13` (additive docs).
+
+---
+
+## Quick reference — recent additions (Session 33, 2026-06-14)
+
+**Full SEO audit of the live site + fixed the one material finding (mobile Core Web Vitals). Shipped to prod via PR #91 (merge `0691ac6`).**
+
+**1. Full SEO audit ([AUDIT-SEO-2026-06-14.md](AUDIT-SEO-2026-06-14.md)).** Technical (curl: robots/sitemap/redirects/headers) + on-page (built `dist/` scan) + indexing (GSC URL Inspection) + performance (Lighthouse prod). Verdict: exceptionally clean foundation — Lighthouse **SEO 1.00** everywhere, **0 hard on-page issues** (0 missing canonical / 0 duplicate titles / 0 multi-H1 across 89 indexable pages), correct rich JSON-LD (BlogPosting/FAQPage/SoftwareApplication/BreadcrumbList/Person/Org), clean single-hop redirects, AI crawlers allowed, sitemap excludes `/go/`+`/og/`+noindex. **Indexing: 67/89 indexed** — the 22 unindexed are brand-new pages awaiting first crawl (6 Session-32 `/teams` + `/playbooks` hubs, 5 recent posts, 11 newest `/tools` hubs); Request-Indexing list is in TODO.md. (GSC OAuth token re-consented this session — cached again, so `/audit-seo` + `gsc-index-status.py` won't hang on auth next time.) Non-critical findings logged in the report: homepage + 53 hub pages have no `og:image` fallback (M-1); 82/89 titles >62 chars (M-2); a11y 0.91 with frame-title/heading-order quick wins (M-3); em-dash `<title>` separator on 88/89 (L-1).
+
+**2. Reusable SEO tooling.** [qa/seo-scan.mjs](qa/seo-scan.mjs) (`npm run qa:seo`) — noindex-aware sitewide on-page scanner (title/desc length, canonical/og/H1 presence, dup titles), slots into the existing qa/ gate suite. [.claude/commands/audit-seo.md](.claude/commands/audit-seo.md) — full-site SEO audit command (technical → indexing → on-page → perf → report).
+
+**3. C-1 mobile Core Web Vitals fix (the material finding), DEPLOYED.** Mobile was failing sitewide (Perf 0.65, LCP ~7.5-7.8s; desktop fine at 0.99). Root cause: the **beehiiv newsletter embed** ([EmailSignup.astro](src/components/EmailSignup.astro)) loaded `v3/loader.js` eagerly on every page → ~25 sub-requests (Stimulus app, flatpickr, its own webfont + GTM container `GTM-WJXL7FH`, a Cloudflare challenge), plus **PostHog + GA4** ([Analytics.astro](src/components/Analytics.astro)) loaded eagerly. Fix: lazy-load the beehiiv embed via IntersectionObserver (600px early, 290px space reserve = CLS-safe, `<noscript>` fallback) + defer PostHog/GA4 to first-interaction OR `requestIdleCallback` (3s ceiling), mirroring homegrowngrowth.co. Tradeoff (accepted): a visitor who bounces in <~3s without interacting isn't counted. **Prod after deploy: home mobile 0.65→0.83 (LCP 7.8s→3.4s); post 0.67→0.86 (LCP 7.5s→3.2s); CLS 0; a11y/BP/SEO unchanged.** Fonts left render-blocking on purpose — a non-blocking print-swap was tested but added font-swap CLS on text-heavy posts with no reliable LCP gain; deferred as the CLS-safe follow-up (the remaining LCP gap to <2.5s, now in TODO.md).
+
+**Verification:** build clean (141 pages); prod homepage/post initial load carry **zero** eager beehiiv/analytics requests (both load on demand). **Revert:** `git revert -m 1 0691ac6` — all changes additive/behavioral (defer-loading + new tooling files), no schema/route/content change.
+
+---
+
+## Quick reference — recent additions (Session 32, 2026-06-14)
+
+**Ian: identity/E-E-A-T + GEO + IA overhaul (About headshot + full name, answer-first byline/TL;DR on every post, audience nav, de-cluttered blog index). Site changes on branch `feat/eeat-geo-nav-overhaul` (PR open for Ian to review on the Netlify preview, not merged). Engine deployed LIVE.**
+
+**1. Identity + "Ian Chamberland" everywhere.** [about.astro](src/pages/about.astro) hero is now two-column: headshot ([public/images/ian-headshot.jpg], copied from homegrown-growthco) + name + role + a prominent "Connect on LinkedIn" button at the top (mobile: photo stacks first via `order:-1`). Surname added to founder JSON-LD ([BaseLayout.astro](src/layouts/BaseLayout.astro)), the author card ([AuthorNote.astro](src/components/AuthorNote.astro)), [privacy.astro](src/pages/privacy.astro), and the about meta/intro/contact. Also stripped 8 pre-existing em-dashes from the About prose + 1 in the author bio (`feedback_no_em_dashes`).
+
+**2. Global byline + TL;DR (existing + future).** [BlogPostLayout.astro](src/layouts/BlogPostLayout.astro): byline is now "By Ian Chamberland" linked to `/about/` with `rel="author"` (the `displayAuthor` fallback flip drives JSON-LD `author.name` too), one file, all posts. Added optional `tldr` (+ `audiences`) to the [content schema](src/content/config.ts); the layout renders a bolded `.post-tldr` answer box at the very top of each post. Backfilled all 36 posts via [backfill-tldr.mjs](backfill-tldr.mjs) (lifts each inline `quick-answer` div into `tldr:` frontmatter + removes the now-duplicate div; CRLF-aware + uses a function replacer so a `$` in pricing text stays literal, both bit me on the first run). Bottom "Bottom line" CTA kept at the end.
+
+**3. Engine (future posts), DEPLOYED LIVE.** [n8n/update-engine-tldr.mjs](n8n/update-engine-tldr.mjs) (idempotent, token-self-check, no new `{{`/backtick/`${` tokens) edits [blog-post-engine.json](n8n/blog-post-engine.json): frontmatter emits `tldr:`, the 3 inline quick-answer skeleton bullets + QUICK ANSWER RULES become TL;DR-frontmatter rules, author voice = "Ian Chamberland"; Humanize preserve-list keeps tldr, drops the quick-answer bullet. Deployed via `deploy-engine.mjs --apply` (28 nodes, active unchanged, GET-verified, 0 quick-answer refs). **Timing note:** engine is now AHEAD of the live site, so merge the site PR before the next 8am cron post or one new post briefly renders without a visible answer block on the old layout.
+
+**4. Nav overhaul + audience hubs.** [BaseLayout.astro](src/layouts/BaseLayout.astro) nav is now **Teams (dropdown) | Playbooks | Tool Reviews | Latest** (green Newsletter CTA + search + social icons untouched). Teams dropdown = new accessible vanilla-JS toggle + hover/focus CSS, renders inline in the mobile drawer; items For Sales/RevOps/Marketing/Founders + About. New [audiences.ts](src/data/audiences.ts) maps each role to REAL topic tags (taxonomy is dominated by `automation` 27/36 + `comparison` 17, so those are excluded as audience signals; only `tech stack` is multi-word). [teams/[role].astro](src/pages/teams/[role].astro) + [teams/index.astro](src/pages/teams/index.astro) + [playbooks.astro](src/pages/playbooks.astro) reuse a new shared [PostCard.astro](src/components/PostCard.astro). Hub counts: Sales 17 / RevOps 12 / Marketing 7 / Founders 10 / Playbooks 7. Footer + breadcrumb labels aligned.
+
+**5. Blog index ([blog/index.astro](src/pages/blog/index.astro)).** H1 to "The RevOps & GTM Automation Blog", keyword-rich subhead + meta. Tag farm (~35 buttons) replaced by **All + 5 pillar buttons** (Cold Email/CRM/Workflow Automation/Lead Enrichment/Newsletter, each OR-matching a tag group) **+ a "Filter by Topic" select** holding all tags. Filter JS generalized to group/single-tag matching with `?tag=` URL sync; the `data-tags` delimiter switched from space to `|` so the multi-word `tech stack` tag filters correctly (PostCard + the filter both updated).
+
+**Verification:** `npm run build` clean (142 pages); qa:lint 0 hard / qa:render 0 hard / qa:overflow 0 / qa:logos clean; 0 em/en dashes in content; Playwright desktop+mobile confirmed About (2-col / stacked photo-first), post (TL;DR box + linked byline), Teams dropdown (desktop popover + mobile drawer), blog filters (Cold Email 15, tech stack 2, URL sync); rendered JSON-LD author + homepage founder = "Ian Chamberland".
+
+**Revert:** site = close the PR (or `git revert -m 1 <merge-sha>` after merge). Engine = re-run `deploy-engine.mjs --apply` against the prior `blog-post-engine.json`, or `git revert` the JSON + redeploy.
+
+**Open follow-ups:** (a) "Workflow Automation" pillar maps to platform tags only (~3 posts), NOT the `automation` catch-all (would be ~27), broaden if Ian prefers; (b) "Tool Reviews" points at the existing /tools hub (no separate articles-only /reviews page built).
+
+---
 
 ## Quick reference — recent additions (Session 31, 2026-06-12)
 

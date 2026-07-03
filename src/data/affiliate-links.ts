@@ -367,6 +367,124 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: "Pipeline (not yet applied). Fillout runs an affiliate program; details on commission rates and terms are available through their website.",
   },
+
+  // --- Comparison-reference tools (audit 2026-06-17, C-1). These appear ONLY as
+  // ComparisonTable columns (affiliateSlug:) in head-to-head posts, not as tools we're
+  // driving affiliate revenue for. Registered with url:'' so /go/<slug> still generates
+  // and routes to homepage + UTM (the gong/outreach/salesforce pattern) — otherwise the
+  // comparison column's CTA 404s, which it was doing live before this fix.
+  zapier: {
+    name: "Zapier",
+    url: '',
+    homepageFallback: "https://zapier.com/",
+    status: 'pending',
+    notes: "Comparison-reference column (Clay-vs-Zapier, Pabbly-vs-Zapier-vs-Make). Zapier runs a partner/referral program; not yet applied. Falls back to homepage + UTM so /go/zapier routes.",
+  },
+  canva: {
+    name: "Canva",
+    url: '',
+    homepageFallback: "https://www.canva.com/",
+    status: 'pending',
+    notes: "Comparison-reference column (AdCreative-vs-Canva-vs-Creatify). Canva runs an affiliate program; not yet applied. Falls back to homepage + UTM so /go/canva routes.",
+  },
+  creatify: {
+    name: "Creatify",
+    url: '',
+    homepageFallback: "https://creatify.ai/",
+    status: 'pending',
+    notes: "Comparison-reference column (AdCreative-vs-Canva-vs-Creatify). Creatify runs an affiliate program; not yet applied. Falls back to homepage + UTM so /go/creatify routes.",
+  },
+  justcall: {
+    name: 'JustCall',
+    url: '',
+    homepageFallback: 'https://justcall.io/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  aircall: {
+    name: 'Aircall',
+    url: '',
+    homepageFallback: 'https://aircall.io/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  fireflies: {
+    name: 'Fireflies',
+    url: '',
+    homepageFallback: 'https://fireflies.ai/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  otter: {
+    name: 'Otter.ai',
+    url: '',
+    homepageFallback: 'https://otter.ai/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  taplio: {
+    name: 'Taplio',
+    url: '',
+    homepageFallback: 'https://taplio.com/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  loops: {
+    name: 'Loops',
+    url: '',
+    homepageFallback: 'https://loops.so/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  activecampaign: {
+    name: 'ActiveCampaign',
+    url: '',
+    homepageFallback: 'https://www.activecampaign.com/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  customerio: {
+    name: 'Customer.io',
+    url: '',
+    homepageFallback: 'https://customer.io/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  mailchimp: {
+    name: 'Mailchimp',
+    url: '',
+    homepageFallback: 'https://mailchimp.com/pricing/marketing/',
+    status: 'no-program',
+    notes: 'Comparison-reference only. No affiliate program applied for yet. Falls back to pricing page + UTM so /go/mailchimp routes.',
+  },
+  'linkedin-sales-navigator': {
+    name: 'LinkedIn Sales Navigator',
+    url: '',
+    homepageFallback: 'https://business.linkedin.com/sell?trk=visit-product-website&src=li-rev-prod',
+    status: 'no-program',
+    notes: 'Comparison-reference only. No public affiliate program (enterprise LinkedIn motion). Falls back to product page + UTM so /go/linkedin-sales-navigator routes.',
+  },
+  bouncer: {
+    name: 'Bouncer',
+    url: '',
+    homepageFallback: 'https://bouncer.com/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  zerobounce: {
+    name: 'ZeroBounce',
+    url: '',
+    homepageFallback: 'https://www.zerobounce.net/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  mailreach: {
+    name: 'MailReach',
+    url: '',
+    homepageFallback: 'https://www.mailreach.co/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
 };
 
 /**

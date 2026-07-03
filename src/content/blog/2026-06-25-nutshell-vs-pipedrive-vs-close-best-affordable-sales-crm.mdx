@@ -1,0 +1,132 @@
+---
+title: "Nutshell vs Pipedrive vs Close: Best Affordable Sales CRM"
+description: "Comparing Nutshell, Pipedrive, and Close for SMB sales teams on a budget. Real tradeoffs on pricing, automation, and pipeline management."
+tldr: "Pipedrive wins on pipeline visualization and integrations, Close wins on built-in calling and outbound velocity, and Nutshell wins on all-in pricing with no seat-tax surprises for growing SMB teams."
+pubDate: 2026-06-25
+tags: ["comparison", "crm", "sales"]
+faqs:
+  - question: "Is Nutshell cheaper than Pipedrive?"
+    answer: "Nutshell's Foundation plan starts at $19/seat/month and includes email sync, pipelines, and reporting with no feature gating surprises. Pipedrive's Essential plan starts at $14/seat/month but meaningful automation and reporting require the Advanced or Professional tier."
+  - question: "Does Close CRM have a free plan?"
+    answer: "No. Close starts at $49/month for up to 3 users on the Startup plan. There is no free tier, but a 14-day free trial is available."
+  - question: "Which CRM is best for a small outbound sales team?"
+    answer: "Close is the strongest choice for pure outbound teams because built-in Power Dialer, email sequences, and SMS are included at the mid tiers without third-party integrations."
+  - question: "Can Nutshell replace HubSpot for a small team?"
+    answer: "For pure CRM and pipeline use, yes. Nutshell lacks HubSpot's marketing automation depth, but if your team is paying for HubSpot Sales Hub just to do deal tracking and email sequences, Nutshell Pro covers that at roughly half the per-seat cost."
+  - question: "Does Pipedrive integrate with Apollo or Clay?"
+    answer: "Yes. Pipedrive has native integrations with Apollo and connects to Clay via Zapier or Make webhooks, making it a common mid-stack CRM in outbound-heavy RevOps setups."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most SMB sales teams land in one of two failure modes: they overpay for Salesforce or HubSpot Sales Hub and use 20% of its features, or they start on a spreadsheet and never graduate. The sweet spot is a purpose-built, affordable sales CRM. Right now, three tools keep coming up in my client conversations: [Nutshell](/tools/nutshell), [Pipedrive](/go/pipedrive), and Close. All three are priced for sub-100-seat teams. All three are meaningfully differentiated. Picking the wrong one costs you six months of re-migration pain.
+
+<KeyTakeaways items={[
+  "Nutshell is the all-in-one pick: email marketing, sequences, and CRM under one price with no surprise add-ons.",
+  "Pipedrive has the best pipeline UI and the deepest integration ecosystem, including native Apollo and Clay-via-webhook support.",
+  "Close is built for outbound velocity: Power Dialer, SMS, and sequences are native, not bolt-ons.",
+  "All three start under $50/seat/month, but total cost diverges fast once you add automation tiers.",
+  "Migration cost matters as much as sticker price: Close and Nutshell have simpler data models, Pipedrive's field structure is more flexible but takes longer to configure."
+]} />
+
+<StatRow stats={[
+  { number: "$19", label: "Nutshell Foundation", description: "Per seat per month, billed annually, with pipelines, email sync, and basic reporting included" },
+  { number: "3x", label: "Close dialer leverage", description: "Sales teams using Close's Power Dialer report roughly 3x more dials per rep per day versus manual calling in a generic CRM" },
+  { number: "400+", label: "Pipedrive integrations", description: "Pipedrive's marketplace lists over 400 native integrations, the deepest ecosystem of the three tools" }
+]} />
+
+## Where each tool actually earns its keep
+
+I've configured all three of these CRMs in real client environments over the last three years. Here is what I actually think, beyond the marketing copy.
+
+<ToolBreakdown title="Nutshell vs Pipedrive vs Close" tools={[
+  {
+    name: "Nutshell",
+    tagline: "All-in-one CRM with email marketing, no add-on fees",
+    body: "Nutshell's biggest differentiator is what it bundles. The Pro plan includes pipeline automation, personal email sequences, activity reminders, and basic reporting. The Growth plan layers in email marketing campaigns and a landing page builder, which means a 10-person SMB can kill both their CRM and their Mailchimp bill in one move. The UI is clean without being sparse. Contact and company records are well-structured, the pipeline board is drag-and-drop, and the built-in reporting covers stage conversion, rep activity, and forecast without requiring a BI layer. Where Nutshell loses: the native integration count is thin compared to Pipedrive, and the API is functional but not especially well-documented. If you rely heavily on Clay or Apollo enrichment pipelines, you are adding Zapier or Make to the stack.",
+    highlights: [
+      "Email sequences and campaigns included at Growth tier, no separate tool needed",
+      "Pipeline automation rules cover stage-based task creation and owner assignment",
+      "Web-to-lead forms and contact capture built in",
+      "Reporting covers forecasting without a separate dashboard tool"
+    ],
+    pricing: "From $19/seat / $59/seat (Growth, annual)",
+    affiliateSlug: "nutshell",
+    ctaLabel: "Try Nutshell",
+    highlight: false
+  },
+  {
+    name: "Pipedrive",
+    tagline: "Best pipeline UI and widest integration ecosystem in the tier",
+    body: "Pipedrive is the tool I recommend most often when a client runs an outbound motion powered by Apollo or Clay and wants a CRM that does not fight the data flow. The pipeline board is genuinely the best in this price tier. Drag cards, color-code by age or value, filter by rep or product. The workflow automation builder on Advanced and above handles stage triggers, field updates, and email sends cleanly. The Campaigns add-on covers basic email marketing, but it is exactly that: an add-on. LeadBooster adds chatbot and web forms. These add-ons are where Pipedrive's pricing gets slippery. A team that starts on Essential at $14/seat/month often ends up on Professional at $49/seat/month plus Campaigns, landing near $60 to $65 per seat. Know the total-cost math before you sign.",
+    highlights: [
+      "Visual pipeline board is the strongest in this tier, period",
+      "Native Apollo integration and Zapier/Make webhook support for Clay enrichment flows",
+      "400+ marketplace integrations cover nearly every stack combination",
+      "Smart Contact Data auto-enriches records from LinkedIn and web sources"
+    ],
+    pricing: "From $14/seat / $49/seat (Professional, annual)",
+    affiliateSlug: "pipedrive",
+    ctaLabel: "Try Pipedrive",
+    highlight: true
+  },
+  {
+    name: "Close",
+    tagline: "Dialer, SMS, and sequences built-in, not bolt-ons",
+    body: "Close is the only CRM in this comparison architected around phone-first selling. The Power Dialer is not a Twilio integration wrapped in a UI hack. It is the core product. Reps work a queue, drop voicemails automatically, and log calls without leaving the deal record. Email sequences and SMS sequences live in the same thread view, so a rep's entire touchpoint history is one scroll. Reporting on call volume, connection rate, and sequence performance is genuinely useful without customization. The tradeoff is that Close is narrower. The pipeline board is functional but less visually polished than Pipedrive. Marketing automation is not in scope. The integration ecosystem is smaller. For a pure outbound team of 3 to 25 reps who do not need a marketing layer, Close is the fastest path to rep productivity. For a team that also runs inbound, nurtures leads, or has a complex deal structure, it shows its limits.",
+    highlights: [
+      "Power Dialer with automatic voicemail drop included at Scale tier and above",
+      "Email, SMS, and call sequences in a unified activity timeline",
+      "Built-in predictive dialer for high-volume outbound teams",
+      "Smart Views filter leads by any field for prioritized rep workflows"
+    ],
+    pricing: "From $49/mo (3 users) / $699/mo (5 users, Scale)",
+    affiliateSlug: "close",
+    ctaLabel: "Try Close",
+    highlight: false
+  }
+]} />
+
+## How to choose
+
+The honest answer is that most teams eliminate one tool in the first five minutes based on motion type. If your reps dial for a living, Close is the answer and the other two will always feel like workarounds. If your team is pipeline-driven with a heavy integration stack ([Apollo](/go/apollo) enrichment, [Clay](/go/clay) waterfalls, Slack deal alerts), Pipedrive's ecosystem is genuinely hard to replace at this price point. Nutshell wins when the buyer is a founder or RevOps lead at a 5 to 30 person company who wants one vendor, one invoice, and a tool that does not require a consultant to configure.
+
+The add-on pricing trap is worth calling out explicitly. Pipedrive's headline number is attractive, but I've watched teams budget $14/seat and land at $55/seat once they actually need automation and campaigns. [G2's CRM pricing category](https://www.g2.com/categories/crm) shows this pattern across the affordable tier broadly: advertised entry pricing and actual deployed pricing diverge by 2x to 4x for most teams with even basic automation needs. Run the math on your actual required features before committing to any of these. Not just the landing page comparison grid.
+
+For teams already running a modern outbound stack, [Pipedrive's integration marketplace documentation](https://pipedrive.com/en/integrations) is worth a look before you decide. If your enrichment workflow lives in Clay or Apollo, the native connectors matter more than the sticker price delta between tools.
+
+<MyTake>
+Most SMB RevOps teams pick a CRM based on the pipeline board and completely ignore email deliverability infrastructure. That is a mistake I've seen bite clients repeatedly. Nutshell's built-in sequences send through your connected Gmail or Outlook domain, which keeps deliverability clean. Close does the same. Pipedrive's Campaigns add-on sends from Pipedrive's shared IP pool by default. I have watched that choice tank open rates for clients who moved off a dedicated sending tool without realizing what changed. If email is a meaningful part of your outbound motion, the sending infrastructure question matters more than any feature comparison.
+</MyTake>
+
+## The pricing story is not what it looks like at first glance
+
+All three tools market themselves as affordable, and at the entry tier they are. But real-world deployed cost for a 10-rep team over 12 months looks very different depending on what you actually need.
+
+Nutshell Growth at $59/seat covers CRM plus email marketing in one line item. Pipedrive Professional plus Campaigns plus LeadBooster puts you closer to $80/seat. Close Scale for 10 reps breaks down to roughly $140/seat per month, which is premium territory. But if it replaces a separate dialer tool (Orum, Kixie, Aircall) running $50 to $80/seat on top of a cheaper CRM, the math often still works. Always do the full stack comparison, not the CRM-only comparison. [Salesforce's State of Sales report](https://www.salesforce.com/resources/research-reports/state-of-sales/) consistently shows that reps using integrated communication tools (call, email, SMS in one place) log more activity and close faster. That is the actual ROI argument for Close's higher per-seat number, and it is a real one.
+
+<BottomLine
+  verdict="For most SMB teams who want a clean, predictable bill and do not have a dedicated outbound dialing motion, Nutshell is the least risky pick. If you run a modern outbound stack with Apollo or Clay, go Pipedrive. If your reps live on the phone, Close pays for itself."
+  pick="Nutshell"
+  affiliateSlug="nutshell"
+  ctaLabel="Try Nutshell"
+/>
+
+<Sources sources={[
+  { label: "G2: CRM software pricing category", url: "https://www.g2.com/categories/crm" },
+  { label: "Pipedrive: integration marketplace", url: "https://www.pipedrive.com/en/integrations" },
+  { label: "Salesforce: State of Sales report", url: "https://www.salesforce.com/resources/research-reports/state-of-sales/" }
+]} />

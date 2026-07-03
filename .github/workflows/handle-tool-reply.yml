@@ -1,0 +1,163 @@
+name: Register tool from PR comment reply
+
+# Triggered when someone replies to the "QA needs one thing from you" comment
+# on a content PR with the missing tool's homepage URL.
+#
+# Expected format (same as what the QA bot instructs):
+#   customerio = https://customer.io
+#   reply-io = https://reply.io/
+#
+# The slug is normalized (lowercase, non-alphanumeric stripped except hyphens)
+# so "Customer.io = https://customer.io" also works.
+#
+# After parsing, runs qa/auto-register-tools.mjs with --url-hint args so it
+# can skip the TLD probe for that slug and use the confirmed URL directly.
+# Commits any registry/logo additions to the PR branch, which re-triggers the
+# normal QA workflow (qa-content-pr.yml) automatically.
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  register:
+    # Only fire on PR comments (not plain issue comments).
+    if: github.event.issue.pull_request != null
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Check commenter has write access
+        id: auth
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const assoc = context.payload.comment.author_association;
+            if (!['OWNER', 'MEMBER', 'COLLABORATOR'].includes(assoc)) {
+              console.log(`Skipping: commenter association is ${assoc} (not a repo collaborator).`);
+              core.setOutput('allowed', 'false');
+            } else {
+              core.setOutput('allowed', 'true');
+            }
+
+      - name: Parse tool URL hints from comment
+        if: steps.auth.outputs.allowed == 'true'
+        id: parse
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          # Parse "slug = url" pairs from the comment body.
+          # LHS is normalized: lowercase, strip non-alphanumeric except hyphens,
+          # so "Customer.io" -> "customerio" and "reply-io" stays "reply-io".
+          HINTS=$(node -e "
+            const body = process.env.COMMENT_BODY;
+            const pairs = [];
+            // The URL capture excludes whitespace AND markdown/quote wrappers
+            // (backtick \x60, double-quote \x22, single-quote, asterisk, angle
+            // brackets, closing paren/bracket) so a reply like
+            //   \`zerobounce = https://www.zerobounce.net/\`
+            // doesn't leave a trailing backtick glued to the URL (which made the
+            // downstream fetch 404 and silently registered nothing). Hex escapes
+            // are used for backtick/double-quote because this runs inside a
+            // bash double-quoted node -e script.
+            for (const m of body.matchAll(/([A-Za-z0-9._-]+)\s*=\s*(https?:\/\/[^\s\x60\x22'*<>)\]]+)/g)) {
+              const slug = m[1].toLowerCase().replace(/[^a-z0-9-]/g, '');
+              const url = m[2].replace(/[.,;:]+$/, '');
+              if (slug && url) pairs.push(slug + '=' + url);
+            }
+            process.stdout.write(pairs.join(' '));
+          ")
+          if [ -z "$HINTS" ]; then
+            echo "No 'slug = url' pairs found in comment — ignoring."
+            echo "has_hints=false" >> $GITHUB_OUTPUT
+          else
+            echo "Parsed hints: $HINTS"
+            echo "hints=$HINTS" >> $GITHUB_OUTPUT
+            echo "has_hints=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get PR branch
+        if: steps.parse.outputs.has_hints == 'true'
+        id: pr
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+            const branch = pr.data.head.ref;
+            if (!branch.startsWith('content/')) {
+              console.log(`Branch "${branch}" is not a content/ branch — skipping.`);
+              core.setOutput('skip', 'true');
+              return;
+            }
+            const slug = branch.replace(/^content\//, '');
+            core.setOutput('branch', branch);
+            core.setOutput('post', `src/content/blog/${slug}.mdx`);
+            core.setOutput('skip', 'false');
+
+      - name: Checkout PR branch
+        if: steps.parse.outputs.has_hints == 'true' && steps.pr.outputs.skip == 'false'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pr.outputs.branch }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run auto-register with URL hints
+        if: steps.parse.outputs.has_hints == 'true' && steps.pr.outputs.skip == 'false'
+        id: register
+        env:
+          POST: ${{ steps.pr.outputs.post }}
+          HINTS: ${{ steps.parse.outputs.hints }}
+        run: |
+          # Build --url-hint args from space-separated "slug=url" pairs.
+          HINT_ARGS=""
+          for hint in $HINTS; do
+            HINT_ARGS="$HINT_ARGS --url-hint $hint"
+          done
+          node qa/auto-register-tools.mjs --post "$POST" $HINT_ARGS
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: Commit and push if changed
+        if: steps.parse.outputs.has_hints == 'true' && steps.pr.outputs.skip == 'false'
+        id: commit
+        env:
+          HINTS: ${{ steps.parse.outputs.hints }}
+        run: |
+          if [ -n "$(git status --porcelain src/data/affiliate-links.ts src/data/tools.ts public/brand/tools)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add src/data/affiliate-links.ts src/data/tools.ts public/brand/tools
+            git commit -m "[auto-register] Register tool(s) from PR comment reply
+
+            Registered via handle-tool-reply.yml from commenter-provided URL(s):
+            $HINTS"
+            git push origin "${{ steps.pr.outputs.branch }}"
+            echo "pushed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No registry changes — tool may already be registered or URL fetch failed."
+            echo "pushed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment result
+        if: steps.parse.outputs.has_hints == 'true' && steps.pr.outputs.skip == 'false'
+        uses: actions/github-script@v8
+        env:
+          PUSHED: ${{ steps.commit.outputs.pushed }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          script: |
+            const pushed = process.env.PUSHED === 'true';
+            const body = pushed
+              ? `✅ Tool(s) registered from your reply. QA is re-running on the new commit — check back in ~2 min.`
+              : `⚠️ Parsed your reply but no registry changes were made. The tool may already be registered, or the URL fetch failed.\n\nCheck the [run log](${process.env.RUN_URL}) for details.`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });

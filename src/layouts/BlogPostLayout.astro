@@ -16,12 +16,12 @@ interface Props {
 }
 
 const { post, headings = [], related = [] } = Astro.props;
-const { title, description, pubDate, updatedDate, author, tags, faqs } = post.data;
+const { title, description, tldr, pubDate, updatedDate, author, tags, faqs } = post.data;
 
 // Byline person. Posts without an explicit author fall back to the org name
-// ("The Automations Guide"); show the human (Ian) there instead, since the brand
-// is already appended after the name and in the publisher schema.
-const displayAuthor = !author || author === 'The Automations Guide' ? 'Ian' : author;
+// ("The Automations Guide"); show the human (Ian Chamberland) there instead, so
+// every post carries a verifiable human byline linked to /about (E-E-A-T).
+const displayAuthor = !author || author === 'The Automations Guide' ? 'Ian Chamberland' : author;
 
 // Per-post OG image (build-time PNG at /og/<slug>.png). Used for og:image,
 // twitter:image, and the BlogPosting `image`.
@@ -101,7 +101,7 @@ const faqSchema =
     : null;
 ---
 
-<BaseLayout title={title} description={description} ogImage={ogImage}>
+<BaseLayout title={title} description={description} ogImage={ogImage} ogType="article">
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)} />
     {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
@@ -117,7 +117,7 @@ const faqSchema =
         )}
         <h1>{title}</h1>
         <div class="post-meta">
-          <span>By {displayAuthor} @ The Automations Guide</span>
+          <span>By <a href="/about/" rel="author" class="post-byline-author">{displayAuthor}</a></span>
           <span class="post-meta-sep">&middot;</span>
           <time datetime={pubDate.toISOString()}>{formattedPubDate}</time>
           <span class="post-meta-sep">&middot;</span>
@@ -130,6 +130,13 @@ const faqSchema =
           )}
         </div>
       </header>
+
+      {tldr && (
+        <div class="post-tldr">
+          <p class="post-tldr-label">TL;DR</p>
+          <p class="post-tldr-text">{tldr}</p>
+        </div>
+      )}
 
       <TableOfContents headings={headings} />
 

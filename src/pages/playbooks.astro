@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import { getCollection } from 'astro:content';
+
+// "Playbooks" = the step-by-step / how-to content (guides, tutorials, workflows),
+// as opposed to the comparison-led head-to-heads (which live under /reviews/).
+const PLAYBOOK_TAGS = ['guide', 'tutorial', 'workflow', 'playbook'];
+
+const all = await getCollection('blog', ({ data }) => !data.draft);
+const posts = all
+  .filter((p) => p.data.tags.some((t) => PLAYBOOK_TAGS.includes(t.toLowerCase())))
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+---
+
+<BaseLayout
+  title="RevOps & GTM Automation Playbooks"
+  description="Step-by-step automation playbooks and workflow guides for RevOps and GTM teams, from operators who have shipped them."
+>
+  <div class="container--wide">
+    <div class="page-header">
+      <h1>Playbooks</h1>
+      <p>Step-by-step automation playbooks and workflow guides you can ship this week, not vendor theory.</p>
+    </div>
+
+    {posts.length > 0 ? (
+      <div class="card-grid">
+        {posts.map((post) => <PostCard post={post} />)}
+      </div>
+    ) : (
+      <div style="text-align:center;padding:5rem 0;color:var(--text-muted);">
+        <p style="font-size:1.125rem;">Playbooks are on the way. <a href="/blog/">Browse all articles</a>.</p>
+      </div>
+    )}
+  </div>
+</BaseLayout>

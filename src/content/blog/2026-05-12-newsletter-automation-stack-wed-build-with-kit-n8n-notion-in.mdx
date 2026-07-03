@@ -1,8 +1,9 @@
 ---
 title: "Newsletter Automation Stack We'd Build with Kit + n8n + Notion in 2026"
 description: "The exact newsletter automation stack we'd build in 2026: Kit, n8n, and Notion for welcome sequences, behavioral tagging, and churn re-engagement."
+tldr: "Kit + n8n + Notion gives you a behaviorally-aware, operationally transparent newsletter stack for roughly $130/month, covering welcome sequences, PostHog-driven behavioral tagging, and churn re-engagement without a single no-code dependency on Zapier's pricing tiers."
 pubDate: 2026-05-12
-tags: ["tools", "automation", "email"]
+tags: ["tools", "automation", "email", "workflow-automation"]
 faqs:
   - question: "What is the best newsletter automation stack in 2026?"
     answer: "Kit for subscriber management and email delivery, n8n for automation logic, and Notion as your editorial and segment database is a lean, powerful combination for under $150/month."
@@ -26,8 +27,6 @@ import ComparisonTable from '@/components/ComparisonTable.astro';
 
 Most newsletter stacks are either wildly over-engineered (Salesforce Marketing Cloud for a 12k-subscriber list, yes, I've seen it) or dangerously under-built (one Mailchimp automation with zero behavioral signal). The sweet spot in 2026 is a three-tool stack: [Kit](/go/kit) handles delivery and segmentation, [n8n](/go/n8n) is the automation brain that wires everything together, and Notion is the editorial and segment planning layer your whole team can read without writing a SQL query. Here's exactly how we'd build it.
 
-<div class="quick-answer"><strong>Quick answer:</strong> Kit + n8n + Notion gives you a behaviorally-aware, operationally transparent newsletter stack for roughly $130/month, covering welcome sequences, PostHog-driven behavioral tagging, and churn re-engagement without a single no-code dependency on Zapier's pricing tiers.</div>
-
 <PullQuote>The newsletters that compound in 2026 aren't the ones with the best writing, they're the ones that deliver the right content to the right subscriber at the right moment, automatically.</PullQuote>
 
 <StatRow stats={[
@@ -36,8 +35,6 @@ Most newsletter stacks are either wildly over-engineered (Salesforce Marketing C
   { number: "$130/mo", label: "All-in monthly cost", description: "Kit Creator ($50-90) + n8n Cloud Starter ($20) + Notion Plus ($16) + PostHog free tier = under $145/month at up to 10k subscribers" }
 ]} />
 
-
-
 ## The Stack and Why Each Tool Earns Its Seat
 
 Kit is the anchor. It stores subscribers, sends sequences and broadcasts, manages tags, and hosts your opt-in forms and landing pages. Critically, it has a clean API and a native n8n node, which means you're not hacking together Zapier webhooks just to apply a tag. The Creator plan is the minimum viable tier here; it unlocks automations and sequences, which you need for everything below.
@@ -45,8 +42,6 @@ Kit is the anchor. It stores subscribers, sends sequences and broadcasts, manage
 [n8n](/go/n8n) is the connective tissue. It runs your automation logic: listening for PostHog events, deciding which tag to apply, hitting Kit's API, updating Notion, and handling re-engagement timers. If you've been using Zapier for this, you're overpaying and under-automating. n8n's branching logic and sub-workflows handle complexity that Zapier multi-step zaps make ugly and expensive. Self-host on a $6/month VPS or use n8n Cloud Starter at $20/month, your call based on how much you want to babysit Docker.
 
 Notion is the operations layer. Every segment definition, tag taxonomy, editorial calendar, and re-engagement threshold lives in a Notion database your team can edit without touching the automation itself. n8n reads from Notion via API to make dynamic decisions. Update a segment threshold in Notion, and the automation adapts on its next run, no workflow editor required.
-
-
 
 <SideBySide>
 <Fragment slot="left">
@@ -105,8 +100,6 @@ Skip the 12-automation fantasy. Seriously, don't build more than these three unt
 This one lives entirely inside Kit, no n8n required until the very end. New subscriber hits your opt-in form → Kit fires a 5-email sequence: Day 0 (instant, your single best piece of content), Day 2 (origin story, why this newsletter exists and who it's for), Day 5 (your framework or most-forwarded piece), Day 9 (a specific actionable tip with an explicit reply prompt), Day 14 (soft pitch or community invite). The n8n hook activates post-sequence: on Day 15, n8n checks Kit's API to see if the subscriber opened at least 2 of those 5 emails. Opened 2+? Apply tag `engaged-post-welcome`. Opened fewer? Fork them into the re-engagement flow in Automation 3.
 
 **Automation 2: Behavioral Tagging via PostHog → n8n → Kit**
-
-
 
 <StepRow steps={[
   { title: "Instrument PostHog on your site", body: "Add PostHog's JS snippet and capture three custom events: `article_read` (with slug and category as properties), `pricing_page_visited`, and `tool_review_clicked`. These three events cover most monetization-relevant behavioral signals without turning your event schema into a mess." },

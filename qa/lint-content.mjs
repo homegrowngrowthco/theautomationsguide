@@ -27,7 +27,9 @@ const getArg = (f) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] :
 const readSlugs = () => {
   const al = readFileSync('src/data/affiliate-links.ts', 'utf-8');
   const block = al.slice(al.indexOf('affiliateLinks'), al.indexOf('\nexport function') >= 0 ? al.indexOf('\nexport function') : al.length);
-  const affiliate = new Set([...block.matchAll(/^\s{2}([a-z0-9-]+):\s*\{/gm)].map((m) => m[1]));
+  // Keys can be bare (zapier:) OR quoted when hyphenated ('reply-io': / "cal-com":).
+  // The optional quotes matter: 4 quoted keys were silently absent from this set before.
+  const affiliate = new Set([...block.matchAll(/^\s{2}['"]?([a-z0-9-]+)['"]?:\s*\{/gm)].map((m) => m[1]));
   const tools = readFileSync('src/data/tools.ts', 'utf-8');
   const toolSlugs = new Set([...tools.matchAll(/slug:\s*'([a-z0-9-]+)'/g)].map((m) => m[1]));
   return { affiliate, toolSlugs };
@@ -44,6 +46,33 @@ const KNOWN = new Set([
   'SideBySide', 'StatRow', 'ComparisonTable', 'PullQuote', 'MyTake', 'StepRow', 'Figure',
   'DecisionTree', 'ToolBreakdown', 'ChooseIf', 'IntentTable', 'SpectrumBar',
   'KeyTakeaways', 'Sources', 'BottomLine', 'Fragment',
+]);
+
+// DecisionTree is RETIRED for NEW posts (Session 37): its nested
+// tree={{branches:[{result:{...}}]}} prop shape was the top source of render/QA
+// errors. The engine no longer emits it (decision graphic is now <ChooseIf>). These
+// 15 posts shipped a valid tree before the retirement and still render fine, so they
+// are grandfathered; any OTHER post containing <DecisionTree> hard-fails. (CI lints
+// only the changed post, so this never touches the grandfathered set unless one is
+// edited — at which point migrate it to <ChooseIf>.)
+const DECISIONTREE_GRANDFATHERED = new Set([
+  '2026-05-07-apollo-alternatives-for-mid-market-outbound-teams-in-2026.mdx',
+  '2026-05-13-beehiiv-vs-substack-vs-hubspot-email-newsletter-for-b2b.mdx',
+  '2026-05-14-gong-vs-outreach-vs-salesloft-which-wins-in-2026.mdx',
+  '2026-05-15-clay-vs-zapier-for-b2b-lead-enrichment-workflows.mdx',
+  '2026-05-18-lemlist-vs-apollo-for-b2b-outbound-2026-pick.mdx',
+  '2026-05-19-why-revops-teams-are-abandoning-outreach-in-2026.mdx',
+  '2026-05-25-n8n-vs-make-for-cold-outbound-clay-webhooks-compared.mdx',
+  '2026-05-27-lemlist-vs-smartlead-vs-instantly-2026-cold-email-showdown.mdx',
+  '2026-05-28-outreach-alternatives-for-mid-market-revops-in-2026.mdx',
+  '2026-05-29-best-salesforce-automation-tools-no-make-or-n8n.mdx',
+  '2026-06-01-pipedrive-vs-apollo-outbound-which-wins-in-2026.mdx',
+  '2026-06-02-instantly-alternatives-2026-what-to-use-when-you-outgrow-it.mdx',
+  '2026-06-10-instantly-alternatives-2026-when-youve-hit-the-limits.mdx',
+  '2026-06-12-gong-alternatives-for-revenue-intelligence-that-actually-fit.mdx',
+  // Merged 2026-06-15 (PR #92), same day as the retirement, so it missed the
+  // initial scan. Valid nested tree, renders fine (render-acceptance 0 hard).
+  '2026-06-15-kit-vs-beehiiv-2026-which-newsletter-platform-wins.mdx',
 ]);
 
 const CAMEL_SVG = /(textAnchor|fontWeight|fontSize|fontFamily|strokeWidth|strokeDasharray|strokeLinecap|strokeLinejoin|markerEnd|markerStart|clipPath|fillOpacity|strokeOpacity)=/;
@@ -95,12 +124,22 @@ function lintFile(file) {
   const warn = [];
 
   // HARD — render/correctness breakers
+  if (/<DecisionTree[\s/>]/.test(body) && !DECISIONTREE_GRANDFATHERED.has(path.basename(file)))
+    hard.push('<DecisionTree> is retired (Session 37) — it was the top source of render/QA errors. Use <ChooseIf> ("Choose X if" cards) for the decision graphic, or <IntentTable> for a job-to-be-done matrix.');
   if (CAMEL_SVG.test(body)) hard.push('camelCase SVG attribute(s) (Astro drops them → broken layout). Use kebab-case.');
   if (EN_EM_DASH.test(body) || EN_EM_DASH.test(fm)) hard.push('em/en dash present (— or –). Use commas/periods.');
   for (const v of inlineLayoutHits(body)) hard.push(`inline multi-column layout wrapper (style="${v}") squishes components. Remove it; components are full-width.`);
 
   for (const m of body.matchAll(/\/go\/([a-z0-9-]+)/g)) {
     if (!affiliate.has(m[1])) hard.push(`/go/${m[1]} → "${m[1]}" is not in affiliate-links.ts (would 404). Add it or fix the slug.`);
+  }
+  // Component-prop affiliate slugs (ComparisonTable/ToolBreakdown rows) — both the
+  // object form `affiliateSlug: "zapier"` and the JSX-attr form `affiliateSlug="zapier"`.
+  // These have no `/go/` prefix so the matcher above can't see them; an unregistered slug
+  // here renders a CTA that 404s at click time (audit 2026-06-17, C-1). Empty "" / null
+  // don't capture, so they're safely skipped.
+  for (const m of body.matchAll(/affiliateSlug\s*[:=]\s*['"]([a-z0-9-]+)['"]/g)) {
+    if (!affiliate.has(m[1])) hard.push(`affiliateSlug "${m[1]}" is not in affiliate-links.ts → its /go/${m[1]} CTA would 404. Add it or fix the slug.`);
   }
   for (const m of body.matchAll(/\/tools\/([a-z0-9-]+)/g)) {
     if (!toolSlugs.has(m[1])) hard.push(`/tools/${m[1]} → "${m[1]}" is not a tool slug (would 404).`);
@@ -134,6 +173,11 @@ function lintFile(file) {
   if (/<style[\s>]/i.test(body)) hard.push('contains a <style> block. Components are self-styled and responsive; per-post CSS (esp. grid/flex column overrides) squishes them. Remove it.');
   const desc = (fm.match(/^description:\s*["']?(.*?)["']?\s*$/m) || [])[1] || '';
   if (desc && (desc.length < 70 || desc.length > 165)) warn.push(`meta description is ${desc.length} chars (aim 70-165).`);
+  // Title length (audit M-3): BaseLayout appends " | The Automations Guide" (+24),
+  // so a frontmatter title over ~60 chars truncates in the SERP and Google clips the
+  // differentiating end. Warn (engine-side prompt should target ~55).
+  const ttl = (fm.match(/^title:\s*["']?(.*?)["']?\s*$/m) || [])[1] || '';
+  if (ttl.length > 60) warn.push(`title is ${ttl.length} chars (>60 truncates in SERP once the " | The Automations Guide" suffix is added; aim <=60).`);
   if (!/^faqs:/m.test(fm)) warn.push('no faqs in frontmatter (misses the visible FAQ + FAQPage schema).');
   if (!/^title:/m.test(fm)) hard.push('frontmatter missing title.');
   if (!/^description:/m.test(fm)) hard.push('frontmatter missing description.');

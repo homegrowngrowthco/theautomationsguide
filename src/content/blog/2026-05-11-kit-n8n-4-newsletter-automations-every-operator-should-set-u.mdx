@@ -1,8 +1,9 @@
 ---
 title: "Kit + n8n: 4 Newsletter Automations Every Operator Should Set Up"
 description: "Four production-ready n8n workflows that connect Kit to PostHog, drip sequences, churn signals, and paid subscriber segments. Step-by-step."
+tldr: "These four n8n workflows, PostHog event → Kit tag, tag-triggered drip, churn signal re-engagement, and paid subscriber segment sync, cover the full subscriber lifecycle and take under two hours to deploy on a self-hosted n8n instance."
 pubDate: 2026-05-11
-tags: ["automation", "email", "newsletter"]
+tags: ["automation", "email", "newsletter", "workflow-automation"]
 faqs:
   - question: "Can n8n connect to Kit (formerly ConvertKit)?"
     answer: "Yes. n8n has a native Kit node covering subscribers, tags, sequences, and broadcasts. You can also hit the Kit v4 REST API directly via HTTP Request nodes for anything not in the built-in node."
@@ -26,8 +27,6 @@ import ComparisonTable from '@/components/ComparisonTable.astro';
 
 Most newsletter operators are still triggering automations from form fills and manual CSV imports. If you're running a product-led newsletter, one where your readers are also your users, that's table stakes. The real opportunity is connecting behavioral signals (product events, payment status, engagement decay) directly into your email layer without waiting on a developer sprint or a Zapier bill that scales against you as your list grows. [Kit](/go/kit) has the segmentation primitives. [n8n](/go/n8n) has the orchestration muscle. Together, they cover every trigger you actually care about.
 
-<div class="quick-answer"><strong>Quick answer:</strong> These four n8n workflows, PostHog event → Kit tag, tag-triggered drip, churn signal re-engagement, and paid subscriber segment sync, cover the full subscriber lifecycle and take under two hours to deploy on a self-hosted n8n instance.</div>
-
 <PullQuote>Tag-based segmentation in Kit is only as smart as the signals feeding it. The gap between "newsletter tool" and "growth infrastructure" is exactly one reliable webhook pipeline.</PullQuote>
 
 <StatRow stats={[
@@ -35,8 +34,6 @@ Most newsletter operators are still triggering automations from form fills and m
   { number: "~$0.02", label: "per workflow run", description: "approximate cost on n8n Cloud's Starter plan, most of these automations run thousands of times before you hit a meaningful bill" },
   { number: "60 days", label: "inactive threshold", description: "industry benchmark for flagging subscriber churn before deliverability takes a measurable hit from disengaged addresses" }
 ]} />
-
-
 
 ---
 

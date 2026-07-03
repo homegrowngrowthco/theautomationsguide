@@ -9,6 +9,14 @@ import { OGImageRoute } from 'astro-og-canvas';
 const posts = await getCollection('blog', ({ data }) => !data.draft);
 const pages = Object.fromEntries(posts.map((p) => [p.slug, p.data]));
 
+// Default share card (M-2) — /og/default.png. Used by BaseLayout for every
+// non-post page (home, /blog, /about, /tools, /reviews, /playbooks, /teams/*)
+// so link shares never render a bare text card. Same branded card style as posts.
+pages['default'] = {
+  title: 'The RevOps & GTM automation playbook',
+  tags: ['Guides · Reviews · Workflows'],
+} as (typeof posts)[number]['data'];
+
 export const { getStaticPaths, GET } = OGImageRoute({
   param: 'route',
   pages,
