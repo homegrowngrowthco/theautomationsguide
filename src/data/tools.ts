@@ -1614,6 +1614,18 @@ export const tools: Tool[] = [
     blurb:
       'Customer.io is a messaging platform for sending behavioral emails, push notifications, and SMS to engage and retain your customers.',
   },
+  {
+    slug: 'bouncer',
+    name: 'Bouncer',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Bouncer',
+    ctaPrimary: false,
+    listed: false,
+    aliases: ['Bouncer'],
+    blurb:
+      'Bouncer is featured in a comparison on The Automations Guide.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
