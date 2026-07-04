@@ -1,0 +1,187 @@
+---
+title: "Beehiiv + Kit Newsletter Automation Stack Under $300"
+description: "How to combine Beehiiv's growth features with Kit's simplicity and n8n automation into a newsletter stack that stays under $300/month."
+tldr: "Run Beehiiv for referral programs and paid tiers, Kit as your CMS and sequence engine, and n8n to wire them together for under $300 per month total."
+pubDate: 2026-07-04
+tags: ["guide", "automation", "newsletter"]
+faqs:
+  - question: "Can you use Beehiiv and Kit together?"
+    answer: "Yes. Most operators use Beehiiv for its growth infrastructure (referral, boosts, paid tiers) and Kit for automations and tagging, syncing subscribers between them via n8n or Zapier."
+  - question: "Is Beehiiv or Kit better for newsletter automation?"
+    answer: "Kit has more flexible automation logic and tagging. Beehiiv wins on native growth features like referral programs and premium subscription tiers built into the platform."
+  - question: "How much does a Beehiiv plus Kit stack cost per month?"
+    answer: "Beehiiv Scale starts at $99/month, Kit Creator starts at $25/month for small lists, and n8n Cloud runs around $20/month, putting the full stack well under $300."
+  - question: "What can n8n automate between Beehiiv and Kit?"
+    answer: "n8n can sync new subscribers bidirectionally, mirror referral milestones as Kit tags, trigger welcome sequences in Kit when someone upgrades on Beehiiv, and route churned paid subscribers to win-back flows."
+  - question: "Do I need both Beehiiv and Kit or can I pick one?"
+    answer: "Most solo operators can pick one. The dual-stack makes sense when you want Beehiiv's monetization infrastructure but need Kit's sequence depth or its native commerce integrations."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most newsletter operators land in one of two traps. They pick [Beehiiv](/go/beehiiv/) and hit a ceiling the moment they want conditional automations with any real branching logic. Or they pick [Kit](/go/kit/) and realize there is no native referral engine, no boost-style paid acquisition channel, nothing. I have been consulting on newsletter infrastructure for B2B operators at Homegrown Growth Co. for a few years now, and the stack I keep landing on is exactly this: Beehiiv handles the growth surface, Kit handles the sequence and CMS layer, and [n8n](/go/n8n/) wires the two together for under $300/month total.
+
+<PullQuote>The best newsletter stack is not the one with the most features in a single tool. It is the one where each tool does the one job it is genuinely best at, and automation fills the gaps.</PullQuote>
+
+<StatRow stats={[
+  { number: "$144/yr", label: "Kit Creator entry cost", description: "Kit Creator plan starts at $25/month (billed annually) for up to 1,000 subscribers, covering automations, tagging, and commerce" },
+  { number: "30%+", label: "Beehiiv referral lift", description: "Beehiiv reports that newsletters using its native referral program see 30%+ subscriber growth from referrals alone vs. newsletters without it" },
+  { number: "~$20/mo", label: "n8n Cloud cost", description: "n8n Cloud starts at around $20/month for 2,500 workflow executions, or you can self-host on a $6/month Hetzner VPS and run unlimited executions" }
+]} />
+
+## Why the dual-stack makes sense
+
+Beehiiv and Kit solve almost opposite problems. That is exactly why they pair well.
+
+Beehiiv is built around acquisition and monetization. The referral program, Boosts (paid subscriber acquisition), and native premium subscription tiers are all first-class features baked into the platform. The editor is clean, the analytics are solid, and the [Beehiiv ad network](https://www.beehiiv.com/advertise) is genuinely useful for monetization once you clear 5,000 subscribers. What Beehiiv is not good at is complex conditional logic. Its automations are linear. You can trigger a welcome sequence, sure, but modeling a multi-branch behavioral flow like "subscriber opened three issues, bought nothing, clicked pricing twice" takes real work to build natively and even more work to maintain.
+
+Kit is the opposite. The visual automation builder handles conditional branching, tagging, scoring, and commerce triggers cleanly. It started as ConvertKit and the DNA is still squarely in the creator-economy CMS space. Sequence editor is solid, you can gate content behind subscriber tags, and Kit's native commerce layer (tip jars, digital products) is simpler to configure than Beehiiv's premium tiers if you already sell other things. What Kit lacks entirely is any equivalent to Beehiiv's referral engine. There is no boost-style paid acquisition channel either. You would need three separate tools to approximate what Beehiiv gives you natively.
+
+My recommendation: do not try to replicate one platform's strengths inside the other. Draw a hard boundary and let each tool own its lane.
+
+<Figure class="post-screenshot" caption="Beehiiv's subscriber growth and open/click dashboard, where you will track referral attribution and paid tier conversions.">
+  <a href="/go/beehiiv/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/beehiiv-dashboard.png" alt="Beehiiv dashboard showing subscriber growth chart, open rate, and click rate metrics" loading="lazy" />
+  </a>
+</Figure>
+
+## How to build the stack
+
+The architecture is straightforward. Beehiiv is the subscriber front door and monetization layer. Kit is the behavioral automation and sequence engine. n8n is the sync layer that keeps both systems honest.
+
+<StepRow steps={[
+  {
+    title: "Set Beehiiv as your public subscribe surface",
+    body: "All new subscribers enter via your Beehiiv subscribe page. This keeps referral tracking, Boosts attribution, and premium tier upgrades flowing through Beehiiv natively. Do not split your subscribe form between the two tools. The moment you do, you poison your referral attribution and it is painful to untangle. Beehiiv's embed form goes on your website. Kit's forms stay internal, triggered by automations, never public-facing in this stack."
+  },
+  {
+    title: "Mirror every new Beehiiv subscriber into Kit via n8n",
+    body: "In n8n, create a webhook trigger that fires on Beehiiv's 'new subscriber' webhook event. The n8n node hits Kit's API to create or update a subscriber, passing the email, first name, and a tag like 'source: beehiiv'. That tag is your audit trail. Map Beehiiv's custom fields to Kit custom fields at this step so segment data does not get dropped. The n8n workflow should fire within 60 seconds of signup so Kit's welcome sequence runs fast."
+  },
+  {
+    title: "Run all behavioral sequences in Kit",
+    body: "Kit owns all sequence logic: welcome drip, re-engagement flow for subscribers who go dark after 30 days, and upgrade nurture for free subscribers who have opened 5+ issues. Build these as Kit automations triggered by tags. When Beehiiv fires a 'subscriber upgraded to premium' event, n8n catches it, adds a tag in Kit like 'tier: premium', and Kit's automation removes the upgrade nurture sequence and starts the premium onboarding drip. Clean, auditable separation."
+  },
+  {
+    title: "Sync referral milestones back to Kit as behavioral signals",
+    body: "Beehiiv's referral program fires webhook events when a subscriber hits a milestone (1 referral, 5 referrals, etc.). In n8n, catch those events and write Kit tags like 'referral-tier: advocate' or 'referred: 5'. Now you can build Kit automations that treat high referrers differently: earlier access to new content, a personal thank-you sequence, an upgrade offer. This is the part you genuinely cannot do natively in either tool alone, and it is where the dual-stack earns its keep."
+  },
+  {
+    title: "Handle churn and downgrades in n8n",
+    body: "When a paid Beehiiv subscriber cancels, n8n catches the cancellation webhook, updates the Kit subscriber tag from 'tier: premium' to 'tier: churned', and triggers a Kit win-back sequence. Build in a 3-day delay before the first email. Pestering someone the same day they cancel is a good way to get a spam report. After 30 days of no re-conversion, n8n updates a custom field in Kit and suppresses that subscriber from pitch emails for 90 days. This protects your list health and your deliverability."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **The gotcha: Beehiiv deduplication**
+
+    Beehiiv and Kit both store subscribers by email, but Beehiiv is case-sensitive on some webhook payloads. I have seen n8n create duplicate Kit subscribers because `Jane@example.com` and `jane@example.com` were treated as two different records. Build a lowercase normalization step into every n8n node that handles email values before hitting the Kit API. One line of JavaScript in an n8n Function node prevents hours of list cleanup later.
+  </Fragment>
+  <Fragment slot="right">
+    ```javascript
+    // n8n Function node: normalize email before Kit API call
+    const email = $input.item.json.email
+      .toLowerCase()
+      .trim();
+
+    const firstName = $input.item.json.first_name || '';
+
+    return {
+      json: {
+        email,
+        first_name: firstName,
+        tags: ['source: beehiiv'],
+      }
+    };
+    ```
+  </Fragment>
+</SideBySide>
+
+<Figure class="post-screenshot" caption="n8n workflow canvas showing a webhook trigger feeding into normalization, branching logic, and Kit plus Slack output nodes.">
+  <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with webhook trigger, enrichment step, ICP branch, and Smartlead and Slack nodes" loading="lazy" />
+  </a>
+</Figure>
+
+## Who this stack is actually for
+
+Not everyone needs both tools. Here is how I help clients decide.
+
+<ChooseIf title="Which configuration fits your situation" tools={[
+  {
+    name: "Beehiiv only",
+    conditions: [
+      "Your growth engine is referrals and Boosts, and your sequences are simple (welcome plus 1-2 nurture emails)",
+      "You want one platform bill and are comfortable with the automation ceiling",
+      "You are monetizing primarily through the ad network or native premium tiers, not digital products"
+    ],
+    pricing: "Scale from $99/mo",
+    affiliateSlug: "beehiiv",
+    ctaLabel: "Try Beehiiv",
+    highlight: false
+  },
+  {
+    name: "Kit only",
+    conditions: [
+      "You need complex multi-branch automations and deep tagging without paying for growth infrastructure you will not use",
+      "You already sell digital products or courses and want Kit's native commerce layer",
+      "Your subscriber growth comes from SEO or paid ads, not referral programs"
+    ],
+    pricing: "Creator from $25/mo",
+    affiliateSlug: "kit",
+    ctaLabel: "Try Kit",
+    highlight: false
+  },
+  {
+    name: "Beehiiv + Kit + n8n",
+    conditions: [
+      "You want Beehiiv's referral engine and monetization infrastructure plus Kit's automation depth",
+      "You have a list over 5,000 subscribers where behavioral segmentation meaningfully moves conversion rates",
+      "You are comfortable maintaining n8n workflows or have a RevOps person on the team"
+    ],
+    pricing: "Under $300/mo total",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n",
+    highlight: true
+  }
+]} />
+
+<MyTake>
+The operators I see blow this stack up are the ones who try to keep Beehiiv as the sequence engine AND use Kit simultaneously, running parallel nurture tracks in both tools. Pick one tool for sequences and enforce it without exceptions. Every time I have let a client run sequences in both places "just temporarily," it has taken six months to untangle the subscriber confusion and duplicate sends. There is no temporary in email operations.
+</MyTake>
+
+## The real cost breakdown
+
+At current pricing, the full stack runs like this. Beehiiv Scale at $99/month (required for the referral program and premium tiers). Kit Creator at $25/month for up to 1,000 subscribers, or $50/month for up to 10,000. n8n Cloud at $20/month on the Starter tier, which covers 2,500 executions per month and is plenty for a list under 50,000. That puts you at $144 to $169/month at the lower list sizes, scaling toward $250/month as your list grows toward 50,000 on Kit's Creator plan.
+
+If you self-host n8n on a [Hetzner](https://www.hetzner.com/) VPS at $6/month, you trim another $14 off the bill and get unlimited executions. Worth doing once your workflows are stable. The [Kit pricing page](https://kit.com/pricing) and [Beehiiv pricing page](https://www.beehiiv.com/pricing) are the sources of truth here since both platforms have adjusted tiers in the last 12 months.
+
+One more number worth keeping in mind: according to [Lenny's Newsletter on creator monetization](https://www.lennysnewsletter.com/), the median newsletter crossing $10k/month in revenue runs a paid conversion rate between 3 and 8 percent of the free list. At 5,000 free subscribers and a $10/month premium tier, converting 5% is $2,500 MRR. The Beehiiv Scale tier pays for itself within the first two paid conversions per month. The math is not complicated. The stack cost is a rounding error compared to what functional monetization infrastructure produces.
+
+<BottomLine
+  verdict="If you want serious newsletter growth mechanics without a monolithic platform bill, this three-tool stack delivers. Beehiiv handles acquisition and monetization, Kit handles behavioral depth, and n8n keeps them in sync for under $300/month total."
+  pick="Beehiiv"
+  affiliateSlug="beehiiv"
+  ctaLabel="Try Beehiiv"
+/>
+
+<Sources sources={[
+  { label: "Beehiiv: referral program documentation", url: "https://www.beehiiv.com/help" },
+  { label: "Kit: pricing page", url: "https://kit.com/pricing" },
+  { label: "Beehiiv: pricing page", url: "https://www.beehiiv.com/pricing" },
+  { label: "Lenny's Newsletter: newsletter monetization benchmarks", url: "https://www.lennysnewsletter.com/" }
+]} />
