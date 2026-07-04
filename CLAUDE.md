@@ -1,4 +1,36 @@
-# Session Log — last updated 2026-07-03 (Session 53)
+# Session Log — last updated 2026-07-04 (Session 54)
+
+## Quick reference — recent additions (Session 54, 2026-07-04, same sitting as S53)
+
+**Executed Ian's audit decisions: cannibalization consolidation (PR #158) + the format-diversification build (PR #159 + live engine deploy). Both merged; engine deployed + GET-verified.**
+
+### 1. Cannibalization consolidation — PR #158 (`316e6cf`, merged + live)
+
+Ian: "consolidate." Folded the two TRUE-duplicate clusters only: Instantly-alternatives pair → kept the 6/10 post (adds Reply.io, better GSC pos), 301'd 6/02; RevOps-stack trio → kept the $500/mo build (site-best pos 4.3), 301'd `revops-automation-stack-2026` + `revops-tech-stack-2025`. 301s in netlify.toml BEFORE the catch-all; kept posts got `updatedDate: 2026-07-03` (first use of the wired S-3 plumbing — the "Updated" byline + real dateModified render, preview-verified); stale grandfather entry dropped from lint. The other 3 clusters (Outreach pair, n8n-vs-Make trio, CRM trio) target distinct queries → differentiate, not delete (flagged in TODO for Ian's confirmation). **Revert:** `git revert 316e6cf`.
+
+### 2. GSC demand mining + intent dedup gate — PR #159 (`48c4794`, merged)
+
+[backlog/build-backlog.mjs](backlog/build-backlog.mjs):
+- **Query mining**: last-28d GSC queries (env `GSC_TOKEN_JSON`/`GSC_TOKEN_FILE`, OAuth refresh → `searchconsole.googleapis.com` v3; rank-tracker junk filtered; kept when no covered topic serves ≥60% of query tokens; top 40 fed to the proposal prompt as OBSERVED SEARCH DEMAND, highest priority). Degrades gracefully without creds. `--mine-only` debug mode. **First live run: "pipedrive alternatives" 139 unserved impr/28d, "bettercontact review" 60, "rb2b alternatives" 56, pricing + review + problem-first demand all visible.**
+- **Intent dedup gate** (the fix for the engine "minting the same poor ideas"): alternatives/pricing keyed per anchor-tool-in-TITLE, migration keyed per tool PAIR (pd→attio ≠ pd→close); unit-tested against the real Instantly-duplicate case (token-jaccard of those two titles was only 0.29 — exact-match AND similarity both missed it; the intent gate catches it). Plus a 0.75 token-jaccard near-dup title net, and within-batch intent dedup. Full dry run: 12 proposed → 9 kept, drops correct.
+- **FORMAT MIX quotas** in the prompt: ≤count/4 plain vs-comparisons; ≥count/5 each migration guides + pricing breakdowns; integration recipes, problem-first posts, single-tool reviews ("X review" demand is in the GSC data); alternatives only where none exists for that tool.
+- [.github/workflows/topic-backlog.yml](.github/workflows/topic-backlog.yml): passes `GSC_TOKEN_JSON` secret env. **SECRET NOT YET SET** — the permission gate (correctly) wanted Ian's sign-off on storing an account-level Google OAuth token in a PUBLIC repo's secret store. Until set, the builder runs registry-only. To enable: `gh secret set GSC_TOKEN_JSON < ~/.gsc/token.json` (webmasters.readonly scope only).
+
+### 3. Engine formats — new [n8n/update-engine-content-formats.mjs](n8n/update-engine-content-formats.mjs) (idempotent, 6 edits), DEPLOYED LIVE
+
+- POST TYPES + full skeletons for **migration** + **pricing** posts (KeyTakeaways/StepRow/gotchas/verify/ChooseIf/BottomLine; pricing = annotated tier table + true-cost math + tier-fit ChooseIf).
+- **TUTORIAL CTA floor** (audit S-4): ChooseIf/ToolBreakdown near the end + conditional BottomLine — the 7/02 GEO post had shipped ZERO /go/ links.
+- **Affiliate rule generalized** in BOTH Generate Draft + Humanize: the stale 11-slug list → first-mention `[Tool](/go/<kebab-slug>/)` for ANY covered tool (auto-register + lint gate backstop unknown slugs), trailing slash required.
+- **Parse Draft sanitizer**: deterministic trailing slash on `/go/` links (markdown + href forms; tested idempotent).
+- Deployed via `deploy-engine.mjs --apply` (dry-run first: 29→29 nodes, creds resolved, active untouched) + **live GET-verified all 6 markers present** on workflow `sjZADhZGIuz9tZHK`.
+
+### Watch tomorrow's 8am run for
+
+Format adherence if the queued topic is comparison-shaped (unchanged path), correct /go/ trailing slashes, and richer affiliate linking. The new formats only fire when migration/pricing topics get queued — the next backlog batch will propose them.
+
+**Reverts:** PR #158 `git revert 316e6cf` · PR #159 `git revert 48c4794` + re-run `deploy-engine.mjs --apply` against the reverted JSON to roll the live engine back.
+
+---
 
 ## Quick reference — recent additions (Session 53, 2026-07-03 PM)
 
