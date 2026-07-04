@@ -20,6 +20,10 @@ name: Topic backlog builder
 # Optional:
 #   SLACK_WEBHOOK_URL  - NOT yet a repo secret; add it to get a "N topics staged" ping
 #   NOTION_DATABASE_ID - repo variable; overrides the default Content Calendar id
+#   GSC_TOKEN_JSON     - contents of a Search Console OAuth token.json (client_id/
+#                        client_secret/refresh_token, webmasters.readonly scope ONLY).
+#                        Enables observed-demand query mining; the builder degrades
+#                        gracefully to registry-only topics without it.
 
 on:
   schedule:
@@ -72,6 +76,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DATABASE_ID: ${{ vars.NOTION_DATABASE_ID }}
+          GSC_TOKEN_JSON: ${{ secrets.GSC_TOKEN_JSON }}
         run: node backlog/build-backlog.mjs --count=${{ steps.cfg.outputs.count }} ${{ steps.cfg.outputs.stage }}
 
       - name: Publish batch to the run summary
