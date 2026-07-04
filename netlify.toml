@@ -5,6 +5,22 @@
 [build.environment]
   NODE_VERSION = "22"
 
+# Cannibalization consolidations (growth audit C-1, 2026-07-03) — must precede the catch-all.
+[[redirects]]
+  from = "/blog/2026-06-02-instantly-alternatives-2026-what-to-use-when-you-outgrow-it/"
+  to = "/blog/2026-06-10-instantly-alternatives-2026-when-youve-hit-the-limits/"
+  status = 301
+
+[[redirects]]
+  from = "/blog/revops-automation-stack-2026/"
+  to = "/blog/2026-05-03-revops-automation-stack-wed-build-with-500mo-in-2026/"
+  status = 301
+
+[[redirects]]
+  from = "/blog/revops-tech-stack-2025/"
+  to = "/blog/2026-05-03-revops-automation-stack-wed-build-with-500mo-in-2026/"
+  status = 301
+
 [[redirects]]
   from = "/*"
   to = "/404"
