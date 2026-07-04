@@ -1,4 +1,31 @@
-# Session Log — last updated 2026-07-03 (Session 52)
+# Session Log — last updated 2026-07-03 (Session 53)
+
+## Quick reference — recent additions (Session 53, 2026-07-03 PM)
+
+**Full GROWTH audit of the live site + engine — deliverable [AUDIT-GROWTH-2026-07-03.md](AUDIT-GROWTH-2026-07-03.md) (repo root, tracked). Findings only, no fixes applied (S40 precedent). Docs-only commit direct to master.**
+
+Scope requested (via the Copperline session's cross-audit prompt): baseline capture, codebase crawl, live-site QA, SEO/content-model gaps, off-site, programmatic-scaling assessment, three-bucket prioritized report. Method: GSC Search Analytics + URL Inspection APIs (cached `~/.gsc/` OAuth — Search Analytics works with the same token, first time used), local Lighthouse 13.4 (PSI API keyless quota was exhausted), scripted affiliate sweep (all 60 /go/ slugs + outbound destinations, browser UA), scripted content link-graph/frontmatter analysis, prod curl spot-checks, web fetches for PH/circleback.
+
+### Headline findings (detail + effort estimates in the audit doc)
+
+- **Baseline 28d GSC: 7 clicks / 5,040 impressions / CTR 0.14% / avg pos 51.** Impressions ramped ~4x through June (70/day → 300+/day); clicks flat ~0. Branded impressions: **zero**. Impression counts partly inflated by rank-tracker scraper queries. Three pages rank page-1 with 0 clicks (migrate-substack-to-kit pos 9.5 / 119 impr the standout).
+- **Affiliate routing is healthy**: all 60 /go/ pages 200; all 13 live-affiliate destinations resolve with partner tags intact (make/lusha 403 = bot-blocking only, redirect chains verified). One defect: circleback fallback `www.` → TLS cert mismatch.
+- **Internal-link mesh is the top gap (S-1)**: 4/53 posts link to any tool hub, 7/53 to another post; all 23 LP-builder hubs have zero content inlinks — the newest of them are today's GSC "unknown to Google" set, and none accumulate authority. Backfill script + engine slug feed re-prioritized to @high. (Indexation itself improved: 116/126 vs 96/105 at S47 — the June request-indexing round worked.)
+- **Cannibalization (C-1)**: 5 same-intent clusters incl. two "Instantly alternatives" posts 8 days apart and three "RevOps stack" posts. Engine/backlog dedup doesn't check published slugs — root-cause gate proposed.
+- **EEAT/schema quick wins**: zero of 59 posts populate the already-wired `updatedDate` plumbing, so dateModified always = datePublished and the byline never shows an update (S-3, process fix); tool hubs emit no SoftwareApplication schema (S-2); tutorial-format posts ship ~zero affiliate CTAs (7/02 GEO post = 0 /go/ links, S-4).
+- **Time-critical: Notion Content Calendar queue runs dry ~7/08** (last top-up 6/12). Now the top @high TODO.
+- **Positioning question answered**: the site was NEVER HR/people-ops — all 59 posts RevOps/GTM from day one (repo grep + first-post check). The external note was wrong. Real scope question = topic drift into adjacent niches (ad-creative/GEO-tools/proposal posts, C-3).
+- **Scaling verdict**: the pipeline IS the productized engine and generalizes (parameterize brand kit + registries + prompts; the QA/auto-register/auto-merge scaffolding is niche-agnostic). Bottleneck order: Notion queue top-up → hub LP build rate (auto-register mints /go/ slugs but no hub pages) → screenshot library (9 tools) → social distribution (drafts generated, posting dormant) → engine internal links.
+- **Perf is solved — stop investing**: Lighthouse mobile 0.93-0.98 perf, CLS 0 everywhere, SEO 1.0; BP 0.77 sitewide is third-party cookies (cosmetic). No CrUX field data yet (traffic below threshold).
+
+### Also updated
+
+- [TODO.md](TODO.md): 2 new @high (queue top-up w/ 7/08 deadline — subsumes the old backlog-review @med; internal-link mesh), 8 new @med (C-1 decisions, hub schema, updatedDate, tutorial CTA floor, title/CTR pass, circleback fix, PH comment reply, GSC links export), 2 new @low (freshness policy, no-program hubs). Block re-ranked.
+- GSC index status re-run this session: sitemap now 126 URLs (was 105 at S47) — per-URL verdicts in the audit doc's baseline section.
+
+**Revert:** docs-only commit — `git revert <sha>`. Worktree: `C:\tmp\tag-audit`.
+
+---
 
 ## Quick reference — recent additions (Session 52, 2026-07-03 PM)
 
