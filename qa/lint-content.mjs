@@ -67,7 +67,6 @@ const DECISIONTREE_GRANDFATHERED = new Set([
   '2026-05-28-outreach-alternatives-for-mid-market-revops-in-2026.mdx',
   '2026-05-29-best-salesforce-automation-tools-no-make-or-n8n.mdx',
   '2026-06-01-pipedrive-vs-apollo-outbound-which-wins-in-2026.mdx',
-  '2026-06-02-instantly-alternatives-2026-what-to-use-when-you-outgrow-it.mdx',
   '2026-06-10-instantly-alternatives-2026-when-youve-hit-the-limits.mdx',
   '2026-06-12-gong-alternatives-for-revenue-intelligence-that-actually-fit.mdx',
   // Merged 2026-06-15 (PR #92), same day as the retirement, so it missed the
