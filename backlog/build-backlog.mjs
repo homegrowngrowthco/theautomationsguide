@@ -40,6 +40,9 @@ const r = (...p) => readFileSync(join(ROOT, ...p), 'utf8');
 
 const COUNT = Number((process.argv.find((a) => a.startsWith('--count=')) || '').split('=')[1]) || 25;
 const MODEL = (process.argv.find((a) => a.startsWith('--model=')) || '').split('=')[1] || 'claude-sonnet-4-6';
+// --mine-only: load the corpus, run GSC query mining, print unserved demand, exit.
+// (No Anthropic call — a free debugging/inspection mode for the mining layer.)
+const MINE_ONLY = process.argv.includes('--mine-only');
 
 // --stage writes the kept topics to the live Notion Content Calendar as
 // Status:Suggested (the publishing engine only fires on Status:Queued, so staged
@@ -50,7 +53,7 @@ const NOTION_TOKEN = process.env.NOTION_TOKEN;
 const NOTION_DB = process.env.NOTION_DATABASE_ID || '62f34586-4f78-4b83-b2ac-105f500d059e';
 const NOTION_VERSION = '2022-06-28'; // matches the live engine's Notion-Version header
 
-if (!process.env.ANTHROPIC_API_KEY) {
+if (!process.env.ANTHROPIC_API_KEY && !MINE_ONLY) {
   console.error('ANTHROPIC_API_KEY not set. Add it to .env (project root) or your environment.');
   process.exit(1);
 }
@@ -230,12 +233,89 @@ async function stageToNotion(kept) {
   return { created, failed };
 }
 
+// ---------- 2c. OBSERVED SEARCH DEMAND (GSC query mining) ----------
+// Pull last-28d queries the site already earns impressions for, drop rank-tracker
+// junk, and keep the ones no published/staged topic serves. These become priority
+// topic candidates: real demand beats registry permutations.
+// Auth: GSC_TOKEN_JSON (contents of an OAuth token.json with client_id/client_secret/
+// refresh_token, webmasters.readonly scope) or GSC_TOKEN_FILE (path to it). Skips
+// gracefully when neither is set so local runs without GSC still work.
+const GSC_SITE = process.env.GSC_SITE || 'sc-domain:theautomationsguide.com';
+const STOPWORDS = new Set(['the', 'a', 'an', 'for', 'of', 'in', 'on', 'to', 'vs', 'versus', 'and', 'or', 'best', 'top', 'with', 'is', 'are', 'what', 'which', 'how', 'why', 'when', 'you', 'your', 'my', 'it', 'that', '2024', '2025', '2026', 'tool', 'tools', 'software']);
+const tokenSet = (s) => new Set(
+  (s || '').toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').split(/[\s-]+/).filter((w) => w.length > 1 && !STOPWORDS.has(w))
+);
+function tokenCoverage(qTokens, cTokens) {
+  if (!qTokens.size) return 1;
+  let hit = 0;
+  for (const w of qTokens) if (cTokens.has(w)) hit++;
+  return hit / qTokens.size;
+}
+
+async function gscAccessToken() {
+  const raw = process.env.GSC_TOKEN_JSON || (process.env.GSC_TOKEN_FILE ? readFileSync(process.env.GSC_TOKEN_FILE, 'utf8') : '');
+  if (!raw) return null;
+  const t = JSON.parse(raw);
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: t.client_id, client_secret: t.client_secret,
+      refresh_token: t.refresh_token, grant_type: 'refresh_token',
+    }),
+  });
+  if (!res.ok) throw new Error(`GSC token refresh failed (${res.status}): ${(await res.text()).slice(0, 200)}`);
+  return (await res.json()).access_token;
+}
+
+async function mineGscDemand(covered) {
+  const access = await gscAccessToken();
+  if (!access) { console.log('(GSC mining skipped: set GSC_TOKEN_JSON or GSC_TOKEN_FILE to enable)'); return []; }
+  const end = new Date().toISOString().slice(0, 10);
+  const start = new Date(Date.now() - 28 * 864e5).toISOString().slice(0, 10);
+  const res = await fetch(
+    `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(GSC_SITE)}/searchAnalytics/query`,
+    {
+      method: 'POST',
+      headers: { authorization: `Bearer ${access}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ startDate: start, endDate: end, dimensions: ['query'], rowLimit: 1000 }),
+    }
+  );
+  if (!res.ok) throw new Error(`GSC searchAnalytics failed (${res.status}): ${(await res.text()).slice(0, 200)}`);
+  const rows = (await res.json()).rows || [];
+  // Human queries only: no rank-tracker operator strings, no URLs/phone numbers, some volume.
+  const human = rows.filter((r) => {
+    const q = r.keys[0] || '';
+    if (r.impressions < 3) return false;
+    if (q.length > 80 || q.includes('"') || q.includes('site:') || /https?:\/\//.test(q)) return false;
+    if (/^[\d\s()+-]+$/.test(q)) return false;
+    return true;
+  });
+  const coveredTokens = covered.map((c) => tokenSet(`${c.title} ${c.keyword}`));
+  const unserved = [];
+  for (const r of human) {
+    const qt = tokenSet(r.keys[0]);
+    if (qt.size < 2) continue; // single-token queries are brand/navigation noise
+    const best = Math.max(0, ...coveredTokens.map((ct) => tokenCoverage(qt, ct)));
+    if (best < 0.6) unserved.push({ query: r.keys[0], impressions: r.impressions, position: Math.round(r.position) });
+  }
+  unserved.sort((a, b) => b.impressions - a.impressions);
+  return unserved.slice(0, 40);
+}
+
 // ---------- 3. PROPOSE via Claude (single batched call) ----------
-function buildPrompt(universe, covered, count) {
+function buildPrompt(universe, covered, count, demand) {
   const toolLines = universe
     .map((t) => `- ${t.name} [${t.category}]${t.firstMover ? ' (first-mover)' : ''}${t.hasLP ? ' (has LP)' : ''}`)
     .join('\n');
   const coveredLines = covered.map((c) => `- ${c.title} (${c.source})`).join('\n');
+  const demandLines = demand.length
+    ? [
+        '',
+        'OBSERVED SEARCH DEMAND (Google already shows this site for these queries but no dedicated post serves them - topics that directly serve one of these OUTRANK every other consideration; note the served query in the rationale):',
+        ...demand.map((d) => `- "${d.query}" (${d.impressions} impressions/28d, avg position ${d.position})`),
+      ]
+    : [];
   // NOTE: no backtick characters in this prompt (it lives inside a template literal).
   return [
     'You are the topic strategist for The Automations Guide, a RevOps/GTM automation blog.',
@@ -246,8 +326,17 @@ function buildPrompt(universe, covered, count) {
     '',
     'ALREADY COVERED (published or staged) - do NOT propose anything that overlaps these in tool set or search intent:',
     coveredLines,
+    ...demandLines,
     '',
-    `TASK: propose the ${count} highest-leverage NET-NEW topics. Favor: thin-competition first-mover categories (AI SDR agents, AI voice, visitor ID, AI agent builders, GEO/AI-search), tools that tie back to the site core (n8n, Make, HubSpot, Apollo, Clay), and decisions with real buyer search demand. Mix formats: "X vs Y vs Z", "X alternatives", "best <category> tools", "migrate X to Y".`,
+    `TASK: propose the ${count} highest-leverage NET-NEW topics. Favor: observed-demand queries above (highest priority), thin-competition first-mover categories (AI SDR agents, AI voice, visitor ID, AI agent builders, GEO/AI-search), tools that tie back to the site core (n8n, Make, HubSpot, Apollo, Clay), and decisions with real buyer search demand.`,
+    '',
+    `FORMAT MIX (rough quotas out of ${count}; the site over-indexes on plain comparisons and its best-ranking post is a migration guide):`,
+    `- at most ${Math.ceil(count / 4)} plain "X vs Y (vs Z)" comparisons`,
+    `- at least ${Math.ceil(count / 5)} migration guides ("Migrate from X to Y without losing Z", "Switching from X")`,
+    `- at least ${Math.ceil(count / 5)} pricing/cost breakdowns ("X pricing explained", "What a Y stack actually costs")`,
+    '- some integration recipes ("Connect X to Y for <outcome>") and problem-first posts keyed on a symptom ("Your <system> does <bad thing>, here is the fix") rather than a tool name',
+    '- single-tool reviews ("X review: the honest take") where the observed demand shows "<tool> review" queries',
+    '- "X alternatives" only where no alternatives post exists for that tool yet',
     '',
     'Return STRICT JSON only, no prose, in this shape:',
     '{"topics":[{"topic":"...","anchorTool":"...","alsoCovers":["..."],"targetKeyword":"...","tag":"comparison|tools|automation|revops|guide","priority":"High|Medium|Low","firstMover":true,"needsLP":false,"rationale":"one sentence on why this wins"}]}',
@@ -255,9 +344,9 @@ function buildPrompt(universe, covered, count) {
   ].join('\n');
 }
 
-async function propose(universe, covered, count) {
+async function propose(universe, covered, count, demand) {
   const client = new Anthropic();
-  const prompt = buildPrompt(universe, covered, count);
+  const prompt = buildPrompt(universe, covered, count, demand);
   let res;
   try {
     res = await client.messages.create({
@@ -297,11 +386,46 @@ function makeResolver(universe) {
   };
 }
 
+// Classify a title/keyword into a search-intent class. Single-anchor intents
+// (alternatives, pricing, migration) should exist at most ONCE per anchor tool —
+// this is the gate that would have stopped the two "Instantly alternatives" posts
+// shipped 8 days apart (2026-06-02 + 2026-06-10, consolidated in PR #158).
+function intentOf(text) {
+  const s = (text || '').toLowerCase();
+  if (/\bmigrat|switch(ing)?\s+(from|to|off)\b/.test(s)) return 'migration';
+  if (/\bpricing\b|\bprice\b|\bcosts?\b/.test(s)) return 'pricing';
+  if (/\balternativ/.test(s)) return 'alternatives';
+  return null;
+}
+// Tools named in the TITLE text itself (not the whole-post toolset — an
+// alternatives post mentions many tools in the body, but is "about" the one in
+// its title).
+function titleTools(universe, text) {
+  return universe.filter((t) => aliasHit(t.aliases, text)).map((t) => t.slug);
+}
+function intentKeys(universe, title, keyword) {
+  const intent = intentOf(`${title} ${keyword}`);
+  if (!intent) return [];
+  const slugs = titleTools(universe, `${title} ${keyword}`);
+  // Migrations are pair-wise: "Pipedrive to Attio" and "Pipedrive to Close" are
+  // different topics, so key on the sorted pair when both ends are known tools.
+  if (intent === 'migration' && slugs.length >= 2) return [`migration::${[...slugs].sort().join('+')}`];
+  return slugs.map((slug) => `${intent}::${slug}`);
+}
+function jaccard(a, b) {
+  let hit = 0;
+  for (const w of a) if (b.has(w)) hit++;
+  const union = a.size + b.size - hit;
+  return union ? hit / union : 0;
+}
+
 function dedup(proposals, universe, covered) {
   const resolve = makeResolver(universe);
   const coveredKeywords = new Set(covered.map((c) => c.keyword));
   const coveredTitles = new Set(covered.map((c) => norm(c.title)));
   const coveredSigs = new Set(covered.map((c) => signature(c.toolset)).filter((s) => s.length));
+  const coveredIntents = new Set(covered.flatMap((c) => intentKeys(universe, c.title, c.keyword)));
+  const coveredTitleTokens = covered.map((c) => ({ title: c.title, toks: tokenSet(`${c.title} ${c.keyword}`) }));
   const coveredAnchors = new Map(); // slug -> [titles] for partial-overlap warnings
   for (const c of covered) for (const s of c.toolset) (coveredAnchors.get(s) || coveredAnchors.set(s, []).get(s)).push(c.title);
 
@@ -319,7 +443,16 @@ function dedup(proposals, universe, covered) {
     if (!anchor) { dropped.push({ topic, reason: 'anchor not in universe' }); continue; }
     if (coveredKeywords.has(kw) || coveredTitles.has(norm(topic))) { dropped.push({ topic, reason: 'keyword/title already covered' }); continue; }
     if (sig && coveredSigs.has(sig)) { dropped.push({ topic, reason: 'identical tool set already covered' }); continue; }
+    // Same single-anchor intent (alternatives/pricing/migration) already exists for a tool named in this title.
+    const pIntentKeys = intentKeys(universe, topic, p.targetKeyword || '');
+    const intentHit = pIntentKeys.find((k) => coveredIntents.has(k));
+    if (intentHit) { dropped.push({ topic, reason: `intent already covered (${intentHit})` }); continue; }
+    // Near-identical title wording vs anything covered (belt and braces for reworded duplicates).
+    const pToks = tokenSet(`${topic} ${p.targetKeyword || ''}`);
+    const near = coveredTitleTokens.find((c) => jaccard(pToks, c.toks) >= 0.75);
+    if (near) { dropped.push({ topic, reason: `near-duplicate title of: ${near.title}` }); continue; }
     if (seenInBatch.has(kw) || seenInBatch.has(sig)) { dropped.push({ topic, reason: 'duplicate within this batch' }); continue; }
+    for (const k of pIntentKeys) coveredIntents.add(k); // within-batch intent dedup too
     seenInBatch.add(kw); if (sig) seenInBatch.add(sig);
 
     const overlapWith = toolSlugs.flatMap((s) => coveredAnchors.get(s) || []);
@@ -380,9 +513,18 @@ async function main() {
 
   console.log(`Universe: ${universe.length} tools (${universe.filter((t) => t.hasLP).length} with LP, ${universe.filter((t) => t.firstMover).length} first-mover).`);
   console.log(`Dedup corpus: ${covered.length} covered topics (${covered.filter((c) => c.source === 'published').length} published, ${calendar.length} calendar via ${NOTION_TOKEN ? 'live Notion' : 'local snapshot'}).`);
+
+  const demand = await mineGscDemand(covered);
+  if (demand.length) console.log(`Observed demand: ${demand.length} unserved queries from GSC (top: "${demand[0].query}" ${demand[0].impressions} impr).`);
+  if (MINE_ONLY) {
+    console.log('\n--mine-only: unserved GSC queries (impressions / avg position):');
+    for (const d of demand) console.log(`  ${String(d.impressions).padStart(4)}  pos ${String(d.position).padStart(3)}  ${d.query}`);
+    if (!demand.length) console.log('  (none — either GSC creds missing or every query is served)');
+    return;
+  }
   console.log(`Proposing ${COUNT} topics via ${MODEL}...`);
 
-  const proposals = await propose(universe, covered, COUNT);
+  const proposals = await propose(universe, covered, COUNT, demand);
   const { kept, dropped } = dedup(proposals, universe, covered);
 
   writeOutputs(kept, dropped, { model: MODEL, universe: universe.length, covered: covered.length, proposed: proposals.length, staged: STAGE });
