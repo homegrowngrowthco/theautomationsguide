@@ -751,6 +751,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'lindy',
+    logo: '/brand/tools/lindy.png',
     name: 'Lindy',
     category: 'AI Agents',
     badge: 'Free tier available',
