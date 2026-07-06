@@ -1,4 +1,18 @@
-# Session Log — last updated 2026-07-04 (Session 54)
+# Session Log — last updated 2026-07-06 (Session 55)
+
+## Quick reference — recent additions (Session 55, 2026-07-06)
+
+**Permanently fixed the ToolBreakdown comparison-card layout (full-width + logo-aligned + tighter). PR #163 open. CSS-only; affects all 26 posts using the format.**
+
+Ian shared a screenshot of PR #162's Relevance AI / Lindy / n8n post: the "Highlights" panel didn't right-align with the logo (or with the header/body above it), the cards weren't using the full column width, and each ran longer than necessary.
+
+- **Root cause ([src/components/post/ToolBreakdown.astro](src/components/post/ToolBreakdown.astro)):** both `.tbd-head` and `.tbd-cols` reserved `padding-right: 130px` to clear the top-right brand logo — but the logo only occupies a ~30px-tall band in the top-right corner. That 130px gutter was therefore wasted across the **entire** card: the Highlights panel's right edge stopped ~130px short of the logo's right edge (the reported misalignment), and every prose line + highlight bullet wrapped ~130px early, padding out the vertical length. (This partly reverses the S46 fix, which had aligned the panel to the *header text* by adding the same 130px to `.tbd-cols`; Ian now wants both aligned to the *logo* / full width instead.)
+- **Fix:** the logo-gutter reservation now lives on **`.tbd-name` alone** (`display:flex` + `padding-right:130px` + `min-height:30px` so the tagline always drops below the logo). Tagline, pricing, body, and the Highlights panel all run **full width** and line up flush-right with the logo. Vertical tightening: body `line-height` 1.6→1.55, highlights `line-height` 1.45 + bullet margin 0.3→0.25rem, panel padding 0.7/0.85→0.65/0.8rem, meta gaps trimmed, card `margin-bottom` 1.5→1.25rem. The `@media (max-width:480px)` block was reworked to match (dropped the stale 100px gutter on the now-stacked columns; kept name clearance for the smaller logo).
+- **Verified** on the dev server with measured geometry (not eyeballed): at 1280px the Highlights panel, tagline/pricing meta, and card edge all land at x=1241 (aligned with the logo at 1237, its 0.25rem inset); the name content ends at x=155, well clear of the logo's left edge (1207); the tagline row starts below the logo bottom; **no horizontal overflow at 1280px or 375px**.
+
+**PR #163** (`d6eec90`, branch `fix/tool-breakdown-fullwidth-align` off origin/master, worktree `C:\tmp\tag-tbd-align`) — open, pending Ian's Netlify-preview review. **Revert:** `git revert d6eec90` (CSS-only, no markup/prop/content change).
+
+---
 
 ## Quick reference — recent additions (Session 54, 2026-07-04, same sitting as S53)
 
