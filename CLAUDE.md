@@ -1,4 +1,17 @@
-# Session Log — last updated 2026-07-06 (Session 55)
+# Session Log — last updated 2026-07-06 (Session 56)
+
+## Quick reference — recent additions (Session 56, 2026-07-06)
+
+**Branded every n8n Slack alert with a `🤖 The Automations Guide` header, prefixed the HGC notify-emails with `[HomeGrown Growth]`, and wrote a Reddit playbook. No repo code change (n8n edits are live-instance-only); the one repo artifact is [REDDIT_PLAYBOOK.md](REDDIT_PLAYBOOK.md).**
+
+Ian: most Slack alerts weren't identifying which project they came from, so a shared channel blurred together.
+
+- **TAG Slack branding (convention going forward):** every Slack message from a TAG n8n workflow now leads with a first line `🤖 *The Automations Guide*`. Applied to all 7 TAG workflows / 10 message points — Error Trigger (`Slack Alert`), PostHog Liveness Monitor (`Slack Alert`), Notion Publish Status (`Slack Notify`), Daily Briefing (`Build Briefing` code node), Topic Suggestor (`Slack Notify`), Blog Post Engine (`Slack Notification` + `Slack Queue Empty` + `Log Cost to Slack`), PR + Backlink Monitor (`Build Slack Message` code + `Post Alert to #backlinks`). **Any new alerting workflow should keep this header.**
+- **HGC finding:** the HGC workflows (01-09) do **not** post to Slack at all — they notify via `emailSend` to Ian's inbox. So the Slack channel noise was entirely TAG's (now fixed). To satisfy "make every alert self-identify," prefixed the 6 internal HGC notify-email subjects with `[HomeGrown Growth]` (Response Handler ×2, Demo Booked ×3, Error Handler ×1). The customer-facing "Confirm Prospect" email was deliberately left unbranded.
+- **Revert:** these are additive prefixes in the live n8n instance (no repo artifact). Undo any one by deleting its `🤖 *The Automations Guide*\n` / `[HomeGrown Growth] ` prefix, or roll back via the workflow's version history in n8n.
+- **Reddit playbook — [REDDIT_PLAYBOOK.md](REDDIT_PLAYBOOK.md):** 6-part audit + operating manual. Reality check (link-dropping gets the *domain* shadow-filtered; 9:1 rule; Reddit is a trust + topic-intelligence play, not a top-3 traffic source), profile setup (run it as Ian the operator, not a brand account; profile social-links are the one safe always-on URL), subreddit map (r/n8n is the #1 fit, then r/RevOps / r/automation / r/nocode), weekly rhythm (comment-first, start in `#backlinks`, link ≤1-in-5), ban triggers, and a **human-in-the-loop automation plan** layered on the existing `PR + Backlink Monitor` (automate monitoring + drafting, never posting; keyword tuning; a Monday digest; UTM attribution into PostHog). See op #426.
+
+---
 
 ## Quick reference — recent additions (Session 55, 2026-07-06)
 
