@@ -1,4 +1,33 @@
-# Session Log — last updated 2026-07-07 (Session 57)
+# Session Log — last updated 2026-07-07 (Session 58)
+
+## Quick reference — recent additions (Session 58, 2026-07-07)
+
+**PR #168 merged (`22e0145`): production site search was completely broken (CSP blocked Pagefind's WASM) + desktop nav dropdown hover gap fixed. Notion publish writeback audited = working (false alarm).**
+
+### Root causes
+
+1. **Search dead in prod** — `public/_headers` CSP `script-src` lacked `'wasm-unsafe-eval'`, so browsers refused to compile Pagefind's WebAssembly engine. Every query hung at "Searching for ..." forever with `Failed to load the Pagefind WASM: CompileError` in console. The index itself was fine (134 pages, all `/pagefind/*` assets 200). Local `npm run preview` never catches this class because `_headers` only applies on Netlify.
+2. **GA4 beacons CSP-blocked** (found during the same probe) — GA sends engagement hits to `https://www.google.com/g/collect`, which `connect-src` didn't allow. Some analytics loss since the CSP was added.
+3. **Nav dropdowns close mid-travel** — [src/styles/global.css](src/styles/global.css) put the popover at `top: calc(100% + 0.35rem)`, leaving a ~6px unhoverable gap between the toggle and the menu. Moving the pointer from "Tools" down to a subitem crosses the gap, `:hover` drops, menu `display:none`s instantly. Mouse-speed dependent → Ian's "sometimes but not all the time".
+4. **Notion writeback = FALSE ALARM** — the `Notion Publish Status` n8n workflow (`LKKVtHqiD6cyxBWc`) succeeded on every content merge; Content Calendar rows for PRs #160/#161/#162/#166 (Pub Dates 7/4–7/7) all verified currently `Status: Published`, written within ~2s of each merge. Engine swept e2e: Blog Post Engine daily success 7/3–7/7, Topic Suggestor healthy, auto-merge firing.
+
+### Changes (`public/_headers` + `src/styles/global.css`)
+
+- `script-src` += `'wasm-unsafe-eval'`; `connect-src` += `https://www.google.com`
+- Invisible `.nav-dropdown-menu::before` bridge (0.4rem, absolute) over the gap, scoped `@media (min-width: 768px)` — the mobile drawer renders the menu inline and is unaffected
+
+### Verification (headless Playwright A/B)
+
+- Prod pre-merge: 0 results + WASM CompileError; menu closes on a 1px-step pointer traversal of the gap
+- Deploy preview + prod post-deploy: **89 results for "hubspot"**; menu survives the same worst-case traversal and the subitem click lands on `/tools/#workflow-automation`; 0 page errors
+
+### Key notes
+
+- **Revert:** `git revert 22e0145`
+- Pagefind (or any WASM lib) + strict CSP → always needs `'wasm-unsafe-eval'` in `script-src`; test search on deploy previews, not local preview
+- Probe scripts live in the session scratchpad (`verify-168.mjs` pattern: CSP header check + pagefind result count + 1px-step hover traversal)
+
+---
 
 ## Quick reference — recent additions (Session 57, 2026-07-07)
 
