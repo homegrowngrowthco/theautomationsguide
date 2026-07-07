@@ -207,6 +207,20 @@ a:hover { text-decoration: underline; }
 .nav-dropdown[data-open="true"] .nav-dropdown-menu {
   display: flex;
 }
+/* Invisible bridge over the 0.35rem gap between the toggle and the popover:
+   without it :hover drops while the pointer crosses the gap and the menu
+   closes before a subitem can be clicked. Desktop popover only — the mobile
+   drawer (<768px) renders the menu inline. */
+@media (min-width: 768px) {
+  .nav-dropdown-menu::before {
+    content: '';
+    position: absolute;
+    top: -0.4rem;
+    left: 0;
+    right: 0;
+    height: 0.4rem;
+  }
+}
 .nav-dropdown-menu a {
   display: block;
   padding: 0.5rem 0.75rem;
