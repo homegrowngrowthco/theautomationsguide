@@ -426,6 +426,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'aisdr',
+    logo: '/brand/tools/aisdr.png',
     name: 'AiSDR',
     category: 'AI Sales Agents',
     badge: 'Paid',
@@ -1679,6 +1680,32 @@ export const tools: Tool[] = [
     aliases: ['Salesflare'],
     blurb:
       'Salesflare is featured in a comparison on The Automations Guide.',
+  },
+  {
+    slug: '11x',
+    name: '11x',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try 11x',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/11x.png',
+    aliases: ['11x'],
+    blurb:
+      '11x is featured in a comparison on The Automations Guide.',
+  },
+  {
+    slug: 'artisan',
+    name: 'Artisan',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Artisan',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/artisan.png',
+    aliases: ['Artisan'],
+    blurb:
+      'Artisan automates your outbound with an all-in-one, AI-first platform powered by AI employees. Get better outbound sales results with an AI BDR.',
   },
 ];
 
