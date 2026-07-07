@@ -1705,7 +1705,7 @@ export const tools: Tool[] = [
     logo: '/brand/tools/artisan.png',
     aliases: ['Artisan'],
     blurb:
-      'Own artisan.so today. Secure checkout and guided transfer support. No hidden fees.',
+      'Artisan automates your outbound with an all-in-one, AI-first platform powered by AI employees. Get better outbound sales results with an AI BDR.',
   },
 ];
 

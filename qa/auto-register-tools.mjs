@@ -34,6 +34,9 @@ const TOOLS_PATH = path.join(ROOT, 'src/data/tools.ts');
 const LOGO_DIR = path.join(ROOT, 'public/brand/tools');
 
 const TLDS = ['com', 'io', 'ai', 'co', 'app', 'so', 'dev'];
+// Markers of parked / for-sale / marketplace landing pages (Atom, Dan, Sedo,
+// GoDaddy, Afternic…). Matched against title + og:title + description.
+const PARKED_RE = /\b(?:domain (?:is |may be )?for sale|buy this domain|purchase this domain|own (?:this domain|[a-z0-9.-]+ today)|make an offer|domain broker|guided transfer|premium domain|parked (?:free|domain)|this domain is available)\b/i;
 const UA = 'Mozilla/5.0 (compatible; AutomationsGuideBot/1.0; +https://theautomationsguide.com)';
 const FETCH_TIMEOUT = 9000;
 
@@ -183,6 +186,9 @@ async function resolveHomepage(name, slug) {
         || head.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i) || [])[1] || '';
       const ident = norm(`${title} ${ogSite} ${ogTitle}`);
       if (!matchesIdentity(ident)) continue; // identity must name the tool — host match alone is not enough
+      // Parked/for-sale pages pass the identity check trivially (their title IS
+      // the domain, e.g. "artisan.so") and can outscore the real product site.
+      if (PARKED_RE.test(`${title} ${ogTitle} ${ogDesc}`)) continue;
 
       let score = 0;
       if (targets.some((t) => norm(title).startsWith(t)) || targets.some((t) => norm(ogSite) === t)) score += 100;
@@ -253,8 +259,11 @@ const eolOf = (src) => (src.includes('\r\n') ? '\r\n' : '\n');
 
 function insertAffiliate(src, slug, name, homepage) {
   const EOL = eolOf(src);
+  // Slugs like `11x` aren't valid bare identifiers — emit them quoted or the
+  // registry stops compiling (the lint parse is quote-agnostic either way).
+  const key = /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(slug) ? slug : `'${slug}'`;
   const entry =
-`  ${slug}: {
+`  ${key}: {
     name: '${name.replace(/'/g, "\\'")}',
     url: '',
     homepageFallback: '${homepage}',

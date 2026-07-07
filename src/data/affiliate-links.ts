@@ -499,7 +499,7 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
-  11x: {
+  '11x': {
     name: '11x',
     url: '',
     homepageFallback: 'https://www.11x.ai/',
@@ -509,7 +509,7 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   artisan: {
     name: 'Artisan',
     url: '',
-    homepageFallback: 'https://artisan.so/',
+    homepageFallback: 'https://www.artisan.co/',
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
