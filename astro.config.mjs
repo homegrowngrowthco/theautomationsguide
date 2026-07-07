@@ -34,7 +34,12 @@ export default defineConfig({
   // the dev server aligned to the one indexable form so we stop feeding Google the
   // redirecting no-slash variant. Output is unchanged (directory is Astro's default).
   trailingSlash: 'always',
-  build: { format: 'directory' },
+  // inlineStylesheets 'always': the LCP element on posts is text (the TL;DR box),
+  // and the ~34KB post CSS bundle was the last render-blocking request (audit
+  // 2026-07-07: mobile LCP 2.6s, 1.2s of it element render delay). Inlining trades
+  // cross-page CSS caching for zero blocking stylesheet fetches, the right side of
+  // the trade for a content site where most sessions are single-page organic visits.
+  build: { format: 'directory', inlineStylesheets: 'always' },
   // Code blocks are styled by the cream/ink design system in global.css
   // (.prose pre = cream bg + border, .prose pre code = ink text). Astro's default
   // Shiki highlighter (github-dark) injects an inline dark background-color on
