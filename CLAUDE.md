@@ -1,4 +1,32 @@
-# Session Log — last updated 2026-07-07 (Session 58)
+# Session Log — last updated 2026-07-07 (Session 59)
+
+## Quick reference — recent additions (Session 59, 2026-07-07)
+
+**Full `/audit-seo` run → [AUDIT-SEO-2026-07-07.md](AUDIT-SEO-2026-07-07.md): zero critical findings. PR #170 merged (`92ed1de`) with the remediations: CSS inlining (LCP), conditional title brand-suffix, dash-free tools titles, internal links to the crawled-not-indexed budget-stack post.**
+
+### Audit results (production)
+
+- **Technical crawl fully clean:** robots.txt (AI crawlers allowed) + sitemap-index 200 with 129 URLs and zero `/go/`/`/og/` leaks; single-hop redirects (no-slash/www/http); HSTS + nosniff + CSP; `/go/` pages correctly `noindex,follow` + meta refresh.
+- **On-page:** `qa:seo` PASS, 0 hard issues. JSON-LD complete on spot-check (BlogPosting/BreadcrumbList/FAQPage/SoftwareApplication/Person/Organization/ImageObject) + byline `rel="author"` + TL;DR box.
+- **GSC (URL Inspection API):** 122/129 indexed; 5 "unknown to Google" (all pages published ≤5 days ago, normal); 2 "Crawled - currently not indexed" (May-08 cheap-outbound-stack + Jun-18 hubspot-data-quality, both verified 200/self-canonical/indexable = crawl-budget wait). **@high TODO: manual Request Indexing for the 7 URLs** (full list in the audit file).
+- **Lighthouse:** home 1.00 desktop / 0.99 mobile, SEO 1.00 everywhere; post mobile LCP 2.6s = the one Medium finding. BP 0.77 = known third-party-cookie/CSP cap.
+
+### Changes (PR #170, squash `92ed1de`)
+
+1. **`astro.config.mjs` `inlineStylesheets: 'always'`** — post LCP element is text (TL;DR box) and the ~34KB CSS bundle was the last render-blocking request. **Honest outcome:** post-deploy render-blocking requests = 0 (insight score 1), but simulated-mobile LCP is unchanged within run noise (3-run median 2.7s vs 2.6s pre; the ~1.2s element render delay is main-thread parse/font work, not CSS fetch). Directionally right for field users (one less blocking round trip); **CrUX field data is the arbiter, same conclusion as the S39 font work.**
+2. **`BaseLayout.astro`** — `| The Automations Guide` suffix now appended only when the full `<title>` stays ≤62 chars (long-title warnings 108 → 32; the remaining 32 are headlines long on their own → @low editorial TODO item).
+3. **`tools/[tool].astro`** — title em dash → colon (em/en-dash title warnings 51 → 0; house no-dash style).
+4. **Internal links** — contextual in-body links from the $500/mo stack + $1K/mo enterprise stack posts to the crawled-not-indexed under-$200/mo post (it had zero in-body links from other posts; the hubspot-data-quality one already had 4).
+
+### Key notes
+
+- **Revert:** `git revert 92ed1de`.
+- **`/audit-seo` discovery gotcha:** the project slash command only loads when the session starts inside `theautomationsguide/`; a session rooted at `claude_projects/` won't see it (this session ran the command file manually).
+- **Stale-checkout gotcha (again):** the OneDrive checkout's `master` was 35 commits behind origin; session edits made there were cherry-picked through `C:\tmp\tag-seo-s59` per the worktree convention, re-verified against real HEAD (long-title count 31→32 corrected), then PR'd. Local master reset to `origin/master` after merge.
+- REDDIT_PLAYBOOK.md backup-drift flag = **false positive second session running** (untracked local copy blob-identical to origin/master; S57 hit the same thing). If it flags again, just delete the local untracked copy — resolved this session by the master reset.
+- GSC token (`~/.gsc/token.json`) refreshed silently; the checker inspected all 129 URLs foreground-backgrounded with zero interim output because the run was piped through `tail` — expected, not a hang.
+
+---
 
 ## Quick reference — recent additions (Session 58, 2026-07-07)
 
