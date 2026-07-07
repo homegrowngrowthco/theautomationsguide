@@ -26,6 +26,13 @@
 - REDDIT_PLAYBOOK.md backup-drift flag = **false positive second session running** (untracked local copy blob-identical to origin/master; S57 hit the same thing). If it flags again, just delete the local untracked copy — resolved this session by the master reset.
 - GSC token (`~/.gsc/token.json`) refreshed silently; the checker inspected all 129 URLs foreground-backgrounded with zero interim output because the run was piped through `tail` — expected, not a hang.
 
+### Same-day follow-up (op #440)
+
+- **Ian submitted all 7 URLs to GSC** → TODO item closed (PR #172 `3c5eb31`), todo-sync'd to root + Notion. Re-run `gsc-index-status.py` ~2026-07-21 to confirm the transitions.
+- **OneDrive checkout reset executed** (Ian's explicit OK; the earlier attempt was classifier-blocked): `git reset --hard origin/master` after verifying both stray local commits were byte-duplicated upstream; 3 merged session branches deleted. Checkout now tracks origin exactly — backup-drift flags should be clean.
+- **RECOVERY NOTE — the chronic "failed to delete `.git/worktrees/<x>`: Permission denied" spam is fixed**: OneDrive marks worktree metadata read-only/locked, so git's auto-prune can never delete stale entries and every git op re-prints ~20 errors. Fix: `git worktree prune -v` names the stale ones ("gitdir file does not exist"), clear read-only attrs via PowerShell, `Remove-Item -Recurse -Force` ONLY those git-confirmed-stale dirs. 20 removed; the 7 live worktrees (`astro-upgrade-theautomationsguide`, `tag-affiliate-fix`, `tag-docs-s49/s50`, `tag-lows`, `tag-pr143`, `tag-tbd-align`) untouched. If the spam returns, repeat — never delete a metadata dir git hasn't confirmed stale.
+- Full end-to-end verification green: prod shows all 4 PR #170 changes (0 render-blocking stylesheets, colon tools titles, conditional suffix both directions, both internal links) with no regressions (/go/ noindex, sitemap 129/0 leaks, 1-hop redirects, S58 search CSP intact).
+
 ---
 
 ## Quick reference — recent additions (Session 58, 2026-07-07)
