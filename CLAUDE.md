@@ -1,4 +1,17 @@
-# Session Log — last updated 2026-07-06 (Session 56)
+# Session Log — last updated 2026-07-07 (Session 57)
+
+## Quick reference — recent additions (Session 57, 2026-07-07)
+
+**Unblocked PR #166 (AI SDR comparison post): the auto-register bot broke the Netlify build with an unquoted `11x:` registry key and registered Artisan against the parked-for-sale `artisan.so` instead of the real `artisan.co`. Fixed the PR data + hardened `qa/auto-register-tools.mjs` against both failure classes (commit `fb9690f` on the PR branch).**
+
+Ian reported PR #166 failing; the deploy preview died with "Build script returned non-zero exit code: 2".
+
+- **Build breaker:** `qa/auto-register-tools.mjs` emits affiliate-links entries as bare object keys, and `11x` starts with a digit — invalid TypeScript, so `astro build` failed at compile. Fix in the PR: `'11x': {` (quoted). Fix in the script: keys that aren't valid identifiers are now emitted quoted (the lint parse was already quote-agnostic, so no gate change needed).
+- **Parked-domain miss:** the homepage resolver scored the for-sale `artisan.so` page *above* the real `artisan.co` because a parked page's title IS the brand ("artisan.so…" → the `startsWith` +100 bonus), while artisan.co's title ("Boost Your Outbound Sales with an AI BDR from Artisan") only gets +50. Result: `/go/artisan` pointed at a domain marketplace, the tools.ts blurb read "Own artisan.so today. Secure checkout…", and the logo was the parked page's. Fix in the PR: homepageFallback → `https://www.artisan.co/`, real og:description blurb, logo re-sourced from artisan.co. Fix in the script: new `PARKED_RE` guard rejects candidates whose title/og:title/description carry parked/for-sale markers (Atom/Dan/Sedo/GoDaddy-style copy).
+- **Verified:** local `astro build` + `qa:lint` + `qa:logos` clean; deploy preview green; preview post renders both logos; `/go/artisan` and `/go/11x` pages target `www.artisan.co` / `www.11x.ai` with UTM params.
+- **Revert:** `git revert fb9690f` on the PR branch (restores the broken build — don't). The script hardening merges with PR #166.
+
+---
 
 ## Quick reference — recent additions (Session 56, 2026-07-06)
 
