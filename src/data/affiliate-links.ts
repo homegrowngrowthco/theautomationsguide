@@ -516,7 +516,7 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   calendly: {
     name: 'Calendly',
     url: '',
-    homepageFallback: 'https://calendly.ai/',
+    homepageFallback: 'https://calendly.com/',
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },

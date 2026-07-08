@@ -1715,10 +1715,10 @@ export const tools: Tool[] = [
     ctaLabel: 'Try Calendly',
     ctaPrimary: false,
     listed: false,
-    logo: '/brand/tools/calendly.jpg',
+    logo: '/brand/tools/calendly.png',
     aliases: ['Calendly'],
     blurb:
-      'Calendly is featured in a comparison on The Automations Guide.',
+      'Calendly is the modern scheduling platform that makes finding time a breeze. When connecting is easy, your teams can get more done.',
   },
   {
     slug: 'chili-piper',
