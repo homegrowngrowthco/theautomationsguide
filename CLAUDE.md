@@ -1,4 +1,36 @@
-# Session Log — last updated 2026-07-07 (Session 59)
+# Session Log — last updated 2026-07-08 (Session 60)
+
+## Quick reference — recent additions (Session 60, 2026-07-08)
+
+**PR #174 (Cal.com vs Calendly vs Chili Piper) failed QA again — root-caused TWO auto-register pipeline defects (opaque sourced logo + a squatted-domain registration the S57 parked guard missed), fixed the PR data, and hardened the pipeline so auto-register can no longer ship a logo or homepage its own gates reject. PR merged (`b8ce4ad`) + prod-verified.**
+
+Ian: "PR174 failed AGAIN this needs to STOP." The red was the deterministic **logo gate**: `chili-piper.png` (sourced by auto-register from the webclip icon) shipped with an opaque white background. Investigating surfaced two more latent defects on the same PR:
+
+- **Calendly was registered against `calendly.ai` — a GoDaddy Website Builder placeholder page (squatted domain), not Calendly.** The placeholder's title is literally "calendly.ai", so it earned the brand-startsWith +100 bonus and outscored the real `calendly.com` (whose title only *contains* the brand) — the exact artisan.so scoring flaw from S57, but the PARKED_RE guard missed it because a site-builder placeholder carries no for-sale copy. Consequences on the branch: `/go/calendly` redirected readers to a parked page, the blurb was the generic fallback, and `calendly.jpg` was **GoDaddy's default icon**, not Calendly's mark.
+- **`calendly.jpg` slipped the logo gate entirely**: [qa/lint-logos.mjs](qa/lint-logos.mjs) scanned only `png/webp` — a JPEG has no alpha channel (opaque by construction) and would have rendered in a box on the cream cards, silently.
+
+### PR data fixes (commit `0d8d312` on the branch)
+
+`chili-piper.png` white background knocked out (red mark on transparency); calendly `homepageFallback` → `https://calendly.com/`; blurb → real og:description; logo → Calendly's transparent brand-blue mark (initially the 48px Google-favicon fallback; same-day follow-up PR #176 `d53aca7` upgraded it to the official hi-res wordmark, 661x160, Ian-supplied source); the GoDaddy placeholder jpg deleted.
+
+### Pipeline hardening (commit `05cf0a5` — the "make it STOP" part)
+
+1. **[qa/auto-register-tools.mjs](qa/auto-register-tools.mjs) — sourced-logo validation (`validateRasterLogo`)**: every raster icon now passes the SAME 4-corner transparency bar as the lint gate before being written. All-4-corners-opaque → background knockout keyed on the corner color (output png); a candidate whose surviving mark would be near-invisible on the cream cards (mean luminance >215 — the mailreach trap) or nearly empty is **skipped for the next icon URL**; if `sharp` is unavailable, raster logos are rejected rather than shipped unvalidated (SVGs pass through). Verified against the real failures: the original opaque chili-piper.png gets FIXED, the GoDaddy calendly.jpg gets REJECTED, the clean calendly.png passes untouched.
+2. **[qa/auto-register-tools.mjs](qa/auto-register-tools.mjs) — placeholder-page guard**: after PARKED_RE, candidates are rejected when `<meta name="generator">` names a parking/site-builder product (godaddy/starfield/sedo/parking) OR the title is just the raw probed domain on a page with no og:image. Live-verified: calendly.ai REJECTED (generator = "Starfield Technologies; Go Daddy Website Builder"), calendly.com kept.
+3. **[qa/lint-logos.mjs](qa/lint-logos.mjs)** now scans `jpg/jpeg` too (always opaque → hard fail; closes the calendly.jpg blind spot).
+4. **[.github/workflows/qa-content-pr.yml](.github/workflows/qa-content-pr.yml)**: the auto-register + lint-content steps moved AFTER `npm ci` so `sharp` is available to the validator in CI (under the old before-deps order, the hardened script would have silently dropped every logo on the runner).
+
+### Verification
+
+Local: auto-register idempotent on the post (`unresolved: []`, no new changes); lint-content 0 hard; lint-logos 29 checked 0 hard; `astro build` + render-acceptance clean; workflow YAML parses with the new step order confirmed. CI: the re-triggered QA run (`28944186742`) ran EVERY gate under the new order — auto-register, lint, logo gate, build, render-acceptance, mobile-overflow, screenshots, Vision review — **all green, no auto-fix needed**. Merged (`b8ce4ad`). Prod: post 200, `/go/calendly` → `calendly.com/?utm_source=theautomationsguide` (not the parked page), `/go/chili-piper` 200, both logos 200, `calendly.jpg` 404 (gone).
+
+### Key notes
+
+- **Reverts:** data fixes + hardening merged in `b8ce4ad` (squash) — `git revert b8ce4ad` restores the broken state (don't). The two logical changes were separate commits on the branch (`0d8d312` data, `05cf0a5` hardening) if archaeology is ever needed.
+- **The failure surface is now closed at the source**: the resolver can't register a site-builder placeholder, and any logo auto-register commits has provably transparent corners (or the tool ships logo-less, which is a WARN + a one-line human upgrade later — never a red PR).
+- Worktree: `C:\tmp\tag-pr174` (removed after merge).
+
+---
 
 ## Quick reference — recent additions (Session 59, 2026-07-07)
 
