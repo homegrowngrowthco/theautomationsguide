@@ -189,11 +189,21 @@ async function resolveHomepage(name, slug) {
       // Parked/for-sale pages pass the identity check trivially (their title IS
       // the domain, e.g. "artisan.so") and can outscore the real product site.
       if (PARKED_RE.test(`${title} ${ogTitle} ${ogDesc}`)) continue;
+      // Site-builder placeholder pages carry no for-sale copy, so PARKED_RE
+      // misses them: calendly.ai served a stock GoDaddy Website Builder page
+      // titled just "calendly.ai" and outscored the real calendly.com (a
+      // bare-domain title startsWith the brand, earning the +100 bonus).
+      const generator = (head.match(/<meta[^>]+name=["']generator["'][^>]+content=["']([^"']+)["']/i) || [])[1] || '';
+      if (/godaddy|go ?daddy|starfield|sedo|parking|parked/i.test(generator)) continue;
+      const hasOgImage = /<meta[^>]+property=["']og:image["']/i.test(head);
+      // A title that is just the raw domain, on a page with no social card, is a
+      // placeholder. (Real homepages that title themselves "Brand.ai" ship one.)
+      if (norm(title) === norm(`${base}.${tld}`) && !hasOgImage) continue;
 
       let score = 0;
       if (targets.some((t) => norm(title).startsWith(t)) || targets.some((t) => norm(ogSite) === t)) score += 100;
       else score += 50;
-      if (/<meta[^>]+property=["']og:image["']/i.test(head)) score += 20; // real product sites ship social cards
+      if (hasOgImage) score += 20; // real product sites ship social cards
       if (/rel=["'][^"']*apple-touch-icon/i.test(head)) score += 20;
       if (ogDesc) score += 10;
       if (title.length > 25) score += 10;                                 // descriptive, not a parked "Just Call"
@@ -232,6 +242,37 @@ function pickIcon(html, baseUrl) {
   return candidates.map((c) => c.url);
 }
 
+// Validate (and if needed fix) a sourced raster logo BEFORE it is committed.
+// The lint-logos CI gate hard-fails any raster logo whose 4 corners are all
+// opaque (a baked-in background renders as a box on the cream cards), and a
+// dark webclip whose background is knocked out can leave a near-invisible pale
+// mark (the mailreach trap). Sourcing icons without either check just ships a
+// red PR (chili-piper.png, PR #174) or an invisible/wrong mark. Returns
+// { buf, ext } (ext 'png' after a knockout) or null to reject this candidate.
+async function validateRasterLogo(buf) {
+  let sharp;
+  try { sharp = (await import('sharp')).default; } catch { return null; } // can't validate -> don't ship it
+  let data, info;
+  try { ({ data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true })); } catch { return null; }
+  const px = (x, y) => { const i = (y * info.width + x) * 4; return [data[i], data[i + 1], data[i + 2], data[i + 3]]; };
+  const corners = [px(0, 0), px(info.width - 1, 0), px(0, info.height - 1), px(info.width - 1, info.height - 1)];
+  if (corners.some((c) => c[3] < 8)) return { buf, ext: null }; // transparent corners -> passes the gate as-is
+  // All 4 corners opaque: knock out the background (keyed on the corner color).
+  const bg = corners[0];
+  const out = Buffer.from(data);
+  let kept = 0;
+  let lumSum = 0;
+  for (let i = 0; i < out.length; i += 4) {
+    const d = Math.hypot(out[i] - bg[0], out[i + 1] - bg[1], out[i + 2] - bg[2]);
+    if (d < 40) out[i + 3] = 0;
+    else { kept++; lumSum += 0.2126 * out[i] + 0.7152 * out[i + 1] + 0.0722 * out[i + 2]; }
+  }
+  if (kept < info.width * info.height * 0.02) return null; // nothing meaningful survived the knockout
+  if (lumSum / kept > 215) return null; // near-white mark: invisible on the cream cards
+  const png = await sharp(out, { raw: { width: info.width, height: info.height, channels: 4 } }).png().toBuffer();
+  return { buf: png, ext: 'png' };
+}
+
 async function sourceLogo(slug, html, homepage, host) {
   const urls = pickIcon(html, homepage);
   urls.push(`https://www.google.com/s2/favicons?domain=${host}&sz=128`); // deterministic fallback
@@ -243,12 +284,23 @@ async function sourceLogo(slug, html, homepage, host) {
       const m = url.match(/\.(svg|png|jpe?g|webp)(\?|$)/i);
       ext = m ? m[1].toLowerCase().replace('jpeg', 'jpg') : 'png';
     }
+    let buf = r.buf;
+    if (ext !== 'svg') {
+      // Raster: must pass the same corner-transparency bar as the lint-logos
+      // gate, or get a background knockout here. An unvalidatable candidate is
+      // skipped (the next icon URL may pass); a tool can always ship logo-less
+      // (WARN, not HARD) and a human drops a better mark in later.
+      const v = await validateRasterLogo(buf);
+      if (!v) continue;
+      buf = v.buf;
+      if (v.ext) ext = v.ext;
+    }
     const rel = `/brand/tools/${slug}.${ext}`;
     if (!DRY) {
       mkdirSync(LOGO_DIR, { recursive: true });
-      writeFileSync(path.join(LOGO_DIR, `${slug}.${ext}`), r.buf);
+      writeFileSync(path.join(LOGO_DIR, `${slug}.${ext}`), buf);
     }
-    return { rel, bytes: r.buf.length, from: url };
+    return { rel, bytes: buf.length, from: url };
   }
   return null;
 }

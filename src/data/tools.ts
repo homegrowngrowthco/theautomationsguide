@@ -1707,6 +1707,32 @@ export const tools: Tool[] = [
     blurb:
       'Artisan automates your outbound with an all-in-one, AI-first platform powered by AI employees. Get better outbound sales results with an AI BDR.',
   },
+  {
+    slug: 'calendly',
+    name: 'Calendly',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Calendly',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/calendly.png',
+    aliases: ['Calendly'],
+    blurb:
+      'Calendly is the modern scheduling platform that makes finding time a breeze. When connecting is easy, your teams can get more done.',
+  },
+  {
+    slug: 'chili-piper',
+    name: 'Chili Piper',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Chili Piper',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/chili-piper.png',
+    aliases: ['Chili Piper'],
+    blurb:
+      'Chili Piper is featured in a comparison on The Automations Guide.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body

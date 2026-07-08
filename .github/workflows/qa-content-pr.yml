@@ -97,6 +97,17 @@ jobs:
             echo "Post: $POST  Slug: $SLUG"
           fi
 
+      - name: Setup Node
+        if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        run: npm ci
+
       # Auto-register tools a post references before manual onboarding. A
       # /go/<slug> with no affiliate-links.ts entry 404s at build and HARD-fails
       # the lint gate below; an unregistered compared tool renders logo-less.
@@ -104,8 +115,11 @@ jobs:
       # resolves each unknown tool's homepage (TLD probe + page-identity verify)
       # and sources a logo, then commits the registry + logo additions to the PR
       # branch so the gates pass. Anything it CAN'T confidently resolve is left
-      # untouched for the lint gate to flag for manual review. Runs on the
-      # runner's preinstalled Node (global fetch, no deps) BEFORE npm ci + lint.
+      # untouched for the lint gate to flag for manual review. Runs AFTER npm ci
+      # so `sharp` is available: sourced raster logos are corner-validated and
+      # background-knocked-out to pass the logo gate, or dropped (without sharp
+      # the script rejects every raster logo rather than ship one unvalidated —
+      # chili-piper.png shipped opaque and broke PR #174 under the old order).
       # Push uses GITHUB_TOKEN, which by design does NOT retrigger the workflow.
       - name: Auto-register referenced tools
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
@@ -134,17 +148,6 @@ jobs:
           # generation, but hand edits and direct commits bypass it — this is the
           # hard gate. Exits 1 on any HARD violation, failing the PR check.
           node qa/lint-content.mjs --post "$POST"
-
-      - name: Setup Node
-        if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-      - name: Install dependencies
-        if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
-        run: npm ci
 
       # Deterministic LOGO-ASSET gate. The post-scoped gates check post structure
       # and horizontal overflow, never the brand images themselves — so a logo

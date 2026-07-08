@@ -3,7 +3,9 @@
 // / mobile-overflow) can't see, because they check post structure + horizontal
 // overflow, never the brand image assets themselves.
 //
-// What it checks, for every raster logo in public/brand/tools/ (png/webp):
+// What it checks, for every raster logo in public/brand/tools/ (png/webp/jpg —
+// jpg carries no alpha channel, so any .jpg logo is opaque by construction and
+// fails check 1; calendly.jpg slipped through when only png/webp were scanned):
 //   1. OPAQUE BACKGROUND (HARD) — a logo shipped with a baked-in solid rectangle
 //      (e.g. beehiiv.png was pure-white, so it sat in a white box on the cream
 //      page while every other logo was transparent). Detected by sampling the
@@ -48,7 +50,7 @@ async function inspect(file) {
   return { file, width, height, ar, opaqueCorners, hasAlpha: meta.hasAlpha };
 }
 
-const files = readdirSync(DIR).filter((f) => /\.(png|webp)$/i.test(f));
+const files = readdirSync(DIR).filter((f) => /\.(png|webp|jpe?g)$/i.test(f));
 const hard = [];
 const warn = [];
 
