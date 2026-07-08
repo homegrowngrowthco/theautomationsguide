@@ -11,7 +11,7 @@ Ian: "PR174 failed AGAIN this needs to STOP." The red was the deterministic **lo
 
 ### PR data fixes (commit `0d8d312` on the branch)
 
-`chili-piper.png` white background knocked out (red mark on transparency); calendly `homepageFallback` → `https://calendly.com/`; blurb → real og:description; logo → Calendly's transparent brand-blue mark from the Google favicon service (48px, the justcall precedent — human-upgradeable, tracked @low); the GoDaddy placeholder jpg deleted.
+`chili-piper.png` white background knocked out (red mark on transparency); calendly `homepageFallback` → `https://calendly.com/`; blurb → real og:description; logo → Calendly's transparent brand-blue mark (initially the 48px Google-favicon fallback; same-day follow-up PR #176 `d53aca7` upgraded it to the official hi-res wordmark, 661x160, Ian-supplied source); the GoDaddy placeholder jpg deleted.
 
 ### Pipeline hardening (commit `05cf0a5` — the "make it STOP" part)
 
