@@ -513,6 +513,20 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
+  calendly: {
+    name: 'Calendly',
+    url: '',
+    homepageFallback: 'https://calendly.ai/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  'chili-piper': {
+    name: 'Chili Piper',
+    url: '',
+    homepageFallback: 'https://www.chilipiper.com/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
 };
 
 /**
