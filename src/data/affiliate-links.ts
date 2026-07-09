@@ -534,6 +534,20 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: 'S61 (PR #177) auto-registered the tools.ts half + logo but the affiliate-links entry never landed, so /go/factors-ai 404d on prod (caught by lint S62). Verify the affiliate program + commission on application.',
   },
+  activepieces: {
+    name: 'Activepieces',
+    url: '',
+    homepageFallback: 'https://activepieces.io/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  bardeen: {
+    name: 'Bardeen',
+    url: '',
+    homepageFallback: 'https://www.bardeen.ai/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
 };
 
 /**

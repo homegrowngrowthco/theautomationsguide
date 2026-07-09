@@ -1748,6 +1748,31 @@ export const tools: Tool[] = [
     blurb:
       'Factors.ai is featured in a comparison on The Automations Guide.',
   },
+  {
+    slug: 'activepieces',
+    name: 'Activepieces',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Activepieces',
+    ctaPrimary: false,
+    listed: false,
+    aliases: ['Activepieces'],
+    blurb:
+      'Activepieces is featured in a comparison on The Automations Guide.',
+  },
+  {
+    slug: 'bardeen',
+    name: 'Bardeen',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Bardeen',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/bardeen.svg',
+    aliases: ['Bardeen'],
+    blurb:
+      'Bardeen is featured in a comparison on The Automations Guide.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
