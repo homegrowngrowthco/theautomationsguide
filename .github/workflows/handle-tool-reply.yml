@@ -42,30 +42,70 @@ jobs:
               core.setOutput('allowed', 'true');
             }
 
+      - name: Find the tool(s) the QA bot asked about
+        if: steps.auth.outputs.allowed == 'true'
+        id: pending
+        uses: actions/github-script@v8
+        with:
+          # Pull the affiliateSlug(s) named in the latest QA "needs one thing"
+          # ask on this PR. When exactly one tool is outstanding, the human can
+          # reply with just a bare homepage URL (no "slug = url" needed).
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            });
+            const asks = comments.filter((c) =>
+              c.user.login === 'github-actions[bot]' &&
+              /QA needs one thing/i.test(c.body || '') &&
+              /affiliateSlug/i.test(c.body || ''));
+            const last = asks[asks.length - 1];
+            const slugs = new Set();
+            if (last) {
+              for (const m of last.body.matchAll(/affiliateSlug:\s*[`'"]?([a-z0-9-]+)/gi)) {
+                slugs.add(m[1].toLowerCase());
+              }
+            }
+            const out = [...slugs].join(' ');
+            console.log('Pending slug(s) from QA ask:', out || '(none)');
+            core.setOutput('slugs', out);
+
       - name: Parse tool URL hints from comment
         if: steps.auth.outputs.allowed == 'true'
         id: parse
         env:
           COMMENT_BODY: ${{ github.event.comment.body }}
+          PENDING_SLUGS: ${{ steps.pending.outputs.slugs }}
         run: |
-          # Parse "slug = url" pairs from the comment body.
-          # LHS is normalized: lowercase, strip non-alphanumeric except hyphens,
-          # so "Customer.io" -> "customerio" and "reply-io" stays "reply-io".
+          # Two ways to supply the URL(s):
+          #   1. Explicit "slug = url" pairs (e.g. "factors-ai = https://factors.ai").
+          #   2. If none are given AND the QA ask named exactly one tool, a bare
+          #      homepage URL in the reply is mapped to that single pending slug
+          #      (so "Factors AI link: https://www.factors.ai/" just works).
+          # Quoted lines (GitHub reply-quotes starting with ">") are dropped first,
+          # so the bot's own "otter = https://otter.ai" example inside a quoted
+          # comment is never parsed as the answer.
           HINTS=$(node -e "
-            const body = process.env.COMMENT_BODY;
+            const raw = process.env.COMMENT_BODY || '';
+            const body = raw.split(/\r?\n/).filter((l) => !/^\s*>/.test(l)).join('\n');
+            const pending = (process.env.PENDING_SLUGS || '').split(/\s+/).filter(Boolean);
             const pairs = [];
-            // The URL capture excludes whitespace AND markdown/quote wrappers
-            // (backtick \x60, double-quote \x22, single-quote, asterisk, angle
-            // brackets, closing paren/bracket) so a reply like
-            //   \`zerobounce = https://www.zerobounce.net/\`
-            // doesn't leave a trailing backtick glued to the URL (which made the
-            // downstream fetch 404 and silently registered nothing). Hex escapes
-            // are used for backtick/double-quote because this runs inside a
-            // bash double-quoted node -e script.
+            const seen = new Set();
+            // URL capture excludes whitespace + markdown/quote wrappers (backtick
+            // \x60, double-quote \x22, single-quote, asterisk, angle brackets,
+            // closing paren/bracket). Hex escapes are used for backtick/double-
+            // quote because this runs inside a bash double-quoted node -e script.
+            const URLRE = /(https?:\/\/[^\s\x60\x22'*<>)\]]+)/g;
             for (const m of body.matchAll(/([A-Za-z0-9._-]+)\s*=\s*(https?:\/\/[^\s\x60\x22'*<>)\]]+)/g)) {
               const slug = m[1].toLowerCase().replace(/[^a-z0-9-]/g, '');
               const url = m[2].replace(/[.,;:]+$/, '');
-              if (slug && url) pairs.push(slug + '=' + url);
+              if (slug && url && !seen.has(slug)) { seen.add(slug); pairs.push(slug + '=' + url); }
+            }
+            if (pairs.length === 0 && pending.length === 1) {
+              const urls = [...body.matchAll(URLRE)].map((m) => m[1].replace(/[.,;:]+$/, ''));
+              if (urls.length >= 1) pairs.push(pending[0] + '=' + urls[0]);
             }
             process.stdout.write(pairs.join(' '));
           ")

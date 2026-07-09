@@ -166,17 +166,31 @@ async function resolveHomepage(name, slug) {
     return null;
   }
   const bases = [...new Set([slug.replace(/-/g, ''), norm(name)])].filter(Boolean);
+  // Dotted-domain reading of the slug: a brand whose name bakes in a TLD
+  // ("Factors.ai", "Customer.io", "Reply.io") slugs to "factors-ai" /
+  // "customer-io", whose de-hyphenated base ("factorsai") only ever probes
+  // factorsai.<tld> and NEVER the real factors.ai. Read the trailing
+  // "-ai"/"-io"/"-co" as the TLD to recover the real host + the bare-brand
+  // identity stem ("factors"), so these resolve without a human URL hint.
+  const segs = slug.split('-');
+  const dotted = segs.length >= 2 && TLDS.includes(segs[segs.length - 1])
+    ? { host: `${segs.slice(0, -1).join('')}.${segs[segs.length - 1]}`, stem: norm(segs.slice(0, -1).join('')) }
+    : null;
   // Identity targets: match the page against the CLEAN slug as well as the name.
   // Brand names that bake in a TLD ("Otter.ai", "Reply.io") normalize to
   // "otterai"/"replyio", but the site's <title> usually says the bare brand
   // ("Otter Meeting Agent…"), so a name-only check fails. The slug ("otter") is
-  // the canonical clean identifier and matches.
-  const targets = [...new Set([norm(slug.replace(/-/g, '')), norm(name)])].filter((t) => t.length >= 2);
+  // the canonical clean identifier and matches. For a dotted-domain slug the
+  // bare stem ("factors") is added too, since the site titles itself "Factors".
+  const targets = [...new Set([norm(slug.replace(/-/g, '')), norm(name), dotted?.stem].filter((t) => t && t.length >= 2))];
   const matchesIdentity = (ident) => targets.some((t) => ident.includes(t));
+  // Every base × common TLD, plus the dotted-domain host if the slug implies one.
+  const hosts = new Set();
+  for (const base of bases) for (const tld of TLDS) hosts.add(`${base}.${tld}`);
+  if (dotted) hosts.add(dotted.host);
   const candidates = [];
-  for (const base of bases) {
-    for (const tld of TLDS) {
-      const r = await fetchText(`https://${base}.${tld}/`);
+  for (const host of hosts) {
+      const r = await fetchText(`https://${host}/`);
       if (!r) continue;
       const head = r.html.slice(0, 20000);
       const title = (head.match(/<title[^>]*>([^<]+)<\/title>/i) || [])[1] || '';
@@ -198,7 +212,7 @@ async function resolveHomepage(name, slug) {
       const hasOgImage = /<meta[^>]+property=["']og:image["']/i.test(head);
       // A title that is just the raw domain, on a page with no social card, is a
       // placeholder. (Real homepages that title themselves "Brand.ai" ship one.)
-      if (norm(title) === norm(`${base}.${tld}`) && !hasOgImage) continue;
+      if (norm(title) === norm(host) && !hasOgImage) continue;
 
       let score = 0;
       if (targets.some((t) => norm(title).startsWith(t)) || targets.some((t) => norm(ogSite) === t)) score += 100;
@@ -207,10 +221,9 @@ async function resolveHomepage(name, slug) {
       if (/rel=["'][^"']*apple-touch-icon/i.test(head)) score += 20;
       if (ogDesc) score += 10;
       if (title.length > 25) score += 10;                                 // descriptive, not a parked "Just Call"
-      score += Math.max(0, 6 - TLDS.indexOf(tld));                        // gentle TLD tiebreak only
+      score += Math.max(0, 6 - TLDS.indexOf(host.split('.').pop()));      // gentle TLD tiebreak only
       const u = new URL(r.finalUrl);
       candidates.push({ score, homepage: `${u.protocol}//${u.host}/`, host: u.host, html: r.html, blurb: ogDesc.trim() });
-    }
   }
   if (!candidates.length) return null;
   candidates.sort((a, b) => b.score - a.score);
