@@ -1735,6 +1735,19 @@ export const tools: Tool[] = [
     blurb:
       'Chili Piper is featured in a comparison on The Automations Guide.',
   },
+  {
+    slug: 'factors-ai',
+    name: 'Factors.ai',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Factors.ai',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/factors-ai.png',
+    aliases: ['Factors.ai'],
+    blurb:
+      'Factors.ai is featured in a comparison on The Automations Guide.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
