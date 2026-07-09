@@ -499,6 +499,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'warmly',
+    logo: '/brand/tools/warmly.png',
     name: 'Warmly',
     category: 'Website Visitor ID & Signals',
     badge: 'Free tier available',
@@ -1391,6 +1392,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "vector",
+    logo: '/brand/tools/vector.png',
     name: "Vector",
     category: "Website Visitor ID & Signals",
     badge: "Free trial",
@@ -1732,6 +1734,19 @@ export const tools: Tool[] = [
     aliases: ['Chili Piper'],
     blurb:
       'Chili Piper is featured in a comparison on The Automations Guide.',
+  },
+  {
+    slug: 'factors-ai',
+    name: 'Factors.ai',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Factors.ai',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/factors-ai.png',
+    aliases: ['Factors.ai'],
+    blurb:
+      'Factors.ai is featured in a comparison on The Automations Guide.',
   },
 ];
 
