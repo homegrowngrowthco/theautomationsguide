@@ -499,6 +499,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'warmly',
+    logo: '/brand/tools/warmly.png',
     name: 'Warmly',
     category: 'Website Visitor ID & Signals',
     badge: 'Free tier available',
@@ -1391,6 +1392,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "vector",
+    logo: '/brand/tools/vector.png',
     name: "Vector",
     category: "Website Visitor ID & Signals",
     badge: "Free trial",
