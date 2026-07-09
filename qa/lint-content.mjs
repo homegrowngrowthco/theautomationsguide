@@ -39,10 +39,41 @@ const readSlugs = () => {
 };
 const { affiliate, toolSlugs } = readSlugs();
 
+// Valid /blog/ target slugs = every post filename (sans extension). A /blog/<slug>/
+// link to a nonexistent post is a 404 (same class as a bad /tools/ slug) but was
+// previously unchecked — both the S-1a mesh backfill and the S-1b engine slug feed
+// emit in-body /blog/ links, so validate them here as the CI backstop.
+const validPostSlugs = new Set(
+  readdirSync(BLOG_DIR).filter((f) => /\.mdx?$/.test(f)).map((f) => f.replace(/\.mdx?$/, '')),
+);
+
 // A3 — logo registry: which tools carry a logo, each tool's affiliate status, and
 // integrity of the logo paths themselves.
 const { entries: toolEntries, logoByKey } = loadLogoRegistry();
 const affiliateStatus = loadAffiliateStatus();
+
+// S-4 CTA floor (tutorial/workflow under-linking): single-word tool names that are
+// also common English words. We only count these as "mentioned" when the tool is
+// actually referenced by slug (a /go/, /tools/, or affiliateSlug), so prose like
+// "make sure" or "close the deal" can't inflate the mention count and false-warn.
+const AMBIGUOUS_NAMES = new Set(['make', 'close', 'motion', 'clay', 'warmly', 'instantly', 'vector', 'surfer', 'otter', 'lindy']);
+
+// Distinct registered tools a post names (by tool name / distinctive alias), with the
+// ambiguous-word guard above. `referenced` = slugs the post links by /go//tools//prop.
+function mentionedTools(body, referenced) {
+  const hits = new Set();
+  for (const e of toolEntries) {
+    const names = [e.name, ...(e.aliases || [])].filter(Boolean);
+    const ambiguous = AMBIGUOUS_NAMES.has(e.slug) || names.some((n) => AMBIGUOUS_NAMES.has(n.toLowerCase()));
+    if (ambiguous) { if (referenced.has(e.slug)) hits.add(e.slug); continue; }
+    for (const n of names) {
+      if (n.length < 3) continue;
+      const re = new RegExp(`\\b${n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
+      if (re.test(body)) { hits.add(e.slug); break; }
+    }
+  }
+  return hits;
+}
 
 // Components readers may use; a capitalized <Tag> not in here and not imported is suspicious.
 const KNOWN = new Set([
@@ -145,6 +176,26 @@ function lintFile(file) {
   }
   for (const m of body.matchAll(/\/tools\/([a-z0-9-]+)/g)) {
     if (!toolSlugs.has(m[1])) hard.push(`/tools/${m[1]} → "${m[1]}" is not a tool slug (would 404).`);
+  }
+  // /blog/<slug>/ internal links must point at a real post (the mesh + engine feed
+  // emit these; a hallucinated sibling slug 404s). Anchored to internal-link context
+  // (markdown ](/blog/ or href="/blog/) so a /blog/ path INSIDE an external URL cited
+  // in a <Sources> block (e.g. emailtooltester.com/en/blog/...) can't false-fire.
+  for (const m of body.matchAll(/(?:\]\(|href=["'])\/blog\/([a-z0-9-]+)/g)) {
+    if (!validPostSlugs.has(m[1])) hard.push(`/blog/${m[1]} → no post with that slug exists (would 404). Fix or drop the link.`);
+  }
+
+  // S-4 CTA floor: a post that names >=2 registered tools but exposes <2 affiliate
+  // CTAs (/go/ links + component affiliateSlug props) is under-monetized — the class
+  // the 2026-07-02 GEO tutorial hit (zero /go/ links). WARN, not hard: comparison
+  // posts naturally clear it via ToolBreakdown, so this only nudges prose tutorials.
+  const goSurface = new Set([...body.matchAll(/\/go\/([a-z0-9-]+)/g)].map((m) => m[1]));
+  const propSurface = new Set([...body.matchAll(/affiliateSlug\s*[:=]\s*['"]([a-z0-9-]+)['"]/g)].map((m) => m[1]));
+  const affSurface = new Set([...goSurface, ...propSurface]);
+  const referenced = new Set([...affSurface, ...[...body.matchAll(/\/tools\/([a-z0-9-]+)/g)].map((m) => m[1])]);
+  const named = mentionedTools(body, referenced);
+  if (named.size >= 2 && affSurface.size < 2) {
+    warn.push(`names ${named.size} registered tools but exposes only ${affSurface.size} affiliate CTA(s) (/go/ + affiliateSlug) — S-4 CTA floor. Link the first mention of the primary tool(s) via /go/<slug>/ or add a <ChooseIf>/<BottomLine>.`);
   }
 
   // A3 — registry completeness: a tool compared in a logo-bearing component

@@ -1,4 +1,27 @@
-# Session Log — last updated 2026-07-09 (Session 62)
+# Session Log — last updated 2026-07-09 (Session 63)
+
+## Quick reference — recent additions (Session 63, 2026-07-09)
+
+**Built + deployed the deferred engine work from S62: the S-1(b) internal-link slug feed (so NEW posts get the contextual mesh at generation, 404-safe) + the last S-4 CTA-floor lint piece. Engine LIVE (32 nodes, GET-verified). Also fixed a live `/go/factors-ai` 404 the new lint surfaced.**
+
+Ian: "ok let's do that now" (the separate n8n-deploy session S62 deferred). Confirmed first that S54 already shipped most of S-4 (CTA-floor skeleton + general first-mention /go/ rule + trailing-slash sanitizer), so the real build was S-1b.
+
+**S-1(b) engine slug feed — [n8n/update-engine-internal-links.mjs](n8n/update-engine-internal-links.mjs), deployed live (29 → 32 nodes):** the reason this was punted in S52 was hallucinated-404 risk on new in-body /tools/ + /blog/ links. Closed it by feeding the engine the EXACT valid targets at generation:
+- 3 new nodes wired `Mark Topic Generating → Fetch Tools Registry → Fetch Blog List → Build Link Targets → Generate Draft`. Two unauthenticated httpRequest GETs (the repo is PUBLIC): `raw.githubusercontent…/src/data/tools.ts` (hub slugs) + the GitHub contents API for `src/content/blog` (recent post slugs). Both `neverError:true` → a GitHub hiccup degrades to "no mesh that day", never a broken run. `Build Link Targets` is a pure-parse Code node (no network) → `{hubSlugsCsv, postSlugs, recentPostsList}`.
+- **Generate Draft** gained an INTERNAL LINKS section interpolating those lists (`${$('Build Link Targets').first().json.hubSlugsCsv}` — same proven pattern as the existing `$('Parse Topic')` interpolations; braces stay 1/1 so the `{{ }}` tokenizer footgun is untouched): link 2-4 in-body mentions to `/tools/<slug>/` hubs (a DIFFERENT occurrence than the /go/ CTA) + 1-3 genuinely-related `/blog/<slug>/` siblings, ONLY from the given slugs.
+- **Humanize** gained an INTERNAL LINKS verify (preserve, never invent).
+- **Parse Draft** gained `guardInternalLinks()` (real jsCode, backticks safe) applied as `guardInternalLinks(sanitizeMdx(...))` — deterministically strips any `/tools/` or `/blog/` link whose slug isn't in the fetched valid set (unwraps to plain text). **Fail-OPEN per-list**: if a fetch returned nothing that list is left alone (the CI lint backstops), so a fetch miss can't nuke every internal link. Load-bearing guard per `feedback_deterministic_sanitizer_over_prompt`.
+- **Verified**: JSON round-trips, both prompt expression bodies compile + stay 1/1 `{{`, both code nodes compile; the parse + guard **unit-tested against real fetched data** (61 hub slugs, 12 post slugs; guard keeps valid, strips invalid to text, leaves /go/ CTAs, fail-opens on empty); idempotent re-run (0 applied); deploy `--apply` + live GET (all 3 nodes + all markers + chain present, active untouched).
+
+**S-4 CTA floor — [qa/lint-content.mjs](qa/lint-content.mjs):**
+- New WARN: a post that names ≥2 registered tools (by name/alias, with an AMBIGUOUS_NAMES guard so "make"/"close" prose can't inflate the count) but exposes <2 affiliate CTAs (/go/ + affiliateSlug). Fired correctly on the 7/02 GEO post (2 tools, 0 CTAs). Non-hard: comparison posts clear it via ToolBreakdown.
+- New HARD `/blog/<slug>/` 404 check — the mesh + engine feed emit /blog/ links but they were previously UNvalidated (only /go/ + /tools/ were). **Anchored to internal-link context** (`](/blog/` or `href="/blog/`) after the first pass false-fired on external blog URLs cited in `<Sources>` blocks (emailtooltester.com/en/blog/…). Negative-tested.
+
+**Live `/go/factors-ai` 404 fix — [src/data/affiliate-links.ts](src/data/affiliate-links.ts):** the new lint surfaced 3 hard errors on the 7/09 RB2B post: S61 (PR #177) auto-registered `factors-ai` in tools.ts + logo but the **affiliate-links.ts entry never landed**, so `/go/factors-ai/` **404'd on prod** (curl-confirmed) — a live broken money link. Added the `factors-ai` pending entry (homepageFallback `https://www.factors.ai/`, customerio pattern). Build clean (210 pp); `/go/factors-ai/` now redirects with UTM. `lint --all` back to **0 hard**.
+
+**Residual / watch:** the only unexercised path is n8n-Cloud egress to `raw.githubusercontent`/GitHub contents API — but the engine already hits `api.github.com` daily (commits/idempotency) so egress is proven; worst case a rate-limited contents API (shared-IP, 60/hr unauth) drops related-post linking for a day while hub linking (CDN, no auth limit) stays. **Watch tomorrow's 8am run** for: in-body `/tools/` + `/blog/` links present, all resolving (guard makes 404s impossible), /go/ CTAs intact. **Revert:** `git revert <squash-sha>` (all additive) + re-run `deploy-engine.mjs --apply` against the reverted JSON to roll the live engine back.
+
+---
 
 ## Quick reference — recent additions (Session 62, 2026-07-09)
 
