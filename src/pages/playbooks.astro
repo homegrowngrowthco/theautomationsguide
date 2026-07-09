@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
+import ItemListSchema from '../components/ItemListSchema.astro';
 import { getCollection } from 'astro:content';
 
 // "Playbooks" = the step-by-step / how-to content (guides, tutorials, workflows),
@@ -33,4 +34,5 @@ const posts = all
       </div>
     )}
   </div>
+  <ItemListSchema name="RevOps & GTM Automation Playbooks" items={posts.map((p) => ({ url: `/blog/${p.slug}/`, name: p.data.title }))} />
 </BaseLayout>

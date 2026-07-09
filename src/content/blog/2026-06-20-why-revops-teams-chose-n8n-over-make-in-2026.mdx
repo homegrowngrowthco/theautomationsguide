@@ -3,6 +3,7 @@ title: "Why RevOps Teams Chose n8n Over Make in 2026"
 description: "Mid-market RevOps teams are picking n8n over Make for self-hosted control and cost. Here is what operators actually found after running both in production."
 tldr: "For mid-market RevOps teams running complex, data-heavy GTM workflows, n8n self-hosted beats Make on cost predictability, data residency, and workflow logic depth once you cross roughly 50,000 operations per month."
 pubDate: 2026-06-20
+updatedDate: 2026-07-09
 tags: ["automation", "n8n", "make"]
 faqs:
   - question: "Is n8n really cheaper than Make for high-volume workflows?"
@@ -44,7 +45,7 @@ Somewhere around Q3 2025, a pattern showed up across three of my mid-market clie
 
 ## The billing inflection point that keeps accelerating the switch
 
-Every team I have talked to had a version of the same moment: the Make bill jumped, and someone finally did the math. At Make's Growth plan (roughly $29/month for 10,000 operations), costs scale linearly. A mid-market RevOps team running enrichment loops through [Clay](/go/clay), syncing contacts into [HubSpot](/go/hubspot), triggering [Smartlead](/go/smartlead) sequences, and logging engagement back to Salesforce can burn 500,000 to 2 million operations per month without blinking. At that volume, Make's enterprise pricing enters the conversation fast.
+Every team I have talked to had a version of the same moment: the Make bill jumped, and someone finally did the math. At [Make's Growth plan](/tools/make/) (roughly $29/month for 10,000 operations), costs scale linearly. A mid-market RevOps team running enrichment loops through [Clay](/go/clay), syncing contacts into [HubSpot](/go/hubspot), triggering [Smartlead](/go/smartlead) sequences, and logging engagement back to Salesforce can burn 500,000 to 2 million operations per month without blinking. At that volume, Make's enterprise pricing enters the conversation fast.
 
 [n8n](/go/n8n) self-hosted on a $40/month DigitalOcean droplet or a $60/month AWS t3.medium instance has no operation caps. You pay for compute, not executions. One client I worked with at Homegrown Growth Co. was paying $340/month on Make's Business plan and moved to n8n on a $50/month VPS. Infrastructure cost dropped 85 percent. They added more workflows in the following quarter, because the psychological tax of "every trigger costs money" disappears completely when you own the runtime.
 
@@ -64,7 +65,7 @@ Make is built around a scenario-centric mental model where every automation is a
 
 n8n treats every workflow as a graph. Nodes fan out, merge, loop, and branch in ways that map more naturally to how complex GTM logic actually works. The [n8n docs on expressions](https://docs.n8n.io/code/expressions/) expose a JavaScript-based templating language that lets you transform data inline without spinning up a separate code node. And the Code node itself drops you into full JavaScript when you need it. I have rebuilt Make scenarios in n8n that required 18 modules and found that a single Code node with 30 lines of JavaScript was cleaner and faster to maintain than anything Make could produce.
 
-The data residency angle is not theoretical. By 2026, more RevOps teams at Series B and beyond are fielding questions from security and legal about where prospect and customer data lives during processing. With Make, the answer is always "Make's cloud infrastructure." With n8n self-hosted, the answer is "our own VPS in the region we choose," which is usually enough to close the compliance conversation before it becomes a blocker.
+The data residency angle is not theoretical. By 2026, more RevOps teams at Series B and beyond are fielding questions from security and legal about where prospect and customer data lives during processing. With Make, the answer is always "Make's cloud infrastructure." With [n8n self-hosted](/tools/n8n/), the answer is "our own VPS in the region we choose," which is usually enough to close the compliance conversation before it becomes a blocker.
 
 <SpectrumBar
   leftLabel="Make"
@@ -123,7 +124,7 @@ Most teams delay switching not because migration is hard, but because they have 
 
 ## What this shift signals for GTM infrastructure in 2026
 
-The n8n migration trend is part of a larger pattern I am watching across mid-market GTM teams: operators reclaiming control over the infrastructure layer. The SaaS-everything era trained teams to outsource every hosting decision to vendors. But as GTM stacks get more complex (Clay feeding [Apollo](/go/apollo) enrichment into HubSpot properties routing into Smartlead sequences with Gong call data looping back to update lifecycle stage), the cost and compliance overhead of cloud-only automation platforms compounds in ways that eventually become someone's quarterly problem.
+The n8n migration trend is part of a larger pattern I am watching across mid-market GTM teams: operators reclaiming control over the infrastructure layer. The SaaS-everything era trained teams to outsource every hosting decision to vendors. But as GTM stacks get more complex (Clay feeding [Apollo](/go/apollo) enrichment into [HubSpot](/tools/hubspot/) properties routing into [Smartlead sequences](/tools/smartlead/) with Gong call data looping back to update lifecycle stage), the cost and compliance overhead of cloud-only automation platforms compounds in ways that eventually become someone's quarterly problem.
 
 Self-hosted tooling is no longer an engineer hobby choice. It is a legitimate RevOps infrastructure decision that ops leads at Series B companies are now making themselves, without engineering involvement.
 

@@ -3,6 +3,7 @@ title: "Storydoc + HubSpot Proposal Automation Workflow"
 description: "Step-by-step tutorial to automate proposal delivery, tracking, and follow-up using Storydoc, HubSpot, and Make. Cut send time and close faster."
 tldr: "Connect Storydoc to HubSpot via Make to auto-generate proposals from deal data, track engagement in real time, and trigger follow-up sequences the moment a prospect views your deck."
 pubDate: 2026-07-02
+updatedDate: 2026-07-09
 tags: ["automation", "hubspot", "proposals"]
 faqs:
   - question: "Does Storydoc integrate directly with HubSpot?"
@@ -38,7 +39,7 @@ Storydoc changes the output format. [HubSpot](/go/hubspot) anchors the record. [
 
 ## Why This Stack and What You're Building
 
-The goal: a rep moves a deal to "Proposal" stage in HubSpot and, within 90 seconds, a fully personalized Storydoc story exists. The prospect's name, company, use case, and pricing are pulled directly from deal properties. A share link lands on the deal record. A follow-up enrollment fires only when the prospect actually opens the deck, not on a three-day timer.
+The goal: a rep moves a deal to "Proposal" stage in [HubSpot](/tools/hubspot/) and, within 90 seconds, a fully personalized Storydoc story exists. The prospect's name, company, use case, and pricing are pulled directly from deal properties. A share link lands on the deal record. A follow-up enrollment fires only when the prospect actually opens the deck, not on a three-day timer.
 
 Storydoc is worth calling out specifically because it tracks engagement at the section level. You can see that a viewer spent 4 minutes on the ROI slide and skipped the team slide entirely. That signal is ten times more actionable than a generic "proposal opened" ping from PandaDoc, and I'd push back on anyone who says otherwise. [Storydoc's own benchmark data](https://www.storydoc.com) shows interactive presentations close at higher rates than static PDFs. I've seen that hold directionally true across the B2B SaaS clients I work with at Homegrown Growth Co. The [HubSpot Research Sales Trends report](https://www.hubspot.com/sales-trends) consistently flags follow-up timing as a top close-rate driver, which is exactly what this automation addresses.
 
@@ -50,7 +51,7 @@ Storydoc is worth calling out specifically because it tracks engagement at the s
 
 ## The Full Workflow, Step by Step
 
-Before you build: you need a Storydoc account with API access (Business plan or above), a HubSpot account with custom deal properties enabled, and a Make account. You also need a Storydoc template already built with merge variable placeholders for `company_name`, `contact_first_name`, `use_case`, and `pricing_tier`. Set those up in Storydoc's template editor before touching the automation. Skipping this step and building the Make scenario first is the single most common mistake I see on first deploys.
+Before you build: you need a Storydoc account with API access (Business plan or above), a HubSpot account with custom deal properties enabled, and a [Make](/tools/make/) account. You also need a Storydoc template already built with merge variable placeholders for `company_name`, `contact_first_name`, `use_case`, and `pricing_tier`. Set those up in Storydoc's template editor before touching the automation. Skipping this step and building the Make scenario first is the single most common mistake I see on first deploys.
 
 <StepRow steps={[
   {

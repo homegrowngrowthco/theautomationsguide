@@ -28,6 +28,21 @@ const faqSchema =
         })),
       }
     : null;
+
+// SoftwareApplication entity for the tool (audit S-2): reinforces the tool as a
+// named entity in the graph and links our coverage of it. Only fields we can
+// state accurately from the registry — no fabricated ratings or prices.
+const softwareSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: tool.name,
+  applicationCategory: 'BusinessApplication',
+  applicationSubCategory: tool.category,
+  operatingSystem: 'Web',
+  description: tool.blurb,
+  url: `https://theautomationsguide.com/tools/${tool.slug}/`,
+  ...(tool.badgeFree ? { offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD' } } : {}),
+};
 ---
 
 <BaseLayout title={`${tool.name}: guides, reviews & alternatives`} description={description}>
@@ -118,6 +133,7 @@ const faqSchema =
     <p class="mt-lg"><a href="/tools/">&larr; All tools</a></p>
   </div>
 
+  <script type="application/ld+json" set:html={JSON.stringify(softwareSchema)} />
   {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
 </BaseLayout>
 

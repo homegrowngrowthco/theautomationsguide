@@ -1,16 +1,17 @@
 ---
-title: "Clay + Smartlead + n8n Cold Email Automation Stack"
+title: "Clay + Smartlead + n8n: The 2026 Cold Email Stack"
 description: "Step-by-step guide to building a cold email machine with Clay, Smartlead, and n8n. Covers enrichment, routing logic, and sending with real workflow triggers."
 tldr: "Build your list in Clay, use n8n to handle routing logic and data normalization, then push clean, segmented contacts into Smartlead campaigns via API, with explicit fallback branches for enrichment failures and field mismatches."
 pubDate: 2026-05-07
+updatedDate: 2026-07-09
 tags: ["guide", "automation", "cold-email"]
 ---
 
-Most cold email guides hand you a tool recommendation and a vague "connect it with Zapier" wave of the hand. What they skip is the messy middle: what happens when Clay returns a null job title, when a lead's company size puts them in two different sequences, or when Smartlead's API rejects a contact because the email field is formatted wrong. Those edge cases are where campaigns die. This post walks the exact Clay → n8n → Smartlead workflow I'd build for a RevOps team sending 500-2,000 contacts per week, including the fallback conditions most tutorials quietly pretend don't exist.
+Most cold email guides hand you a tool recommendation and a vague "connect it with Zapier" wave of the hand. What they skip is the messy middle: what happens when [Clay](/tools/clay/) returns a null job title, when a lead's company size puts them in two different sequences, or when [Smartlead](/tools/smartlead/)'s API rejects a contact because the email field is formatted wrong. Those edge cases are where campaigns die. This post walks the exact Clay → [n8n](/tools/n8n/) → Smartlead workflow I'd build for a RevOps team sending 500-2,000 contacts per week, including the fallback conditions most tutorials quietly pretend don't exist.
 
 ## Step 1: Build and Enrich Your List in Clay
 
-Clay is the right tool for enrichment-heavy list building. Its waterfall enrichment, sequencing providers like Apollo, Clearbit, Hunter, and LinkedIn scrapers, stopping when it gets a hit, is genuinely hard to replicate elsewhere. The credit system gets expensive fast if you're sloppy, so structure your table before you run anything.
+Clay is the right tool for enrichment-heavy list building. Its waterfall enrichment, sequencing providers like [Apollo](/tools/apollo/), Clearbit, Hunter, and LinkedIn scrapers, stopping when it gets a hit, is genuinely hard to replicate elsewhere. The credit system gets expensive fast if you're sloppy, so structure your table before you run anything.
 
 Start with a raw CSV or connect a source directly: Clay pulls from LinkedIn Sales Navigator exports, Apollo lists, or webhook-triggered inputs from your CRM. Build your base columns first, company domain, LinkedIn URL, first name, last name, then layer enrichment on top.
 

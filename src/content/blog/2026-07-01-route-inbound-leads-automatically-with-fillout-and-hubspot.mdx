@@ -3,6 +3,7 @@ title: "Route Inbound Leads Automatically with Fillout and HubSpot"
 description: "Step-by-step tutorial: use Fillout forms, HubSpot workflows, Make, and Chili Piper to route inbound leads automatically. No code required."
 tldr: "Connect Fillout to HubSpot natively, then use HubSpot workflows plus Make or Chili Piper to route, assign, and book inbound leads automatically based on form data."
 pubDate: 2026-07-01
+updatedDate: 2026-07-09
 tags: ["automation", "hubspot", "lead-routing"]
 faqs:
   - question: "Does Fillout integrate directly with HubSpot?"
@@ -32,9 +33,9 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-Most inbound lead routing failures are not a CRM problem. They are a form problem. The form collects a name and an email, hands nothing useful to [HubSpot](/go/hubspot), and leaves a human to open the record and decide what to do next. Fillout changes that equation. It lets you capture real qualification data with conditional logic on every step, sync every field directly into HubSpot contact and deal properties, and hand off to a routing workflow before the prospect has closed the tab.
+Most inbound lead routing failures are not a CRM problem. They are a form problem. The form collects a name and an email, hands nothing useful to [HubSpot](/go/hubspot), and leaves a human to open the record and decide what to do next. [Fillout](/tools/fillout/) changes that equation. It lets you capture real qualification data with conditional logic on every step, sync every field directly into [HubSpot](/tools/hubspot/) contact and deal properties, and hand off to a routing workflow before the prospect has closed the tab.
 
-This is the exact stack I use with B2B SaaS clients: Fillout as the intake layer, HubSpot workflows as the routing engine, [Make](/go/make) for cross-system edge cases, and Chili Piper for live calendar booking. No code. No Zapier tax.
+This is the exact stack I use with B2B SaaS clients: Fillout as the intake layer, [HubSpot workflows](/blog/2026-06-13-make-hubspot-workflows-for-revops-4-builds-that-matter/) as the routing engine, [Make](/go/make) for cross-system edge cases, and [Chili Piper](/tools/chili-piper/) for live calendar booking. No code. No Zapier tax.
 
 ## Why This Stack Beats Native HubSpot Forms
 
@@ -52,7 +53,7 @@ The routing logic itself still lives in HubSpot workflows, because that is where
 
 ## The Step-by-Step Routing Build
 
-Here is the full playbook. I am assuming HubSpot Sales Hub Professional and a Fillout account on at least the free tier. Chili Piper and Make are optional but covered in steps four and five.
+Here is the full playbook. I am assuming HubSpot Sales Hub Professional and a Fillout account on at least the free tier. Chili Piper and [Make](/tools/make/) are optional but covered in steps four and five.
 
 <StepRow steps={[
   {

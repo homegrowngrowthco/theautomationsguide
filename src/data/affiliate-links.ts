@@ -356,7 +356,7 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   circleback: {
     name: "Circleback",
     url: '',
-    homepageFallback: "https://www.circleback.ai/",
+    homepageFallback: "https://circleback.ai/",
     status: 'pending',
     notes: "Pipeline (not yet applied). Affiliate program availability to verify on application.",
   },
@@ -524,13 +524,6 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     name: 'Chili Piper',
     url: '',
     homepageFallback: 'https://www.chilipiper.com/',
-    status: 'pending',
-    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
-  },
-  'factors-ai': {
-    name: 'Factors.ai',
-    url: '',
-    homepageFallback: 'https://www.factors.ai/',
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },

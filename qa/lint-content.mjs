@@ -31,7 +31,10 @@ const readSlugs = () => {
   // The optional quotes matter: 4 quoted keys were silently absent from this set before.
   const affiliate = new Set([...block.matchAll(/^\s{2}['"]?([a-z0-9-]+)['"]?:\s*\{/gm)].map((m) => m[1]));
   const tools = readFileSync('src/data/tools.ts', 'utf-8');
-  const toolSlugs = new Set([...tools.matchAll(/slug:\s*'([a-z0-9-]+)'/g)].map((m) => m[1]));
+  // Quote-agnostic: LP-builder entries are emitted via JSON.stringify (double
+  // quotes), so a single-quote-only regex silently missed attio/fillout/etc. and
+  // would 404-flag valid /tools/<slug> links. Same class as the affiliate fix above.
+  const toolSlugs = new Set([...tools.matchAll(/slug:\s*['"]([a-z0-9-]+)['"]/g)].map((m) => m[1]));
   return { affiliate, toolSlugs };
 };
 const { affiliate, toolSlugs } = readSlugs();
