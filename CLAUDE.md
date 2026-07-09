@@ -1,4 +1,23 @@
-# Session Log — last updated 2026-07-08 (Session 60)
+# Session Log — last updated 2026-07-09 (Session 62)
+
+## Quick reference — recent additions (Session 62, 2026-07-09)
+
+**PR #180 (OPEN, `content/seo-internal-links-freshness`, 70 files, +711/-152) ships the top SEO/GEO growth levers in one content PR; grounded in a fresh 2026-07-09 GSC snapshot. Engine-side work (S-1b slug feed + S-4 CTA floor) deferred to a separate n8n-deploy session.**
+
+Ian asked about pushing content volume to 2-3/day. Pulled a fresh **2026-07-09 GSC snapshot** (new [gsc-search-analytics.py](gsc-search-analytics.py), Search Analytics API, same cached `~/.gsc/` token): 28d = **8 clicks / 5,994 impr / CTR 0.13% / avg pos 51** vs the 7/03 baseline (7 / 5,040 / 0.14% / 51) — impressions up ~19%, clicks still flat at ~0. Decisive detail: **17 posts + 1 hub rank page-1 (pos ≤10) with zero clicks**, and the **top-impression pages are the orphan tool hubs** (/tools/getresponse pos 50, bland-ai 65, lusha 78). Bottleneck is authority/CTR, not supply → **recommendation: hold at 1/day**, fix the mesh + CTR first. Queue is NOT the constraint: **74 topics Queued** in Notion as of 7/09 (~74 days runway).
+
+**PR #180 (verified build 137pp / lint 0 hard / mobile-overflow 0/61):**
+- **S-1(a) internal-link mesh** — new [internal-link-mesh.mjs](internal-link-mesh.mjs): per post the LLM picks a **verbatim existing phrase** to hyperlink (it never writes prose); the script wraps it deterministically with forbidden-range guards (code fences, existing links, multi-line `<Component>` blocks, headings) + an anchor-length cap; a name-fallback links the tool's own name at its first safe prose occurrence (non-ambiguous aliases only, so "Make" is never linked inside "Make sure"). **179 contextual links across 59 posts; 42 hubs now have in-body inbound links, up from 4.** Idempotent (per-href dedup). **AI-detection-safe by construction** (only re-wraps Ian's own words, zero generated prose). 3 QA iterations closed the component-prop / heading / clause-anchor edge cases.
+- **S-3 freshness** — `updatedDate: 2026-07-09` on all 59 edited posts, so `dateModified` JSON-LD + the "Updated" byline now populate (cheapest EEAT signal; bootstraps the S-3 process).
+- **S-2/S-7 schema** — `SoftwareApplication` JSON-LD on all tool hubs; `ItemList` on /reviews, /playbooks, /teams/* via new shared [ItemListSchema.astro](src/components/ItemListSchema.astro).
+- **S-5 title/CTR** — the **4 audit-scoped titles only** (voice preserved, no dashes, ≤57ch, freshness-dated): migrate-substack-to-kit ("in 2026"), apollo-vs-clay ("Sales Nav" to "Sales Navigator"), clay-smartlead-n8n ("The 2026 Cold Email Stack"), revops-500mo ("The $500/mo" front-loaded). **Deliberately did NOT churn the other ~13 page-1-zero-click titles**: they're already strong, their zero-clicks are position/volume-driven, so mesh + freshness are the real lever and rewriting good indexed titles would churn rankings + strip the first-person voice.
+- **S-6** — circleback `/go` homepage fallback `www.` to apex (apex 200, `www.` TLS-fails; kills the interstitial).
+- **Bug fix** — [qa/lint-content.mjs](qa/lint-content.mjs) tool-slug regex made quote-agnostic (was single-quote-only, blind to double-quoted LP-builder hubs like attio/fillout; would have 404-flagged the new mesh links). Same class as the S28 registry.mjs fix.
+- **Tooling** — `gsc-search-analytics.py` (repeatable GSC clicks/impr/CTR/pos snapshot + page-1-zero-click set); `backlog/build-backlog.mjs --status` (read-only Content Calendar queue census; needs `NOTION_TOKEN`).
+
+**Revert:** `git revert <PR #180 squash-sha>` (all additive). **Worktree:** `C:\tmp\tag-seo-mesh` (removed). **Still open (separate n8n-deploy session):** S-1(b) engine slug feed (new posts get contextual hub + sibling links at generation, else the mesh decays as posts publish) + S-4 tutorial CTA floor, both engine-prompt changes needing one live n8n redeploy (build, QA, deploy once verified).
+
+> Session 61 (2026-07-09) = the Factors.ai / dotted-domain auto-register fixes (PR #177/#178), logged in STATUS.md + op #453; no separate CLAUDE.md quick-ref was written for it.
 
 ## Quick reference — recent additions (Session 60, 2026-07-08)
 
