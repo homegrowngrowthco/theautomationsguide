@@ -1,4 +1,30 @@
-# Session Log — last updated 2026-07-08 (Session 60)
+# Session Log — last updated 2026-07-09 (Session 61)
+
+## Quick reference — recent additions (Session 61, 2026-07-09)
+
+**PR #177 (RB2B vs Warmly vs Vector vs Factors) failed QA again — root-caused TWO independent failures behind "why can't it find the URLs?", unblocked the PR, then shipped two durable fixes that close the class. PR #177 MERGED (`8b67a00`); fixes PR #178 MERGED (`045a3f8`).**
+
+Ian: "PR177 failed AGAIN why can't it find the URLs? When I google factors.ai there are clear URLs available wtf?" It was never a Google/availability problem — two separate mechanisms:
+
+- **Root cause 1 — auto-register genuinely can't resolve `Factors.ai` (the dotted-domain class).** The post's slug is `factors-ai`. `resolveHomepage()` de-hyphenates to `factorsai` and the TLD probe only ever builds `factorsai.com/.io/.ai/...` — it **never constructs the real `factors.ai`** (where the `.ai` IS the TLD, not part of the name), so it correctly declined and posted the "QA needs one thing" ask. Same family as customer.io (S48). This half worked as designed.
+- **Root cause 2 — Ian's reply couldn't be parsed (the actual "nothing happened").** [handle-tool-reply.yml](.github/workflows/handle-tool-reply.yml) only understood `slug = url`. Ian replied `Factors AI link: https://www.factors.ai/` — no `=`, zero pairs. **Worse:** his reply quoted the entire bot comment, so the only `slug = url` pattern *anywhere* in the body was the bot's own example ``otter = https://otter.ai`` — i.e. if the (runner-stuck) reply-handler had parsed anything, it would have registered **Otter**, not Factors. (GitHub runners were badly backed up all session; the reply-handler run sat queued ~13 min then died at infra with no steps — harmless.)
+
+### Unblock (PR #177, `bdd43c9` → merged `8b67a00`)
+
+`C:\tmp\tag-pr177` worktree (no OneDrive churn), `node_modules` junctioned from the main checkout so `sharp` was available: `node qa/auto-register-tools.mjs --post <mdx> --url-hint factors-ai=https://www.factors.ai/` → registered `factors-ai` in affiliate-links.ts + tools.ts + sourced a real 256×256 logo (`unresolved: []`). `lint-content` + `lint-logos` both 0 hard → pushed → Netlify preview green → merged.
+
+### Durable fixes (PR #178, `045a3f8`; worktree `C:\tmp\tag-pr177-fix` off master)
+
+1. **[qa/auto-register-tools.mjs](qa/auto-register-tools.mjs) — dotted-domain probe.** If the slug's last hyphen segment is a known TLD (`ai`/`io`/`co`/`so`/`app`/`dev`/`com`), read it as the TLD: add `<stem>.<tld>` (e.g. `factors.ai`) to the probe hosts AND add the bare stem (`factors`) to the identity targets (the site titles itself "Factors.ai: The AI ABM…", so the stem is the real identity). Refactored the `bases × TLDS` double-loop into one de-duped `hosts` Set; the placeholder check and TLD tiebreak now derive from the host string. **Verified end-to-end** on a throwaway post: `factors-ai` auto-resolves to `https://www.factors.ai/` with **no url-hint**; test registry/logo writes reverted so the diff is code-only. Also recovers customer.io / reply.io without a human hint.
+2. **[.github/workflows/handle-tool-reply.yml](.github/workflows/handle-tool-reply.yml) — accept a bare URL + kill the quote trap.** New `pending` github-script step scrapes the `affiliateSlug`(s) from the latest github-actions "QA needs one thing" ask on the PR. The parse step now (a) **drops reply-quoted lines** (`^\s*>`) FIRST, so the bot's `otter = https://otter.ai` example inside a quoted comment is never parsed, and (b) when exactly ONE tool is pending and no explicit `slug = url` is given, maps the first bare URL in the reply to that slug. **Verified** against Ian's actual PR #177 reply → `factors-ai=https://www.factors.ai/` (otter ignored); the pending-slug regex tested against the real bot comment → `factors-ai`; YAML parses (8 steps).
+
+### Key notes
+
+- **The rigid `slug = url` reply format has now silently swallowed Ian's replies twice** (S51 = backtick-wrapping; S61 = natural language + quoted example). Bare-URL acceptance is the real durable fix; the resolver change means `.ai`/`.io`/`.co` brands shouldn't even reach the reply step anymore.
+- **Reverts:** `git revert 045a3f8` (both fixes) · the #177 squash is content.
+- Worktree `node_modules` junction trick (for `sharp` in an isolated worktree): `cmd //c mklink //J <worktree>\node_modules <main>\node_modules`, then `cmd //c rmdir` the junction before `git worktree remove` so it can't recurse into the real tree.
+
+---
 
 ## Quick reference — recent additions (Session 60, 2026-07-08)
 
