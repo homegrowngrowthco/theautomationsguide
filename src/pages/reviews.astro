@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
+import ItemListSchema from '../components/ItemListSchema.astro';
 import { getCollection } from 'astro:content';
 
 // "Comparisons" = the head-to-head, buyer-intent "X vs Y" content (the
@@ -35,4 +36,5 @@ const posts = all
       </div>
     )}
   </div>
+  <ItemListSchema name="Tool Comparisons" items={posts.map((p) => ({ url: `/blog/${p.slug}/`, name: p.data.title }))} />
 </BaseLayout>

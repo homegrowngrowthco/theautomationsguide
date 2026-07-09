@@ -3,6 +3,7 @@ title: "How to Automate Your Sales-to-CS Handoff with HubSpot and Slack"
 description: "A step-by-step playbook for building a reliable, automated sales handoff workflow using HubSpot workflows, Slack notifications, and Make."
 tldr: "Trigger a HubSpot workflow on Deal Stage = Closed Won → fire a webhook to Make → Make routes data to Slack, creates a CS task, and logs a note. Cuts handoff time from 24-48 hours to under 1 hour."
 pubDate: 2026-04-18
+updatedDate: 2026-07-09
 author: "The Automations Guide"
 tags: ["HubSpot", "Slack", "Workflow", "Playbook"]
 faqs:
@@ -32,7 +33,7 @@ This doesn't have to happen. Here's a complete automation playbook for building 
 
 ## What the automation will do
 
-When a deal moves to **Closed Won** in HubSpot, the automation runs five things in sequence:
+When a deal moves to **Closed Won** in [HubSpot](/tools/hubspot/), the automation runs five things in sequence:
 
 <StepRow steps={[
   { title: "Pull deal + contact data", body: "HubSpot workflow extracts deal name, value, owner, and associated contact + company records." },
@@ -58,7 +59,7 @@ In HubSpot, navigate to **Automation → Workflows → Create workflow**.
 - Set the enrollment trigger to: **Deal stage is Closed Won**
 - Choose "Re-enroll" as "No" (you don't want this firing twice)
 
-At this point, you have a workflow that will fire every time a deal closes. Now you need to decide: do you want to build the entire flow in HubSpot, or hand off to Make?
+At this point, you have a workflow that will fire every time a deal closes. Now you need to decide: do you want to build the entire flow in HubSpot, or hand off to [Make](/tools/make/)?
 
 **If your handoff logic is simple** (one CSM pool, round-robin assignment), HubSpot workflows alone can handle it.
 

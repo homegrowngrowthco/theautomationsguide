@@ -3,6 +3,7 @@ title: "The $1K/mo Enterprise RevOps Stack Decoded"
 description: "When does a Salesforce + Gong + Outreach stack actually pay for itself? A framework for budgeting enterprise RevOps without premature complexity."
 tldr: "A $1K/mo RevOps stack is right for teams under 15 reps with a single pipeline motion; the 3x enterprise stack (Salesforce + Gong + Outreach) pays for itself only when you hit multi-segment selling, manager coaching workflows, and sequence volume above 2,000 touches per month."
 pubDate: 2026-06-03
+updatedDate: 2026-07-09
 tags: ["revops", "automation", "sales-ops"]
 faqs:
   - question: "What does a typical enterprise RevOps stack cost per month?"
@@ -41,7 +42,7 @@ Every RevOps operator I know has sat in a budget review defending a $5,000 month
 
 The $1K ceiling isn't arbitrary. It's roughly the budget where a 5-to-12-rep team can assemble a complete, non-embarrassing GTM stack using best-in-class growth-tier tools. In practice, I see this tier land around [HubSpot](/go/hubspot) Sales Pro ($500/mo for 5 seats) plus [Apollo](/go/apollo) for prospecting data ($150/mo), [Smartlead](/go/smartlead) for sequencing ($100/mo), and [n8n](/go/n8n) cloud for automation glue ($50/mo). That's $800/mo with real headroom. (Below 5 reps, even this tier is premature. Start with the [under-$200/mo outbound stack](/blog/2026-05-08-cheap-outbound-sales-stack-for-small-b2b-teams-under-200mo/) and graduate when the seats demand it.)
 
-The honest limitation isn't features. It's operational ceiling. HubSpot's reporting starts to groan under complex multi-touch attribution around the 15-rep mark. Apollo's data quality degrades on hyper-niche ICPs where the contact universe is under 5,000 accounts. Smartlead lacks the bi-directional Salesforce sync that enterprise AEs expect after their first ramp month. [Salesforce's own State of Sales report](https://www.salesforce.com/resources/research-reports/state-of-sales/) shows that reps at companies with mature CRM adoption spend 28% more time on core selling activities. But "mature CRM adoption" requires admin investment the $1K stack simply doesn't budget for. Know that going in.
+The honest limitation isn't features. It's operational ceiling. [HubSpot](/tools/hubspot/)'s reporting starts to groan under complex multi-touch attribution around the 15-rep mark. Apollo's data quality degrades on hyper-niche ICPs where the contact universe is under 5,000 accounts. [Smartlead](/tools/smartlead/) lacks the bi-directional Salesforce sync that enterprise AEs expect after their first ramp month. [Salesforce's own State of Sales report](https://www.salesforce.com/resources/research-reports/state-of-sales/) shows that reps at companies with mature CRM adoption spend 28% more time on core selling activities. But "mature CRM adoption" requires admin investment the $1K stack simply doesn't budget for. Know that going in.
 
 <SideBySide>
   <Fragment slot="left">
@@ -51,7 +52,7 @@ The honest limitation isn't features. It's operational ceiling. HubSpot's report
   </Fragment>
   <Fragment slot="right">
     <Figure caption="A real n8n workflow: a new-lead webhook enriches the company, upserts to HubSpot, then routes by ICP fit to a Smartlead sequence or a Slack alert. Self-hosted, no per-task pricing.">
-      <a href="/go/n8n" target="_blank" rel="noopener noreferrer sponsored">
+      <a href="/go/[n8n](/tools/n8n/)" target="_blank" rel="noopener noreferrer sponsored">
         <img src="/screenshots/n8n.png" alt="An example n8n workflow canvas: webhook to enrichment to HubSpot to an ICP branch routing to Smartlead or Slack" loading="lazy" />
       </a>
     </Figure>

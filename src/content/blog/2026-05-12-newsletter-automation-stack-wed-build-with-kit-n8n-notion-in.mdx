@@ -3,6 +3,7 @@ title: "Newsletter Automation Stack We'd Build with Kit + n8n + Notion in 2026"
 description: "The exact newsletter automation stack we'd build in 2026: Kit, n8n, and Notion for welcome sequences, behavioral tagging, and churn re-engagement."
 tldr: "Kit + n8n + Notion gives you a behaviorally-aware, operationally transparent newsletter stack for roughly $130/month, covering welcome sequences, PostHog-driven behavioral tagging, and churn re-engagement without a single no-code dependency on Zapier's pricing tiers."
 pubDate: 2026-05-12
+updatedDate: 2026-07-09
 tags: ["tools", "automation", "email", "workflow-automation"]
 faqs:
   - question: "What is the best newsletter automation stack in 2026?"
@@ -37,9 +38,9 @@ Most newsletter stacks are either wildly over-engineered (Salesforce Marketing C
 
 ## The Stack and Why Each Tool Earns Its Seat
 
-Kit is the anchor. It stores subscribers, sends sequences and broadcasts, manages tags, and hosts your opt-in forms and landing pages. Critically, it has a clean API and a native n8n node, which means you're not hacking together Zapier webhooks just to apply a tag. The Creator plan is the minimum viable tier here; it unlocks automations and sequences, which you need for everything below.
+[Kit is the anchor](/tools/kit/). It stores subscribers, sends sequences and broadcasts, manages tags, and hosts your opt-in forms and landing pages. Critically, it has a clean API and a native n8n node, which means you're not hacking together Zapier webhooks just to apply a tag. The Creator plan is the minimum viable tier here; it unlocks automations and sequences, which you need for everything below.
 
-[n8n](/go/n8n) is the connective tissue. It runs your automation logic: listening for PostHog events, deciding which tag to apply, hitting Kit's API, updating Notion, and handling re-engagement timers. If you've been using Zapier for this, you're overpaying and under-automating. n8n's branching logic and sub-workflows handle complexity that Zapier multi-step zaps make ugly and expensive. Self-host on a $6/month VPS or use n8n Cloud Starter at $20/month, your call based on how much you want to babysit Docker.
+[n8n](/go/n8n) is the [connective tissue](/tools/n8n/). It runs your automation logic: listening for PostHog events, deciding which tag to apply, hitting Kit's API, updating Notion, and handling re-engagement timers. If you've been using Zapier for this, you're overpaying and under-automating. n8n's branching logic and sub-workflows handle complexity that Zapier multi-step zaps make ugly and expensive. Self-host on a $6/month VPS or use n8n Cloud Starter at $20/month, your call based on how much you want to babysit Docker.
 
 Notion is the operations layer. Every segment definition, tag taxonomy, editorial calendar, and re-engagement threshold lives in a Notion database your team can edit without touching the automation itself. n8n reads from Notion via API to make dynamic decisions. Update a segment threshold in Notion, and the automation adapts on its next run, no workflow editor required.
 

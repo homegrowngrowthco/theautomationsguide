@@ -1,8 +1,9 @@
 ---
-title: "Migrate Substack to Kit Without Losing Subscribers"
+title: "Migrate Substack to Kit in 2026 Without Losing Subscribers"
 description: "Exact CSV export steps, re-permission email template, and tag setup to migrate Substack to Kit cleanly. Plus what breaks and how to handle it."
 tldr: "Export your Substack CSV, clean it in a spreadsheet, import into Kit with source tags, send a re-permission sequence before your first broadcast, and accept that paid subscriptions, Substack Recommendations, and archive URLs do not migrate automatically."
 pubDate: 2026-05-21
+updatedDate: 2026-07-09
 tags: ["guide", "automation", "email"]
 faqs:
   - question: "Can I migrate paid Substack subscribers to Kit?"
@@ -43,7 +44,7 @@ Before touching a single CSV, get clear on what Substack is holding that [Kit](/
 
 Substack's subscriber CSV is clean and consistent. That is a genuine advantage. What it does not include is behavioral data, tag history, or any segmentation, because Substack does not expose that. Every subscriber you import arrives as a flat, untagged contact. That is the real migration problem, not the export.
 
-Don't bother trying to infer engagement history from Substack's export columns. There isn't enough signal. Build your engagement picture from scratch in Kit using the re-permission sequence below.
+Don't bother trying to infer engagement history from Substack's export columns. There isn't enough signal. Build your engagement picture from scratch in [Kit](/tools/kit/) using the re-permission sequence below.
 
 ## The export, clean, and import steps
 
@@ -114,7 +115,7 @@ Three things do not migrate. Each needs a separate decision.
 
 **Paid subscriptions.** Substack manages billing through its own Stripe integration. Kit does not absorb that. Your options: (1) migrate paid subscribers to a Kit paid newsletter product manually by recreating the Stripe product and emailing each paid subscriber with a new subscription link, or (2) keep Substack open in paid-only mode while you run free content on Kit. I've watched option two cause more confusion than it solves at every client where someone tried it. The cleaner move is to personally email every paid subscriber, acknowledge the transition, and offer a free month on the new platform as a goodwill gesture. [Substack's own help docs](https://support.substack.com/hc/en-us/articles/360037683512) detail how to export the paid subscriber list separately with billing dates included.
 
-**Recommendations.** Substack's Recommendations network is a closed growth loop that does not exist in Kit. If Recommendations has been a meaningful acquisition channel, you are trading it off for Kit's better automation and segmentation. There is no workaround. Kit has a referral program feature, but it requires active setup and is not a passive network effect. Be honest with yourself about how much of your growth came from Recommendations before you commit to migrating.
+**Recommendations.** Substack's Recommendations network is a closed growth loop that does not exist in Kit. If Recommendations has been a meaningful acquisition channel, you are trading it off for Kit's better automation and segmentation. There is no workaround. Kit has a [referral program feature](/blog/2026-07-04-beehiiv-kit-newsletter-automation-stack-under-300/), but it requires active setup and is not a passive network effect. Be honest with yourself about how much of your growth came from Recommendations before you commit to migrating.
 
 **Archive URLs.** Every post you published on Substack lives at yourpublication.substack.com/p/post-slug. Those URLs do not redirect anywhere. They stay live as long as your Substack account exists, but the moment you shut it down, the links go dark. My recommendation: keep the Substack publication live in read-only mode indefinitely, or export your post content via Substack's publication export and republish the archive on your own domain with 301 redirects. The [Substack export tool](https://support.substack.com/hc/en-us/articles/360037466012) exports posts as HTML files you can import into a static site or CMS.
 

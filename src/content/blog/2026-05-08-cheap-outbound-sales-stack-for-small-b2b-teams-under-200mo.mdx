@@ -3,6 +3,7 @@ title: "Cheap Outbound Sales Stack for Small B2B Teams Under $200/mo"
 description: "Apollo starter + Smartlead + n8n self-hosted gives bootstrapped B2B teams a full outbound engine for under $200/mo. Here's the exact math and setup."
 tldr: "Apollo Basic + Smartlead Starter + self-hosted n8n running on a $10 VPS gets you a production-grade outbound engine for roughly $100-$120/mo, with room to add HubSpot free CRM and still stay well under the $200 ceiling."
 pubDate: 2026-05-08
+updatedDate: 2026-07-09
 tags: ["guide", "automation", "outbound"]
 faqs:
   - question: "What is the cheapest outbound sales stack for a small B2B team?"
@@ -43,7 +44,7 @@ The organizing principle here is separation of concerns. [Apollo](/go/apollo) do
 
 [HubSpot's](/go/hubspot) free CRM tier sits at the end of the pipeline as the record of truth. Not glamorous. But it handles contact storage, deal stages, and basic activity logging well enough for a team running under 500 active prospects at a time. When you outgrow it, you'll have the revenue to justify upgrading. You're not there yet, and that's fine.
 
-One strong opinion before we go further: don't use Apollo's built-in sequencer on this budget. The sending infrastructure isn't where Apollo earns its money, the data is. Hand off to Smartlead the moment a prospect hits a sequence. You'll get better deliverability and cleaner reply routing almost immediately.
+One strong opinion before we go further: don't use [Apollo's built-in sequencer](/tools/apollo/) on this budget. The sending infrastructure isn't where Apollo earns its money, the data is. Hand off to [Smartlead](/tools/smartlead/) the moment a prospect hits a sequence. You'll get better deliverability and cleaner reply routing almost immediately.
 
 <div class="comparison-table-scroll">
   <ComparisonTable title="Under-$200 Outbound Stack: Tool Breakdown" tools={[
@@ -124,7 +125,7 @@ Here's the core workflow loop that keeps this stack running without a full-time 
 
 <SideBySide>
   <Fragment slot="left">
-    **The trap most teams hit:** they wire up the forward path, prospect to sequence to reply, and leave every feedback loop disconnected. Bounces stack up in Apollo because nothing writes them back. Unsubscribes from Smartlead go nowhere, so the same contact gets re-exported six weeks later and you've now burned a compliance risk on someone who already opted out. The n8n suppression workflow is tedious to build and non-negotiable to have. Ninety minutes once, runs indefinitely.
+    **The trap most teams hit:** they wire up the forward path, prospect to sequence to reply, and leave every feedback loop disconnected. Bounces stack up in Apollo because nothing writes them back. Unsubscribes from Smartlead go nowhere, so the same contact gets re-exported six weeks later and you've now burned a compliance risk on someone who already opted out. The [n8n](/tools/n8n/) suppression workflow is tedious to build and non-negotiable to have. Ninety minutes once, runs indefinitely.
   </Fragment>
   <Fragment slot="right">
     ```json
@@ -180,7 +181,7 @@ Here's the full math, explicitly:
 | Apollo | Basic | $49 |
 | Smartlead | Starter | $39 |
 | n8n | Self-hosted (Hetzner VPS) | $10 |
-| HubSpot | Free CRM | $0 |
+| [HubSpot](/tools/hubspot/) | Free CRM | $0 |
 | Google Workspace (2 inboxes) | Business Starter | $14 |
 | **Total** | | **$112/mo** |
 

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostCard from '../../components/PostCard.astro';
+import ItemListSchema from '../../components/ItemListSchema.astro';
 import { audiences, getAudiencePosts, type Audience } from '../../data/audiences';
 
 export async function getStaticPaths() {
@@ -36,4 +37,5 @@ const teamWord = audience.navLabel.replace(/^For /, '');
       </div>
     )}
   </div>
+  <ItemListSchema name={audience.title} items={posts.map((p) => ({ url: `/blog/${p.slug}/`, name: p.data.title }))} />
 </BaseLayout>

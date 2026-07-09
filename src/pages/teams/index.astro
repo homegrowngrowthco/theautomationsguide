@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ItemListSchema from '../../components/ItemListSchema.astro';
 import { audiences, getAudiencePosts } from '../../data/audiences';
 
 const counts = await Promise.all(
@@ -32,4 +33,5 @@ const countBySlug = Object.fromEntries(counts);
       ))}
     </div>
   </div>
+  <ItemListSchema name="Browse by Team" items={audiences.map((a) => ({ url: `/teams/${a.slug}/`, name: a.navLabel }))} />
 </BaseLayout>

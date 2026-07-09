@@ -3,6 +3,7 @@ title: "Beehiiv + Kit Newsletter Automation Stack Under $300"
 description: "How to combine Beehiiv's growth features with Kit's simplicity and n8n automation into a newsletter stack that stays under $300/month."
 tldr: "Run Beehiiv for referral programs and paid tiers, Kit as your CMS and sequence engine, and n8n to wire them together for under $300 per month total."
 pubDate: 2026-07-04
+updatedDate: 2026-07-09
 tags: ["guide", "automation", "newsletter"]
 faqs:
   - question: "Can you use Beehiiv and Kit together?"
@@ -32,7 +33,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-Most newsletter operators land in one of two traps. They pick [Beehiiv](/go/beehiiv/) and hit a ceiling the moment they want conditional automations with any real branching logic. Or they pick [Kit](/go/kit/) and realize there is no native referral engine, no boost-style paid acquisition channel, nothing. I have been consulting on newsletter infrastructure for B2B operators at Homegrown Growth Co. for a few years now, and the stack I keep landing on is exactly this: Beehiiv handles the growth surface, Kit handles the sequence and CMS layer, and [n8n](/go/n8n/) wires the two together for under $300/month total.
+Most newsletter operators land in one of two traps. They pick [Beehiiv](/go/beehiiv/) and hit a ceiling the moment they want conditional automations with any real branching logic. Or they pick [Kit](/go/kit/) and realize there is no native referral engine, no boost-style paid acquisition channel, nothing. I have been consulting on newsletter infrastructure for B2B operators at Homegrown Growth Co. for a few years now, and the stack I keep landing on is exactly this: [Beehiiv](/tools/beehiiv/) handles the growth surface, [Kit handles the sequence](/tools/kit/) and CMS layer, and [n8n](/go/n8n/) wires the two together for under $300/month total.
 
 <PullQuote>The best newsletter stack is not the one with the most features in a single tool. It is the one where each tool does the one job it is genuinely best at, and automation fills the gaps.</PullQuote>
 
@@ -60,7 +61,7 @@ My recommendation: do not try to replicate one platform's strengths inside the o
 
 ## How to build the stack
 
-The architecture is straightforward. Beehiiv is the subscriber front door and monetization layer. Kit is the behavioral automation and sequence engine. n8n is the sync layer that keeps both systems honest.
+The architecture is straightforward. Beehiiv is the subscriber front door and monetization layer. Kit is the behavioral automation and sequence engine. n8n is the [sync layer](/tools/n8n/) that keeps both systems honest.
 
 <StepRow steps={[
   {
@@ -113,7 +114,7 @@ The architecture is straightforward. Beehiiv is the subscriber front door and mo
 
 <Figure class="post-screenshot" caption="n8n workflow canvas showing a webhook trigger feeding into normalization, branching logic, and Kit plus Slack output nodes.">
   <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
-    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with webhook trigger, enrichment step, ICP branch, and Smartlead and Slack nodes" loading="lazy" />
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with webhook trigger, enrichment step, ICP branch, and [Smartlead](/tools/smartlead/) and Slack nodes" loading="lazy" />
   </a>
 </Figure>
 

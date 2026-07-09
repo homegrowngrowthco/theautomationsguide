@@ -1,0 +1,24 @@
+---
+// Emits ItemList JSON-LD for a directory/listing page (audit S-7): /reviews,
+// /playbooks, /teams/*. Reinforces each listing as an ordered set of items in the
+// entity graph. One source of truth so the four listing pages can't drift.
+interface Props {
+  items: { url: string; name: string }[];
+  name?: string;
+}
+const { items, name } = Astro.props;
+const SITE = 'https://theautomationsguide.com';
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  ...(name ? { name } : {}),
+  numberOfItems: items.length,
+  itemListElement: items.map((it, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    url: it.url.startsWith('http') ? it.url : SITE + it.url,
+    name: it.name,
+  })),
+};
+---
+{items.length > 0 && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}

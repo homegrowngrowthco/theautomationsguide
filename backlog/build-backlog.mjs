@@ -49,9 +49,21 @@ const MINE_ONLY = process.argv.includes('--mine-only');
 // rows never auto-publish). Requires NOTION_TOKEN. The DB id defaults to the same
 // Content Calendar the engine reads (Config.topicsDatabaseId); override via env.
 const STAGE = process.argv.includes('--stage');
+const STATUS = process.argv.includes('--status');
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
 const NOTION_DB = process.env.NOTION_DATABASE_ID || '62f34586-4f78-4b83-b2ac-105f500d059e';
 const NOTION_VERSION = '2022-06-28'; // matches the live engine's Notion-Version header
+
+// --status: read-only queue census (no LLM, no writes). Answers "how many Queued
+// topics are left before the daily engine runs dry". Requires NOTION_TOKEN.
+if (STATUS) {
+  if (!NOTION_TOKEN) {
+    console.error('--status requires NOTION_TOKEN. Run: node --env-file=<path-with-NOTION_TOKEN> backlog/build-backlog.mjs --status');
+    process.exit(1);
+  }
+  await queueStatus();
+  process.exit(0);
+}
 
 if (!process.env.ANTHROPIC_API_KEY && !MINE_ONLY) {
   console.error('ANTHROPIC_API_KEY not set. Add it to .env (project root) or your environment.');
@@ -208,6 +220,45 @@ async function fetchNotionCalendar(universe) {
     cursor = res.json.has_more ? res.json.next_cursor : undefined;
   } while (cursor);
   return rows;
+}
+
+// Read-only queue census (drives --status). Tallies Content Calendar rows by
+// Status and reports the Queued runway (how many posts the daily engine can still
+// publish before it hits the "Slack Queue Empty" alert).
+async function queueStatus() {
+  const byStatus = new Map();
+  const queued = [];
+  const suggested = [];
+  let cursor;
+  do {
+    const res = await notionApi('POST', `/databases/${NOTION_DB}/query`, { page_size: 100, start_cursor: cursor });
+    if (!res.ok) throw new Error(`Notion query failed (${res.status}): ${JSON.stringify(res.json).slice(0, 300)}`);
+    for (const page of res.json.results || []) {
+      const props = page.properties || {};
+      const status = props.Status?.select?.name || '(none)';
+      const topic = (props.Topic?.title || []).map((t) => t.plain_text).join('').trim();
+      const pub = props['Pub Date']?.date?.start || '';
+      byStatus.set(status, (byStatus.get(status) || 0) + 1);
+      if (status === 'Queued') queued.push({ topic, pub });
+      if (status === 'Suggested') suggested.push({ topic, pub });
+    }
+    cursor = res.json.has_more ? res.json.next_cursor : undefined;
+  } while (cursor);
+
+  const order = ['Queued', 'Suggested', 'Generating', 'In Review', 'Published', 'Skipped'];
+  const keys = [...new Set([...order, ...byStatus.keys()])].filter((k) => byStatus.has(k));
+  console.log(`\n=== CONTENT CALENDAR QUEUE (db ${NOTION_DB}) ===`);
+  for (const k of keys) console.log(`  ${k.padEnd(12)} ${byStatus.get(k)}`);
+
+  queued.sort((a, b) => (a.pub || '').localeCompare(b.pub || ''));
+  const dated = queued.filter((q) => q.pub);
+  console.log(`\nRUNWAY: ${queued.length} Queued topic(s) left` +
+    (dated.length ? ` (Pub Dates ${dated[0].pub} .. ${dated[dated.length - 1].pub})` : '') + '.');
+  const today = new Date().toISOString().slice(0, 10);
+  const future = dated.filter((q) => q.pub >= today).length;
+  if (queued.length === 0) console.log('  >> EMPTY: the next daily run will fire the "Slack Queue Empty" alert. Top up now.');
+  else console.log(`  ${future} dated today-or-later; ${suggested.length} Suggested rows staged and ready to flip to Queued.`);
+  for (const q of queued.slice(0, 15)) console.log(`   - ${q.pub || '(no date)'}  ${q.topic.slice(0, 70)}`);
 }
 
 async function stageToNotion(kept) {

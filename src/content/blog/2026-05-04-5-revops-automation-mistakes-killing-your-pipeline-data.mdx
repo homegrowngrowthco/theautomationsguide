@@ -3,6 +3,7 @@ title: "5 RevOps Automation Mistakes Killing Your Pipeline Data"
 description: "These 5 RevOps automation mistakes corrupt pipeline data quality at the source. Learn the exact tool fixes for HubSpot, Clay, Zapier, and more."
 tldr: "The five most common RevOps automation mistakes killing pipeline data quality are: skipping a deduplication layer before CRM sync, missing enrichment on inbound leads, silent multi-step Zapier/Make failures, over-relying on a single data provider, and syncing bi-directionally without a field authority map."
 pubDate: 2026-05-04
+updatedDate: 2026-07-09
 tags: ["revops", "automation", "pipeline-data-quality"]
 faqs:
   - question: "What's the most common RevOps automation mistake?"
@@ -41,7 +42,7 @@ Pipeline data quality problems almost never come from lazy reps. They come from 
 
 ## Mistake 1: No deduplication layer before HubSpot or Salesforce sync
 
-This is the original sin. You connect a form, a LinkedIn ad sync, an [Apollo](/go/apollo) sequence, and a manual CSV import, all writing to HubSpot without a deduplication gate, and within 90 days you have the same company represented as "Acme Corp," "Acme Corporation," and "ACME" with three different owners and four open deals.
+This is the original sin. You connect a form, a LinkedIn ad sync, an [Apollo](/go/apollo) sequence, and a manual CSV import, all writing to [HubSpot](/tools/hubspot/) without a deduplication gate, and within 90 days you have the same company represented as "Acme Corp," "Acme Corporation," and "ACME" with three different owners and four open deals.
 
 HubSpot's native dedup matches on exact email only. That's not enough. Salesforce's duplicate rules are better but require someone to actually configure them, and most orgs set them to "alert" rather than "block" because sales hates friction. Alerts that don't block are just noise.
 
@@ -53,9 +54,9 @@ If you're using [n8n](/go/n8n) or [Make](/go/make) for your sync workflows, add 
 
 Inbound leads are the highest-intent signal in your pipeline. Most RevOps setups treat them like outbound prospects, routing on whatever the person typed into a form field. Job title is "Founder." Company is "Freelance." Revenue is blank. That lead sits in the wrong sequence for two weeks before someone notices.
 
-Enrich every inbound lead the moment it hits your CRM, not in a weekly batch. Weekly batch enrichment is one of the most overhyped "good enough" compromises in RevOps, the damage from two-week-old routing decisions compounds faster than people realize. **Clay** handles real-time enrichment better than anything else available right now. You can chain waterfalls across Clearbit, Apollo, LinkedIn, and Crunchbase in a single table, so if one provider returns null on company size, the next one tries automatically. Typical enrichment coverage on B2B inbound runs 75-90% when you stack three providers.
+Enrich every inbound lead the moment it hits your CRM, not in a weekly batch. Weekly batch enrichment is one of the most overhyped "good enough" compromises in RevOps, the damage from two-week-old routing decisions compounds faster than people realize. **[Clay](/tools/clay/)** handles real-time enrichment better than anything else available right now. You can chain waterfalls across Clearbit, [Apollo](/tools/apollo/), LinkedIn, and Crunchbase in a single table, so if one provider returns null on company size, the next one tries automatically. Typical enrichment coverage on B2B inbound runs 75-90% when you stack three providers.
 
-The workflow: HubSpot form submission → webhook to Clay → Clay enriches on domain (not email, email-based enrichment misses a significant share of work domains) → writes enriched fields back via HubSpot API → triggers routing based on enriched data. Build this in n8n if you want full control over retry logic and error handling. Build it in Zapier if you want it running in 45 minutes and are comfortable with the tradeoffs.
+The workflow: HubSpot form submission → webhook to Clay → Clay enriches on domain (not email, email-based enrichment misses a significant share of work domains) → writes enriched fields back via HubSpot API → triggers routing based on enriched data. Build this in [n8n](/tools/n8n/) if you want full control over retry logic and error handling. Build it in Zapier if you want it running in 45 minutes and are comfortable with the tradeoffs.
 
 Do not use **Zapier's built-in HubSpot enrichment step**. It wraps a single data provider, doesn't cascade, and returns empty strings that overwrite existing populated fields. That last part is the killer, you'll corrupt records that already had good data.
 
