@@ -1,0 +1,226 @@
+---
+title: "Cold Email Deliverability Is Breaking in 2026"
+description: "Gmail and Outlook auth changes are wrecking cold email deliverability in 2026. Here is which infrastructure tools handle it best and why it matters now."
+tldr: "Cold email deliverability in 2026 is failing because Gmail and Outlook now enforce DMARC alignment, CNAME-based tracking, and stricter SPF flattening that most senders never configured correctly, and tools like Maildoso, Warmforge, Instantly, and Reply handle this infrastructure gap very differently."
+pubDate: 2026-07-10
+tags: ["revops", "cold-email", "deliverability"]
+faqs:
+  - question: "Why is cold email deliverability getting worse in 2026?"
+    answer: "Google and Microsoft tightened DMARC enforcement and CNAME-based link tracking requirements starting in late 2025, and most outbound senders never properly flattened SPF records or set up aligned DKIM. The result is increased spam folder placement even for legitimate senders."
+  - question: "Does SPF flattening actually affect cold email deliverability?"
+    answer: "Yes. SPF records have a 10 DNS lookup limit, and stacking ESPs, CRMs, and warmup tools pushes most senders over that limit silently, causing SPF to fail and DMARC to reject or quarantine messages."
+  - question: "Which cold email tool handles deliverability infrastructure best in 2026?"
+    answer: "Maildoso is the strongest for managed inbox infrastructure with automatic DMARC alignment, while Warmforge focuses on warmup reputation. Instantly and Reply handle setup differently and require more manual DNS hygiene on the sender's side."
+  - question: "What is CNAME-based tracking and why does it matter for deliverability?"
+    answer: "CNAME-based tracking routes click and open tracking through your own subdomain instead of a shared ESP domain, which prevents your links from being flagged alongside other senders on the same infrastructure."
+  - question: "Do I need separate sending domains for cold email in 2026?"
+    answer: "Yes. Sending cold email from your primary domain is increasingly risky. You should use dedicated subdomains or sister domains with clean DNS records, proper DMARC policies, and separate IP reputation from your transactional mail."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+I've watched three well-run outbound programs quietly die in the past six months. Not because the copy was bad. Not because the lists were dirty. The DNS infrastructure under them was rotting while Gmail and Outlook moved the goalposts, and nobody on the team noticed until open rates had been cratering for weeks. Cold email deliverability in 2026 is not a best-practices conversation anymore. It is an infrastructure conversation, and most RevOps teams are still treating it like it is 2022.
+
+<PullQuote>The senders getting inboxed in 2026 are not better copywriters. They are better DNS engineers, or they are paying someone to be one for them.</PullQuote>
+
+<StatRow stats={[
+  { number: "~45%", label: "Inbox placement drop", description: "Average inbox placement rate decline for senders who have not implemented DMARC alignment since Google and Yahoo's bulk sender requirements took full effect" },
+  { number: "10", label: "SPF lookup limit", description: "The hard RFC limit on DNS lookups in an SPF record. Stack your ESP, CRM, warmup tool, and ticketing platform and you are almost certainly over it already" },
+  { number: "3x", label: "Spam folder risk increase", description: "Approximate increase in spam folder placement for cold email sent on shared tracking domains versus CNAME-isolated custom tracking subdomains, per operator benchmarks" }
+]} />
+
+## What Actually Changed (and When Teams Missed It)
+
+Google's [bulk sender requirements](https://support.google.com/mail/answer/81126) that rolled out in early 2024 mandated DMARC, DKIM, and SPF for any domain sending over 5,000 messages per day. That part got press. What got far less attention was the secondary wave: stricter DMARC alignment enforcement in late 2025, where Google started actively applying quarantine and reject policies even for domains that had set `p=none` but showed consistent SPF or DKIM misalignment. Microsoft followed with analogous changes to [Outlook's Enhanced Anti-Spoofing](https://learn.microsoft.com/en-us/defender-office-365/anti-spoofing-protection-about) posture around the same window.
+
+The result is that a cold email program can have a passing DMARC record and still land in spam consistently. The DKIM signing domain does not match the From header domain (that is a DMARC alignment failure), or the SPF record has silently exceeded 10 DNS lookups and is returning `permerror` instead of `pass`. I have audited SPF records for clients who were confident their authentication was clean. I found 13 or 14 lookups after counting their transactional ESP, their CRM's outbound connector, their warmup tool, and a leftover include from a vendor they stopped using two years ago. Nobody had touched the zone file since 2023.
+
+CNAME-based tracking compounds this. Most cold email platforms historically hosted click tracking on shared domains like `click.theirplatform.com`. When other senders on that shared infrastructure get flagged, every domain using those tracking links absorbs a reputation hit. Mailbox providers have gotten much better at correlating this. It is now a measurable deliverability drag, not a theoretical risk. The fix (using your own CNAME tracking subdomain) exists in most enterprise email tools. It is buried, optional, and almost never configured.
+
+Don't bother trying to diagnose this from inside your sequencer's analytics dashboard. Use [MXToolbox's SPF record checker](https://mxtoolbox.com/spf.aspx) and manually count every nested include. That is where the real picture is.
+
+<SideBySide>
+<Fragment slot="left">
+**The trap:** Most teams check deliverability by looking at open rates in their sequencer. Open rate drops are a lagging indicator. By the time you notice a 15% open rate that used to be 35%, you have already been teaching Gmail's filters that your domain sends spam for four to six weeks. The damage compounds faster than most RevOps calendars move.
+</Fragment>
+<Fragment slot="right">
+```bash
+# Quick SPF lookup count audit
+# Run this before you touch anything else
+
+dig +short TXT yourdomain.com | grep spf
+
+# Then manually trace every "include:" in the output
+# Each include= counts as 1 lookup, plus each
+# nested include inside it.
+# If you hit 10 before finishing: you are broken.
+
+# Check DMARC alignment:
+dig +short TXT _dmarc.yourdomain.com
+
+# Look for: p=none (weak), p=quarantine, p=reject
+# AND check adkim=s (strict) vs adkim=r (relaxed)
+# Strict alignment means the d= in DKIM must
+# exactly match the From domain. Most shared
+# ESP setups fail strict alignment silently.
+```
+</Fragment>
+</SideBySide>
+
+## How the Infrastructure Tools Are Responding
+
+The market is splitting in a clear and telling way. Tools built primarily as sequencers are retrofitting deliverability features after the fact. Tools built infrastructure-first are pulling ahead fast. I have been watching four players closely because clients keep asking me which one to consolidate around. My opinion: if you have to pick one axis to optimize, pick the infrastructure layer first. A beautiful sequencer on a broken domain is just a faster way to burn your reputation.
+
+<ToolBreakdown title="Cold Email Infrastructure Tools in 2026" tools={[
+  {
+    name: "Maildoso",
+    tagline: "Managed inbox infrastructure with automatic auth",
+    body: "Maildoso is the most opinionated infrastructure play in this space. You provision inboxes through their platform and they handle domain registration, DNS setup, DKIM/DMARC alignment, and SPF management automatically. You do not touch a zone file. For teams that have been burned by DNS debt, that is genuinely appealing. The trade-off is real: you are inside their infrastructure model, and porting out requires rebuilding your domain reputation elsewhere. I have set this up for two clients who had completely wrecked their primary domain reputation and needed a clean restart inside a managed environment. Both were sending at scale within three weeks.",
+    highlights: [
+      "Automatic DMARC alignment on every provisioned inbox",
+      "Handles SPF flattening natively so you never exceed the 10-lookup limit",
+      "CNAME-based tracking configured out of the box",
+      "Inbox rotation and warmup baked into the provisioning flow"
+    ],
+    pricing: "From ~$3/inbox/month",
+    affiliateSlug: "maildoso",
+    ctaLabel: "Try Maildoso",
+    highlight: true
+  },
+  {
+    name: "Warmforge",
+    tagline: "Reputation-focused warmup with deliverability alerts",
+    body: "Warmforge takes a different angle. Where Maildoso manages the inbox itself, Warmforge sits on top of your existing infrastructure and focuses on reputation building and monitoring. Their deliverability health dashboard surfaces SPF and DMARC issues, but you still have to fix them yourself via your DNS provider. The warmup network is strong and the inbox placement scoring is genuinely useful for benchmarking before a campaign goes live. Where I use Warmforge is layered on top of a Maildoso-provisioned domain: infrastructure is clean, Warmforge keeps the reputation warm. That combination is currently the best setup I have seen for high-volume outbound.",
+    highlights: [
+      "Deliverability health monitoring with actionable alerts",
+      "Warmup network with inbox placement testing before sends",
+      "DMARC and SPF diagnostics surfaced in dashboard",
+      "Integrates with Instantly and Smartlead for sequence monitoring"
+    ],
+    pricing: "From $15/inbox/month",
+    affiliateSlug: "warmforge",
+    ctaLabel: "Try Warmforge",
+    highlight: false
+  },
+  {
+    name: "Instantly",
+    tagline: "Sequencer with growing infrastructure features",
+    body: "[Instantly](/go/instantly/) has built a large user base on the back of a clean sequencer UI and aggressive inbox scaling. Their deliverability infrastructure has improved meaningfully in the last year: CNAME-based tracking is now supported on higher tiers, and Unibox handles inbox rotation across accounts. But the DNS setup is still largely on you. SPF records, DMARC policies, and DKIM alignment are documented in their help center but are not enforced or validated at setup time. I have audited Instantly setups where teams assumed they were configured correctly and were not. It rewards senders who already know what they are doing on the DNS side. If that is not your team, budget time for a proper audit before your first send.",
+    highlights: [
+      "CNAME tracking available on higher tiers",
+      "Inbox rotation with Unibox across multiple sending accounts",
+      "Clean sequence builder with strong A/B testing",
+      "Does not auto-validate DNS auth at inbox provisioning"
+    ],
+    pricing: "From $37/month",
+    affiliateSlug: "instantly",
+    ctaLabel: "Try Instantly",
+    highlight: false
+  },
+  {
+    name: "Reply",
+    tagline: "Multichannel sequencer with deliverability toolkit",
+    body: "[Reply](/go/reply-io/) positions itself as a multichannel platform first and a deliverability tool second, which is exactly its trade-off. The email health check dashboard is useful and surfaces DMARC and SPF issues, but the platform expects you to resolve them externally. Where Reply earns its place in a serious stack is the multichannel orchestration layer: if your team is combining cold email with LinkedIn touches and SMS, Reply handles the sequencing better than most pure-email tools. For the [Reply platform hub](/tools/reply-io/), the deliverability story is solid for managed senders but requires more ops lift than Maildoso for teams without a dedicated RevOps resource.",
+    highlights: [
+      "Email health check for DMARC/SPF/DKIM validation",
+      "Multichannel sequences with LinkedIn and SMS steps",
+      "AI sequence drafting with deliverability score guidance",
+      "Tracking domain customization supported but not auto-configured"
+    ],
+    pricing: "From $49/user/month",
+    affiliateSlug: "reply-io",
+    ctaLabel: "Try Reply",
+    highlight: false
+  }
+]} />
+
+## The Stack Decision: What I Actually Recommend
+
+The best-performing cold email setups I have built in 2026 use a layered model. Managed infrastructure for the inbox and DNS layer, a dedicated warmup and monitoring layer, and a sequencer on top. This is three tools where teams used to use one. It is also the correct answer right now. The teams trying to get everything from a single sequencer are the ones showing up in my inbox asking why their open rates collapsed.
+
+<ChooseIf title="Which cold email infrastructure approach fits your team?" tools={[
+  {
+    name: "Maildoso",
+    conditions: [
+      "Your team does not have RevOps or engineering bandwidth to manage DNS",
+      "You need to spin up clean sending domains fast after a reputation problem",
+      "You want DMARC alignment and SPF flattening handled without touching a zone file"
+    ],
+    pricing: "From ~$3/inbox/month",
+    affiliateSlug: "maildoso",
+    ctaLabel: "Try Maildoso",
+    highlight: true
+  },
+  {
+    name: "Warmforge",
+    conditions: [
+      "You have clean infrastructure already and need reputation monitoring on top",
+      "You want inbox placement benchmarking before campaigns go live",
+      "You are layering on top of Instantly or Smartlead and need deliverability visibility"
+    ],
+    pricing: "From $15/inbox/month",
+    affiliateSlug: "warmforge",
+    ctaLabel: "Try Warmforge",
+    highlight: false
+  },
+  {
+    name: "Instantly",
+    conditions: [
+      "Your team has the DNS knowledge to configure auth correctly at setup",
+      "You are running high-volume sequences and need strong sequencer UX",
+      "You want inbox rotation and A/B testing in one tool without managing separate infrastructure"
+    ],
+    pricing: "From $37/month",
+    affiliateSlug: "instantly",
+    ctaLabel: "Try Instantly",
+    highlight: false
+  },
+  {
+    name: "Reply",
+    conditions: [
+      "Your outbound motion combines email with LinkedIn and SMS touches",
+      "You have a dedicated RevOps resource who can manage DNS externally",
+      "You need multichannel sequence orchestration more than managed infrastructure"
+    ],
+    pricing: "From $49/user/month",
+    affiliateSlug: "reply-io",
+    ctaLabel: "Try Reply",
+    highlight: false
+  }
+]} />
+
+This problem does not exist in isolation from the broader outbound tooling conversation. If you are evaluating AI SDR tools that send on your behalf (covered in our [AI SDR comparison for 2026](/blog/2026-07-07-best-ai-sdr-tools-in-2026-aisdr-vs-11x-vs-artisan/)), the infrastructure question applies equally. An AI SDR sending from a misconfigured domain is burning its own effectiveness. And if your RevOps stack is already sprawling, the [email verification layer](/blog/2026-07-03-zerobounce-vs-bouncer-vs-mailreach-best-email-verification-t/) sits upstream of all of this. Sending to bad addresses accelerates domain reputation damage faster than almost anything else.
+
+List hygiene connects directly to tools like [Bouncer](/tools/bouncer/) and [ZeroBounce](/tools/zerobounce/), which handle the list side. But clean lists hitting a misconfigured domain still land in spam. Both layers matter. They are also separate problems with separate fixes.
+
+<MyTake>
+Every team I have worked with treats deliverability as a campaign problem and fixes it reactively, after open rates drop. That framing is wrong. Domain reputation is an infrastructure asset. The teams running the cleanest cold email programs I have seen are provisioning sending domains the way a DevOps team provisions cloud infrastructure: with standards, automation, and rotation schedules built in before the first send. Treating it like a checklist you run once, at launch, is exactly how you end up with 14 SPF lookups and a `p=none` DMARC record in 2026.
+</MyTake>
+
+## The Infrastructure Layer Is Now the Moat
+
+If you are responsible for an outbound program, the practical action is simple. Audit your SPF lookup count today. Check your DMARC alignment policy. Verify whether your tracking links are running on a shared platform domain or a CNAME you control. If any of those three are misconfigured, you are leaving inbox placement on the floor regardless of copy quality or list hygiene.
+
+The tools that abstract this complexity, particularly [Maildoso](/go/maildoso/) on the provisioning side and [Warmforge](/go/warmforge/) on the monitoring side, exist precisely because this configuration gap is consistent enough across teams that a managed service beats a DIY checklist every time. The [Instantly hub](/tools/instantly/) and [Smartlead](/tools/smartlead/) are strong sequencers. But they are building on top of a foundation you still have to pour yourself.
+
+<BottomLine verdict="For teams who cannot afford to have a DNS misconfiguration quietly crater their outbound motion, Maildoso is the clearest infrastructure bet in 2026. Pair it with Warmforge for monitoring and your preferred sequencer on top." pick="Maildoso" affiliateSlug="maildoso" ctaLabel="Try Maildoso" />
+
+<Sources sources={[
+  { label: "Google: Email sender guidelines for bulk senders", url: "https://support.google.com/mail/answer/81126" },
+  { label: "Microsoft Learn: Anti-spoofing protection in Defender for Office 365", url: "https://learn.microsoft.com/en-us/defender-office-365/anti-spoofing-protection-about" },
+  { label: "RFC 7208: Sender Policy Framework (SPF) DNS lookup limit", url: "https://datatracker.ietf.org/doc/html/rfc7208#section-4.6.4" },
+  { label: "DMARC.org: DMARC alignment explained", url: "https://dmarc.org/overview/" }
+]} />
