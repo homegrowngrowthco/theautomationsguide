@@ -1116,6 +1116,7 @@ export const tools: Tool[] = [
   // --- LP-builder additions (listed:false; flip to listed:true + add a logo once approved/published). ---
   {
     slug: "maildoso",
+    logo: '/brand/tools/maildoso.png',
     name: "Maildoso",
     category: "Cold Email & Deliverability",
     badge: "Free trial",
@@ -1772,6 +1773,19 @@ export const tools: Tool[] = [
     aliases: ['Bardeen'],
     blurb:
       'Bardeen is featured in a comparison on The Automations Guide.',
+  },
+  {
+    slug: 'warmforge',
+    name: 'Warmforge',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Warmforge',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/warmforge.png',
+    aliases: ['Warmforge'],
+    blurb:
+      'Warmforge is featured in a comparison on The Automations Guide.',
   },
 ];
 
