@@ -1272,6 +1272,7 @@ export const tools: Tool[] = [
   // --- LP-builder additions (listed:false; flip to listed:true + add a logo once approved/published). ---
   {
     slug: "mailforge",
+    logo: '/brand/tools/mailforge.png',
     name: "Mailforge",
     category: "Cold Email & Deliverability",
     badge: "Free trial",
