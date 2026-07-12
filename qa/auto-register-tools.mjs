@@ -36,7 +36,10 @@ const LOGO_DIR = path.join(ROOT, 'public/brand/tools');
 const TLDS = ['com', 'io', 'ai', 'co', 'app', 'so', 'dev'];
 // Markers of parked / for-sale / marketplace landing pages (Atom, Dan, Sedo,
 // GoDaddy, Afternic…). Matched against title + og:title + description.
-const PARKED_RE = /\b(?:domain (?:is |may be )?for sale|buy this domain|purchase this domain|own (?:this domain|[a-z0-9.-]+ today)|make an offer|domain broker|guided transfer|premium domain|parked (?:free|domain)|this domain is available)\b/i;
+// A broker's title often puts the DOMAIN where the word "domain" would go
+// ("Surfer.app is for sale") — the first alternative covers that form, which a
+// `domain (?:is )?for sale`-only pattern missed.
+const PARKED_RE = /\b(?:(?:domain|[a-z0-9-]+\.[a-z]{2,}) (?:is |may be )?for sale|buy this domain|purchase this domain|own (?:this domain|[a-z0-9.-]+ today)|make an offer|domain broker|guided transfer|premium domain|parked (?:free|domain)|this domain is available)\b/i;
 const UA = 'Mozilla/5.0 (compatible; AutomationsGuideBot/1.0; +https://theautomationsguide.com)';
 const FETCH_TIMEOUT = 9000;
 
@@ -132,38 +135,89 @@ function existingAffiliateKeys(src) {
   return keys;
 }
 
+// slug -> the homepage affiliate-links.ts ALREADY records for it. A tool can be
+// half-registered (affiliate entry present, logo missing), and then this is a
+// known-good answer the TLD probe must not try to re-derive: `surfer` carried
+// homepageFallback surferseo.com and the probe still "resolved" it to a domain
+// broker. Only homepageFallback — a live `url` is a tracking link, not a site.
+function registryHomepages(src) {
+  const map = new Map();
+  const keys = [...src.matchAll(/^\s{2}['"]?([a-z0-9-]+)['"]?:\s*\{/gm)];
+  keys.forEach((m, i) => {
+    const body = src.slice(m.index, i + 1 < keys.length ? keys[i + 1].index : src.length);
+    const hp = (body.match(/homepageFallback:\s*['"]([^'"]+)['"]/) || [])[1];
+    if (hp) map.set(m[1], hp);
+  });
+  return map;
+}
+
 function existingToolSlugs(src) {
-  const map = new Map(); // slug -> { hasLogo }
-  for (const m of src.matchAll(/slug:\s*['"]([a-z0-9-]+)['"]/g)) map.set(m[1], { hasLogo: false });
+  const map = new Map(); // slug -> { hasLogo, category }
+  for (const m of src.matchAll(/slug:\s*['"]([a-z0-9-]+)['"]/g)) map.set(m[1], { hasLogo: false, category: '' });
   for (const block of src.split(/\r?\n  \{\r?\n/)) { // CRLF-tolerant block split
     const slug = (block.match(/slug:\s*['"]([a-z0-9-]+)['"]/) || [])[1];
-    if (slug && /logo:\s*['"]/.test(block)) map.set(slug, { hasLogo: true });
+    if (!slug) continue;
+    map.set(slug, {
+      hasLogo: /logo:\s*['"]/.test(block),
+      category: (block.match(/category:\s*['"]([^'"]+)['"]/) || [])[1] || '',
+    });
   }
   return map;
 }
 
 // ---------- resolve homepage ----------
 
+// Page identity, read from the WHOLE document. Neither a fixed byte slice nor
+// the <head> is a safe bound: frase.io closes </head> at byte ~4k but emits its
+// real <title> at byte ~172k (client-rendered page), so both windows read an
+// EMPTY identity, failed the identity check, and rejected the tool's own
+// homepage. Collect every <title> (a page can carry several — inline SVGs have
+// them) and let the caller pick the one that names the tool.
+function metaOf(html) {
+  const doc = html.length > 400000 ? html.slice(0, 400000) : html;
+  const meta = (re) => (doc.match(re) || [])[1] || '';
+  return {
+    titles: [...doc.matchAll(/<title[^>]*>([^<]+)<\/title>/gi)].map((m) => m[1].trim()),
+    ogSite: meta(/<meta[^>]+property=["']og:site_name["'][^>]+content=["']([^"']+)["']/i),
+    ogTitle: meta(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i),
+    ogDesc: meta(/<meta[^>]+(?:property|name)=["']og:description["'][^>]+content=["']([^"']+)["']/i)
+      || meta(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i),
+    generator: meta(/<meta[^>]+name=["']generator["'][^>]+content=["']([^"']+)["']/i),
+    hasOgImage: /<meta[^>]+property=["']og:image["']/i.test(doc),
+    hasAppleIcon: /rel=["'][^"']*apple-touch-icon/i.test(doc),
+  };
+}
+
+// Fetch a homepage we already TRUST (human-supplied or registry-recorded) and
+// shape it like a probe candidate. No identity/parked checks: the URL is given,
+// not guessed. We still fetch it for the og:description + html the blurb and
+// logo steps need downstream.
+async function fromKnownUrl(url) {
+  const r = await fetchText(url);
+  if (!r) return null;
+  const u = new URL(r.finalUrl);
+  return { score: 1000, homepage: `${u.protocol}//${u.host}/`, host: u.host, html: r.html, blurb: metaOf(r.html).ogDesc.trim() };
+}
+
 // Probe every candidate domain, keep the ones whose PAGE IDENTITY (not just the
 // host string) names the tool, then score by how strongly the page looks like
 // the real product homepage. This is what stops `justcall.com` ("Just Call", an
 // unrelated site) from beating the real `justcall.io`.
-async function resolveHomepage(name, slug) {
+async function resolveHomepage(name, slug, registryHomepage) {
   // Human-confirmed URL from a PR comment reply — skip the TLD probe entirely.
-  // The human knows the site; we just fetch it to get the og:description and html
-  // needed for the blurb + logo steps downstream.
   if (urlHints.has(slug)) {
     const hintUrl = urlHints.get(slug);
-    const r = await fetchText(hintUrl);
-    if (r) {
-      const head = r.html.slice(0, 20000);
-      const ogDesc = (head.match(/<meta[^>]+(?:property|name)=["']og:description["'][^>]+content=["']([^"']+)["']/i)
-        || head.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i) || [])[1] || '';
-      const u = new URL(r.finalUrl);
-      return { score: 1000, homepage: `${u.protocol}//${u.host}/`, host: u.host, html: r.html, blurb: ogDesc.trim() };
-    }
+    const known = await fromKnownUrl(hintUrl);
+    if (known) return known;
     console.error(`[auto-register] url-hint provided for ${slug} but fetch failed: ${hintUrl}`);
     return null;
+  }
+  // Already half-registered: affiliate-links.ts knows this tool's homepage (we
+  // are here only to source its missing logo). Trust it over a fresh guess.
+  if (registryHomepage) {
+    const known = await fromKnownUrl(registryHomepage);
+    if (known) return known;
+    console.error(`[auto-register] registry homepage for ${slug} failed to fetch, falling back to probe: ${registryHomepage}`);
   }
   const bases = [...new Set([slug.replace(/-/g, ''), norm(name)])].filter(Boolean);
   // Dotted-domain reading of the slug: a brand whose name bakes in a TLD
@@ -192,24 +246,26 @@ async function resolveHomepage(name, slug) {
   for (const host of hosts) {
       const r = await fetchText(`https://${host}/`);
       if (!r) continue;
-      const head = r.html.slice(0, 20000);
-      const title = (head.match(/<title[^>]*>([^<]+)<\/title>/i) || [])[1] || '';
-      const ogSite = (head.match(/<meta[^>]+property=["']og:site_name["'][^>]+content=["']([^"']+)["']/i) || [])[1] || '';
-      const ogTitle = (head.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i) || [])[1] || '';
-      const ogDesc = (head.match(/<meta[^>]+(?:property|name)=["']og:description["'][^>]+content=["']([^"']+)["']/i)
-        || head.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i) || [])[1] || '';
-      const ident = norm(`${title} ${ogSite} ${ogTitle}`);
+      const u = new URL(r.finalUrl);
+      // A parked domain redirects to the BROKER's own host (surfer.app lands on
+      // www.fortune.domains). Whatever the landing page's copy claims, a host
+      // carrying none of the brand's identity stems is not this tool's homepage.
+      // Real redirects keep the brand (surfer.ai -> surferseo.com).
+      if (!matchesIdentity(norm(u.host))) continue;
+      const { titles, ogSite, ogTitle, ogDesc, generator, hasOgImage, hasAppleIcon } = metaOf(r.html);
+      const ident = norm(`${titles.join(' ')} ${ogSite} ${ogTitle}`);
       if (!matchesIdentity(ident)) continue; // identity must name the tool — host match alone is not enough
+      // The document can carry several <title>s; score against the one that
+      // actually names the tool, not whichever came first.
+      const title = titles.find((t) => matchesIdentity(norm(t))) || titles[0] || '';
       // Parked/for-sale pages pass the identity check trivially (their title IS
       // the domain, e.g. "artisan.so") and can outscore the real product site.
-      if (PARKED_RE.test(`${title} ${ogTitle} ${ogDesc}`)) continue;
+      if (PARKED_RE.test(`${titles.join(' ')} ${ogTitle} ${ogDesc}`)) continue;
       // Site-builder placeholder pages carry no for-sale copy, so PARKED_RE
       // misses them: calendly.ai served a stock GoDaddy Website Builder page
       // titled just "calendly.ai" and outscored the real calendly.com (a
       // bare-domain title startsWith the brand, earning the +100 bonus).
-      const generator = (head.match(/<meta[^>]+name=["']generator["'][^>]+content=["']([^"']+)["']/i) || [])[1] || '';
       if (/godaddy|go ?daddy|starfield|sedo|parking|parked/i.test(generator)) continue;
-      const hasOgImage = /<meta[^>]+property=["']og:image["']/i.test(head);
       // A title that is just the raw domain, on a page with no social card, is a
       // placeholder. (Real homepages that title themselves "Brand.ai" ship one.)
       if (norm(title) === norm(host) && !hasOgImage) continue;
@@ -218,11 +274,10 @@ async function resolveHomepage(name, slug) {
       if (targets.some((t) => norm(title).startsWith(t)) || targets.some((t) => norm(ogSite) === t)) score += 100;
       else score += 50;
       if (hasOgImage) score += 20; // real product sites ship social cards
-      if (/rel=["'][^"']*apple-touch-icon/i.test(head)) score += 20;
+      if (hasAppleIcon) score += 20;
       if (ogDesc) score += 10;
       if (title.length > 25) score += 10;                                 // descriptive, not a parked "Just Call"
       score += Math.max(0, 6 - TLDS.indexOf(host.split('.').pop()));      // gentle TLD tiebreak only
-      const u = new URL(r.finalUrl);
       candidates.push({ score, homepage: `${u.protocol}//${u.host}/`, host: u.host, html: r.html, blurb: ogDesc.trim() });
   }
   if (!candidates.length) return null;
@@ -242,8 +297,12 @@ function pickIcon(html, baseUrl) {
     if (!href) continue;
     const px = parseInt(((tag.match(/sizes=["']([^"']+)["']/i) || [])[1] || '').match(/(\d+)x\d+/)?.[1] || '0', 10);
     let score = 0;
+    // NEVER a mask-icon (Safari pinned tab): the spec makes it a single flat
+    // colour, so the file is a black silhouette, never the brand mark. It used
+    // to score 60 +50-for-svg = 110 and beat a sizeless apple-touch-icon (100),
+    // which is how `surfer` got a black blob for a logo.
+    if (rel.includes('mask-icon')) continue;
     if (rel.includes('apple-touch-icon')) score = 100 + px;
-    else if (rel.includes('mask-icon')) score = 60;
     else if (rel === 'icon' || rel.includes('shortcut icon')) score = 40 + px;
     else continue;
     if (/\.svg(\?|$)/i.test(href)) score += 50;
@@ -401,6 +460,7 @@ async function main() {
   let affSrc = readFileSync(AFF_PATH, 'utf8');
   let toolsSrc = readFileSync(TOOLS_PATH, 'utf8');
   const affKeys = existingAffiliateKeys(affSrc);
+  const affHomepages = registryHomepages(affSrc);
   const toolSlugs = existingToolSlugs(toolsSrc);
 
   const wanted = new Map(); // slug -> name (unique across all posts)
@@ -408,6 +468,12 @@ async function main() {
     if (!existsSync(p)) { console.error(`post not found: ${p}`); continue; }
     for (const [slug, name] of parsePost(readFileSync(p, 'utf8'))) if (!wanted.has(slug)) wanted.set(slug, name);
   }
+
+  // A post that reaches auto-register is a head-to-head comparison, so its tools
+  // are the same KIND of tool. Inherit the category from whichever compared tool
+  // is already registered; a flat 'Sales Engagement' default filed the SEO tools
+  // Frase and Clearscope under sales on their /tools hubs.
+  const siblingCategory = [...wanted.keys()].map((s) => toolSlugs.get(s)?.category).find(Boolean) || 'Sales Engagement';
 
   const report = { registered: [], loggedLogos: [], skipped: [], unresolved: [] };
   let affDirty = false, toolsDirty = false;
@@ -418,7 +484,7 @@ async function main() {
     const needLogo = !tool || !tool.hasLogo;
     if (!needAff && !needLogo) { report.skipped.push(slug); continue; }
 
-    const resolved = await resolveHomepage(name, slug);
+    const resolved = await resolveHomepage(name, slug, affHomepages.get(slug));
     if (!resolved) { report.unresolved.push({ slug, name }); continue; }
 
     let logoRel = null;
@@ -432,7 +498,7 @@ async function main() {
       if (tool) {
         if (logoRel) { const patched = addLogoToTool(toolsSrc, slug, logoRel); if (patched) { toolsSrc = patched; toolsDirty = true; } }
       } else {
-        toolsSrc = appendTool(toolsSrc, { slug, name, category: 'Sales Engagement', blurb: resolved.blurb, ctaLabel: `Try ${name}`, logoRel });
+        toolsSrc = appendTool(toolsSrc, { slug, name, category: siblingCategory, blurb: resolved.blurb, ctaLabel: `Try ${name}`, logoRel });
         toolsDirty = true;
       }
     }
