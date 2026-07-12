@@ -681,6 +681,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'surfer',
+    logo: '/brand/tools/surfer.png',
     name: 'Surfer',
     category: 'SEO & Content',
     badge: 'Paid',
@@ -1786,6 +1787,32 @@ export const tools: Tool[] = [
     aliases: ['Warmforge'],
     blurb:
       'Warmforge is featured in a comparison on The Automations Guide.',
+  },
+  {
+    slug: 'frase',
+    name: 'Frase',
+    category: 'SEO & Content',
+    badge: 'Paid',
+    ctaLabel: 'Try Frase',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/frase.png',
+    aliases: ['Frase'],
+    blurb:
+      'Frase runs the whole content loop: research, writing, optimization, and publishing. Stop juggling five tools. Join thousands of content teams.',
+  },
+  {
+    slug: 'clearscope',
+    name: 'Clearscope',
+    category: 'SEO & Content',
+    badge: 'Paid',
+    ctaLabel: 'Try Clearscope',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/clearscope.png',
+    aliases: ['Clearscope'],
+    blurb:
+      'Clearscope is the discoverability platform for a new era in search. Improve and monitor your discoverability in Google, ChatGPT & beyond. Own your topical authority in your space and break through the blank page with best-in-class AI drafts.',
   },
 ];
 
