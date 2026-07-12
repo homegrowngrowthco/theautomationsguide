@@ -1,4 +1,41 @@
-# Session Log — last updated 2026-07-09 (Session 63)
+# Session Log — last updated 2026-07-11 (Session 64)
+
+## Quick reference — recent additions (Session 64, 2026-07-11)
+
+**PR #187 (Surfer vs Frase vs Clearscope) failed QA. Root-caused FOUR defects in `qa/auto-register-tools.mjs` — the visible failure was the least bad of them; two silently shipped a WRONG homepage + wrong logo rather than failing. Fixed all four + re-registered the PR's tools. PR #187 QA green + mergeable; NOT yet merged (awaiting Ian).**
+
+Ian: "pr187 failed wtf?" The red was the lint gate hard-failing on 4 errors (`/go/frase` would 404). That part worked as designed. What it was covering for did not.
+
+### The four defects (all in [qa/auto-register-tools.mjs](qa/auto-register-tools.mjs), commit `6fca299`)
+
+1. **Identity read from a 20KB byte slice → rejected the tool's OWN homepage (the visible failure).** `resolveHomepage()` parsed `<title>`/og tags out of `html.slice(0, 20000)`. **frase.io closes `</head>` at byte ~4,188 but emits its real `<title>` at byte ~172,331** (client-rendered page), so the window read an EMPTY identity, concluded frase.io does not identify as "Frase", and declined → `unresolved` → lint gate red. **Neither a byte slice nor `</head>` is a safe bound** (the `</head>` bound was tried first and also failed). Now reads the WHOLE document via a new `metaOf()` and collects **every** `<title>` (a page can carry several — inline SVGs have them), picking the one that names the tool.
+
+2. **A half-registered tool got its known-good homepage re-derived.** `surfer` was **already in affiliate-links.ts with `homepageFallback: 'https://surferseo.com/'`**; auto-register ran only to source its missing logo, and re-probed the homepage from scratch anyway — landing on a domain broker. The registry is now consulted FIRST (`registryHomepages()`) and trusted (new `fromKnownUrl()` helper, shared with the `--url-hint` path). The answer was sitting in the file it was about to write to.
+
+3. **Parked-domain scoring flaw, THIRD occurrence (artisan.so S57, calendly.ai S60).** `surfer.app` is parked and titled **"Surfer.app is for sale"** → `PARKED_RE` only matched the literal word *domain* before "for sale", so it passed; then its bare-domain title earned the `+100` startsWith bonus while the real `surferseo.com` (title "Positive Surfer - AI Visibility Platform…") got only `+50`. It **registered Surfer against `https://www.fortune.domains/` and committed that broker's favicon as `surfer.png`.** Fixed **structurally** rather than adding a 4th copy-pattern: **reject any candidate whose FINAL host carries none of the brand's identity stems.** A parked domain redirects to the broker's own host; a real one keeps the brand (`surfer.ai` → `surferseo.com`). `PARKED_RE` also broadened to the `<domain> is for sale` form.
+   - **Regression-verified against every historically-tricky tool** — justcall.io, otter.ai, customer.io, artisan.co, calendly.com, factors.ai, activepieces.io, bardeen.ai **all still resolve**; the S57 PARKED_RE + S60 generator guards still catch artisan.so + calendly.ai (guards compose, nothing regressed).
+   - **Bonus catch:** the host guard also rejects two competitor squats the old code would have scored — **`otterai.ai` / `otterai.app` → transkriptor.com**, and **`surferseo.ai` → humanize.ai**.
+
+4. **`pickIcon()` preferred `rel="mask-icon"`.** It scored `60 + 50`-for-svg = **110**, beating a sizeless `apple-touch-icon` (100). A mask-icon is a **Safari pinned-tab mask — the spec makes it a single flat colour**, so it can never be a brand logo. That is how surfer got a black silhouette. Now never taken.
+
+**Also:** new tools inherit their `category` from the already-registered tool in the same post (auto-register only ever runs on head-to-head comparisons, so the tools are the same kind by construction) instead of the flat `'Sales Engagement'` default, which had filed the SEO tools **Frase + Clearscope under sales** on their `/tools` hubs.
+
+### PR #187 data (commit `e285bd4`)
+
+Registries regenerated from scratch against the fixed resolver: **frase** registered (`www.frase.io`, was the unresolved blocker); **surfer** logo replaced (fortune.domains' favicon → Surfer's real mark from surferseo.com; its homepage was correct all along); **clearscope + frase** category → `SEO & Content`.
+
+### Verification
+
+`lint-content` on the post **4 hard + 1 warn → 0 hard / 0 warn**; `lint --all` 0 hard across 65 posts; `lint-logos` 0 hard; `astro build` clean (223 pages); render-acceptance 0 hard; auto-register **idempotent** on re-run (no bot re-push in CI → **no `action_required` stub run this time**). All 3 logos rasterized over the cream card bg and eyeballed = the real brand marks. **CI `qa` green + Netlify deploy-preview green + `mergeable: MERGEABLE`.** Deploy-preview live-checked: `/go/{frase,surfer,clearscope}/` all **200** and pointing at `frase.io` / `surferseo.com` / `clearscope.io` (not the broker); all 3 logos 200; post 200; Playwright desktop 1280 + mobile 390 → ToolBreakdown renders all 3 real logos, **0px horizontal overflow**, all 3 `/go/` CTAs present (mobile logos are `loading="lazy"`, load on scroll).
+
+### Key notes
+
+- **PR #187 is GREEN but NOT MERGED** — the merge was classifier-gated (a content PR carrying only agent commits, no human approval). Ian merges, or re-authorizes.
+- **Reverts:** `git revert 6fca299` (pipeline hardening) and `git revert e285bd4` (the re-registered data) are independent — deliberately split so either can be rolled back alone.
+- **The failure class is now closed at the source three ways:** the resolver can't miss an identity it can see, can't re-derive a homepage it already knows, and can't land on a host that isn't the brand's.
+- Worktrees: `C:\tmp\tag-pr187` (content branch), `C:\tmp\tag-s64-docs` (this log). `node_modules` junctioned in for `sharp` — **`mklink /J` via Git Bash eats the backslashes**; run it through `cmd //c "mklink /J <link> <target>"` with the whole command quoted.
+
+---
 
 ## Quick reference — recent additions (Session 63, 2026-07-09)
 
