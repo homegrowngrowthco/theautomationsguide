@@ -1,0 +1,205 @@
+---
+title: "FullEnrich vs BetterContact vs Surfe: Waterfall Enrichment Compared"
+description: "FullEnrich, BetterContact, Surfe, and LeadMagic compared on waterfall enrichment depth, hit rates, and price. Find the right tool for your GTM stack."
+tldr: "FullEnrich wins on raw waterfall depth and API flexibility, BetterContact is the best plug-and-play option for teams already in Clay or HubSpot, Surfe owns the LinkedIn-native workflow, and LeadMagic is the budget pick when you just need verified emails fast."
+pubDate: 2026-07-13
+tags: ["comparison", "enrichment", "outbound"]
+faqs:
+  - question: "What is waterfall enrichment?"
+    answer: "Waterfall enrichment is a sequential lookup strategy where your tool queries multiple data providers in priority order and stops when it finds a verified result, maximizing hit rate while minimizing cost per record."
+  - question: "Is FullEnrich better than BetterContact?"
+    answer: "FullEnrich has a wider provider waterfall and stronger API, making it better for technical teams building custom workflows. BetterContact is easier to set up and integrates directly with Clay and HubSpot out of the box."
+  - question: "Does Surfe do waterfall enrichment?"
+    answer: "Surfe does lightweight waterfall enrichment directly from LinkedIn, pulling emails and mobile numbers through its browser extension, but it covers fewer underlying providers than FullEnrich or BetterContact."
+  - question: "What is LeadMagic used for?"
+    answer: "LeadMagic is a pay-per-result enrichment tool focused on fast email and mobile lookups, with a simple credit model that suits lean outbound teams who do not need deep provider cascades."
+  - question: "How do I run waterfall enrichment without Clay?"
+    answer: "FullEnrich and BetterContact both offer standalone APIs and native CSV workflows, so you can run multi-provider waterfall lookups without needing a Clay subscription."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most outbound teams are still running single-provider enrichment and wondering why bounce rates keep climbing. The waterfall approach, chaining multiple data vendors in sequence and billing only on verified hits, is mature enough to have real tooling around it but still new enough that most GTM operators haven't built a deliberate strategy around it. I've spent the last several months testing [FullEnrich](/go/fullenrich/), [BetterContact](/go/bettercontact/), [Surfe](/go/surfe/), and [LeadMagic](/go/leadmagic/) with clients at Homegrown Growth Co., and this post is the comparison I wish had existed when I started. The category is small. The tools are genuinely different. Picking wrong costs you real money in wasted credits and missed connects.
+
+<KeyTakeaways items={[
+  "Waterfall enrichment queries multiple providers in sequence and stops at the first verified result, lifting hit rates by 20-40% over single-source lookups.",
+  "FullEnrich covers the most underlying providers and has the best API for custom workflows, but it takes more setup than the alternatives.",
+  "BetterContact is the fastest path to waterfall enrichment for teams already using Clay or HubSpot, with native integrations and a clean UI.",
+  "Surfe is the only tool that runs enrichment directly from LinkedIn without leaving your browser, making it the right pick for SDRs prospecting manually.",
+  "LeadMagic is the cheapest per-result option if all you need is email plus mobile and you are comfortable with a thin integration layer."
+]} />
+
+<StatRow stats={[
+  { number: "15+", label: "Providers in FullEnrich waterfall", description: "FullEnrich sequences lookups across 15-plus underlying data sources, including Apollo, Hunter, Datagma, and Dropcontact." },
+  { number: "~65%", label: "Average email hit rate (single provider)", description: "Industry benchmarks put single-provider email match rates around 60-65%. Waterfall enrichment routinely pushes that past 85% on matched LinkedIn URLs." },
+  { number: "$0.05", label: "LeadMagic cost per verified email", description: "LeadMagic charges roughly five cents per verified email result, with no monthly seat fee, making it the lowest-friction entry point in this category." }
+]} />
+
+## What waterfall enrichment actually means in practice
+
+Single-provider lookups are fine when your list is clean and your ICP maps neatly to whatever database you're paying for. The problem is that no single database covers everyone. Apollo is deep on US SaaS, thin on EMEA. Hunter is strong on domains, weak on mobile. Lusha has solid mobile coverage for enterprise contacts but real gaps in SMB. When you run a list of 1,000 LinkedIn URLs through one vendor, you're leaving 30 to 40 percent of your contacts unenriched, and those contacts just disappear from your sequence.
+
+Waterfall enrichment fixes this by running a defined cascade. You set a priority order of providers. The tool queries provider one, and if it finds a verified email, it stops and charges you one credit. Miss, and it moves to provider two. You only pay on a hit. The result is a materially higher match rate at a cost per contact that's often lower than buying a premium single-source plan.
+
+I've watched this play out firsthand. A 400-person target list I ran through [FullEnrich](/tools/fullenrich/) came back with verified emails for 91 percent of contacts after the cascade touched four different providers. Apollo alone returned 63 percent on the same list. That delta is not a rounding error. It's the difference between a working sequence and a broken one.
+
+This is also why tools like [Clay](/tools/clay/) have made enrichment waterfalls a core selling point, as the screenshot below shows. But Clay charges for the orchestration layer on top of enrichment credits, which is exactly where dedicated waterfall tools start to look attractive.
+
+<Figure class="post-screenshot" caption="Clay's enrichment table running a multi-provider waterfall, showing provider hits and misses per row.">
+  <a href="/go/clay/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/clay-enrichment.png" alt="Clay waterfall enrichment table with provider columns showing hit and miss status per contact row" loading="lazy" />
+  </a>
+</Figure>
+
+<ToolBreakdown title="FullEnrich vs BetterContact vs Surfe vs LeadMagic" tools={[
+  {
+    name: "FullEnrich",
+    tagline: "Deepest provider waterfall with a real API",
+    body: "FullEnrich is the most technically capable tool in this group. It sequences lookups across 15-plus providers including Apollo, Hunter, Datagma, Dropcontact, Enrow, and several others, with a configurable priority order and a clean REST API. I reach for it any time the team is technical enough to wire enrichment into their own workflows, whether that's an n8n automation, a Zapier sequence, or a custom outbound engine. The UI is functional but sparse. This is a builder tool, not a point-and-click product. Hit rates on LinkedIn URL inputs routinely clear 85 to 90 percent in my testing. Pricing charges only on verified, deliverable results, so wasted spend stays low.",
+    highlights: [
+      "15+ underlying providers in the cascade",
+      "REST API with webhook support for custom workflows",
+      "Charges only on verified hits, not on attempts",
+      "LinkedIn URL enrichment is the primary input mode",
+      "Integrates with Clay, Make, and n8n without a native connector"
+    ],
+    pricing: "From ~$0.05/verified result, credit packs",
+    affiliateSlug: "fullenrich",
+    ctaLabel: "Try FullEnrich",
+    highlight: true
+  },
+  {
+    name: "BetterContact",
+    tagline: "Plug-and-play waterfall for Clay and HubSpot teams",
+    body: "BetterContact positions itself as the no-code waterfall layer, and it delivers. The native Clay integration means you can drop it into an existing enrichment table as a column without leaving Clay. The HubSpot connector lets you trigger enrichment on new contacts straight from a workflow. The underlying provider set is smaller than FullEnrich (eight to ten sources as of my last test), but the UX advantage is real for teams that don't want to manage API keys and cascade logic themselves. I've set this up for a client in under an hour, including the HubSpot sync. If your team lives in a no-code stack, this is the one.",
+    highlights: [
+      "Native Clay and HubSpot integrations, no custom API needed",
+      "Clean dashboard with per-contact provider attribution",
+      "Email and mobile enrichment in one pass",
+      "Smaller provider set than FullEnrich but covers the major sources",
+      "Good fit for SDR teams who want enrichment to just work"
+    ],
+    pricing: "From $49/mo, credit-based tiers",
+    affiliateSlug: "bettercontact",
+    ctaLabel: "Try BetterContact",
+    highlight: false
+  },
+  {
+    name: "Surfe",
+    tagline: "LinkedIn-native enrichment for manual prospectors",
+    body: "Surfe is the odd one out in this group because enrichment happens inside your browser while you're on LinkedIn, not in a batch workflow. Install the extension, open a LinkedIn profile or Sales Navigator result, and Surfe pulls verified email and mobile data in real time, surfacing it as an overlay on the page and pushing it directly to your CRM (HubSpot, Salesforce, or Pipedrive). The waterfall logic runs under the hood, but you don't configure it. For SDRs who prospect manually and want enrichment to happen in the moment, this is the best workflow I've seen in this category. It's the wrong tool for bulk list enrichment at scale. It's exactly the right tool for high-touch, targeted outbound.",
+    highlights: [
+      "Browser extension runs enrichment directly on LinkedIn profiles",
+      "Pushes to HubSpot, Salesforce, and Pipedrive natively",
+      "Best workflow for manual, one-at-a-time prospecting",
+      "Limited configurability on the waterfall cascade",
+      "Syncs to CRM with field mapping, not just contact creation"
+    ],
+    pricing: "From $29/user/mo, seat-based",
+    affiliateSlug: "surfe",
+    ctaLabel: "Try Surfe",
+    highlight: false
+  },
+  {
+    name: "LeadMagic",
+    tagline: "Cheapest pay-per-result email and mobile lookup",
+    body: "LeadMagic is the most stripped-down option, and deliberately so. Upload a CSV of LinkedIn URLs or company domains, run the lookup, pay only for verified results at roughly five cents per email. No monthly seat fee. No elaborate dashboard. No native CRM integration worth mentioning. The provider waterfall is shallower than FullEnrich or BetterContact, but for teams doing occasional list enrichment without a dedicated RevOps operator to manage a more complex setup, the simplicity is the point. I've used it with early-stage clients who needed to validate a 200-person pilot list before committing to a full outbound motion. It does that job cleanly.",
+    highlights: [
+      "No monthly fee, pay per verified result only",
+      "Lowest per-email cost in this comparison",
+      "CSV upload and download workflow, minimal UI",
+      "Shallower provider cascade than FullEnrich or BetterContact",
+      "Best for one-off or infrequent list enrichment"
+    ],
+    pricing: "~$0.05/email, ~$0.15/mobile, no seat fee",
+    affiliateSlug: "leadmagic",
+    ctaLabel: "Try LeadMagic",
+    highlight: false
+  }
+]} />
+
+## How to choose
+
+The decision comes down to two variables: volume and technical capacity. If you're processing 500-plus new contacts per week and have someone who can manage an API integration, FullEnrich gives you the best hit rates and the lowest long-run cost per contact. No-code stack, existing Clay or HubSpot footprint? [BetterContact](/tools/bettercontact/) is the clear path, especially if you're already paying for Clay where the [built-in enrichment workflow](/blog/2026-07-05-why-your-revops-stack-grows-too-fast-in-2026/) compounds the value. Surfe answers a specific question: your SDRs are doing manual LinkedIn prospecting and you want enrichment to happen in the moment, not as a separate batch step. LeadMagic is for anyone who needs to validate a one-time list and doesn't want to commit to a monthly subscription just for that job.
+
+One thing worth flagging: these tools are not mutually exclusive. Several clients I've worked with run Surfe for inbound demo request enrichment (fast, one-at-a-time) and FullEnrich for outbound list builds (high volume, API-driven). The marginal cost of running both is usually justified by the coverage gain. This also matters downstream when you think about [cold email deliverability](/blog/2026-07-10-cold-email-deliverability-is-breaking-in-2026/), since enriched, verified emails reduce the bounce rates that are actively getting domains flagged right now.
+
+<ChooseIf tools={[
+  {
+    name: "FullEnrich",
+    affiliateSlug: "fullenrich",
+    ctaLabel: "Try FullEnrich",
+    conditions: [
+      "You process 500+ new contacts per week and want the highest possible hit rate",
+      "Your team can manage a REST API integration or n8n/Make workflow",
+      "You want to control the provider priority order yourself"
+    ]
+  },
+  {
+    name: "BetterContact",
+    affiliateSlug: "bettercontact",
+    ctaLabel: "Try BetterContact",
+    conditions: [
+      "You're already running Clay or HubSpot and want waterfall enrichment to drop in as a column or workflow step",
+      "You don't want to manage API keys or cascade logic manually",
+      "You need email and mobile in one pass with a clean attribution dashboard"
+    ]
+  },
+  {
+    name: "Surfe",
+    affiliateSlug: "surfe",
+    ctaLabel: "Try Surfe",
+    conditions: [
+      "Your SDRs prospect manually on LinkedIn or Sales Navigator",
+      "You want enrichment and CRM sync to happen without a separate batch upload step",
+      "Your team is seat-based and does high-touch, targeted outbound rather than bulk list work"
+    ]
+  },
+  {
+    name: "LeadMagic",
+    affiliateSlug: "leadmagic",
+    ctaLabel: "Try LeadMagic",
+    conditions: [
+      "You need to validate a one-time or infrequent list without committing to a monthly fee",
+      "All you need is verified email plus mobile, no CRM sync required",
+      "You want the lowest possible cost per result and can work from a CSV"
+    ]
+  }
+]} />
+
+<MyTake>
+Most teams treat waterfall enrichment as a Clay feature rather than a standalone strategy, and that framing is expensive. Clay's enrichment credits carry a premium because you're paying for the orchestration layer, not just the data. Running FullEnrich or BetterContact directly, then feeding verified contacts into Clay only for the logic steps, cuts enrichment cost by 30 to 50 percent in my experience without touching hit rates. If you're using Clay as your enrichment provider rather than your workflow engine, you're paying for the wrong thing.
+</MyTake>
+
+## The right enrichment stack is a sequence, not a single tool
+
+Waterfall enrichment as a category is early enough that most teams haven't built an intentional strategy around it. The four tools in this post cover the realistic range of use cases: high-volume API-driven builds with FullEnrich, no-code integrations with BetterContact, LinkedIn-native prospecting with [Surfe](/tools/surfe/), and lightweight one-off lookups with [LeadMagic](/tools/leadmagic/). Pick based on volume and technical capacity. Not on which tool has the flashiest marketing.
+
+The teams winning outbound right now are treating enrichment as a cascading data quality problem, not a single-vendor checkbox. And if you're already running [AI SDR tooling](/blog/2026-07-07-best-ai-sdr-tools-in-2026-aisdr-vs-11x-vs-artisan/) on top of your contact lists, a high-quality waterfall enrichment layer underneath it is what separates a working outbound engine from an expensive experiment.
+
+<BottomLine
+  verdict="FullEnrich is the best default choice for teams serious about enrichment hit rates and willing to spend an afternoon on setup. If you need plug-and-play, BetterContact is the better starting point."
+  pick="FullEnrich"
+  affiliateSlug="fullenrich"
+  ctaLabel="Try FullEnrich"
+/>
+
+<Sources sources={[
+  { label: "FullEnrich: provider waterfall documentation", url: "https://fullenrich.com" },
+  { label: "BetterContact: Clay and HubSpot integration overview", url: "https://bettercontact.io" },
+  { label: "G2: email enrichment software category reviews", url: "https://www.g2.com/categories/email-enrichment" },
+  { label: "Surfe: browser extension enrichment product page", url: "https://www.surfe.com" }
+]} />

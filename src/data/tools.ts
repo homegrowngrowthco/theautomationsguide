@@ -1179,6 +1179,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "fullenrich",
+    logo: '/brand/tools/fullenrich.png',
     name: "FullEnrich",
     category: "Lead Data & Enrichment",
     badge: "Free tier available",
@@ -1305,6 +1306,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "surfe",
+    logo: '/brand/tools/surfe.png',
     name: "Surfe",
     category: "Lead Data & Enrichment",
     badge: "Free tier available",
@@ -1336,6 +1338,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "leadmagic",
+    logo: '/brand/tools/leadmagic.png',
     name: "LeadMagic",
     category: "Lead Data & Enrichment",
     badge: "Free tier available",
@@ -1367,6 +1370,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "bettercontact",
+    logo: '/brand/tools/bettercontact.png',
     name: "BetterContact",
     category: "Lead Data & Enrichment",
     badge: "Free trial",
