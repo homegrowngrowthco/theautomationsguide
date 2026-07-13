@@ -13,18 +13,37 @@
 //   node --env-file=.env internal-link-mesh.mjs                 # analysis + census only
 //   node --env-file=.env internal-link-mesh.mjs --plan --limit=3   # LLM-propose for 3 posts, print, no write
 //   node --env-file=.env internal-link-mesh.mjs --write         # LLM-propose + apply to all posts
+//   node --env-file=.env internal-link-mesh.mjs --orphans-only --write   # only link hubs at 0 inbound
+//   node internal-link-mesh.mjs --post <file> --orphans-only --no-llm --write   # CI: deterministic, key-free
+//
+// ORPHAN FLOW (SEO audit 2026-07-13). The mesh fixed the STOCK of orphaned hubs, but
+// the flow regenerated them: auto-register-tools.mjs mints a new tool's /tools/<slug>/
+// hub during CI, AFTER the draft was generated, so the engine's slug feed can never
+// offer that hub to the very post introducing the tool. Every newly covered tool was
+// therefore born with zero in-body inbound links. `--post ... --orphans-only --no-llm`
+// runs inside the auto-register CI step to link the brand-new hub from that post,
+// using only the deterministic name-fallback (no LLM => no API key, no nondeterminism
+// in CI, and it can only ever wrap the tool's OWN name in existing prose).
 
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import Anthropic from '@anthropic-ai/sdk';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const BLOG_DIR = join(HERE, 'src', 'content', 'blog');
 const WRITE = process.argv.includes('--write');
-const PLAN = process.argv.includes('--plan') || WRITE; // PLAN = run the LLM but (unless --write) don't save
+const NO_LLM = process.argv.includes('--no-llm');
+const ORPHANS_ONLY = process.argv.includes('--orphans-only');
+const PLAN = process.argv.includes('--plan') || WRITE; // PLAN = propose but (unless --write) don't save
 const LIMIT = Number((process.argv.find((a) => a.startsWith('--limit=')) || '').split('=')[1] || 0);
 const MODEL = (process.argv.find((a) => a.startsWith('--model=')) || '').split('=')[1] || 'claude-sonnet-4-6';
+// --post accepts a path or a bare filename; only that post is touched.
+const POST_ARG = (() => {
+  const i = process.argv.indexOf('--post');
+  if (i !== -1 && process.argv[i + 1]) return basename(process.argv[i + 1]);
+  const eq = process.argv.find((a) => a.startsWith('--post='));
+  return eq ? basename(eq.split('=')[1]) : '';
+})();
 
 const MAX_HUBS = 4;
 const MAX_SIBLINGS = 2;
@@ -144,6 +163,12 @@ function wrapAnchor(body, anchor, href) {
   return null;
 }
 
+// Does the body already link this hub? A bare `includes('/tools/' + slug)` is WRONG:
+// slugs are prefixes of one another, so "/tools/surfer/" satisfies a substring test
+// for slug "surfe" and a genuine orphan is silently counted as linked. Require the
+// slug to be followed by a non-slug character (the trailing slash, a paren, a quote).
+const linksToHub = (body, slug) => new RegExp(`/tools/${escapeRe(slug)}(?![a-z0-9-])`).test(body);
+
 // --- load posts ---
 const tools = loadTools();
 const files = readdirSync(BLOG_DIR).filter((f) => f.endsWith('.mdx') || f.endsWith('.md'));
@@ -157,19 +182,26 @@ for (const file of files) {
 
 // census
 const inbound = new Map(tools.map((t) => [t.slug, 0]));
-for (const p of posts) for (const t of tools) if (p.body.includes(`/tools/${t.slug}`)) inbound.set(t.slug, inbound.get(t.slug) + 1);
+for (const p of posts) for (const t of tools) if (linksToHub(p.body, t.slug)) inbound.set(t.slug, inbound.get(t.slug) + 1);
 const orphans = [...inbound.entries()].filter(([, n]) => n === 0);
+const orphanSlugs = new Set(orphans.map(([slug]) => slug));
 console.log(`\n=== HUB INBOUND-LINK CENSUS (${tools.length} hubs, ${posts.length} posts) ===`);
 console.log(`Hubs with ZERO in-body inbound links: ${orphans.length} / ${tools.length}`);
+if (ORPHANS_ONLY && orphans.length) console.log(`  orphans: ${orphans.map(([s]) => s).join(', ')}`);
 
-// per-post plan
+// per-post plan.
+// --orphans-only narrows candidates to hubs currently at 0 inbound links, so a run
+// relinks exactly the orphaned hubs and leaves every already-linked hub untouched
+// (small, reviewable diff). Sibling-post links are skipped in that mode for the
+// same reason: they are not what we're repairing.
 for (const p of posts) {
   p.hubCandidates = tools
     .map((t) => ({ t, score: mentionScore(t, p.title, p.tags, p.body) }))
-    .filter((x) => x.score > 0 && !p.body.includes(`/tools/${x.t.slug}`))
+    .filter((x) => x.score > 0 && !linksToHub(p.body, x.t.slug))
+    .filter((x) => !ORPHANS_ONLY || orphanSlugs.has(x.t.slug))
     .sort((a, b) => b.score - a.score).slice(0, MAX_HUBS).map((x) => x.t);
   const ptags = new Set(p.tags.map(normalize));
-  p.siblings = posts
+  p.siblings = ORPHANS_ONLY ? [] : posts
     .filter((q) => q.slug !== p.slug && !p.body.includes(`/blog/${q.slug}`))
     .map((q) => ({ q, score: q.tags.map(normalize).filter((t) => ptags.has(t)).length }))
     .filter((x) => x.score > 0).sort((a, b) => b.score - a.score || b.q.slug.localeCompare(a.q.slug))
@@ -183,10 +215,16 @@ if (!PLAN) {
 }
 
 // --- LLM contextual placement ---
-if (!process.env.ANTHROPIC_API_KEY) { console.error('ANTHROPIC_API_KEY not set (pass --env-file=.env).'); process.exit(1); }
-const client = new Anthropic();
+// Imported lazily: --no-llm (the CI path) must not need the SDK or an API key.
+let client = null;
+if (!NO_LLM) {
+  if (!process.env.ANTHROPIC_API_KEY) { console.error('ANTHROPIC_API_KEY not set (pass --env-file=.env, or use --no-llm).'); process.exit(1); }
+  const { default: Anthropic } = await import('@anthropic-ai/sdk');
+  client = new Anthropic();
+}
 
 async function proposeLinks(p) {
+  if (NO_LLM) return []; // deterministic name-fallback below does the placement
   const inTitle = (t) => t.aliases.some((a) => new RegExp(`\\b${escapeRe(a)}\\b`, 'i').test(p.title));
   const hubs = p.hubCandidates.map((t) => `  - id "tool:${t.slug}" -> ${t.name}${inTitle(t) ? '  (NAMED IN TITLE - prioritize linking this one)' : ''}`).join('\n');
   const sibs = p.siblings.map((q) => `  - id "post:${q.slug}" -> ${q.title}`).join('\n');
@@ -220,7 +258,12 @@ const hrefFor = (target) => target.startsWith('tool:') ? `/tools/${target.slice(
 // Any post with candidates; wrapAnchor dedups per-href so posts that already have
 // some /tools/ links just get their remaining named hubs linked.
 let targetPosts = posts.filter((p) => p.hubCandidates.length || p.siblings.length);
+if (POST_ARG) targetPosts = targetPosts.filter((p) => p.file === POST_ARG);
 if (LIMIT) targetPosts = targetPosts.slice(0, LIMIT);
+if (POST_ARG && !targetPosts.length) {
+  console.log(`\nNo link candidates for ${POST_ARG} (nothing to do).`);
+  process.exit(0);
+}
 
 let totalLinks = 0, wrote = 0;
 for (const p of targetPosts) {
@@ -251,8 +294,15 @@ for (const p of targetPosts) {
     // unrelated alias like "Integromat" -> Make. Prefer the primary name, then
     // shorter aliases (the common prose form).
     const root = normalize(t.slug);
+    // An AMBIGUOUS alias (Make / Close / Motion / Warmly ...) is normally never
+    // fallback-linked, because "Make sure" and "close the deal" would get wrapped.
+    // But when the tool is NAMED IN THE POST TITLE the word is unambiguously the
+    // product in that post ("RB2B vs Warmly vs Vector vs Factors"), so allow it —
+    // wrapAnchor still requires an exact-case, whole-word, non-forbidden occurrence.
+    const namedInTitle = (a) => new RegExp(`\\b${escapeRe(a)}\\b`).test(p.title);
     const aliasCandidates = [t.name, ...t.aliases]
-      .filter((a, i, arr) => arr.indexOf(a) === i && !AMBIGUOUS.has(a) && normalize(a).includes(root))
+      .filter((a, i, arr) => arr.indexOf(a) === i && normalize(a).includes(root))
+      .filter((a) => !AMBIGUOUS.has(a) || namedInTitle(a))
       .sort((a, b) => (a === t.name ? -1 : b === t.name ? 1 : a.length - b.length));
     for (const alias of aliasCandidates) {
       const next = wrapAnchor(body, alias, href);
