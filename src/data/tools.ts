@@ -646,6 +646,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'synthflow',
+    logo: '/brand/tools/synthflow.png',
     name: 'Synthflow',
     category: 'AI Voice & Dialers',
     badge: 'Paid',
@@ -1240,6 +1241,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "bland-ai",
+    logo: '/brand/tools/bland-ai.png',
     name: "Bland AI",
     category: "AI Voice & Dialers",
     badge: "Paid",
@@ -1426,6 +1428,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "vapi",
+    logo: '/brand/tools/vapi.png',
     name: "Vapi",
     category: "AI Voice & Dialers",
     badge: "Free tier available",
