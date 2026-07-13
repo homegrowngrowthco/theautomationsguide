@@ -1818,6 +1818,19 @@ export const tools: Tool[] = [
     blurb:
       'Clearscope is the discoverability platform for a new era in search. Improve and monitor your discoverability in Google, ChatGPT & beyond. Own your topical authority in your space and break through the blank page with best-in-class AI drafts.',
   },
+  {
+    slug: 'aloware',
+    name: 'Aloware',
+    category: 'AI Voice & Dialers',
+    badge: 'Paid',
+    ctaLabel: 'Try Aloware',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/aloware.png',
+    aliases: ['Aloware'],
+    blurb:
+      'Aloware is featured in a comparison on The Automations Guide.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
