@@ -646,6 +646,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'synthflow',
+    logo: '/brand/tools/synthflow.png',
     name: 'Synthflow',
     category: 'AI Voice & Dialers',
     badge: 'Paid',
@@ -1240,6 +1241,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "bland-ai",
+    logo: '/brand/tools/bland-ai.png',
     name: "Bland AI",
     category: "AI Voice & Dialers",
     badge: "Paid",
@@ -1426,6 +1428,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "vapi",
+    logo: '/brand/tools/vapi.png',
     name: "Vapi",
     category: "AI Voice & Dialers",
     badge: "Free tier available",
@@ -1814,6 +1817,19 @@ export const tools: Tool[] = [
     aliases: ['Clearscope'],
     blurb:
       'Clearscope is the discoverability platform for a new era in search. Improve and monitor your discoverability in Google, ChatGPT & beyond. Own your topical authority in your space and break through the blank page with best-in-class AI drafts.',
+  },
+  {
+    slug: 'aloware',
+    name: 'Aloware',
+    category: 'AI Voice & Dialers',
+    badge: 'Paid',
+    ctaLabel: 'Try Aloware',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/aloware.png',
+    aliases: ['Aloware'],
+    blurb:
+      'Aloware is featured in a comparison on The Automations Guide.',
   },
 ];
 
