@@ -1,4 +1,33 @@
-# Session Log — last updated 2026-07-11 (Session 64)
+# Session Log — last updated 2026-07-13 (Session 65)
+
+## Quick reference — recent additions (Session 65, 2026-07-13)
+
+**PR #191 (Bland AI vs Vapi vs Synthflow) failed the lint gate: `/go/aloware` would 404. Root-caused TWO more auto-register defects — a discovery-scope gap (the visible failure) and a homepage-probe flaw that would have silently registered the WRONG Aloware domain next. Fixed both + registered Aloware. PR #191 QA green + MERGEABLE; NOT merged (awaiting Ian, same classifier-gate protocol as #187).**
+
+Ian: "pr 191 failed AGAIN. Why does stuff keep failing?" The red was the lint gate doing its job; the gap was upstream of it, in what auto-register can *see*.
+
+### The two defects (both in [qa/auto-register-tools.mjs](qa/auto-register-tools.mjs), commit `dcb5a97`)
+
+1. **Discovery scope narrower than the gate it feeds (the visible failure).** `parsePost()` only discovered tools via component `affiliateSlug` props (ComparisonTable/ToolBreakdown rows), but `lint-content` hard-fails on **EVERY** `/go/<slug>` in the body. The engine's post mentioned Aloware only as an inline markdown link (`[Aloware](/go/aloware/)`, the "deserves a mention" paragraph) — invisible to auto-register (not even `unresolved`; simply never seen), so CI registered bland-ai/vapi/synthflow and the lint then hard-failed on aloware. **Discovery now covers the markdown-link form (link text = display name) + any bare `/go/<slug>`, matching the lint gate's scope exactly.** Principle: a pre-gate fixer must scan the same surface as the gate it's meant to satisfy, or the gap class recurs forever.
+
+2. **Bare-brand app-shell would have beaten the real homepage (caught before it shipped).** With defect 1 fixed, the TLD probe resolved `aloware.io` — Aloware's **login SPA** (title just "Aloware", no og tags, no h1) — because its bare-brand title earns the `+100` startsWith bonus while the REAL `aloware.com` fails the identity check outright (its title, "Top-Rated Contact Center Software | Built For Your Favorite CRM", never names the brand; og:site_name absent). Same shape as the S64 raw-domain-title placeholder check, bare-brand variant: **a title that is exactly the brand, with no og:image AND no og:description, is now rejected as an app shell** → the tool goes `unresolved` → the PR-comment human-confirm flow (reply `aloware = https://aloware.com`), instead of registering a wrong homepage silently.
+
+### PR #191 data (commit `37500c1` on the content branch, master merged in via `3ee6db3`)
+
+`aloware` registered via `--url-hint aloware=https://aloware.com/` (probe can't self-resolve it — see defect 2): affiliate-links.ts `pending` entry w/ homepageFallback `https://aloware.com/`, tools.ts entry (category inherited: `AI Voice & Dialers`, `listed: false`), logo = Aloware's official 256px apple-touch-icon.
+
+### Verification
+
+`lint-content` on the post **1 hard → 0 hard / 0 warn**; `lint-logos` 0 hard (aloware.png clean). CI run `29251801609` **green — "QA pass on first review"**, PR `MERGEABLE`/`CLEAN`. Deploy preview live-checked: `/go/aloware/` **200 → aloware.com** (not the .io shell), logo 200, post 200. Dry-run regression: bland-ai/vapi/synthflow still resolve to the same homepages as before the probe change.
+
+### Key notes
+
+- **PR #191 is GREEN but NOT MERGED** — Ian merges (content PR carrying agent commits, per the S64 protocol).
+- **Reverts:** `git revert dcb5a97` on master (script fixes) and `git revert 37500c1` on the content branch (the Aloware data) are independent.
+- The stale `action_required` run stub (29248385374) from the CI bot's own `[auto-register]` push is superseded by the green run; ignore it.
+- Worktree: `C:\tmp\tag-pr191` (removed after push). `node_modules` junctioned in for `sharp` via `cmd //c mklink /J` (S64 gotcha holds: quote the whole command through `cmd //c`, Git Bash eats bare backslashes).
+
+---
 
 ## Quick reference — recent additions (Session 64, 2026-07-11)
 
