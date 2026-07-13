@@ -583,6 +583,34 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
+  storydoc: {
+    name: 'Storydoc',
+    url: '',
+    homepageFallback: 'https://www.storydoc.com/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  pandadoc: {
+    name: 'PandaDoc',
+    url: '',
+    homepageFallback: 'https://www.pandadoc.com/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  qwilr: {
+    name: 'Qwilr',
+    url: '',
+    homepageFallback: 'https://qwilr.com/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  getaccept: {
+    name: 'GetAccept',
+    url: '',
+    homepageFallback: 'https://www.getaccept.com/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
 };
 
 /**

@@ -1835,6 +1835,70 @@ export const tools: Tool[] = [
     blurb:
       'Aloware is featured in a comparison on The Automations Guide.',
   },
+  {
+    slug: 'storydoc',
+    name: 'Storydoc',
+    category: 'Outbound & Lead Generation',
+    badge: 'Paid',
+    ctaLabel: 'Try Storydoc',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/storydoc.png',
+    aliases: ['Storydoc'],
+    blurb:
+      'Storydoc helps you create interactive AI-powered presentations and business documents that drive results',
+  },
+  {
+    slug: 'pandadoc',
+    name: 'PandaDoc',
+    category: 'Outbound & Lead Generation',
+    badge: 'Paid',
+    ctaLabel: 'Try PandaDoc',
+    ctaPrimary: false,
+    listed: false,
+    aliases: ['PandaDoc'],
+    blurb:
+      'PandaDoc streamlines proposals, quotes & other business document workflows - Trusted by 50K+ Clients - SOC 2, HIPAA & GDPR Compliant!',
+  },
+  {
+    slug: 'qwilr',
+    name: 'Qwilr',
+    category: 'Outbound & Lead Generation',
+    badge: 'Paid',
+    ctaLabel: 'Try Qwilr',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/qwilr.png',
+    aliases: ['Qwilr'],
+    blurb:
+      'Boost deal velocity with Qwilr\'s interactive proposal software. Get real-time buyer analytics & close deals faster. Start your free 14-day trial.',
+  },
+  {
+    slug: 'getaccept',
+    name: 'GetAccept',
+    category: 'Outbound & Lead Generation',
+    badge: 'Paid',
+    ctaLabel: 'Try GetAccept',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/getaccept.png',
+    aliases: ['GetAccept'],
+    blurb:
+      'Enhance your sales process with GetAccept',
+  },
+  {
+    slug: 'salesforce',
+    name: 'Salesforce',
+    category: 'Outbound & Lead Generation',
+    badge: 'Paid',
+    ctaLabel: 'Try Salesforce',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/salesforce.png',
+    aliases: ['Salesforce'],
+    blurb:
+      'Salesforce is the #1 AI CRM, helping companies become Agentic Enterprises where humans and agents drive success together through a unified AI, data, and Customer 360 platform.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
