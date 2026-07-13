@@ -450,6 +450,13 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
+  quickmail: {
+    name: 'QuickMail',
+    url: '',
+    homepageFallback: 'https://quickmail.com/',
+    status: 'no-program',
+    notes: 'Referenced in the 2026-07-12 cold-email-infra post but never registered, so /go/quickmail 404d in PRODUCTION (live broken CTA, found by the 2026-07-13 SEO audit). Registered with a homepage fallback so the route resolves. quickmail.io 301s to the apex. No affiliate program applied for yet.',
+  },
   mailchimp: {
     name: 'Mailchimp',
     url: '',
