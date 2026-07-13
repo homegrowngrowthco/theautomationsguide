@@ -124,6 +124,17 @@ function parsePost(text) {
   for (const m of text.matchAll(/affiliateSlug\s*[:=]\s*["']([a-z0-9-]+)["']/g)) {
     if (!slugName.has(m[1])) slugName.set(m[1], titleCase(m[1]));
   }
+  // markdown-link form:  [Aloware](/go/aloware/) — an inline body mention that
+  // never appears as a component affiliateSlug prop. The lint gate checks EVERY
+  // /go/<slug> in the body, so discovery must cover the same scope or an
+  // inline-linked tool skips registration and hard-fails the PR (PR #191).
+  for (const m of text.matchAll(/\[([^\]]+)\]\(\/go\/([a-z0-9-]+)\/?\)/g)) {
+    if (!slugName.has(m[2])) slugName.set(m[2], m[1]);
+  }
+  // any bare /go/<slug> left (no markdown link text) -> title-case the slug
+  for (const m of text.matchAll(/\/go\/([a-z0-9-]+)/g)) {
+    if (!slugName.has(m[1])) slugName.set(m[1], titleCase(m[1]));
+  }
   return slugName;
 }
 
@@ -269,6 +280,12 @@ async function resolveHomepage(name, slug, registryHomepage) {
       // A title that is just the raw domain, on a page with no social card, is a
       // placeholder. (Real homepages that title themselves "Brand.ai" ship one.)
       if (norm(title) === norm(host) && !hasOgImage) continue;
+      // Same shape, bare-brand variant: an app-login shell titles itself with
+      // JUST the brand and ships no social card and no description. aloware.io
+      // (the login SPA) outscored the real aloware.com this way on PR #191 —
+      // the bare-brand title earns the +100 startsWith bonus while the
+      // marketing homepage's descriptive title doesn't name the brand at all.
+      if (targets.some((t) => norm(title) === t) && !hasOgImage && !ogDesc) continue;
 
       let score = 0;
       if (targets.some((t) => norm(title).startsWith(t)) || targets.some((t) => norm(ogSite) === t)) score += 100;
