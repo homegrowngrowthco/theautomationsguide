@@ -1,4 +1,63 @@
-# Session Log — last updated 2026-07-13 (Session 65)
+# Session Log — last updated 2026-07-13 (Session 66)
+
+## Quick reference — recent additions (Session 66, 2026-07-13)
+
+**Full `/audit-seo` run → [AUDIT-SEO-2026-07-13.md](AUDIT-SEO-2026-07-13.md). Found a LIVE `/go/quickmail` 404 on prod (broken affiliate CTA) that the audit's own scanner structurally cannot see, and root-caused the orphan-hub FLOW. Both fixed at the source: PR #193 (`bc5b5b2`) + PR #194 (`f897d76`), merged + prod-verified. Engine then verified end-to-end — but I DOUBLE-FIRED it, producing two surprise content PRs (#195 + #196, both merged by Ian).**
+
+### Audit results (production)
+
+The July remediations demonstrably worked: **140/145 indexed (96.6%)** (was 122/129), **em/en-dash titles 51 → 0** (S59 tools-title colon fix), **long titles 108 → 34** (S59 conditional brand-suffix), 0 hard on-page, technical crawl fully clean (145 sitemap URLs, zero `/go/` or `/og/` leaks, single-hop redirects, HSTS/nosniff/CSP, `/go/` correctly `noindex,follow`). Lighthouse: home desktop 0.99 / mobile 0.94, post mobile 0.93, SEO 1.00 + CLS 0 everywhere.
+
+### 🔴 CRITICAL: `/go/quickmail/` was 404ing on PRODUCTION (live revenue leak)
+
+The 2026-07-12 cold-email-infra post links `[Quickmail](/go/quickmail/)` in prose, but `quickmail` was never added to [affiliate-links.ts](src/data/affiliate-links.ts), so `go/[tool].astro` never generated the redirect. **Readers clicking a money link hit a 404** (curl-confirmed; controls `/go/maildoso/` + `/go/clay/` = 200). Registered as a `no-program` entry w/ homepage fallback (the S50 mailchimp pattern; `quickmail.com` content-validated as the real product, `quickmail.io` 301s to the apex). Prod now 200 w/ UTM.
+
+**Why two consecutive audits reported "zero critical findings" while this was live:** the `/audit-seo` runbook used `qa:seo` for on-page checks, and **`qa:seo` deliberately SKIPS `/go/` pages** (they're noindex by design) — so it structurally cannot see this class. Only `lint-content --all` checks `/go/` registry integrity, and **CI lints only the CHANGED post**, so a slug that slips past one PR is invisible forever after. Same class as audit C-1 (S40/S41: zapier/canva/creatify). **PR #194 fixes the runbook** ([.claude/commands/audit-seo.md](.claude/commands/audit-seo.md)): it now runs `lint-content --all` FIRST and treats any HARD as Critical, plus an orphan-hub census step.
+
+### Orphan-hub FLOW closed at the source (the structural finding)
+
+**16 of 67 `/tools/` hubs had ZERO in-body inbound links**, and the set regrew on its own. Mechanism: [qa/auto-register-tools.mjs](qa/auto-register-tools.mjs) mints a new tool's `/tools/<slug>/` hub **during CI, AFTER the draft was generated** — so the S63 engine slug feed can only ever offer Generate Draft the hubs that already existed, and **the post covering a new tool was structurally incapable of linking to its own hub**. Every newly covered tool was born orphaned. This is the root cause behind the growth audit's "top-impression pages are orphan hubs at pos 50-78." S62's mesh fixed the *stock*; nothing fixed the *flow*.
+
+**Fix ([.github/workflows/qa-content-pr.yml](.github/workflows/qa-content-pr.yml)):** the auto-register step now runs, immediately after minting the hub:
+`node internal-link-mesh.mjs --post "$POST" --orphans-only --no-llm --write`
+- `--orphans-only` → touches ONLY hubs at zero inbound links; never rewrites links the engine already placed.
+- `--no-llm` → **deterministic + key-free**: it can do nothing but wrap the tool's OWN name in prose that already exists. The lint gate then proves the link resolves.
+- The mesh's edits **ride the EXISTING `[auto-register]` commit** rather than adding a new bot-commit prefix, so [auto-merge-content.yml](.github/workflows/auto-merge-content.yml)'s trailing-bot-commit regex (`^\[(auto-register|qa-fix-\d+)\]`) keeps working untouched. **This was load-bearing** — a new prefix would have stranded every auto-merge.
+
+**Two bugs found on the way, in [internal-link-mesh.mjs](internal-link-mesh.mjs):**
+1. **Census substring bug hid an orphan.** The check was `body.includes('/tools/' + slug)`. Slugs are prefixes of one another, so `/tools/surfer/` satisfied the test for slug **`surfe`** — a real orphan counted as linked. New `linksToHub()` requires the slug be followed by a non-slug char. True count was **16, not 15**.
+2. **AMBIGUOUS guard was over-conservative.** `Warmly` sits in the AMBIGUOUS set (so "warmly" the adverb is never linked), which blocked the fallback on a post *titled* "RB2B vs Warmly vs Vector vs Factors". An ambiguous alias is now fallback-linkable **only when the tool is NAMED IN THE POST TITLE**, where the word is unambiguously the product.
+
+Also: **4 slashless `/tools/` links** (`adcreative`, `nutshell`, `lusha`, `reply-io`) given their canonical trailing slash (site is `trailingSlash:'always'` → each was a needless 301 hop). Orphan **stock 16 → 8** (9 hand-reviewed links across 6 posts).
+
+**The 8 that remained were NOT linkable, correctly:** 7 were LP-only hubs with **no article written** (no prose exists to link from — they need *content*, not a mesh run; still crawlable via the `/tools` A-Z index per S26), and `factors-ai` is only ever named inside an existing `[Factors.ai](/go/factors-ai/)` link or component data, so there is no free prose anchor.
+
+### Engine verified end-to-end — and DOUBLE-FIRED by mistake (the lesson)
+
+Fired the live engine (`sjZADhZGIuz9tZHK`) to answer Ian's "is the output shit or not." **`mcp__n8n__n8n_test_workflow` returned `success:false, "No response from n8n server"` — but it HAD fired.** The temp webhook used `responseMode: lastNode`, which makes n8n hold the HTTP response until the whole workflow finishes (~3 min), so the MCP's 120s timeout always looks like failure. I then listed executions **twice**, saw nothing new (n8n hadn't started the run yet — **absence is not evidence**), concluded it hadn't fired, and re-fired via curl.
+
+**Two runs, two articles, two surprise PRs Ian had to deal with.** Diagnosed after the fact from the trigger node's captured `headers.user-agent`: exec **18790** = `axios/1.17.0` (the MCP tool) → **PR #195** (FullEnrich vs BetterContact vs Surfe); exec **18794** = `curl/8.19.0` (me) → **PR #196** (Storydoc vs PandaDoc vs Qwilr). Memory saved: `reference_n8n_test_workflow_false_timeout` — **never re-fire an n8n workflow on a timeout/failure report; confirm by identity (user-agent), not by absence.**
+
+**The output itself was good, though — which was the actual question.** Both posts **passed EVERY QA gate on first review with zero `[qa-fix]` commits** (auto-register, lint, logo gate, build, render-acceptance, mobile-overflow, screenshots, Vision review → "QA pass"). Both: ~2.3k words, 8 components, **0 em/en dashes**, 0 AI-slop vocabulary, real first-person MyTake, real logos + a real screenshot, working `/go/` CTAs. **The content pipeline is healthy; the only defect this session was mine.**
+
+**PR #196 was the first live firing of the orphan fix, and it worked:** its `[auto-register]` commit auto-added in-body `/tools/` links for all **4 brand-new hubs** (storydoc, pandadoc, qwilr, getaccept) — hubs that would previously have been born orphaned. Orphans now **5/72** (was 16/67) **while adding 5 new hubs**.
+
+### Deliberately NOT fixed (do not re-litigate)
+
+- **Blog-post mobile LCP (2.7s).** The S59 audit's #1 recommendation ("preload the hero, check image sizing, confirm `font-display: swap`") is **disproven by measurement**: `render-blocking-insight` reports **zero** blocking resources (the S59 CSS inlining removed the last one), `font-display-insight` is clean, and the LCP element is a **text node** (`p.post-tldr-text`) — breakdown is TTFB 212ms + **element render delay 1210ms**. There is no image to preload and no font to unblock; the remainder is main-thread work under Lighthouse's 4x CPU throttle. This loop has now run **three times** (S39 fonts, S59 CSS, S66). **CrUX field data is the arbiter. Stop investing.**
+- **The 1 crawled-not-indexed post** (`2026-05-08-cheap-outbound-...`): its last crawl (**2026-07-03**) *predates* both the 7/07 internal links (PR #170) and the 7/07 Request Indexing. Google hasn't re-evaluated it. Re-run `gsc-index-status.py` ~1-2 weeks; escalate only if still stuck after a post-7/07 crawl date. (The other previously-stuck post, `hubspot-data-quality`, is now **indexed** — that remediation worked.)
+
+### Cadence note
+
+**3 posts published 2026-07-13** (the 8am cron's Bland AI post + my two double-fire posts) against the deliberate **hold at 1/day** policy, burning 2 extra queued topics (~72 days runway remains, so not scarce). **Ian's call: leave both.**
+
+### Key notes
+
+- **Reverts:** `git revert bc5b5b2` (PR #193 — 4 independent commits: quickmail / mesh+content / CI / docs) · `git revert f897d76` (PR #194 runbook). #195 + #196 are content.
+- Engine left **active, exactly 32 nodes**, temp webhook removed (no leftover trigger surface).
+- Worktrees `C:\tmp\tag-orphan-hubs` + `C:\tmp\tag-audit-cmd` (both removed; the OneDrive read-only worktree-metadata prune from S59 applies).
+
+---
 
 ## Quick reference — recent additions (Session 65, 2026-07-13)
 
