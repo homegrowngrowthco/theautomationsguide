@@ -1899,6 +1899,18 @@ export const tools: Tool[] = [
     blurb:
       'Salesforce is the #1 AI CRM, helping companies become Agentic Enterprises where humans and agents drive success together through a unified AI, data, and Customer 360 platform.',
   },
+  {
+    slug: 'profound',
+    name: 'Profound',
+    category: 'SEO & Content',
+    badge: 'Paid',
+    ctaLabel: 'Try Profound',
+    ctaPrimary: false,
+    listed: false,
+    aliases: ['Profound'],
+    blurb:
+      'profound.app is your first and best source for information about profound. Here you will also find topics relating to issues of general interest. We hope you find what you are looking for!',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
