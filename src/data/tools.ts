@@ -1464,6 +1464,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "circleback",
+    logo: '/brand/tools/circleback.png',
     name: "Circleback",
     category: "Meeting Intelligence",
     badge: "Free tier available",
@@ -1910,6 +1911,45 @@ export const tools: Tool[] = [
     aliases: ['Profound'],
     blurb:
       'profound.app is your first and best source for information about profound. Here you will also find topics relating to issues of general interest. We hope you find what you are looking for!',
+  },
+  {
+    slug: 'fathom',
+    name: 'Fathom',
+    category: 'Meeting Intelligence',
+    badge: 'Paid',
+    ctaLabel: 'Try Fathom',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/fathom.png',
+    aliases: ['Fathom'],
+    blurb:
+      'Fathom.io',
+  },
+  {
+    slug: 'avoma',
+    name: 'Avoma',
+    category: 'Meeting Intelligence',
+    badge: 'Paid',
+    ctaLabel: 'Try Avoma',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/avoma.png',
+    aliases: ['Avoma'],
+    blurb:
+      'Avoma is featured in a comparison on The Automations Guide.',
+  },
+  {
+    slug: 'tl-dv',
+    logo: '/brand/tools/tl-dv.png',
+    name: 'tl;dv',
+    category: 'Meeting Intelligence',
+    badge: 'Paid',
+    ctaLabel: 'Try tl;dv',
+    ctaPrimary: false,
+    listed: false,
+    aliases: ['tl;dv'],
+    blurb:
+      'tl;dv is featured in a comparison on The Automations Guide.',
   },
 ];
 
