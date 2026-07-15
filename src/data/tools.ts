@@ -1940,6 +1940,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'tl-dv',
+    logo: '/brand/tools/tl-dv.png',
     name: 'tl;dv',
     category: 'Meeting Intelligence',
     badge: 'Paid',
