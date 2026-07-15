@@ -1,4 +1,23 @@
-# Session Log — last updated 2026-07-13 (Session 66)
+# Session Log — last updated 2026-07-15 (Session 67)
+
+## Quick reference — recent additions (Session 67, 2026-07-15)
+
+**PR #199 (Circleback vs Fathom vs tl;dv) looked "failed AGAIN" but was GREEN + MERGEABLE — a stale re-run posted a false "🚨 QA needs tl;dv" 4s AFTER tl;dv was registered on a newer commit. Merged #199. Root-caused the false alarm + opened PR #200 to stop QA commenting from superseded/re-run jobs.**
+
+Ian: "ANOTHER failed PR even though I followed the directions?" — the scary 🚨 was a race, not a rejection.
+
+### What actually happened on #199
+- 12:30:29 Ian replied `tl-dv = https://tldv.io/` → `handle-tool-reply.yml` registered it on commit `64daff39` (12:30:41) + posted the ✅ "registered" ack.
+- A **manual re-run (attempt 2)** of the OLD commit `695715eb` (pre-registration) started 12:29:54 and finished 12:30:48, posting the `failure()` "🚨 QA needs tl;dv" at **12:30:45** — a verdict about a sha two commits behind HEAD.
+- The real run on current HEAD (`29415490526`, evaluated up to its own auto-register commit `7d97bdc8` == HEAD) posted the green ✅ at **12:33:41**. PR was `MERGEABLE` the whole time. **Merged (squash) 12:38.**
+
+### The fix — PR #200 (`ci/suppress-stale-qa-comments`, OPEN, NOT merged)
+`qa-content-pr.yml` posted comments based on whatever commit *that run* evaluated, with no check it was still the PR head — so any re-run of an old commit (or a run superseded by a newer push) contradicts reality. Added a **stale-run guard** (two steps: capture local `git rev-parse HEAD`, then compare to the live PR head via `pulls.get`) and gated **all 7 comment/Slack steps** on it. Local HEAD is used deliberately because it INCLUDES the run's OWN auto-register/auto-fix commits, so a legit self-fixing run still counts as current; only a commit landed by *someone else* (a re-run, `handle-tool-reply`, a human) suppresses. Fail-safe: unresolved local HEAD (e.g. checkout failed) → default to posting, so a real infra failure is never swallowed. YAML validated, 7 steps gated. Revert: close PR #200.
+
+### Open thread
+Couldn't determine WHO/what triggered the attempt-2 re-run at 12:29:54 (GitHub doesn't expose the re-run actor cleanly). The guard makes it harmless regardless; worth checking whether something auto-retries failed QA runs.
+
+---
 
 ## Quick reference — recent additions (Session 66, 2026-07-13)
 
