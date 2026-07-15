@@ -1938,6 +1938,18 @@ export const tools: Tool[] = [
     blurb:
       'Avoma is featured in a comparison on The Automations Guide.',
   },
+  {
+    slug: 'tl-dv',
+    name: 'tl;dv',
+    category: 'Meeting Intelligence',
+    badge: 'Paid',
+    ctaLabel: 'Try tl;dv',
+    ctaPrimary: false,
+    listed: false,
+    aliases: ['tl;dv'],
+    blurb:
+      'tl;dv is featured in a comparison on The Automations Guide.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
