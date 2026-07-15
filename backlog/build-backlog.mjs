@@ -50,6 +50,11 @@ const MINE_ONLY = process.argv.includes('--mine-only');
 // Content Calendar the engine reads (Config.topicsDatabaseId); override via env.
 const STAGE = process.argv.includes('--stage');
 const STATUS = process.argv.includes('--status');
+// --audit-queue: re-check every Queued/Suggested Notion row against the CURRENT
+// published corpus (catches duplicates/slop that reached the queue by any path, not
+// just builder proposals). --prune-apply flips the dedup collisions to Skipped.
+const AUDIT_QUEUE = process.argv.includes('--audit-queue');
+const PRUNE_APPLY = process.argv.includes('--prune-apply');
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
 const NOTION_DB = process.env.NOTION_DATABASE_ID || '62f34586-4f78-4b83-b2ac-105f500d059e';
 const NOTION_VERSION = '2022-06-28'; // matches the live engine's Notion-Version header
@@ -79,6 +84,18 @@ if (STAGE && !NOTION_TOKEN) {
 const norm = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 // Strip em/en dashes deterministically rather than relying on a prompt rule.
 const dedash = (s) => (s || '').replace(/\s*[—–]\s*/g, ', ');
+
+// ---- ANCHOR FENCE (anti-slop). Tools we must NEVER anchor a post on: no-affiliate
+// incumbents a young domain cannot rank for. GSC proof (2026-07): gong-alternatives
+// = 301 impr @ avg pos 71, 0 clicks, no /go/ program — pure wasted spend. These may
+// still appear as a comparison foil or the "from" side of a migration; they just may
+// never be the anchorTool the post is built around. Extend as new dead anchors surface. ----
+const NO_ANCHOR = new Set(
+  ['gong', 'outreach', 'salesloft', 'zoominfo', 'salesforce', 'gainsight', 'marketo',
+   'seismic', 'clari', '6sense', 'sixsense', 'chorus', 'drift', 'people.ai', 'highspot']
+    .map(norm)
+);
+const isNoAnchor = (tool) => !!tool && (NO_ANCHOR.has(norm(tool.slug)) || NO_ANCHOR.has(norm(tool.name)));
 
 // ---------- 1. UNIVERSE: tools.ts ----------
 function parseToolsTs() {
@@ -261,6 +278,75 @@ async function queueStatus() {
   for (const q of queued.slice(0, 15)) console.log(`   - ${q.pub || '(no date)'}  ${q.topic.slice(0, 70)}`);
 }
 
+// Publish-time dedup + fence AUDIT (drives --audit-queue). Generation-time dedup()
+// only guards what the BUILDER proposes; rows still reach Queued by a manual add, a
+// bulk import, or an older run whose corpus predated a now-published post. This
+// re-checks every Queued/Suggested row against the CURRENT published corpus (local
+// posts + Published Notion rows) with the SAME collide()/fence, and with
+// --prune-apply flips the collisions to Status:Skipped so the daily engine never
+// generates a duplicate. Safe: only hard dedup collisions are auto-skipped; fence
+// mentions are advisories (a no-anchor tool can legitimately be a migration "from"
+// side), reported but never auto-skipped.
+async function auditQueue(universe) {
+  if (!NOTION_TOKEN) {
+    console.error('--audit-queue requires NOTION_TOKEN. Run: node --env-file=<path-with-NOTION_TOKEN> backlog/build-backlog.mjs --audit-queue [--prune-apply]');
+    process.exit(1);
+  }
+  const rows = [];
+  let cursor;
+  do {
+    const res = await notionApi('POST', `/databases/${NOTION_DB}/query`, { page_size: 100, start_cursor: cursor });
+    if (!res.ok) throw new Error(`Notion query failed (${res.status}): ${JSON.stringify(res.json).slice(0, 300)}`);
+    for (const page of res.json.results || []) {
+      const props = page.properties || {};
+      const title = (props.Topic?.title || []).map((t) => t.plain_text).join('').trim();
+      const kw = (props['Target Keyword']?.rich_text || []).map((t) => t.plain_text).join('');
+      const status = props.Status?.select?.name || '(none)';
+      const toolset = universe.filter((t) => aliasHit(t.aliases, `${title} ${kw}`)).map((t) => t.slug);
+      rows.push({ id: page.id, title, keyword: norm(kw) || norm(title), status, toolset: [...new Set(toolset)].sort() });
+    }
+    cursor = res.json.has_more ? res.json.next_cursor : undefined;
+  } while (cursor);
+
+  const published = rows.filter((r) => r.status === 'Published');
+  const active = rows.filter((r) => r.status === 'Queued' || r.status === 'Suggested');
+  // Corpus = local published posts + Published Notion rows (ground truth of what exists).
+  const index = buildIndex(universe, [...parsePublishedPosts(universe), ...published]);
+
+  const collisions = [];
+  const fenceAdvisories = [];
+  // Check Queued first (higher risk: auto-fires), then Suggested; an earlier-kept
+  // active row joins the index so two identical Queued rows also collide.
+  const ordered = [...active.filter((r) => r.status === 'Queued'), ...active.filter((r) => r.status === 'Suggested')];
+  for (const row of ordered) {
+    const reason = collide(universe, index, row);
+    if (reason) { collisions.push({ ...row, reason }); continue; }
+    addToIndex(universe, index, row);
+    const namedNoAnchor = universe.filter((t) => isNoAnchor(t) && aliasHit(t.aliases, row.title));
+    if (namedNoAnchor.length && intentOf(row.title) === 'alternatives') {
+      fenceAdvisories.push({ ...row, note: `built around no-program incumbent ${namedNoAnchor.map((t) => t.name).join(', ')}` });
+    }
+  }
+
+  console.log(`\n=== QUEUE AUDIT (db ${NOTION_DB}) ===`);
+  console.log(`Active: ${active.length} rows (${active.filter((r) => r.status === 'Queued').length} Queued, ${active.filter((r) => r.status === 'Suggested').length} Suggested). Corpus: local posts + ${published.length} Published Notion rows.`);
+  console.log(`\nDUPLICATE COLLISIONS (auto-Skip candidates): ${collisions.length}`);
+  for (const c of collisions) console.log(`  [${c.status}] ${c.title.slice(0, 66)}\n        -> ${c.reason}`);
+  console.log(`\nFENCE ADVISORIES (manual review, NOT auto-skipped): ${fenceAdvisories.length}`);
+  for (const a of fenceAdvisories) console.log(`  [${a.status}] ${a.title.slice(0, 66)}  (${a.note})`);
+
+  if (PRUNE_APPLY && collisions.length) {
+    let skipped = 0;
+    for (const c of collisions) {
+      const res = await notionApi('PATCH', `/pages/${c.id}`, { properties: { Status: { select: { name: 'Skipped' } } } });
+      if (res.ok) skipped++; else console.error(`  FAILED to skip "${c.title.slice(0, 40)}" (${res.status})`);
+    }
+    console.log(`\n--prune-apply: set ${skipped}/${collisions.length} duplicate rows to Skipped.`);
+  } else if (collisions.length) {
+    console.log('\n(dry run — re-run with --prune-apply to Skip the duplicate collisions.)');
+  }
+}
+
 async function stageToNotion(kept) {
   let created = 0;
   const failed = [];
@@ -389,6 +475,8 @@ function buildPrompt(universe, covered, count, demand) {
     '- single-tool reviews ("X review: the honest take") where the observed demand shows "<tool> review" queries',
     '- "X alternatives" only where no alternatives post exists for that tool yet',
     '',
+    'HARD FENCE (a proposal that breaks this is discarded): NEVER set anchorTool to a no-affiliate incumbent this young domain cannot rank for: Gong, Outreach, Salesloft, ZoomInfo, Salesforce, Gainsight, Marketo, Seismic, Clari, 6sense, Chorus, Drift, Highspot. You MAY name them as a comparison foil or as the "from" side of a migration ("Migrate off Outreach to X"), but the anchorTool must be a tool with an affiliate landing page or a realistic affiliate path. Prefer anchors marked (has LP).',
+    '',
     'Return STRICT JSON only, no prose, in this shape:',
     '{"topics":[{"topic":"...","anchorTool":"...","alsoCovers":["..."],"targetKeyword":"...","tag":"comparison|tools|automation|revops|guide","priority":"High|Medium|Low","firstMover":true,"needsLP":false,"rationale":"one sentence on why this wins"}]}',
     'Rules: anchorTool MUST be a universe tool by name. tag MUST be one of the five listed. needsLP=true if the anchor tool has no LP. Do NOT use em dashes or en dashes anywhere; use commas or periods. Keep titles natural, not keyword-stuffed.',
@@ -470,17 +558,47 @@ function jaccard(a, b) {
   return union ? hit / union : 0;
 }
 
+// Build a dedup index from a covered corpus. Shared by generation-time dedup() and
+// the publish-time auditQueue(), so both use IDENTICAL collision logic (a duplicate
+// the builder would have rejected is also a duplicate the queue audit rejects).
+function buildIndex(universe, covered) {
+  return {
+    keywords: new Set(covered.map((c) => c.keyword)),
+    titles: new Set(covered.map((c) => norm(c.title))),
+    sigs: new Set(covered.map((c) => signature(c.toolset)).filter((s) => s.length)),
+    intents: new Set(covered.flatMap((c) => intentKeys(universe, c.title, c.keyword))),
+    titleTokens: covered.map((c) => ({ title: c.title, toks: tokenSet(`${c.title} ${c.keyword}`) })),
+  };
+}
+// Return a collision reason vs the index, or null if the candidate is net-new.
+// cand = { title, keyword, toolset }.
+function collide(universe, index, cand) {
+  const topic = cand.title;
+  const kw = cand.keyword || norm(topic);
+  const sig = signature(cand.toolset);
+  if (index.keywords.has(kw) || index.titles.has(norm(topic))) return 'keyword/title already covered';
+  if (sig && index.sigs.has(sig)) return 'identical tool set already covered';
+  const iHit = intentKeys(universe, topic, cand.keyword).find((k) => index.intents.has(k));
+  if (iHit) return `intent already covered (${iHit})`;
+  const toks = tokenSet(`${topic} ${cand.keyword || ''}`);
+  const near = index.titleTokens.find((c) => jaccard(toks, c.toks) >= 0.72);
+  if (near) return `near-duplicate title of: ${near.title}`;
+  return null;
+}
+function addToIndex(universe, index, cand) {
+  index.keywords.add(cand.keyword || norm(cand.title));
+  index.titles.add(norm(cand.title));
+  const sig = signature(cand.toolset); if (sig) index.sigs.add(sig);
+  for (const k of intentKeys(universe, cand.title, cand.keyword)) index.intents.add(k);
+  index.titleTokens.push({ title: cand.title, toks: tokenSet(`${cand.title} ${cand.keyword || ''}`) });
+}
+
 function dedup(proposals, universe, covered) {
   const resolve = makeResolver(universe);
-  const coveredKeywords = new Set(covered.map((c) => c.keyword));
-  const coveredTitles = new Set(covered.map((c) => norm(c.title)));
-  const coveredSigs = new Set(covered.map((c) => signature(c.toolset)).filter((s) => s.length));
-  const coveredIntents = new Set(covered.flatMap((c) => intentKeys(universe, c.title, c.keyword)));
-  const coveredTitleTokens = covered.map((c) => ({ title: c.title, toks: tokenSet(`${c.title} ${c.keyword}`) }));
+  const index = buildIndex(universe, covered); // grows as we keep, so within-batch dupes also collide
   const coveredAnchors = new Map(); // slug -> [titles] for partial-overlap warnings
   for (const c of covered) for (const s of c.toolset) (coveredAnchors.get(s) || coveredAnchors.set(s, []).get(s)).push(c.title);
 
-  const seenInBatch = new Set();
   const kept = [];
   const dropped = [];
 
@@ -488,23 +606,15 @@ function dedup(proposals, universe, covered) {
     const topic = dedash(p.topic || '');
     const anchor = resolve(p.anchorTool || '');
     const toolSlugs = [anchor?.slug, ...(p.alsoCovers || []).map((n) => resolve(n)?.slug)].filter(Boolean);
-    const sig = signature(toolSlugs);
     const kw = norm(p.targetKeyword || '') || norm(topic);
+    const cand = { title: topic, keyword: kw, toolset: toolSlugs };
 
     if (!anchor) { dropped.push({ topic, reason: 'anchor not in universe' }); continue; }
-    if (coveredKeywords.has(kw) || coveredTitles.has(norm(topic))) { dropped.push({ topic, reason: 'keyword/title already covered' }); continue; }
-    if (sig && coveredSigs.has(sig)) { dropped.push({ topic, reason: 'identical tool set already covered' }); continue; }
-    // Same single-anchor intent (alternatives/pricing/migration) already exists for a tool named in this title.
-    const pIntentKeys = intentKeys(universe, topic, p.targetKeyword || '');
-    const intentHit = pIntentKeys.find((k) => coveredIntents.has(k));
-    if (intentHit) { dropped.push({ topic, reason: `intent already covered (${intentHit})` }); continue; }
-    // Near-identical title wording vs anything covered (belt and braces for reworded duplicates).
-    const pToks = tokenSet(`${topic} ${p.targetKeyword || ''}`);
-    const near = coveredTitleTokens.find((c) => jaccard(pToks, c.toks) >= 0.75);
-    if (near) { dropped.push({ topic, reason: `near-duplicate title of: ${near.title}` }); continue; }
-    if (seenInBatch.has(kw) || seenInBatch.has(sig)) { dropped.push({ topic, reason: 'duplicate within this batch' }); continue; }
-    for (const k of pIntentKeys) coveredIntents.add(k); // within-batch intent dedup too
-    seenInBatch.add(kw); if (sig) seenInBatch.add(sig);
+    // FENCE: never anchor on a no-program incumbent the young domain cannot rank for.
+    if (isNoAnchor(anchor)) { dropped.push({ topic, reason: `fence: anchor "${anchor.name}" is a no-program incumbent` }); continue; }
+    const reason = collide(universe, index, cand);
+    if (reason) { dropped.push({ topic, reason }); continue; }
+    addToIndex(universe, index, cand); // dedup subsequent proposals against this one too
 
     const overlapWith = toolSlugs.flatMap((s) => coveredAnchors.get(s) || []);
     kept.push({
@@ -549,12 +659,17 @@ function writeOutputs(kept, dropped, meta) {
 }
 
 // ---------- main ----------
-async function main() {
+// Load + de-dup the tool universe (tools.ts wins over the pipeline doc, keeps hasLP).
+// Shared by main() and the --audit-queue dispatch.
+function buildUniverse() {
   const universeRaw = [...parseToolsTs(), ...parsePipelineBacklog()];
-  // de-dup the universe itself by normalized name (tools.ts wins, keeps hasLP)
   const seen = new Map();
   for (const t of universeRaw) if (!seen.has(norm(t.name))) seen.set(norm(t.name), t);
-  const universe = [...seen.values()];
+  return [...seen.values()];
+}
+
+async function main() {
+  const universe = buildUniverse();
 
   // Dedup corpus: published posts (always, local) + calendar rows. When a Notion
   // token is present, query the LIVE calendar (covers queued/generating/published
@@ -593,4 +708,6 @@ async function main() {
   }
 }
 
-main().catch((e) => { console.error('\nFatal:', e.message || e); process.exit(1); });
+const runFatal = (e) => { console.error('\nFatal:', e.message || e); process.exit(1); };
+if (AUDIT_QUEUE) auditQueue(buildUniverse()).catch(runFatal);
+else main().catch(runFatal);
