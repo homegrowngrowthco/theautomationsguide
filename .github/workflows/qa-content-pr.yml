@@ -322,8 +322,54 @@ jobs:
           git push origin "${{ github.event.pull_request.head.ref }}"
           echo "pushed=true" >> $GITHUB_OUTPUT
 
+      # STALE-RUN GUARD. Every comment/Slack step below is gated on this so a run
+      # only speaks for the PR if it evaluated the PR's CURRENT head. Without it, a
+      # re-run of an old commit (or a run superseded by a newer push) posts a
+      # verdict about a stale sha — e.g. PR #199, where a manual re-run of the
+      # pre-registration commit posted "QA needs tl;dv" 4s AFTER tl;dv was
+      # registered on a newer commit, contradicting the ✅ that a fresh run posted
+      # moments later. We compare the run's LOCAL head (git rev-parse HEAD, which
+      # includes this run's own auto-register/auto-fix commits, so a legit run that
+      # pushed its own fix still counts as current) against the live PR head. If a
+      # commit landed after this run's work, stay silent — the run on that commit
+      # will report. If we can't determine the local head (checkout itself failed),
+      # default to posting so a real infra failure is never swallowed.
+      - name: Capture the head this run evaluated
+        if: always() && steps.skip-check.outputs.skip != 'true'
+        id: local-head
+        run: echo "sha=$(git rev-parse HEAD 2>/dev/null || echo unknown)" >> "$GITHUB_OUTPUT"
+
+      - name: Suppress comments if a newer commit has superseded this run
+        if: always() && steps.skip-check.outputs.skip != 'true'
+        id: is-head
+        uses: actions/github-script@v8
+        env:
+          LOCAL_HEAD: ${{ steps.local-head.outputs.sha }}
+        with:
+          script: |
+            const local = process.env.LOCAL_HEAD || 'unknown';
+            if (local === 'unknown') {
+              console.log('Could not resolve local HEAD — defaulting to post (fail loud).');
+              core.setOutput('current', 'true');
+              return;
+            }
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+            });
+            const current = pr.head.sha === local;
+            if (!current) {
+              core.notice(
+                `This run evaluated ${local.slice(0, 8)} but the PR head is now ` +
+                `${pr.head.sha.slice(0, 8)} — suppressing PR comments/Slack. The run ` +
+                `on the current head will report.`
+              );
+            }
+            core.setOutput('current', current ? 'true' : 'false');
+
       - name: Comment on PR — fix applied
-        if: steps.decide.outputs.branch == 'fix' && steps.commit.outputs.pushed == 'true'
+        if: steps.decide.outputs.branch == 'fix' && steps.commit.outputs.pushed == 'true' && steps.is-head.outputs.current == 'true'
         uses: actions/github-script@v8
         env:
           ATTEMPT: ${{ steps.decide.outputs.next_attempt }}
@@ -354,7 +400,7 @@ jobs:
       # "fix applied, re-running" message above (which used to fire unconditionally
       # on the fix branch, falsely promising a re-run that never came).
       - name: Comment on PR — auto-fix declined (manual review)
-        if: steps.decide.outputs.branch == 'fix' && steps.commit.outputs.pushed == 'false'
+        if: steps.decide.outputs.branch == 'fix' && steps.commit.outputs.pushed == 'false' && steps.is-head.outputs.current == 'true'
         uses: actions/github-script@v8
         with:
           script: |
@@ -375,7 +421,7 @@ jobs:
             });
 
       - name: Comment on PR — manual review needed
-        if: steps.decide.outputs.branch == 'manual'
+        if: steps.decide.outputs.branch == 'manual' && steps.is-head.outputs.current == 'true'
         uses: actions/github-script@v8
         with:
           script: |
@@ -396,7 +442,7 @@ jobs:
             });
 
       - name: Slack — manual review needed
-        if: steps.decide.outputs.branch == 'manual' && env.SLACK_WEBHOOK_URL != ''
+        if: steps.decide.outputs.branch == 'manual' && steps.is-head.outputs.current == 'true' && env.SLACK_WEBHOOK_URL != ''
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           PR_URL: ${{ github.event.pull_request.html_url }}
@@ -406,7 +452,7 @@ jobs:
             -d "{\"text\":\"🚨 *QA pipeline hit retry limit on a content PR*\nPR: $PR_URL\nIssues: $SUMMARY\nManual review needed.\"}"
 
       - name: Comment on PR — QA pass
-        if: steps.decide.outputs.branch == 'pass'
+        if: steps.decide.outputs.branch == 'pass' && steps.is-head.outputs.current == 'true'
         uses: actions/github-script@v8
         with:
           script: |
@@ -427,7 +473,7 @@ jobs:
       # ping (the exact gap on PR #65). These two steps run on failure() so a real
       # defect or infra problem always reaches Ian for manual review.
       - name: Comment on PR — QA failed (manual review)
-        if: failure() && steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        if: failure() && steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true' && steps.is-head.outputs.current == 'true'
         uses: actions/github-script@v8
         with:
           script: |
@@ -477,7 +523,7 @@ jobs:
             });
 
       - name: Slack — QA failed (manual review)
-        if: failure() && steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true' && env.SLACK_WEBHOOK_URL != ''
+        if: failure() && steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true' && steps.is-head.outputs.current == 'true' && env.SLACK_WEBHOOK_URL != ''
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           PR_URL: ${{ github.event.pull_request.html_url }}
