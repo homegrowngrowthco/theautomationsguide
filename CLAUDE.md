@@ -1,4 +1,30 @@
-# Session Log — last updated 2026-07-15 (Session 67)
+# Session Log — last updated 2026-07-15 (Session 68)
+
+## Quick reference — recent additions (Session 68, 2026-07-15)
+
+**Traction analysis → data-driven backlog triage → engine anti-slop hardening (PR #202 MERGED `efd7c25`).**
+
+### What the GSC data says wins (28d: 7,808 impr @ pos 48.5, clicks still ~0)
+Joined all 68 posts by format + theme + per-tool branded demand (`scratchpad/gsc_dump.py`, 28d+90d):
+- **Migration guides are the only reliable page-1 format** (migrate-substack-to-kit pos 9.4). stack/tutorial rank well but low demand; 3-way comparison is the workhorse (pos 27); **"alternatives" is the worst format (pos 65)**.
+- **Winning themes:** enrichment (Apollo/Clay/Lusha, 728 impr, the site's only clicks), newsletter/email (pos 19), CRM. **Traps:** Gong/Outreach ("sales-eng-intel", 346 impr @ pos 64, no program) and automation-platforms (n8n/Make/Zapier, over-produced for its demand).
+
+### Backlog triage (engine auto-fires on Status=Queued)
+Notion Content Calendar had **56 Queued** — mostly single-tool `[needs LP]` reviews + duplicates of published posts. Curated to **14 Queued / 18 Suggested / 126 Skipped**. 40 rows scrapped total; 5 weak-format Suggested reshaped into migration/workflow/decision angles. Full split in the STATUS row + op #504.
+
+### Engine hardening (PR #202, `backlog/build-backlog.mjs` only — no shipped-site change)
+1. **Anti-slop `NO_ANCHOR` fence** — the builder can never anchor a post on a no-affiliate incumbent the young domain can't rank for (Gong/Outreach/Salesloft/ZoomInfo/Salesforce/Gainsight/Marketo/Clari/6sense/Drift/Highspot). They may be a comparison foil or a migration "from" side, never the `anchorTool`. Prompt states it; `dedup()` drops any that slip through.
+2. **Publish-time `--audit-queue`** — dedup only ran at generation, so junk still reached Queued via manual/bulk/stale paths. Dedup refactored to a shared index (`buildIndex`/`collide`/`addToIndex`) used by BOTH `dedup()` and a new `auditQueue()` that re-checks every Queued/Suggested Notion row against the current published corpus; `--prune-apply` auto-Skips hard dedup collisions (fence mentions are advisories only). Near-dup title threshold 0.75→0.72.
+Verified: `node --check`, dry-run generation (0 fenced anchors kept), Gong/ZoomInfo/Outreach confirmed real universe entries. **Follow-up:** wire `--audit-queue --prune-apply` into the weekly topic-backlog GHA (NOTION_TOKEN is already a repo secret).
+
+### Verified already-done (guarded against redundant work)
+- **CTR titles** — the 4 page-1-zero-click posts were already rewritten 2026-07-09 (`updatedDate` proves it); the "0 clicks" GSC pull predates that change. No churn.
+- **Internal-link mesh** — done; 3/76 orphans (motion/trigify/factors-ai) are unclosable because no published post mentions them in linkable prose yet; the CI orphan-flow links new hubs going forward.
+
+### Blocked on Ian
+PostHog `phx_` key + a full VS Code restart to pull `affiliate_click` conversion data — the only revenue-true success metric (impressions/position are proxies).
+
+---
 
 ## Quick reference — recent additions (Session 67, 2026-07-15)
 
