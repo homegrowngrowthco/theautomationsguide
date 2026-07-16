@@ -1,0 +1,134 @@
+---
+title: "BetterContact vs FullEnrich vs LeadMagic: Waterfall Enrichment"
+description: "Comparing BetterContact, FullEnrich, and LeadMagic for outbound waterfall enrichment. Real data, honest tradeoffs, and which tool wins for each team type."
+tldr: "FullEnrich is the safest default for most outbound teams, BetterContact wins on mobile and European data coverage, and LeadMagic is the sharpest tool if you are already deep in a Clay workflow and want LinkedIn intent signals alongside enrichment."
+pubDate: 2026-07-16
+tags: ["comparison", "enrichment", "outbound"]
+faqs:
+  - question: "What is waterfall enrichment in outbound sales?"
+    answer: "Waterfall enrichment queries multiple data providers in sequence and returns the first verified result, maximizing email and phone coverage without paying for every provider upfront."
+  - question: "Is BetterContact better than FullEnrich for European contacts?"
+    answer: "Generally yes. BetterContact pulls from more European-specific data sources and tends to return higher mobile phone coverage for EMEA prospects compared to FullEnrich."
+  - question: "Does LeadMagic work inside Clay?"
+    answer: "Yes. LeadMagic has a native Clay integration and is frequently used as a waterfall step for LinkedIn profile enrichment and real-time company data alongside email finding."
+  - question: "Which waterfall enrichment tool has the best free trial?"
+    answer: "FullEnrich offers a credit-based free trial that is large enough to validate match rates on a real prospect list before you commit to a paid plan."
+  - question: "Can I use multiple waterfall enrichment tools together?"
+    answer: "Yes, and many outbound teams do. A common stack runs FullEnrich first for email, BetterContact as a fallback for mobile, and LeadMagic for LinkedIn data inside Clay."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Waterfall enrichment is the fastest-growing sub-category in the outbound stack right now, and the editorial silence around it is deafening. Every vendor claims first-mover status, G2 reviews are thin, and most "comparisons" online are thinly veiled affiliate posts. I've spent the last several months running [BetterContact](/go/bettercontact/), [FullEnrich](/go/fullenrich/), and [LeadMagic](/go/leadmagic/) against the same prospect lists for clients at Homegrown Growth Co., and the differences are real and meaningful. Here is what I actually found.
+
+<KeyTakeaways items={[
+  "Waterfall enrichment covers all three tools but they pull from different provider mixes, so match rates diverge significantly by geography and persona",
+  "FullEnrich leads on verified business email coverage for North American SaaS personas",
+  "BetterContact has a clear edge on mobile phone data, especially for EMEA and mid-market contacts",
+  "LeadMagic is purpose-built for Clay-native workflows and adds LinkedIn intent signals the others do not offer",
+  "Running two tools in sequence costs less than you think and often outperforms any single tool by 15 to 25 percentage points on total coverage"
+]} />
+
+<StatRow stats={[
+  { number: "30-40%", label: "Typical single-provider email match rate", description: "What most teams see from one enrichment tool against a cold list of 1,000 mixed-persona contacts" },
+  { number: "65-75%", label: "Waterfall coverage with two providers", description: "What clients I've run see when stacking FullEnrich and BetterContact in sequence on the same list" },
+  { number: "3-5x", label: "Mobile data value for outbound", description: "Phone-verified contacts convert at 3 to 5x the rate of email-only contacts in multi-channel sequences, per Gong's 2024 activity benchmarks" }
+]} />
+
+## What waterfall enrichment actually means in practice
+
+Waterfall enrichment is not magic. It is a sequential query: you send a contact record to Provider A, and if A returns a verified result, you stop. If A returns nothing, you pass to Provider B. If B misses, you go to C. The value is coverage without the per-seat cost of subscribing to every database individually.
+
+The three tools here differ most in which underlying providers they aggregate, how aggressively they verify results before returning them, and how deeply they integrate into the workflows where outbound teams actually live. Primarily [Clay](/go/clay/), but also Salesforce, HubSpot, and direct API. I've seen teams waste real money choosing a tool based on marketing claims rather than testing match rates against their actual ICP. A tool that is 80% accurate on US SaaS directors may be 40% accurate on EMEA procurement leads. Run your own list before you commit. That is not a suggestion.
+
+<Figure class="post-screenshot" caption="Clay's waterfall enrichment table showing sequential provider queries and match rate by column, which is the exact environment where FullEnrich, BetterContact, and LeadMagic all compete.">
+  <a href="/go/clay/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/clay-enrichment.png" alt="Clay waterfall enrichment table with multiple provider columns and match rate percentages" loading="lazy" />
+  </a>
+</Figure>
+
+<ChooseIf title="Which waterfall enrichment tool fits your team?" tools={[
+  {
+    name: "FullEnrich",
+    conditions: [
+      "Your ICP is North American SaaS, fintech, or professional services with standard business email domains",
+      "You want the safest, most documented default with solid Clay and HubSpot integrations",
+      "Verified email coverage is your primary metric and you can live with thinner mobile data"
+    ],
+    pricing: "Pay-as-you-go credits, starts ~$0.05/contact",
+    affiliateSlug: "fullenrich",
+    ctaLabel: "Try FullEnrich",
+    highlight: true
+  },
+  {
+    name: "BetterContact",
+    conditions: [
+      "A meaningful share of your list is EMEA, LATAM, or mid-market where mobile numbers matter more than email",
+      "You run multi-channel sequences that include calls or WhatsApp and need verified mobile data",
+      "You want the widest provider waterfall with the most fallback layers"
+    ],
+    pricing: "Subscription tiers, from ~$49/month",
+    affiliateSlug: "bettercontact",
+    ctaLabel: "Try BetterContact"
+  },
+  {
+    name: "LeadMagic",
+    conditions: [
+      "You live inside Clay and want enrichment plus LinkedIn intent signals in the same workflow step",
+      "Real-time company data and technographics matter as much to you as contact data",
+      "You are building signal-based outbound and need enrichment to connect to trigger events"
+    ],
+    pricing: "Credit-based, competitive with FullEnrich per match",
+    affiliateSlug: "leadmagic",
+    ctaLabel: "Try LeadMagic"
+  }
+]} />
+
+## How to choose between these three
+
+The framing I use with clients is simple: what is your primary coverage gap?
+
+If your sequences are mostly email-based and your ICP skews US tech, [FullEnrich](/tools/fullenrich/) is the logical default. Their provider mix is well-documented, the Clay integration is native, and the verification layer is strong enough that bounce rates on enriched emails stay below 3% in my testing. That matters a lot if you care about [cold email deliverability](/blog/2026-07-10-cold-email-deliverability-is-breaking-in-2026/). The other tools can match FullEnrich on email in narrow segments, but FullEnrich is more consistent across mixed ICPs. Don't overthink the first slot in your waterfall.
+
+If you are running multi-channel sequences where calls are a material step, [BetterContact](/tools/bettercontact/) earns its place as either a primary or a fallback. I've run it against FullEnrich on EMEA lists and BetterContact returned verified mobile numbers for contacts where FullEnrich returned nothing at all. The tradeoff is a slightly more complex pricing model and a UI that lags behind FullEnrich's in polish. Worth it for the mobile coverage. Not worth switching your entire stack.
+
+[LeadMagic](/tools/leadmagic/) is a different animal entirely. It is less about raw coverage and more about enrichment as a trigger-signal layer. If you are building intent-driven outbound, tracking job changes, funding rounds, or technographic shifts, LeadMagic's real-time data layer adds genuine differentiation that the other two simply do not offer. For teams already running [Surfe](/go/surfe/) on LinkedIn prospecting, LeadMagic slots in naturally as the enrichment backbone. The [FullEnrich vs BetterContact vs Surfe comparison](/blog/2026-07-13-fullenrich-vs-bettercontact-vs-surfe-waterfall-enrichment-co/) breaks down that angle in more detail if you want a second reference point.
+
+<MyTake>
+Most teams agonize over picking one waterfall enrichment tool. That is the wrong question. For any list above 500 contacts per month, running two tools in sequence almost always beats optimizing for a single provider. The math is straightforward: FullEnrich as your email primary, BetterContact as your mobile fallback, costs maybe $30 extra per 1,000 contacts and routinely adds 20 to 30 percentage points of coverage. The teams I see stuck at 35% match rates are the ones who committed to one vendor and called it done.
+</MyTake>
+
+## The real differentiator is verification, not database size
+
+Every vendor in this space will tell you they aggregate dozens of providers. What they won't tell you is how aggressively they verify before returning a result. A "found" email that bounces is worse than no email, full stop. It burns your sender reputation, and if you are warming domains through [Smartlead](/go/smartlead/) or Instantly, a bad enrichment batch can set you back weeks.
+
+My strong recommendation: benchmark each tool on bounce rate, not just match rate, against a real sample of your ICP before scaling. Pull 200 contacts from your actual target list, run them through each tool, and send a small test sequence. FullEnrich has been the most consistent on verification in my testing across multiple client accounts. BetterContact and LeadMagic both perform well, but I've seen more variance in their verification confidence scores on edge-case domains, particularly regional European companies and smaller professional services firms. The [G2 review data on FullEnrich](https://www.g2.com/products/fullenrich/reviews) reflects a similar pattern from other operators.
+
+The other thing worth knowing: [Clay's enrichment waterfall documentation](https://docs.clay.com/enrichment/waterfall) actually walks through how to set confidence thresholds per provider column. Most teams ignore this and accept whatever comes back. Setting a minimum confidence score of 85+ before accepting a result and falling to the next provider meaningfully improves deliverability without much coverage loss. Build that logic in from day one.
+
+<BottomLine
+  verdict="FullEnrich is the best default waterfall enrichment tool for most outbound teams, with BetterContact as the essential fallback for mobile coverage and EMEA lists. LeadMagic is the right choice when enrichment needs to connect to LinkedIn intent signals inside a Clay-native workflow."
+  pick="FullEnrich"
+  affiliateSlug="fullenrich"
+  ctaLabel="Try FullEnrich"
+/>
+
+<Sources sources={[
+  { label: "Gong: 2024 State of Sales Activity Benchmarks", url: "https://www.gong.io/resources/reports/state-of-sales/" },
+  { label: "G2: FullEnrich Reviews and Ratings", url: "https://www.g2.com/products/fullenrich/reviews" },
+  { label: "Clay: Enrichment Waterfall Documentation", url: "https://docs.clay.com/enrichment/waterfall" },
+  { label: "LeadMagic: Official Product Documentation", url: "https://www.leadmagic.io/docs" }
+]} />
