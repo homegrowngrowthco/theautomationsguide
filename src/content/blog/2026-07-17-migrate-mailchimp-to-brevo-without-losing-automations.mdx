@@ -1,0 +1,217 @@
+---
+title: "Migrate Mailchimp to Brevo Without Losing Automations"
+description: "Step-by-step guide to migrate from Mailchimp to Brevo while preserving audience segments, automations, and deliverability. Covers gotchas and alternatives."
+tldr: "Export your Mailchimp lists and segments first, recreate automations manually in Brevo Automation, then verify DNS and sender reputation before switching your live sends."
+pubDate: 2026-07-17
+tags: ["guide", "automation", "email"]
+faqs:
+  - question: "Can I import Mailchimp segments directly into Brevo?"
+    answer: "Not as named segments. You export each Mailchimp segment as a separate CSV, then import each into Brevo as a distinct list or use Brevo's filter conditions to recreate the segment logic."
+  - question: "Does Brevo have a free plan comparable to Mailchimp's?"
+    answer: "Yes. Brevo's free plan allows unlimited contacts and up to 300 emails per day, while Mailchimp's free tier caps you at 500 contacts and 1,000 sends per month."
+  - question: "How long does a Mailchimp to Brevo migration take?"
+    answer: "A basic list migration takes a few hours. Rebuilding automations and warming your sender reputation properly takes one to two weeks if you do it right."
+  - question: "Will my Mailchimp automation workflows transfer to Brevo?"
+    answer: "No. Brevo has no native import for Mailchimp automations. You will need to rebuild each workflow manually inside Brevo Automation using equivalent triggers and actions."
+  - question: "Is Brevo GDPR compliant for EU email marketing?"
+    answer: "Yes. Brevo is headquartered in Paris and stores EU customer data on EU servers by default, which is the primary compliance reason teams switch from Mailchimp."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The trigger I see most often: a Mailchimp invoice lands, the contact count just crossed 500 (or 5,000, or 50,000), and whoever owns email marketing does the math and realizes they are paying for a list, not for sends. Or the EU data residency question surfaces in a compliance review and Mailchimp's US-based infrastructure becomes a blocker overnight. Either way, the exit decision gets made fast. Then the migration gets botched because everyone underestimates what "export and re-import" actually breaks.
+
+I've helped several B2B SaaS teams make this move. The list and contact import is the easy 20 percent. Automations, segments, sender reputation, and DNS are the other 80.
+
+<KeyTakeaways items={[
+  "Brevo's free tier supports unlimited contacts and 300 emails/day, vs. Mailchimp's 500-contact cap",
+  "Mailchimp automations do NOT export or import to Brevo. You rebuild them manually.",
+  "Segments must be exported as separate CSVs and recreated as Brevo lists or filter conditions",
+  "Plan one to two weeks for a clean migration including sender warm-up, not a weekend cut-over",
+  "EU teams get data residency on EU servers by default in Brevo, which is often the real trigger for switching"
+]} />
+
+## Before You Migrate: The Prep Checklist
+
+Rushing the export phase is where I see teams lose segment data they can never fully reconstruct. Before you touch [Brevo](/go/brevo/), lock down everything on the Mailchimp side.
+
+Here is what to pull before you cancel or downgrade your Mailchimp account:
+
+- **Full audience export** (CSV, all fields) for every audience in your account, not just the primary one
+- **Segment definitions**, documented in a spreadsheet: every filter condition, logic operator, and tag combination that defines each segment
+- **Active automation maps**: screenshot or document every active journey, trigger, wait step, condition branch, and email template. Do not rely on memory.
+- **All email templates** as HTML files (Mailchimp lets you export HTML from the template editor)
+- **Suppression/unsubscribe list** as a separate CSV so you do not accidentally re-mail opted-out contacts on Brevo
+- **Current DNS records**: your existing SPF, DKIM, and DMARC settings from your domain registrar or DNS provider
+- **Sender reputation baseline**: note your last 30-day open rate and bounce rate in Mailchimp so you have a benchmark to compare against post-migration
+- **Any active A/B tests**: pause or complete them before migrating so you have clean data
+
+One thing I always tell clients: do not cancel Mailchimp until you have sent at least two full campaigns from Brevo with healthy deliverability metrics. You will want to cross-reference open rates for the same segments across both platforms during the overlap period.
+
+<StepRow steps={[
+  {
+    title: "Export Mailchimp audiences and segments as tagged CSVs",
+    body: "Go to Audience > All Contacts > Export Audience in Mailchimp. For each named segment, filter to that segment first, then export. Name each CSV file after the segment (for example, 'engaged-90days.csv' or 'customers-tier1.csv'). Include all custom fields and merge tags in the export, not just email and name. This is your source of truth."
+  },
+  {
+    title: "Create your Brevo account and authenticate your sending domain",
+    body: "Sign up at Brevo, then go to Senders & IPs > Domains and add your sending domain. Brevo will give you DKIM and DMARC records to add in your DNS. According to Brevo's authentication docs, DKIM propagation can take up to 48 hours. Do this before importing any contacts so you are not tempted to send before authentication is verified."
+  },
+  {
+    title: "Import contacts into Brevo lists that mirror your Mailchimp segments",
+    body: "In Brevo, go to Contacts > Import Contacts and upload each segment CSV as its own import. Map Mailchimp merge fields (FNAME, LNAME, custom fields) to Brevo contact attributes. Create a Brevo list for each segment before importing so contacts land in the right list. Import your unsubscribe CSV separately using the 'Mark as unsubscribed' import option, not as a regular contact import."
+  },
+  {
+    title: "Rebuild automations inside Brevo Automation",
+    body: "Open Brevo Automation and recreate each Mailchimp journey from your documented screenshots. Brevo's equivalent of Mailchimp's Customer Journey builder is the Automation workflow editor. Map Mailchimp triggers (list subscribe, tag added, email opened) to Brevo triggers (contact added to list, attribute updated, email opened). Paste your exported HTML templates into Brevo's email editor under the automation steps. Test each automation with a seed contact before activating."
+  },
+  {
+    title: "Warm your Brevo sending volume gradually",
+    body: "Do not blast your full list on day one. Brevo's own sending guidelines and standard ESP deliverability practice both recommend starting with your most engaged segment (opened in last 90 days), capping at 20 to 25 percent of your total list volume for the first week, then expanding. A cold IP sending volume you built over years on Mailchimp has zero reputation on Brevo's infrastructure. Treat this like a new domain warm-up, because for inbox providers, it effectively is."
+  },
+  {
+    title: "Point your signup forms and integrations to Brevo",
+    body: "Update any embedded Mailchimp signup forms on your site to Brevo's form embed code or API. Update any tool integrations (Zapier, n8n, HubSpot, Shopify, etc.) that write contacts to Mailchimp. Search your codebase and your automation platform for 'mailchimp' to catch every webhook or API call. Only after all inbound pipes are confirmed pointing to Brevo should you consider winding down Mailchimp."
+  }
+]} />
+
+## What Breaks (and What Does Not Transfer)
+
+I want to be direct here because a lot of migration guides gloss over this: almost nothing in Mailchimp's automation layer maps cleanly to Brevo. The contact data moves. The logic does not.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The gotcha: Automation triggers are not equivalent**
+
+    Mailchimp's "Customer Journey" triggers like "Purchases a product" (via the Mailchimp/Shopify native integration) or "Activity-based" triggers that reference Mailchimp-specific engagement data do not exist as direct equivalents in Brevo. If you built sophisticated behavioral journeys in Mailchimp, you will need to either use Brevo's API-triggered automations (which require developer time) or wire in a middleware tool like [n8n](/go/n8n/) to pass the behavioral events from your source systems into Brevo via webhook. I've seen teams assume a two-hour rebuild turn into a two-week dev project because of this gap.
+
+    Also: Mailchimp's "groups" and "tags" systems are conceptually different from Brevo's "lists" and "attributes." A Mailchimp tag becomes a Brevo contact attribute or list membership. Plan that mapping before you import, not after.
+  </Fragment>
+  <Fragment slot="right">
+    ```
+    Mailchimp --> Brevo mapping reference
+
+    Audience         --> Contact List
+    Segment          --> List (imported) or
+                         Filter (dynamic)
+    Tag              --> Contact Attribute
+                         (or List membership)
+    Group            --> Contact Attribute
+    Merge Tag        --> Contact Attribute
+    Customer Journey --> Automation Workflow
+    Classic Automat. --> Automation Workflow
+    Signup Form      --> Brevo Form or API
+    Content Studio   --> Files (manual upload)
+    Multivariate     --> A/B test (limited)
+
+    What does NOT transfer:
+    - Journey trigger logic
+    - Behavioral activity data
+    - Historical campaign stats
+    - Mailchimp-native integrations
+      (Shopify, WooCommerce must
+       be reconnected via Brevo's
+       own native integrations)
+    ```
+  </Fragment>
+</SideBySide>
+
+The historical campaign stats loss is the one that stings most in practice. Your engagement data, open history, click history: all of it lives in Mailchimp's database and does not export in a way you can import into Brevo's engagement tracking. You are starting fresh on behavioral data. This is exactly why I recommend running both platforms in parallel for at least one send cycle before cutting over fully. The teams who skip that overlap period are the ones who call me two weeks later wondering why their re-engagement sequence stopped firing.
+
+## Verify It Worked
+
+Before you call the migration done, run through these four checks:
+
+1. **DNS authentication green**: In Brevo under Senders and Domains, confirm DKIM status shows "Authenticated" and your DMARC record is passing. Tools like [MXToolbox DMARC lookup](https://mxtoolbox.com/dmarc.aspx) give you an independent confirmation.
+2. **Unsubscribes are suppressed**: Send a test import of five known unsubscribed emails and confirm Brevo shows them as "Unsubscribed" in contact status, not as active contacts.
+3. **Automation fires on a seed contact**: Add a test email address to the trigger list or attribute for each automation and confirm it receives the correct email in the correct sequence order.
+4. **All inbound pipes confirmed**: Check your CRM (HubSpot, Pipedrive, Salesforce, whatever you run), your website forms, and any automation tools writing contacts. Confirm zero new contacts are landing in Mailchimp after your cutover date.
+
+## Alternatives Worth Considering Before You Commit
+
+[Brevo](/go/brevo/) is the right call for most Mailchimp exits, but not all of them. Here is the honest breakdown:
+
+<ChooseIf title="Which Mailchimp replacement fits your team?" tools={[
+  {
+    name: "Brevo",
+    conditions: [
+      "You need EU data residency for GDPR compliance",
+      "Your list is large but your send volume is moderate (free or Starter tier math works in your favor)",
+      "You want a full marketing suite (email, SMS, CRM, forms) under one roof without enterprise pricing"
+    ],
+    pricing: "Free up to 300/day; Starter from $9/mo",
+    affiliateSlug: "brevo",
+    ctaLabel: "Try Brevo",
+    highlight: true
+  },
+  {
+    name: "ActiveCampaign",
+    conditions: [
+      "Your Mailchimp automations are complex multi-branch journeys that need a real visual builder",
+      "You need CRM-grade contact scoring and deal tracking alongside email",
+      "You are willing to pay more for the most powerful automation layer in the mid-market"
+    ],
+    pricing: "Lite from $15/mo (1,000 contacts)",
+    affiliateSlug: "activecampaign",
+    ctaLabel: "Try ActiveCampaign"
+  },
+  {
+    name: "GetResponse",
+    conditions: [
+      "You run webinars or courses and want email plus webinar hosting in one platform",
+      "You want a Mailchimp-like UX with better automation at a similar price point",
+      "Your list is under 5,000 contacts and you want a free plan with autoresponders included"
+    ],
+    pricing: "Free up to 500 contacts; Email from $15.6/mo",
+    affiliateSlug: "getresponse",
+    ctaLabel: "Try GetResponse"
+  },
+  {
+    name: "Loops",
+    conditions: [
+      "You are a SaaS product team sending transactional and lifecycle emails to product users",
+      "You want event-triggered emails driven by your app data rather than list-based marketing",
+      "Mailchimp always felt like the wrong tool for product email and you want a clean break"
+    ],
+    pricing: "Free up to 2,000 contacts; from $49/mo",
+    affiliateSlug: "loops",
+    ctaLabel: "Try Loops"
+  }
+]} />
+
+If you are running cold outbound email infrastructure, that is a separate category entirely. The tools above are for opted-in list email. For outbound sequencing, [cold email deliverability has its own set of infrastructure requirements](/blog/2026-07-10-cold-email-deliverability-is-breaking-in-2026/) that Brevo and Mailchimp are both the wrong tool for.
+
+<MyTake>
+Most teams treat this migration as a data problem. It is not. It is a systems documentation problem. Moving contacts takes an afternoon. Rebuilding the behavioral logic your business actually depends on, the abandoned cart flow, the onboarding drip, the re-engagement sequence, takes weeks and exposes how much institutional knowledge was buried in automation screenshots nobody properly documented. I've watched three separate SaaS clients discover mid-migration that their most important nurture sequence had logic nobody on the current team could fully explain. Do the documentation before you export anything. Every other step gets easier once you have it.
+</MyTake>
+
+## Make the Switch With Eyes Open
+
+Migrating from Mailchimp to Brevo is worth it for most teams at the contact-to-price break-even point or with EU compliance requirements. The free tier advantage is real. Unlimited contacts versus Mailchimp's 500-contact wall is not a minor pricing quirk for a growing list; it is a structural cost difference that compounds fast. But go in knowing that your automations are a rebuild project, not a migration. Budget the time, document before you export, warm your sender reputation properly, and run both platforms in parallel long enough to validate deliverability. According to [Brevo's own contact import documentation](https://help.brevo.com/hc/en-us/articles/209462765-Import-contacts-into-Brevo), unsubscribe handling alone requires deliberate steps most guides skip entirely. The two-week disciplined approach beats the one-weekend scramble every single time.
+
+<BottomLine
+  verdict="Brevo is the strongest free-tier Mailchimp replacement for EU compliance and list-size economics. The automation rebuild is real work, but the platform is capable enough to match what most Mailchimp users actually need."
+  pick="Brevo"
+  affiliateSlug="brevo"
+  ctaLabel="Try Brevo Free"
+/>
+
+<Sources sources={[
+  { label: "Brevo: Sending domain authentication (official docs)", url: "https://help.brevo.com/hc/en-us/articles/209480485-Set-up-your-sending-domain" },
+  { label: "Brevo: Import contacts and manage unsubscribes", url: "https://help.brevo.com/hc/en-us/articles/209462765-Import-contacts-into-Brevo" },
+  { label: "Mailchimp: Export audience data", url: "https://mailchimp.com/help/view-export-contacts/" },
+  { label: "MXToolbox: DMARC record lookup tool", url: "https://mxtoolbox.com/dmarc.aspx" }
+]} />
