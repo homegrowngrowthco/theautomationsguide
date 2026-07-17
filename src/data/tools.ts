@@ -973,6 +973,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'getresponse',
+    logo: '/brand/tools/getresponse.png',
     name: 'GetResponse',
     category: 'Email & Marketing Automation',
     badge: 'Free tier available',
