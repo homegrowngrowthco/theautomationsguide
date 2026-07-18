@@ -1,5 +1,7 @@
 # Topic Backlog Builder
 
+> **Queue source of truth is the Notion Content Calendar** (`62f34586-4f78-4b83-b2ac-105f500d059e`), never a repo snapshot. Census: `node --env-file=<token-env> build-backlog.mjs --status`. (The old CONTENT_CALENDAR.md snapshot was deleted 2026-07-17.)
+
 A standalone "topic engine" that surfaces the highest-leverage NET-NEW topics from
 the tools we already know about, ranks them, and guarantees they do not cannibalize
 anything already published or staged. It feeds the same Content Calendar the publishing

@@ -3,7 +3,7 @@ description: Full SEO audit of theautomationsguide.com — technical, indexing, 
 argument-hint: "[url] (optional — e.g. https://theautomationsguide.com/blog/<slug>/ ; omit for a full-site audit)"
 ---
 
-Run a full SEO audit of **theautomationsguide.com** and write a dated, severity-ranked report to `AUDIT-SEO-<YYYY-MM-DD>.md` (repo root; it's fine to leave untracked). `$ARGUMENTS` optionally scopes the on-page + Lighthouse pass to a single URL; with no arg, audit the whole site.
+Run a full SEO audit of **theautomationsguide.com** and write a dated, severity-ranked report to `audits/AUDIT-SEO-<YYYY-MM-DD>.md`. `$ARGUMENTS` optionally scopes the on-page + Lighthouse pass to a single URL; with no arg, audit the whole site.
 
 This site is Astro (trailing-slash directory output), Netlify-hosted, sitemap auto-generated with `/go/`, `/og/`, and the noindex utility pages filtered out (see [astro.config.mjs](../../astro.config.mjs)). Audit **production**, not a Netlify deploy preview — previews send `X-Robots-Tag: noindex`, which tanks the Lighthouse SEO score and is a preview artifact, not a regression.
 
@@ -38,4 +38,4 @@ npx lighthouse <a-blog-post-url> --output=json --output-path=/c/tmp/lh-tag-post-
 For each: Performance / Accessibility / Best Practices / SEO scores + FCP, LCP, TBT, CLS. (Lighthouse CLI may exit 1 even on a successful run that wrote valid JSON — read the JSON, don't trust the exit code.) Flag mobile LCP > 2.5s and Performance below ~0.80 as Core-Web-Vitals risk. Best Practices is capped ~0.77 by third-party cookies (PostHog/analytics) + CSP `unsafe-inline` — tracked, not a ranking factor.
 
 ## 5. Report
-Write `AUDIT-SEO-<date>.md`: a one-paragraph verdict, then findings tabled as **Critical / Medium / Low**, each with the evidence (the number, the URL, the header). Separate genuine issues from expected-and-correct behavior (e.g. noindex `/go/` pages having no description is correct, not a finding). End with a prioritized fix list. Do NOT auto-edit site source as part of the audit — propose fixes and let the user pick.
+Write `audits/AUDIT-SEO-<date>.md`: a one-paragraph verdict, then findings tabled as **Critical / Medium / Low**, each with the evidence (the number, the URL, the header). Separate genuine issues from expected-and-correct behavior (e.g. noindex `/go/` pages having no description is correct, not a finding). End with a prioritized fix list. Do NOT auto-edit site source as part of the audit — propose fixes and let the user pick.

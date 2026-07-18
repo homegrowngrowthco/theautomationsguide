@@ -2,7 +2,7 @@
 
 A working list of GTM-space affiliate/partner programs to apply for, weighted toward newer and AI-native tools. The strategy is to be the early (ideally first) neutral comparison and source-of-truth for tools before their category gets crowded, then ride branded + category search as they grow.
 
-Companion to [AFFILIATE_PROGRAMS.md](AFFILIATE_PROGRAMS.md) (the tools already live/applied/rejected) and the source of truth for `/go/<slug>` links, [src/data/affiliate-links.ts](src/data/affiliate-links.ts).
+Single affiliate tracker (AFFILIATE_PROGRAMS.md was merged in here 2026-07-17). Live/applied/rejected **status lives in [src/data/affiliate-links.ts](src/data/affiliate-links.ts)** (the source of truth for every `/go/<slug>` link); this doc tracks the pipeline, program terms, and application URLs.
 
 ## How to use this
 
@@ -206,6 +206,31 @@ Build landing pages + apply as content warrants. ⭐ = strongest first-mover opp
 - Pabbly Free Account Signup — `?target=R90zZ1MAwZ1ruZ2wfPo`
 - Pabbly Homepage — `?target=tm576znNj1Z0Tagzn`
 - Base: `https://payments.pabbly.com/api/affurl/RVYZ07kQyUZ0Z1HUKZ1m/LbwNxEMRwQxp5wyq?target=<id>`
+
+---
+
+## Program terms + application URLs (reference; absorbed from AFFILIATE_PROGRAMS.md, 2026-07-17)
+
+Status is deliberately NOT tracked here (it goes stale) — read it from `affiliate-links.ts`. These are the program terms and application entry points for the original Tier-1 set:
+
+| Tool | Program / where to apply | Commission | Cookie / notes |
+|---|---|---|---|
+| Make.com | Make dashboard "Affiliate Program" (partner code `automationsguide`) | 35% for 12 mo | 30-day cookie; min payout $100 + 3 unique paying users; Wise only |
+| Apollo.io | https://www.apollo.io/partners/affiliates (PartnerStack) | 15% monthly / 20% annual, 12 mo | 30-day hold for cancel buffer |
+| Clay | https://www.clay.com/affiliate (Rewardful) | $50 one-time per Pro customer | 60-day cookie; Creator Program (20% revshare 12 mo) available once content volume grows |
+| Beehiiv | https://partners.beehiiv.com/signup | 50-60% recurring 12 mo (tiered) | Tier-up to 60% with volume |
+| Smartlead | https://www.smartlead.ai/affiliate-partners | 15-35% recurring (tiered) | Tier-up with conversion volume |
+| Kit | https://kit.com/affiliate (PartnerStack) | 50% for 12 mo, then 10-20% recurring at Bronze+ | — |
+| HubSpot | Email `affiliates@hubspot.com` with site URL + plan | 30% recurring 12 mo + welcome bonus | 180-day cookie; re-apply at ~1K visits/mo (see TODO.md) |
+| n8n | https://n8n.io/affiliates/ (PartnerStack) | 30% for 12 mo | Cloud referrals only, no paid ads; re-apply at ~1K visits/mo |
+| Pipedrive | https://www.pipedrive.com/en/affiliate-partnership (PartnerStack) | 20-30% recurring 12 mo (tiered) | Gated on PartnerStack Network approval (see TODO.md) |
+| Lemlist | https://lemlist.com/affiliate-program | Recurring %, varies | Live since 2026-06-11 (`get.lemlist.com`) |
+
+**Later-tier candidates (from the old Tier-3 list):** ClickUp (Impact, 20-25% recurring), Webflow (PartnerStack, 50% x 12 mo), Tally/Typeform (forms angle). Skip: Airtable ($10 referral credit only), Notion (referral closed), Salesforce/Outreach/Salesloft (enterprise partner programs only). Zapier/Gong/Chorus have no public affiliate program (no-program `/go/` fallbacks exist).
+
+**Link-change procedure:** edit `url` + `status` for the slug in `src/data/affiliate-links.ts`, commit + push — every surface links through `/go/<slug>` so nothing else needs edits. Empty `url` falls back to the tool homepage + UTM.
+
+**FTC disclosure:** live sitewide (inline under-byline microcopy + `/disclosure`), shipped Sessions 20/59.
 
 ## Notes
 - Prefer self-serve platforms first; many AI startups host on **PartnerStack, Rewardful, Tolt, or FirstPromoter**, which approve without a sales call.

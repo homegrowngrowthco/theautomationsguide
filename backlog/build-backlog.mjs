@@ -185,7 +185,17 @@ function parsePublishedPosts(universe) {
 }
 
 function parseCalendarRows(universe) {
-  const md = r('CONTENT_CALENDAR.md');
+  // CONTENT_CALENDAR.md was a June-2026 snapshot, deleted 2026-07-17 (the queue
+  // lives in Notion). Without NOTION_TOKEN the calendar half of the dedup corpus
+  // is unavailable; degrade loudly to published-posts-only rather than dedup
+  // against a stale snapshot.
+  let md;
+  try {
+    md = r('CONTENT_CALENDAR.md');
+  } catch {
+    console.warn('WARN: no NOTION_TOKEN and no local calendar snapshot; dedup corpus = published posts only. Set NOTION_TOKEN for the live Content Calendar.');
+    return [];
+  }
   const rows = [];
   for (const line of md.split(/\r?\n/)) {
     if (!line.trim().startsWith('|')) continue;

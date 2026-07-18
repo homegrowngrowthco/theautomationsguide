@@ -1,7 +1,7 @@
 // update-engine-content-formats.mjs — S53 (2026-07-04)
 //
 // Adds two new post formats + fixes the affiliate under-linking class, per the
-// growth audit (AUDIT-GROWTH-2026-07-03.md S-4 + the format-diversification decision):
+// growth audit (audits/AUDIT-GROWTH-2026-07-03.md S-4 + the format-diversification decision):
 //
 //   1. Generate Draft: POST TYPE list gains "migration" + "pricing" (the site's
 //      best-ranking post is its one migration guide; "aircall pricing" queries

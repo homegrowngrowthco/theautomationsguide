@@ -1,6 +1,8 @@
 # Off-Site SEO & Distribution Checklist
 
-Last updated: 2026-05-03 EOD
+> RUNBOOK (per todo-sync CONVENTION: no per-step TODO items required; actionable queue items live in TODO.md)
+
+Last updated: 2026-07-17
 
 ## Search Engine Submission
 
@@ -15,6 +17,16 @@ Last updated: 2026-05-03 EOD
   - Note: company pages have ~3-5× lower organic reach than personal accounts. Consider also posting from Ian's personal LinkedIn (`/in/ianchamberland/`) for amplification.
 - [x] **Create Twitter/X account** (optional) — same drill, send URL when ready. Created 2026-05-30 but was apparently missed so I added it here on 2026-06-23: `https://x.com/the_automations`
 - [ ] Add site URL to LinkedIn bio, GitHub profile, email signature
+
+## Directory listings (brand-term Step 4 — paste-ready)
+
+Done: 4a Crunchbase (2026-07-01, https://www.crunchbase.com/organization/the-automations-guide) · 4b Product Hunt (2026-07-01, https://www.producthunt.com/products/the-automations-guide). Remaining three below; each ~5 min.
+
+**4c — Indie Hackers** (DA 75). URL: https://www.indiehackers.com/product/new. Fields: **Product name:** `The Automations Guide` · **Website URL:** `https://theautomationsguide.com` · **One-liner:** `Independent RevOps automation reviews and workflow playbooks` · **Revenue model:** Other (Affiliate). Creates `indiehackers.com/product/the-automations-guide`.
+
+**4d — BetaList** (DA 75). URL: https://betalist.com/submit. Fields: **Startup name:** `The Automations Guide` · **Tagline:** `Independent automation reviews for RevOps and GTM teams` · **Website:** `https://theautomationsguide.com` · **Description:** `In-depth tool reviews, comparisons, and workflow playbooks for RevOps and GTM automation. Covers HubSpot, Clay, n8n, Zapier, Make, and 50+ more tools.` · **Categories:** Productivity, Marketing. Skip the $129 fast-track; the free tier takes ~8 weeks to feature but the backlink goes live on approval.
+
+**4e — AlternativeTo** (DA 80). URL: https://alternativeto.net/software/add/. Fields: **Software name:** `The Automations Guide` · **Website:** `https://theautomationsguide.com` · **Short description:** `Independent automation review blog for RevOps and GTM teams. Reviews, head-to-head comparisons, and workflow playbooks for HubSpot, Clay, n8n, Zapier, Make, and Apollo.` · **Platform:** Web · **Categories:** Productivity, Marketing. Position as an alternative to vendor-written documentation.
 
 ## Analytics
 
@@ -54,7 +66,7 @@ Run these searches in **ChatGPT, Perplexity, Claude, and Gemini**. Log whether t
 
 ## Affiliate Program Applications
 
-- [x] **Tier 1** (apply this week — see `AFFILIATE_PROGRAMS.md`): HubSpot (email), Make, n8n, Apollo, Clay, Beehiiv, Smartlead, Pipedrive — DONE Wave 1 complete (2026-06-14); see [AFFILIATE_PIPELINE.md](AFFILIATE_PIPELINE.md)
+- [x] **Tier 1** (apply this week — see [AFFILIATE_PIPELINE.md](AFFILIATE_PIPELINE.md)): HubSpot (email), Make, n8n, Apollo, Clay, Beehiiv, Smartlead, Pipedrive — DONE Wave 1 complete (2026-06-14); see [AFFILIATE_PIPELINE.md](AFFILIATE_PIPELINE.md)
 - [ ] **Tier 2** (next 2 weeks): Webflow, ClickUp, Brevo, Hunter, Snov
 - [ ] **Tier 3** (week 3): Cal.com, Plausible, Tally, Mailshake, Reply.io
 - [ ] **Bonus list** (apply when content naturally mentions): Customer.io, LemonSqueezy, Mixmax, Mailerlite, Jotform
