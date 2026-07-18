@@ -23,6 +23,12 @@ name: QA + auto-fix content PRs
 #   9. On ANY step failure (a gate, build, local preview/screenshots, fixer
 #      crash): the failure() steps at the end post a manual-review comment +
 #      Slack so a defect never dies silently (the PR #65 gap).
+#  10. Failure recurrence ledger: every red run appends its failure class to
+#      qa-failure-ledger.json on the qa-ledger branch (qa/failure-ledger.mjs,
+#      contents API only). The 2nd same-class failure within 14 days prefixes
+#      the failure comment + Slack ping with a loud RECURRING FAILURE line.
+#      All ledger logic is failure-path only + continue-on-error, so it can
+#      never break a passing run.
 #
 # Retry tracking: we count commits in this PR matching `[qa-fix-N]`. Hard cap at 2
 # fix attempts to prevent infinite loops + cost runaway. Each loop costs roughly
@@ -122,6 +128,7 @@ jobs:
       # chili-piper.png shipped opaque and broke PR #174 under the old order).
       # Push uses GITHUB_TOKEN, which by design does NOT retrigger the workflow.
       - name: Auto-register referenced tools
+        id: auto-register
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
         env:
           POST: ${{ steps.slug.outputs.post }}
@@ -151,6 +158,7 @@ jobs:
           fi
 
       - name: Lint content (deterministic gate)
+        id: lint-content
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
         env:
           POST: ${{ steps.slug.outputs.post }}
@@ -171,6 +179,7 @@ jobs:
       # This samples each raster logo's corners and hard-fails on an opaque
       # background. Cheap, no build needed; runs right after deps.
       - name: Logo-asset gate (deterministic)
+        id: lint-logos
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
         run: npm run qa:logos
 
@@ -181,6 +190,7 @@ jobs:
       # error instead of an opaque "Netlify deploy preview failed" timeout,
       # and runs before the Playwright install so failures are cheap.
       - name: Build site (catch MDX compile errors fast)
+        id: build
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
         run: npm run build
 
@@ -191,6 +201,7 @@ jobs:
       # Runs before the expensive Playwright install / Vision review so a bad
       # render fails fast and cheap, with a named error.
       - name: Render-acceptance gate (deterministic, post-build)
+        id: render-acceptance
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
         env:
           POST: ${{ steps.slug.outputs.post }}
@@ -211,6 +222,7 @@ jobs:
       # the Vision bot). Validated to fail #74's pre-fix render and pass all 35
       # existing posts.
       - name: Mobile-overflow gate (deterministic, post-build)
+        id: mobile-overflow
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
         run: node qa/mobile-overflow.mjs --slug "${{ steps.slug.outputs.slug }}"
 
@@ -274,6 +286,7 @@ jobs:
           fi
 
       - name: Apply Claude fix
+        id: apply-fix
         if: steps.decide.outputs.branch == 'fix'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -287,6 +300,7 @@ jobs:
       # or rendering, the job fails here (before push), the working-tree change is
       # discarded, and the failure path below pings for manual review.
       - name: Verify the fix builds and renders
+        id: verify-fix
         if: steps.decide.outputs.branch == 'fix'
         run: |
           npm run build
@@ -467,6 +481,46 @@ jobs:
               body: `✅ **QA pass** ${attemptInfo}\n\n_${review.summary}_\n\nReady for human review on the deploy preview.`,
             });
 
+      # FAILURE RECURRENCE LEDGER. The two steps below run ONLY on failure() and are
+      # both continue-on-error, so they cannot break a passing run or turn a red
+      # run into a different red run. First we derive a failure signature (the
+      # first gate step whose outcome is 'failure'), then qa/failure-ledger.mjs
+      # appends {date, pr, sha, signature} to qa-failure-ledger.json on the
+      # qa-ledger branch via the contents API, prunes entries older than 30 days,
+      # and reports how many same-signature failures landed in the last 14 days.
+      # The ledger WRITE deliberately ignores the stale-run guard (data is data —
+      # a failure happened on this sha either way); only the COMMENT steps below
+      # stay behind the guard exactly as before.
+      - name: Derive failure signature
+        if: failure() && steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        id: fail-signature
+        continue-on-error: true
+        run: |
+          SIG="other"
+          if [ "${{ steps.auto-register.outcome }}" = "failure" ]; then SIG="auto-register"
+          elif [ "${{ steps.lint-content.outcome }}" = "failure" ]; then SIG="lint-content"
+          elif [ "${{ steps.lint-logos.outcome }}" = "failure" ]; then SIG="lint-logos"
+          elif [ "${{ steps.build.outcome }}" = "failure" ]; then SIG="build"
+          elif [ "${{ steps.render-acceptance.outcome }}" = "failure" ]; then SIG="render-acceptance"
+          elif [ "${{ steps.mobile-overflow.outcome }}" = "failure" ]; then SIG="mobile-overflow"
+          elif [ "${{ steps.review.outcome }}" = "failure" ]; then SIG="vision-review"
+          elif [ "${{ steps.apply-fix.outcome }}" = "failure" ]; then SIG="vision-fix"
+          elif [ "${{ steps.verify-fix.outcome }}" = "failure" ]; then SIG="vision-fix"
+          fi
+          echo "signature=$SIG" >> "$GITHUB_OUTPUT"
+          echo "Failure signature: $SIG"
+
+      - name: Record failure in recurrence ledger
+        if: failure() && steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        id: ledger
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SIGNATURE: ${{ steps.fail-signature.outputs.signature }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node qa/failure-ledger.mjs
+
       # STOP SILENT FAILURES. If ANY prior step failed — the deterministic lint or
       # render-acceptance gate, the build, the Netlify wait/timeout, or the Vision
       # fixer crashing — the job ends red with nothing posted to the PR and no
@@ -475,6 +529,9 @@ jobs:
       - name: Comment on PR — QA failed (manual review)
         if: failure() && steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true' && steps.is-head.outputs.current == 'true'
         uses: actions/github-script@v8
+        env:
+          RECURRENCE_COUNT: ${{ steps.ledger.outputs.recurrence_count }}
+          FAIL_SIGNATURE: ${{ steps.fail-signature.outputs.signature }}
         with:
           script: |
             const fs = require('fs');
@@ -515,6 +572,18 @@ jobs:
                 `Fix the post on the branch, or close the PR.`,
               ].join('\n');
             }
+            // RECURRENCE ESCALATION (failure ledger). If this is the 2nd+ failure
+            // of the same class in 14 days, lead with a loud line — the class
+            // needs a structural fix, not another one-off patch. recurrence_count
+            // is absent whenever the ledger step failed (it is continue-on-error),
+            // which parses to NaN and safely skips escalation.
+            const rec = parseInt(process.env.RECURRENCE_COUNT || '0', 10);
+            if (rec >= 2) {
+              const sig = process.env.FAIL_SIGNATURE || 'other';
+              const ord = rec === 2 ? '2nd' : rec === 3 ? '3rd' : `${rec}th`;
+              const ledgerUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/blob/qa-ledger/qa-failure-ledger.json`;
+              body = `:repeat: **RECURRING FAILURE: ${ord} '${sig}' failure in 14 days.** This class needs a structural fix, not another patch. Ledger: ${ledgerUrl}\n\n` + body;
+            }
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -528,12 +597,24 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           PR_URL: ${{ github.event.pull_request.html_url }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          RECURRENCE_COUNT: ${{ steps.ledger.outputs.recurrence_count }}
+          FAIL_SIGNATURE: ${{ steps.fail-signature.outputs.signature }}
+          LEDGER_URL: ${{ github.server_url }}/${{ github.repository }}/blob/qa-ledger/qa-failure-ledger.json
         run: |
           if [ -s qa-unresolved-tools.txt ]; then
             TOOLS=$(cut -f2 qa-unresolved-tools.txt | paste -sd, - | sed 's/,/, /g')
             MSG="🚨 *Content PR needs one thing from you (no code review)*\nCouldn't confirm the website for: *${TOOLS}*. Reply on the PR with the homepage URL(s) and I'll register + re-run.\nPR: $PR_URL\nRun: $RUN_URL"
           else
             MSG="🚨 *QA failed on a content PR (manual review needed)*\nPR: $PR_URL\nFailed run: $RUN_URL"
+          fi
+          # RECURRENCE ESCALATION (failure ledger). Empty/non-numeric count (the
+          # ledger step is continue-on-error and may have produced nothing) is
+          # normalized to 0 so this can never error out the Slack ping itself.
+          REC="${RECURRENCE_COUNT:-0}"
+          case "$REC" in ''|*[!0-9]*) REC=0;; esac
+          if [ "$REC" -ge 2 ]; then
+            case "$REC" in 2) ORD="2nd";; 3) ORD="3rd";; *) ORD="${REC}th";; esac
+            MSG=":repeat: *RECURRING FAILURE: ${ORD} '${FAIL_SIGNATURE:-other}' failure in 14 days.* This class needs a structural fix, not another patch. Ledger: ${LEDGER_URL}\n${MSG}"
           fi
           curl -sS -X POST -H 'content-type: application/json' "$SLACK_WEBHOOK_URL" \
             -d "{\"text\":\"${MSG}\"}"
