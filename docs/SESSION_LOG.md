@@ -8,7 +8,19 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-07-15 (Session 68).
+Last updated 2026-07-18 (Session 69).
+
+## Quick reference — recent additions (Session 69, 2026-07-18)
+
+**QA failure recurrence ledger shipped — the 2nd same-class QA failure within 14 days now escalates loudly.** Direct to master: `2fec0cf`.
+
+- `.github/workflows/qa-content-pr.yml`: gate steps got explicit `id:`s (auto-register, lint-content, lint-logos, build, render-acceptance, mobile-overflow, apply-fix, verify-fix — no behavior change). Two NEW steps, both `failure()`-only + `continue-on-error: true` so a green run is structurally untouchable: (1) derive a failure signature from the first failed gate's `steps.<id>.outcome`; (2) `node qa/failure-ledger.mjs` appends `{date, pr, sha, signature}` to `qa-failure-ledger.json` on the dedicated `qa-ledger` branch via the contents API (branch auto-created from master's sha on first use), prunes entries >30d, outputs `recurrence_count` over a 14d window.
+- Escalation: the existing failure PR comment + Slack ping get a `:repeat: RECURRING FAILURE: Nth '<sig>' failure in 14 days` prefix (with ledger link) when count >= 2; rest of both messages untouched. Both stay behind the PR #200 stale-run guard; the ledger WRITE deliberately does not (data is data, even for a superseded run).
+- Verify: YAML parses (js-yaml), `node --check`, `DRY_RUN=1` fixture runs proved append/prune/count + `GITHUB_OUTPUT` plumbing (counts 1/2/3 as expected, 40d entry pruned, malformed entry dropped), Slack escalation shell logic simulated for empty/1/2/3/5/garbage counts, `npm run qa:docs` green. NOT verifiable locally: an actual red run — **the next real QA failure is the ledger's first live test** (expect the `qa-ledger` branch to appear then).
+- Revert: `git revert 2fec0cf` (optionally delete the `qa-ledger` branch; it is data-only and harmless to leave).
+- Gotcha: the ledger step's missing/garbage `recurrence_count` (its step is continue-on-error) is normalized to 0 in both consumers, so escalation silently skips instead of erroring the notification steps.
+
+---
 
 ## Quick reference — recent additions (Session 68, 2026-07-15)
 
