@@ -4,7 +4,6 @@ Tracked by todo-sync (see ../todo-sync/CONVENTION.md). **Open tasks only, most i
 
 ## TODO
 
-- [ ] **Set the `GSC_TOKEN_JSON` repo secret (Ian, 1 min):** `gh secret set GSC_TOKEN_JSON < ~/.gsc/token.json` from any TAG checkout. Enables GSC demand mining in the weekly backlog builder (registry-only until set); read-only scope, stored as an Actions secret. @high @ian [.github/workflows/topic-backlog.yml](.github/workflows/topic-backlog.yml)
 - [ ] **Wire `--audit-queue --prune-apply` into the weekly topic-backlog GHA** (after the staging step) so stale duplicates self-clean before they can auto-publish. Shipped in PR #202 (`efd7c25`); NOTION_TOKEN is already a repo secret. @med [.github/workflows/topic-backlog.yml](.github/workflows/topic-backlog.yml)
 - [ ] **PostHog personal API key (`phx_`) + full VS Code restart (Ian)** so sessions can pull `affiliate_click` conversion data — the only revenue-true success metric (impressions/position are proxies). Blocked S68. @med @ian
 - [ ] **Win the brand term "The Automations Guide" — remaining steps:** (4) directory listings 4c/4d/4e below, (5) brand-search nudge in the next newsletter/LinkedIn post. Steps 1-3 + 4a (Crunchbase) + 4b (Product Hunt) done; diagnosis + history in the session log (S41). @high [OFF_SITE_SEO_CHECKLIST.md](OFF_SITE_SEO_CHECKLIST.md)
