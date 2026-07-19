@@ -10,6 +10,16 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 Last updated 2026-07-18 (Session 69).
 
+## Quick reference — recent additions (Session 70, 2026-07-17 to 07-19)
+
+- **Shipped:** repo-wide docs cleanup `149e509`+`1d465c2` (CLAUDE.md 1,941->60 lines, history moved HERE; TODO purged of 43 done items; AFFILIATE_PROGRAMS/CONTENT_CALENDAR/GSC-TIER2 deleted or merged; audits -> `audits/`; DEPLOYMENT table -> pointers; new `qa:docs` lint). `@ian` tag on human-only TODOs `193951c`; stale-current-state lint `84398d6`; GSC_TOKEN_JSON secret set by Ian 2026-07-18 (demand mining arms next weekly backlog run; TODO item closed).
+- **Portfolio context:** same cleanup executed across growth-engine/flyrai/HGC/copperline; new cross-project ops systems (Ian queue reminder Mon+Thu 8am, Monday Scoreboard Mon 7:45am, both n8n) verified live. See root ops-log #536-541.
+- **Verify:** qa:docs green; todo-sync drift lint clean; both Slack digests posted (execs 20733/20734).
+- **Revert:** `git revert <sha>` per commit above. S69 (CI failure-recurrence ledger) is the separate entry below.
+- **Gotcha:** the engine merged content mid-cleanup twice; both resolved by `git pull --rebase` + folding S66-68 into this archive before pushing.
+
+---
+
 ## Quick reference — recent additions (Session 69, 2026-07-18)
 
 **QA failure recurrence ledger shipped — the 2nd same-class QA failure within 14 days now escalates loudly.** Direct to master: `2fec0cf`.
