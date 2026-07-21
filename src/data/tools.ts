@@ -1497,6 +1497,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "fillout",
+    logo: '/brand/tools/fillout.png',
     name: "Fillout",
     category: "Scheduling",
     badge: "Free tier available",
@@ -1951,6 +1952,19 @@ export const tools: Tool[] = [
     aliases: ['tl;dv'],
     blurb:
       'tl;dv is featured in a comparison on The Automations Guide.',
+  },
+  {
+    slug: 'tally',
+    name: 'Tally',
+    category: 'Scheduling',
+    badge: 'Paid',
+    ctaLabel: 'Try Tally',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/tally.svg',
+    aliases: ['Tally'],
+    blurb:
+      'The simplest way to create beautiful, professional forms in seconds. Unlimited forms, unlimited submissions, forever free. Just start typing - no coding needed.',
   },
 ];
 
