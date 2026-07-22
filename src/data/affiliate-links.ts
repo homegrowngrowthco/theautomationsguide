@@ -646,6 +646,13 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
+  prospeo: {
+    name: 'Prospeo',
+    url: '',
+    homepageFallback: 'https://prospeo.app/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
 };
 
 /**
