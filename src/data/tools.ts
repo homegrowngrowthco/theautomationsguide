@@ -1966,6 +1966,19 @@ export const tools: Tool[] = [
     blurb:
       'The simplest way to create beautiful, professional forms in seconds. Unlimited forms, unlimited submissions, forever free. Just start typing - no coding needed.',
   },
+  {
+    slug: 'prospeo',
+    name: 'Prospeo',
+    category: 'Lead Data & Enrichment',
+    badge: 'Paid',
+    ctaLabel: 'Try Prospeo',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/prospeo.png',
+    aliases: ['Prospeo'],
+    blurb:
+      'Optimisez vos tournées commerciales et boostez vos ventes avec Prospeo. L',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
