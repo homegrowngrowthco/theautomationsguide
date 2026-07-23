@@ -1992,6 +1992,19 @@ export const tools: Tool[] = [
     blurb:
       'Unlimited, 100%-verified B2B contact data APIs built for Clay and Claude Code — from $27/mo. Enrich prospect lists and join the MoltSets closed beta.',
   },
+  {
+    slug: 'zoominfo',
+    name: 'ZoomInfo',
+    category: 'Outbound & Lead Generation',
+    badge: 'Paid',
+    ctaLabel: 'Try ZoomInfo',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/zoominfo.png',
+    aliases: ['ZoomInfo'],
+    blurb:
+      'ZoomInfo is a leading provider of company and contact information. Identify, target and convert your ideal customers with a free trial of ZoomInfo today.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
