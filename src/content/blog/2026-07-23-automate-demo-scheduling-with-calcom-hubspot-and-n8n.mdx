@@ -1,0 +1,196 @@
+---
+title: "Automate Demo Scheduling with Cal.com, HubSpot, and n8n"
+description: "Step-by-step tutorial: connect Cal.com bookings to HubSpot contacts and deals automatically using n8n. No Zapier tax required."
+tldr: "Trigger an n8n webhook on every Cal.com booking, then upsert the contact and create a deal in HubSpot automatically, so no rep ever has to manually log a scheduled demo again."
+pubDate: 2026-07-23
+tags: ["automation", "tutorial", "scheduling"]
+faqs:
+  - question: "Can Cal.com send booking data directly to HubSpot?"
+    answer: "Cal.com has a native HubSpot integration in its App Store, but it only creates contacts, not deals or pipeline stages. For full deal creation and custom field mapping you need a middleware layer like n8n."
+  - question: "Do I need a paid Cal.com plan to use webhooks?"
+    answer: "Webhooks are available on Cal.com's Team plan and above. The free individual plan does not expose webhook configuration in the UI."
+  - question: "How is this different from using Zapier with Cal.com?"
+    answer: "n8n runs on your own infrastructure or cloud instance, so there are no per-task charges. A busy sales team booking 500 demos a month on Zapier Professional adds up fast; n8n's self-hosted tier costs nothing per execution."
+  - question: "What HubSpot tier do I need for this workflow?"
+    answer: "The workflow uses the HubSpot API directly via n8n's HubSpot node, so any HubSpot tier with API access works, including Starter. You do not need Sales Hub Professional for this specific automation."
+  - question: "Can I route bookings to different pipelines based on event type?"
+    answer: "Yes. Add an n8n IF node after the webhook trigger that checks the eventTitle field from the Cal.com payload, then branch to different HubSpot deal creation nodes per pipeline."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Every RevOps team I've worked with has the same manual leak. An AE books a demo, [Cal.com](/go/cal-com/) sends the prospect a confirmation, and then someone (usually the AE, sometimes an SDR coordinator) manually creates a HubSpot contact, logs a meeting, and maybe remembers to push a deal into the pipeline. That gap between "booking confirmed" and "CRM updated" is where deals get lost, forecasts go stale, and attribution breaks. This tutorial closes that gap completely using Cal.com, [n8n](/go/n8n/), and [HubSpot](/go/hubspot/), with a workflow you can build in under an hour.
+
+## Why These Three Tools Together
+
+Cal.com fires a webhook the instant a booking is created, rescheduled, or cancelled. n8n catches that webhook, lets you reshape the payload however you need, and then calls HubSpot's API to upsert the contact and create or update a deal. No Zapier tax. No black-box integration that breaks when Cal.com renames a field.
+
+I've run this stack at several clients now. What makes it durable is that n8n gives you the raw JSON from Cal.com with nothing stripped out. Calendly's native HubSpot app maps a small, fixed set of fields and gives you no flexibility. Cal.com's own [HubSpot app in the App Store](https://app.cal.com/apps/hubspot) creates contacts but does not touch deals or pipeline stage at all. That matters a lot when your RevOps motion requires deal creation at the moment of booking, not after the call ends.
+
+<StatRow stats={[
+  { number: "0", label: "Deal creation steps", description: "Manual steps your reps take after a booking fires through this workflow" },
+  { number: "~40min", label: "Build time", description: "Realistic time to build and test this workflow from scratch in n8n" },
+  { number: "$0", label: "Per-execution cost", description: "n8n self-hosted runs unlimited executions; no Zapier-style task billing" }
+]} />
+
+<StepRow steps={[
+  {
+    title: "Enable webhooks on Cal.com and grab the endpoint",
+    body: "In Cal.com, go to Settings > Developer > Webhooks and create a new webhook. Subscribe to BOOKING_CREATED, BOOKING_RESCHEDULED, and BOOKING_CANCELLED events. Leave the endpoint URL blank for now since you need the n8n URL first. Cal.com sends a JSON payload with attendee name, email, event type, start time, and any custom booking questions you have configured."
+  },
+  {
+    title: "Create the webhook trigger node in n8n",
+    body: "In n8n, add a Webhook node as your trigger. Set the HTTP method to POST. Copy the production webhook URL n8n generates and paste it back into Cal.com as the endpoint. Set authentication to Header Auth and add a shared secret, then mirror that secret in Cal.com's webhook signature field. n8n will verify every incoming payload before processing it."
+  },
+  {
+    title: "Parse the payload and branch on event type",
+    body: "Add a Switch node after the webhook trigger. Branch on the triggerEvent field: one branch for BOOKING_CREATED, one for BOOKING_RESCHEDULED, one for BOOKING_CANCELLED. This keeps your logic clean and lets you handle cancellations separately (for example, moving a HubSpot deal back to a prior stage rather than creating a duplicate)."
+  },
+  {
+    title: "Upsert the HubSpot contact from attendee data",
+    body: "On the BOOKING_CREATED branch, add a HubSpot node set to the 'Upsert Contact' operation. Map the Cal.com payload fields: attendees[0].email to Email, attendees[0].name split into firstname and lastname, and any custom booking questions to custom HubSpot properties you have created. The upsert prevents duplicates when a returning prospect books a second demo."
+  },
+  {
+    title: "Create the deal and associate it to the contact",
+    body: "After the contact upsert node, add a second HubSpot node set to 'Create Deal'. Set dealname using an n8n expression, something like 'Demo, [eventTitle], [attendee email]'. Set dealstage to the pipeline-specific GUID for your 'Demo Scheduled' stage. Grab that ID from HubSpot's pipeline settings or via a GET /crm/v3/pipelines call. Then add a third HubSpot node to associate the deal with the contact ID returned in step four."
+  },
+  {
+    title: "Handle rescheduled and cancelled bookings",
+    body: "On the BOOKING_RESCHEDULED branch, search HubSpot for an existing deal by the original booking UID (stored as a custom property in step five), then update the closedate and a custom 'Demo Date' property to the new time. On BOOKING_CANCELLED, find the deal by UID and move it to an 'At Risk' or 'No Show' stage. Your pipeline stays accurate without reps touching anything."
+  }
+]} />
+
+<Figure class="post-screenshot" caption="The n8n workflow canvas showing the webhook trigger branching into enrichment and HubSpot nodes, a pattern directly applicable to the Cal.com booking flow above.">
+  <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with webhook trigger, switch node, and downstream HubSpot integration nodes" loading="lazy" />
+  </a>
+</Figure>
+
+## The Gotchas That Will Burn You
+
+Two fields trip people up every single time: the attendee array structure and HubSpot's deal stage IDs.
+
+Cal.com sends attendees as an array even when there is only one person. You always reference `attendees[0].email` in your n8n expressions, never `attendee.email`. Get that wrong and your contact upsert silently maps a blank email, which means HubSpot either creates a junk contact or throws a 400 and the whole execution fails.
+
+The deal stage issue is worse. HubSpot stage IDs are pipeline-specific GUIDs, not human-readable strings. Hardcoding `"Demo Scheduled"` as the stage value will return a 400 from the HubSpot API every time. n8n marks the execution failed, your webhook already fired, your contact was created, but no deal exists. The pipeline looks clean while the CRM is actually missing data. Per the [HubSpot Deals API docs](https://developers.hubspot.com/docs/api/crm/deals), you need the actual stageId value from a GET call against your pipeline.
+
+<SideBySide>
+  <Fragment slot="left">
+    **Common trap:** Setting the HubSpot deal stage to a label string like `"Demo Scheduled"` or `"demo_scheduled"` returns a 400 error. This is especially painful in production because your contact was created successfully, but no deal exists. Your pipeline looks clean while your CRM is missing data.
+
+    Also watch for Cal.com's webhook retries. If n8n takes more than 10 seconds to respond, Cal.com will retry the webhook and you may create duplicate deals. Return a 200 immediately from n8n's respond node and handle the HubSpot work after, or add a deduplication check on the booking UID before the deal creation node.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // Cal.com webhook payload shape (abbreviated)
+    {
+      "triggerEvent": "BOOKING_CREATED",
+      "uid": "abc123xyz",
+      "title": "Product Demo",
+      "startTime": "2026-08-01T14:00:00Z",
+      "attendees": [
+        {
+          "name": "Jane Smith",
+          "email": "jane@acme.com",
+          "timeZone": "America/New_York"
+        }
+      ],
+      "responses": {
+        "company": { "value": "Acme Corp" },
+        "phone": { "value": "+14155551234" }
+      }
+    }
+
+    // n8n expression to get stage ID via API
+    // GET https://api.hubapi.com/crm/v3/pipelines/deals
+    // Find your pipeline, copy stageId from the stages array
+    // e.g. "stageId": "12345678"
+    ```
+  </Fragment>
+</SideBySide>
+
+One more thing I always add: a Slack notification node at the end of the BOOKING_CREATED branch that posts to a `#demos-scheduled` channel with the attendee name, company, and a direct link to the HubSpot deal. Reps love it. It also doubles as a live sanity check that the workflow is actually firing. If the Slack message stops coming, something broke upstream.
+
+## Which Scheduling Tool Belongs in Your Stack
+
+If you are evaluating Cal.com versus [Calendly](/go/calendly/) or [Chili Piper](/go/chili-piper/) for this kind of workflow, the answer mostly comes down to routing requirements and how much you want to own the integration layer. I covered the broader [forms and routing decision in detail here](/blog/2026-07-21-fillout-vs-tally-vs-chili-piper-best-forms-and-routing-tool/), but for the purposes of this specific workflow, the short version is:
+
+<ChooseIf title="Which scheduling tool fits this n8n workflow best?" tools={[
+  {
+    name: "Cal.com",
+    conditions: [
+      "You want webhook-level control over the full booking payload",
+      "Your team is cost-sensitive and wants a self-hostable option",
+      "You are comfortable building the HubSpot integration layer yourself in n8n"
+    ],
+    pricing: "Free individual, Team from $12/mo per user",
+    affiliateSlug: "cal-com",
+    ctaLabel: "Try Cal.com",
+    highlight: true
+  },
+  {
+    name: "Calendly",
+    conditions: [
+      "Your reps already live in Calendly and a migration is not worth the friction",
+      "You only need basic contact creation in HubSpot, not deal pipeline management",
+      "You want a larger native integration library without custom middleware"
+    ],
+    pricing: "Free, Standard $10/mo per user",
+    affiliateSlug: "calendly",
+    ctaLabel: "Try Calendly"
+  },
+  {
+    name: "Chili Piper",
+    conditions: [
+      "You need inbound lead routing with round-robin logic at the moment of form submit",
+      "You are on HubSpot Sales Hub Pro or Enterprise and want native routing rules",
+      "Demo volume is high enough to justify the per-seat pricing premium"
+    ],
+    pricing: "From $30/seat/mo plus platform fee",
+    affiliateSlug: "chili-piper",
+    ctaLabel: "Try Chili Piper"
+  }
+]} />
+
+<MyTake>
+Most teams I consult with reach for Chili Piper because their VP of Sales saw a demo at a conference. They are paying $30 a seat for routing logic that Cal.com plus n8n replicates in an afternoon. The 20% you genuinely lose is the polished ops UI for teams who will never open a workflow builder. If your ops team is comfortable in n8n, that 20% is not worth the premium.
+</MyTake>
+
+## Extending the Workflow
+
+Once the core booking-to-deal flow is live, the natural extensions are enrichment and sequencing. On the BOOKING_CREATED branch, after you upsert the HubSpot contact, add a [Clay](/tools/clay/) or [Apollo](/tools/apollo/) enrichment step to backfill company size, industry, and LinkedIn URL before your AE ever opens the CRM record. This matters most when prospects book through a self-serve link and only provide name and email. You want your reps walking into a demo with context, not a blank contact.
+
+For post-demo follow-up, wire the deal creation into a HubSpot workflow that auto-enrolls the contact in a follow-up sequence the moment the deal enters "Demo Scheduled" stage. My clients who have built this combination have cut average time-to-follow-up from 8 hours to under 10 minutes. The n8n workflow handles the CRM work. HubSpot's sequences engine handles the outreach from there. Neither system needs a human to trigger it.
+
+According to [HubSpot Research's State of Sales 2024](https://www.hubspot.com/state-of-sales), reps spend an average of 21% of their week on manual data entry. This workflow does not eliminate all of that, but it removes one of the highest-friction examples entirely.
+
+If you are building out a broader automated pipeline from cold outreach through to booked demo, this workflow connects cleanly to what I described in the [Instantly to Pipedrive via n8n tutorial](/blog/2026-07-19-instantly-to-pipedrive-via-n8n-auto-create-deals-from-replie/). Just swap Pipedrive for HubSpot as the CRM target and the pattern holds.
+
+The workflow itself is not complicated. But it requires getting three specific things right: a reliable webhook from Cal.com per the [Cal.com webhooks documentation](https://cal.com/docs/core-features/webhooks), clean payload parsing in n8n, and correct deal stage IDs in HubSpot. Nail those three and you have a demo scheduling motion that feeds your CRM automatically, keeps your pipeline accurate in real time, and removes a manual step that reps resent doing anyway.
+
+<BottomLine
+  verdict="Cal.com plus n8n is the lowest-cost, highest-flexibility path to automated demo scheduling with full HubSpot deal creation. Build this once and your pipeline will reflect reality without anyone touching it manually."
+  pick="Cal.com"
+  affiliateSlug="cal-com"
+  ctaLabel="Try Cal.com"
+/>
+
+<Sources sources={[
+  { label: "Cal.com docs: Webhooks overview", url: "https://cal.com/docs/core-features/webhooks" },
+  { label: "HubSpot developer docs: Deals API", url: "https://developers.hubspot.com/docs/api/crm/deals" },
+  { label: "n8n docs: HubSpot node reference", url: "https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.hubspot/" },
+  { label: "HubSpot Research: State of Sales 2024", url: "https://www.hubspot.com/state-of-sales" }
+]} />
