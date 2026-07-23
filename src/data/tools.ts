@@ -1979,6 +1979,19 @@ export const tools: Tool[] = [
     blurb:
       'Optimisez vos tournées commerciales et boostez vos ventes avec Prospeo. L',
   },
+  {
+    slug: 'moltsets',
+    name: 'MoltSets',
+    category: 'Outbound & Lead Generation',
+    badge: 'Paid',
+    ctaLabel: 'Try MoltSets',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/moltsets.svg',
+    aliases: ['MoltSets'],
+    blurb:
+      'Unlimited, 100%-verified B2B contact data APIs built for Clay and Claude Code — from $27/mo. Enrich prospect lists and join the MoltSets closed beta.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
