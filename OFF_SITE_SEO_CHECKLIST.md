@@ -20,13 +20,28 @@ Last updated: 2026-07-17
 
 ## Directory listings (brand-term Step 4 — paste-ready)
 
-Done: 4a Crunchbase (2026-07-01, https://www.crunchbase.com/organization/the-automations-guide) · 4b Product Hunt (2026-07-01, https://www.producthunt.com/products/the-automations-guide). Remaining three below; each ~5 min.
+Done: 4a Crunchbase (2026-07-01, https://www.crunchbase.com/organization/the-automations-guide) · 4b Product Hunt (2026-07-01, https://www.producthunt.com/products/the-automations-guide).
 
-**4c — Indie Hackers** (DA 75). URL: https://www.indiehackers.com/product/new. Fields: **Product name:** `The Automations Guide` · **Website URL:** `https://theautomationsguide.com` · **One-liner:** `Independent RevOps automation reviews and workflow playbooks` · **Revenue model:** Other (Affiliate). Creates `indiehackers.com/product/the-automations-guide`.
+**Status (2026-07-23):** 4c IH account created but posting is gated for new accounts (wait). 4e AlternativeTo new free accounts must age 7 days before submitting → **submit on/after 2026-07-31** (same session as 4c). **4d BetaList DROPPED** — it is now paid-only with no free submission tier, not worth the fee for a single DA-75 link. Every field below is copy-paste ready; brand term appears verbatim in the first line of each description for the branded-search play, and the tool entities (HubSpot/Clay/n8n/Zapier/Make/Apollo) are seeded for GEO citation.
 
-**4d — BetaList** (DA 75). URL: https://betalist.com/submit. Fields: **Startup name:** `The Automations Guide` · **Tagline:** `Independent automation reviews for RevOps and GTM teams` · **Website:** `https://theautomationsguide.com` · **Description:** `In-depth tool reviews, comparisons, and workflow playbooks for RevOps and GTM automation. Covers HubSpot, Clay, n8n, Zapier, Make, and 50+ more tools.` · **Categories:** Productivity, Marketing. Skip the $129 fast-track; the free tier takes ~8 weeks to feature but the backlink goes live on approval.
+**4c — Indie Hackers** (DA 75). URL: https://www.indiehackers.com/product/new → creates `indiehackers.com/product/the-automations-guide`.
+- **Product name:** `The Automations Guide`
+- **Website URL:** `https://theautomationsguide.com`
+- **Tagline / one-liner:** `Independent RevOps automation reviews and workflow playbooks`
+- **Revenue model:** Other (Affiliate)
+- **Description:** `The Automations Guide is an independent review site for RevOps and GTM automation tools. It publishes hands-on tool reviews, head-to-head comparisons (Zapier vs Make vs n8n, HubSpot vs Salesforce workflows), migration guides, and step-by-step workflow playbooks for teams building their revenue operations stack. Every write-up comes from tools we have actually run in production, not vendor documentation. We cover HubSpot, Clay, n8n, Zapier, Make, Apollo, and 50+ more, and we never rank tools by affiliate commission. Published by Homegrown Growth Co, a fractional RevOps consultancy founded by Ian Chamberland.`
+- **Maker bio:** `Ian Chamberland, founder of Homegrown Growth Co, a fractional RevOps consultancy. 8 years building GTM systems and automations inside high-growth teams. I write The Automations Guide to share the playbooks, tool comparisons, and workflow tactics we use in real client engagements.`
 
-**4e — AlternativeTo** (DA 80). URL: https://alternativeto.net/software/add/. Fields: **Software name:** `The Automations Guide` · **Website:** `https://theautomationsguide.com` · **Short description:** `Independent automation review blog for RevOps and GTM teams. Reviews, head-to-head comparisons, and workflow playbooks for HubSpot, Clay, n8n, Zapier, Make, and Apollo.` · **Platform:** Web · **Categories:** Productivity, Marketing. Position as an alternative to vendor-written documentation.
+**4e — AlternativeTo** (DA 80). URL: https://alternativeto.net/software/add/. Position as an alternative to vendor-written documentation.
+- **Software name:** `The Automations Guide`
+- **Website:** `https://theautomationsguide.com`
+- **Short description:** `Independent automation review blog for RevOps and GTM teams. Reviews, head-to-head comparisons, and workflow playbooks for HubSpot, Clay, n8n, Zapier, Make, and Apollo.`
+- **Longer description:** `The Automations Guide is an independent resource for choosing and building RevOps and GTM automation. It covers automation platform comparisons (Zapier, Make, n8n, and where each one actually breaks), HubSpot and Salesforce workflow automation including the edge cases the docs skip, lead routing and enrichment with Clay and Apollo, and full migration guides between tools. Every recommendation comes from tools used in a real production environment, and rankings are never based on affiliate commission. A practical alternative to vendor-written documentation and feature-list roundups. Published by Homegrown Growth Co, a fractional RevOps consultancy.`
+- **Licensing:** Free · **Platform:** Web / Online
+- **Categories / tags:** Productivity, Marketing, Business & Commerce, CRM, Workflow Automation, Sales, RevOps
+- **"Alternative to":** vendor documentation, tool-vendor blogs, generic SaaS review sites
+
+**4d — BetaList — DROPPED (paid-only, no free tier as of 2026-07-23).** Kept here only if the calculus changes: **Startup name:** `The Automations Guide` · **Tagline:** `Independent automation reviews for RevOps and GTM teams` · **Description:** `In-depth tool reviews, comparisons, and workflow playbooks for RevOps and GTM automation. Covers HubSpot, Clay, n8n, Zapier, Make, and 50+ more tools.` · **Categories:** Productivity, Marketing.
 
 ## Analytics
 
