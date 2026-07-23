@@ -8,7 +8,18 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-07-18 (Session 69).
+Last updated 2026-07-23 (Session 71).
+
+## Quick reference: recent additions (Session 71, 2026-07-23)
+
+- **Shipped:** **PR #212** (`57a2aa0`) affiliate_click tracking fix. The `/go/[tool]` redirect page never loaded the PostHog SDK (standalone HTML, bypasses BaseLayout/Analytics.astro), so `window.posthog` was always undefined and the event fired 0 times in 180 days. It now POSTs straight to PostHog ingest (`us.i.posthog.com/e/`) via `sendBeacon` (survives the redirect), reusing the visitor's distinct_id cookie; the no-JS auto-redirect moved into `<noscript>` so the meta refresh cannot race the beacon. **PR #213** (`9f8748f`) MoltSets cost post ("MoltSets: The $27 API That Undercuts ZoomInfo & Apollo") + registered `moltsets` (live, `?aff=theautomationsguide`) and `zoominfo` (no-program, routes to the free-trial link) in affiliate-links.ts; CI auto-registered the moltsets logo + `/tools/moltsets` hub.
+- **Docs (direct to master `ae47447`):** brand-term directory listings. Dropped 4d BetaList (now paid-only, no free tier), gated 4c Indie Hackers + 4e AlternativeTo to on/after 2026-07-31 (new-account age waits), expanded the paste-ready copy in OFF_SITE_SEO_CHECKLIST.md.
+- **PostHog:** the `phx_` personal key Ian added works; the `TAG Overview` dashboard + all 6 insights already existed. The conversion funnel populates now that #212 fires the event (real click volume is ~0 until traffic grows).
+- **Verify:** post live 200 with all 4 CTAs; `/go/moltsets/` and `/go/zoominfo/` both 200 and contain `sendBeacon` + correct destinations; lint-content 0 hard / 0 warn; qa CI green (QA pass) on both PRs.
+- **Revert:** `git revert 57a2aa0` (tracking) / `git revert 9f8748f` (post + affiliates).
+- **Gotchas:** (1) the `/go/` redirect page does NOT load the PostHog SDK, so fire analytics via a direct sendBeacon, never `window.posthog.capture`. (2) PostHog project 408442 is SHARED with FlyrAI, so raw pageview totals mix both sites (split pending, see TODO). (3) `zoominfo` has no affiliate program, registered no-program so /go/zoominfo routes to the free-trial page + UTM.
+
+---
 
 ## Quick reference — recent additions (Session 70, 2026-07-17 to 07-19)
 
