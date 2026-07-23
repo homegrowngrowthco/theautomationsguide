@@ -23,7 +23,7 @@ if (!link || !destination) {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex,follow" />
     <title>Redirecting to {link.name}…</title>
-    <meta http-equiv="refresh" content={`0;url=${destination.url}`} />
+    <noscript><meta http-equiv="refresh" content={`0;url=${destination.url}`} /></noscript>
     <link rel="canonical" href={destination.url} />
     <style>
       body {
@@ -67,21 +67,50 @@ if (!link || !destination) {
     </div>
 
     <script define:vars={{ tool, name: link.name, url: destination.url, isAffiliate: destination.isAffiliate }}>
-      try {
-        if (typeof window !== 'undefined' && window.posthog) {
-          window.posthog.capture('affiliate_click', {
-            tool,
-            tool_name: name,
-            destination_url: url,
-            is_affiliate_url: isAffiliate,
-            referrer: document.referrer || null,
-          });
+      // Fire affiliate_click, THEN redirect. The old code called window.posthog.capture(),
+      // but this standalone page never loads the PostHog SDK (it bypasses
+      // BaseLayout/Analytics.astro), so window.posthog was always undefined and NO
+      // affiliate_click event ever fired (confirmed: 0 in PostHog over 180 days). We POST
+      // straight to PostHog ingest via sendBeacon, which survives the imminent navigation.
+      (function () {
+        // Public ingest key + host — same values shipped in Analytics.astro.
+        var PH_KEY = 'phc_tfEQ3bUgg7uXppT2vXRqzPcnv9PiJWWWYjPGAV7Zaabv';
+        var INGEST = 'https://us.i.posthog.com/e/';
+        function go() { window.location.replace(url); }
+        try {
+          // Reuse the visitor's existing PostHog distinct_id (set by the SDK on the
+          // referring page) so pageview -> affiliate_click stays one funnel. A cold
+          // entry straight to /go/ gets a random id.
+          var did = null;
+          var m = document.cookie.match(new RegExp('ph_' + PH_KEY + '_posthog=([^;]+)'));
+          if (m) { try { did = JSON.parse(decodeURIComponent(m[1])).distinct_id; } catch (e) {} }
+          if (!did) did = 'anon_' + Math.random().toString(36).slice(2) + '_' + Date.now();
+          var payload = {
+            api_key: PH_KEY,
+            event: 'affiliate_click',
+            distinct_id: did,
+            properties: {
+              distinct_id: did,
+              tool: tool,
+              tool_name: name,
+              destination_url: url,
+              is_affiliate_url: isAffiliate,
+              referrer: document.referrer || null,
+              $current_url: window.location.href,
+            },
+          };
+          var blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+          var sent = false;
+          if (navigator.sendBeacon) { sent = navigator.sendBeacon(INGEST, blob); }
+          if (!sent) {
+            // Older browsers / beacon rejected: keepalive fetch so the POST outlives navigation.
+            fetch(INGEST, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'application/json' }, keepalive: true }).catch(function () {});
+          }
+        } catch (e) {
+          // Never let analytics block the redirect.
         }
-      } catch (e) {
-        // Don't let analytics failures block the redirect
-      }
-      // Use replace so the /go/ page doesn't pollute browser history
-      window.location.replace(url);
+        go();
+      })();
     </script>
   </body>
 </html>
