@@ -295,6 +295,13 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: "Pipeline (not yet applied). FullEnrich runs a referral or affiliate program; commission structure and terms should be verified directly on their partner page.",
   },
+  moltsets: {
+    name: "MoltSets",
+    url: 'https://moltsets.com/?aff=theautomationsguide',
+    homepageFallback: "https://moltsets.com/",
+    status: 'live',
+    notes: "Approved 2026-07-23. Referral link (?aff=theautomationsguide). $27/mo unlimited B2B contact-data API (US-only), built for Clay + Claude/MCP; founder Adam Robinson (RB2B/Retention.com). App at app.moltsets.com.",
+  },
   attio: {
     name: "Attio",
     url: '',
