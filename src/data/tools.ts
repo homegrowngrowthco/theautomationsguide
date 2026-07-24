@@ -2005,6 +2005,19 @@ export const tools: Tool[] = [
     blurb:
       'ZoomInfo is a leading provider of company and contact information. Identify, target and convert your ideal customers with a free trial of ZoomInfo today.',
   },
+  {
+    slug: 'cognism',
+    name: 'Cognism',
+    category: 'Outbound & Lead Generation',
+    badge: 'Paid',
+    ctaLabel: 'Try Cognism',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/cognism.png',
+    aliases: ['Cognism'],
+    blurb:
+      'Cognism is a leader in premium sales intelligence, setting a new standard for data quality and compliance, trusted by over +4000 customers worldwide.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
