@@ -1,0 +1,206 @@
+---
+title: "Migrate from ActiveCampaign to Loops Without Losing Triggers"
+description: "Step-by-step migration guide for moving from ActiveCampaign to Loops, covering contact export, event mapping, automation rebuild, and verification. No data left behind."
+tldr: "Migrating from ActiveCampaign to Loops takes 2 to 4 days if you map your triggers to Loops events first, export contacts with all custom fields, and rebuild automations as event-driven flows before you cut over DNS."
+pubDate: 2026-07-25
+tags: ["guide", "automation", "email"]
+faqs:
+  - question: "Does Loops have a migration tool for ActiveCampaign?"
+    answer: "No. As of mid-2026, Loops has no native importer for ActiveCampaign automations. You rebuild automations manually using Loops events and loops, importing contacts via CSV or API."
+  - question: "Can I import ActiveCampaign custom fields into Loops?"
+    answer: "Yes. Loops supports custom contact properties you define in the dashboard. Export your AC fields, create matching properties in Loops before import, and map them in your CSV header row."
+  - question: "Will my open and click history transfer to Loops?"
+    answer: "No. Historical engagement data does not transfer. Loops starts fresh. Suppress hard bounces and unsubscribes from your AC export before importing to protect deliverability."
+  - question: "How do ActiveCampaign automations map to Loops?"
+    answer: "ActiveCampaign automations map to Loops event-triggered loops. An AC trigger like a tag being applied becomes a Loops event you fire from your app or via API, then a loop handles the follow-up sequence."
+  - question: "Is Loops a good replacement for ActiveCampaign for SaaS product teams?"
+    answer: "For PLG SaaS teams sending event-driven lifecycle emails, yes. Loops trades AC's broad feature set for a cleaner event model and faster iteration. It is not a fit for B2C list-blast workflows."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The trigger is almost always the same. A product team ships a new signup flow, needs to fire a lifecycle email when a user hits a milestone, and discovers that wiring that through [ActiveCampaign](/go/activecampaign/) requires a Zapier zap, a custom field update, and three nested automation conditions just to send one email. That friction is exactly why [Loops](/go/loops/) is pulling PLG teams away fast. The problem is that Loops publishes no migration guide, and if you just export a CSV and hit "import," you will gut every behavioral trigger you spent months tuning in AC. This guide covers the full migration in the order I run it for clients, so you keep your automation logic and your deliverability.
+
+<KeyTakeaways items={[
+  "Map every ActiveCampaign trigger to a Loops event before you touch a single export",
+  "Historical engagement data does not transfer, so suppress bounces and unsubscribes on day one",
+  "Custom fields must be pre-created in Loops or your import will silently drop them",
+  "Expect 2 to 4 days for a typical 20,000-contact SaaS list with 8 to 12 automations",
+  "Loops has no native AC importer, but its API makes event wiring fast once your schema is mapped"
+]} />
+
+## Before you migrate: the prep work that saves you
+
+I have watched teams skip this phase and spend a full week untangling broken loops after go-live. Do not skip it.
+
+The core issue with migrating from [ActiveCampaign](/tools/activecampaign/) is that AC's automation model is condition-based (contact has tag X, field equals Y) while Loops is event-driven (contact performed action Z in your product). These are different mental models, not just different UIs. You need to translate before you export. Trying to map one directly onto the other without that translation step is where migrations fall apart.
+
+Run through this checklist before you touch any data:
+
+- **Audit every active automation in AC.** List the trigger type (tag applied, form submitted, date-based, link clicked) and the action chain that follows. This is your translation map.
+- **Export your full contact list** as CSV including all custom fields, tags, subscription status, and hard bounce/unsubscribe flags. In AC: Contacts > Export > select all fields.
+- **Export your suppression list separately.** Filter for unsubscribed and bounced contacts in AC, export those emails, and keep that file apart from your main import.
+- **Pause automations you do not plan to rebuild immediately.** Live automations queuing contacts during migration create duplicates and split-brain state.
+- **Verify your sending domain is authenticated in Loops before import.** Loops requires DKIM and SPF on your sending domain. If you already have those set in AC, the DNS records are likely identical, but confirm anyway.
+- **Create all custom contact properties in Loops first.** Go to Settings > Contact Properties in Loops and define every field you are bringing over. Loops will not auto-create fields on import.
+
+<StatRow stats={[
+  { number: "2-4 days", label: "Typical migration window", description: "For a SaaS team with 10,000 to 50,000 contacts and under 15 active automations, if prep work is done correctly" },
+  { number: "0", label: "Automations that transfer natively", description: "Loops has no importer for AC automation logic. Every loop must be rebuilt manually using Loops' event model" },
+  { number: "~70%", label: "AC automations that map cleanly", description: "In my experience, roughly 30% of AC automations rely on tag or field conditions with no direct Loops event equivalent and need redesign, not just remapping" }
+]} />
+
+## The migration steps
+
+<StepRow steps={[
+  {
+    title: "Build your trigger-to-event translation map",
+    body: "Open your AC automation audit and write the Loops equivalent next to each trigger. Tag applied becomes an event like 'trial_started' or 'feature_used'. Form submitted becomes a contact creation or update event via API. Date-based sequences (onboarding day 3, day 7) become a single Loops event fired on signup with delays built into the loop itself. Document every event name in a shared sheet. This sheet becomes your source of truth for the engineering ticket that wires app events to the Loops API."
+  },
+  {
+    title: "Instrument your app to fire Loops events",
+    body: "This is the step most teams underestimate. Loops works best when your product fires events directly via the Loops REST API or an SDK integration. For each trigger in your map, your engineering team adds a call to POST /v1/events with the contact email, event name, and any properties. If you use Segment, Loops has a native Segment destination that maps track() calls to Loops events automatically, which cuts instrumentation time significantly. Get this wired and tested in staging before you import any contacts."
+  },
+  {
+    title: "Clean and segment your export",
+    body: "Take your full AC contact export and run it through a suppression pass. Remove any email on your bounce/unsubscribe export. I also recommend running the list through a quick validation pass with a tool like Bouncer or ZeroBounce before import, especially if your AC list is over 12 months old. Tag columns in the CSV become either Loops contact properties or event signals, not tags (Loops does not have a tag system). Decide which tags represent subscription state and map those to your Loops mailing lists."
+  },
+  {
+    title: "Import contacts into Loops",
+    body: "In Loops, go to Contacts > Import and upload your cleaned CSV. Map each CSV column header to the corresponding Loops contact property you pre-created. The 'email' column is required. 'subscribed' maps to Loops' built-in subscription status field. Every other column maps to your custom properties. For large lists (over 50,000), break the CSV into chunks of 25,000 rows. Loops processes imports asynchronously and will email you on completion. Check the import report for skipped rows, which usually means a column was unmapped."
+  },
+  {
+    title: "Rebuild automations as Loops loops",
+    body: "In Loops, create a new Loop for each automation in your translation map. Set the trigger to the event you instrumented in step 2. Add emails with delays matching your original AC sequence timing. Loops' email editor is intentionally minimal compared to AC, so if you relied heavily on AC's conditional content blocks, you will need to push that personalization into your event properties and reference them as merge fields in the email body. Test each loop by firing a test event from the Loops dashboard against a seed contact before activating."
+  },
+  {
+    title: "Cut over and deactivate AC",
+    body: "Set a hard cutover date. On that date: activate all Loops loops, disable all AC automations (do not delete yet), and update any hard-coded AC form embed or API endpoint in your product to point at Loops. For transactional emails previously sent via AC, update those API calls to Loops' transactional endpoint. Keep AC in read-only for 30 days as a reference archive before you cancel the subscription."
+  }
+]} />
+
+## What breaks and what does not transfer
+
+<SideBySide>
+  <Fragment slot="left">
+    **What will break or not transfer**
+
+    - AC's lead scoring. Loops has no native score field. You need to maintain score in your CRM or product database and fire events when thresholds are crossed.
+    - Conditional splits based on field values mid-sequence. Loops loops are linear with time delays. Complex branching requires separate loops triggered by separate events.
+    - Historical open and click data. Loops starts from zero. Engagement-based suppression segments you built in AC are gone on day one.
+    - AC's site tracking pixel. Loops has no equivalent. If you used AC site tracking to trigger automations from page visits, redesign those around product events instead.
+  </Fragment>
+  <Fragment slot="right">
+    ```text
+    AC Automation Pattern:
+    Trigger: Contact tag = "trial"
+    Wait 3 days
+    IF opened last email
+      Send email: "Tip 2"
+    ELSE
+      Send email: "Did you miss this?"
+
+    Loops Equivalent:
+    Event: trial_started
+    Loop:
+      Email 1: sent immediately
+      Wait: 3 days
+      Email 2: sent (no branch)
+
+    Engagement branching moves to:
+    - Separate event: tip_email_clicked
+    - Separate loop: power_user_nurture
+    - Fired from your app when user
+      clicks a link or reaches a milestone
+    ```
+  </Fragment>
+</SideBySide>
+
+The biggest mindset shift I emphasize with every team I take through this migration: stop trying to replicate AC automations one-for-one in Loops. Loops is not a feature-for-feature replacement. It is a cleaner tool for a more specific job. If an AC automation required conditional logic based on email engagement, the Loops version should be driven by product behavior instead. That rewrite is a feature, not a compromise.
+
+## Verify it worked
+
+Before you call the migration done, run through these four checks:
+
+- **Fire a test event for each loop trigger** using the "Send Event" button in the Loops dashboard against a seed contact you own. Confirm the loop activates and email 1 arrives with correct personalization.
+- **Check your suppression list is enforced.** Try importing one of your known unsubscribes and confirm Loops marks them as unsubscribed rather than opted in.
+- **Confirm custom properties are populated.** Pull one contact from the Loops UI and verify all custom property values are present. Spot-check five contacts across different segments.
+- **Verify DKIM and SPF pass on a sent email.** Use [MXToolbox: DKIM lookup](https://mxtoolbox.com/dkim.aspx) or forward a test send to a Mail Tester report. Loops has [documentation on domain authentication](https://loops.so/docs/contacts/sending-domains) that walks through the DNS setup if anything is failing.
+
+This is the same checklist I use when [migrating teams off ActiveCampaign to HubSpot](/blog/2026-07-18-migrate-activecampaign-to-hubspot-keep-automations-intact/), and the same principle holds: do not consider the migration closed until you have a real email fired from the new system hitting a real inbox with correct content and authentication.
+
+<ChooseIf title="Should you switch to Loops, or go somewhere else?" items={[
+  {
+    name: "Loops",
+    conditions: [
+      "You are a PLG SaaS team and your lifecycle emails should be driven by what users do in the product, not by manual tags",
+      "You want a clean, fast email tool with a modern event API and you are comfortable rebuilding automations from scratch",
+      "Your team is tired of maintaining Zapier chains just to send a triggered email"
+    ],
+    pricing: "From $0 (up to 1,000 contacts), then usage-based",
+    affiliateSlug: "loops",
+    ctaLabel: "Try Loops",
+    highlight: true
+  },
+  {
+    name: "Customer.io",
+    conditions: [
+      "You need conditional branching, A/B splits, and multi-channel messaging (push, SMS, in-app) in one tool",
+      "You want to replicate AC's logic-heavy automation model but with a better developer API",
+      "You have a dedicated email ops person who will maintain complex workflow diagrams"
+    ],
+    pricing: "From $100/month (up to 5,000 profiles)",
+    affiliateSlug: "customerio",
+    ctaLabel: "Try Customer.io"
+  },
+  {
+    name: "ActiveCampaign",
+    conditions: [
+      "You run a mix of B2C and B2B lists with complex conditional logic you cannot afford to redesign",
+      "You rely on AC's CRM features, deal pipelines, or lead scoring and have no separate CRM to fall back on",
+      "Your team is non-technical and the visual automation builder is the only thing keeping campaigns running"
+    ],
+    pricing: "From $15/month (Starter, 1,000 contacts)",
+    affiliateSlug: "activecampaign",
+    ctaLabel: "Stay on ActiveCampaign"
+  }
+]} />
+
+If you are coming from a [Mailchimp migration and already switched to Brevo once](/blog/2026-07-17-migrate-mailchimp-to-brevo-without-losing-automations/), the Loops migration will feel familiar in structure. But the event model is genuinely different and worth the re-think. Do not assume the muscle memory carries over.
+
+<MyTake>
+Most teams I work with overestimate how much of their ActiveCampaign automation they actually need to preserve. When we audit the triggers, a third of them exist only because AC made it awkward to do the right thing in the first place. Moving to Loops forces you to throw those out. That is the real win, not the feature parity.
+</MyTake>
+
+## The migration is really a redesign
+
+Migrating from [ActiveCampaign](/tools/activecampaign/) to [Loops](/tools/loops/) is not a lift-and-shift. It is a forced rethink of where your automation logic lives. Teams that fight that and try to rebuild AC's conditional sprawl inside Loops end up unhappy. Teams that embrace Loops' event model and push behavioral logic back into the product ship better lifecycle emails in less time.
+
+The two-to-four-day investment pays back fast. Your engineers stop writing Zapier zaps every time the product team wants a new triggered email. Your sequences reflect what users actually do, not what tags someone applied manually three months ago. That is the version of email automation your PLG motion deserves.
+
+<BottomLine
+  verdict="Loops is the right call for PLG SaaS teams who want fast, event-driven lifecycle email without the overhead of a legacy automation platform. If you do the trigger-mapping work upfront, the migration is straightforward and the result is a stack that actually matches how your product grows."
+  pick="Loops"
+  affiliateSlug="loops"
+  ctaLabel="Try Loops"
+/>
+
+<Sources sources={[
+  { label: "Loops: domain authentication docs", url: "https://loops.so/docs/contacts/sending-domains" },
+  { label: "Loops: REST API reference for events", url: "https://loops.so/docs/api-reference/send-event" },
+  { label: "MXToolbox: DKIM record lookup", url: "https://mxtoolbox.com/dkim.aspx" },
+  { label: "ActiveCampaign: exporting contacts", url: "https://help.activecampaign.com/hc/en-us/articles/221455207-How-to-export-contacts" }
+]} />
