@@ -2018,6 +2018,19 @@ export const tools: Tool[] = [
     blurb:
       'Cognism is a leader in premium sales intelligence, setting a new standard for data quality and compliance, trusted by over +4000 customers worldwide.',
   },
+  {
+    slug: 'gumloop',
+    name: 'Gumloop',
+    category: 'AI Agents',
+    badge: 'Paid',
+    ctaLabel: 'Try Gumloop',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/gumloop.png',
+    aliases: ['Gumloop'],
+    blurb:
+      'Gumloop is the multiplayer AI agent builder. Let anyone at your company build agents with any AI model, any integration while IT controls access.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
