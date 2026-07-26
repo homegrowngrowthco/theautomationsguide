@@ -8,7 +8,17 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-07-23 (Session 71).
+Last updated 2026-07-25 (Session 72).
+
+## Quick reference: recent additions (Session 72, 2026-07-25)
+
+- **Shipped:** **PR #215** (`7c47d7e`) content post "Migrate from ActiveCampaign to Loops Without Losing Triggers" — merged after fixing a one-word engine slip (`items=` -> `tools=` on the `ChooseIf` block). Then the durable fix, direct to master (`9de6948`): `ChooseIf`, `ToolBreakdown`, and `ComparisonTable` now accept **`items` as an alias for `tools`** (`tools` wins when both set).
+- **Why:** the engine/authors occasionally pass `items={[...]}` to the tool-list components because the sibling `KeyTakeaways` takes `items=`. Those three read only `tools=`, so a slip silently rendered **zero cards + zero logos** — passing `lint-content` (scans source) but HARD-failing `render-acceptance` (scans rendered DOM), which needs a human round-trip. The alias makes the slip render correctly; `render-acceptance` stays as the safety net.
+- **Verify:** `npm run build` clean; `render-acceptance --all` = 0 hard (82 posts, no regression); scratch post using `items=` on both components rendered 3 `ci-logo` + 2 `tbd-logo` and passed the gate.
+- **Revert:** `git revert 9de6948` (component alias). PR #215 content is a separate squash commit.
+- **Gotcha:** tool-list components use `tools=` but `KeyTakeaways` uses `items=` — the inconsistency is the trap. New tool-list components should accept both prop names.
+
+---
 
 ## Quick reference: recent additions (Session 71, 2026-07-23)
 
