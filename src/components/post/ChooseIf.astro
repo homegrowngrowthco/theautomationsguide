@@ -40,10 +40,16 @@ interface Tool {
 
 interface Props {
   title?: string;
-  tools: Tool[];
+  tools?: Tool[];
+  items?: Tool[];
 }
 
-const { title, tools = [] } = Astro.props;
+// Accept `items` as an alias for `tools`: the sibling KeyTakeaways component
+// takes `items=`, so an authored/generated post occasionally passes `items=`
+// here. Without this fallback the component silently renders zero cards and the
+// render-acceptance logo gate fails after the fact. `tools` wins when both set.
+const { title, tools, items } = Astro.props;
+const toolList = (tools && tools.length ? tools : items) ?? [];
 
 const logoByKey: Record<string, string> = {};
 for (const t of toolRegistry) {
@@ -58,8 +64,8 @@ const resolveLogo = (t: Tool) =>
 
 <section class="chooseif">
   {title && <h3 class="chooseif-title">{title}</h3>}
-  <div class="chooseif-grid" style={`--cols: ${tools.length}`}>
-    {tools.map((tool) => {
+  <div class="chooseif-grid" style={`--cols: ${toolList.length}`}>
+    {toolList.map((tool) => {
       const logo = resolveLogo(tool);
       return (
         <div class={`ci-card ${tool.highlight ? 'ci-card--highlight' : ''}`}>

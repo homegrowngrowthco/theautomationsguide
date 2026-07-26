@@ -47,10 +47,16 @@ interface Tool {
 
 interface Props {
   title?: string;
-  tools: Tool[];
+  tools?: Tool[];
+  items?: Tool[];
 }
 
-const { title, tools = [] } = Astro.props;
+// Accept `items` as an alias for `tools` (the sibling KeyTakeaways takes
+// `items=`, so a generated post occasionally passes it here). Without this the
+// component silently renders nothing and the render-acceptance logo gate fails
+// after the fact. `tools` wins when both are set.
+const { title, tools, items } = Astro.props;
+const toolList = (tools && tools.length ? tools : items) ?? [];
 
 // Build a logo lookup (slug + name + aliases, lowercased) from the registry so
 // any tool we already have a brand mark for renders one automatically.
@@ -70,7 +76,7 @@ const resolveLogo = (t: Tool) =>
 
 <section class="tool-breakdown">
   {title && <h3 class="tool-breakdown-title">{title}</h3>}
-  {tools.map((tool) => {
+  {toolList.map((tool) => {
     const logo = resolveLogo(tool);
     return (
       <div class={`tbd-item ${tool.highlight ? 'tbd-item--highlight' : ''}`}>

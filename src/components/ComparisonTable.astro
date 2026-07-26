@@ -34,20 +34,25 @@ interface Tool {
 
 interface Props {
   title?: string;
-  tools: Tool[];
+  tools?: Tool[];
+  /** `items` is accepted as an alias for `tools` (the sibling KeyTakeaways takes
+      `items=`, so a generated post occasionally passes it here). `tools` wins
+      when both are set. */
+  items?: Tool[];
   /** Slim at-a-glance variant: name + tagline + pricing + CTA per row, no pros/cons.
       Pairs well with prose paragraphs below it. */
   compact?: boolean;
 }
 
-const { title, tools = [], compact = false } = Astro.props;
+const { title, tools, items, compact = false } = Astro.props;
+const toolList = (tools && tools.length ? tools : items) ?? [];
 ---
 
 <section class:list={['comparison-table', compact && 'comparison-table--compact']}>
   {title && <h3 class="comparison-title">{title}</h3>}
   {compact ? (
     <div class="comparison-compact">
-      {tools.map((tool) => (
+      {toolList.map((tool) => (
         <div class={`ccompact-row ${tool.highlight ? 'ccompact-row--highlight' : ''}`}>
           <div class="ccompact-main">
             <span class="ccompact-name">
@@ -71,8 +76,8 @@ const { title, tools = [], compact = false } = Astro.props;
       ))}
     </div>
   ) : (
-  <div class="comparison-grid" style={`--cols: ${tools.length}`}>
-    {tools.map((tool) => (
+  <div class="comparison-grid" style={`--cols: ${toolList.length}`}>
+    {toolList.map((tool) => (
       <div class={`comparison-card ${tool.highlight ? 'comparison-card--highlight' : ''}`}>
         {tool.highlight && <div class="comparison-badge">Top pick</div>}
         <h4 class="comparison-name">{tool.name}</h4>
