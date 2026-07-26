@@ -1,0 +1,196 @@
+---
+title: "Migrate from Relevance AI to Lindy Without Rebuilding GTM Agents"
+description: "Step-by-step migration guide: move your Relevance AI GTM agents to Lindy, preserve logic, and avoid the common rebuild traps. For RevOps operators."
+tldr: "You can migrate your Relevance AI GTM agents to Lindy in a weekend by auditing your agent logic, rebuilding triggers and memory in Lindy's native framework, and re-wiring your CRM and outbound tool connections without starting from scratch."
+pubDate: 2026-07-26
+tags: ["guide", "automation", "ai-agents"]
+faqs:
+  - question: "Is Lindy a good Relevance AI alternative for GTM teams?"
+    answer: "Yes. Lindy handles the same research, outreach, and qualification agent patterns as Relevance AI but with a simpler trigger model and native integrations to HubSpot, Gmail, and Slack that reduce glue code."
+  - question: "What does Relevance AI not transfer to Lindy?"
+    answer: "Custom vector stores, multi-agent chains built with Relevance AI's Team feature, and any tool steps that call Relevance AI's proprietary APIs will need to be rebuilt rather than imported."
+  - question: "How long does a Relevance AI to Lindy migration actually take?"
+    answer: "A single GTM agent (like an inbound qualifier or outbound researcher) takes two to four hours. A full stack of five or more agents typically takes a focused weekend sprint."
+  - question: "Can n8n or Gumloop replace Relevance AI instead of Lindy?"
+    answer: "Yes, but they require more engineering overhead. n8n and Gumloop give you more flexibility for complex branching logic, while Lindy is faster to deploy for standard GTM agent patterns."
+  - question: "Does Lindy have memory and context like Relevance AI agents?"
+    answer: "Lindy has a built-in memory layer per contact and meeting that persists across runs. It is not a vector database like Relevance AI's knowledge store, but it covers most GTM agent memory needs."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The trigger is almost always the same: a [Relevance AI](/go/relevance-ai/) bill renewal hits, an agent breaks silently after an API update, or a new RevOps hire looks at the agent stack and says "none of this is documented." I've been in that room three times in the last year. The instinct is to rebuild everything from scratch in something cleaner. The smarter move is a structured migration that preserves your agent logic and rewires the connectors. This guide walks through that migration to [Lindy](/go/lindy/), specifically for GTM agents: inbound qualifiers, outbound researchers, meeting prep bots, and CRM update agents.
+
+<KeyTakeaways items={[
+  "Lindy's trigger-first model maps cleanly to most Relevance AI agent patterns without custom code",
+  "You lose Relevance AI's vector knowledge store and multi-agent Teams feature. Plan alternatives before you cut over",
+  "A single agent migrates in two to four hours. A full GTM stack takes a focused weekend",
+  "n8n and Gumloop are valid alternatives if your agents have complex branching logic Lindy cannot handle natively",
+  "The biggest migration risk is undocumented prompt logic buried in Relevance AI tool steps, not the integrations themselves"
+]} />
+
+## Before you migrate
+
+Do this audit before you touch Lindy. Skipping it is how you end up rebuilding instead of migrating.
+
+Pull up every agent in Relevance AI and document the following for each one:
+
+- **Trigger type**: Is it webhook-based (form fill, CRM field change), scheduled (daily enrichment run), or manual (SDR clicks a button)?
+- **Tool chain**: List every tool step in order. Note which ones call external APIs vs. Relevance AI's native LLM steps.
+- **Prompt logic**: Copy the full system prompt and any variable injection patterns. These do not export cleanly and are easy to lose.
+- **Knowledge stores**: If the agent queries a vector store, note what documents live there and what retrieval strategy it uses.
+- **Output destinations**: Where does the agent write its results? HubSpot contact property, Slack message, Google Sheet, email draft?
+- **Failure handling**: Does it have retry logic or error branches? Most Relevance AI agents I've audited have none, which is a migration opportunity, not a loss.
+
+Also pause any agents that run on a schedule before you start. Running parallel versions during migration creates duplicate CRM writes and duplicate outbound touches. I've watched this burn a prospect list on a client's most important segment. It is not a theoretical risk.
+
+<StatRow stats={[
+  { number: "4-6 hrs", label: "Per agent migration time", description: "Average for a mid-complexity GTM agent with three to five tool steps and one CRM output" },
+  { number: "~30%", label: "Agents with undocumented prompts", description: "Rough share of Relevance AI agents where the core prompt logic is buried in a sub-tool and not visible at the top level" },
+  { number: "2 features", label: "Relevance AI capabilities Lindy does not replicate natively", description: "Multi-agent Teams orchestration and queryable vector knowledge stores are the two genuine gaps" }
+]} />
+
+## Migration steps
+
+<StepRow steps={[
+  {
+    title: "Export and version-control your Relevance AI agent configs",
+    body: "Relevance AI does not have a one-click export. Open each agent, copy the full JSON from the agent editor (Settings > Export), and save it to a Git repo or Notion doc. If you cannot find a JSON export, screenshot every tool step and paste every prompt into a doc. This is your source of truth. Do this before anything else. I've had a client accidentally overwrite an agent during migration and lose two weeks of prompt iteration. There is no undo."
+  },
+  {
+    title: "Map Relevance AI tool steps to Lindy action types",
+    body: "Lindy organizes work as triggers, conditions, and actions. For each Relevance AI tool step, decide which Lindy action type it becomes: an LLM step becomes a Lindy AI instruction block, an HTTP request step becomes a Lindy webhook or API action, a CRM write becomes a native HubSpot or Salesforce action. Steps that call Relevance AI's own vector search have no direct Lindy equivalent. For those, either flatten the knowledge into the system prompt (works for small knowledge bases under roughly 10,000 tokens) or route the retrieval call through an n8n webhook that Lindy calls as an external action."
+  },
+  {
+    title: "Build the trigger in Lindy first",
+    body: "Lindy's trigger model is where it genuinely outpaces Relevance AI for GTM use cases. You can trigger a Lindy agent from a new HubSpot contact, an inbound email, a Calendly booking, or a Slack message with no webhook plumbing. Start here before building any action logic. A trigger that does not fire reliably will make every downstream issue harder to debug. Test the trigger with a real event before moving on."
+  },
+  {
+    title: "Rebuild prompt logic as Lindy AI instruction blocks",
+    body: "Paste your Relevance AI system prompt into a Lindy AI instruction block, then replace Relevance AI variable syntax with Lindy's contact memory and trigger variables. In Relevance AI you might have injected a contact field using double-curly-brace syntax. In Lindy, the same value is available as a named variable from the trigger context. Go through the prompt line by line and swap every variable reference. Then run a test with a real contact record and compare the output against what Relevance AI produced."
+  },
+  {
+    title: "Rewire CRM and outbound integrations",
+    body: "Lindy has native connections to HubSpot, Salesforce, Gmail, Slack, and Calendly. For each output your Relevance AI agent produced, configure the equivalent Lindy action: update a HubSpot property, send a Slack message, draft a Gmail reply. If your agent writes to a tool Lindy does not natively support, use Lindy's webhook action to call an n8n or Make workflow that handles the write. Keep a mapping doc of every Relevance AI output destination and its Lindy equivalent before you mark the agent migrated."
+  },
+  {
+    title: "Run parallel for 48 hours before cutting over",
+    body: "Run both the Relevance AI agent and the Lindy agent on the same live trigger events for 48 hours. Compare outputs side by side. Look for divergences in LLM output quality, missing variable values, and CRM write failures. Only cut over after the Lindy agent produces equivalent or better output on at least 20 real trigger events. Then archive the Relevance AI agent. Do not delete it until you have confirmed no downstream process depends on its stored outputs."
+  }
+]} />
+
+## What breaks, and what does not transfer
+
+The integrations are the easy part. The hard part is the invisible logic.
+
+**What transfers cleanly:** Single-agent flows, LLM instruction blocks, HTTP request steps (rewired as webhook actions), CRM read/write steps to HubSpot or Salesforce, scheduled triggers, and email-based triggers all map well to Lindy primitives.
+
+**What does not transfer:** Relevance AI's [Teams feature](https://relevanceai.com/docs) (multi-agent orchestration where agents hand off tasks to other agents) has no direct Lindy equivalent. If you use Teams, you will need to either flatten the logic into a single Lindy agent or use [n8n](/go/n8n/) as the orchestration layer and call individual Lindy agents as webhook endpoints. Relevance AI's vector knowledge stores also do not transfer. The closest Lindy equivalent is its per-contact memory, which stores facts about individual contacts across interactions but is not a queryable document store. For RAG-style agents that retrieve from a large document corpus, my recommendation is [Gumloop](/go/gumloop/) for that retrieval step, or keep it in n8n and call it from Lindy. Don't try to squeeze a 50,000-token knowledge base into a Lindy system prompt.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The gotcha: variable injection breaks silently**
+
+    Relevance AI uses its own variable syntax inside tool prompts. When you paste a prompt into Lindy, those variable references become plain text strings instead of resolving to live values. The agent will still run, but it will run with literal placeholder text in the prompt instead of actual contact data. The LLM output will look plausible but be completely wrong. This is the most common migration bug I've seen, and it fails silently every time.
+  </Fragment>
+  <Fragment slot="right">
+    ```text
+    RELEVANCE AI (broken after paste):
+    "Research [contact.company] and 
+    summarize their recent funding."
+
+    LINDY (correct variable syntax):
+    "Research [Company Name from trigger] 
+    and summarize their recent funding.
+    Use the contact's LinkedIn URL 
+    [LinkedIn URL from trigger] as a 
+    starting point."
+
+    Check: After building the step, use 
+    Lindy's "Test with sample data" button 
+    and verify the resolved prompt shows 
+    real values, not placeholder text.
+    ```
+  </Fragment>
+</SideBySide>
+
+## Verify it worked
+
+Before you call a migration done, run these four checks:
+
+1. **Trigger fires on a real event** - Create a test contact or send a test email and confirm the Lindy agent activates. Check the run log in Lindy to confirm the trigger data populated correctly.
+2. **LLM output matches intent** - Compare the AI instruction block output against five real Relevance AI outputs from your export doc. Look for missing context, hallucinated company names, or dropped instructions.
+3. **CRM writes land correctly** - Open HubSpot or Salesforce and confirm the properties the agent updates are receiving the right values, not blank fields or stringified JSON.
+4. **No duplicate actions** - If you ran parallel for 48 hours, confirm the Relevance AI agent is fully paused and no contact is receiving two sets of outputs.
+
+<ChooseIf title="Which tool fits your migration destination?" items={[
+  {
+    name: "Lindy",
+    conditions: [
+      "Your agents are single-agent flows: one trigger, a few LLM steps, one or two CRM outputs",
+      "You want native Gmail, HubSpot, Slack, and Calendly integrations without webhook plumbing",
+      "Your team is RevOps-led and needs agents non-engineers can maintain"
+    ],
+    pricing: "From $49/mo",
+    affiliateSlug: "lindy",
+    ctaLabel: "Try Lindy",
+    highlight: true
+  },
+  {
+    name: "n8n",
+    conditions: [
+      "Your agents use multi-step branching logic or multi-agent hand-offs that Lindy cannot flatten",
+      "You need to self-host for data residency or compliance reasons",
+      "You have an engineer on the RevOps team who can maintain workflow JSON"
+    ],
+    pricing: "From $20/mo (cloud) or self-host",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n"
+  },
+  {
+    name: "Gumloop",
+    conditions: [
+      "Your Relevance AI agents do heavy document retrieval or RAG over large knowledge bases",
+      "You want a visual canvas closer to Relevance AI's builder feel",
+      "You are migrating data pipeline agents, not just GTM interaction agents"
+    ],
+    pricing: "From $97/mo",
+    affiliateSlug: "gumloop",
+    ctaLabel: "Try Gumloop"
+  }
+]} />
+
+<MyTake>
+Most Relevance AI GTM agent stacks I've audited are more fragile than their owners realize. One API key rotation or one model version bump takes down the whole thing, and nobody notices for days. Lindy's opinionated, less-flexible architecture is actually a feature for GTM teams. Fewer configuration surfaces means fewer silent failure modes. The operators who resist migrating because they love Relevance AI's flexibility are usually the same ones who haven't checked their agent run logs in a month.
+</MyTake>
+
+If your agents are doing something genuinely complex, like multi-hop research chains or dynamic knowledge retrieval, think carefully before leaving [Relevance AI](/tools/relevance-ai/). The migration pays off for standard GTM patterns: qualifier bots, meeting prep agents, CRM enrichment loops. For teams building closer to autonomous research workflows, the flexibility gap is real and worth pricing in. Similarly, if the GTM stack already involves [n8n](/tools/n8n/) for orchestration, you may find it easier to keep n8n as the backbone and bolt Lindy on as the AI layer for specific interaction steps rather than migrating wholesale. I've written about using n8n as a routing layer in the context of [automating demo scheduling with Cal.com, HubSpot, and n8n](/blog/2026-07-23-automate-demo-scheduling-with-calcom-hubspot-and-n8n/), and the same pattern applies here.
+
+The GTM agent category is moving fast. [G2's AI agent category](https://www.g2.com/categories/ai-agents) has grown from under 20 listed tools in early 2024 to over 80 by mid-2026. Picking a platform with a stable trigger model and native CRM integrations is more durable than picking the most powerful builder. That is the case for Lindy right now for most RevOps teams.
+
+<BottomLine
+  verdict="If your Relevance AI stack is standard GTM agents, qualifier bots, meeting prep, and CRM enrichment, Lindy is the cleanest migration path. You give up vector stores and multi-agent orchestration, but you gain reliability and a trigger model your whole RevOps team can maintain without engineering support."
+  pick="Lindy"
+  affiliateSlug="lindy"
+  ctaLabel="Try Lindy"
+/>
+
+<Sources sources={[
+  { label: "Relevance AI: Agent builder documentation", url: "https://relevanceai.com/docs" },
+  { label: "Lindy: Integrations and trigger reference", url: "https://www.lindy.ai/integrations" },
+  { label: "G2: AI Agents category page", url: "https://www.g2.com/categories/ai-agents" },
+  { label: "n8n: Self-hosted deployment documentation", url: "https://docs.n8n.io/hosting/" }
+]} />
