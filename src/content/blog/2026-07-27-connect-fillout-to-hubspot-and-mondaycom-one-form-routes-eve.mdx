@@ -1,0 +1,170 @@
+---
+title: "Connect Fillout to HubSpot and Monday.com: One Form, Routes Everywhere"
+description: "Step-by-step tutorial: wire one Fillout form to HubSpot CRM and Monday.com simultaneously using native integrations, n8n, or Make. No duplicate data entry."
+tldr: "Use Fillout's native HubSpot integration plus an n8n or Make webhook to route a single form submission to both HubSpot contacts and Monday.com items in under 30 minutes."
+pubDate: 2026-07-27
+tags: ["automation", "forms", "crm"]
+faqs:
+  - question: "Does Fillout have a native Monday.com integration?"
+    answer: "Not as of mid-2026. You bridge it with a webhook from Fillout into n8n, Make, or Zapier, then use the Monday.com API action to create or update items."
+  - question: "Can Fillout submit to HubSpot and Monday.com at the same time?"
+    answer: "Yes. Fillout's native HubSpot sync handles the CRM side. A simultaneous webhook fires to your automation layer, which writes the Monday.com item in parallel."
+  - question: "Does Fillout support conditional routing by form answer?"
+    answer: "Yes. Fillout's logic blocks let you route to different pages and fire different webhook payloads depending on dropdown values, radio answers, or hidden fields."
+  - question: "What Monday.com plan do I need to use the API?"
+    answer: "The Monday.com API is available on all paid plans, including Basic. You need an API token from your profile settings to authenticate in n8n or Make."
+  - question: "Will HubSpot deduplicate contacts submitted through Fillout?"
+    answer: "Yes. Fillout's HubSpot integration matches on email address by default, updating existing contacts rather than creating duplicates."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most GTM teams end up maintaining two separate intake processes: one for the CRM team (HubSpot), one for the project or ops team (Monday.com). Someone submits a demo request, the SDR manually copies it into a Monday board so the solutions engineering team can track it. It is tedious, it breaks, and it creates the classic "who updated what" version problem. [Fillout](/go/fillout/) fixes this with a single embeddable form that pushes to both destinations at once. If you know the steps, setup takes less than an hour.
+
+## Why one form matters more than you think
+
+The pattern I see constantly at Homegrown Growth Co. clients is that forms accumulate. Marketing runs Typeform for leads. Sales ops runs a separate form for intake requests. The ops team built something in Monday's native form builder. Each one is a silo. The data never reconciles cleanly.
+
+[Fillout](/tools/fillout/) is purpose-built for this kind of multi-destination routing. It has a native HubSpot connector that maps fields directly to contact and deal properties, handles deduplication by email, and supports conditional logic so you can branch the form flow based on answers. What it does not have natively is a Monday.com connector, but that gap closes easily with a webhook into either [n8n](/go/n8n/) or [Make](/go/make/).
+
+The architecture I am walking through here: one Fillout form, two simultaneous destinations. HubSpot gets a contact (and optionally a deal). Monday.com gets a new item in whichever board your ops team uses for intake tracking. The whole thing fires in parallel on submission. You write zero code.
+
+<StatRow stats={[
+  { number: "~25 min", label: "Setup time", description: "From blank Fillout form to live dual-destination routing with native HubSpot sync and a Monday webhook" },
+  { number: "0", label: "Duplicate contacts", description: "Fillout's HubSpot connector matches on email and updates existing records rather than creating duplicates" },
+  { number: "2", label: "Automation options", description: "n8n (self-hostable, more control) or Make (hosted, faster to start) both work for the Monday.com webhook relay" }
+]} />
+
+## The step-by-step build
+
+<StepRow steps={[
+  {
+    title: "Build the Fillout form with your intake fields",
+    body: "Create a new form in Fillout and add the fields you need on both destinations: full name, work email, company, deal size or project type, any qualifying questions. Use Fillout's Hidden Fields for UTM parameters if you want source attribution in HubSpot. Conditional logic blocks go here too. If someone selects Enterprise in a dropdown, show the budget question. If SMB, skip it. This branching controls what data lands in Monday later."
+  },
+  {
+    title: "Connect HubSpot natively inside Fillout",
+    body: "In Fillout's integrations panel, select HubSpot and authenticate with your portal. Map each form field to a HubSpot contact property. At minimum: email, firstname, lastname, company. If you want a deal created on submission, enable Create Deal and map deal name (usually a formula like company plus form type), pipeline, and stage. Fillout's HubSpot sync respects your existing property validation rules, so required properties that are blank will surface as errors you can catch in the integration log."
+  },
+  {
+    title: "Add a webhook destination in Fillout",
+    body: "Still in Fillout integrations, add a Webhook destination alongside HubSpot. Both fire simultaneously on submission. Paste in the webhook URL you are about to generate from n8n or Make. Set the method to POST and leave the payload as the default JSON. Fillout sends all field values keyed by field name or ID. You can test this immediately from the Fillout integration panel using a sample submission before wiring up the automation side."
+  },
+  {
+    title: "Build the Monday.com relay in n8n or Make",
+    body: "In n8n: add a Webhook trigger node, copy the URL into Fillout, then add a Monday.com node using the Create Item action. Authenticate with your Monday API token (from your profile avatar, then Developers). Map the incoming JSON keys to your board's column values. Item name usually gets the company or contact name, and you map status, text, or number columns from the form payload. In Make: the pattern is identical. Webhook module into Monday.com Create an Item module. Make's Monday connector handles column value formatting automatically, which saves a step compared to n8n where you sometimes need to JSON-stringify the column_values object."
+  },
+  {
+    title: "Test end-to-end and harden with error handling",
+    body: "Submit a test entry through the live Fillout form. Verify the HubSpot contact appears and the deal (if configured) is in the right stage. Check n8n or Make's execution log for a successful Monday item creation. Common issue: Monday column IDs are not human-readable. They look like status_1 or text_7. Use the Monday API explorer at developer.monday.com to fetch your board schema and confirm exact column IDs before you go live. Add a Slack or email alert node in n8n or Make on error so failed submissions surface immediately rather than dropping silently."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **The Monday column_values gotcha**
+
+    The most common failure point I see is a Monday item creation that succeeds but lands with blank columns. The item creates, the name is right, but status and all the mapped fields are empty. This almost always means the column_values payload was passed as a plain JavaScript object instead of a JSON string. Monday's API expects column_values to be a stringified JSON object, not a nested object. In n8n, wrap it with `JSON.stringify()` in an expression. Make handles this for you automatically in its Monday module, which is one reason I reach for Make first when clients want the fastest possible setup.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // n8n Monday node: column_values field expression
+    // WRONG (plain object, columns land blank):
+    // {{ { status_1: { label: "New" }, text_7: $json.company } }}
+
+    // CORRECT (stringified):
+    {{ JSON.stringify({
+      "status_1": { "label": "New" },
+      "text_7": $json["company"],
+      "numbers_5": $json["deal_size"]
+    }) }}
+
+    // In Make, the Monday module accepts
+    // column values as structured fields directly,
+    // no manual stringify needed.
+    ```
+  </Fragment>
+</SideBySide>
+
+<Figure class="post-screenshot" caption="n8n workflow canvas showing a Webhook trigger routing form data to multiple downstream actions, the same pattern used for the Fillout to Monday relay.">
+  <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with webhook trigger, enrichment step, branching logic, and multiple output nodes" loading="lazy" />
+  </a>
+</Figure>
+
+## Which automation layer should you use
+
+If you are already running [n8n](/tools/n8n/) self-hosted, stay there. You get full control over retry logic, you can add enrichment steps (pull company data from Clearbit or [Clay](/go/clay/) before writing to Monday), and you can branch on form answers to route to different Monday boards depending on deal type. I have built variants of this workflow where enterprise submissions go to one board, SMB to another, and partner referrals to a third. All from a single Fillout form using Fillout's conditional webhook URLs.
+
+If you are not already running n8n and want this live today, [Make](/tools/make/) is the faster path. The Monday.com module in Make is well-maintained, the column mapping UI is visual rather than code-based, and you get 1,000 free operations per month to prototype. For a form getting 50 submissions a month, the free tier covers it indefinitely.
+
+<ChooseIf title="n8n or Make for the Monday relay?" tools={[
+  {
+    name: "n8n",
+    conditions: [
+      "You already self-host n8n for other GTM workflows",
+      "You want to add enrichment steps (Clearbit, Clay, etc.) between form submission and Monday write",
+      "You need multi-board routing based on form answer logic"
+    ],
+    pricing: "Free self-hosted; Cloud from $20/mo",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n",
+    highlight: false
+  },
+  {
+    name: "Make",
+    conditions: [
+      "You want the fastest setup with a visual no-code interface",
+      "Your Monday column mapping is straightforward (no dynamic board routing)",
+      "You are under ~1,000 form submissions per month and want to start free"
+    ],
+    pricing: "Free up to 1,000 ops/mo; Core from $9/mo",
+    affiliateSlug: "make",
+    ctaLabel: "Try Make",
+    highlight: true
+  }
+]} />
+
+## Extending the workflow
+
+Once the core Fillout to HubSpot and Monday.com pipeline is live, a few extensions I have shipped for clients that add real value on top of it:
+
+**HubSpot deal stage to Monday status sync (bidirectional).** Use a HubSpot workflow to fire a webhook when a deal moves stages, then update the Monday item status via the same n8n or Make workflow in reverse. This keeps your ops team's board current without manual updates.
+
+**Fillout conditional routing by answer.** If you use Fillout's "route to page" logic based on a qualifying question (company size, use case), you can also conditionally fire different webhook payloads to different Monday boards. The [Fillout vs Tally vs Chili Piper](/blog/2026-07-21-fillout-vs-tally-vs-chili-piper-best-forms-and-routing-tool/) breakdown covers Fillout's routing depth in more detail.
+
+**Scheduling link injection post-submit.** On the Fillout thank-you screen, embed a [Cal.com](/go/cal-com/) or Calendly link. If you want the booking to auto-associate with the HubSpot deal, the [automate demo scheduling with Cal.com, HubSpot, and n8n](/blog/2026-07-23-automate-demo-scheduling-with-calcom-hubspot-and-n8n/) guide covers that exact connection.
+
+According to [Fillout's integration documentation](https://www.fillout.com/help/hubspot), the HubSpot connector supports creating both contacts and deals in a single submission, so you are not limited to contact sync. And per [Monday.com's API v2 reference](https://developer.monday.com/api-reference/reference/items), item creation supports up to 10 MB of column data per request, meaning rich form payloads with file uploads are not a concern.
+
+<MyTake>
+Skip Zapier for this workflow. I have watched teams default to it out of habit, pay per task, and then balk when a 200-submission-per-month form runs $50/month in Zaps. n8n self-hosted handles this same workflow for essentially zero marginal cost once the instance is running. Yes, you have to solve the Monday column_values JSON-stringify issue yourself once. That is a 10-minute fix you will never touch again. Paying Zapier a task tax indefinitely to abstract that away is a bad trade.
+</MyTake>
+
+## Ship it and stop copy-pasting
+
+The Fillout to HubSpot and Monday.com pipeline pays for its setup time within the first week. Every manual copy-paste your SDR or ops coordinator skips is data fidelity gained and lag removed from your intake process. The native HubSpot connector handles deduplication and field mapping cleanly. The webhook to n8n or Make handles everything Monday needs. Because it is all event-driven, the Monday item exists within seconds of form submission. Not hours.
+
+Build the form once. Route it everywhere.
+
+<BottomLine verdict="Fillout is the right form layer for teams that need simultaneous HubSpot CRM sync and Monday.com project board creation from a single submission. The native HubSpot connector plus a webhook to n8n or Make covers the full routing in under an hour." pick="Fillout" affiliateSlug="fillout" ctaLabel="Try Fillout" />
+
+<Sources sources={[
+  { label: "Fillout Help: HubSpot integration overview", url: "https://www.fillout.com/help/hubspot" },
+  { label: "Monday.com Developer Docs: Items API v2 reference", url: "https://developer.monday.com/api-reference/reference/items" },
+  { label: "n8n Docs: Monday.com node", url: "https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.mondaycom/" },
+  { label: "Make Help: Monday.com modules", url: "https://www.make.com/en/help/app/monday" }
+]} />
