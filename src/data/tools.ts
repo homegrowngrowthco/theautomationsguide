@@ -2031,6 +2031,45 @@ export const tools: Tool[] = [
     blurb:
       'Gumloop is the multiplayer AI agent builder. Let anyone at your company build agents with any AI model, any integration while IT controls access.',
   },
+  {
+    slug: 'quickmail',
+    name: 'Quickmail',
+    category: 'Cold Email & Deliverability',
+    badge: 'Paid',
+    ctaLabel: 'Try Quickmail',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/quickmail.png',
+    aliases: ['Quickmail'],
+    blurb:
+      'Cold email software that is easy to use, with automated follow-ups when there is no response. Customizable outbound email tracking software for sales.',
+  },
+  {
+    slug: 'mailshake',
+    name: 'Mailshake',
+    category: 'Cold Email & Deliverability',
+    badge: 'Paid',
+    ctaLabel: 'Try Mailshake',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/mailshake.png',
+    aliases: ['Mailshake'],
+    blurb:
+      'Generate leads, build relationships, and promote content.',
+  },
+  {
+    slug: 'saleshandy',
+    name: 'Saleshandy',
+    category: 'Cold Email & Deliverability',
+    badge: 'Paid',
+    ctaLabel: 'Try Saleshandy',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/saleshandy.png',
+    aliases: ['Saleshandy'],
+    blurb:
+      'The best cold email outreach software to generate more leads. Automate your outreach with unlimited email accounts, high deliverability, and better open and reply rates.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body

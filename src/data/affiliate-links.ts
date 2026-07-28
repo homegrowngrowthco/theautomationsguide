@@ -681,6 +681,20 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
+  mailshake: {
+    name: 'Mailshake',
+    url: '',
+    homepageFallback: 'https://mailshake.com/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  saleshandy: {
+    name: 'Saleshandy',
+    url: '',
+    homepageFallback: 'https://saleshandy.com/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
 };
 
 /**
