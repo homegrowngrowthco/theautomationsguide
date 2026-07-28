@@ -1,0 +1,220 @@
+---
+title: "Migrate from Saleshandy to Instantly Without Wrecking Your Sending Domains"
+description: "Step-by-step guide to switching from Saleshandy to Instantly safely, covering DNS, warmup, sequences, and what actually breaks in transit."
+tldr: "Export your Saleshandy sequences and contacts, re-verify DNS in Instantly, run a 2-week warmup on each migrated mailbox, and you can switch without tanking deliverability."
+pubDate: 2026-07-28
+tags: ["guide", "automation", "cold-email"]
+faqs:
+  - question: "Can I import Saleshandy sequences directly into Instantly?"
+    answer: "No direct import exists. You export as CSV, rebuild steps manually in Instantly, and paste in your copy blocks. It takes 30 to 60 minutes per active sequence."
+  - question: "Do I need to re-warm mailboxes when migrating from Saleshandy to Instantly?"
+    answer: "Yes. Even if your mailboxes are warm, switching sending infrastructure resets the sender reputation signal. Run Instantly's built-in warmup for at least two weeks before restarting campaigns."
+  - question: "What are the best Saleshandy alternatives in 2024?"
+    answer: "Instantly, Smartlead, Quickmail, and Mailshake are the most-compared alternatives. Instantly leads on price-per-mailbox and warmup infrastructure; Smartlead wins on AI personalization features."
+  - question: "Will my Saleshandy open tracking data transfer to Instantly?"
+    answer: "No. Historical engagement data lives in Saleshandy's database and cannot be exported in a way Instantly recognizes. You start fresh on analytics."
+  - question: "How long does a full Saleshandy to Instantly migration take?"
+    answer: "Realistically 3 to 4 weeks end to end: one week of prep and export, one week of DNS and warmup setup, then a rolling two-week warmup period before full send volume resumes."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The moment teams decide to migrate off [Saleshandy](/go/saleshandy/) tends to follow a predictable script: they hit the per-user seat wall, catch a deliverability scare on a domain they've spent months building, or discover that the warmup tooling they assumed was included costs extra. I've watched this exact sequence play out with three clients in the last six months. The frustrating part isn't the decision to leave. It's the two weeks of limbo where sequences are paused, DNS records are half-migrated, and someone watches reply rates fall off a cliff. This guide is a playbook for doing the switch cleanly, so you land in [Instantly](/go/instantly/) with your sending domains intact and your pipeline moving.
+
+<KeyTakeaways items={[
+  "Export contacts and sequences from Saleshandy before you touch a single DNS record.",
+  "Re-verify SPF, DKIM, and DMARC inside Instantly even if those records already exist. The signing keys differ.",
+  "Run Instantly's built-in warmup for at least 14 days per mailbox before resuming cold volume.",
+  "Historical open and reply data does not transfer. Start fresh on analytics and set new baseline benchmarks.",
+]} />
+
+## Before You Migrate: The Prep Checklist
+
+Skipping this section is how teams lose two weeks of sending. Do this work before you cancel [Saleshandy](/tools/saleshandy/) or touch a DNS record.
+
+- **Export all active contacts.** Go to Saleshandy's Prospects section, filter by campaign, and export each list as a CSV. Include custom field columns or you will rebuild that data from scratch.
+- **Document your sequences.** There is no native export for sequence steps. Open each active sequence and copy the subject lines, body copy, wait days, and step counts into a Google Doc or Notion page. I screenshot every step and drop them into a shared Drive folder. Tedious, but it takes maybe 20 minutes and saves you from guessing later.
+- **Note your sending limits per mailbox.** Saleshandy enforces sending caps differently than Instantly. Document how many emails per day each connected mailbox was sending. You will use this to configure Instantly's ramp-up settings.
+- **Identify which domains are actively sending.** Any domain sending more than 100 emails per day needs a longer warmup runway in the new tool. Flag those separately.
+- **Pause (do not delete) active sequences.** Pausing preserves your place in each contact's step history. If a reply comes in during the migration window, you will know where they were in the flow.
+- **Keep Saleshandy active until Instantly is fully configured.** Canceling early is how you end up with a two-week gap in sending.
+
+<StepRow steps={[
+  {
+    title: "Connect and verify your sending mailboxes in Instantly",
+    body: "Add each mailbox via SMTP/IMAP or Google/Microsoft OAuth in Instantly's Email Accounts section. Instantly will auto-detect SPF and DKIM status. Even if your records exist from Saleshandy's config, confirm the DKIM selector matches what Instantly expects. Saleshandy uses its own DKIM selectors. Instantly uses different ones. You will almost certainly need to add a new DKIM TXT record in your DNS host."
+  },
+  {
+    title: "Update SPF, DKIM, and DMARC records",
+    body: "In your DNS host (Cloudflare, Route 53, Namecheap), add Instantly's DKIM TXT record alongside any existing Saleshandy record. Do not delete the Saleshandy record until you have confirmed Instantly's selector passes. Set DMARC to p=none with a reporting address during the transition so you can monitor for failures without blocking mail. Give DNS 24 to 48 hours to propagate before you test."
+  },
+  {
+    title: "Enable Instantly's warmup on every migrated mailbox",
+    body: "Navigate to each email account and turn on Warmup. Set daily warmup volume to 30 to 40 emails for the first week, then let Instantly's algorithm ramp from there. Even if a mailbox was fully warm on Saleshandy, the IP pool and sending infrastructure differ. Google and Microsoft score the sending source, not just the domain. Budget 14 days minimum before you restart any cold campaigns from that mailbox."
+  },
+  {
+    title: "Rebuild sequences in Instantly from your exported docs",
+    body: "Create a new campaign for each Saleshandy sequence. Paste in your copy, configure the step delays, and set sending windows. One thing I do on every migration: enable Instantly's A/Z subject line testing from day one. Your old Saleshandy open rate data does not carry over, so you need to re-establish baseline benchmarks fast. Testing from the start shortens that window considerably."
+  },
+  {
+    title: "Re-upload contact lists and map custom fields",
+    body: "Import your exported CSVs into Instantly's lead lists. Map your custom columns to Instantly's variable system. Instantly uses a specific merge tag format, so confirm your CSV column headers match the variable names in your copy exactly. Mismatched field names are the single most common cause of broken personalization on day one."
+  },
+  {
+    title: "Run a 25-contact test batch before full relaunch",
+    body: "Before you push full volume, send the first step of each rebuilt sequence to 25 internal or friendly contacts. Check rendering in Gmail, Outlook, and Apple Mail. Confirm reply routing lands in the right inbox. Verify that unsubscribe links resolve. This 30-minute check catches roughly 80 percent of the issues that would otherwise surface at scale."
+  }
+]} />
+
+## What Breaks and What Does Not Transfer
+
+This is the section I wish someone had handed me the first time I ran this migration for a client.
+
+<SideBySide>
+  <Fragment slot="left">
+    **What breaks or does not transfer:**
+    - Historical open, click, and reply rate data. Saleshandy stores this internally with no export format Instantly ingests.
+    - Email account warmup scores. Your warmup reputation is tied to Saleshandy's sending network. You start at zero in Instantly's warmup pool.
+    - Sequence step progress for mid-funnel contacts. If a contact was on step 3 of 5, Instantly has no way to know that. You have to manually decide whether to re-enroll them at step 3 or start over.
+    - Any Saleshandy-native merge tags using non-standard field names. These render as blank or as raw field names in Instantly until you remap them.
+    - Bounce and unsubscribe suppression lists. Export your unsubscribe list from Saleshandy and upload it to Instantly's block list on day one. Missing this step is a compliance risk.
+  </Fragment>
+  <Fragment slot="right">
+    **What survives the migration cleanly:**
+
+    ```
+    CHECKLIST: What transfers safely
+
+    Contact data (CSV export)
+      - First name, last name, company
+      - Email, LinkedIn URL
+      - Any custom fields you export
+        and remap in Instantly
+
+    Sequence copy
+      - Subject lines (re-paste manually)
+      - Body text (re-paste manually)
+      - Step delays and sending windows
+
+    Domain health
+      - SPF/DKIM/DMARC records persist
+        in DNS (just add Instantly selectors)
+      - Domain age and history unaffected
+
+    Sender reputation (partial)
+      - Domain-level reputation carries
+      - IP/infrastructure reputation resets
+      - Warmup required regardless
+    ```
+  </Fragment>
+</SideBySide>
+
+The suppression list issue bites people badly, and I've seen it firsthand. One team I worked with had 400 Saleshandy unsubscribes that never made it into Instantly. They re-emailed a chunk of them in week one and caught a compliance complaint within 48 hours. Export that list on day zero. Not day two. Day zero.
+
+## Verify It Worked
+
+Before you call the migration complete, run through these four checks:
+
+1. **MXToolbox or [mail-tester.com](https://www.mail-tester.com) on each sending domain.** Confirm SPF includes Instantly's sending IP range, DKIM passes with Instantly's selector, and DMARC is reporting rather than blocking during the transition window.
+2. **Send a test email from each migrated mailbox to a Gmail and an Outlook address you control.** Open the raw headers and confirm the `d=` field in the DKIM signature matches your domain, not Saleshandy's.
+3. **Check Instantly's warmup dashboard after 48 hours.** You should see warmup sends going out and positive engagement signals (opens, replies from the warmup pool) registering. If the warmup counter is stuck at zero, the mailbox connection is broken.
+4. **Confirm your unsubscribe block list is active.** Import your Saleshandy suppression export, go to Instantly's block list settings, and verify the count matches. Spot-check two or three addresses to confirm they would be blocked from new campaigns.
+
+## Which Saleshandy Alternative Is Right for Your Stack
+
+[Instantly](/go/instantly/) is the right destination for most Saleshandy migrations. It is not the only answer. Here is how I think about the decision across different team profiles.
+
+<ChooseIf title="Which Saleshandy Alternative Fits Your Team" tools={[
+  {
+    name: "Instantly",
+    conditions: [
+      "You run more than 5 sending mailboxes and want flat-rate pricing per mailbox",
+      "Deliverability and warmup tooling needs to be native, not bolted on via a third-party integration",
+      "You want Unibox (unified inbox) to manage replies across all accounts in one place"
+    ],
+    pricing: "From $37/mo",
+    affiliateSlug: "instantly",
+    ctaLabel: "Try Instantly",
+    highlight: true
+  },
+  {
+    name: "Smartlead",
+    conditions: [
+      "You need AI-assisted personalization and dynamic copy generation at the campaign level",
+      "Your sequences are multi-channel (email plus LinkedIn touch points in the same flow)",
+      "You are already using Clay for enrichment and want tighter API-level integration"
+    ],
+    pricing: "From $39/mo",
+    affiliateSlug: "smartlead",
+    ctaLabel: "Try Smartlead"
+  },
+  {
+    name: "Quickmail",
+    conditions: [
+      "Your team sends at moderate volume and wants per-seat pricing rather than per-mailbox",
+      "You want built-in inbox rotation without managing multiple accounts manually",
+      "Simplicity over features: you need a tool a non-technical SDR can own independently"
+    ],
+    pricing: "From $49/mo",
+    affiliateSlug: "quickmail",
+    ctaLabel: "Try Quickmail"
+  },
+  {
+    name: "Mailshake",
+    conditions: [
+      "Your outbound is tightly coupled to a CRM (HubSpot or Salesforce) and you need native two-way sync",
+      "You run a hybrid inbound/outbound motion and need phone and social tasks inside the same sequence",
+      "Your team is already on Mailshake and the migration pain is not worth the cost savings"
+    ],
+    pricing: "From $58/seat/mo",
+    affiliateSlug: "mailshake",
+    ctaLabel: "Try Mailshake"
+  }
+]} />
+
+One thing worth planning for: if you are routing Instantly replies into a CRM deal flow, the [Instantly to Pipedrive via n8n auto-create deals workflow](/blog/2026-07-19-instantly-to-pipedrive-via-n8n-auto-create-deals-from-replie/) is worth building in the same migration sprint. You are already rebuilding sequences, so wiring up the CRM pipeline at the same time costs almost nothing extra in setup time.
+
+<Figure class="post-screenshot" caption="Smartlead's leads view showing per-mailbox sending status, useful for validating warmup progress after migrating accounts from Saleshandy.">
+  <a href="/go/smartlead/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/smartlead-leads.png" alt="Smartlead leads view showing account sending status and warmup progress" loading="lazy" />
+  </a>
+</Figure>
+
+<MyTake>
+The "just re-warm your mailboxes" advice undersells the real risk. The teams I've seen blow up a domain during migration are not the ones who skip warmup entirely. They are the ones who run warmup for five days, get impatient, and push full cold volume before the warmup pool has built enough positive signal. Two weeks is the floor, not a conservative cushion. Treat it as non-negotiable.
+</MyTake>
+
+## One Sprint, Clean Migration
+
+A Saleshandy to Instantly migration is a three-to-four week project. Not a weekend job. Week one is exports, docs, and DNS. Week two is Instantly account setup and warmup activation. Weeks three and four are the warmup runway before you push any cold volume. Compress this into a long weekend and you will lose domain reputation that took months to earn.
+
+Do the prep. Respect the warmup window. Re-verify your suppression lists. You will come out the other side with lower per-mailbox costs, better deliverability tooling, and a sending infrastructure that scales horizontally without seat-based pricing walls.
+
+For teams also evaluating [Smartlead](/tools/smartlead/) as their destination, the warmup and DNS steps are nearly identical. The main difference is sequence rebuild time. Smartlead's campaign builder has more conditional branching options, which take longer to configure from scratch. And if you are thinking about enrichment to refill your pipeline post-migration, the [Cognism vs Apollo vs Lusha comparison for European outbound](/blog/2026-07-24-cognism-vs-apollo-vs-lusha-best-for-european-outbound/) is worth reading before you reload contact lists.
+
+<BottomLine
+  verdict="Instantly is the right call for most Saleshandy migrants: lower per-mailbox cost, native warmup, and a unified inbox that Saleshandy has never matched. Just respect the warmup window."
+  pick="Instantly"
+  affiliateSlug="instantly"
+  ctaLabel="Try Instantly"
+/>
+
+<Sources sources={[
+  { label: "Instantly: Email Warmup Documentation", url: "https://help.instantly.ai/en/articles/6510094-email-warmup" },
+  { label: "Google Postmaster Tools: Domain Reputation Overview", url: "https://postmaster.google.com/about" },
+  { label: "G2: Saleshandy Reviews and Comparisons", url: "https://www.g2.com/products/saleshandy/reviews" },
+  { label: "MXToolbox: SPF and DKIM Record Checker", url: "https://mxtoolbox.com/spf.aspx" }
+]} />
