@@ -8,6 +8,19 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
+Last updated 2026-07-29 (Session 73).
+
+## Quick reference: recent additions (Session 73, 2026-07-29)
+
+- **Shipped (engine, live-deployed):** fixed the "social drafts get cut off in Notion" bug (LinkedIn especially, Ian flagged as he starts posting to LI). `n8n/update-engine-notion-block-split.mjs` (idempotent updater) + synced `n8n/blog-post-engine.json`. Deployed to the live "Blog Post Engine — TAG (v3)" (`sjZADhZGIuz9tZHK`) via `deploy-engine.mjs --apply`; GET-verified on the actual nodes.
+- **Root cause:** `Save LinkedIn Post` + `Save Twitter Thread` each jammed the whole multi-paragraph draft into ONE Notion paragraph block via `.substring(0, 1999)`. Notion rich_text hard-caps at 2000 chars/object, so any post over ~1999 chars was silently truncated — and the lost part is the TAIL (soft CTA + `Full post: <url>`). LinkedIn (prompt asks 1200-1800 but line breaks + 3-5 takeaways + CTA + URL routinely overshoot) hit it constantly.
+- **Fix:** `Parse Social Outputs` gained a `toBlocks()` helper that splits each draft into <=1900-char paragraph blocks on paragraph/line boundaries (zero data loss; oversized single paragraphs hard-split as a floor) and exposes `twitterBlocks`/`linkedinBlocks`; the two Save nodes now do `children: [callout].concat($json.<x>Blocks)` (callout + N paragraphs, well under Notion's 100-block create limit).
+- **Verify:** re-run updater = 3 SKIP (idempotent); JSON parses, 32 nodes; unit test of the STORED `toBlocks` on a 2969-char multi-para draft = 2 blocks, all <=1900, zero chars lost, CTA + URL preserved (old `.substring` dropped 970 chars incl. both); live GET confirms `toBlocks` + both `.concat($json.*Blocks)` present, no `.substring` remains. Next cron 8am ET 07-30 is the first live draft under the fix.
+- **Revert:** `git revert <sha>` locally, then `node --env-file=<n8n env> n8n/deploy-engine.mjs --apply` to push the reverted JSON.
+- **Gotcha:** Notion rich_text is capped at 2000 chars PER text object; never write long generated content with a single `.substring(0, 1999)` — split into multiple paragraph blocks or the tail (usually the CTA) vanishes silently. `restaurant-outreach/` (the documented n8n `--env-file` source) is no longer in the tree; `N8N_API_URL`/`N8N_API_KEY` came from the ambient env this session.
+
+---
+
 Last updated 2026-07-25 (Session 72).
 
 ## Quick reference: recent additions (Session 72, 2026-07-25)
