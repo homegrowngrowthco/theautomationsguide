@@ -21,7 +21,7 @@
 //
 //   node n8n/update-engine-tldr.mjs            # writes blog-post-engine.json
 // then deploy:
-//   node --env-file=../restaurant-outreach/.env n8n/deploy-engine.mjs --apply
+//   node --env-file=../growth-engine/.env n8n/deploy-engine.mjs --apply
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';

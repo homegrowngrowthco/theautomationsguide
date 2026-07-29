@@ -3,8 +3,8 @@
 //
 // The committed blog-post-engine.json carries placeholder credential ids
 // (REPLACE_WITH_*). A naive PUT would overwrite the live Notion/Anthropic/GitHub
-// credential bindings and break the engine (same footgun as restaurant-outreach
-// Session 5). So this script:
+// credential bindings and break the engine (same footgun the retired
+// restaurant-outreach project hit in its Session 5). So this script:
 //   1. GETs the live workflow (matched by name),
 //   2. reads the REAL credential ids off it, keyed by credential name,
 //   3. bakes those ids into the local JSON,
@@ -12,10 +12,12 @@
 //      is ever sent),
 //   5. PUTs only name/nodes/connections/settings; activation is left untouched.
 //
-// Usage (env: N8N_API_URL + N8N_API_KEY — the shared key lives in
-// restaurant-outreach/.env):
-//   node --env-file=../../restaurant-outreach/.env n8n/deploy-engine.mjs         # DRY (default)
-//   node --env-file=../../restaurant-outreach/.env n8n/deploy-engine.mjs --apply # actually push
+// Usage (needs N8N_API_URL + N8N_API_KEY in the env — any source works; they are
+// often already present in the ambient shell). The shared HGC-instance key lives
+// in ../growth-engine/.env (the old restaurant-outreach/.env was retired from the
+// tree — 2026-07-29). Run from the TAG repo root:
+//   node --env-file=../growth-engine/.env n8n/deploy-engine.mjs         # DRY (default)
+//   node --env-file=../growth-engine/.env n8n/deploy-engine.mjs --apply # actually push
 
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';

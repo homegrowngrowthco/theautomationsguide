@@ -112,4 +112,4 @@ edit('Save Twitter Thread: concat twitterBlocks', st, 'body',
 
 writeFileSync(FILE, JSON.stringify(wf, null, 2) + '\n');
 console.log(`\nDone: ${applied} applied, ${skipped} skipped. Wrote ${FILE}`);
-console.log('Next: node --env-file=../../restaurant-outreach/.env n8n/deploy-engine.mjs --apply (from repo root), then GET-verify.');
+console.log('Next: node --env-file=../growth-engine/.env n8n/deploy-engine.mjs --apply (from repo root), then GET-verify.');

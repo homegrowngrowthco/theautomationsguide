@@ -24,7 +24,7 @@
 //
 // Idempotent: re-running is a no-op (node-existence + per-edit tokens).
 // Run: node n8n/update-engine-internal-links.mjs   (mutates blog-post-engine.json)
-// then: node --env-file=../restaurant-outreach/.env n8n/deploy-engine.mjs --apply
+// then: node --env-file=../growth-engine/.env n8n/deploy-engine.mjs --apply
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -183,4 +183,4 @@ editStr('Parse Draft 404 guard', pd, 'jsCode', PD_ANCHOR, PD_TOKEN, (src) =>
 
 writeFileSync(FILE, JSON.stringify(wf, null, 2) + '\n');
 console.log(`\nDone: ${applied} applied, ${skipped} skipped. Wrote ${FILE}`);
-console.log('Next: node --env-file=../restaurant-outreach/.env n8n/deploy-engine.mjs --apply');
+console.log('Next: node --env-file=../growth-engine/.env n8n/deploy-engine.mjs --apply');

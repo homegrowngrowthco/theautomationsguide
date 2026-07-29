@@ -98,4 +98,4 @@ const serialized = JSON.stringify(wf, null, 2);
 JSON.parse(serialized); // round-trip sanity
 writeFileSync(FILE, serialized, 'utf-8');
 console.log('Patched Generate Draft + Humanize with the merge-tag guard. Token counts unchanged; JSON round-trips.');
-console.log('Next: node n8n/deploy-engine.mjs --apply  (run with --env-file=../restaurant-outreach/.env)');
+console.log('Next: node n8n/deploy-engine.mjs --apply  (run with --env-file=../growth-engine/.env)');
