@@ -1,0 +1,186 @@
+---
+title: "Migrate from Vapi to Synthflow: No-Code AI Voice Agents"
+description: "Step-by-step guide to migrating AI voice agents from Vapi to Synthflow. Cut the dev dependency, keep the call logic. Takes a long weekend."
+tldr: "Migrating from Vapi to Synthflow takes roughly a long weekend: export your call scripts and webhook logic, rebuild the assistant in Synthflow's no-code UI, rewire your CRM integrations, and run parallel testing before cutting over your phone numbers."
+pubDate: 2026-07-30
+tags: ["guide", "automation", "voice-ai"]
+faqs:
+  - question: "How long does it take to migrate from Vapi to Synthflow?"
+    answer: "Most teams I work with complete the migration in 2 to 4 days. The bulk of the time goes to rebuilding prompt logic and testing edge cases, not the actual platform setup."
+  - question: "Does Synthflow support the same webhooks as Vapi?"
+    answer: "Synthflow supports outbound webhooks to any endpoint, but the payload schema is different from Vapi. You will need to remap your webhook fields in whatever receives the call data."
+  - question: "Can Synthflow replace Vapi for inbound calls?"
+    answer: "Yes. Synthflow handles both inbound and outbound AI voice calls, and you can port your existing phone numbers to Synthflow's Twilio-backed infrastructure."
+  - question: "What does Synthflow cost compared to Vapi?"
+    answer: "Synthflow starts around $29 per month on the Starter plan with included call minutes, while Vapi is usage-based from roughly $0.05 per minute, which adds up fast at volume."
+  - question: "Is Bland AI a viable alternative if I want to stay code-light?"
+    answer: "Bland AI sits between Vapi and Synthflow on the technical spectrum. It has an API-first design like Vapi but simpler docs, so it still requires developer involvement for most GTM teams."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The moment most RevOps teams decide to leave [Vapi](/go/vapi/) is not a pricing conversation. It is the third sprint in a row where a developer has to babysit a voice agent change that should have taken a product manager twenty minutes. Vapi is genuinely powerful. If you have a full-stack engineer who enjoys owning voice infrastructure, it can be the right call. But for GTM operators running outbound sequences, inbound qualification flows, or post-demo follow-up calls without dedicated engineering headcount, the dev dependency becomes a tax on every single iteration. [Synthflow](/go/synthflow/) is where those teams land: a no-code AI voice agent builder that handles the same call logic without requiring anyone to touch a JSON payload.
+
+<KeyTakeaways items={[
+  "Vapi is API-first and requires developer involvement for most prompt and routing changes.",
+  "Synthflow replicates core voice agent behavior (inbound, outbound, CRM sync) in a no-code UI.",
+  "Your call scripts and webhook logic migrate cleanly; the payload schemas do not map 1-to-1.",
+  "Expect 2 to 4 days to fully migrate, test, and cut over phone numbers.",
+]} />
+
+## Before you migrate
+
+Do not touch Synthflow until you have pulled everything out of Vapi in a format you can actually read. I have watched teams jump straight into rebuilding, then realize three days later they forgot a conditional branch that handles unanswered calls differently from voicemails. That is a support ticket and a full retest cycle you do not need.
+
+Pull the following before you deactivate anything:
+
+- **Assistant configurations**: Export every assistant's system prompt, first message, and end-call conditions. Vapi stores these in the dashboard under each assistant's settings. Copy them into a doc verbatim, not paraphrased.
+- **Webhook endpoints and payloads**: Note every URL your Vapi assistants POST to, and log the actual payload fields your receiving system (HubSpot, a Zap, an n8n workflow) expects. You will need to remap these field by field.
+- **Phone numbers**: List every number provisioned in Vapi, which assistant it routes to, and whether it handles inbound or outbound calls.
+- **Call analytics baselines**: Pull your last 30 days of call volume, average call duration, and completion rate. These numbers are your validation benchmark post-migration.
+- **Active sequences**: If any outbound sequences are mid-run through [Apollo](/go/apollo/) or [Smartlead](/go/smartlead/), pause them or flag the contacts currently in-flight so you do not double-dial during the transition.
+
+<StepRow steps={[
+  {
+    title: "Rebuild your assistant in Synthflow",
+    body: "Create a new assistant in the Synthflow dashboard. Paste your Vapi system prompt directly into the 'Instructions' field. Synthflow uses the same OpenAI-compatible prompt structure, so most prompts transfer without rewriting. Set your first message, voice model (Synthflow offers ElevenLabs and Azure voices), and end-call conditions. If your Vapi assistant had conditional branches based on caller responses, map those into Synthflow's conversation flow nodes."
+  },
+  {
+    title: "Reconfigure your inbound or outbound call settings",
+    body: "For inbound: provision a new Twilio number inside Synthflow (or bring your own Twilio account) and assign it to the rebuilt assistant. For outbound: connect Synthflow to your contact list via CSV upload, HubSpot sync, or webhook trigger. Synthflow's outbound dialer supports time-zone-aware scheduling natively. With Vapi, that logic lived at your webhook layer and you built it yourself."
+  },
+  {
+    title: "Remap your webhook integrations",
+    body: "This is where the real work lives. Synthflow's post-call webhook fires a payload that includes call_id, transcript, duration, outcome, and any custom variables you set. Your existing Vapi receiver probably expects different field names entirely. Update your HubSpot workflow, n8n node, or Zapier step to read from Synthflow's schema. My strong recommendation: build the remap in n8n with a Function node so you can version-control it, rather than hardcoding field names in a Zap you will forget about in six months."
+  },
+  {
+    title: "Connect your CRM",
+    body: "Synthflow has a native HubSpot integration that logs calls, updates contact properties, and triggers workflows on call completion. If you are on Salesforce, use the webhook route with an n8n flow to write the record. Set this up before you run any test calls, because you want CRM logs populating during validation, not just in production."
+  },
+  {
+    title: "Run parallel testing for 48 hours",
+    body: "Keep Vapi running on your existing numbers. Point a new Synthflow number at the same call script and make 20 to 30 test calls covering your key scenarios: answered, unanswered, voicemail, early hang-up, and full conversation completion. Compare transcripts, CRM log quality, and webhook delivery. Cut over only when Synthflow's completion rate is within 5 percent of your Vapi baseline."
+  },
+  {
+    title: "Port your phone numbers and cut over",
+    body: "Once testing passes, initiate number porting from Vapi to your Synthflow-connected Twilio account. US number porting takes 3 to 7 business days. During the port window, keep both assistants live. On port completion, deactivate the Vapi assistant and archive the configuration for reference before you cancel the subscription."
+  }
+]} />
+
+## What breaks and what transfers cleanly
+
+Most of your call logic moves without drama. The things that break are almost always at the integration layer, not the AI layer.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The real gotcha: Vapi's `tool_calls` schema**
+
+    If you built custom tools in Vapi (function calling that lets the agent look up a CRM record mid-call or check calendar availability), those are defined as JSON tool schemas in Vapi's API. Synthflow does not expose the same function-calling abstraction in the no-code UI. You will need to either use Synthflow's built-in integrations (HubSpot, Calendly, and a handful of others are native) or trigger an external lookup via a mid-call webhook and have Synthflow read the response as a variable. It works. It is just a rebuild, not a copy-paste.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // Vapi tool schema (what you had)
+    {
+      "type": "function",
+      "function": {
+        "name": "lookup_crm_contact",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "phone": { "type": "string" }
+          }
+        }
+      }
+    }
+
+    // Synthflow equivalent: mid-call webhook
+    // Set trigger: "on assistant message"
+    // POST to your lookup endpoint
+    // Map response to {{contact_name}} variable
+    // Reference {{contact_name}} in next prompt node
+    ```
+  </Fragment>
+</SideBySide>
+
+What transfers cleanly: system prompts, persona definitions, end-call logic, voicemail detection behavior, and outbound call scheduling rules. These are prompt and configuration concepts rather than platform-specific code, so they move with a copy-paste and minor rewording. I have never had a migration where the AI behavior got worse after the move. The risk is always in the plumbing, not the prompt.
+
+## Verify it worked before you declare victory
+
+Four checks, no exceptions:
+
+1. **Transcript accuracy**: Pull 10 completed calls from Synthflow and compare transcript quality against the same call types in your Vapi export. Look specifically for hallucinated filler words and missed interjections near call transitions.
+2. **CRM log completeness**: Confirm every test call created or updated the correct contact record in HubSpot or Salesforce, with call duration and outcome populated. A missing outcome field in HubSpot breaks downstream lead scoring.
+3. **Webhook delivery rate**: Check your receiving endpoint's logs for missed or duplicate Synthflow webhooks. A 100 percent delivery rate is realistic on Synthflow's infrastructure. Anything below 98 percent points to a timeout or auth issue.
+4. **Outbound dial completion rate**: Compare your Synthflow outbound completion rate against your Vapi baseline. A drop of more than 5 percent usually means a time-zone scheduling misconfiguration or a number reputation problem, not a platform issue.
+
+<ChooseIf title="Vapi, Synthflow, or Bland AI: who should switch and who should stay" tools={[
+  {
+    name: "Synthflow",
+    conditions: [
+      "Your team iterates on call scripts weekly and cannot wait on developer sprints",
+      "You need native HubSpot or Calendly integration without custom webhook glue",
+      "You are running outbound sequences at 50 to 5,000 calls per day with no engineering support"
+    ],
+    pricing: "From $29/month",
+    affiliateSlug: "synthflow",
+    ctaLabel: "Try Synthflow",
+    highlight: true
+  },
+  {
+    name: "Vapi",
+    conditions: [
+      "You have a dedicated developer who can own the voice infrastructure layer",
+      "You need custom function calling or real-time tool use mid-call that no-code platforms cannot handle",
+      "You are building a product on top of voice AI, not just running GTM campaigns"
+    ],
+    pricing: "From ~$0.05/min",
+    affiliateSlug: "vapi",
+    ctaLabel: "Stay on Vapi"
+  },
+  {
+    name: "Bland AI",
+    conditions: [
+      "You have light developer resources and want simpler API docs than Vapi",
+      "You are building high-volume outbound with custom pathway logic",
+      "You need enterprise-grade call infrastructure with more control than Synthflow offers"
+    ],
+    pricing: "Usage-based",
+    affiliateSlug: "bland-ai",
+    ctaLabel: "Explore Bland AI"
+  }
+]} />
+
+<MyTake>
+The teams I have watched stay on [Vapi](/tools/vapi/) longest are the ones who told themselves they would get to the no-code rebuild "next quarter." They never do. The migration is a one-time two-day cost. The dev dependency is a recurring one. Every sprint your engineer spends maintaining voice agent prompt configs is a sprint not spent on the enrichment workflows or CRM automations that actually move pipeline. If you are running a GTM motion with voice AI and you do not have a dedicated voice infra engineer, you are already paying the hidden tax. Synthflow is not a downgrade. For most operators, it is an upgrade disguised as a simplification.
+</MyTake>
+
+## The migration is a one-time cost, not a quarter-long project
+
+If you do the prep work first, the actual migration is straightforward. Prompt logic transfers. Call behavior transfers. The real attention goes to the webhook remap and any custom tool-calling you built in Vapi. If you are already running [n8n](/go/n8n/) as a middleware layer (similar to what I covered in [automating demo scheduling with Cal.com, HubSpot, and n8n](/blog/2026-07-23-automate-demo-scheduling-with-calcom-hubspot-and-n8n/)), the remap is a two-hour job. If you built direct integrations without middleware, budget a full day. Either way, you come out the other side with a voice agent your GTM team can iterate on without filing a ticket. According to [Synthflow's own documentation](https://synthflow.ai/pricing), the Starter plan includes enough monthly minutes for most early-stage outbound programs, which makes the cost comparison against Vapi's usage-based billing fairly straightforward to model. For the operators I work with at Homegrown Growth Co., that autonomy is worth more than the two days it takes to make the switch.
+
+<BottomLine
+  verdict="If you are running AI voice agents for GTM without dedicated engineering support, Synthflow is the right destination. The migration is a long weekend, not a quarter-long project, and the no-code iteration speed pays back immediately."
+  pick="Synthflow"
+  affiliateSlug="synthflow"
+  ctaLabel="Try Synthflow"
+/>
+
+<Sources sources={[
+  { label: "Synthflow: official documentation and pricing", url: "https://synthflow.ai/pricing" },
+  { label: "Vapi: API reference and assistant configuration", url: "https://docs.vapi.ai" },
+  { label: "Bland AI: platform overview", url: "https://www.bland.ai" },
+  { label: "G2: AI voice agent category reviews", url: "https://www.g2.com/categories/ai-voice-agents" }
+]} />
