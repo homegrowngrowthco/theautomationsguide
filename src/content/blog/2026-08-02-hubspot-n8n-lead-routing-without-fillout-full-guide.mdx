@@ -1,0 +1,171 @@
+---
+title: "HubSpot + n8n Lead Routing Without Fillout (Full Guide)"
+description: "Build a complete HubSpot lead routing workflow using n8n directly. Skip the Fillout license and own every routing rule in code you control."
+tldr: "You can replace Fillout-based HubSpot routing with a native n8n webhook workflow that captures form submissions, enriches lead data, and assigns contacts to the right rep or sequence without any extra licensing cost."
+pubDate: 2026-08-02
+tags: ["guide", "automation", "n8n"]
+faqs:
+  - question: "Can n8n replace Fillout for HubSpot lead routing?"
+    answer: "Yes. n8n can receive form submissions via webhook, apply routing logic, and create or update HubSpot contacts and deals directly using the HubSpot node. You lose Fillout's form builder UI but gain full control over routing rules."
+  - question: "Does this workflow require a paid n8n plan?"
+    answer: "The self-hosted version of n8n is free and handles this workflow with no execution limits. n8n Cloud starts at $20/month if you want managed hosting."
+  - question: "How do I trigger the n8n workflow from a HubSpot form?"
+    answer: "Set the HubSpot form to redirect to a hidden page or use a HubSpot workflow to fire a webhook to your n8n Webhook node URL after form submission."
+  - question: "Can this routing workflow assign leads to Salesforce instead of HubSpot?"
+    answer: "Yes. Swap the HubSpot node for the Salesforce node in n8n and adjust the field mapping. The routing logic and branching stay the same."
+  - question: "What routing rules can n8n apply that Fillout cannot?"
+    answer: "n8n can branch on enriched data (firmographic fields pulled mid-workflow from Clay or Clearbit), time-based rules, round-robin rep lists stored in a Google Sheet, and multi-step conditional logic that Fillout form routing does not support."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+If you've already read our pieces on [Fillout + HubSpot routing](/blog/2026-07-27-connect-fillout-to-hubspot-and-mondaycom-one-form-routes-eve/) and the [Fillout vs. Tally vs. Chili Piper comparison](/blog/2026-07-21-fillout-vs-tally-vs-chili-piper-best-forms-and-routing-tool/), you know Fillout does a clean job. But a lot of the teams I work with at Homegrown Growth Co. are already running [n8n](/go/n8n/) as their automation backbone and have no intention of adding another SaaS license just to route a form submission. This tutorial shows you exactly how to replicate that Fillout-based routing workflow using n8n and the HubSpot API directly, with no middleware form tool required.
+
+## Why skip Fillout and go native n8n
+
+Fillout is genuinely good at what it does. The friction shows up when your routing logic needs to branch on data you do not have at form-submission time: company size from an enrichment API, rep capacity from a live spreadsheet, territory rules that change quarterly. Fillout's conditional routing is form-field-based. n8n's branching is code-level, which means you can enrich first and route second. That single difference changes what the workflow is capable of.
+
+The other factor is cost. Fillout's paid plans start around $40/month once you need routing and logic features. If your team is self-hosting n8n, that $40 goes to zero. Even on n8n Cloud, you are already paying for the platform and routing is just another workflow. I have migrated three clients off Fillout specifically for this reason, and none of them have looked back. Don't bolt on a form tool to solve a data problem.
+
+<StatRow stats={[
+  { number: "$0", label: "Added licensing cost", description: "Self-hosted n8n handles routing with no per-workflow or per-seat fees" },
+  { number: "4x", label: "More routing conditions", description: "n8n branching can use enriched firmographic data, not just raw form fields" },
+  { number: "~45min", label: "Build time", description: "A working webhook-to-HubSpot routing workflow takes under an hour to wire up" }
+]} />
+
+The workflow we are building does five things: receive a form submission via webhook, normalize the payload, optionally enrich the lead, apply routing logic, then create or update a HubSpot contact and assign it to the right owner or sequence. Same outcome Fillout gives you. More control over every step.
+
+<Figure class="post-screenshot" caption="The n8n workflow canvas showing a webhook trigger, an ICP enrichment branch, and downstream Smartlead and Slack nodes, roughly matching the architecture we are building here.">
+  <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with webhook trigger, enrichment step, ICP branch, and Smartlead plus Slack output nodes" loading="lazy" />
+  </a>
+</Figure>
+
+<StepRow steps={[
+  {
+    title: "Create the n8n Webhook node",
+    body: "In your n8n canvas, add a Webhook trigger node. Set the method to POST and copy the production webhook URL. This is the endpoint your form or HubSpot workflow will fire to. If you are using a HubSpot native form, set up a HubSpot workflow with a 'Send webhook' action that fires on form submission and passes the contact properties you need (email, company, job title, HubSpot contact ID) as the JSON body."
+  },
+  {
+    title: "Normalize the payload with a Set node",
+    body: "Form payloads are messy. Add a Set node immediately after the webhook to extract and rename only the fields you will use downstream. Map email to a clean 'email' key, company name to 'company', and any UTM or hidden fields to their own keys. This single step prevents downstream nodes from breaking when a form field label changes. I always add a fallback empty string for optional fields here so later IF nodes do not throw null errors."
+  },
+  {
+    title: "Add routing logic with IF or Switch nodes",
+    body: "This is where n8n earns its keep. For simple routing (SMB vs. Enterprise by employee count), use an IF node comparing the company size field. For multi-territory routing by state, vertical, or deal size bucket, use a Switch node with one branch per rule. Each branch outputs to a different path. If you want to route on enriched data, insert a HubSpot Get Contact node or an HTTP Request node to your enrichment provider (Clay, Clearbit, etc.) before this Switch node and branch on the enriched fields. This is the step Fillout simply cannot match."
+  },
+  {
+    title: "Create or update the HubSpot contact",
+    body: "On each branch, add a HubSpot node set to 'Upsert Contact'. Pass the email as the deduplication key. Map the routing output to the HubSpot owner ID field using the rep's HubSpot user ID, found under Settings > Users in HubSpot. If you have multiple reps per territory, store a round-robin index in a Google Sheets row and increment it each time that branch fires, then map the selected rep ID to the owner field. See the HubSpot docs on contact owner assignment via the [Contacts API](https://developers.hubspot.com/docs/api/crm/contacts) for the exact field name ('hubspot_owner_id')."
+  },
+  {
+    title: "Enroll the contact in a HubSpot sequence or notify Slack",
+    body: "After the upsert, add a HubSpot node set to 'Add Contact to Sequence' on branches where you want immediate outreach. For high-intent leads, also add a Slack node sending a message to the assigned rep's DM with the lead's name, company, and a direct HubSpot link. I format that Slack message as: 'New lead: [First] [Last] at [Company] assigned to you. [HubSpot link]' using the contact ID returned by the upsert step. The rep sees the ping before they see the CRM notification."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **The gotcha: HubSpot workflow timing vs. webhook timing**
+
+    If you trigger the n8n webhook from a HubSpot workflow (rather than directly from your form), HubSpot's workflow engine can add a 1 to 5 minute delay before firing the webhook action. I have seen this cause duplicate contacts because the n8n upsert runs after a rep has already manually created the contact. To prevent this, add a short delay step in n8n and check for an existing contact by email before upserting. Better yet, fire the webhook directly from your form using a hidden redirect or a frontend fetch call so n8n receives the payload the moment the form submits.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // n8n HTTP Request node: check for existing contact
+    // Method: GET
+    // URL: https://api.hubapi.com/crm/v3/objects/contacts/search
+    // Body:
+    {
+      "filterGroups": [
+        {
+          "filters": [
+            {
+              "propertyName": "email",
+              "operator": "EQ",
+              "value": "{{ $json.email }}"
+            }
+          ]
+        }
+      ],
+      "properties": ["email", "hubspot_owner_id", "hs_object_id"]
+    }
+    // If results.total > 0, skip the create
+    // and only update owner if unassigned
+    ```
+  </Fragment>
+</SideBySide>
+
+## Extend the workflow with enrichment before routing
+
+The reason I push teams toward this architecture over Fillout is that you can slot enrichment into step 3 before any routing decision is made. We have a detailed walkthrough of [connecting Clay to n8n for a fully automated enrichment pipeline](/blog/2026-07-23-automate-demo-scheduling-with-calcom-hubspot-and-n8n/) that pairs well with this workflow. The short version: add an HTTP Request node after normalization that calls your enrichment provider with the email or domain, then route on the enriched fields (employee count, industry, funding stage) instead of whatever the prospect typed into a form field.
+
+Routing on self-reported data is unreliable. People lie on forms, or they just guess. Routing on enriched firmographic data pulled from Clay or [Clearbit](https://clearbit.com/blog/company-data-api) is not. Those are different categories of signal.
+
+For teams already using [HubSpot](/go/hubspot/) sequences, this means the right sequence fires automatically based on accurate company data, not a checkbox the prospect selected. I have seen sequence reply rates jump 15 to 20 percent simply because the routing was correct and the messaging matched the actual company profile. That is not a workflow improvement. That is a revenue improvement.
+
+<MyTake>
+Most teams I audit are routing on form fields the prospect filled out themselves, which means they are routing on guesses. Rebuilding this in n8n is not primarily about saving $40 a month on Fillout. It is about the moment you realize you can route on verified firmographic data instead. Self-reported company size is noise. Clay-enriched employee count is signal. Fillout never gave you that option, and no form builder ever will.
+</MyTake>
+
+## Which approach fits your team
+
+<ChooseIf title="Fillout vs. n8n for HubSpot routing" tools={[
+  {
+    name: "Fillout",
+    conditions: [
+      "Your routing logic is 100% form-field-based and unlikely to need enrichment",
+      "A non-technical team member owns the form and routing rules",
+      "You want a visual form builder and routing UI without writing any code"
+    ],
+    pricing: "From $40/mo (routing features)",
+    affiliateSlug: "fillout",
+    ctaLabel: "Try Fillout",
+    highlight: false
+  },
+  {
+    name: "n8n",
+    conditions: [
+      "You are already running n8n for other automations and want one platform",
+      "You need to route on enriched or external data, not just form fields",
+      "You want to eliminate the Fillout license cost and own the routing logic fully"
+    ],
+    pricing: "Free (self-hosted) or from $20/mo cloud",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n",
+    highlight: true
+  }
+]} />
+
+## Build it once, own it forever
+
+The Fillout approach gets you to a working routing workflow faster on day one. The n8n approach gets you to a better routing workflow by week two, and it costs you nothing extra if you are already in the ecosystem. Every routing rule lives in a workflow you can version, clone, and extend. When territory rules change mid-quarter (and they always do), you update one Switch node instead of rebuilding a form. For the teams I consult with, that operational ownership matters more than the drag-and-drop UI they are giving up.
+
+If your team is running [HubSpot](/tools/hubspot/) and wants to push further into calendar-based routing, our guide on [automating demo scheduling with Cal.com, HubSpot, and n8n](/blog/2026-07-23-automate-demo-scheduling-with-calcom-hubspot-and-n8n/) extends this exact pattern into the scheduling layer. And if you are evaluating [n8n](/tools/n8n/) against other automation platforms for your broader stack, review the [n8n hub](/tools/n8n/) before committing to cloud pricing. The [n8n Webhook node docs](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/) are also worth bookmarking before you start building.
+
+<BottomLine
+  verdict="If you are already running n8n, rebuilding HubSpot lead routing natively is a straightforward afternoon project that eliminates a licensing dependency and gives you routing logic Fillout cannot match."
+  pick="n8n"
+  affiliateSlug="n8n"
+  ctaLabel="Try n8n"
+/>
+
+<Sources sources={[
+  { label: "HubSpot Developers: Contacts API reference", url: "https://developers.hubspot.com/docs/api/crm/contacts" },
+  { label: "n8n Docs: HubSpot node reference", url: "https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.hubspot/" },
+  { label: "HubSpot Developers: Webhook actions in workflows", url: "https://developers.hubspot.com/docs/api/automation/workflows" },
+  { label: "n8n Docs: Webhook trigger node", url: "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/" }
+]} />
