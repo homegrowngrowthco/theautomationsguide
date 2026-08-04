@@ -1212,6 +1212,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "attio",
+    logo: '/brand/tools/attio.png',
     name: "Attio",
     category: "CRM",
     badge: "Free tier available",
