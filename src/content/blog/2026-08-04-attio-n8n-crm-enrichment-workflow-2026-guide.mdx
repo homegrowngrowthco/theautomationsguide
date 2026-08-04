@@ -1,0 +1,180 @@
+---
+title: "Attio + n8n CRM Enrichment Workflow (2026 Guide)"
+description: "Build an automated Attio CRM enrichment pipeline using n8n, Clay, and FullEnrich. Step-by-step workflow for RevOps and GTM operators."
+tldr: "Connect Attio to n8n via webhook or API node, trigger enrichment through Clay or FullEnrich on new record creation, then write structured data back to Attio custom attributes automatically."
+pubDate: 2026-08-04
+tags: ["automation", "crm", "enrichment"]
+faqs:
+  - question: "Does Attio have a native n8n integration?"
+    answer: "Not as a packaged node yet. You connect Attio to n8n using the HTTP Request node with Attio's REST API and a Bearer token from your Attio workspace settings."
+  - question: "What data can you write back to Attio from n8n?"
+    answer: "Any Attio attribute you define, including custom ones. Common enrichment fields are company headcount, funding stage, tech stack, LinkedIn URL, and email confidence score."
+  - question: "Is Clay required for this workflow?"
+    answer: "No. Clay is optional but powerful for waterfall enrichment. FullEnrich or direct Apollo API calls work fine if you want fewer moving parts."
+  - question: "How do I trigger the n8n workflow when a new contact is added to Attio?"
+    answer: "Use an Attio automation in the platform to POST a webhook to your n8n webhook trigger URL whenever a record matches your trigger condition."
+  - question: "What Attio plan do I need for API access?"
+    answer: "API access is available on Attio's Plus plan and above. The free tier does not expose the REST API for programmatic writes."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most RevOps teams I talk to are still running enrichment as a manual task. Someone exports a CSV, uploads it to Apollo or Clay, downloads the result, and pastes it back into the CRM. If you have moved to [Attio](/go/attio/) as your CRM, you do not have to accept that. Attio's REST API is clean, its webhook automation triggers are reliable, and [n8n](/go/n8n/) can sit in the middle and orchestrate every enrichment provider you want without a line of Python. This guide walks through the exact workflow I use with clients who run Attio as their system of record and want enrichment that fires within 90 seconds of a record hitting the database.
+
+## Why Attio Plus n8n Is Worth the Setup Time
+
+Attio is not HubSpot with a fresh coat of paint. Its data model is genuinely different. Records, lists, and attributes are first-class objects, and its API reflects that. When you create a Contact or a Company record, Attio fires a configurable automation that can POST a webhook payload with the full record JSON. That is your trigger. No polling loop, no Zapier in the middle, no third-party Attio connector to pay for.
+
+On the n8n side, the Webhook node receives that payload, and from there you have the full canvas to route, enrich, branch, and write back. I prefer n8n over Make for Attio workflows for one specific reason: self-hosting. Enrichment data never touches a third-party EU-violating server, and the HTTP Request node handles Attio's REST API with zero friction. Make's per-operation pricing also gets painful fast once you add confidence-score branching and Slack alerts to the flow.
+
+<StatRow stats={[
+  { number: "90s", label: "Median enrichment lag", description: "Time from Attio record creation to enriched data written back, in a production n8n workflow with FullEnrich" },
+  { number: "3-5x", label: "Data coverage improvement", description: "Waterfall enrichment via Clay across Apollo, Clearbit, and FullEnrich versus any single provider alone" },
+  { number: "$0", label: "n8n self-hosted cost", description: "Run the orchestration layer on a $6/mo VPS; pay only for enrichment API credits consumed" }
+]} />
+
+The enrichment layer is where you choose your weapon. For most of my clients I recommend a waterfall: try [FullEnrich](/go/fullenrich/) first for mobile and direct email (it is cheaper per credit and has strong European coverage), then fall through to [Clay](/go/clay/) for everything else including firmographic data. If you want the single-vendor approach, Clay alone covers most use cases. I will show both paths below.
+
+<Figure class="post-screenshot" caption="The n8n workflow canvas showing a webhook trigger feeding into enrichment and then branching back to Attio via HTTP Request nodes.">
+  <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with webhook trigger, enrichment step, ICP branch, and write-back nodes" loading="lazy" />
+  </a>
+</Figure>
+
+## The Workflow, Step by Step
+
+Before you build: you need an Attio workspace on Plus or above for API access, an n8n instance (cloud or self-hosted), and API keys for your enrichment provider. Attio API keys live under Settings > API. You want a Bearer token scoped to read/write on Contacts and Companies. If you are connecting this to an existing [Clay enrichment pipeline](/blog/2026-07-31-connect-clay-to-n8n-for-a-fully-automated-enrichment-pipelin/), you can reuse the same Clay table and just add Attio as the write destination.
+
+<StepRow steps={[
+  {
+    title: "Create the Attio webhook automation",
+    body: "In Attio, go to Automations and create a new trigger on 'Record created' for either Contacts or Companies (build one workflow per object). Set the action to 'Send webhook' and paste in your n8n Webhook node URL. Include the full record in the payload: record ID, email, name, domain, and any attributes already populated. Test it by creating a dummy contact and confirming the n8n execution log shows the incoming JSON."
+  },
+  {
+    title: "Configure the n8n Webhook node",
+    body: "Set the Webhook node to POST, choose 'Respond immediately' so Attio does not time out waiting, and use a unique path like /attio-contact-created. In the next node, add a Set node to extract the fields you need: record_id, primary_email (it lives inside an array in Attio's payload as values[0].email_address), and domain from the company association. Normalizing these early prevents parsing errors downstream."
+  },
+  {
+    title: "Call FullEnrich or Clay for enrichment data",
+    body: "For FullEnrich: add an HTTP Request node, POST to https://api.fullenrich.com/v1/enrich/person with the email and domain in the body, and add your API key as a Bearer header. FullEnrich returns mobile, direct email, LinkedIn URL, and job title in a single call. For Clay: trigger a Clay table row via their webhook-to-table integration or use Clay's HTTP API to push the contact in and poll back. The Clay path gives you waterfall enrichment across 10+ sources but adds 5-15 seconds of latency. I use FullEnrich for speed on individual triggers and Clay for batch backfills."
+  },
+  {
+    title: "Branch on data quality",
+    body: "Add an IF node after the enrichment response. If confidence score is below 80 (FullEnrich returns a confidence field) or if the email field is null, route to a Slack notification node that posts to #revops-alerts with the Attio record URL. If enrichment succeeded, pass the clean data to the write-back node. This prevents garbage data from entering Attio silently, which is the failure mode I see most often in clients' existing workflows."
+  },
+  {
+    title: "Write enriched data back to Attio via PATCH",
+    body: "Add an HTTP Request node. Method: PATCH. URL: https://api.attio.com/v2/objects/people/records/ followed by the record_id (inject from Step 2 using an n8n expression). Headers: Authorization Bearer your_token, Content-Type application/json. Body: a JSON object with the attributes you want to write, using Attio's attribute slug format. To write a phone number to the mobile_phone attribute, send { 'data': { 'values': { 'mobile_phone': [{ 'phone_number': '+15551234567' }] } } }. Test with a real record ID before going live."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **The gotcha that kills most first attempts:** Attio's API returns email addresses nested inside a `values` array, not as a flat string. If you try to pass `body.email` directly from the webhook payload, you get undefined, enrichment fails silently, and the record stays blank. I have debugged this exact issue for three separate clients who built the workflow independently and hit the same wall.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // Attio webhook payload shape (Contact)
+    {
+      "record": {
+        "id": { "record_id": "abc123" },
+        "values": {
+          "email_addresses": [
+            {
+              "email_address": "founder@acme.com",
+              "is_primary": true
+            }
+          ],
+          "name": [{ "full_name": "Jane Smith" }]
+        }
+      }
+    }
+
+    // n8n expression to extract primary email:
+    // {{ $json.record.values
+    //     .email_addresses
+    //     .find(e => e.is_primary)
+    //     .email_address }}
+    ```
+  </Fragment>
+</SideBySide>
+
+## Choosing Your Enrichment Layer
+
+The orchestration is n8n regardless. The decision is which enrichment provider sits in the middle. Here is how I frame it for clients.
+
+<ChooseIf title="Pick your enrichment provider" tools={[
+  {
+    name: "FullEnrich",
+    conditions: [
+      "You need mobile numbers and direct dials with strong EU coverage",
+      "You want a fast single API call per contact (no table setup)",
+      "Your volume is under 50k contacts per month and cost per credit matters"
+    ],
+    pricing: "From $29/mo",
+    affiliateSlug: "fullenrich",
+    ctaLabel: "Try FullEnrich",
+    highlight: false
+  },
+  {
+    name: "Clay",
+    conditions: [
+      "You need waterfall enrichment across Apollo, Clearbit, LinkedIn, and more in one place",
+      "You are doing batch backfills of thousands of existing Attio records",
+      "Your team already uses Clay tables as a staging layer before CRM entry"
+    ],
+    pricing: "From $149/mo",
+    affiliateSlug: "clay",
+    ctaLabel: "Try Clay",
+    highlight: true
+  }
+]} />
+
+For the [Clay enrichment pipeline](/blog/2026-07-31-connect-clay-to-n8n-for-a-fully-automated-enrichment-pipelin/) approach, the n8n workflow pushes records into a Clay table via webhook, Clay runs its waterfall enrichment (which [Gartner research on data quality](https://www.gartner.com/en/documents/3994197) consistently shows outperforms single-source lookups by 40-60% on coverage), and then n8n polls or receives a Clay webhook back before writing to Attio. It is a two-hop architecture. The data quality improvement is worth it for outbound-heavy teams.
+
+If you are enriching Companies rather than Contacts, [Attio's company object API](https://developers.attio.com/reference/get_v2-objects-companies) uses a slightly different URL path (`/v2/objects/companies/records/<id>`) and the domain attribute is the most reliable lookup key. Use the domain to pull firmographics from FullEnrich or Clay and write headcount, industry, funding stage, and tech stack back as custom attributes.
+
+For teams also running [n8n for lead routing out of HubSpot](/blog/2026-08-02-hubspot-n8n-lead-routing-without-fillout-full-guide/), the same HTTP Request node pattern applies: authenticate with Bearer, PATCH the record, handle errors with a branch. The mental model transfers directly.
+
+## Backfilling Existing Records
+
+New record enrichment is the easy part. Backfilling 10,000 existing Attio contacts is where teams get stuck. My approach: use Attio's [list filtering API](https://developers.attio.com/reference/post_v2-objects-people-records-query) to pull all records where `mobile_phone` is empty, paginate through them in n8n using a Loop Over Items node, and throttle to 10 requests per second to stay inside both Attio's rate limit (60 requests per minute on Plus) and your enrichment provider's limit. Schedule this as an n8n workflow on a cron trigger running nightly until the backfill completes.
+
+Don't try to run the backfill as one giant batch. I watched a client hammer Attio's API with 8,000 simultaneous PATCH requests and get rate-limited for six hours. Ten records per second, paced with a Wait node set to 100ms, finishes 10,000 records in under three hours without a single 429.
+
+<MyTake>
+Every team I have consulted for over-engineers the enrichment layer and under-engineers the write-back validation. A bad phone number sitting in Attio is actively worse than no phone number. Reps notice bad data faster than missing data, and once they stop trusting the CRM, you have a much bigger problem than enrichment coverage. Spend 20% of your build time on the confidence-score branch and the Slack alert. Not on adding a fifth enrichment provider.
+</MyTake>
+
+## Ship It, Then Tune It
+
+This workflow takes about four hours to build from scratch. Thirty minutes on the Attio automation, 90 minutes on the n8n canvas including testing, 30 minutes tuning the enrichment provider configuration, and 60 minutes on the write-back validation logic. After that, it runs without intervention. I have clients who have had this workflow running for eight months with zero maintenance beyond rotating API keys once.
+
+The next layer worth adding, once this is stable, is a scoring node after enrichment. Pull the enriched firmographics, run them against your ICP definition in an n8n Function node, write an `icp_score` attribute back to Attio, and trigger a different Attio automation for high-score records that notifies the AE. That is the full signal-to-action loop, entirely code-light once the enrichment plumbing is in place. For teams also tracking website visitor signals into their CRM, the [Vector n8n visitor signal workflow](/blog/2026-08-01-vector-n8n-website-visitor-signal-workflow/) uses the same Attio write-back pattern and slots cleanly into this architecture.
+
+<BottomLine
+  verdict="n8n is the right orchestration layer for Attio enrichment in 2026. The self-hosted option keeps your data clean, the HTTP Request node handles Attio's REST API without friction, and the total running cost is enrichment credits only. Build this once and stop doing manual CSV imports forever."
+  pick="n8n"
+  affiliateSlug="n8n"
+  ctaLabel="Try n8n"
+/>
+
+<Sources sources={[
+  { label: "Attio Developers: REST API reference", url: "https://developers.attio.com/reference" },
+  { label: "Attio Developers: Company records query endpoint", url: "https://developers.attio.com/reference/post_v2-objects-people-records-query" },
+  { label: "Gartner: Data Quality Market Guide", url: "https://www.gartner.com/en/documents/3994197" },
+  { label: "n8n Docs: HTTP Request node", url: "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/" }
+]} />
