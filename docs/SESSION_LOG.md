@@ -8,6 +8,19 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
+Last updated 2026-08-04 (Session 74).
+
+## Quick reference: recent additions (Session 74, 2026-08-04)
+
+- **Shipped:** full growth audit ([audits/AUDIT-GROWTH-2026-08-04.md](../audits/AUDIT-GROWTH-2026-08-04.md)) + same-day remediation on Ian's green light. 28d GSC: 11 clicks / 10,767 impr / pos 38.1 (impressions +80%, pos 51→38 vs 7/09). **S-5 title/CTR read = FLAT → pre-registered verdict applied: stop title rewrites, invest in authority** (substack-to-kit impressions crashed 173→24 post-rewrite; watch for recovery, revert title if still down ~8/20). Index sweep 179/188 (95%); 9 stragglers IndexNow'd (HTTP 200). affiliate_click live: 7 clicks / 6 tools / 21d.
+- **Master `9168247`:** dedup hardening (pair-wise comparison collisions w/ ≥0.5 framing overlap — catches the 7/13+7/16 waterfall twins; intent-aware identical-tool-set w/ named collider; new `review` intent; aliasHit token-boundary fix killing "foR B2B"→rb2b false hits) + weekly topic-backlog GHA now runs `--audit-queue --prune-apply` post-staging. Verified: 11-case unit test + live dry-run (19 collisions under old rules → 3 true dups) → prune applied 3/3 Suggested rows Skipped. Queue: 23 Queued / 41 Suggested.
+- **PR #226 (OPEN, classifier-gated → Ian merges):** consolidates the waterfall twins (7/13 superset survives, verification section + 2 FAQs merged in, 301s + 2 inbound links repointed), interlinks the 5-post Apollo cluster (~575 clickless impr; "apollo vs pipedrive" 198 impr @ 26.5 is the push target), registers `findymail` (**live `/go/findymail` 404 since 7/22** + 3 hard lint fails on master). QA in worktree: lint 0 hard, build clean, render-acceptance 0 hard ×7 posts.
+- **Verify:** `gh pr checks 226`; next weekly topic-backlog run should show the "Queue self-clean" step summary; IndexNow'd hubs re-check ~9/01.
+- **Revert:** `git revert 9168247` (dedup+GHA); close/revert PR #226 (content); Notion prune = flip the 3 rows back from Skipped (titles in the 8/04 audit-queue output, op log).
+- **Gotchas:** (1) stale empty `.git/rebase-merge` (OneDrive artifact, Jul 29) made git think a rebase was in progress — safe to `rm -rf` when EMPTY; 4 stale `.git/worktrees/*` entries needed PowerShell Remove-Item after `git worktree prune` hit Permission denied. (2) No local `NOTION_TOKEN` exists; census/audit runs map todo-sync's `NOTION_API_KEY` via command substitution (value never printed). (3) The 4-week allocation: ~60% authority/off-site (IH + AlternativeTo now unblocked, LinkedIn cadence, linkable asset), ~30% near-win harvest, ~10% measurement — details in audit §10.
+
+---
+
 Last updated 2026-07-29 (Session 73).
 
 ## Quick reference: recent additions (Session 73, 2026-07-29)
