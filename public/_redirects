@@ -1,2 +1,6 @@
 # Force apex domain — redirect www to apex
 https://www.theautomationsguide.com/* https://theautomationsguide.com/:splat 301!
+
+# Consolidations: near-duplicate posts 301 into the canonical survivor (growth audit 2026-08-04)
+/blog/2026-07-16-bettercontact-vs-fullenrich-vs-leadmagic-waterfall-enrichmen/ /blog/2026-07-13-fullenrich-vs-bettercontact-vs-surfe-waterfall-enrichment-co/ 301
+/blog/2026-07-16-bettercontact-vs-fullenrich-vs-leadmagic-waterfall-enrichmen /blog/2026-07-13-fullenrich-vs-bettercontact-vs-surfe-waterfall-enrichment-co/ 301
