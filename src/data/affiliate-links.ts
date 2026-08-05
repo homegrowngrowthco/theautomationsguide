@@ -316,6 +316,13 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: "Pipeline (not yet applied). Attio runs a partner program; affiliate or referral terms should be confirmed directly with their partnerships team.",
   },
+  findymail: {
+    name: "Findymail",
+    url: '',
+    homepageFallback: "https://www.findymail.com/",
+    status: 'pending',
+    notes: "Registered 2026-08-04: the 2026-07-22 LeadMagic vs Surfe vs Findymail post shipped /go/findymail CTAs with no registry entry (live 404, lint hard-fail on master). Findymail runs an affiliate program via its site footer; apply and swap the URL in.",
+  },
   'bland-ai': {
     name: "Bland AI",
     url: '',
