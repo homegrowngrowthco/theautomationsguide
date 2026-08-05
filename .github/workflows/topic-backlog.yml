@@ -64,12 +64,15 @@ jobs:
           # Scheduled runs always stage. Manual runs stage unless dry_run=true.
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
             STAGE=""
+            PRUNE=""
             echo "Manual dry run - will NOT write to Notion."
           else
             STAGE="--stage"
+            PRUNE="--prune-apply"
           fi
           echo "count=$COUNT" >> "$GITHUB_OUTPUT"
           echo "stage=$STAGE" >> "$GITHUB_OUTPUT"
+          echo "prune=$PRUNE" >> "$GITHUB_OUTPUT"
 
       - name: Build (and stage) the backlog
         env:
@@ -78,6 +81,23 @@ jobs:
           NOTION_DATABASE_ID: ${{ vars.NOTION_DATABASE_ID }}
           GSC_TOKEN_JSON: ${{ secrets.GSC_TOKEN_JSON }}
         run: node backlog/build-backlog.mjs --count=${{ steps.cfg.outputs.count }} ${{ steps.cfg.outputs.stage }}
+
+      - name: Queue self-clean (audit Queued/Suggested vs published corpus)
+        # Runs AFTER staging so freshly staged rows are audited too. Dry-run manual
+        # runs audit without writing (no --prune-apply). Only hard dedup collisions
+        # are auto-Skipped; fence advisories are report-only (see build-backlog.mjs).
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ vars.NOTION_DATABASE_ID }}
+        run: |
+          node backlog/build-backlog.mjs --audit-queue ${{ steps.cfg.outputs.prune }} 2>&1 | tee queue-audit.txt
+          {
+            echo ''
+            echo '### Queue self-clean'
+            echo '~~~'
+            cat queue-audit.txt
+            echo '~~~'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Publish batch to the run summary
         if: always()

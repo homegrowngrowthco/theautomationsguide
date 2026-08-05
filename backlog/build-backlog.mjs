@@ -163,8 +163,15 @@ function parsePipelineBacklog() {
 
 // ---------- 2. EXISTING COVERAGE (dedup corpus) ----------
 function aliasHit(aliases, hay) {
-  const h = ' ' + norm(hay) + ' ';
-  return aliases.some((a) => h.includes(norm(a)) && norm(a).length >= 3);
+  // Token-boundary match. norm() strips separators entirely, which let aliases
+  // match ACROSS word joins ("foR B2B" -> "forb2b" contains "rb2b"; "toolKIT"
+  // contains "kit"). Keep boundaries as single spaces so a tool only hits on
+  // whole-token runs.
+  const h = ' ' + (hay || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim() + ' ';
+  return aliases.some((a) => {
+    const n = (a || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    return n.length >= 3 && h.includes(' ' + n + ' ');
+  });
 }
 
 function parsePublishedPosts(universe) {
@@ -544,6 +551,7 @@ function intentOf(text) {
   if (/\bmigrat|switch(ing)?\s+(from|to|off)\b/.test(s)) return 'migration';
   if (/\bpricing\b|\bprice\b|\bcosts?\b/.test(s)) return 'pricing';
   if (/\balternativ/.test(s)) return 'alternatives';
+  if (/\breview\b/.test(s)) return 'review';
   return null;
 }
 // Tools named in the TITLE text itself (not the whole-post toolset — an
@@ -568,16 +576,42 @@ function jaccard(a, b) {
   return union ? hit / union : 0;
 }
 
+// Comparison posts compete PAIR-wise: "A vs B vs C" and "B vs A vs D" both own the
+// "a vs b" query space. The 7/13+7/16 waterfall-enrichment twins slipped past every
+// gate above (different third tool -> different signature; reordered names -> title
+// jaccard 0.57 < 0.72). A shared pair alone is NOT a collision (Cognism-vs-Apollo-
+// vs-Lusha "European outbound" legitimately coexists with Lusha-vs-Apollo-vs-
+// ZoomInfo "B2B contact data") — it collides only when the non-tool FRAMING tokens
+// also overlap (jaccard >= 0.5), i.e. same pair sold under the same category angle.
+const isComparison = (text) => /\bvs\.?(\s|$)|\bversus\b/i.test(text || '');
+function comparisonEntry(universe, title, keyword) {
+  const text = `${title} ${keyword || ''}`;
+  if (!isComparison(text)) return null;
+  const slugs = [...new Set(titleTools(universe, text))].sort();
+  if (slugs.length < 2) return null;
+  const pairs = new Set();
+  for (let i = 0; i < slugs.length; i++) for (let j = i + 1; j < slugs.length; j++) pairs.add(`${slugs[i]}+${slugs[j]}`);
+  const toolToks = tokenSet(universe.filter((t) => slugs.includes(t.slug)).flatMap((t) => [t.name, ...t.aliases]).join(' '));
+  const rest = new Set([...tokenSet(text)].filter((w) => !toolToks.has(w)));
+  return { title, pairs, rest };
+}
+
 // Build a dedup index from a covered corpus. Shared by generation-time dedup() and
 // the publish-time auditQueue(), so both use IDENTICAL collision logic (a duplicate
 // the builder would have rejected is also a duplicate the queue audit rejects).
 function buildIndex(universe, covered) {
+  const sigs = new Map(); // signature -> {title, intent} of the first covered item owning it
+  for (const c of covered) {
+    const s = signature(c.toolset);
+    if (s.length && !sigs.has(s)) sigs.set(s, { title: c.title, intent: intentOf(`${c.title} ${c.keyword}`) });
+  }
   return {
     keywords: new Set(covered.map((c) => c.keyword)),
     titles: new Set(covered.map((c) => norm(c.title))),
-    sigs: new Set(covered.map((c) => signature(c.toolset)).filter((s) => s.length)),
+    sigs,
     intents: new Set(covered.flatMap((c) => intentKeys(universe, c.title, c.keyword))),
     titleTokens: covered.map((c) => ({ title: c.title, toks: tokenSet(`${c.title} ${c.keyword}`) })),
+    comparisons: covered.map((c) => comparisonEntry(universe, c.title, c.keyword)).filter(Boolean),
   };
 }
 // Return a collision reason vs the index, or null if the candidate is net-new.
@@ -587,20 +621,41 @@ function collide(universe, index, cand) {
   const kw = cand.keyword || norm(topic);
   const sig = signature(cand.toolset);
   if (index.keywords.has(kw) || index.titles.has(norm(topic))) return 'keyword/title already covered';
-  if (sig && index.sigs.has(sig)) return 'identical tool set already covered';
+  // Identical tool set: collide only within the same intent class — a migration
+  // guide over {pipedrive, hubspot} is NOT a duplicate of a comparison over the
+  // same pair (migrations are the site's winning format; don't prune them because
+  // a comparison exists). Single-tool sets additionally require a non-null intent
+  // (review/pricing/alternatives/migration): "RB2B Review" vs "RB2B Pricing" are
+  // distinct posts, and two GENERAL posts about one tool are near-dup-title
+  // territory (0.72 gate below), not automatic duplicates.
+  if (sig && index.sigs.has(sig)) {
+    const owner = index.sigs.get(sig);
+    const candIntent = intentOf(`${topic} ${cand.keyword || ''}`);
+    if (owner.intent === candIntent && (sig.includes('|') || candIntent !== null)) {
+      return `identical tool set (${candIntent || 'general'}) already covered by: ${owner.title}`;
+    }
+  }
   const iHit = intentKeys(universe, topic, cand.keyword).find((k) => index.intents.has(k));
   if (iHit) return `intent already covered (${iHit})`;
   const toks = tokenSet(`${topic} ${cand.keyword || ''}`);
   const near = index.titleTokens.find((c) => jaccard(toks, c.toks) >= 0.72);
   if (near) return `near-duplicate title of: ${near.title}`;
+  const ce = comparisonEntry(universe, topic, cand.keyword);
+  if (ce) {
+    const hit = index.comparisons.find((c) => [...ce.pairs].some((p) => c.pairs.has(p)) && jaccard(ce.rest, c.rest) >= 0.5);
+    if (hit) return `comparison pair + framing already covered by: ${hit.title}`;
+  }
   return null;
 }
 function addToIndex(universe, index, cand) {
   index.keywords.add(cand.keyword || norm(cand.title));
   index.titles.add(norm(cand.title));
-  const sig = signature(cand.toolset); if (sig) index.sigs.add(sig);
+  const sig = signature(cand.toolset);
+  if (sig && !index.sigs.has(sig)) index.sigs.set(sig, { title: cand.title, intent: intentOf(`${cand.title} ${cand.keyword || ''}`) });
   for (const k of intentKeys(universe, cand.title, cand.keyword)) index.intents.add(k);
   index.titleTokens.push({ title: cand.title, toks: tokenSet(`${cand.title} ${cand.keyword || ''}`) });
+  const ce = comparisonEntry(universe, cand.title, cand.keyword);
+  if (ce) index.comparisons.push(ce);
 }
 
 function dedup(proposals, universe, covered) {
