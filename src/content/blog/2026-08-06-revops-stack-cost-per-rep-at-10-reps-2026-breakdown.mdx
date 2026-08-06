@@ -1,0 +1,253 @@
+---
+title: "RevOps Stack Cost Per Rep at 10 Reps: 2026 Breakdown"
+description: "Exact per-rep costs for Apollo, Clay, n8n, Smartlead, Instantly, and more. The math finance teams actually need when approving a 10-rep RevOps stack."
+tldr: "A realistic 10-rep RevOps stack built on Apollo, Clay, n8n, Smartlead, and a CRM runs between $180 and $340 per rep per month, depending on data volume and automation depth."
+pubDate: 2026-08-06
+tags: ["revops", "automation", "pricing"]
+faqs:
+  - question: "How much does a RevOps stack cost per rep in 2026?"
+    answer: "Expect $180 to $340 per rep per month for a modern outbound-focused stack at 10 reps. The range depends on data enrichment volume and whether you self-host automation."
+  - question: "Is Apollo.io cheaper than ZoomInfo for a 10-rep team?"
+    answer: "Yes, significantly. Apollo's Basic tier starts around $49 per seat per month, while ZoomInfo's entry price for 10 seats typically runs $30,000 to $50,000 per year before add-ons."
+  - question: "Does n8n actually save money compared to Zapier at scale?"
+    answer: "At 10 reps with moderate automation volume, self-hosted n8n costs roughly $20 to $50 per month flat, versus Zapier Business which can exceed $400 per month at the same task volume."
+  - question: "What is the biggest hidden cost in a RevOps stack?"
+    answer: "Clay credits. Teams routinely underestimate enrichment volume and hit overage charges that double their expected monthly spend within 90 days of going live."
+  - question: "Can a 10-rep team use Smartlead and Instantly at the same time?"
+    answer: "Some teams do run both to split-test deliverability, but it adds cost and complexity. Most 10-rep teams should pick one and standardize inbox warming on that platform."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Every finance team I've worked with asks the same question when a RevOps leader sends over a tool list for approval: "What does this cost per rep?" Not the total contract. Not the enterprise tier. Per rep, per month, at our current headcount. It is the right question, and most vendor pricing pages are deliberately designed to make it hard to answer. This post does the math for a 10-rep GTM team using the stack most B2B SaaS RevOps operators are actually building in 2026: [Apollo.io](/go/apollo/), [Clay](/go/clay/), [n8n](/go/n8n/), [Smartlead](/go/smartlead/), and [Instantly](/go/instantly/), plus a CRM layer and the hidden credits and overages that blow up your budget in month three.
+
+<KeyTakeaways items={[
+  "A 10-rep stack on Apollo + Clay + n8n + Smartlead runs $1,800 to $3,400 per month total, or $180 to $340 per rep",
+  "Clay credits are the most unpredictable cost line. Budget 2x your initial estimate until you have 90 days of volume data",
+  "n8n self-hosted cuts automation costs by roughly 85% versus Zapier at the same task volume for a team this size",
+  "Apollo's per-seat model means your data costs scale linearly with headcount. ZoomInfo does not, which is why Apollo wins at 10 reps",
+  "Instantly and Smartlead are nearly identical in price but differ on inbox management UX. Pick one, not both"
+]} />
+
+<StatRow stats={[
+  { number: "$49", label: "Apollo Basic per seat/mo", description: "Entry point for a single rep on Apollo's Basic plan, billed annually. The Professional tier at $99/seat unlocks sequences and AI features most reps actually need." },
+  { number: "~$800", label: "Clay monthly at 10 reps", description: "Realistic Clay spend for a 10-rep team running 2,000 to 4,000 enriched contacts per month on the Pro plan, before overage credits kick in." },
+  { number: "$47", label: "n8n cloud vs. $0 self-hosted", description: "n8n cloud Starter plan runs $47/month for the team. Self-hosted on a $20 VPS costs nearly nothing, and most RevOps engineers can spin it up in under two hours." }
+]} />
+
+## The per-tool cost breakdown
+
+Here is every tool in the stack priced for exactly 10 reps, using publicly listed 2026 pricing. I've noted where the listed price diverges from what teams I work with actually pay after 60 days of real usage.
+
+<ToolBreakdown title="RevOps Stack Cost Per Rep at 10 Reps" tools={[
+  {
+    name: "Apollo.io",
+    tagline: "Prospecting database with built-in sequencing",
+    body: "At 10 reps, Apollo Professional at $99 per seat per month (billed annually) is the realistic tier. Basic at $49 per seat disables key sequence triggers and AI-assisted email personalization that most teams need after the first 30 days. Ten seats at Professional land at $990 per month, or $99 per rep. The real gotcha is export credit consumption: each rep burning 500 contacts per month will exhaust the shared credit pool on Basic inside two weeks. I've seen teams assume they're locked into a fixed cost, then absorb a $400 forced upgrade mid-quarter.",
+    highlights: [
+      "Sequences, dialer, and database in one seat license",
+      "Export credits are shared across the org, not per seat",
+      "AI email personalization requires Professional or above",
+      "Annual commit saves roughly 20% versus monthly billing"
+    ],
+    pricing: "Basic $49 / Pro $99 per seat/mo (annual)",
+    affiliateSlug: "apollo",
+    ctaLabel: "Try Apollo",
+    highlight: false
+  },
+  {
+    name: "Clay",
+    tagline: "Waterfall enrichment and AI research at scale",
+    body: "Clay does not price per seat in a meaningful way for 10 reps. You pay for a plan tier tied to credits, and credits are consumed per row enriched plus per AI action. The Pro plan at $720 per month gives you 50,000 credits monthly. A realistic 10-rep team enriching 3,000 contacts per month, running 4 to 5 enrichment waterfalls per contact, and using Claygent for research burns roughly 40,000 to 60,000 credits monthly. That puts you squarely in Pro or touching the $1,400 per month Business tier. Divide $800 average by 10 reps and you get $80 per rep. Unlike Apollo, this cost does not scale linearly with headcount because enrichment volume is demand-driven, not seat-driven. One SDR who loves Clay can cost as much as five who barely touch it.",
+    highlights: [
+      "Credits consumed per enrichment action, not per seat",
+      "Claygent AI research actions are credit-heavy, budget separately",
+      "Waterfall enrichment across 10+ providers included on Pro",
+      "Overage credits are available but priced at a premium"
+    ],
+    pricing: "Starter $149 / Pro $720 / Business $1,400/mo",
+    affiliateSlug: "clay",
+    ctaLabel: "Try Clay",
+    highlight: true
+  },
+  {
+    name: "n8n",
+    tagline: "Self-hostable automation without per-task pricing",
+    body: "This is where a 10-rep team saves real money versus a Zapier-era stack. n8n Cloud Starter is $47 per month for 2,500 active workflow executions. For most 10-rep teams that is plenty. If you self-host on a $20 DigitalOcean droplet or a Render hobby instance, monthly cost drops to roughly $20 to $25 in infrastructure. I run self-hosted n8n for all my consulting clients at this team size because the complexity ceiling is low, the community templates are excellent, and you never hit a task cap mid-month when a campaign fires hot. Per-rep cost: $2 to $5 depending on hosting choice. That is not a typo.",
+    highlights: [
+      "Self-hosted is near-free, cloud Starter is $47/mo flat",
+      "No per-task overage fees on either tier",
+      "Native integrations with Apollo, Clay, Smartlead, HubSpot, Slack",
+      "Community templates cover most common RevOps workflows out of the box"
+    ],
+    pricing: "Self-hosted ~$20/mo infra / Cloud from $47/mo",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n",
+    highlight: false
+  },
+  {
+    name: "Smartlead",
+    tagline: "Multi-inbox cold email with native warmup",
+    body: "Smartlead's Basic plan is $39 per month for unlimited email accounts and 6,000 active leads. Pro is $94 per month for unlimited active leads. At 10 reps each running 2 to 3 sending addresses, the Pro plan is the right tier. That is $94 for the team, not per rep, which makes Smartlead one of the best-value tools in this stack. Per-rep cost: under $10. The real consideration is whether you want Smartlead's inbox rotation and warming built into a single platform, or whether you want a separate warming tool. For most teams under 20 reps, Smartlead handles both cleanly.",
+    highlights: [
+      "Flat monthly fee regardless of sending volume or rep count",
+      "Unlimited inbox warming on Pro and above",
+      "Native API for n8n and Clay integration",
+      "Subsequence and condition branching on Pro"
+    ],
+    pricing: "Basic $39 / Pro $94 / Custom from $174/mo",
+    affiliateSlug: "smartlead",
+    ctaLabel: "Try Smartlead",
+    highlight: false
+  },
+  {
+    name: "Instantly",
+    tagline: "Deliverability-first cold email for volume senders",
+    body: "Instantly Growth is $97 per month and Hypergrowth is $197 per month. The difference comes down to the Unibox unified inbox feature and AI reply categorization, which matters a lot once reply volume gets noisy. At 10 reps, Growth handles the volume fine. Like Smartlead, this is a flat-fee platform, so per-rep cost is $10 or less. The head-to-head between Instantly and Smartlead usually comes down to UX preference and which deliverability community your team follows. I have clients running Instantly exclusively and clients on Smartlead exclusively. Neither camp has a clear deliverability edge in my testing. Pick one, get deep on it.",
+    highlights: [
+      "Flat fee per account, not per rep or per email sent",
+      "Unibox AI reply categorization saves hours on Growth and above",
+      "Stronger reputation in inbox placement benchmarks on cold domains",
+      "Hypergrowth required for premium support and advanced analytics"
+    ],
+    pricing: "Growth $97 / Hypergrowth $197 / Light Speed $492/mo",
+    affiliateSlug: "instantly",
+    ctaLabel: "Try Instantly",
+    highlight: false
+  },
+  {
+    name: "HubSpot (CRM layer)",
+    tagline: "CRM and pipeline management for the GTM team",
+    body: "Most 10-rep teams I consult with are on HubSpot Sales Hub Professional at $100 per seat per month (billed annually). That is $1,000 per month for the CRM layer alone. Some teams drop to Starter at $20 per seat ($200 per month) if they use Apollo for sequencing and only need HubSpot for pipeline and deal management. That is a defensible decision if your RevOps engineer is comfortable routing data via n8n rather than relying on HubSpot's native workflow triggers. Per-rep cost on Sales Hub Pro: $100. On Starter: $20. The gap is large enough to anchor a real budget conversation.",
+    highlights: [
+      "Sales Hub Starter is viable if Apollo handles sequences",
+      "Professional tier required for custom reporting and deal scoring",
+      "Sequences count against HubSpot email send limits, not Apollo's",
+      "n8n can bridge Starter to Pro-equivalent automation for some workflows"
+    ],
+    pricing: "Starter $20 / Professional $100 per seat/mo (annual)",
+    affiliateSlug: "hubspot",
+    ctaLabel: "Try HubSpot",
+    highlight: false
+  }
+]} />
+
+<Figure class="post-screenshot" caption="Clay's waterfall enrichment table shows how credits are consumed across multiple data providers per contact row, the primary driver of cost variance at scale.">
+  <a href="/go/clay/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/clay-enrichment.png" alt="Clay waterfall enrichment table showing multiple provider columns and credit consumption per row" loading="lazy" />
+  </a>
+</Figure>
+
+## The true cost: adding it up for 10 reps
+
+Here is the arithmetic for two realistic configurations. I call them "lean" and "full."
+
+**Lean stack (Starter CRM, self-hosted n8n, Smartlead, Apollo Basic):**
+
+- Apollo Basic, 10 seats: $490/mo
+- Clay Pro (moderate volume): $720/mo
+- n8n self-hosted: $25/mo
+- Smartlead Pro: $94/mo
+- HubSpot Sales Hub Starter, 10 seats: $200/mo
+- **Total: $1,529/mo, or $153 per rep**
+
+**Full stack (HubSpot Pro, cloud n8n, Instantly Hypergrowth, Apollo Pro):**
+
+- Apollo Professional, 10 seats: $990/mo
+- Clay Business (high volume): $1,400/mo
+- n8n Cloud Pro: $180/mo
+- Instantly Hypergrowth: $197/mo
+- HubSpot Sales Hub Professional, 10 seats: $1,000/mo
+- **Total: $3,767/mo, or $377 per rep**
+
+The honest answer for most 10-rep B2B SaaS teams I work with is that they land somewhere in the middle, around $220 to $280 per rep per month. The biggest levers are Clay volume and the CRM tier decision. Push HubSpot to Starter and keep Clay on Pro with controlled enrichment triggers (which you can wire up with [n8n's enrichment workflows](/blog/2026-07-31-connect-clay-to-n8n-for-a-fully-automated-enrichment-pipelin/)) and you stay under $200 per rep without sacrificing much.
+
+One number finance teams rarely see on the initial proposal: CRM implementation and ongoing RevOps labor. At 10 reps you typically need 0.5 to 1.0 FTE of RevOps time to keep these integrations running. At $80k to $120k loaded cost for a junior RevOps hire, that adds $333 to $500 per rep per month to the real cost. I always include this line when I'm building a board-ready budget. Always.
+
+## Which tier fits your team?
+
+<ChooseIf title="Pick your stack configuration" tools={[
+  {
+    name: "Lean Stack ($150-$200/rep/mo)",
+    conditions: [
+      "You have fewer than 2 SDRs actively prospecting per rep ratio",
+      "Your RevOps engineer is comfortable self-hosting n8n and writing Clay tables",
+      "You can live with HubSpot Starter and handle sequencing entirely in Apollo"
+    ],
+    pricing: "~$1,500-$2,000/mo for 10 reps",
+    affiliateSlug: "apollo",
+    ctaLabel: "Start with Apollo",
+    highlight: false
+  },
+  {
+    name: "Mid Stack ($220-$280/rep/mo)",
+    conditions: [
+      "You want HubSpot Pro reporting without paying for every feature in the full suite",
+      "Clay enrichment volume is moderate, under 4,000 contacts per month",
+      "You prefer Smartlead's flat fee over Instantly's tier structure"
+    ],
+    pricing: "~$2,200-$2,800/mo for 10 reps",
+    affiliateSlug: "smartlead",
+    ctaLabel: "Try Smartlead",
+    highlight: true
+  },
+  {
+    name: "Full Stack ($340-$380/rep/mo)",
+    conditions: [
+      "Your AEs need full HubSpot Sales Hub Pro deal forecasting and sequence reporting",
+      "You run high-volume enrichment campaigns, more than 5,000 contacts per month",
+      "You want Instantly's AI-powered Unibox and premium deliverability analytics"
+    ],
+    pricing: "~$3,400-$3,800/mo for 10 reps",
+    affiliateSlug: "instantly",
+    ctaLabel: "Try Instantly",
+    highlight: false
+  }
+]} />
+
+## Watch these cost multipliers
+
+Three things reliably blow up RevOps budgets at 10 reps that do not show up in initial proposals.
+
+**Clay credit overages.** The [Clay pricing page](https://www.clay.com/pricing) shows plan credit allowances, but it does not show what happens when your first big list-building campaign fires. I have watched teams burn an entire month's credit allotment in four days during a product launch push. Set a hard credit cap in Clay's settings and build an n8n alert that fires to Slack when you hit 80% of monthly credits. Build this before you need it, not after.
+
+**Apollo credit exhaustion on shared plans.** According to [Apollo's documentation on export credits](https://knowledge.apollo.io/hc/en-us/articles/4415598752013-Apollo-Credits-Overview), export credits are pooled at the org level. One rep doing deep list pulls can starve the rest of the team. The fix is per-user credit limits in Apollo's admin settings, which most teams never configure.
+
+**HubSpot seat creep.** Marketing, CS, and leadership all want HubSpot access eventually. At $100 per seat on Professional, each new seat is a $1,200 annual line item. Lock seat additions to a quarterly RevOps review so they do not compound silently. This is not a nice-to-have governance policy, it is a budget protection measure.
+
+For teams managing the n8n side of this stack, the [HubSpot to n8n lead routing workflow](/blog/2026-08-02-hubspot-n8n-lead-routing-without-fillout-full-guide/) is worth reading before you start building. It covers how to avoid unnecessary HubSpot workflow triggers that push you toward higher tier requirements.
+
+<MyTake>
+Framing this as "cost per rep" is actually the wrong lens, and I say that having built this exact budget model for a dozen clients. The number that matters is cost per pipeline dollar. I've worked with teams spending $340 per rep per month who generate $8M in pipeline and teams spending $150 per rep who generate $1.2M. The expensive stack often looks cheap once you run it against pipeline output. Present both numbers to finance and you win the approval conversation in one meeting instead of three.
+</MyTake>
+
+## What to take to your next budget review
+
+A 10-rep RevOps stack built on Apollo, Clay, n8n, Smartlead or Instantly, and HubSpot realistically costs $1,500 to $3,800 per month depending on tier choices and enrichment volume. The per-rep range is $153 to $377. The single most important variable is Clay credit volume, which is usage-driven rather than seat-driven and should be modeled on your actual outbound motion cadence, not a guess. Self-hosting [n8n](/tools/n8n/) and keeping HubSpot on Starter are the two lever pulls that trim the most cost without sacrificing meaningful capability at this team size. If you are presenting this to a CFO, include a line for RevOps labor and model Clay credits at 1.5x your initial estimate until you have real volume data.
+
+<BottomLine
+  verdict="For most 10-rep B2B SaaS teams, Apollo Professional plus Clay Pro plus self-hosted n8n plus Smartlead Pro plus HubSpot Starter lands at roughly $220 per rep per month and covers the full outbound motion without overbuying on CRM features you won't use yet."
+  pick="Apollo"
+  affiliateSlug="apollo"
+  ctaLabel="Try Apollo"
+/>
+
+<Sources sources={[
+  { label: "Apollo.io: Credits Overview documentation", url: "https://knowledge.apollo.io/hc/en-us/articles/4415598752013-Apollo-Credits-Overview" },
+  { label: "Clay: Pricing page (checked August 2026)", url: "https://www.clay.com/pricing" },
+  { label: "n8n: Cloud pricing plans", url: "https://n8n.io/pricing/" },
+  { label: "HubSpot: Sales Hub pricing", url: "https://www.hubspot.com/pricing/sales" }
+]} />
