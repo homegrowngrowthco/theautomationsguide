@@ -2071,6 +2071,19 @@ export const tools: Tool[] = [
     blurb:
       'The best cold email outreach software to generate more leads. Automate your outreach with unlimited email accounts, high deliverability, and better open and reply rates.',
   },
+  {
+    slug: 'zapier',
+    name: 'Zapier',
+    category: 'Workflow Automation',
+    badge: 'Paid',
+    ctaLabel: 'Try Zapier',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/zapier.png',
+    aliases: ['Zapier'],
+    blurb:
+      'Build and scale AI workflows and agents across 9,000+ apps with Zapier—the most connected AI orchestration platform. Trusted by 3 million+ businesses.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body

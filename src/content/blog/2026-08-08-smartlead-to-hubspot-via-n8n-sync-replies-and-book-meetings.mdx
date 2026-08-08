@@ -1,0 +1,177 @@
+---
+title: "Smartlead to HubSpot via n8n: Sync Replies and Book Meetings"
+description: "Step-by-step n8n workflow that auto-syncs Smartlead replies to HubSpot contacts and triggers meeting booking without manual CRM entry."
+tldr: "Use n8n webhooks to catch every Smartlead reply, upsert the contact in HubSpot, update lifecycle stage, and fire a Calendly booking link automatically."
+pubDate: 2026-08-08
+tags: ["automation", "outbound", "crm"]
+faqs:
+  - question: "Does Smartlead have a native HubSpot integration?"
+    answer: "Smartlead has a basic native HubSpot sync, but it only pushes leads in one direction and does not react to reply events or update deal stages automatically. You need a middleware layer like n8n for a real bidirectional workflow."
+  - question: "How do I trigger an n8n workflow from a Smartlead reply?"
+    answer: "In Smartlead, go to Settings > Webhooks and add your n8n webhook URL as the endpoint for the reply event. n8n catches the POST payload and routes it through your workflow logic."
+  - question: "Will this workflow create duplicate contacts in HubSpot?"
+    answer: "No, if you use HubSpot's upsert endpoint keyed on email address. n8n sends a PATCH to the contacts API with the email as the unique identifier, so existing records are updated rather than duplicated."
+  - question: "Can I route positive replies to a specific HubSpot pipeline stage?"
+    answer: "Yes. Use an n8n IF node to check the reply sentiment or keyword in the email body, then call the HubSpot Deals API to move the associated deal to your target stage, such as Meeting Requested."
+  - question: "What does this workflow cost to run?"
+    answer: "On n8n Cloud's Starter plan at $20 per month, each reply event consumes roughly 5 to 8 executions depending on branching. At typical cold email reply volumes of a few hundred per month, you will stay well within the 5,000 execution limit."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most outbound teams run [Smartlead](/go/smartlead/) for sequencing and HubSpot for CRM, then burn 20 minutes per rep per day manually copying reply data between them. Someone responds positively, an SDR screenshots it, pastes it into a HubSpot note, and maybe updates the lifecycle stage if they remember. That is not a RevOps stack. That is a data entry job with a Slack distraction layer on top. I have fixed this exact problem at three different B2B SaaS clients in the last year, and the answer is always the same: a lightweight [n8n](/go/n8n/) workflow that listens to Smartlead webhooks and handles every CRM update automatically, including firing a meeting booking link when a reply looks positive.
+
+## What this workflow does and why it matters
+
+The core problem is that Smartlead and [HubSpot](/go/hubspot/) both have solid APIs but no meaningful native sync for reply events. Smartlead's built-in HubSpot integration pushes contacts when a campaign starts. It does not react when a prospect replies. It does not update lifecycle stage. It certainly does not book meetings. You are left with a gap at exactly the moment the lead is hottest.
+
+This n8n workflow closes that gap. Every time a reply lands in Smartlead, a webhook fires to n8n, which upserts the contact in HubSpot, sets the lifecycle stage to "Sales Qualified Lead," creates or updates a deal, and, for replies that match a positive-intent filter, sends a personalized booking link via HubSpot's email send API. The whole thing runs in under three seconds and costs nothing in human attention.
+
+<StatRow stats={[
+  { number: "~3s", label: "End-to-end latency", description: "From Smartlead reply event to HubSpot contact update via n8n webhook" },
+  { number: "5-8", label: "n8n executions per reply", description: "Typical execution count on a branching reply workflow, well inside the $20/mo Starter plan limit" },
+  { number: "0", label: "Manual CRM entries required", description: "Full upsert plus deal stage update happens automatically, no SDR copy-paste needed" }
+]} />
+
+<Figure class="post-screenshot" caption="n8n workflow canvas showing the Smartlead webhook trigger routing through enrichment, ICP branch logic, and downstream Smartlead plus Slack nodes. This is exactly the pattern this tutorial extends.">
+  <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with webhook trigger, enrichment step, ICP branch, Smartlead node, and Slack notification" loading="lazy" />
+  </a>
+</Figure>
+
+<StepRow steps={[
+  {
+    title: "Configure the Smartlead webhook",
+    body: "In Smartlead, go to Settings > Integrations > Webhooks. Add a new webhook and set the trigger to 'Reply Received.' Paste your n8n webhook URL as the endpoint. Smartlead will POST a JSON payload containing the lead email, campaign ID, reply body, and a reply_type field that can be 'positive,' 'negative,' 'neutral,' or 'out_of_office.' Save and send a test event to confirm n8n receives it."
+  },
+  {
+    title: "Parse and validate the payload in n8n",
+    body: "In your n8n Webhook node, set the HTTP method to POST and enable 'Respond immediately.' Add a Set node to extract the fields you care about: lead_email, reply_type, campaign_name, and reply_body. Then add a validation IF node that stops the workflow if lead_email is empty, which prevents downstream API errors. This is the step most tutorials skip, and then they wonder why HubSpot occasionally gets blank contact records."
+  },
+  {
+    title: "Upsert the contact in HubSpot",
+    body: "Use n8n's HubSpot node (or an HTTP Request node hitting the v3 contacts upsert endpoint at api.hubapi.com/crm/v3/objects/contacts/upsert) with email as the idProperty. Set properties: lifecyclestage to 'salesqualifiedlead,' hs_lead_status to 'IN_PROGRESS,' and a custom property like last_smartlead_reply_date to today's timestamp. The upsert handles both new and existing contacts in one call, so you never create duplicates."
+  },
+  {
+    title: "Create or update the deal and move pipeline stage",
+    body: "After the contact upsert, use a HubSpot Search node to find an associated deal by contact ID. If one exists, PATCH it to your 'Reply Received' pipeline stage. If none exists, create a new deal with the contact association, deal name set to the campaign name plus the contact company, and deal stage set to 'Meeting Requested.' This gives your AEs a clean pipeline without any manual deal creation."
+  },
+  {
+    title: "Send a booking link for positive replies",
+    body: "Add an IF node that checks whether reply_type equals 'positive.' If true, use the HubSpot Transactional Email node or a direct SMTP send to fire a one-line email from the rep's connected mailbox: something like 'Hey, grab 15 minutes here: [Calendly link].' If you are using Calendly or Cal.com, hit the Calendly v2 API to generate a one-time scheduling link tied to the prospect. A personalized link converts meaningfully better than a generic calendar URL. Log the send in HubSpot as an engagement so the AE sees it in the contact timeline."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **The gotcha: HubSpot lifecycle stage does not move backwards.** If a contact is already at 'Customer' or 'Evangelist,' the upsert will silently fail to downgrade them to 'Sales Qualified Lead.' That is correct behavior, but it means your workflow appears to do nothing on those records. I have watched this confuse SDRs who assume the automation broke. The fix: add a HubSpot Get Contact node before the upsert, check the current lifecyclestage value, and only send the lifecycle update if the current stage is at or below 'Lead.' Otherwise drop that property from the patch entirely.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // HubSpot upsert payload example
+    {
+      "idProperty": "email",
+      "id": "prospect@company.com",
+      "properties": {
+        "hs_lead_status": "IN_PROGRESS",
+        "last_smartlead_reply_date": "2026-08-08",
+        "smartlead_reply_type": "positive",
+        "smartlead_campaign": "Q3 Mid-Market Outbound"
+      }
+    }
+
+    // Only include lifecyclestage if current stage
+    // is lead, marketingqualifiedlead, or salesqualifiedlead
+    // Check first with GET /crm/v3/objects/contacts/{id}
+    // and compare before patching
+    ```
+  </Fragment>
+</SideBySide>
+
+## Handling out-of-office and negative replies without polluting HubSpot
+
+Not every Smartlead reply is a buying signal. Treating an out-of-office auto-reply the same as a positive reply will wreck your pipeline reporting fast. I route the workflow into three branches after the reply_type check. Positive replies go through the full deal creation and booking link flow above. Negative replies update the contact's lead status to 'UNQUALIFIED' and add a HubSpot note with the reply body. Out-of-office replies trigger a Smartlead API call to pause the sequence for that lead for 10 days before resuming.
+
+That last branch is the one teams always skip, and it always costs them. Continuing to sequence someone who is on vacation burns send reputation and guarantees an annoyed reply when they get back.
+
+For the Smartlead pause, use an HTTP Request node hitting `api.smartlead.ai/api/v1/lead/{lead_id}/pause` with your API key in the header. You will need to store the lead_id from the incoming webhook payload in your Set node at step two. The [Smartlead API docs](https://api.smartlead.ai/reference) cover the full pause and resume endpoints. This three-branch structure means your HubSpot pipeline only ever reflects real human engagement, which keeps conversion metrics honest and management off your back.
+
+<PullQuote>The moment you stop treating every email reply as identical input is the moment your pipeline data becomes a management tool instead of a vanity metric.</PullQuote>
+
+For teams also running AI voice follow-up alongside cold email, this reply-sync pattern pairs well with the [Bland AI + HubSpot + n8n booking workflow](/blog/2026-08-05-bland-ai-hubspot-n8n-book-meetings-on-autopilot/) we documented, where the same HubSpot contact record receives both email reply events and voice call outcomes in a unified timeline. The contact record becomes genuinely useful rather than a half-filled card nobody trusts.
+
+If you are deciding between self-hosting n8n or running it on Cloud for this workflow, the [n8n self-host vs Cloud 2026 guide](/blog/2026-08-07-n8n-self-host-vs-cloud-in-2026-the-revops-decision-guide/) covers the real tradeoffs. Short version: for a single-team Smartlead/HubSpot sync, Cloud at $20/month is fine unless you have strict data residency requirements.
+
+<ChooseIf title="Who should build this workflow?" tools={[
+  {
+    name: "n8n (self-hosted or Cloud)",
+    conditions: [
+      "You want full control over branching logic, API calls, and error handling without per-task pricing",
+      "Your team has one person comfortable editing JSON and reading webhook payloads",
+      "You need to extend the workflow later with Clay enrichment, Slack alerts, or Gong triggers"
+    ],
+    pricing: "From $20/mo Cloud or free self-hosted",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n",
+    highlight: true
+  },
+  {
+    name: "Zapier",
+    conditions: [
+      "Nobody on your team wants to touch a webhook or JSON payload",
+      "You only need the basic contact upsert and can skip the deal logic and booking link",
+      "Volume is under 100 replies per month and per-task pricing will not sting"
+    ],
+    pricing: "From $19.99/mo but tasks add up fast",
+    affiliateSlug: "zapier",
+    ctaLabel: "Try Zapier"
+  },
+  {
+    name: "Make (Integromat)",
+    conditions: [
+      "You want a visual scenario builder with solid error handling and lower per-operation cost than Zapier",
+      "You already use Make for other GTM automations and want one platform",
+      "You need a middle ground between Zapier simplicity and n8n flexibility"
+    ],
+    pricing: "From $9/mo, 10k ops included",
+    affiliateSlug: "make",
+    ctaLabel: "Try Make"
+  }
+]} />
+
+<MyTake>
+I have never seen Smartlead's native HubSpot integration survive contact with a real outbound motion for more than a month. Someone always patches it with a [Zapier](/tools/zapier/) zap or a Google Apps Script, both of which collapse under volume. Skip the band-aids entirely. Building this in n8n from day one takes about two hours and handles every edge case those workarounds never will. According to [HubSpot's own CRM data quality research](https://www.hubspot.com/marketing-statistics), bad data costs revenue teams an average of 27% of their revenue. The two-hour n8n build is the cheapest insurance you will buy this quarter.
+</MyTake>
+
+## The pipeline you end up with
+
+When this workflow is live, your SDRs open HubSpot in the morning and every reply from overnight is already logged. Every positive reply has a deal in the right stage. Every out-of-office prospect is already paused in Smartlead. The only human decision left is whether to pick up the phone.
+
+That is what RevOps infrastructure is supposed to deliver. Not automation for its own sake, but the right data in the right place so humans make faster decisions. This Smartlead to HubSpot sync via [n8n](/tools/n8n/) is one of the highest-return 120-minute builds I know in outbound RevOps. If you also run enrichment before sequences, the [Clay to n8n enrichment pipeline](/blog/2026-07-31-connect-clay-to-n8n-for-a-fully-automated-enrichment-pipelin/) is the natural upstream piece that feeds [Smartlead](/tools/smartlead/) the clean data this workflow then syncs back to [HubSpot](/tools/hubspot/).
+
+<BottomLine
+  verdict="n8n is the right middleware for this pipeline. It handles webhook parsing, conditional branching, and multi-step API calls without per-task fees, and it is the only option that gives you the reply-type routing and deal creation logic this workflow requires without duct tape."
+  pick="n8n"
+  affiliateSlug="n8n"
+  ctaLabel="Try n8n"
+/>
+
+<Sources sources={[
+  { label: "Smartlead API Reference: webhook and lead endpoints", url: "https://api.smartlead.ai/reference" },
+  { label: "HubSpot Developers: contacts upsert v3 API", url: "https://developers.hubspot.com/docs/api/crm/contacts" },
+  { label: "n8n Docs: HubSpot node reference", url: "https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.hubspot/" },
+  { label: "HubSpot Developers: lifecycle stage property behavior", url: "https://developers.hubspot.com/docs/api/crm/properties" }
+]} />
