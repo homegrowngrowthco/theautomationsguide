@@ -1,0 +1,195 @@
+---
+title: "Connect Apollo to n8n: Automate Lead Pulls, Enrichment, and CRM Pushes"
+description: "Step-by-step guide to building an Apollo n8n integration that automates lead pulls, enrichment routing, and CRM pushes to HubSpot or Pipedrive."
+tldr: "You can connect Apollo to n8n using Apollo's REST API and n8n's HTTP Request node to automate lead pulls, waterfall enrichment, and CRM pushes to HubSpot or Pipedrive without any native connector."
+pubDate: 2026-08-09
+tags: ["automation", "outbound", "crm"]
+faqs:
+  - question: "Does Apollo have an n8n integration?"
+    answer: "There is no official Apollo node in n8n, but Apollo's REST API works cleanly with n8n's HTTP Request node. You authenticate with an API key and can pull contacts, people searches, and sequences via standard GET and POST calls."
+  - question: "How do I pull leads from Apollo into n8n automatically?"
+    answer: "Use n8n's HTTP Request node with Apollo's People Search endpoint (POST /api/v1/mixed_people/search), pass your filters as a JSON body, and paginate with the page parameter. A Schedule trigger handles recurring pulls."
+  - question: "Can n8n push Apollo leads directly into HubSpot or Pipedrive?"
+    answer: "Yes. n8n has native nodes for both HubSpot and Pipedrive. After pulling and enriching leads from Apollo, you route them through an IF or Switch node and create or update contacts using the CRM node of your choice."
+  - question: "What is the best way to enrich Apollo leads in n8n before pushing to CRM?"
+    answer: "Pass Apollo leads through a Clay or Fullenrich HTTP call inside n8n to waterfall-enrich mobile numbers and personal emails, then merge the enriched fields back onto the contact object before the CRM write."
+  - question: "How often should I schedule the Apollo n8n lead pull?"
+    answer: "Most teams I work with run it every 4 to 24 hours depending on list churn. Daily is fine for outbound sequences; near-real-time (every 15 minutes) makes sense only if you are triggering time-sensitive intent workflows."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+[Apollo](/go/apollo/) has become the default prospecting database for scrappy B2B outbound teams. [n8n](/go/n8n/) has become the default automation layer for RevOps operators who want full control without per-task pricing. The problem is that almost nobody has written down exactly how to wire them together. I've built this workflow for at least a dozen clients at Homegrown Growth Co., and every time I share the recipe the question is the same: "Why isn't this documented anywhere?" Consider this that documentation.
+
+## Why This Workflow Exists
+
+Apollo gives you access to 275 million contacts and a People Search API that is genuinely powerful once you stop clicking through the UI and start hitting it programmatically. n8n gives you the orchestration layer to schedule those pulls, route records through enrichment, apply ICP logic, and push clean data into your CRM. No per-task Zapier fees. No waiting for HubSpot Operations Hub to catch up.
+
+The gap between "I use Apollo" and "Apollo feeds my CRM automatically" is usually just three things: a working API call, a branching filter, and a CRM write node. Once those click, you have a fully automated outbound pipeline. It pulls fresh leads on a schedule, waterfall-enriches them, deduplicates against your CRM, and creates or updates contacts without anyone touching it.
+
+<StatRow stats={[
+  { number: "275M+", label: "Apollo contacts", description: "Searchable via the People Search API with filter parity to the UI" },
+  { number: "$0", label: "Per-task cost in n8n", description: "Self-hosted n8n has no execution limits; cloud plans charge by workflow run, not by record" },
+  { number: "~40 min", label: "Build time", description: "From blank canvas to a working Apollo-to-HubSpot push, based on what I see with clients who have touched n8n before" }
+]} />
+
+## The Workflow Architecture
+
+Before touching n8n, get clear on the shape of the pipeline. You need five logical stages: trigger, pull, enrich, filter, and CRM write. Everything else is optional wrapping.
+
+<StepRow steps={[
+  {
+    title: "Authenticate Apollo in n8n",
+    body: "Apollo uses API key authentication. In n8n, go to Credentials and create a new 'Header Auth' credential. Set the header name to 'X-Api-Key' and paste your Apollo API key from Settings > API Keys. You will reference this credential on every Apollo HTTP Request node. Do not use query-param auth. Apollo's docs recommend the header approach and it avoids key exposure in logs."
+  },
+  {
+    title: "Build the People Search trigger",
+    body: "Add an HTTP Request node. Set method to POST and URL to 'https://api.apollo.io/api/v1/mixed_people/search'. In the body (JSON), pass your ICP filters: 'person_titles', 'organization_industry_tag_ids', 'organization_num_employees_ranges', 'person_locations', and 'page'. Wrap this in a Schedule Trigger (daily or every N hours). Set 'per_page' to 100 and paginate using an IF node that checks whether 'pagination.total_pages' is greater than the current page number, incrementing with a Set node."
+  },
+  {
+    title: "Enrich with a waterfall (optional but recommended)",
+    body: "Apollo mobile coverage is inconsistent above the manager level. I route every pulled contact through a [Fullenrich](/go/fullenrich/) HTTP call inside the same n8n workflow to waterfall-fill mobile numbers and personal emails. If you are already using Clay, you can instead POST the Apollo output to a Clay table via webhook and let Clay handle enrichment before n8n picks the result back up via a webhook response. See the Clay-to-n8n guide for that pattern."
+  },
+  {
+    title: "Apply ICP filtering with an IF or Switch node",
+    body: "Before any CRM write, gate on your real ICP criteria. I use a Switch node with branches for Tier 1 (immediate push to CRM plus sequence enrollment), Tier 2 (push to CRM only, no sequence), and Discard (stop). Typical filters: employee count range, seniority keyword in title, and domain not already in CRM. You can check CRM existence by calling HubSpot's Search Contacts endpoint or Pipedrive's Persons search endpoint before the branch."
+  },
+  {
+    title: "Push to HubSpot or Pipedrive",
+    body: "For HubSpot, use n8n's native HubSpot node on 'Contact: Create or Update' with upsert on email. Map Apollo fields to HubSpot properties: 'first_name', 'last_name', 'email', 'organization_name' to 'company', 'title' to 'jobtitle', 'phone_numbers[0].raw_number' to 'phone'. For Pipedrive, use the Pipedrive node on 'Person: Create' and add an Organization lookup step first. Both CRMs support upsert so duplicate risk is low if you key on email."
+  },
+  {
+    title: "Log errors and Slack-notify on failures",
+    body: "Wrap the entire workflow in an Error Trigger node and POST a Slack message with the failed record's email and the error message. Apollo's API returns 422s on malformed filters and 429s on rate-limit hits. The 429 is common if you paginate without a Wait node between pages. Add a Wait node set to 1 second between pagination loops."
+  }
+]} />
+
+<Figure class="post-screenshot" caption="n8n workflow canvas showing a webhook trigger, enrichment branch, ICP filter, and parallel Smartlead and Slack nodes, similar to the Apollo pull pattern described here.">
+  <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with webhook trigger, enrichment, ICP branch, and CRM push nodes" loading="lazy" />
+  </a>
+</Figure>
+
+## The Gotcha Everyone Hits: Pagination and Rate Limits
+
+Apollo's People Search API paginates at 100 records per page and rate-limits at 200 requests per minute on paid plans. The most common failure I see is operators who build the first-page pull, see 100 leads, and declare victory. If your search returns 4,000 contacts, you are getting 2.5% of them.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The trap:** Setting a static page number in your HTTP Request body means every scheduled run re-pulls page 1. You get the same 100 records every time, create duplicates in your CRM, and never see records beyond the first page. The 429 rate-limit error compounds this. If you loop without a Wait node, n8n hammers the API, gets throttled, and the entire workflow fails silently unless you have error handling in place.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // Pagination loop pattern in n8n
+    // Set node: initialize
+    {
+      "current_page": 1,
+      "total_pages": 1
+    }
+
+    // HTTP Request body (expression mode)
+    {
+      "page": "{{ $node['Set_Page'].json.current_page }}",
+      "per_page": 100,
+      "person_titles": ["Head of Sales", "VP Sales"],
+      "organization_num_employees_ranges": ["201,500", "501,1000"]
+    }
+
+    // After each response, Set node updates:
+    {
+      "current_page": "{{ $node['Set_Page'].json.current_page + 1 }}",
+      "total_pages": "{{ $json.pagination.total_pages }}"
+    }
+
+    // IF node condition to continue loop:
+    // current_page <= total_pages
+    // Add Wait node (1 second) before looping
+    ```
+  </Fragment>
+</SideBySide>
+
+## Which CRM Should Receive the Push?
+
+This depends on where your team actually lives. I've run this workflow into both, and the choice matters less than people think once the pipeline logic is solid.
+
+<ChooseIf title="Apollo n8n integration: pick your CRM target" tools={[
+  {
+    name: "HubSpot",
+    conditions: [
+      "Your sequences, deals, and reporting all live in HubSpot already",
+      "You want native upsert on email with zero custom dedup logic",
+      "You plan to enroll contacts into HubSpot sequences after the push"
+    ],
+    pricing: "Operations Hub Starter from $20/mo",
+    affiliateSlug: "hubspot",
+    ctaLabel: "Try HubSpot",
+    highlight: false
+  },
+  {
+    name: "Pipedrive",
+    conditions: [
+      "Your sales team runs pipeline-first and HubSpot feels like overkill",
+      "You want a lighter CRM with a clean Persons and Organizations model",
+      "You are pairing this with a separate outbound tool like Smartlead or Instantly"
+    ],
+    pricing: "Essential from $14/seat/mo",
+    affiliateSlug: "pipedrive",
+    ctaLabel: "Try Pipedrive",
+    highlight: false
+  },
+  {
+    name: "Attio",
+    conditions: [
+      "You want a flexible data model and are comfortable with a newer CRM",
+      "Your team needs custom objects without paying for Salesforce",
+      "You are building enrichment-heavy workflows where schema flexibility matters"
+    ],
+    pricing: "Plus from $34/seat/mo",
+    affiliateSlug: "attio",
+    ctaLabel: "Try Attio",
+    highlight: true
+  }
+]} />
+
+If you are pushing into [HubSpot](/tools/hubspot/), the [Smartlead-to-HubSpot via n8n pattern](/blog/2026-08-08-smartlead-to-hubspot-via-n8n-sync-replies-and-book-meetings/) pairs well here. Once Apollo leads land in HubSpot, you can sync Smartlead reply data back using the same n8n canvas. For [Pipedrive](/tools/pipedrive/) users, the [Attio n8n enrichment workflow](/blog/2026-08-04-attio-n8n-crm-enrichment-workflow-2026-guide/) covers a similar push pattern if you ever want to evaluate alternatives.
+
+Worth flagging separately: if you are running [n8n](/tools/n8n/) self-hosted versus cloud, your execution limits and webhook reliability differ meaningfully. I covered that decision in the [n8n self-host vs cloud guide](/blog/2026-08-07-n8n-self-host-vs-cloud-in-2026-the-revops-decision-guide/), and it matters here because pagination loops on large Apollo searches can run for several minutes. Self-hosted wins on long-running executions.
+
+<MyTake>
+Most teams I talk to underuse Apollo's API filters and overpay for Clay enrichment they do not need. If your ICP is tight enough to filter down to under 500 records per pull, Apollo's native email and phone data is often sufficient. Skip the waterfall layer on day one. Run the Apollo-only version, measure where coverage actually falls short, then bolt on Fullenrich or Clay only when you can see exactly which fields are missing. Buying enrichment before you know your gap rate is just paying for peace of mind.
+</MyTake>
+
+## Putting It Together
+
+The [Apollo](/tools/apollo/) to n8n integration is not a native connector problem. It is a documentation problem. The [Apollo REST API](https://apolloio.github.io/apollo-api-docs/) is solid, the [n8n HTTP Request node](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/) handles it cleanly, and the CRM write nodes for HubSpot and Pipedrive are mature enough that field mapping takes twenty minutes, not a sprint.
+
+What actually takes time is getting the pagination loop right, adding the Wait node so you do not 429 yourself, and building the ICP gate so your CRM does not fill with junk. Get those three things right and you have an outbound data pipeline that runs without you touching it.
+
+For teams weighing the cost of building this versus buying a point solution, see the [RevOps stack cost per rep breakdown](/blog/2026-08-06-revops-stack-cost-per-rep-at-10-reps-2026-breakdown/) for a realistic view of what the n8n plus Apollo combination costs at scale compared to all-in-one tools.
+
+<BottomLine
+  verdict="n8n is the right automation layer for Apollo if you want full control over pagination, enrichment routing, and CRM field mapping without per-task costs. Build the pagination loop correctly on day one and this workflow runs indefinitely with minimal maintenance."
+  pick="n8n"
+  affiliateSlug="n8n"
+  ctaLabel="Try n8n"
+/>
+
+<Sources sources={[
+  { label: "Apollo.io: REST API documentation", url: "https://apolloio.github.io/apollo-api-docs/" },
+  { label: "n8n docs: HTTP Request node", url: "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/" },
+  { label: "HubSpot developers: Contacts API upsert", url: "https://developers.hubspot.com/docs/api/crm/contacts" },
+  { label: "Pipedrive developers: Persons API", url: "https://developers.pipedrive.com/docs/api/v1/Persons" }
+]} />
