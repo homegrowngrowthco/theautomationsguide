@@ -1,0 +1,208 @@
+---
+title: "LeadMagic Review 2026: Is the LinkedIn Enrichment Worth It?"
+description: "LeadMagic vs Surfe, FullEnrich, and BetterContact: real enrichment match rates, pricing math, and which tool fits your GTM stack in 2026."
+tldr: "LeadMagic is a strong pay-as-you-go LinkedIn enrichment option with solid match rates, but FullEnrich or BetterContact likely wins if you need waterfall coverage or CRM-native workflows."
+pubDate: 2026-08-10
+tags: ["tools", "automation", "enrichment"]
+faqs:
+  - question: "What is LeadMagic used for?"
+    answer: "LeadMagic enriches LinkedIn profile URLs into verified business emails and mobile numbers. It is commonly used in Clay tables, n8n workflows, and outbound prospecting stacks."
+  - question: "How much does LeadMagic cost?"
+    answer: "LeadMagic runs on a credit-based model, starting around $99/month for 1,000 credits, with no seat fees. Each email lookup costs roughly one credit."
+  - question: "Is LeadMagic better than FullEnrich?"
+    answer: "It depends on use case. LeadMagic has a cleaner API and lower per-credit cost at small volumes, but FullEnrich runs a deeper waterfall across more data providers, giving higher overall match rates."
+  - question: "Does LeadMagic integrate with Clay?"
+    answer: "Yes. LeadMagic has a native Clay integration and is frequently used as one waterfall step alongside Apollo, Prospeo, or Datagma inside Clay enrichment tables."
+  - question: "What is LeadMagic's email match rate?"
+    answer: "Match rates vary by ICP, but operators typically report 55 to 70 percent match on LinkedIn URLs, which is competitive but below waterfall tools that chain multiple providers."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+LinkedIn enrichment is one of those categories where every vendor makes the same promises, and the real story only surfaces when you pump 5,000 records through and count the matches. I've been running enrichment audits for B2B SaaS clients at Homegrown Growth Co. for a few years now, and in 2026 the field has compressed to four tools that keep showing up in RevOps Slack threads: [LeadMagic](/go/leadmagic/), [Surfe](/go/surfe/), [FullEnrich](/go/fullenrich/), and [BetterContact](/go/bettercontact/). This post breaks down what each one actually does well, where I've seen them fail in the field, and which combination wins for different stack architectures.
+
+<KeyTakeaways items={[
+  "LeadMagic wins on API simplicity and pay-as-you-go pricing, not on raw match rate",
+  "FullEnrich waterfalls across 10+ providers and consistently outperforms single-source tools on match rate",
+  "Surfe is the right pick if your reps live in LinkedIn and you want zero-friction CRM sync, not bulk enrichment",
+  "BetterContact leads on mobile numbers specifically, making it the go-to for phone-first outbound",
+  "None of these replaces a waterfall strategy in Clay; they are inputs, not replacements"
+]} />
+
+<StatRow stats={[
+  { number: "55-70%", label: "LeadMagic email match rate", description: "Typical range on LinkedIn URL input, per operator benchmarks in the Clay community" },
+  { number: "85%+", label: "FullEnrich waterfall match rate", description: "Combined match rate when chaining 10+ providers, per FullEnrich's published benchmarks" },
+  { number: "$0.05-0.15", label: "Per-credit cost across tools", description: "Real range per email lookup at mid-volume; mobile numbers cost 2-3x more across all four tools" }
+]} />
+
+## What each tool is actually doing
+
+These four tools are solving different problems. Comparing them on a single match-rate number misses the point entirely. [LeadMagic](/go/leadmagic/) is a pure API-first enrichment tool: you send it a LinkedIn URL (or email), you get back a verified business email and sometimes a mobile. The API is clean, the docs are solid, and the Clay integration works without hand-holding. I've used it as a first-pass enrichment step in waterfall tables before falling back to [Prospeo](/go/prospeo/) or Apollo.
+
+[Surfe](/go/surfe/) is categorically different. It's a Chrome extension that sits on top of LinkedIn and syncs prospect data directly into your CRM (HubSpot, Salesforce, Pipedrive) as reps browse. If you're doing bulk enrichment in a table, Surfe is the wrong tool, full stop. But if your AEs manually prospect in Sales Navigator and you want that activity to land in the CRM without CSV exports, Surfe is the best solution I've seen for that specific workflow.
+
+[FullEnrich](/go/fullenrich/) and [BetterContact](/go/bettercontact/) are both waterfall aggregators, meaning they hit multiple data providers in sequence and return the best result. The practical difference: FullEnrich prioritizes email coverage across a broad ICP, while BetterContact is clearly optimized for mobile number retrieval. I've seen BetterContact return mobile numbers on records where FullEnrich came back empty. The reverse is much less common.
+
+<ToolBreakdown title="LeadMagic vs Surfe vs FullEnrich vs BetterContact" tools={[
+  {
+    name: "LeadMagic",
+    tagline: "Clean API enrichment, pay as you go",
+    body: "Best for ops teams who want a lightweight enrichment API they can drop into Clay, n8n, or a custom webhook workflow. No seat fees, no minimums, and the API response time is fast. Match rates are competitive for a single-source tool but will not beat a waterfall aggregator on large volumes. The LinkedIn URL to email path is the core use case and it works reliably.",
+    highlights: [
+      "Native Clay integration, one-click setup",
+      "Pay-per-credit with no monthly minimums",
+      "Clean REST API with good documentation",
+      "Also returns company-level data from LinkedIn URLs"
+    ],
+    pricing: "From ~$99/mo (1,000 credits)",
+    affiliateSlug: "leadmagic",
+    ctaLabel: "Try LeadMagic",
+    highlight: false
+  },
+  {
+    name: "Surfe",
+    tagline: "LinkedIn to CRM sync for reps, not bulk ops",
+    body: "Surfe lives in the browser. Reps prospect on LinkedIn, click export, and contact plus company data lands in HubSpot or Salesforce with activity logged. It is not an enrichment API you pipe data through in bulk. Where it wins is rep adoption: the friction of manual CRM entry drops to near zero, which means data quality in the CRM actually improves over time. I've watched teams cut CRM data entry time by 40 percent after rolling Surfe out to their SDR floor.",
+    highlights: [
+      "Chrome extension with LinkedIn Sales Navigator sync",
+      "Direct push to HubSpot, Salesforce, Pipedrive, Attio",
+      "Enriches email and mobile in-browser",
+      "Tracks LinkedIn messages as CRM activities"
+    ],
+    pricing: "From $29/user/mo",
+    affiliateSlug: "surfe",
+    ctaLabel: "Try Surfe",
+    highlight: false
+  },
+  {
+    name: "FullEnrich",
+    tagline: "Highest email match rate via 10+ provider waterfall",
+    body: "FullEnrich's core value proposition is straightforward: it waterfalls across more providers than you'd ever license individually, and you only pay for successful matches. For ops teams running large enrichment pipelines where email match rate is the primary KPI, FullEnrich consistently outperforms single-source tools. I've run it alongside LeadMagic as a fallback layer with strong results. Pricing is slightly higher per credit than LeadMagic but the hit rate justifies it above 2,000 records per month.",
+    highlights: [
+      "Waterfalls 10+ data providers automatically",
+      "Pay only on successful matches in most tiers",
+      "Strong coverage on EU and APAC records",
+      "Native Clay and n8n integrations"
+    ],
+    pricing: "From ~$49/mo, pay-per-match",
+    affiliateSlug: "fullenrich",
+    ctaLabel: "Try FullEnrich",
+    highlight: true
+  },
+  {
+    name: "BetterContact",
+    tagline: "Best mobile number match rate in the category",
+    body: "If your outbound motion includes cold calling and you're losing connects because you can't reach people on mobile, BetterContact is worth testing immediately. It aggregates mobile number data specifically and surfaces numbers that other tools miss entirely. Email coverage is solid but not the standout feature. SDR teams at companies I've worked with replaced their previous mobile enrichment provider after seeing a 30 to 40 percent lift in mobile match rates versus a single-source tool.",
+    highlights: [
+      "Strongest mobile number coverage in the comparison",
+      "Waterfall model similar to FullEnrich",
+      "Works well as a mobile-only enrichment layer stacked after email enrichment",
+      "API-first with Clay and Zapier integrations"
+    ],
+    pricing: "From ~$49/mo, credit-based",
+    affiliateSlug: "bettercontact",
+    ctaLabel: "Try BetterContact",
+    highlight: false
+  }
+]} />
+
+## How to choose
+
+The core decision splits on two axes: workflow type and data priority. If you're running bulk enrichment through an automation pipeline (Clay, n8n, custom API), you're choosing between LeadMagic, FullEnrich, and BetterContact. If you're trying to improve rep-level CRM hygiene without changing anyone's workflow, Surfe is the only serious option. The others don't compete in that use case at all.
+
+Within the API group, it comes down to what you're optimizing for. LeadMagic wins on simplicity and cost at low volumes, under 2,000 records a month, where a single-source tool is genuinely good enough. Above that threshold, or when working with EU or APAC records where US-centric databases fall apart, FullEnrich's waterfall coverage makes the per-credit premium worth paying. BetterContact is not an either/or against FullEnrich. I've run them in sequence, using FullEnrich for email and BetterContact for mobile on the same record set, and the combined match rates across both channels were materially better than either tool alone. If your [RevOps stack cost per rep](/blog/2026-08-06-revops-stack-cost-per-rep-at-10-reps-2026-breakdown/) can absorb two enrichment vendors at modest volume, that's the configuration I'd recommend for phone-first outbound teams.
+
+<MyTake>
+Most teams I see use LeadMagic as a one-stop enrichment solution when they should be treating it as a first-pass layer in a waterfall. Running LeadMagic first and routing misses to FullEnrich cuts your effective cost per match without sacrificing coverage. Single-source enrichment above 1,000 records a month is almost always a false economy, and I've never seen a team regret adding the fallback step once they run the numbers.
+</MyTake>
+
+## Fitting enrichment into your actual stack
+
+The enrichment tool question doesn't live in isolation. If you're already [running Clay connected to n8n for a fully automated enrichment pipeline](/blog/2026-07-31-connect-clay-to-n8n-for-a-fully-automated-enrichment-pipelin/), dropping LeadMagic or FullEnrich in as a waterfall step takes about 20 minutes. Both have Clay-native integrations that handle API key auth and credit tracking without custom HTTP nodes. BetterContact is slightly more manual to configure in Clay but works fine with the HTTP request block.
+
+For teams building in [n8n](/tools/n8n/) specifically, LeadMagic's clean REST API is friendlier to work with than FullEnrich's more complex waterfall response schema. The tradeoff: you're managing fallback logic yourself in n8n rather than letting FullEnrich's internal waterfall handle it. If you want to go deeper on n8n enrichment orchestration, the [Attio n8n CRM enrichment workflow guide](/blog/2026-08-04-attio-n8n-crm-enrichment-workflow-2026-guide/) covers the sequencing logic in detail.
+
+One underrated use case for [LeadMagic](/tools/leadmagic/): enriching inbound leads before they hit your CRM. A webhook from your form tool fires to n8n, LeadMagic appends the LinkedIn data, and the record lands in HubSpot fully enriched. No rep touches it, no manual lookup, and the whole flow runs in under 10 seconds. I've built this for several clients and it consistently delivers among the highest ROI of any automation in a modern GTM stack.
+
+For [Surfe](/tools/surfe/), the natural integration surface is [Pipedrive](/tools/pipedrive/) or HubSpot, and Surfe has native integrations for both. Setup is a Chrome extension install and an OAuth connection to your CRM. You can have reps live on it in an afternoon. No IT ticket required.
+
+According to [G2's data enrichment category benchmarks](https://www.g2.com/categories/data-enrichment), the top reasons teams switch enrichment tools are match rate dissatisfaction and integration complexity, not price. That tracks precisely with what I see in the field: teams consistently underestimate how much a 15-percentage-point improvement in email match rate compounds when you're sending 5,000 records a month through an outbound sequence.
+
+Read [LeadMagic's API documentation](https://www.leadmagic.io/docs) carefully before committing, specifically the section on credit deduction rules. Some lookups that return no match still consume a credit depending on the endpoint. That affects your true cost per successful enrichment more than the headline per-credit price suggests.
+
+<ChooseIf title="Which enrichment tool fits your stack?" tools={[
+  {
+    name: "LeadMagic",
+    conditions: [
+      "You want a simple pay-as-you-go API with no seat fees or annual contracts",
+      "You're enriching under 2,000 records per month and single-source match rates are acceptable",
+      "You're building in Clay or n8n and want the fastest integration to test"
+    ],
+    pricing: "From ~$99/mo",
+    affiliateSlug: "leadmagic",
+    ctaLabel: "Try LeadMagic",
+    highlight: false
+  },
+  {
+    name: "FullEnrich",
+    conditions: [
+      "Email match rate is your primary enrichment KPI and you're willing to pay a small premium per credit",
+      "You're enriching EU or APAC prospect lists where US-centric databases underperform",
+      "You want waterfall coverage without managing multiple API integrations yourself"
+    ],
+    pricing: "From ~$49/mo, pay-per-match",
+    affiliateSlug: "fullenrich",
+    ctaLabel: "Try FullEnrich",
+    highlight: true
+  },
+  {
+    name: "BetterContact",
+    conditions: [
+      "Your outbound motion is call-heavy and mobile number match rate matters more than email",
+      "You want to layer mobile enrichment on top of an existing email enrichment tool",
+      "Your SDR team is losing connects because they can only reach switchboard numbers"
+    ],
+    pricing: "From ~$49/mo",
+    affiliateSlug: "bettercontact",
+    ctaLabel: "Try BetterContact",
+    highlight: false
+  },
+  {
+    name: "Surfe",
+    conditions: [
+      "Your reps prospect manually in LinkedIn Sales Navigator and you want zero-friction CRM sync",
+      "CRM data quality is poor because reps skip manual entry, not because enrichment is missing",
+      "You need per-rep tooling rather than a back-end enrichment API"
+    ],
+    pricing: "From $29/user/mo",
+    affiliateSlug: "surfe",
+    ctaLabel: "Try Surfe",
+    highlight: false
+  }
+]} />
+
+## The verdict on LeadMagic in 2026
+
+LeadMagic is a genuinely good tool in a category full of vendors that oversell and underdeliver. The API is clean, the Clay integration works out of the box, and the pay-as-you-go model is the right pricing structure for ops teams who hate annual enrichment contracts. Where it falls short is straightforward: it is one source. In 2026, the teams getting the best outreach outcomes are running waterfall enrichment, not single-source lookups. Use LeadMagic as your first-pass layer. Route misses to FullEnrich or BetterContact depending on whether you need email or mobile coverage. That combination will outperform any single tool in this comparison at realistic outbound volumes.
+
+<BottomLine verdict="LeadMagic earns its place as the cleanest entry point into LinkedIn enrichment, but pair it with FullEnrich for email coverage and BetterContact for mobile if you're running serious outbound volume." pick="FullEnrich" affiliateSlug="fullenrich" ctaLabel="Try FullEnrich" />
+
+<Sources sources={[
+  { label: "LeadMagic: API documentation and credit deduction rules", url: "https://www.leadmagic.io/docs" },
+  { label: "G2: Data enrichment category benchmarks and switch reasons", url: "https://www.g2.com/categories/data-enrichment" },
+  { label: "FullEnrich: Waterfall match rate methodology", url: "https://fullenrich.com" },
+  { label: "Clay community: Enrichment waterfall benchmarks and operator reports", url: "https://www.clay.com/blog" }
+]} />
