@@ -1,0 +1,2032 @@
+{
+  "generatedAt": "2026-08-12",
+  "model": "claude-sonnet-5",
+  "method": "Each figure is read from the vendor's own public pricing page on the date shown, by an extractor forbidden from using prior knowledge. Any figure not literally present in that page is recorded as null rather than estimated.",
+  "counts": {
+    "ok": 65,
+    "not-machine-readable": 19,
+    "blocked": 6,
+    "unreachable": 3
+  },
+  "tools": [
+    {
+      "slug": "11x",
+      "name": "11x",
+      "category": "Sales Engagement",
+      "status": "unreachable",
+      "reason": "no pricing page responded",
+      "triedUrls": [
+        "https://www.11x.ai/pricing",
+        "https://www.11x.ai/pricing/",
+        "https://www.11x.ai/en/pricing",
+        "https://www.11x.ai/plans",
+        "https://www.11x.ai/pricing-plans"
+      ]
+    },
+    {
+      "slug": "activecampaign",
+      "name": "ActiveCampaign",
+      "category": "Sales Engagement",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://www.activecampaign.com/pricing",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "activepieces",
+      "name": "Activepieces",
+      "category": "Sales Engagement",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://activepieces.io/pricing",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "adcreative",
+      "name": "AdCreative.ai",
+      "category": "Advertising & Creative",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.adcreative.ai/",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Starter",
+        "monthlyBilledMonthly": 39,
+        "monthlyBilledAnnually": 20,
+        "unitIncluded": "10 Credits/Month, 1 Brand"
+      },
+      "pricingUnit": "credits",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Ultimate",
+        "monthlyBilledAnnually": 500
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": true,
+      "notes": "7-day free trial only, no permanent free tier. Prices shown incl. temporary Father's Day 25-50% discounts on quarterly/yearly plans.",
+      "validationFlags": []
+    },
+    {
+      "slug": "aircall",
+      "name": "Aircall",
+      "category": "Sales Engagement",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://aircall.io/pricing/",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Essentials",
+        "monthlyBilledMonthly": 40,
+        "monthlyBilledAnnually": 30,
+        "unitIncluded": "3 licenses"
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": 3,
+      "highestPublishedPlan": {
+        "name": "Professional",
+        "monthlyBilledAnnually": 50
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Custom plan requires 25-license minimum, quote-only. Add-ons: AI Assist Pro, Analytics+ $15, WhatsApp $10, Salesforce $30.",
+      "validationFlags": []
+    },
+    {
+      "slug": "aisdr",
+      "name": "AiSDR",
+      "category": "AI Sales Agents",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://aisdr.com/pricing/",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Solo",
+        "monthlyBilledMonthly": 250,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "200 AI-researched contacts/month, 1 user"
+      },
+      "pricingUnit": "usage",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Scale",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": null,
+      "apiOnPaidTierOnly": null,
+      "notes": "Solo $250/mo ($2,400/yr total); Explore $900/mo ($8,640/yr); Scale $2,500/mo ($24,000/yr). Annual totals reflect 20% discount, not stated as monthly rate.",
+      "validationFlags": []
+    },
+    {
+      "slug": "aloware",
+      "name": "Aloware",
+      "category": "AI Voice & Dialers",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://aloware.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "iPro + AI",
+        "monthlyBilledMonthly": 40,
+        "monthlyBilledAnnually": 30,
+        "unitIncluded": "1000 AloAi Voice Analytics minutes"
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": 10,
+      "highestPublishedPlan": {
+        "name": "xPro + AI",
+        "monthlyBilledAnnually": 85
+      },
+      "enterpriseIsQuoteOnly": null,
+      "apiOnPaidTierOnly": true,
+      "notes": "3-user ($199/mo) and 5-user ($399/mo) bundle packages also listed separately from per-seat plans.",
+      "validationFlags": []
+    },
+    {
+      "slug": "apollo",
+      "name": "Apollo.io",
+      "category": "Outbound & Lead Generation",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.apollo.io/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Basic Plan",
+        "monthlyBilledMonthly": 49,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": null
+      },
+      "pricingUnit": null,
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Professional Plan",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": true,
+      "notes": "Prices found: Free $0, Basic $49, Professional $99, Enterprise custom; billing frequency (monthly/annual) not specified.",
+      "validationFlags": []
+    },
+    {
+      "slug": "artisan",
+      "name": "Artisan",
+      "category": "Sales Engagement",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://www.artisan.co/pricing",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "attio",
+      "name": "Attio",
+      "category": "CRM",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://attio.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "Up to 3 seats, 50,000 records, 250 workspace credits/mo",
+      "entryPaidPlan": {
+        "name": "Plus",
+        "monthlyBilledMonthly": 44,
+        "monthlyBilledAnnually": 35,
+        "unitIncluded": "Up to 10 seats"
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Pro",
+        "monthlyBilledAnnually": 79
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Also uses seat/workspace credit system; add-on workspace credits priced separately (e.g. +5,000/mo $85 monthly/$70 annual).",
+      "validationFlags": []
+    },
+    {
+      "slug": "avoma",
+      "name": "Avoma",
+      "category": "Meeting Intelligence",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.avoma.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Startup",
+        "monthlyBilledMonthly": 29,
+        "monthlyBilledAnnually": 19,
+        "unitIncluded": "Up to 25 Paid Seats"
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Enterprise",
+        "monthlyBilledAnnually": 39
+      },
+      "enterpriseIsQuoteOnly": false,
+      "apiOnPaidTierOnly": true,
+      "notes": "Enterprise shown as $39/seat (billed annually only) on main pricing page, but a separate comparison table lists Enterprise as 'Let's Talk'.",
+      "validationFlags": []
+    },
+    {
+      "slug": "bardeen",
+      "name": "Bardeen",
+      "category": "Sales Engagement",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.bardeen.ai/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "100 credits/month",
+      "entryPaidPlan": {
+        "name": "Basic",
+        "monthlyBilledMonthly": 10,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "100 credits/month"
+      },
+      "pricingUnit": "credits",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Premium",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Premium annual plan billed as $480/year (not shown as monthly rate).",
+      "validationFlags": []
+    },
+    {
+      "slug": "beehiiv",
+      "name": "Beehiiv",
+      "category": "Newsletter Platform",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.beehiiv.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "Up to 2,500 subscribers",
+      "entryPaidPlan": {
+        "name": "Scale",
+        "monthlyBilledMonthly": 49,
+        "monthlyBilledAnnually": 43,
+        "unitIncluded": "Up to 2,500 subscribers (price scales with subscriber count)"
+      },
+      "pricingUnit": "usage",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Max",
+        "monthlyBilledAnnually": 96
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": false,
+      "notes": "Prices vary by subscriber count; figures shown for 1,000-subscriber slider. Structured data lists monthly prices 0/49/109.",
+      "validationFlags": []
+    },
+    {
+      "slug": "bettercontact",
+      "name": "BetterContact",
+      "category": "Lead Data & Enrichment",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://bettercontact.rocks/pricing/",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "50 credits",
+      "entryPaidPlan": {
+        "name": "Starter",
+        "monthlyBilledMonthly": 15,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "200 credits/month"
+      },
+      "pricingUnit": "credits",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Enterprise",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": false,
+      "apiOnPaidTierOnly": null,
+      "notes": "Enterprise listed 'from $799/mo' but final pricing is custom/contact-based; billing cadence (monthly vs annual) not specified.",
+      "validationFlags": []
+    },
+    {
+      "slug": "bland-ai",
+      "name": "Bland AI",
+      "category": "AI Voice & Dialers",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.bland.ai/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "2 credits + inbound number ($15/mo value), no card required",
+      "entryPaidPlan": {
+        "name": "Build",
+        "monthlyBilledMonthly": 299,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "50 concurrent calls, 2,000 calls/day, 50 knowledge bases"
+      },
+      "pricingUnit": "mixed",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Scale",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Plans combine flat platform fee + per-minute usage rate; Scale platform fee $499/mo (billing frequency unspecified).",
+      "validationFlags": []
+    },
+    {
+      "slug": "bouncer",
+      "name": "Bouncer",
+      "category": "Sales Engagement",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://resolver.dnx.com/landers/bouncer.com/",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "brevo",
+      "name": "Brevo",
+      "category": "Email & Marketing Automation",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.brevo.com/pricing/",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "300 emails per day (after approval)",
+      "entryPaidPlan": {
+        "name": "Starter",
+        "monthlyBilledMonthly": 9,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "5,000 emails/mo"
+      },
+      "pricingUnit": "mixed",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Professional",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": false,
+      "notes": "Annual totals shown (e.g., $96.96, $194.04, $5388.96) but no explicit per-month-when-annual figures; Professional listed at $499/mo.",
+      "validationFlags": []
+    },
+    {
+      "slug": "cal-com",
+      "name": "Cal.com",
+      "category": "Scheduling",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://cal.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "1 user",
+      "entryPaidPlan": {
+        "name": "Teams",
+        "monthlyBilledMonthly": null,
+        "monthlyBilledAnnually": 12,
+        "unitIncluded": null
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Organizations",
+        "monthlyBilledAnnually": 28
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": true,
+      "notes": "Teams/Org prices shown as 'YEARLY $X per user/month'; no separate monthly-billed price given.",
+      "validationFlags": []
+    },
+    {
+      "slug": "calendly",
+      "name": "Calendly",
+      "category": "Sales Engagement",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://calendly.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "1 event type, 1 calendar",
+      "entryPaidPlan": {
+        "name": "Standard",
+        "monthlyBilledMonthly": 10,
+        "monthlyBilledAnnually": 8,
+        "unitIncluded": "1 seat, unlimited event types"
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Teams",
+        "monthlyBilledAnnually": 13
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": true,
+      "notes": "Enterprise starts at $15,000/yr, contact sales; price may vary.",
+      "validationFlags": []
+    },
+    {
+      "slug": "canva",
+      "name": "Canva",
+      "category": "Advertising & Creative",
+      "status": "blocked",
+      "reason": "vendor refuses automated requests (HTTP 403/429 on every candidate URL)",
+      "triedUrls": [
+        "https://www.canva.com/pricing",
+        "https://www.canva.com/pricing/",
+        "https://www.canva.com/en/pricing",
+        "https://www.canva.com/plans",
+        "https://www.canva.com/pricing-plans"
+      ]
+    },
+    {
+      "slug": "chili-piper",
+      "name": "Chili Piper",
+      "category": "Sales Engagement",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.chilipiper.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Routing & Scheduling",
+        "monthlyBilledMonthly": null,
+        "monthlyBilledAnnually": 1250,
+        "unitIncluded": "15 seats, 45,000 AI credits/year"
+      },
+      "pricingUnit": "mixed",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Experiences",
+        "monthlyBilledAnnually": 3500
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "All plans billed annually only; monthly billing not available. Chili Data Platform (Tier 3) pricing not yet published.",
+      "validationFlags": []
+    },
+    {
+      "slug": "circleback",
+      "name": "Circleback",
+      "category": "Meeting Intelligence",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://circleback.ai/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Individual",
+        "monthlyBilledMonthly": 25,
+        "monthlyBilledAnnually": 20.83,
+        "unitIncluded": null
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Enterprise",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Individual $25/mo or $20.83/mo billed yearly; Team $30/mo or $25/mo yearly; Enterprise is quote-only, no listed price.",
+      "validationFlags": []
+    },
+    {
+      "slug": "clay",
+      "name": "Clay",
+      "category": "Outbound & Lead Generation",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.clay.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "500 actions/mo, 100 data credits/mo",
+      "entryPaidPlan": {
+        "name": "Launch",
+        "monthlyBilledMonthly": 185,
+        "monthlyBilledAnnually": 167,
+        "unitIncluded": "15,000 actions/mo, 2,500 data credits/mo"
+      },
+      "pricingUnit": "mixed",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Growth",
+        "monthlyBilledAnnually": 446
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": true,
+      "notes": "Plans bundle base Actions+Data Credit tiers; sliders allow scaling volume; Enterprise pricing is custom/quote-only.",
+      "validationFlags": []
+    },
+    {
+      "slug": "clearscope",
+      "name": "Clearscope",
+      "category": "SEO & Content",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.clearscope.io/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Essentials",
+        "monthlyBilledMonthly": 129,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "50 Tracked Prompts"
+      },
+      "pricingUnit": "mixed",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Business",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "14-day free trial, not a free tier. Addon pricing for extra pages/drafts shown separately.",
+      "validationFlags": []
+    },
+    {
+      "slug": "close",
+      "name": "Close",
+      "category": "CRM",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://close.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Solo",
+        "monthlyBilledMonthly": 19,
+        "monthlyBilledAnnually": 9,
+        "unitIncluded": "500 AI credits/user/month"
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Scale",
+        "monthlyBilledAnnually": 139
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "No free tier; 14-day free trial only. Calling/SMS usage-based (~$0.02/min), add-ons like phone lines/Call Assistant extra.",
+      "validationFlags": []
+    },
+    {
+      "slug": "cognism",
+      "name": "Cognism",
+      "category": "Outbound & Lead Generation",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://www.cognism.com/pricing",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "creatify",
+      "name": "Creatify",
+      "category": "Advertising & Creative",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://creatify.ai/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "10 credits/mo",
+      "entryPaidPlan": {
+        "name": "Starter",
+        "monthlyBilledMonthly": 39,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "100 credits/mo"
+      },
+      "pricingUnit": "credits",
+      "minimumSeats": 1,
+      "highestPublishedPlan": {
+        "name": "Pro",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Free plan = 10 credits/mo (FAQ). Annual pricing mentioned ('save up to 50%') but no annual figures given in text.",
+      "validationFlags": []
+    },
+    {
+      "slug": "customerio",
+      "name": "Customer.io",
+      "category": "Sales Engagement",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://customer.io/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Essentials",
+        "monthlyBilledMonthly": 100,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "5k profiles"
+      },
+      "pricingUnit": "mixed",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Premium",
+        "monthlyBilledAnnually": 1000
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Premium price billed yearly per text; Enterprise is custom/quote-only; no free tier, only a startup promo.",
+      "validationFlags": []
+    },
+    {
+      "slug": "factors-ai",
+      "name": "Factors.ai",
+      "category": "Sales Engagement",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.factors.ai/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "Free trial of Lite plan (upto 5,000 tracked users, 3 seats)",
+      "entryPaidPlan": {
+        "name": "Lite",
+        "monthlyBilledMonthly": 199,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "Upto 5,000 tracked users, 3 seats"
+      },
+      "pricingUnit": "mixed",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Enterprise",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Only Lite has monthly price ($199/mo after trial). Basic=$6K/yr, Growth=$20K/yr, Enterprise=$30K+/yr (annual totals only, no monthly given).",
+      "validationFlags": []
+    },
+    {
+      "slug": "fathom",
+      "name": "Fathom",
+      "category": "Meeting Intelligence",
+      "status": "unreachable",
+      "reason": "no pricing page responded",
+      "triedUrls": [
+        "https://fathom.io/pricing",
+        "https://fathom.io/pricing/",
+        "https://fathom.io/en/pricing",
+        "https://fathom.io/plans",
+        "https://fathom.io/pricing-plans"
+      ]
+    },
+    {
+      "slug": "fillout",
+      "name": "Fillout",
+      "category": "Scheduling",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.fillout.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "1000 responses/mo",
+      "entryPaidPlan": {
+        "name": "Starter",
+        "monthlyBilledMonthly": 15,
+        "monthlyBilledAnnually": 15,
+        "unitIncluded": "2000 responses/mo"
+      },
+      "pricingUnit": "per month flat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Business",
+        "monthlyBilledAnnually": 75
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": false,
+      "notes": "Starter billed annually: $180/yr ($15/mo); Pro $480/yr ($40/mo); Business $900/yr ($75/mo). Unlimited seats all plans.",
+      "validationFlags": []
+    },
+    {
+      "slug": "fireflies",
+      "name": "Fireflies",
+      "category": "Sales Engagement",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://fireflies.ai/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "400 mins of storage/team, 20 AI credits",
+      "entryPaidPlan": {
+        "name": "Pro",
+        "monthlyBilledMonthly": 18,
+        "monthlyBilledAnnually": 10,
+        "unitIncluded": "8,000 mins of storage/seat"
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Enterprise",
+        "monthlyBilledAnnually": 39
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": true,
+      "notes": "Enterprise is annual only per seat/month; contact for quote. Free plan has no API access.",
+      "validationFlags": []
+    },
+    {
+      "slug": "folk",
+      "name": "folk",
+      "category": "Sales Engagement",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.folk.app/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Standard",
+        "monthlyBilledMonthly": 30,
+        "monthlyBilledAnnually": 24,
+        "unitIncluded": "Pipeline management, email campaigns, contact enrichment, AI Assistants"
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Enterprise",
+        "monthlyBilledAnnually": 80
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": true,
+      "notes": "No free tier; 2-week free trial only. Enterprise price shown as 'From $80/mo' but requires demo/quote.",
+      "validationFlags": []
+    },
+    {
+      "slug": "frase",
+      "name": "Frase",
+      "category": "SEO & Content",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.frase.io/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "FraseCMS free tier: 100,000 page views/mo, 25GB bandwidth (on Frase subdomain)",
+      "entryPaidPlan": {
+        "name": "Starter",
+        "monthlyBilledMonthly": 49,
+        "monthlyBilledAnnually": 39,
+        "unitIncluded": "10 articles, 50 audit pages/mo"
+      },
+      "pricingUnit": "mixed",
+      "minimumSeats": 1,
+      "highestPublishedPlan": {
+        "name": "Scale",
+        "monthlyBilledAnnually": 239
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": true,
+      "notes": "Starter $39-49/mo, Professional $103-129/mo, Scale $239-299/mo (annual/monthly). Extra seats $29/mo. Enterprise custom pricing.",
+      "validationFlags": []
+    },
+    {
+      "slug": "fullenrich",
+      "name": "FullEnrich",
+      "category": "Lead Data & Enrichment",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://fullenrich.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "50 credits",
+      "entryPaidPlan": {
+        "name": "Pro",
+        "monthlyBilledMonthly": 55,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "1,000 credits/mo"
+      },
+      "pricingUnit": "credits",
+      "minimumSeats": null,
+      "highestPublishedPlan": null,
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": false,
+      "notes": "Pro priced at $0.055/credit; scales with credit tier (e.g. 15K credits ≈ $720/mo per calculator example).",
+      "validationFlags": []
+    },
+    {
+      "slug": "getaccept",
+      "name": "GetAccept",
+      "category": "Outbound & Lead Generation",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://www.getaccept.com/pricing",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "getresponse",
+      "name": "GetResponse",
+      "category": "Email & Marketing Automation",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.getresponse.com/pricing/trial",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Starter",
+        "monthlyBilledMonthly": 19,
+        "monthlyBilledAnnually": 15.58,
+        "unitIncluded": "1,000 contacts"
+      },
+      "pricingUnit": "usage",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Creator",
+        "monthlyBilledAnnually": 56.58
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": true,
+      "notes": "Prices scale with contact list size (e.g., 1,000 contacts). Enterprise plan shown with no price, contact sales.",
+      "validationFlags": []
+    },
+    {
+      "slug": "gong",
+      "name": "Gong",
+      "category": "Workflow Automation",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://www.gong.io/pricing",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "gumloop",
+      "name": "Gumloop",
+      "category": "AI Agents",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.gumloop.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Pro",
+        "monthlyBilledMonthly": 37,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "7,400 + 12,600 bonus credits (20,000/month)"
+      },
+      "pricingUnit": "credits",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Enterprise",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Pro plan offers 14-day free trial, not a permanent free tier. Enterprise is custom/contact sales.",
+      "validationFlags": []
+    },
+    {
+      "slug": "hubspot",
+      "name": "HubSpot",
+      "category": "CRM",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://www.hubspot.com/pricing/marketing",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "instantly",
+      "name": "Instantly",
+      "category": "Cold Email & Deliverability",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://instantly.ai/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Starter",
+        "monthlyBilledMonthly": 94,
+        "monthlyBilledAnnually": 85,
+        "unitIncluded": "5000 emails monthly, 1000 uploaded contacts, 1500 Instantly credits monthly"
+      },
+      "pricingUnit": "mixed",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Agency",
+        "monthlyBilledAnnually": 500
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Page has multiple overlapping plan tracks (Outreach, Credits, Bundles, VIP); Bundle tier used as primary pricing structure.",
+      "validationFlags": []
+    },
+    {
+      "slug": "justcall",
+      "name": "JustCall",
+      "category": "Sales Engagement",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://justcall.io/pricing/",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Team",
+        "monthlyBilledMonthly": null,
+        "monthlyBilledAnnually": 29,
+        "unitIncluded": "500 SMS segments/user"
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": 2,
+      "highestPublishedPlan": {
+        "name": "Pro Plus",
+        "monthlyBilledAnnually": 89
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": true,
+      "notes": "Business & SalesPro plans are quote-only. All shown prices are per-user/month billed annually; no monthly-billed figures given. 14-day trial, not a free tier.",
+      "validationFlags": []
+    },
+    {
+      "slug": "kit",
+      "name": "Kit",
+      "category": "Newsletter Platform",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://kit.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "1,000 subscribers",
+      "entryPaidPlan": {
+        "name": "Creator",
+        "monthlyBilledMonthly": null,
+        "monthlyBilledAnnually": 33,
+        "unitIncluded": "1,000 subscribers"
+      },
+      "pricingUnit": "usage",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Pro",
+        "monthlyBilledAnnually": 66
+      },
+      "enterpriseIsQuoteOnly": null,
+      "apiOnPaidTierOnly": false,
+      "notes": "Prices shown for 1,000 subscribers tier; Creator $390/yr, Pro $790/yr billed annually (save 17%).",
+      "validationFlags": []
+    },
+    {
+      "slug": "krispcall",
+      "name": "KrispCall",
+      "category": "AI Voice & Dialers",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://krispcall.com/pricing/",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Essential",
+        "monthlyBilledMonthly": 15,
+        "monthlyBilledAnnually": 12,
+        "unitIncluded": "Up to 5 users"
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Standard",
+        "monthlyBilledAnnually": 32
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "No free trial/plan; $1 call credit included; 20% off annual billing; Enterprise is custom/quote-only.",
+      "validationFlags": []
+    },
+    {
+      "slug": "laxis",
+      "name": "Laxis",
+      "category": "Meeting Intelligence",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.laxis.com/pricing/",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "300 min/mo transcription",
+      "entryPaidPlan": {
+        "name": "Premium",
+        "monthlyBilledMonthly": 15.99,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "2,000 min/mo transcription"
+      },
+      "pricingUnit": "usage",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Business",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": true,
+      "notes": "Yearly toggle claims 20% savings but no separate annual prices shown; Enterprise is custom/quote-only.",
+      "validationFlags": []
+    },
+    {
+      "slug": "leadmagic",
+      "name": "LeadMagic",
+      "category": "Lead Data & Enrichment",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://leadmagic.io/pricing",
+      "currency": "USD",
+      "hasFreeTier": null,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Basic",
+        "monthlyBilledMonthly": 49.99,
+        "monthlyBilledAnnually": 41,
+        "unitIncluded": "2,000 credits/mo"
+      },
+      "pricingUnit": "credits",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Ultimate",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": true,
+      "notes": "Ultimate/Professional show only annual totals ($8,490/yr, $4,990/yr); no monthly-equivalent stated for those tiers.",
+      "validationFlags": []
+    },
+    {
+      "slug": "lemlist",
+      "name": "Lemlist",
+      "category": "Outbound & Lead Generation",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.lemlist.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Email",
+        "monthlyBilledMonthly": 69,
+        "monthlyBilledAnnually": 55,
+        "unitIncluded": "50,000 emails/mo, unlimited users"
+      },
+      "pricingUnit": "mixed",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Enterprise",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": false,
+      "notes": "Email plan flat fee (unlimited users); Multichannel priced per user ($87-$109). Enterprise is custom/quote-only. Credits sold separately ($10/1000).",
+      "validationFlags": []
+    },
+    {
+      "slug": "lindy",
+      "name": "Lindy",
+      "category": "AI Agents",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.lindy.ai/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Plus",
+        "monthlyBilledMonthly": 29.99,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "3k credits / user / mo"
+      },
+      "pricingUnit": "mixed",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Max",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Structured data lists Plus at $49.99, but visible text shows $29.99/mo per user; used page text price.",
+      "validationFlags": []
+    },
+    {
+      "slug": "linkedin-sales-navigator",
+      "name": "LinkedIn Sales Navigator",
+      "category": "Sales Engagement",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://business.linkedin.com/sell/sales-navigator/compare-plans",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "Free trial (available to eligible members, not currently on paid subscription)",
+      "entryPaidPlan": {
+        "name": "Core",
+        "monthlyBilledMonthly": 119.99,
+        "monthlyBilledAnnually": 89.99,
+        "unitIncluded": "1 license"
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": 1,
+      "highestPublishedPlan": {
+        "name": "Advanced",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Advanced Plus is quote-only. Annual monthly figures derived from stated annual totals (Core: $1,079.88/12; Advanced: $1,799.88/12).",
+      "validationFlags": [
+        "highest.monthlyBilledAnnually=149.99 not found in source text"
+      ]
+    },
+    {
+      "slug": "loops",
+      "name": "Loops",
+      "category": "Sales Engagement",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://loops.so/pricing",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "lusha",
+      "name": "Lusha",
+      "category": "Lead Data & Enrichment",
+      "status": "blocked",
+      "reason": "vendor refuses automated requests (HTTP 403/429 on every candidate URL)",
+      "triedUrls": [
+        "https://www.lusha.com/pricing",
+        "https://www.lusha.com/pricing/",
+        "https://www.lusha.com/en/pricing",
+        "https://www.lusha.com/plans",
+        "https://www.lusha.com/pricing-plans"
+      ]
+    },
+    {
+      "slug": "mailchimp",
+      "name": "Mailchimp",
+      "category": "Email & Marketing Automation",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://mailchimp.com/pricing/sms-marketing/",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "250 contacts",
+      "entryPaidPlan": {
+        "name": "Essentials",
+        "monthlyBilledMonthly": null,
+        "monthlyBilledAnnually": 13,
+        "unitIncluded": null
+      },
+      "pricingUnit": "mixed",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Premium",
+        "monthlyBilledAnnually": 350
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "SMS is add-on to paid plans, priced via credits; base email prices shown as 11-month promo rate.",
+      "validationFlags": []
+    },
+    {
+      "slug": "maildoso",
+      "name": "Maildoso",
+      "category": "Cold Email & Deliverability",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://maildoso.ai/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "30 mailboxes",
+        "monthlyBilledMonthly": 75,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "30 mailboxes"
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": 30,
+      "highestPublishedPlan": {
+        "name": "1,000 mailboxes",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Pay-per-mailbox pricing; monthly plans up to 1,000 mailboxes/$499mo; quarterly plans priced per quarter, not converted.",
+      "validationFlags": []
+    },
+    {
+      "slug": "mailforge",
+      "name": "Mailforge",
+      "category": "Cold Email & Deliverability",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.mailforge.ai/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": null,
+      "pricingUnit": "usage",
+      "minimumSeats": 10,
+      "highestPublishedPlan": null,
+      "enterpriseIsQuoteOnly": null,
+      "apiOnPaidTierOnly": null,
+      "notes": "Usage-based: domains ~$14/yr, mailbox slots ~$3/mo (min 10 slots), yearly billing gives discount. No fixed plan tiers.",
+      "validationFlags": []
+    },
+    {
+      "slug": "mailreach",
+      "name": "MailReach",
+      "category": "Sales Engagement",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.mailreach.co/pricing",
+      "currency": "USD",
+      "hasFreeTier": null,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "All-In-One",
+        "monthlyBilledMonthly": 19.5,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "1 mailbox + 20 spam test credits"
+      },
+      "pricingUnit": "mixed",
+      "minimumSeats": 1,
+      "highestPublishedPlan": null,
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Price is $19.5/mailbox/mo plus spam-test credits; annual saves 20%. Custom quotes for large scale via Contact Us.",
+      "validationFlags": []
+    },
+    {
+      "slug": "mailshake",
+      "name": "Mailshake",
+      "category": "Cold Email & Deliverability",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://mailshake.com/pricing/",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "make",
+      "name": "Make",
+      "category": "Workflow Automation",
+      "status": "ok",
+      "extraction": "assisted",
+      "sourceUrl": "https://www.make.com/en/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "1,000 credits/mo",
+      "entryPaidPlan": {
+        "name": "Core",
+        "monthlyBilledMonthly": 12,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "10,000 credits/mo"
+      },
+      "pricingUnit": "credits",
+      "minimumSeats": null,
+      "highestPublishedPlan": null,
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": true,
+      "notes": "Prices are shown against a credit-volume slider defaulting to 10k credits/mo and rise with it. Annual price not shown as a figure, only 'Save 15% or more'.",
+      "validationFlags": []
+    },
+    {
+      "slug": "moltsets",
+      "name": "MoltSets",
+      "category": "Outbound & Lead Generation",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://moltsets.com/pricing/",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "1000 API calls",
+      "entryPaidPlan": {
+        "name": "Unlimited",
+        "monthlyBilledMonthly": 27,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "unlimited API calls"
+      },
+      "pricingUnit": "per month flat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "UGC Plan",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": null,
+      "apiOnPaidTierOnly": false,
+      "notes": "UGC Plan listed at $497/mo (50% off $997/mo); no annual billing option shown.",
+      "validationFlags": []
+    },
+    {
+      "slug": "motion",
+      "name": "Motion",
+      "category": "Scheduling & Productivity",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://www.usemotion.com/pricing",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "n8n",
+      "name": "n8n",
+      "category": "Workflow Automation",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://n8n.io/pricing/",
+      "currency": "EUR",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Starter",
+        "monthlyBilledMonthly": null,
+        "monthlyBilledAnnually": 20,
+        "unitIncluded": "2.5K workflow executions/mo"
+      },
+      "pricingUnit": "usage",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Business",
+        "monthlyBilledAnnually": 667
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "No free tier; 14-day free trial only. Business overage: 4,000 EUR per extra 300,000 executions.",
+      "validationFlags": []
+    },
+    {
+      "slug": "nutshell",
+      "name": "Nutshell",
+      "category": "CRM",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.nutshell.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Foundation Plan",
+        "monthlyBilledMonthly": null,
+        "monthlyBilledAnnually": 13,
+        "unitIncluded": "10 AI outcomes"
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Enterprise Plan",
+        "monthlyBilledAnnually": 79
+      },
+      "enterpriseIsQuoteOnly": false,
+      "apiOnPaidTierOnly": null,
+      "notes": "Prices shown ($13-$79/user/mo) ambiguous on monthly vs annual billing; page notes 'save $X/month with annual billing' but doesn't give explicit monthly-billed figures.",
+      "validationFlags": []
+    },
+    {
+      "slug": "otter",
+      "name": "Otter.ai",
+      "category": "Sales Engagement",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://otter.ai/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "300 monthly transcription minutes",
+      "entryPaidPlan": {
+        "name": "Pro",
+        "monthlyBilledMonthly": null,
+        "monthlyBilledAnnually": 8.33,
+        "unitIncluded": "1200 in-app recording minutes"
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Business",
+        "monthlyBilledAnnually": 19.99
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": true,
+      "notes": "Business monthly billing shows promo $24/user (20% off 3 months); Enterprise is quote-only via demo request.",
+      "validationFlags": [
+        "entry.monthlyBilledMonthly=16.99 not found in source text"
+      ]
+    },
+    {
+      "slug": "outreach",
+      "name": "Outreach",
+      "category": "Workflow Automation",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://www.outreach.ai/pricing",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "pabbly",
+      "name": "Pabbly",
+      "category": "Workflow Automation",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.pabbly.com/",
+      "currency": null,
+      "hasFreeTier": null,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Pabbly Plus (Monthly)",
+        "monthlyBilledMonthly": 12999,
+        "monthlyBilledAnnually": 11199,
+        "unitIncluded": "Unlimited tasks/credits/revenue/subscribers/forms/events; 1,000 AgenticAI units/mo"
+      },
+      "pricingUnit": "per month flat",
+      "minimumSeats": null,
+      "highestPublishedPlan": null,
+      "enterpriseIsQuoteOnly": null,
+      "apiOnPaidTierOnly": null,
+      "notes": "Prices shown in INR (₹12,999/mo etc.); page also references $99/$59 elsewhere - currency inconsistent, so left null.",
+      "validationFlags": []
+    },
+    {
+      "slug": "pandadoc",
+      "name": "PandaDoc",
+      "category": "Outbound & Lead Generation",
+      "status": "blocked",
+      "reason": "vendor refuses automated requests (HTTP 403/429 on every candidate URL)",
+      "triedUrls": [
+        "https://www.pandadoc.com/pricing",
+        "https://www.pandadoc.com/pricing/",
+        "https://www.pandadoc.com/en/pricing",
+        "https://www.pandadoc.com/plans",
+        "https://www.pandadoc.com/pricing-plans"
+      ]
+    },
+    {
+      "slug": "pipedrive",
+      "name": "Pipedrive",
+      "category": "CRM",
+      "status": "blocked",
+      "reason": "vendor refuses automated requests (HTTP 403/429 on every candidate URL)",
+      "triedUrls": [
+        "https://www.pipedrive.com/en/pricing",
+        "https://www.pipedrive.com/pricing",
+        "https://www.pipedrive.com/pricing/",
+        "https://www.pipedrive.com/plans",
+        "https://www.pipedrive.com/pricing-plans"
+      ]
+    },
+    {
+      "slug": "profound",
+      "name": "Profound",
+      "category": "SEO & Content",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://profound.app/pricing",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "prospeo",
+      "name": "Prospeo",
+      "category": "Lead Data & Enrichment",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://prospeo.app/pricing",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "quickmail",
+      "name": "Quickmail",
+      "category": "Cold Email & Deliverability",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://quickmail.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Starter Plan",
+        "monthlyBilledMonthly": 49,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "5,000 emails/mo"
+      },
+      "pricingUnit": "per month flat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Agency Plan",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": null,
+      "apiOnPaidTierOnly": true,
+      "notes": "Only monthly prices shown; 14-day free trial, not a free tier. API included on Growth/Agency, not Starter.",
+      "validationFlags": []
+    },
+    {
+      "slug": "qwilr",
+      "name": "Qwilr",
+      "category": "Outbound & Lead Generation",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://qwilr.com/pricing/",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Starter",
+        "monthlyBilledMonthly": 49,
+        "monthlyBilledAnnually": 35,
+        "unitIncluded": "1 user"
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": 1,
+      "highestPublishedPlan": {
+        "name": "Scale",
+        "monthlyBilledAnnually": 75
+      },
+      "enterpriseIsQuoteOnly": null,
+      "apiOnPaidTierOnly": true,
+      "notes": "14-day free trial of Starter, no free tier. Growth/Scale annual-only, min 5/10 seats. API usage fees apply on all plans.",
+      "validationFlags": []
+    },
+    {
+      "slug": "rb2b",
+      "name": "RB2B",
+      "category": "Website Visitor ID & Signals",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.rb2b.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "150 Monthly Resolutions",
+      "entryPaidPlan": {
+        "name": "starter",
+        "monthlyBilledMonthly": 79,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "300 Monthly Resolutions"
+      },
+      "pricingUnit": "usage",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "PRO+",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": null,
+      "apiOnPaidTierOnly": null,
+      "notes": "Plans priced by monthly resolution volume; PRO+ scales up to 2.5M resolutions but only $199/mo base price shown.",
+      "validationFlags": []
+    },
+    {
+      "slug": "relevance-ai",
+      "name": "Relevance AI",
+      "category": "AI Agents",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://relevanceai.com/pricing",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "reply-io",
+      "name": "Reply.io",
+      "category": "Sales Engagement",
+      "status": "blocked",
+      "reason": "vendor refuses automated requests (HTTP 403/429 on every candidate URL)",
+      "triedUrls": [
+        "https://reply.io/pricing",
+        "https://reply.io/pricing/",
+        "https://reply.io/en/pricing",
+        "https://reply.io/plans",
+        "https://reply.io/pricing-plans"
+      ]
+    },
+    {
+      "slug": "salesflare",
+      "name": "Salesflare",
+      "category": "Sales Engagement",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://salesflare.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Growth",
+        "monthlyBilledMonthly": 39,
+        "monthlyBilledAnnually": 29,
+        "unitIncluded": "5 lead credits"
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Enterprise",
+        "monthlyBilledAnnually": 99
+      },
+      "enterpriseIsQuoteOnly": false,
+      "apiOnPaidTierOnly": null,
+      "notes": "Enterprise plan requires min 5 users. Extra lead credits sold separately (e.g. 250 for $39).",
+      "validationFlags": []
+    },
+    {
+      "slug": "salesforce",
+      "name": "Salesforce",
+      "category": "Outbound & Lead Generation",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.salesforce.com/agentforce/pricing/",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Agentforce User License",
+        "monthlyBilledMonthly": 5,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "1 user/month (requires Flex Credits)"
+      },
+      "pricingUnit": "mixed",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Agentforce 1 Editions",
+        "monthlyBilledAnnually": 550
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Mixed model: free Foundations tier; Flex Credits $500/100k; Conversations $2 each; User License $5/user/mo; add-ons $125-$550/user/mo.",
+      "validationFlags": []
+    },
+    {
+      "slug": "saleshandy",
+      "name": "Saleshandy",
+      "category": "Cold Email & Deliverability",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://saleshandy.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "Inbox Placement Test: 2 tests/mo free; CRM Starter free (limited time)",
+      "entryPaidPlan": {
+        "name": "Outreach Starter",
+        "monthlyBilledMonthly": 36,
+        "monthlyBilledAnnually": 25,
+        "unitIncluded": "2,000 active prospects"
+      },
+      "pricingUnit": "per month flat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Outreach Scale Plus",
+        "monthlyBilledAnnually": 209
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Multiple product lines (Outreach, Dialer, Inbox, CRM) each with own pricing; Outreach 100k+ prospects tier is custom/quote-only.",
+      "validationFlags": []
+    },
+    {
+      "slug": "salesloft",
+      "name": "Salesloft",
+      "category": "Workflow Automation",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://www.salesloft.com/pricing",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "smartlead",
+      "name": "Smartlead",
+      "category": "Outbound & Lead Generation",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.smartlead.ai/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Base",
+        "monthlyBilledMonthly": 39,
+        "monthlyBilledAnnually": 32.5,
+        "unitIncluded": "2,000 contacts"
+      },
+      "pricingUnit": "usage",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Prime",
+        "monthlyBilledAnnually": 314.6
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "4 tiers: Base $39, Pro $94, Smart $174, Prime $379/mo; 17% off annual. Free trial only, no free tier.",
+      "validationFlags": []
+    },
+    {
+      "slug": "storydoc",
+      "name": "Storydoc",
+      "category": "Outbound & Lead Generation",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.storydoc.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": null,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Starter",
+        "monthlyBilledMonthly": null,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "5 active documents"
+      },
+      "pricingUnit": "per month flat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Team",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Prices shown are billed-annually monthly rates; Team plan is quote-only ('Let’s Talk'), no listed price.",
+      "validationFlags": [
+        "entry.monthlyBilledAnnually=19.8 not found in source text"
+      ]
+    },
+    {
+      "slug": "surfe",
+      "name": "Surfe",
+      "category": "Lead Data & Enrichment",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.surfe.com/pricing/",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "20 email finder + 5 mobile finder credits/yr, 100 search results/wk",
+      "entryPaidPlan": {
+        "name": "Essential",
+        "monthlyBilledMonthly": null,
+        "monthlyBilledAnnually": 39,
+        "unitIncluded": "150 email finder + 50 mobile finder credits/yr"
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Pro",
+        "monthlyBilledAnnually": 79
+      },
+      "enterpriseIsQuoteOnly": null,
+      "apiOnPaidTierOnly": null,
+      "notes": "Billing toggle (yearly/monthly) present; unclear which cycle the shown $39/$79 prices reflect.",
+      "validationFlags": []
+    },
+    {
+      "slug": "surfer",
+      "name": "Surfer",
+      "category": "SEO & Content",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://surferseo.com/pricing/",
+      "currency": "USD",
+      "hasFreeTier": null,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Discovery",
+        "monthlyBilledMonthly": null,
+        "monthlyBilledAnnually": 49,
+        "unitIncluded": "120 Documents"
+      },
+      "pricingUnit": "per month flat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Enterprise",
+        "monthlyBilledAnnually": 999
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": true,
+      "notes": "Prices shown as billed yearly; Enterprise listed at $999/mo but described as 'Tailored packages' (quote-based).",
+      "validationFlags": []
+    },
+    {
+      "slug": "synthflow",
+      "name": "Synthflow",
+      "category": "AI Voice & Dialers",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://synthflow.ai/pricing",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "tally",
+      "name": "Tally",
+      "category": "Scheduling",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://tally.so/pricing",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "taplio",
+      "name": "Taplio",
+      "category": "Sales Engagement",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://taplio.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Starter",
+        "monthlyBilledMonthly": 39,
+        "monthlyBilledAnnually": 32,
+        "unitIncluded": "250 AI credits/mo"
+      },
+      "pricingUnit": "per month flat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Pro",
+        "monthlyBilledAnnually": 149
+      },
+      "enterpriseIsQuoteOnly": null,
+      "apiOnPaidTierOnly": null,
+      "notes": "7-day free trial only, no free tier. Team/agency discounts up to 30% mentioned but not quantified.",
+      "validationFlags": []
+    },
+    {
+      "slug": "tl-dv",
+      "name": "tl;dv",
+      "category": "Meeting Intelligence",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://tldv.io/app/pricing/",
+      "currency": "EUR",
+      "hasFreeTier": true,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Pro",
+        "monthlyBilledMonthly": 29,
+        "monthlyBilledAnnually": 18,
+        "unitIncluded": null
+      },
+      "pricingUnit": "per seat",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Business",
+        "monthlyBilledAnnually": 29
+      },
+      "enterpriseIsQuoteOnly": null,
+      "apiOnPaidTierOnly": null,
+      "notes": "Annual totals: Pro €216/yr, Business €348/yr (per seat). No enterprise plan or API info found.",
+      "validationFlags": []
+    },
+    {
+      "slug": "trigify",
+      "name": "Trigify",
+      "category": "Website Visitor ID & Signals",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.trigify.io/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Starter",
+        "monthlyBilledMonthly": 40,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "4,000 credits/mo"
+      },
+      "pricingUnit": "credits",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Max",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "14-day free trial, not a free tier. Overages $0.012/credit. No annual pricing shown.",
+      "validationFlags": []
+    },
+    {
+      "slug": "vapi",
+      "name": "Vapi",
+      "category": "AI Voice & Dialers",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://vapi.ai/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "60+ call minutes included, usage-based after that",
+      "entryPaidPlan": {
+        "name": "Build",
+        "monthlyBilledMonthly": 0,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "60+ minutes included, 10 call concurrency"
+      },
+      "pricingUnit": "usage",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Scale",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Usage-based: $0.05/min calls, $0.005/msg SMS, model costs at cost. HIPAA add-on $2000/mo, ZDR $1000/mo. Scale plan is custom/annual contract.",
+      "validationFlags": []
+    },
+    {
+      "slug": "vector",
+      "name": "Vector",
+      "category": "Website Visitor ID & Signals",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.vector.co/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "Reveal",
+        "monthlyBilledMonthly": 399,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "2,500 identified visitors"
+      },
+      "pricingUnit": "usage",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Target",
+        "monthlyBilledAnnually": 4000
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Reveal is monthly, usage-based ($399-$999/mo by visitor volume); Target is annual, $3000-$4000/mo by audience count; custom above thresholds.",
+      "validationFlags": []
+    },
+    {
+      "slug": "warmforge",
+      "name": "Warmforge",
+      "category": "Sales Engagement",
+      "status": "unreachable",
+      "reason": "no pricing page responded",
+      "triedUrls": [
+        "https://warmforge.com/pricing",
+        "https://warmforge.com/pricing/",
+        "https://warmforge.com/en/pricing",
+        "https://warmforge.com/plans",
+        "https://warmforge.com/pricing-plans"
+      ]
+    },
+    {
+      "slug": "warmly",
+      "name": "Warmly",
+      "category": "Website Visitor ID & Signals",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://www.warmly.ai/p/pricing",
+      "currency": "USD",
+      "hasFreeTier": false,
+      "freeTierLimit": null,
+      "entryPaidPlan": {
+        "name": "AI Web-Deanonymization",
+        "monthlyBilledMonthly": null,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "10K credits/mo"
+      },
+      "pricingUnit": "credits",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "AI Inbound Autopilot",
+        "monthlyBilledAnnually": null
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Only annual ($10k/$20k/$30k/yr) & quarterly ($4,875/$6,500/$9,750) totals shown, no monthly price; all require sales contact.",
+      "validationFlags": []
+    },
+    {
+      "slug": "zapier",
+      "name": "Zapier",
+      "category": "Workflow Automation",
+      "status": "ok",
+      "extraction": "automated",
+      "sourceUrl": "https://zapier.com/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "100 tasks/mo",
+      "entryPaidPlan": {
+        "name": "Professional",
+        "monthlyBilledMonthly": null,
+        "monthlyBilledAnnually": 19.99,
+        "unitIncluded": null
+      },
+      "pricingUnit": "usage",
+      "minimumSeats": null,
+      "highestPublishedPlan": {
+        "name": "Team",
+        "monthlyBilledAnnually": 69
+      },
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": null,
+      "notes": "Prices shown as 'Starting from' figures; text doesn't explicitly state if monthly or annual billing applies.",
+      "validationFlags": []
+    },
+    {
+      "slug": "zerobounce",
+      "name": "ZeroBounce",
+      "category": "Sales Engagement",
+      "status": "not-machine-readable",
+      "sourceUrl": "https://www.zerobounce.net/pricing",
+      "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
+    },
+    {
+      "slug": "zoominfo",
+      "name": "ZoomInfo",
+      "category": "Outbound & Lead Generation",
+      "status": "blocked",
+      "reason": "vendor refuses automated requests (HTTP 403/429 on every candidate URL)",
+      "triedUrls": [
+        "https://www.zoominfo.com/pricing",
+        "https://www.zoominfo.com/pricing/",
+        "https://www.zoominfo.com/en/pricing",
+        "https://www.zoominfo.com/plans",
+        "https://www.zoominfo.com/pricing-plans"
+      ]
+    }
+  ]
+}

@@ -16,7 +16,8 @@
     "qa:freshness": "node qa/lint-freshness.mjs",
     "qa:screenshots": "node qa/qa-screenshots.mjs",
     "qa:review": "node qa/qa-claude-review.mjs",
-    "qa": "npm run qa:screenshots && npm run qa:review"
+    "qa": "npm run qa:screenshots && npm run qa:review",
+    "qa:pricing": "node pricing/build-pricing-index.mjs --selftest"
   },
   "dependencies": {
     "@astrojs/mdx": "^3.1.9",

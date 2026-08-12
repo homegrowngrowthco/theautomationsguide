@@ -1,0 +1,25 @@
+{
+  "_comment": "Vendors that refuse automated requests, read by hand from the same pricing page the automated path would have used. Same fields, same sourceUrl, same discipline: only figures literally shown on the page, nulls where the page does not say. These render on the site marked 'read manually' and are tagged extraction:'assisted' in the dataset. Kept out of build-pricing-index.mjs so a hand-entered figure can never be mistaken for a scraped one. Re-read these whenever the index is rebuilt; there is no automated staleness check on them.",
+  "_readOn": "2026-08-12",
+  "tools": {
+    "make": {
+      "sourceUrl": "https://www.make.com/en/pricing",
+      "currency": "USD",
+      "hasFreeTier": true,
+      "freeTierLimit": "1,000 credits/mo",
+      "entryPaidPlan": {
+        "name": "Core",
+        "monthlyBilledMonthly": 12,
+        "monthlyBilledAnnually": null,
+        "unitIncluded": "10,000 credits/mo"
+      },
+      "pricingUnit": "credits",
+      "minimumSeats": null,
+      "highestPublishedPlan": null,
+      "enterpriseIsQuoteOnly": true,
+      "apiOnPaidTierOnly": true,
+      "notes": "Prices are shown against a credit-volume slider defaulting to 10k credits/mo and rise with it. Annual price not shown as a figure, only 'Save 15% or more'.",
+      "validationFlags": []
+    }
+  }
+}
