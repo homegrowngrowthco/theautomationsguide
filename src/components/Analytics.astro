@@ -28,12 +28,20 @@ const CLARITY_PROJECT_ID = import.meta.env.PUBLIC_CLARITY_ID || 'wx8no58ptx';
 <script is:inline define:vars={{ POSTHOG_KEY, POSTHOG_HOST, GA4_MEASUREMENT_ID, CLARITY_PROJECT_ID }}>
   // Don't track localhost / preview by default — keeps real-traffic numbers clean.
   // Override by setting window.localStorage.setItem('posthog_track_local', '1') in the browser console.
+  //
+  // The comment above always claimed "/ preview", but only localhost was ever excluded:
+  // Netlify deploy previews sail straight through and DO get tracked. Measured 2026-08-12
+  // against project 408442: 894 events across 85 distinct `deploy-preview-N--...netlify.app`
+  // hostnames, i.e. 36% of everything ever attributed to this site, and every one of those
+  // 85 "people" is Ian or a bot loading a PR preview once. That inflates visitor counts and
+  // buries real referrers. Exclude any host that is not the production domain.
   const host = window.location.hostname;
   const isLocal = host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local');
+  const isPreview = host.endsWith('.netlify.app');
   const overrideLocal = (() => {
     try { return localStorage.getItem('posthog_track_local') === '1'; } catch (_) { return false; }
   })();
-  const trackingEnabled = !isLocal || overrideLocal;
+  const trackingEnabled = (!isLocal && !isPreview) || overrideLocal;
 
   // ── Deferred load ───────────────────────────────────────────────────
   // gtag.js (~90KB) + PostHog array.js were loading eagerly and competing for

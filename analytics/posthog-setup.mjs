@@ -23,8 +23,15 @@
 //                             us.i.posthog.com INGEST host).
 //
 // Usage (run from the repo root):
-//   node analytics/posthog-setup.mjs            # DRY RUN -> writes analytics/posthog-insights.json
-//   node analytics/posthog-setup.mjs --apply    # create the dashboard + insights
+//   node analytics/posthog-setup.mjs                     # DRY RUN -> writes analytics/posthog-insights.json
+//   node analytics/posthog-setup.mjs --apply             # create the dashboard + insights
+//   node analytics/posthog-setup.mjs --update --apply    # ALSO rewrite drifted existing insights
+//
+// --update exists because "create only what's missing" silently means "an insight
+// definition can never be corrected". The six insights below were created before
+// the $host scoping was added, so on a plain --apply they all report `exists` and
+// keep serving the unfiltered (FlyrAI-contaminated) query forever. With --update
+// the live query is diffed against the definition and PATCHed when it differs.
 
 import 'dotenv/config';
 import { writeFileSync } from 'node:fs';
@@ -34,6 +41,7 @@ import { fileURLToPath } from 'node:url';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUT = join(HERE, 'posthog-insights.json');
 const APPLY = process.argv.includes('--apply');
+const UPDATE = process.argv.includes('--update');
 
 const KEY = process.env.POSTHOG_PERSONAL_API_KEY;
 const HOST = (process.env.POSTHOG_HOST || 'https://us.posthog.com').replace(/\/+$/, '');
@@ -63,12 +71,34 @@ const trends = (series, extra = {}) => ({
   source: { kind: 'TrendsQuery', series, interval: 'day', dateRange: { date_from: '-30d' }, ...extra },
 });
 
+// ---- Production-host scoping -------------------------------------------------
+// Project 408442 is NOT TAG-only. Measured 2026-08-12, all-time event split:
+//   FlyrAI production   4441 (63.5%)   <- different product, same project
+//   TAG production      1560 (22.3%)
+//   TAG deploy-preview   894 (12.8%)
+//   localhost             81 (1.2%)
+// So an unfiltered $pageview/$autocapture insight on this dashboard was reporting
+// TAG numbers that were ~78% not-TAG. Scope every generic-event series to the
+// production hostname.
+//
+// Deliberately applied PER SERIES rather than as a global TrendsQuery/FunnelsQuery
+// filter, because a global filter would also hit the `affiliate_click` step and
+// zero it out: those events are POSTed straight to the ingest API by
+// src/pages/go/[tool].astro and historically carry no $host at all. They also need
+// no filter — FlyrAI has no /go/ pages, so affiliate_click is TAG-exclusive by
+// construction.
+const PROD_HOST = 'theautomationsguide.com';
+const onProdHost = (node) => ({
+  ...node,
+  properties: [...(node.properties || []), { key: '$host', value: PROD_HOST, operator: 'exact', type: 'event' }],
+});
+
 const INSIGHTS = [
   {
     name: 'Traffic overview - pageviews & visitors by referrer',
     description: 'Daily pageviews (total) and unique visitors, broken down by referring domain. Who is coming and from where.',
     query: trends(
-      [ev('$pageview', 'Pageviews', 'total'), ev('$pageview', 'Unique visitors', 'dau')],
+      [onProdHost(ev('$pageview', 'Pageviews', 'total')), onProdHost(ev('$pageview', 'Unique visitors', 'dau'))],
       { breakdownFilter: { breakdown: '$referring_domain', breakdown_type: 'event' } },
     ),
   },
@@ -76,7 +106,7 @@ const INSIGHTS = [
     name: 'Traffic by UTM source',
     description: 'Daily pageviews broken down by utm_source, so tagged newsletter/social links bucket cleanly.',
     query: trends(
-      [ev('$pageview', 'Pageviews', 'total')],
+      [onProdHost(ev('$pageview', 'Pageviews', 'total'))],
       { breakdownFilter: { breakdown: 'utm_source', breakdown_type: 'event' } },
     ),
   },
@@ -87,7 +117,7 @@ const INSIGHTS = [
       kind: 'InsightVizNode',
       source: {
         kind: 'FunnelsQuery',
-        series: [ev('$pageview', 'Pageview'), ev('affiliate_click', 'Affiliate click')],
+        series: [onProdHost(ev('$pageview', 'Pageview')), ev('affiliate_click', 'Affiliate click')],
         breakdownFilter: { breakdown: 'tool_name', breakdown_type: 'event' },
         dateRange: { date_from: '-90d' },
         funnelsFilter: { funnelVizType: 'steps' },
@@ -106,16 +136,19 @@ const INSIGHTS = [
     name: 'Top content - pageviews by blog path',
     description: 'Daily pageviews broken down by path, filtered to /blog/ posts. Which posts earn attention.',
     query: trends(
-      [{ ...ev('$pageview', 'Pageviews', 'total'), properties: [{ key: '$pathname', value: '/blog/', operator: 'icontains', type: 'event' }] }],
+      [onProdHost({ ...ev('$pageview', 'Pageviews', 'total'), properties: [{ key: '$pathname', value: '/blog/', operator: 'icontains', type: 'event' }] })],
       { breakdownFilter: { breakdown: '$pathname', breakdown_type: 'event' } },
     ),
   },
   {
     name: 'Newsletter / form intent',
     description: 'Daily pageviews that hit a #newsletter URL, alongside autocaptured form submits. On-site newsletter intent.',
+    // The form-submit series was the worst-hit of the six: FlyrAI's signup and
+    // onboarding forms are autocaptured into this same project, so "TAG newsletter
+    // intent" was largely counting a meal-planning app's signups.
     query: trends([
-      { ...ev('$pageview', 'Newsletter pageviews', 'total'), properties: [{ key: '$current_url', value: 'newsletter', operator: 'icontains', type: 'event' }] },
-      { ...ev('$autocapture', 'Form submits', 'total'), properties: [{ key: '$event_type', value: 'submit', operator: 'exact', type: 'event' }] },
+      onProdHost({ ...ev('$pageview', 'Newsletter pageviews', 'total'), properties: [{ key: '$current_url', value: 'newsletter', operator: 'icontains', type: 'event' }] }),
+      onProdHost({ ...ev('$autocapture', 'Form submits', 'total'), properties: [{ key: '$event_type', value: 'submit', operator: 'exact', type: 'event' }] }),
     ]),
   },
 ];
@@ -184,7 +217,33 @@ async function main() {
   const dashByName = new Map(existingDashboards.map((d) => [d.name, d]));
   const insightByName = new Map(existingInsights.map((i) => [i.name, i]));
 
-  const plan = INSIGHTS.map((i) => ({ name: i.name, action: insightByName.has(i.name) ? 'exists' : 'create' }));
+  // A naive JSON.stringify compare reports drift on EVERY insight forever: PostHog
+  // stores the query with its own key order and injects server-managed fields
+  // (`version: 4` on TrendsQuery/FunnelsQuery). Canonicalize both sides first —
+  // recursively sort object keys, drop the server-managed keys — so the check
+  // reports real definition changes only. Arrays keep their order (series order is
+  // meaningful: it defines the funnel steps).
+  const SERVER_MANAGED = new Set(['version']);
+  const canonical = (v) => {
+    if (Array.isArray(v)) return v.map(canonical);
+    if (v && typeof v === 'object') {
+      const out = {};
+      for (const k of Object.keys(v).sort()) {
+        if (SERVER_MANAGED.has(k)) continue;
+        out[k] = canonical(v[k]);
+      }
+      return out;
+    }
+    return v;
+  };
+  const sameQuery = (a, b) => JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
+  const actionFor = (def) => {
+    const ex = insightByName.get(def.name);
+    if (!ex) return 'create';
+    if (sameQuery(ex.query, def.query)) return 'exists';
+    return UPDATE ? 'update' : 'DRIFTED (re-run with --update to fix)';
+  };
+  const plan = INSIGHTS.map((i) => ({ name: i.name, action: actionFor(i) }));
   const dashAction = dashByName.has(DASHBOARD.name) ? 'exists' : 'create';
   console.log(`Dashboard "${DASHBOARD.name}": ${dashAction}`);
   for (const p of plan) console.log(`  insight "${p.name}": ${p.action}`);
@@ -212,11 +271,32 @@ async function main() {
 
   // --- create insights, pinned to the dashboard ---
   let created = 0;
+  let updated = 0;
   for (const def of INSIGHTS) {
     if (insightByName.has(def.name)) {
       const ex = insightByName.get(def.name);
-      console.log(`  exists: "${def.name}" (id ${ex.id})`);
-      result.insights.push({ id: ex.id, name: def.name, action: 'exists' });
+      const drifted = !sameQuery(ex.query, def.query);
+      if (!drifted) {
+        console.log(`  exists: "${def.name}" (id ${ex.id})`);
+        result.insights.push({ id: ex.id, name: def.name, action: 'exists' });
+        continue;
+      }
+      if (!UPDATE) {
+        console.log(`  DRIFTED: "${def.name}" (id ${ex.id}) — live query differs from the definition. Re-run with --update to rewrite it.`);
+        result.insights.push({ id: ex.id, name: def.name, action: 'drifted' });
+        continue;
+      }
+      const up = await api('PATCH', `/api/projects/${PROJECT_ID}/insights/${ex.id}/`, {
+        description: def.description,
+        query: def.query,
+      });
+      if (!up.ok) {
+        console.error(`  FAILED to update "${def.name}" (${up.status}): ${JSON.stringify(up.json).slice(0, 500)}`);
+        throw new Error('Insight update failed; fix the definition shape and re-run (idempotent).');
+      }
+      updated++;
+      console.log(`  updated: "${def.name}" (id ${ex.id})`);
+      result.insights.push({ id: ex.id, name: def.name, action: 'updated' });
       continue;
     }
     const res = await api('POST', `/api/projects/${PROJECT_ID}/insights/`, {
@@ -236,7 +316,7 @@ async function main() {
   }
 
   writeFileSync(OUT, JSON.stringify(result, null, 2) + '\n', 'utf8');
-  console.log(`\nDone. Created ${created} insight(s); dashboard "${DASHBOARD.name}" (id ${dashId}).`);
+  console.log(`\nDone. Created ${created} insight(s), updated ${updated}; dashboard "${DASHBOARD.name}" (id ${dashId}).`);
   console.log(`Open: ${HOST}/project/${PROJECT_ID}/dashboard/${dashId}`);
   console.log(`State written to ${OUT}.`);
 }
