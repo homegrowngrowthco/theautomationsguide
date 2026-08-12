@@ -22,8 +22,8 @@
 //   node qa/lint-freshness.mjs --base <ref>    # compare against an explicit ref
 //   node qa/lint-freshness.mjs --list          # report only, always exit 0
 //
-// Escape hatch: put [skip-freshness] in the HEAD commit subject (for a deliberate
-// no-bump edit, e.g. reverting a title experiment).
+// Escape hatch: put [skip-freshness] in ANY commit subject on the branch (for a
+// deliberate no-bump edit, e.g. a mechanical link insertion or a title revert).
 
 import { execFileSync } from 'node:child_process';
 import { readFileSync, existsSync } from 'node:fs';
@@ -60,9 +60,13 @@ if (!BASE) {
 }
 
 // ---- skip token ----------------------------------------------------------
-const headSubject = gitQuiet('log', '-1', '--pretty=%s') || '';
-if (/\[skip-freshness\]/i.test(headSubject)) {
-  console.log('[freshness] [skip-freshness] in HEAD commit subject; skipping.');
+// Scan EVERY commit subject in the range, not just HEAD's. On a pull_request
+// event actions/checkout checks out the refs/pull/N/merge commit, whose subject
+// is "Merge <sha> into <sha>" — so a HEAD-only check silently misses the token
+// and reds the very PR it was meant to exempt.
+const subjects = gitQuiet('log', '--pretty=%s', `${BASE}..HEAD`) || '';
+if (/\[skip-freshness\]/i.test(subjects)) {
+  console.log('[freshness] [skip-freshness] found in a commit subject on this branch; skipping.');
   process.exit(0);
 }
 
