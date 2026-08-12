@@ -8,6 +8,23 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
+Last updated 2026-08-12 (Session 75).
+
+## Quick reference: recent additions (Session 75, 2026-08-12)
+
+- **Shipped (branch `chore/growth-batch-2026-08-12`, 2 commits, NOT pushed — awaiting Ian):** (1) `qa/lint-freshness.mjs` + `.github/workflows/qa-freshness.yml`, the audit S-3 `updatedDate` upkeep gate; (2) the substack-to-kit title revert.
+- **Measurement (GSC, 8/12):** 28d = **16 clicks / 11,423 impr / CTR 0.14% / pos 36.6** (vs 11 clicks / 10.8k / pos 38.1 at the 8/04 audit). Best single week ~4 clicks, so the 10-click-week ramp gate is still far off. 19 pages sit page-1 with zero clicks.
+- **S-5 substack-to-kit CLOSED:** page-level pull shows no recovery and continued decay — 169 impr @ 9.1 (pre-rewrite) → 30 @ 15.1 (post) → 19 @ 17.8 (recent 28d). The 8/04 pre-registered rule fired, so PR #180's "in 2026" insertion is reverted. `updatedDate` deliberately NOT bumped (metadata revert, not a refresh; bumping would confound the read).
+- **Apollo cluster early read:** "apollo vs pipedrive" 26.7 vs 26.5 pre-PR #226 — no movement, but only ~5 post-merge days sit inside a 28d window. Not a verdict; the 9/01 re-check stands.
+- **L-9 is BLOCKED on C-4, and they are the same decision:** `src/pages/tools/[tool].astro` `getStaticPaths` maps every `tools.ts` entry with no `listed` filter, so registering a logo necessarily mints an indexable `/tools/` hub. 12 tools render logo-less; 8 (gong, outreach, salesloft, mailchimp, canva, creatify, linkedin-sales-navigator, findymail) have no `tools.ts` entry, so auto-register would have silently created 8 hubs. Recommendation: NO.
+- **Governance finding: the engine is already deciding C-4 by itself.** `/tools/zapier/` now exists because the auto-register step in a recent daily content PR minted it. Any no-program tool a post compares can acquire a hub as a side effect of publishing, with no human call. Worth a guard if the C-4 answer is NO.
+- **Index sweep 8/12: 179/196 indexed — the absolute count did NOT move from 8/04's 179/188.** Zero of the 8 `/tools/` hubs IndexNow'd on 8/04 cleared in 8 days; now 9 unknown to Google + 2 crawled-not-indexed (5/08 cheap-outbound-stack, 5/12 newsletter-automation-stack). 6 of the 15 unknown are 8/07-8/12 posts, which is normal lag. Read: IndexNow does not rescue thin orphan hubs; they need inbound links and prose. This is direct evidence against minting 8 more.
+- **Verify:** `node qa/lint-freshness.mjs` on the branch (exempt, 0 violations); `npm run qa:docs` 0 hard. Gate proven on all 5 paths: frontmatter-only → exempt, body-without-bump → exit 1, body-with-bump → pass, `[skip-freshness]` → skip, new post → exempt (the exemption that protects the daily engine).
+- **Revert:** `git branch -D chore/growth-batch-2026-08-12` (nothing pushed); docs-only TODO/session-log edits revert individually.
+- **Gotchas:** (1) `qa-content-pr.yml` is scoped to `content/` branches, so it never sees the edits that decay freshness — the gate needed its own all-PR workflow. (2) PowerShell mangled a `git commit -m` here-string containing double quotes (known trap) — write commit prose to a FILE and use `-F`. (3) A UTF-8 BOM defeats the `^---` frontmatter anchor and makes a post with a valid `updatedDate` report as having none; `splitFrontmatter` now strips it (same class as CLAUDE.md gotcha 9). (4) 7 stale worktrees under `C:\tmp` are all live dirs, so `git worktree prune` clears nothing — left alone, they may hold uncommitted work. (5) **Local master was 8 commits behind origin and I had not fetched**, so the first `tools.ts` registry read was against a stale tree and produced a wrong logoless inventory. `git fetch` BEFORE any registry analysis. The tell was the live sitemap listing `/tools/zapier/` while local `tools.ts` had no zapier entry — when live and local disagree, suspect the local ref, not the live site. (6) `Invoke-WebRequest` needs `-UseBasicParsing` here or it dies with a NonInteractive-mode error that looks like a network failure.
+
+---
+
 Last updated 2026-08-04 (Session 74).
 
 ## Quick reference: recent additions (Session 74, 2026-08-04)
