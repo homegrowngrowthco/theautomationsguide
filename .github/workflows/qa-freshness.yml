@@ -1,0 +1,35 @@
+name: Freshness gate
+
+# Growth audit S-3: a substantive edit to an already-published post must bump its
+# `updatedDate`, or the freshness signal decays as the corpus grows.
+#
+# This runs on EVERY pull request, unlike qa-content-pr.yml which is scoped to
+# `content/` branches. That scoping is the reason this needs its own workflow: the
+# engine's content PRs only ADD posts (exempt from this gate), so the edits that
+# actually decay the signal arrive on human/agent branches that the content QA
+# workflow never sees.
+#
+# Cheap by design: node + git only, no npm install, no build, no browser.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  freshness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          # Full history so merge-base against origin/master resolves.
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Check updatedDate on edited posts
+        run: node qa/lint-freshness.mjs
