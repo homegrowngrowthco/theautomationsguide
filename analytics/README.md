@@ -38,9 +38,43 @@ default, `--apply` to mutate), matching `backlog/build-backlog.mjs` /
 ### Usage (run from the repo root)
 
 ```sh
-node analytics/posthog-setup.mjs            # DRY RUN -> writes analytics/posthog-insights.json
-node analytics/posthog-setup.mjs --apply    # create the dashboard + insights
+node analytics/posthog-setup.mjs                     # DRY RUN -> writes analytics/posthog-insights.json
+node analytics/posthog-setup.mjs --apply             # create the dashboard + insights
+node analytics/posthog-setup.mjs --update --apply    # ALSO rewrite existing insights that drifted
 ```
+
+`--apply` alone only creates what is missing, so an insight that already exists can
+never be corrected. `--update` diffs each live query against the definition here and
+PATCHes the ones that differ. The diff canonicalizes both sides first (recursive key
+sort, minus PostHog's server-managed `version` field), otherwise every insight reports
+drift on every run.
+
+### Project 408442 is shared with FlyrAI
+
+PostHog project 408442 is named "The Automations Guide" but **FlyrAI ingests into it
+too**, and it is the larger writer. All-time event split measured 2026-08-12:
+
+| Source | Events | Share |
+|---|---|---|
+| FlyrAI production (`flyrai.vercel.app`) | 4,441 | 63.5% |
+| TAG production | 1,560 | 22.3% |
+| TAG Netlify deploy previews | 894 | 12.8% |
+| localhost | 81 | 1.2% |
+
+Until the projects are actually separated, every insight here scopes its
+`$pageview` / `$autocapture` series to `$host = theautomationsguide.com`. Without that
+scoping the dashboard overstated TAG by **3.6x on pageviews and 79x on form submits**
+(the newsletter-intent tile was counting FlyrAI signups), and listed `github.com` as a
+top TAG referrer when those 24 sessions were FlyrAI's.
+
+`affiliate_click` series are deliberately **not** host-scoped: FlyrAI has no `/go/`
+pages, so the event is TAG-exclusive by construction, and events captured before
+2026-08-12 carry no `$host` at all — filtering would silently drop them.
+
+**To finish the split, see [../TODO.md](../TODO.md).** It needs a PostHog UI action or an
+org-scoped personal key; the key in `.env` is project-scoped and gets
+`403 permission_denied` from `/api/organizations/` and `/api/projects/`, so no script
+can create a project with it.
 
 A keyless dry run still builds and writes `posthog-insights.json` (the exact
 definitions) for review, so you can eyeball the queries before supplying a key.

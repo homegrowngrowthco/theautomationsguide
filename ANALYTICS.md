@@ -15,6 +15,10 @@ This site runs two analytics tools side by side. Both are loaded once, on every 
   - `destination_url` (final URL)
   - `is_affiliate_url` (boolean: real affiliate link vs homepage fallback)
   - `referrer` (document referrer, or null)
+  - `$current_url`, `$host`, `$pathname` — sent explicitly, because this page POSTs
+    straight to the ingest API rather than going through the SDK, so nothing is
+    auto-derived. `$host` was missing until 2026-08-12; every `affiliate_click`
+    before that date has `$host = null` and cannot be filtered by site.
 
 ### Google Analytics 4 (live)
 - **Measurement ID:** `G-RKWHJ95P3H` (hardcoded as the default in `Analytics.astro`, the same way the PostHog key is).
@@ -22,12 +26,29 @@ This site runs two analytics tools side by side. Both are loaded once, on every 
 - Tracks pageviews and GA4 enhanced-measurement defaults (scroll, outbound clicks, site search, file downloads).
 - **Override (optional):** set `PUBLIC_GA4_ID` in Netlify env (or local `.env`) to point a given environment at a different property. The component falls back to the hardcoded id when that env var is unset.
 
-## The localhost gate (applies to both)
-Neither tool fires on `localhost`, `127.0.0.1`, or `*.local`, so local dev and previews do not pollute real numbers. To test tracking locally, run this in the browser console and reload:
+## The non-production gate (applies to both)
+Neither tool fires on `localhost`, `127.0.0.1`, `*.local`, or `*.netlify.app`, so local
+dev and Netlify deploy previews do not pollute real numbers. To test tracking locally,
+run this in the browser console and reload:
 ```js
 localStorage.setItem('posthog_track_local', '1')
 ```
 That override enables **both** PostHog and GA4.
+
+> Deploy previews were **not** excluded before 2026-08-12, despite this section
+> previously claiming previews were covered. Measured cost: 894 events across 85
+> distinct `deploy-preview-N--theautomationsguide.netlify.app` hostnames, 12.8% of
+> everything ever recorded in the project, each preview host counting as a separate
+> "visitor". Historical numbers before that date are inflated accordingly; scope any
+> backward-looking query to `$host = 'theautomationsguide.com'`.
+
+## Project 408442 is shared with FlyrAI
+The project is named "The Automations Guide", but FlyrAI ingests into it as well and is
+the larger writer (63.5% of all events). Every insight in the **TAG Overview** dashboard
+therefore scopes its `$pageview`/`$autocapture` series to
+`$host = theautomationsguide.com`. Do the same in any ad-hoc query or the numbers you
+read are mostly a meal-planning app's. See [analytics/README.md](analytics/README.md) for
+the split table and what finishing the separation requires.
 
 ## GA4 status and follow-ups
 GA4 (`G-RKWHJ95P3H`) is live as of the design-refresh deploy. The CSP in [public/_headers](public/_headers) already allows the GA4 domains (`googletagmanager.com`, `*.google-analytics.com`, `*.analytics.google.com`).

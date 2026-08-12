@@ -77,6 +77,16 @@ if (!link || !destination) {
         var PH_KEY = 'phc_tfEQ3bUgg7uXppT2vXRqzPcnv9PiJWWWYjPGAV7Zaabv';
         var INGEST = 'https://us.i.posthog.com/e/';
         function go() { window.location.replace(url); }
+        // Mirror Analytics.astro's host gate: a click on a deploy preview or localhost
+        // is Ian testing, not revenue intent. The redirect itself always proceeds —
+        // only the capture is skipped.
+        // The same localStorage override Analytics.astro honours, so the beacon can
+        // still be exercised on a deploy preview when you are testing it on purpose.
+        var h = window.location.hostname;
+        var nonProd = h === 'localhost' || h === '127.0.0.1' || h.endsWith('.local') || h.endsWith('.netlify.app');
+        var override = false;
+        try { override = localStorage.getItem('posthog_track_local') === '1'; } catch (e) {}
+        if (nonProd && !override) { go(); return; }
         try {
           // Reuse the visitor's existing PostHog distinct_id (set by the SDK on the
           // referring page) so pageview -> affiliate_click stays one funnel. A cold
@@ -85,6 +95,12 @@ if (!link || !destination) {
           var m = document.cookie.match(new RegExp('ph_' + PH_KEY + '_posthog=([^;]+)'));
           if (m) { try { did = JSON.parse(decodeURIComponent(m[1])).distinct_id; } catch (e) {} }
           if (!did) did = 'anon_' + Math.random().toString(36).slice(2) + '_' + Date.now();
+          // $host / $pathname must be sent EXPLICITLY. PostHog's SDK derives them from
+          // the page, but this is a raw ingest POST, so anything not in `properties`
+          // is simply absent — confirmed 2026-08-12: all 9 affiliate_click events in
+          // project 408442 have $host = null, which makes the one event that measures
+          // money the one event you cannot filter by site. Matters doubly while the
+          // project is shared with FlyrAI.
           var payload = {
             api_key: PH_KEY,
             event: 'affiliate_click',
@@ -97,6 +113,8 @@ if (!link || !destination) {
               is_affiliate_url: isAffiliate,
               referrer: document.referrer || null,
               $current_url: window.location.href,
+              $host: window.location.host,
+              $pathname: window.location.pathname,
             },
           };
           var blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
