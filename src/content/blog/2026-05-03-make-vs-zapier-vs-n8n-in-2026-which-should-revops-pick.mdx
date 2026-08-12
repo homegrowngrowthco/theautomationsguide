@@ -27,6 +27,8 @@ import ComparisonTable from '@/components/ComparisonTable.astro';
 
 Most RevOps teams pick their automation platform the same way they pick a CRM: whoever got there first wins, and now you're stuck maintaining 200 Zaps built by a sales ops analyst who left in 2023. In 2026, the gap between these three platforms has widened enough that a wrong choice costs real money and real engineering hours. [Make](/go/make) (formerly Integromat), Zapier, and [n8n](/go/n8n) have each staked out very different territory, and the right answer depends almost entirely on whether you're optimizing for speed, cost, or control.
 
+*This is the general three-way platform decision. For the narrower cold-outbound case (Clay webhooks, sequencer handoffs) see [n8n vs Make for cold outbound](/blog/2026-05-25-n8n-vs-make-for-cold-outbound-clay-webhooks-compared/), and for why teams actually switched rather than which spec wins, see [why RevOps teams chose n8n over Make](/blog/2026-06-20-why-revops-teams-chose-n8n-over-make-in-2026/).*
+
 <StatRow stats={[
   { number: "$50/mo", label: "n8n Cloud Pro", description: "50,000 executions, unlimited workflows. Self-hosted on a $20 VPS goes effectively to zero." },
   { number: "$160/mo", label: "Make Teams plan", description: "200,000 ops. Roughly 5x the volume Zapier gives you at the same price point." },

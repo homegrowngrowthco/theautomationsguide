@@ -29,6 +29,8 @@ import ComparisonTable from '@/components/ComparisonTable.astro';
 
 Cold outbound stacks have gotten complicated. A typical sequence today runs [Clay](/go/clay) for enrichment, a webhook to push qualified rows into a sequencer, and some middleware layer to route, dedupe, and handle errors in between. That middleware choice ([Make](/go/make) or [n8n](/go/n8n)) sounds like a minor implementation detail until your [Clay](/tools/clay/) table is enriching 8,000 rows overnight and you wake up to 600 failed webhook deliveries that made zero noise.
 
+*This comparison is scoped to cold outbound specifically. For the broader platform decision including Zapier, see [Make vs Zapier vs n8n](/blog/2026-05-03-make-vs-zapier-vs-n8n-in-2026-which-should-revops-pick/), and for the migration story behind the switch, see [why RevOps teams chose n8n over Make](/blog/2026-06-20-why-revops-teams-chose-n8n-over-make-in-2026/).*
+
 <StatRow stats={[
   { number: "5x", label: "Operation Multiplier", description: "A 5-module Make scenario costs 5 operations per Clay row. At 10k rows/month that is 50,000 operations, pushing you into Make's Core or higher tier." },
   { number: "30s", label: "Clay Webhook Timeout", description: "Clay drops webhook calls that do not receive a 200 response within 30 seconds. Neither platform documents this prominently, and it causes silent data loss." },
