@@ -13,6 +13,7 @@
     "qa:logos": "node qa/lint-logos.mjs",
     "qa:seo": "node qa/seo-scan.mjs",
     "qa:docs": "node qa/lint-docs.mjs",
+    "qa:freshness": "node qa/lint-freshness.mjs",
     "qa:screenshots": "node qa/qa-screenshots.mjs",
     "qa:review": "node qa/qa-claude-review.mjs",
     "qa": "npm run qa:screenshots && npm run qa:review"
