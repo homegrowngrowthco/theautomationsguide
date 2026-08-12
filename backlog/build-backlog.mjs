@@ -41,7 +41,7 @@ const r = (...p) => readFileSync(join(ROOT, ...p), 'utf8');
 const COUNT = Number((process.argv.find((a) => a.startsWith('--count=')) || '').split('=')[1]) || 25;
 const MODEL = (process.argv.find((a) => a.startsWith('--model=')) || '').split('=')[1] || 'claude-sonnet-4-6';
 // --mine-only: load the corpus, run GSC query mining, print unserved demand, exit.
-// (No Anthropic call — a free debugging/inspection mode for the mining layer.)
+// (No Anthropic call â€” a free debugging/inspection mode for the mining layer.)
 const MINE_ONLY = process.argv.includes('--mine-only');
 
 // --stage writes the kept topics to the live Notion Content Calendar as
@@ -86,11 +86,11 @@ if (STAGE && !NOTION_TOKEN) {
 // across functions silently collapses or splits matches). ----
 const norm = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 // Strip em/en dashes deterministically rather than relying on a prompt rule.
-const dedash = (s) => (s || '').replace(/\s*[—–]\s*/g, ', ');
+const dedash = (s) => (s || '').replace(/\s*[â€”â€“]\s*/g, ', ');
 
 // ---- ANCHOR FENCE (anti-slop). Tools we must NEVER anchor a post on: no-affiliate
 // incumbents a young domain cannot rank for. GSC proof (2026-07): gong-alternatives
-// = 301 impr @ avg pos 71, 0 clicks, no /go/ program — pure wasted spend. These may
+// = 301 impr @ avg pos 71, 0 clicks, no /go/ program â€” pure wasted spend. These may
 // still appear as a comparison foil or the "from" side of a migration; they just may
 // never be the anchorTool the post is built around. Extend as new dead anchors surface. ----
 const NO_ANCHOR = new Set(
@@ -107,7 +107,7 @@ const NO_ANCHOR = new Set(
 // universe includes AFFILIATE_PIPELINE.md's wishlist, which is a list of programs we
 // might one day join, not ones we can monetise today. Deriving the fence from the
 // registry closes that gap and keeps closing it as statuses change.
-// Key may be bare (zapier:) or quoted ('reply-io':) — same quote-agnostic parse the
+// Key may be bare (zapier:) or quoted ('reply-io':) â€” same quote-agnostic parse the
 // content linter needs (CLAUDE.md gotcha 9).
 function parseAffiliateStatus() {
   const src = r('src', 'data', 'affiliate-links.ts');
@@ -181,7 +181,7 @@ function parsePipelineBacklog() {
   for (const line of lines) {
     const h = line.match(/^###\s+(.*)$/);
     if (h) {
-      category = h[1].replace(/[⭐🔎✅]/g, '').replace(/\s+/g, ' ').trim();
+      category = h[1].replace(/[â­ðŸ”Žâœ…]/g, '').replace(/\s+/g, ' ').trim();
       continue;
     }
     if (!line.trim().startsWith('|')) continue;
@@ -190,7 +190,7 @@ function parsePipelineBacklog() {
     const first = cells[1] || '';
     if (!first || /^-+$/.test(first) || first.toLowerCase() === 'tool') continue; // header/separator
     if (/~~/.test(first)) continue; // excluded (e.g. ~~Koala~~)
-    const name = first.replace(/\*\*/g, '').replace(/[⭐🔎✅]/g, '').trim();
+    const name = first.replace(/\*\*/g, '').replace(/[â­ðŸ”Žâœ…]/g, '').trim();
     if (!name) continue;
     const notes = (cells[3] || '') + ' ' + (cells[2] || '');
     out.push({
@@ -199,7 +199,7 @@ function parsePipelineBacklog() {
       category,
       hasLP: false,
       listed: false,
-      firstMover: /⭐/.test(line), // a star anywhere in the row
+      firstMover: /â­/.test(line), // a star anywhere in the row
       aliases: [name],
     });
   }
@@ -405,7 +405,7 @@ async function auditQueue(universe) {
     }
     console.log(`\n--prune-apply: set ${skipped}/${collisions.length} duplicate rows to Skipped.`);
   } else if (collisions.length) {
-    console.log('\n(dry run — re-run with --prune-apply to Skip the duplicate collisions.)');
+    console.log('\n(dry run â€” re-run with --prune-apply to Skip the duplicate collisions.)');
   }
 }
 
@@ -588,7 +588,7 @@ function makeResolver(universe) {
 }
 
 // Classify a title/keyword into a search-intent class. Single-anchor intents
-// (alternatives, pricing, migration) should exist at most ONCE per anchor tool —
+// (alternatives, pricing, migration) should exist at most ONCE per anchor tool â€”
 // this is the gate that would have stopped the two "Instantly alternatives" posts
 // shipped 8 days apart (2026-06-02 + 2026-06-10, consolidated in PR #158).
 function intentOf(text) {
@@ -599,7 +599,7 @@ function intentOf(text) {
   if (/\breview\b/.test(s)) return 'review';
   return null;
 }
-// Tools named in the TITLE text itself (not the whole-post toolset — an
+// Tools named in the TITLE text itself (not the whole-post toolset â€” an
 // alternatives post mentions many tools in the body, but is "about" the one in
 // its title).
 function titleTools(universe, text) {
@@ -626,7 +626,7 @@ function jaccard(a, b) {
 // gate above (different third tool -> different signature; reordered names -> title
 // jaccard 0.57 < 0.72). A shared pair alone is NOT a collision (Cognism-vs-Apollo-
 // vs-Lusha "European outbound" legitimately coexists with Lusha-vs-Apollo-vs-
-// ZoomInfo "B2B contact data") — it collides only when the non-tool FRAMING tokens
+// ZoomInfo "B2B contact data") â€” it collides only when the non-tool FRAMING tokens
 // also overlap (jaccard >= 0.5), i.e. same pair sold under the same category angle.
 const isComparison = (text) => /\bvs\.?(\s|$)|\bversus\b/i.test(text || '');
 function comparisonEntry(universe, title, keyword) {
@@ -666,7 +666,7 @@ function collide(universe, index, cand) {
   const kw = cand.keyword || norm(topic);
   const sig = signature(cand.toolset);
   if (index.keywords.has(kw) || index.titles.has(norm(topic))) return 'keyword/title already covered';
-  // Identical tool set: collide only within the same intent class — a migration
+  // Identical tool set: collide only within the same intent class â€” a migration
   // guide over {pipedrive, hubspot} is NOT a duplicate of a comparison over the
   // same pair (migrations are the site's winning format; don't prune them because
   // a comparison exists). Single-tool sets additionally require a non-null intent
@@ -697,7 +697,7 @@ function collide(universe, index, cand) {
     // sails through. Three such permutations of the lemlist/smartlead/instantly/
     // reply-io family reached the calendar and were Skipped by hand on 2026-08-12.
     // A shared pair plus no angle IS the duplicate.
-    // ce.rest is already stopword- and year-stripped by tokenSet, so "…: 2026"
+    // ce.rest is already stopword- and year-stripped by tokenSet, so "â€¦: 2026"
     // reduces to the empty set.
     if (ce.rest.size < 2) {
       const perm = index.comparisons.find((c) => [...ce.pairs].some((p) => c.pairs.has(p)));
@@ -791,9 +791,16 @@ function dedup(proposals, universe, covered) {
     if (fenced) { dropped.push({ topic, reason: `fence: ${fenced}` }); continue; }
     const unknown = unknownComparisonOperands(universe, topic);
     if (unknown.length) { dropped.push({ topic, reason: `unknown comparison operand(s): ${unknown.join(', ')} not in the tool universe` }); continue; }
-    const unreg = unregisteredNamed(universe, text);
+    const unreg = unregisteredNamed(universe, topic);
     if (unreg.length) { dropped.push({ topic, reason: `registry fence: ${unreg.join(', ')} has no affiliate-links.ts entry, so its /go/ CTA would 404` }); continue; }
-    if (isAlternativesFraming(text)) { dropped.push({ topic, reason: 'format fence: "alternatives/competitors" is the worst-performing format (audit 2026-08-04)' }); continue; }
+    // TITLE ONLY, never the target keyword. A migration guide legitimately TARGETS
+    // an "x alternatives" query while being a migration post, and migrations are the
+    // site's most reliable format. Testing topic+keyword rejected four of them in the
+    // first live dry run ("Migrate from Lusha to Prospeo", "Migrate from Pipedrive to
+    // Attio", ...) purely because the proposer picked an alternatives keyword. The
+    // audit's finding is about the post FORMAT, which the title states, not the query
+    // it chases.
+    if (isAlternativesFraming(topic)) { dropped.push({ topic, reason: 'format fence: "alternatives/competitors" is the worst-performing format (audit 2026-08-04)' }); continue; }
     if (!namesEarningTool(universe, text)) { dropped.push({ topic, reason: 'CTA fence: title names no tool that can carry a /go/ CTA' }); continue; }
     const reason = collide(universe, index, cand);
     if (reason) { dropped.push({ topic, reason }); continue; }
@@ -868,7 +875,7 @@ async function main() {
   if (MINE_ONLY) {
     console.log('\n--mine-only: unserved GSC queries (impressions / avg position):');
     for (const d of demand) console.log(`  ${String(d.impressions).padStart(4)}  pos ${String(d.position).padStart(3)}  ${d.query}`);
-    if (!demand.length) console.log('  (none — either GSC creds missing or every query is served)');
+    if (!demand.length) console.log('  (none â€” either GSC creds missing or every query is served)');
     return;
   }
   console.log(`Proposing ${COUNT} topics via ${MODEL}...`);
@@ -944,6 +951,14 @@ const CONTROLS = [
   'Connect PandaDoc to HubSpot for Proposal Automation Without Custom Code',
   'What JustCall Actually Costs in 2026: Per-Seat Pricing, AI Add-ons, and Hidden Fees',
   'Apollo vs Lusha: Best Contact Data for Healthcare Outbound',
+  // REGRESSION LOCK. A migration guide may legitimately target an "x alternatives"
+  // query. The first live dry run rejected four migrations because the format fence
+  // read topic+targetKeyword instead of the title. Migrations are the site's most
+  // reliable format, so this must never be blocked again.
+  {
+    topic: 'Migrate from GetResponse to ActiveCampaign Without Losing Your Sequences',
+    targetKeyword: 'getresponse alternatives',
+  },
 ];
 
 // The 8 the fences deliberately do NOT catch. Each needs a semantic judgment a
@@ -978,7 +993,11 @@ function selfTest() {
   const resolve = makeResolver(universe);
   // Mimic the proposer: anchor on the first tool the title names, else a live-status
   // tool, so the anchor fence does not mask the fence actually under test.
-  const asProposal = (topic) => {
+  // Accepts a bare title, or { topic, targetKeyword } when the keyword is the thing
+  // under test.
+  const asProposal = (fixture) => {
+    const topic = typeof fixture === 'string' ? fixture : fixture.topic;
+    const targetKeyword = typeof fixture === 'string' ? '' : (fixture.targetKeyword || '');
     const named = titleTools(universe, topic).map((s) => universe.find((t) => t.slug === s)).filter(Boolean);
     const anchor = named.find((t) => !isNoAnchor(t)) || named[0];
     return {
@@ -988,7 +1007,7 @@ function selfTest() {
       // SET is what drives signature/collision dedup. Leaving it empty made the
       // fixture understate the dedup layer.
       alsoCovers: named.filter((t) => t !== anchor).map((t) => t.name),
-      targetKeyword: '',
+      targetKeyword,
     };
   };
 
