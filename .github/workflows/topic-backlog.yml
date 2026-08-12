@@ -57,6 +57,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Fence regression test, BEFORE anything can write to Notion. Replays the
+      # 36 topics scrubbed by hand on 2026-08-12 through the live dedup/fence
+      # logic and fails if any would now be staged again, or if the control set
+      # gets over-blocked. Key-free and offline, so it costs nothing and cannot
+      # flake on an API.
+      - name: Guard selftest (2026-08-12 scrub fixture)
+        run: node backlog/build-backlog.mjs --selftest
+
       - name: Resolve run config
         id: cfg
         run: |
