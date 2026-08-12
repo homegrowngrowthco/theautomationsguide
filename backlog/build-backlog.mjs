@@ -54,6 +54,7 @@ const STATUS = process.argv.includes('--status');
 // published corpus (catches duplicates/slop that reached the queue by any path, not
 // just builder proposals). --prune-apply flips the dedup collisions to Skipped.
 const AUDIT_QUEUE = process.argv.includes('--audit-queue');
+const SELFTEST = process.argv.includes('--selftest');
 const PRUNE_APPLY = process.argv.includes('--prune-apply');
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
 const NOTION_DB = process.env.NOTION_DATABASE_ID || '62f34586-4f78-4b83-b2ac-105f500d059e';
@@ -70,7 +71,9 @@ if (STATUS) {
   process.exit(0);
 }
 
-if (!process.env.ANTHROPIC_API_KEY && !MINE_ONLY) {
+// --selftest never calls Claude: it replays a fixed fixture through the local
+// dedup/fence logic, so it must run key-free (that is what makes it CI-able).
+if (!process.env.ANTHROPIC_API_KEY && !MINE_ONLY && !SELFTEST) {
   console.error('ANTHROPIC_API_KEY not set. Add it to .env (project root) or your environment.');
   process.exit(1);
 }
@@ -95,7 +98,49 @@ const NO_ANCHOR = new Set(
    'seismic', 'clari', '6sense', 'sixsense', 'chorus', 'drift', 'people.ai', 'highspot']
     .map(norm)
 );
-const isNoAnchor = (tool) => !!tool && (NO_ANCHOR.has(norm(tool.slug)) || NO_ANCHOR.has(norm(tool.name)));
+
+// affiliate-links.ts is the source of truth for whether a /go/<slug> CTA can route
+// at all. The hand-maintained NO_ANCHOR list above went stale: the 2026-08-12 queue
+// scrub Skipped 36 of 72 topics, 11 of them anchored on tools with NO registry entry
+// (savvycal, uplead, lead-forensics, dripify, sharpspring, iterable, zendesk-sell,
+// insightly, freshsales, salesmate, airtable). Those reach the calendar because the
+// universe includes AFFILIATE_PIPELINE.md's wishlist, which is a list of programs we
+// might one day join, not ones we can monetise today. Deriving the fence from the
+// registry closes that gap and keeps closing it as statuses change.
+// Key may be bare (zapier:) or quoted ('reply-io':) — same quote-agnostic parse the
+// content linter needs (CLAUDE.md gotcha 9).
+function parseAffiliateStatus() {
+  const src = r('src', 'data', 'affiliate-links.ts');
+  const region = src.slice(src.indexOf('affiliateLinks'));
+  const marks = [...region.matchAll(/^\s{2}['"]?([a-z0-9-]+)['"]?:\s*\{/gm)];
+  const byslug = new Map();
+  for (let i = 0; i < marks.length; i++) {
+    const start = marks[i].index;
+    const end = i + 1 < marks.length ? marks[i + 1].index : region.length;
+    const block = region.slice(start, end);
+    byslug.set(norm(marks[i][1]), (block.match(/status:\s*['"]([a-z-]+)['"]/) || [])[1] || 'unknown');
+  }
+  return byslug;
+}
+const AFFILIATE_STATUS = parseAffiliateStatus();
+// A status that can never pay out. `pending` is fine: the program exists, we just
+// have not applied yet, so the post is monetisable the day we do.
+const DEAD_STATUS = new Set(['no-program', 'rejected']);
+const affiliateStatusOf = (tool) =>
+  AFFILIATE_STATUS.get(norm(tool.slug)) ?? AFFILIATE_STATUS.get(norm(tool.name)) ?? null;
+
+// Returns a human-readable fence reason, or null if the tool is a legal anchor.
+function noAnchorReason(tool) {
+  if (!tool) return null;
+  if (NO_ANCHOR.has(norm(tool.slug)) || NO_ANCHOR.has(norm(tool.name))) {
+    return `"${tool.name}" is a fenced no-program incumbent`;
+  }
+  const status = affiliateStatusOf(tool);
+  if (status === null) return `"${tool.name}" has no affiliate-links.ts entry, so no /go/ CTA can route`;
+  if (DEAD_STATUS.has(status)) return `"${tool.name}" affiliate status is ${status}, so the post can never earn`;
+  return null;
+}
+const isNoAnchor = (tool) => noAnchorReason(tool) !== null;
 
 // ---------- 1. UNIVERSE: tools.ts ----------
 function parseToolsTs() {
@@ -395,7 +440,7 @@ async function stageToNotion(kept) {
 // refresh_token, webmasters.readonly scope) or GSC_TOKEN_FILE (path to it). Skips
 // gracefully when neither is set so local runs without GSC still work.
 const GSC_SITE = process.env.GSC_SITE || 'sc-domain:theautomationsguide.com';
-const STOPWORDS = new Set(['the', 'a', 'an', 'for', 'of', 'in', 'on', 'to', 'vs', 'versus', 'and', 'or', 'best', 'top', 'with', 'is', 'are', 'what', 'which', 'how', 'why', 'when', 'you', 'your', 'my', 'it', 'that', '2024', '2025', '2026', 'tool', 'tools', 'software']);
+const STOPWORDS = new Set(['the', 'a', 'an', 'for', 'of', 'in', 'on', 'to', 'vs', 'versus', 'and', 'or', 'best', 'top', 'with', 'is', 'are', 'what', 'which', 'how', 'why', 'when', 'you', 'your', 'my', 'it', 'that', '2024', '2025', '2026', '2027', 'tool', 'tools', 'software']);
 const tokenSet = (s) => new Set(
   (s || '').toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').split(/[\s-]+/).filter((w) => w.length > 1 && !STOPWORDS.has(w))
 );
@@ -644,6 +689,20 @@ function collide(universe, index, cand) {
   if (ce) {
     const hit = index.comparisons.find((c) => [...ce.pairs].some((p) => c.pairs.has(p)) && jaccard(ce.rest, c.rest) >= 0.5);
     if (hit) return `comparison pair + framing already covered by: ${hit.title}`;
+    // BARE PERMUTATION. The framing gate above deliberately lets a shared pair
+    // coexist under a DIFFERENT angle ("Cognism vs Apollo vs Lusha: European
+    // outbound" alongside "Lusha vs Apollo vs ZoomInfo: B2B contact data"). But a
+    // title carrying no angle at all ("Reply.io vs Lemlist vs Instantly: 2026")
+    // has no differentiating framing to compare, so jaccard stays under 0.5 and it
+    // sails through. Three such permutations of the lemlist/smartlead/instantly/
+    // reply-io family reached the calendar and were Skipped by hand on 2026-08-12.
+    // A shared pair plus no angle IS the duplicate.
+    // ce.rest is already stopword- and year-stripped by tokenSet, so "…: 2026"
+    // reduces to the empty set.
+    if (ce.rest.size < 2) {
+      const perm = index.comparisons.find((c) => [...ce.pairs].some((p) => c.pairs.has(p)));
+      if (perm) return `bare permutation: shares a tool pair with "${perm.title}" and adds no differentiating framing`;
+    }
   }
   return null;
 }
@@ -656,6 +715,57 @@ function addToIndex(universe, index, cand) {
   index.titleTokens.push({ title: cand.title, toks: tokenSet(`${cand.title} ${cand.keyword || ''}`) });
   const ce = comparisonEntry(universe, cand.title, cand.keyword);
   if (ce) index.comparisons.push(ce);
+}
+
+// FORMAT FENCE. The 2026-08-04 growth audit ranked "alternatives" the site's
+// WORST-performing format (clicks come from fresh niche 3-way comparisons and
+// reviews at pos 6-15; migrations are the reliable format). Four such topics were
+// Skipped by hand on 2026-08-12. Stop minting them at the source.
+const isAlternativesFraming = (text) => /\balternatives?\b|\bcompetitors?\b/i.test(text || '');
+
+// CTA FENCE. A title naming no tool that can carry a /go/ CTA is an essay, not a
+// monetisable post: "Why RevOps Budgets Blow Up in Q1" has nothing to link. This
+// also catches titles built entirely from dead-status tools, e.g. "Why Gong
+// Replaced Outreach for Your SDRs" (both no-program). Seven such topics were
+// Skipped on 2026-08-12. Deliberately keyed on the TITLE rather than the anchor:
+// the title is what the reader and the SERP actually see.
+function namesEarningTool(universe, text) {
+  return titleTools(universe, text).some((slug) => {
+    const tool = universe.find((t) => t.slug === slug);
+    return tool && !isNoAnchor(tool);
+  });
+}
+
+// REGISTRY FENCE, any title position. The anchor fence only guards the tool the
+// post is built around, but a comparison COLUMN needs a /go/ CTA too, and a column
+// with no affiliate-links.ts entry renders a link that 404s (a hard lint failure on
+// master, the exact class that broke /go/findymail). Eight of the 2026-08-12 scrub
+// were comparisons whose anchor was fine and whose third column was unregistered:
+// Savvycal, UpLead, Lead Forensics, Dripify, Airtable, Freshsales, Salesmate,
+// Insightly, Zendesk Sell. Reject on ANY named tool lacking a registry entry.
+// Deliberately narrower than the anchor fence: a no-program tool (Gong, Outreach)
+// is still a legal comparison foil because /go/<slug> resolves via homepageFallback.
+// UNKNOWN-OPERAND FENCE. The registry fence below can only see tools that exist in
+// our universe, so it is blind to the failure mode that actually happened: the
+// proposer invents a comparison column we have never heard of (Savvycal, UpLead,
+// Lead Forensics, Dripify, Airtable, Freshsales, Salesmate, Insightly, Zendesk
+// Sell). Those reach the calendar, then the post ships a /go/ CTA for a tool with
+// no registry entry. A "vs" title states its operands explicitly, so require every
+// one of them to resolve. Nine of the 2026-08-12 scrub were exactly this.
+function unknownComparisonOperands(universe, title) {
+  if (!isComparison(title)) return [];
+  const resolve = makeResolver(universe);
+  const clause = (title.split(':')[0] || '').trim(); // "A vs B vs C: angle" -> "A vs B vs C"
+  const operands = clause.split(/\s+vs\.?\s+|\s+versus\s+/i).map((s) => s.trim()).filter(Boolean);
+  if (operands.length < 2) return [];
+  return operands.filter((o) => !resolve(o));
+}
+
+function unregisteredNamed(universe, text) {
+  return titleTools(universe, text)
+    .map((slug) => universe.find((t) => t.slug === slug))
+    .filter((t) => t && affiliateStatusOf(t) === null)
+    .map((t) => t.name);
 }
 
 function dedup(proposals, universe, covered) {
@@ -674,9 +784,17 @@ function dedup(proposals, universe, covered) {
     const kw = norm(p.targetKeyword || '') || norm(topic);
     const cand = { title: topic, keyword: kw, toolset: toolSlugs };
 
+    const text = `${topic} ${p.targetKeyword || ''}`;
     if (!anchor) { dropped.push({ topic, reason: 'anchor not in universe' }); continue; }
-    // FENCE: never anchor on a no-program incumbent the young domain cannot rank for.
-    if (isNoAnchor(anchor)) { dropped.push({ topic, reason: `fence: anchor "${anchor.name}" is a no-program incumbent` }); continue; }
+    // FENCE: never anchor on a tool that cannot carry a /go/ CTA (registry-derived).
+    const fenced = noAnchorReason(anchor);
+    if (fenced) { dropped.push({ topic, reason: `fence: ${fenced}` }); continue; }
+    const unknown = unknownComparisonOperands(universe, topic);
+    if (unknown.length) { dropped.push({ topic, reason: `unknown comparison operand(s): ${unknown.join(', ')} not in the tool universe` }); continue; }
+    const unreg = unregisteredNamed(universe, text);
+    if (unreg.length) { dropped.push({ topic, reason: `registry fence: ${unreg.join(', ')} has no affiliate-links.ts entry, so its /go/ CTA would 404` }); continue; }
+    if (isAlternativesFraming(text)) { dropped.push({ topic, reason: 'format fence: "alternatives/competitors" is the worst-performing format (audit 2026-08-04)' }); continue; }
+    if (!namesEarningTool(universe, text)) { dropped.push({ topic, reason: 'CTA fence: title names no tool that can carry a /go/ CTA' }); continue; }
     const reason = collide(universe, index, cand);
     if (reason) { dropped.push({ topic, reason }); continue; }
     addToIndex(universe, index, cand); // dedup subsequent proposals against this one too
@@ -773,6 +891,139 @@ async function main() {
   }
 }
 
+// ---------- SELFTEST ----------
+// Regression fixture for the 2026-08-12 queue scrub: every topic Ian Skipped by
+// hand must now be rejected at generation time, and a control set must survive so
+// the fences are not simply blocking everything. Runs offline (published posts are
+// the dedup corpus; no Notion, no API key).
+//   node backlog/build-backlog.mjs --selftest
+const SCRUBBED_2026_08_12 = [
+  'Your HubSpot Implementation Is Failing: The Five Silent Reasons and How to Fix Them',
+  'Apollo Alternatives When Enrichment Costs Explode',
+  'Apollo vs Smartlead vs Instantly: 2026',
+  'Best CRM for Outbound Teams Under $250',
+  'Calendly vs Chili Piper vs Savvycal',
+  'Chili Piper Alternatives for Inbound Lead Routing in 2026',
+  'Clay vs Apollo vs Smartlead: 2026',
+  'Dripify vs Apollo: Which LinkedIn Outreach Tool Wins for B2B in 2026',
+  'HubSpot to Beehiiv: Revenue Stack 2026',
+  'HubSpot vs Competitors: Why Teams Switch and What They Move To in 2026',
+  'HubSpot vs Zapier: Why RevOps Teams Use Both and When to Drop One',
+  'HubSpot Workflows Failing? Migrate to Kit in 2026',
+  'Iterable Competitors in 2026: Which Email Platform Should You Switch To',
+  'Kit vs Beehiiv vs Loops: B2B Revenue Stack',
+  'Lusha vs UpLead vs Prospeo: Best B2B Contact Data for Outbound in 2026',
+  'Migrate from Lusha to Prospeo Without Losing Your Enrichment Workflows',
+  'Outbound Data Spend Blowup: Apollo vs Clay',
+  'Pipedrive vs ActiveCampaign: Which Tool Actually Owns Your Pipeline',
+  'Pipedrive vs Airtable: Why One Is a CRM and the Other Is Not',
+  'Pipedrive vs Freshsales vs Salesmate: Best CRM for Outbound Under $100',
+  'Pipedrive vs Insightly: Which CRM Actually Fits a Small GTM Team',
+  'Pipedrive vs Zendesk Sell: Which CRM Actually Fits a Sales-First Team',
+  'RB2B vs Lead Forensics vs Warmly: Best Visitor ID Tool for Outbound',
+  'Reply.io vs Lemlist vs Instantly: 2026',
+  'SharpSpring vs HubSpot: Is the Cheaper Marketing Automation Worth It',
+  'Smartlead Alternatives When Pricing Jumps',
+  'Smartlead vs Reply.io vs Instantly: 2026',
+  'The $1200/mo Enterprise GTM Stack: 2026',
+  'The $800/mo Enterprise Outbound Stack',
+  'What Your Outbound Stack Actually Costs Per Lead in 2026: A Tool-by-Tool Breakdown',
+  'Why Gong Replaced Outreach for Your SDRs',
+  'Why RevOps Budgets Blow Up in Q1',
+  'Why RevOps Teams Are Abandoning Loops',
+  'Why RevOps Teams Hate Their Automation Stacks',
+  'Why Your Automation Stack Costs 3x More Than It Should',
+  'Your Pipedrive Sequences Are Silent',
+];
+// Must SURVIVE. Guards against over-blocking: a review, a migration, a workflow
+// tutorial, a pricing page, and a comparison that shares a tool pair with a
+// published post but carries a genuinely different angle.
+const CONTROLS = [
+  'Profound Review 2026: The GEO and AI Search Tool Built for B2B Content Teams',
+  'Migrate from Aircall to JustCall Without Disrupting Your SDR Team',
+  'Connect PandaDoc to HubSpot for Proposal Automation Without Custom Code',
+  'What JustCall Actually Costs in 2026: Per-Seat Pricing, AI Add-ons, and Hidden Fees',
+  'Apollo vs Lusha: Best Contact Data for Healthcare Outbound',
+];
+
+// The 8 the fences deliberately do NOT catch. Each needs a semantic judgment a
+// deterministic gate cannot make without becoming brittle and over-blocking, so
+// they stay a human-review job rather than a bad rule. Kept explicit so a future
+// change that DOES catch one is visible (the test tells you to shrink this list).
+//   - HubSpot vs Zapier / Pipedrive vs ActiveCampaign: real tools, but the pairing
+//     is cross-category. "Is this a fair comparison?" is not mechanical.
+//   - HubSpot Workflows -> Kit: CRM automation vs newsletter tool, same problem.
+//   - Kit vs Beehiiv vs Loops: a 3rd permutation of the newsletter family, but it
+//     carries enough distinct framing to clear the bare-permutation gate. Tightening
+//     that threshold would over-block legitimate re-angles.
+//   - Migrate from Lusha to Prospeo: duplicates a QUEUED row, not a published one.
+//     Production catches this (main() puts the live calendar in the dedup corpus);
+//     the selftest runs offline against published posts only.
+//   - The remaining three are vague/thin framings ("Your Pipedrive Sequences Are
+//     Silent"), which is an editorial call, not a detectable property.
+const ACCEPTED_JUDGMENT_LEAKS = new Set([
+  'HubSpot vs Zapier: Why RevOps Teams Use Both and When to Drop One',
+  'HubSpot Workflows Failing? Migrate to Kit in 2026',
+  'Kit vs Beehiiv vs Loops: B2B Revenue Stack',
+  'Migrate from Lusha to Prospeo Without Losing Your Enrichment Workflows',
+  'Outbound Data Spend Blowup: Apollo vs Clay',
+  'Pipedrive vs ActiveCampaign: Which Tool Actually Owns Your Pipeline',
+  'Why RevOps Teams Are Abandoning Loops',
+  'Your Pipedrive Sequences Are Silent',
+]);
+
+function selfTest() {
+  const universe = buildUniverse();
+  const covered = parsePublishedPosts(universe);
+  const resolve = makeResolver(universe);
+  // Mimic the proposer: anchor on the first tool the title names, else a live-status
+  // tool, so the anchor fence does not mask the fence actually under test.
+  const asProposal = (topic) => {
+    const named = titleTools(universe, topic).map((s) => universe.find((t) => t.slug === s)).filter(Boolean);
+    const anchor = named.find((t) => !isNoAnchor(t)) || named[0];
+    return {
+      topic,
+      anchorTool: anchor ? anchor.name : 'Clay',
+      // Faithful to a real proposal: the proposer fills alsoCovers, and the tool
+      // SET is what drives signature/collision dedup. Leaving it empty made the
+      // fixture understate the dedup layer.
+      alsoCovers: named.filter((t) => t !== anchor).map((t) => t.name),
+      targetKeyword: '',
+    };
+  };
+
+  const bad = dedup(SCRUBBED_2026_08_12.map(asProposal), universe, covered);
+  const good = dedup(CONTROLS.map(asProposal), universe, covered);
+
+  const leaked = bad.kept.map((k) => k.topic);
+  const blocked = good.dropped;
+
+  console.log(`SCRUBBED fixture: ${SCRUBBED_2026_08_12.length} topics, ${bad.dropped.length} rejected, ${leaked.length} leaked.`);
+  for (const d of bad.dropped) console.log(`  reject  ${d.topic}\n            -> ${d.reason}`);
+
+  // Anything NOT on the accepted list is a regression.
+  const unexpected = leaked.filter((t) => !ACCEPTED_JUDGMENT_LEAKS.has(t));
+  const nowCaught = [...ACCEPTED_JUDGMENT_LEAKS].filter((t) => !leaked.includes(t));
+
+  if (leaked.length) {
+    console.log(`\nLEAKED ${leaked.length} (all expected: ${unexpected.length === 0}):`);
+    leaked.forEach((t) => console.log(`  - ${t}${ACCEPTED_JUDGMENT_LEAKS.has(t) ? '' : '   <-- UNEXPECTED'}`));
+  }
+  if (nowCaught.length) {
+    console.log('\nNo longer leaking (shrink ACCEPTED_JUDGMENT_LEAKS):');
+    nowCaught.forEach((t) => console.log(`  - ${t}`));
+  }
+
+  console.log(`\nCONTROLS: ${CONTROLS.length} topics, ${good.kept.length} survived, ${blocked.length} over-blocked.`);
+  if (blocked.length) { console.log('OVER-BLOCKED (should have survived):'); blocked.forEach((d) => console.log(`  - ${d.topic}\n      -> ${d.reason}`)); }
+
+  const pass = unexpected.length === 0 && nowCaught.length === 0 && blocked.length === 0;
+  console.log(`\n${bad.dropped.length}/${SCRUBBED_2026_08_12.length} caught deterministically; ${ACCEPTED_JUDGMENT_LEAKS.size} left to human review.`);
+  console.log(`selftest: ${pass ? 'PASS' : 'FAIL'}`);
+  process.exit(pass ? 0 : 1);
+}
+
 const runFatal = (e) => { console.error('\nFatal:', e.message || e); process.exit(1); };
-if (AUDIT_QUEUE) auditQueue(buildUniverse()).catch(runFatal);
+if (process.argv.includes('--selftest')) { try { selfTest(); } catch (e) { runFatal(e); } }
+else if (AUDIT_QUEUE) auditQueue(buildUniverse()).catch(runFatal);
 else main().catch(runFatal);
