@@ -1,0 +1,320 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { tools } from '../data/tools';
+import index from '../data/pricing-index.json';
+
+// The dataset is built by pricing/build-pricing-index.mjs and committed, so the page
+// is a pure render of a reviewable file rather than a live scrape at build time.
+// Every figure below traces to a vendor URL and the date it was read.
+type Plan = { name?: string; monthlyBilledMonthly?: number | null; monthlyBilledAnnually?: number | null; unitIncluded?: string | null };
+type Row = {
+  slug: string; name: string; category: string; status: string;
+  extraction?: string; sourceUrl?: string; reason?: string;
+  currency?: string | null; hasFreeTier?: boolean | null; freeTierLimit?: string | null;
+  entryPaidPlan?: Plan | null; pricingUnit?: string | null; minimumSeats?: number | null;
+  highestPublishedPlan?: Plan | null; enterpriseIsQuoteOnly?: boolean | null;
+  apiOnPaidTierOnly?: boolean | null; notes?: string | null;
+};
+
+const data = index as unknown as { generatedAt: string; method: string; counts: Record<string, number>; tools: Row[] };
+const rows = data.tools;
+const priced = rows.filter((r) => r.status === 'ok');
+const unpriced = rows.filter((r) => r.status !== 'ok');
+
+// A hub exists for every registered tool, so linking each row to its own page turns
+// this into an internal-link source for the /tools/ hubs rather than a dead end.
+const hubSlugs = new Set(tools.map((t) => t.slug));
+
+const categories = [...new Set(priced.map((r) => r.category))].sort();
+
+const money = (n: number | null | undefined, cur: string | null | undefined) => {
+  if (n == null) return null;
+  const sym = cur === 'EUR' ? '€' : cur === 'GBP' ? '£' : '$';
+  return `${sym}${Number.isInteger(n) ? n : n.toFixed(2)}`;
+};
+
+const entryDisplay = (r: Row) => {
+  const p = r.entryPaidPlan;
+  if (!p) return null;
+  const annual = money(p.monthlyBilledAnnually, r.currency);
+  const monthly = money(p.monthlyBilledMonthly, r.currency);
+  return { name: p.name || null, annual, monthly, unit: p.unitIncluded || null };
+};
+
+// Count how much of the table is actually populated, and say so on the page. A price
+// index that quietly renders blanks as if they were zeroes is worse than no index.
+const filled = priced.filter((r) => r.entryPaidPlan?.monthlyBilledAnnually != null || r.entryPaidPlan?.monthlyBilledMonthly != null).length;
+
+const pageTitle = 'RevOps Automation Tool Pricing Index';
+const pageDesc = `Entry pricing, free tiers, and billing units for ${priced.length} RevOps and GTM automation tools, read from each vendor's own pricing page on ${data.generatedAt}. Every figure is cited.`;
+
+const datasetLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Dataset',
+  name: pageTitle,
+  description: pageDesc,
+  url: 'https://theautomationsguide.com/revops-automation-pricing/',
+  dateModified: data.generatedAt,
+  creator: { '@type': 'Organization', name: 'The Automations Guide', url: 'https://theautomationsguide.com/' },
+  license: 'https://creativecommons.org/licenses/by/4.0/',
+  isAccessibleForFree: true,
+  measurementTechnique: data.method,
+  distribution: [{
+    '@type': 'DataDownload',
+    encodingFormat: 'application/json',
+    contentUrl: 'https://theautomationsguide.com/data/revops-pricing-index.json',
+  }],
+};
+---
+
+<BaseLayout title={pageTitle} description={pageDesc}>
+  <script type="application/ld+json" set:html={JSON.stringify(datasetLd)} />
+
+  <section class="pi-hero">
+    <div class="container">
+      <div class="hero-eyebrow">Open data &middot; Updated {data.generatedAt}</div>
+      <h1>RevOps automation tool pricing index</h1>
+      <p class="pi-lede">
+        What {priced.length} RevOps and GTM automation tools actually cost to start using, in one
+        table. Entry price, what the free tier gives you, and what you are billed per: seat,
+        flat, credits, or usage.
+      </p>
+      <p class="pi-sub">
+        Every figure here was read from the vendor's own pricing page on {data.generatedAt}, and
+        every row links to the exact page it came from. Where a vendor does not publish a number,
+        the cell is blank on purpose. Nothing is estimated, and nothing is carried over from a
+        previous version of a vendor's pricing.
+      </p>
+      <div class="pi-actions">
+        <a class="pi-btn" href="/data/revops-pricing-index.json" download>Download the raw JSON</a>
+        <a class="pi-btn pi-btn--ghost" href="#method">How this was built</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- container--wide, not container: at the default reading width the table's
+       rightmost column (the source citation) falls outside the scroll box, which
+       hides the one thing that makes this page worth citing. -->
+  <section class="container--wide pi-section">
+    <div class="pi-stats">
+      <div class="pi-stat"><strong>{priced.length}</strong><span>tools with published pricing</span></div>
+      <div class="pi-stat"><strong>{filled}</strong><span>with a machine-readable entry price</span></div>
+      <div class="pi-stat"><strong>{priced.filter((r) => r.hasFreeTier).length}</strong><span>offering a genuine free tier</span></div>
+      <div class="pi-stat"><strong>{priced.filter((r) => r.enterpriseIsQuoteOnly).length}</strong><span>gating their top tier behind a sales call</span></div>
+    </div>
+
+    <div class="pi-filter">
+      <label for="pi-cat">Filter by category</label>
+      <select id="pi-cat">
+        <option value="">All categories</option>
+        {categories.map((c) => <option value={c}>{c}</option>)}
+      </select>
+      <span class="pi-count" id="pi-count">{priced.length} tools</span>
+    </div>
+
+    <div class="pi-tablewrap">
+      <table class="pi-table">
+        <thead>
+          <tr>
+            <th scope="col">Tool</th>
+            <th scope="col">Free tier</th>
+            <th scope="col">Entry paid plan</th>
+            <th scope="col">Billed per</th>
+            <th scope="col">Top published tier</th>
+            <th scope="col">Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          {priced.map((r) => {
+            const e = entryDisplay(r);
+            return (
+              <tr data-cat={r.category}>
+                <th scope="row">
+                  {hubSlugs.has(r.slug)
+                    ? <a href={`/tools/${r.slug}/`}>{r.name}</a>
+                    : r.name}
+                  <span class="pi-cat">{r.category}</span>
+                </th>
+                <td>
+                  {r.hasFreeTier === true
+                    ? <><span class="pi-yes">Yes</span>{r.freeTierLimit && <span class="pi-note">{r.freeTierLimit}</span>}</>
+                    : r.hasFreeTier === false ? <span class="pi-no">No</span> : <span class="pi-blank" title="Not stated on the vendor's pricing page">not stated</span>}
+                </td>
+                <td>
+                  {e && (e.annual || e.monthly) ? (
+                    <>
+                      {e.name && <span class="pi-plan">{e.name}</span>}
+                      <span class="pi-price">
+                        {e.annual ? <>{e.annual}<small>/mo billed annually</small></> : <>{e.monthly}<small>/mo</small></>}
+                      </span>
+                      {e.annual && e.monthly && <span class="pi-note">{e.monthly}/mo billed monthly</span>}
+                      {e.unit && <span class="pi-note">includes {e.unit}</span>}
+                    </>
+                  ) : <span class="pi-blank" title="No entry price stated in the page we read">not published</span>}
+                </td>
+                <td>{r.pricingUnit ? <span class="pi-unit">{r.pricingUnit}</span> : <span class="pi-blank">&mdash;</span>}
+                  {r.minimumSeats != null && <span class="pi-note">min {r.minimumSeats} seat{r.minimumSeats === 1 ? '' : 's'}</span>}
+                </td>
+                <td>
+                  {r.highestPublishedPlan?.monthlyBilledAnnually != null
+                    ? <><span class="pi-plan">{r.highestPublishedPlan.name}</span><span class="pi-price">{money(r.highestPublishedPlan.monthlyBilledAnnually, r.currency)}<small>/mo</small></span></>
+                    : r.enterpriseIsQuoteOnly ? <span class="pi-quote">quote only</span> : <span class="pi-blank">&mdash;</span>}
+                </td>
+                <td>
+                  {r.sourceUrl && <a class="pi-src" href={r.sourceUrl} rel="nofollow noopener" target="_blank">vendor page</a>}
+                  <span class="pi-note">read {data.generatedAt}</span>
+                  {r.extraction === 'assisted' && <span class="pi-note pi-assisted" title="This vendor blocks automated requests, so the page was read manually. Same source, same date.">read manually</span>}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+
+    {priced.some((r) => r.notes) && (
+      <details class="pi-details">
+        <summary>Caveats recorded per tool ({priced.filter((r) => r.notes).length})</summary>
+        <ul class="pi-notes">
+          {priced.filter((r) => r.notes).map((r) => <li><strong>{r.name}:</strong> {r.notes}</li>)}
+        </ul>
+      </details>
+    )}
+  </section>
+
+  <section class="container pi-section" id="method">
+    <h2>How this was built, and what it does not cover</h2>
+    <p>
+      A script reads each vendor's public pricing page and extracts the figures into a
+      committed JSON file. The extractor is explicitly forbidden from using prior knowledge of
+      a brand: if a number is not literally present in the page it just read, it records a blank
+      and a reason instead of a guess. A validation pass then re-checks every extracted price
+      against the source text and discards any figure it cannot find there, which catches the
+      failure mode where a plausible-looking price is invented.
+    </p>
+    <p>
+      That discipline is the entire point, so it is worth being blunt about the cost: this
+      table has real gaps. {filled} of {priced.length} tools yielded a machine-readable entry
+      price. The rest publish pricing in a form the extractor could read only partly, and a
+      blank cell means "we could not verify this", never "this is free" or "this is
+      unavailable".
+    </p>
+
+    {unpriced.length > 0 && (
+      <>
+        <h3>{unpriced.length} tools are not in the table above</h3>
+        <p>Listed here rather than silently dropped, because which tools are missing is itself information:</p>
+        <ul class="pi-missing">
+          {unpriced.map((r) => (
+            <li>
+              <strong>{r.name}</strong>
+              <span class={`pi-tag pi-tag--${r.status}`}>{r.status.replace(/-/g, ' ')}</span>
+              {r.reason && <span class="pi-note">{r.reason}</span>}
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+
+    <h3>Reuse and corrections</h3>
+    <p>
+      The dataset is published under <a href="https://creativecommons.org/licenses/by/4.0/" rel="nofollow noopener" target="_blank">CC BY 4.0</a>:
+      use it, chart it, quote it, with a link back. If you spot a figure that is wrong or out of
+      date, <a href="/about/">tell us</a> and it gets fixed in the next build. Vendors change
+      pricing without notice, so treat the read date on each row as the expiry stamp it is.
+    </p>
+    <p class="pi-disclosure">
+      Some tool names link to our own review pages, and some of those pages carry affiliate
+      links. None of that influences a number in this table: the figures come from the vendors'
+      pricing pages, not from us. <a href="/disclosure/">Full disclosure</a>.
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .pi-hero { padding: 3rem 0 1.5rem; }
+  .pi-lede { font-size: 1.15rem; max-width: 62ch; }
+  .pi-sub { color: var(--color-muted, #5b6472); max-width: 68ch; font-size: 0.95rem; }
+  .pi-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; }
+  .pi-btn {
+    display: inline-block; padding: 0.6rem 1.1rem; border-radius: 6px;
+    background: var(--color-accent, #14a890); color: #fff; font-weight: 600;
+    text-decoration: none; font-size: 0.95rem;
+  }
+  .pi-btn--ghost { background: transparent; color: var(--color-accent, #14a890); border: 1px solid currentColor; }
+  .pi-section { padding: 1.5rem 0 2.5rem; }
+
+  /* minmax(160px) so all four stats sit on one row at desktop instead of leaving a
+     single orphaned card on a second row. */
+  .pi-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .pi-stat { border: 1px solid var(--color-border, #e5e1d4); border-radius: 8px; padding: 1rem; }
+  .pi-stat strong { display: block; font-size: 1.9rem; line-height: 1.1; font-family: var(--font-display, inherit); }
+  .pi-stat span { font-size: 0.85rem; color: var(--color-muted, #5b6472); }
+
+  .pi-filter { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .pi-filter label { font-size: 0.9rem; font-weight: 600; }
+  .pi-filter select { padding: 0.45rem 0.6rem; border-radius: 6px; border: 1px solid var(--color-border, #e5e1d4); background: #fff; }
+  .pi-count { font-size: 0.85rem; color: var(--color-muted, #5b6472); }
+
+  /* The table is wide by nature; it scrolls inside its own box so the page body never does. */
+  .pi-tablewrap { overflow-x: auto; border: 1px solid var(--color-border, #e5e1d4); border-radius: 8px; }
+  .pi-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 860px; }
+  .pi-table th, .pi-table td { text-align: left; padding: 0.75rem 0.9rem; vertical-align: top; border-bottom: 1px solid var(--color-border, #e5e1d4); }
+  .pi-table thead th { position: sticky; top: 0; background: var(--color-bg, #fdfcf8); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .pi-table tbody tr:last-child th, .pi-table tbody tr:last-child td { border-bottom: 0; }
+  .pi-table th[scope='row'] { font-weight: 600; white-space: nowrap; }
+
+  /* Explicit column widths. Left to itself the browser gives the mostly-empty
+     "free tier" column a quarter of the table and squeezes the source citation
+     until "vendor page" wraps onto two lines. */
+  .pi-table th:nth-child(1), .pi-table td:nth-child(1) { width: 17%; }
+  .pi-table th:nth-child(2), .pi-table td:nth-child(2) { width: 13%; }
+  .pi-table th:nth-child(3), .pi-table td:nth-child(3) { width: 30%; }
+  .pi-table th:nth-child(4), .pi-table td:nth-child(4) { width: 11%; }
+  .pi-table th:nth-child(5), .pi-table td:nth-child(5) { width: 15%; }
+  .pi-table th:nth-child(6), .pi-table td:nth-child(6) { width: 14%; }
+  .pi-table td:nth-child(6) { white-space: nowrap; }
+
+  .pi-cat, .pi-note { display: block; font-size: 0.75rem; font-weight: 400; color: var(--color-muted, #5b6472); margin-top: 0.15rem; white-space: normal; }
+  .pi-plan { display: block; font-weight: 600; }
+  .pi-price { display: block; font-family: var(--font-mono, monospace); font-size: 1rem; }
+  .pi-price small { font-size: 0.7rem; color: var(--color-muted, #5b6472); margin-left: 0.2rem; }
+  .pi-yes { color: #0f8a72; font-weight: 600; }
+  .pi-no { color: #9aa3ad; }
+  .pi-blank { color: #9aa3ad; font-style: italic; font-size: 0.85rem; }
+  .pi-quote { font-size: 0.85rem; color: var(--color-muted, #5b6472); }
+  .pi-unit { font-size: 0.85rem; }
+  .pi-assisted { font-style: italic; }
+  .pi-src { font-size: 0.85rem; }
+
+  .pi-details { margin-top: 1.5rem; }
+  .pi-details summary { cursor: pointer; font-weight: 600; }
+  .pi-notes { margin-top: 0.75rem; font-size: 0.9rem; line-height: 1.6; }
+  .pi-missing { list-style: none; padding: 0; display: grid; gap: 0.6rem; }
+  .pi-missing li { border-left: 3px solid var(--color-border, #e5e1d4); padding-left: 0.75rem; }
+  .pi-tag { display: inline-block; margin-left: 0.5rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 0.1rem 0.4rem; border-radius: 3px; background: #f0ede3; color: #5b6472; }
+  .pi-disclosure { font-size: 0.85rem; color: var(--color-muted, #5b6472); }
+
+  @media (max-width: 640px) {
+    .pi-table { font-size: 0.85rem; }
+    .pi-stat strong { font-size: 1.5rem; }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var sel = document.getElementById('pi-cat');
+    var count = document.getElementById('pi-count');
+    if (!sel) return;
+    sel.addEventListener('change', function () {
+      var want = sel.value;
+      var shown = 0;
+      document.querySelectorAll('.pi-table tbody tr').forEach(function (tr) {
+        var match = !want || tr.getAttribute('data-cat') === want;
+        tr.style.display = match ? '' : 'none';
+        if (match) shown++;
+      });
+      if (count) count.textContent = shown + (shown === 1 ? ' tool' : ' tools');
+    });
+  })();
+</script>

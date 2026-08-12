@@ -41,6 +41,11 @@ const articleCount = (slug: string) => {
         takes on where each tool fits and when to use it. Every tool here has been used in a
         real GTM stack.
       </p>
+      <p class="tools-hero-aside">
+        Comparing on cost? The <a href="/revops-automation-pricing/">RevOps pricing index</a> lists
+        entry price, free tier, and billing unit for every tool here, each read from the vendor's
+        own pricing page and dated.
+      </p>
     </div>
   </section>
 
@@ -169,4 +174,14 @@ const articleCount = (slug: string) => {
     font-size: 0.95rem;
   }
   .tool-index a:hover { color: var(--accent); text-decoration: underline; }
+
+  /* Sits under the hero copy, deliberately quieter than it: a pointer to the data
+     asset, not a competing headline. */
+  .tools-hero-aside {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: var(--text-muted, #5b6472);
+    border-left: 3px solid var(--accent, #14a890);
+    padding-left: 0.85rem;
+  }
 </style>

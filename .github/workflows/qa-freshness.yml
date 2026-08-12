@@ -1,4 +1,4 @@
-name: Freshness gate
+name: PR gates (no build)
 
 # Growth audit S-3: a substantive edit to an already-published post must bump its
 # `updatedDate`, or the freshness signal decays as the corpus grows.
@@ -33,3 +33,22 @@ jobs:
 
       - name: Check updatedDate on edited posts
         run: node qa/lint-freshness.mjs
+
+  # The pricing index is a public, citable dataset, so a silent regression in its
+  # extractor is a credibility problem rather than a cosmetic one. The self-test is
+  # pure node builtins (no npm install, no network, no API key), so it costs seconds
+  # and can run on every PR. It also runs inside the builder before any live fetch.
+  pricing-selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Pricing extractor self-test
+        run: node pricing/build-pricing-index.mjs --selftest

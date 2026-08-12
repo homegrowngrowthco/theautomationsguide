@@ -15,6 +15,7 @@ RevOps/GTM automation blog at **theautomationsguide.com**. Affiliate-monetized (
 | Affiliate registry | `src/data/affiliate-links.ts` | **Source of truth for every `/go/<slug>` redirect + program status.** Missing entry = 404 = hard lint fail |
 | QA gates | `qa/` | `lint-content` `render-acceptance` `mobile-overflow` `lint-logos` `seo-scan` `auto-register-tools` + Vision review/fixer. npm: `qa:lint` `qa:render` `qa:overflow` `qa:logos` `qa:seo` `qa:docs` |
 | Topic/LP builders | `backlog/` | `build-backlog.mjs` (weekly GHA, stages Notion `Suggested`; `--status` = queue census), `build-tool-lp.mjs` |
+| Pricing index | `pricing/` | `build-pricing-index.mjs` -> `src/data/pricing-index.json` + `public/data/`, rendered at `/revops-automation-pricing/`. The linkable asset. **Never guesses**: a figure absent from the fetched page is `null` with a reason. `--selftest` (13 fixtures, offline) gates every run |
 | Engine + deployers | `n8n/` | `blog-post-engine.json` + idempotent `update-engine-*.mjs` updaters; deploy via `deploy-engine.mjs --apply` (needs `N8N_API_URL`+`N8N_API_KEY` in env; source: `node --env-file=../growth-engine/.env`) |
 | CI | `.github/workflows/` | `qa-content-pr.yml` (content gates), `auto-merge-content.yml` (2-day threshold, alerts on stuck PRs), `topic-backlog.yml` (weekly), `handle-tool-reply.yml` (PR-comment tool registration) |
 | Analytics | `analytics/` + GSC scripts | `posthog-setup.mjs`; root `gsc-index-status.py` + `gsc-search-analytics.py` (OAuth cache `~/.gsc/`, venv `C:\Users\Ian\.venvs\gsc`) |
