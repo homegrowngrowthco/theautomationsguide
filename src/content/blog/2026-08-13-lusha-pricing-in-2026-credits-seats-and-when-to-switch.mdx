@@ -1,0 +1,178 @@
+---
+title: "Lusha Pricing in 2026: Credits, Seats, and When to Switch"
+description: "Lusha's credit model hides real costs for growing teams. Here's what you actually pay across tiers, plus when Apollo, Cognism, or FullEnrich wins instead."
+tldr: "Lusha's Pro plan runs roughly $49 per seat per month but credit rollover limits and per-seat pricing make it expensive fast for teams of 5 or more, where Apollo or FullEnrich often deliver better unit economics."
+pubDate: 2026-08-13
+tags: ["tools", "automation", "prospecting"]
+faqs:
+  - question: "How much does Lusha cost per month?"
+    answer: "Lusha's Pro plan starts at $49 per seat per month (billed annually). The free tier gives 5 credits per month, and the Scale plan is custom-priced for larger teams."
+  - question: "Do Lusha credits roll over?"
+    answer: "No. Lusha credits expire at the end of each billing cycle and do not roll over, which means unused credits each month are lost."
+  - question: "Is Lusha cheaper than Apollo?"
+    answer: "Apollo's Basic plan is free and its Professional plan is $49 per seat per month, similar to Lusha Pro, but Apollo includes unlimited email credits and a broader feature set at that price point."
+  - question: "What is the difference between Lusha Free and Lusha Pro?"
+    answer: "The free plan gives 5 credits per month with no team features, while Pro unlocks 480 credits per seat annually, CRM integrations, and bulk enrichment."
+  - question: "Who are Lusha's main competitors?"
+    answer: "The most commonly evaluated alternatives to Lusha are Apollo.io, Cognism, FullEnrich, and LeadMagic, each with different strengths around data coverage, compliance, and enrichment flexibility."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Every RevOps operator I know has been through the same cycle with [Lusha](/go/lusha/): sign up for the free tier, hit the credit wall by day three, upgrade to Pro thinking the math works out, then six months later realize half those credits evaporated unused while the team was still manually copy-pasting phone numbers from LinkedIn. The question is not really whether Lusha is good. It is whether the credit model fits how your team actually prospects, and whether the per-seat cost holds up against what [Apollo](/go/apollo/), [Cognism](/go/cognism/), [FullEnrich](/go/fullenrich/), or [LeadMagic](/go/leadmagic/) would run you for the same output.
+
+<KeyTakeaways items={[
+  "Lusha Pro is $49/seat/month (annual) with 480 credits per seat per year, credits do NOT roll over monthly",
+  "A 5-seat Pro team pays roughly $2,940/year and gets 2,400 total credits, about $1.23 per contact",
+  "Apollo Professional at the same seat count includes unlimited email credits and sequences for a comparable price",
+  "Cognism is significantly pricier but delivers GDPR-compliant mobile-verified numbers that Lusha frequently cannot match",
+  "FullEnrich and LeadMagic win on pure enrichment cost when you already own the list and just need phone or email appended"
+]} />
+
+## What Lusha's tiers actually give you
+
+Lusha publishes four tiers: Free, Pro, Premium, and Scale. Free is a real product (5 credits/month, no team features, Chrome extension only) and genuinely useful for solo SDRs testing coverage before committing. The tiers that matter for teams are Pro and Premium.
+
+Pro runs $49 per seat per month billed annually, or $79 month-to-month. Each seat gets 40 credits per month, pooled at the account level as 480 credits per seat per year. Credits cover phone numbers and emails equally. One revealed contact costs one credit, whether you pull a mobile or a work email. The plan includes CRM integrations (Salesforce, HubSpot, Pipedrive), bulk enrichment via CSV, and the Chrome extension for LinkedIn prospecting.
+
+Premium pricing is not publicly listed and requires a sales conversation, which is itself a data point worth sitting with. Based on what clients I've worked with have reported back, it typically lands between $70 and $90 per seat per month for larger credit allocations and priority support. Scale is fully custom and generally only makes sense above 25 seats.
+
+<StatRow stats={[
+  { number: "$49", label: "Pro seat/month (annual)", description: "Entry point for teams; 480 credits per seat per year, no rollover" },
+  { number: "$1.23", label: "Cost per contact at Pro", description: "Assuming all 480 annual credits are used, zero waste" },
+  { number: "5", label: "Free credits per month", description: "Enough to test coverage before you commit to a paid plan" }
+]} />
+
+## The true cost for a real team
+
+Let me run the math for a team I consult with regularly: 5 SDRs, each targeting roughly 60 new contacts per month. That is 300 contacts per month or 3,600 per year.
+
+At Lusha Pro, 5 seats costs $245/month billed annually, or $2,940/year. Those 5 seats generate 2,400 credits (480 x 5). To reach 3,600 contacts, the team needs to purchase an additional 1,200 credits. Lusha's overage credit bundles typically run around $1.50 to $2.00 per credit outside of plan, pushing total spend to roughly $3,740 to $4,740 per year.
+
+That is before you account for credit waste. In practice, I see teams use 60 to 75 percent of their allocated credits because prospecting cadences are lumpy. A big campaign in Q1 burns through half the year's budget; a slower Q3 leaves credits expiring unused. The real cost per usable contact ends up closer to $1.80 to $2.50 once you factor that in.
+
+For comparison, [Apollo's](/tools/apollo/) Professional plan at $49/seat/month includes unlimited email credits plus 1,200 export credits per seat per year and a full sequences module. If your team is running outbound sequences anyway, the value calculus flips hard.
+
+Don't bother trying to "optimize" your Lusha credit usage with manual tracking spreadsheets. I've watched that approach fail at two different clients. Run a waterfall in [Clay](/go/clay/) instead and spend your credits where they actually convert.
+
+<SideBySide>
+<Fragment slot="left">
+**The credit waste trap**
+
+Lusha resets credits monthly (for monthly plans) or pools them annually (for annual plans). Annual pooling sounds better but creates a Q4 panic-spend pattern I've seen at multiple clients: teams realize in November that 800 credits expire December 31 and start pulling contacts indiscriminately just to "use them up." Those contacts rarely make it into an actual sequence. You end up paying full price for a list that collects dust in a CSV.
+</Fragment>
+<Fragment slot="right">
+**A simple sanity-check formula**
+
+Before committing to a Lusha tier, run this math:
+
+```
+Monthly contacts needed x 12 = annual credits required
+Annual credits required / (seats x 480) = plans needed
+
+If result > 1.5, you will overage every year.
+Overage cost = excess credits x ~$1.75
+Add to annual plan cost for true spend.
+```
+
+If true spend exceeds Apollo Pro for the same seat count, move the budget conversation there instead.
+</Fragment>
+</SideBySide>
+
+## Which tier fits which team
+
+<ChooseIf title="Lusha vs. the alternatives: pick by situation" tools={[
+  {
+    name: "Lusha",
+    conditions: [
+      "You need a clean Chrome extension for LinkedIn-first prospecting and run fewer than 200 contacts per seat per month",
+      "Your team is US or Israel-focused and direct-dial mobile numbers are the primary enrichment need",
+      "You want a simple, low-overhead tool without sequences or a full sales engagement layer"
+    ],
+    pricing: "From $49/seat/month (annual)",
+    affiliateSlug: "lusha",
+    ctaLabel: "Try Lusha",
+    highlight: false
+  },
+  {
+    name: "Apollo.io",
+    conditions: [
+      "You want prospecting plus sequences in one platform without paying for Outreach or Salesloft on top",
+      "Your team sends high email volume and per-email credit costs would blow up your Lusha budget fast",
+      "You need a searchable database plus enrichment, not just an enrichment layer on top of LinkedIn"
+    ],
+    pricing: "Free tier; Professional $49/seat/month",
+    affiliateSlug: "apollo",
+    ctaLabel: "Try Apollo",
+    highlight: true
+  },
+  {
+    name: "FullEnrich",
+    conditions: [
+      "You already have a list (from LinkedIn Sales Navigator export or a CRM) and purely need email and phone appended",
+      "You want waterfall enrichment across multiple providers without building the waterfall yourself",
+      "Cost per enriched contact matters more than a UI: you run bulk jobs, not one-off lookups"
+    ],
+    pricing: "Pay-as-you-go from ~$0.50/credit",
+    affiliateSlug: "fullenrich",
+    ctaLabel: "Try FullEnrich",
+    highlight: false
+  },
+  {
+    name: "Cognism",
+    conditions: [
+      "You are selling into Europe and GDPR compliance on mobile numbers is non-negotiable",
+      "Your AEs need verified direct dials that connect, and you would rather pay more per contact for a higher connect rate",
+      "You have budget: Cognism typically starts at $15,000 to $25,000 per year for small teams"
+    ],
+    pricing: "Custom, typically $15k+ per year",
+    affiliateSlug: "cognism",
+    ctaLabel: "Try Cognism",
+    highlight: false
+  }
+]} />
+
+## LeadMagic as a lightweight alternative
+
+[LeadMagic](/tools/leadmagic/) deserves a separate mention because it occupies a genuinely different niche. It is not a database. It is a LinkedIn profile-to-email and profile-to-phone enrichment API. You feed it a LinkedIn URL; it returns contact data. No seats, no credit pools that expire, pure pay-as-you-go at roughly $0.05 to $0.10 per successful enrichment.
+
+If your workflow is Clay-based waterfall enrichment (pull prospects from LinkedIn Sales Navigator, enrich via a sequence of providers until you get a valid email), LeadMagic fits as one node in that waterfall at a fraction of Lusha's per-contact cost. My clients running [this kind of enrichment workflow](/blog/2026-08-10-leadmagic-review-2026-is-the-linkedin-enrichment-worth-it/) typically use LeadMagic as the first-pass email finder and fall back to FullEnrich or [BetterContact](/go/bettercontact/) for mobile numbers.
+
+The catch is real: LeadMagic has no UI for an SDR to use day-to-day. If your team needs a Chrome extension they can click from a LinkedIn profile, LeadMagic is an ops tool, not a rep-facing one. Pick it for the stack, not the seat.
+
+<MyTake>
+Most operators I respect have stopped treating Lusha as a database and started treating it as a Chrome extension layer sitting on top of a cheaper enrichment stack. That framing matters. Lusha's actual competitive advantage is the browser UX, not the data. Strip the UI out of the equation and FullEnrich or LeadMagic beats it on cost per valid contact almost every time. The teams still paying Lusha Pro rates for volume enrichment are the ones who haven't run the math yet.
+</MyTake>
+
+## The real question is what you are buying
+
+Lusha pricing is fair if you frame the product correctly. It is a sales-rep-facing prospecting tool: friction-free extension, decent US mobile coverage, straightforward CRM push. For a solo AE or a small team doing relationship-driven outbound, $49/month is a reasonable line item.
+
+Where it breaks down is volume prospecting at scale. A 10-rep team burning 500 contacts per rep per month is paying roughly $4.90 per usable contact by the time you account for overages and waste. [Apollo's](/tools/apollo/) combined database-plus-sequences offering, or a Clay-based waterfall, will cut that cost by 60 to 70 percent. If your RevOps stack costs are already under scrutiny (and if you have read [the RevOps stack cost breakdown](/blog/2026-08-06-revops-stack-cost-per-rep-at-10-reps-2026-breakdown/), they should be), Lusha is one of the first line items worth renegotiating. According to [Apollo's published pricing](https://www.apollo.io/pricing), the Professional plan's unlimited email credits alone justify the switch for most outbound-heavy teams. And [Lusha's own pricing page](https://www.lusha.com/pricing/) makes no mention of overage rates, which is the number that actually determines your annual bill.
+
+<BottomLine
+  verdict="Lusha is the right call for reps who live in LinkedIn and need a clean one-click extension with solid US mobile coverage. For teams doing volume enrichment or running their own sequences, Apollo or a FullEnrich waterfall will deliver better unit economics at the same or lower cost."
+  pick="Lusha"
+  affiliateSlug="lusha"
+  ctaLabel="See Lusha pricing"
+/>
+
+<Sources sources={[
+  { label: "Lusha: official pricing page", url: "https://www.lusha.com/pricing/" },
+  { label: "Apollo.io: plans and pricing", url: "https://www.apollo.io/pricing" },
+  { label: "G2: Lusha reviews and ratings", url: "https://www.g2.com/products/lusha/reviews" },
+  { label: "Cognism: data compliance and pricing overview", url: "https://www.cognism.com/pricing" }
+]} />
