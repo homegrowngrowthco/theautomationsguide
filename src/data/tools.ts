@@ -1151,6 +1151,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "trigify",
+    logo: '/brand/tools/trigify.svg',
     name: "Trigify",
     category: "Website Visitor ID & Signals",
     badge: "Free trial",
