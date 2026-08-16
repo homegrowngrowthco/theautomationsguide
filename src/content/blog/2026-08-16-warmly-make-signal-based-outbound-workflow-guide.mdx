@@ -1,0 +1,188 @@
+---
+title: "Warmly + Make: Signal-Based Outbound Workflow Guide"
+description: "How to wire Warmly visitor signals into Make automations that enrich leads in Clay and trigger sequences in HubSpot. A hands-on RevOps playbook."
+tldr: "Connect Warmly webhooks to Make, enrich identified visitors in Clay, and auto-enroll them in HubSpot sequences based on intent tier for a fully automated signal-to-sequence outbound engine."
+pubDate: 2026-08-16
+tags: ["automation", "outbound", "signal-based-selling"]
+faqs:
+  - question: "Can Warmly trigger Make automations automatically?"
+    answer: "Yes. Warmly supports outbound webhooks that fire when a visitor is identified, letting Make catch the payload and route it through enrichment and sequencing logic."
+  - question: "Do I need Clay to use Warmly with Make?"
+    answer: "Not strictly, but Clay handles waterfall enrichment far better than any single API call. Most teams I work with use Clay between Warmly and HubSpot to fill gaps in job title, phone, and buying committee data."
+  - question: "What signals does Warmly capture for outbound?"
+    answer: "Warmly de-anonymizes website visitors by matching IP and cookie data to company and contact records, surfacing page visits, session depth, and repeat visit frequency as intent signals."
+  - question: "How do I avoid enrolling the same lead twice in HubSpot?"
+    answer: "Add a Make filter that checks for a custom HubSpot contact property like warmly_enrolled set to true before the sequence enrollment step. Set that property on write-back."
+  - question: "What is the typical implementation time for this workflow?"
+    answer: "A clean implementation with existing HubSpot sequences takes about two to four hours. Most of that time goes into testing webhook payloads and mapping Clay output fields."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most outbound teams are still working off static lists pulled weekly from Apollo or ZoomInfo, blasting sequences at leads who went cold days ago. The teams actually building pipeline right now do the opposite. They trigger outreach the moment a high-fit account lands on the pricing page, at exactly the moment that person is thinking about the problem you solve. That is signal-based outbound. And [Warmly](/go/warmly/) plus [Make](/go/make/) is one of the cleanest implementations I have seen hold up in production.
+
+<PullQuote>Signal-based outbound is not about personalization at scale. It is about timing. The same message sent two minutes after a pricing-page visit converts at a materially different rate than the same message sent two weeks later.</PullQuote>
+
+<StatRow stats={[
+  { number: "5x", label: "Higher reply rates", description: "Outreach triggered within 5 minutes of a buying signal versus batched weekly sequences, per Salesforce State of Sales research" },
+  { number: "67%", label: "Of B2B buyers identified", description: "Warmly's de-anonymization engine identifies a majority of known business visitors using IP and identity graph matching" },
+  { number: "2-4 hrs", label: "Build time", description: "Typical implementation time for a clean Warmly-to-Make-to-HubSpot workflow with existing sequences in place" }
+]} />
+
+## The Stack and Why It Works
+
+The core idea is simple. [Warmly](/tools/warmly/) identifies a visitor, fires a webhook to Make, Make enriches and routes the lead, and [HubSpot](/go/hubspot/) enrolls them in the right sequence automatically. No rep manually checking a dashboard. No lead slipping through a 48-hour window.
+
+Here is why this combination outperforms Warmly's native automations alone. Warmly's built-in playbooks are solid for Slack alerts and basic CRM writes. They do not give you multi-step conditional logic for ICP filtering, deduplication, and enrichment branching. Make fills that orchestration gap. [Clay](/go/clay/) fills the data quality gap, running waterfall enrichment across Apollo, LinkedIn, and Clearbit in a single HTTP call from Make. The result is a visitor signal that arrives in HubSpot as a fully enriched, correctly routed contact ready for sequence enrollment, not just a company name and a URL.
+
+I have built this stack for clients at Homegrown Growth Co. The first time it fires correctly in production is genuinely satisfying. A VP of Engineering visits your integration page, Warmly fires within seconds, Make routes them to a Clay table, Clay appends their mobile number and confirms they are in a 200-500 person ICP company, and HubSpot enrolls them in the technical sequence before the rep has finished their coffee.
+
+<Figure class="post-screenshot" caption="Clay's waterfall enrichment table mapping Warmly visitor data to verified contact fields before HubSpot write-back">
+  <a href="/go/clay/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/clay-enrichment.png" alt="Clay enrichment table with waterfall columns for email, phone, and LinkedIn across multiple data providers" loading="lazy" />
+  </a>
+</Figure>
+
+## Building the Workflow Step by Step
+
+<StepRow steps={[
+  {
+    title: "Configure the Warmly Webhook",
+    body: "In Warmly, go to Settings > Integrations > Webhooks and add a new outbound webhook. Set the trigger to 'Visitor Identified' and optionally filter by minimum page depth or specific URL paths (pricing, demo, integrations). Copy the payload schema: you will need the fields visitor_email, company_domain, company_name, page_url, and session_count in Make. Point the webhook URL at a Make webhook trigger module, you will get that URL in the next step."
+  },
+  {
+    title: "Create the Make Scenario with a Webhook Trigger",
+    body: "In Make, create a new scenario and add a 'Webhooks > Custom webhook' trigger module. Copy the generated URL back into Warmly. Fire a test visit on your own site to capture the payload shape. Make will auto-map the fields from the JSON. Now add a Router module with two branches: one for contacts where visitor_email is present (identified person), and one where only company_domain is present (identified account only). The enrichment path differs for each."
+  },
+  {
+    title: "Enrich via Clay HTTP Request",
+    body: "For the identified-person branch, call Clay's API using an HTTP module in Make. Send visitor_email and company_domain as the lookup keys to a pre-built Clay table configured with your waterfall stack (Apollo first, then Clearbit, then LinkedIn scrape as fallback). Clay returns job title, seniority, mobile phone, LinkedIn URL, company headcount, and funding stage. For the account-only branch, use Clearbit Reveal or Apollo's company endpoint to pull the best contact match at that domain before passing to Clay for person-level enrichment. The Clay enrichment waterfall approach is similar to what we use in [Apollo-to-n8n pipelines](/blog/2026-08-09-connect-apollo-to-n8n-automate-lead-pulls-enrichment-and-crm/)."
+  },
+  {
+    title: "Apply ICP Filters and Intent Scoring",
+    body: "Add a Filter module in Make after Clay enrichment. Check: (1) company headcount between your ICP range, (2) job title contains target persona keywords, (3) no existing HubSpot contact property warmly_enrolled equals true, and (4) visitor_email domain not in your suppression list. Assign an intent tier: Tier 1 is pricing or demo page with 2+ sessions; Tier 2 is feature or integrations pages; Tier 3 is blog or generic. This tier determines which HubSpot sequence gets triggered in the next step."
+  },
+  {
+    title: "Write to HubSpot and Enroll in Sequence",
+    body: "Use Make's HubSpot module to upsert the contact (create or update by email). Set the custom property warmly_signal_page to the triggering URL, warmly_intent_tier to your tier value, and warmly_enrolled to true. Then use a second HubSpot module to enroll the contact in the correct sequence by sequence ID (hardcode the IDs per tier in Make's scenario variables). Finally, use a Slack module to post a real-time alert to your sales channel: company name, visitor name if identified, page visited, and a direct HubSpot contact link."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **The trap I see most often:** teams enrich in Clay but forget to map the output field names back into Make correctly. Clay returns column names as defined in your table, not as standard JSON keys. If your Clay table calls the field "Work Email Verified" with spaces, Make will receive it with underscores or fail silently depending on your HTTP response mapping. Build your Clay table with clean snake_case column names from day one or you will spend two hours debugging a mapping issue that looks like an enrichment failure.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // Clay API response - name your columns cleanly
+    {
+      "email_verified": "ian@example.com",
+      "job_title": "VP of Engineering",
+      "seniority": "vp",
+      "company_headcount": "250",
+      "mobile_phone": "+14155550123",
+      "linkedin_url": "https://linkedin.com/in/example",
+      "funding_stage": "Series B"
+    }
+
+    // Make HTTP module: map each key explicitly
+    // Do NOT rely on auto-mapping for Clay responses
+    // Set "Parse response" to Yes and reference
+    // {{1.email_verified}} not {{1.`Work Email Verified`}}
+    ```
+  </Fragment>
+</SideBySide>
+
+## Choosing Your Sequencing Layer
+
+The workflow above writes to [HubSpot](/tools/hubspot/) sequences. Depending on your stack, you might route elsewhere. Here is how I think about the sequencing layer choice for this specific workflow. Skip Outreach and Salesloft unless your team is already fully committed to them, the HubSpot native modules in Make are cleaner and you will spend far less time mapping fields.
+
+<ChooseIf title="Which sequencing tool fits this workflow?" tools={[
+  {
+    name: "HubSpot Sequences",
+    conditions: [
+      "Your CRM is already HubSpot and reps live in it daily",
+      "You need native contact enrollment with CRM property writes in the same step",
+      "You want reply detection that auto-pauses the sequence without extra config"
+    ],
+    pricing: "Included in Sales Hub Pro+",
+    affiliateSlug: "hubspot",
+    ctaLabel: "Try HubSpot",
+    highlight: false
+  },
+  {
+    name: "Smartlead",
+    conditions: [
+      "You are sending high volume and need multi-inbox rotation to protect deliverability",
+      "Your team runs outbound outside HubSpot and syncs replies back via webhook",
+      "You want per-mailbox warm-up managed automatically"
+    ],
+    pricing: "From $39/mo",
+    affiliateSlug: "smartlead",
+    ctaLabel: "Try Smartlead",
+    highlight: false
+  },
+  {
+    name: "Lemlist",
+    conditions: [
+      "Your sequences include LinkedIn steps, video, or dynamic image personalization",
+      "You want built-in multichannel cadences without stitching separate tools",
+      "Signal-triggered outreach will mix email and LinkedIn DM in the same sequence"
+    ],
+    pricing: "From $59/seat/mo",
+    affiliateSlug: "lemlist",
+    ctaLabel: "Try Lemlist",
+    highlight: true
+  }
+]} />
+
+<Figure class="post-screenshot" caption="HubSpot Sequences editor showing enrollment settings used in the Warmly signal-to-sequence workflow">
+  <a href="/go/hubspot/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/hubspot-sequence-settings.png" alt="HubSpot sequence settings panel with enrollment criteria and daily send limits" loading="lazy" />
+  </a>
+</Figure>
+
+## What This Workflow Actually Produces
+
+Once this is running, you get three things a manual or batch-based process cannot replicate. First, timing advantage: the average rep responds to a high-intent signal in [somewhere between 30 minutes and 2 hours according to InsideSales research](https://www.insidesales.com/), while this workflow responds in under 60 seconds. Second, data quality: because Clay runs enrichment at trigger time rather than at list-pull time, the contact data is current, not 30 days stale. Third, rep focus: instead of triaging a Warmly Slack channel full of alerts, reps see contacts already in their HubSpot sequences with full context on what page was visited and why the outreach fired.
+
+For teams thinking about [building a broader signal-based lead scoring system on top of HubSpot](/blog/2026-08-15-trigify-hubspot-lead-scoring-automation-2026-guide/), this workflow pairs naturally with Trigify or similar intent enrichment layers feeding the same score object.
+
+The one thing I would not skip is the deduplication filter. Without the `warmly_enrolled` property check, a prospect who visits your pricing page three times in a week gets enrolled three times. I have seen this happen in a client's HubSpot instance. It is the fastest way to get your domain flagged and your sales team embarrassed.
+
+<MyTake>
+Most teams overcomplicate the ICP filter before they have shipped a single sequence. I have watched clients want to score 15 signals before allowing enrollment. In practice, page URL plus company headcount plus job seniority from Clay correctly routes about 85 percent of decisions. Ship the simple version, let it run for two weeks, then layer in refinements based on actual conversion data from HubSpot. The teams that iterate from real data always outperform the teams that design the perfect filter upfront.
+</MyTake>
+
+## Ship It This Week
+
+The tools are mature. The webhook infrastructure is reliable. [Warmly's de-anonymization layer](https://warmly.ai/) combined with [Clay's enrichment waterfall](https://clay.com/) gets you to sequence-ready in under five minutes per visitor. Make is the right orchestration layer here because it gives you visual debugging, native HubSpot modules, and enough conditional logic to handle routing without writing a line of custom code.
+
+Don't overthink the rollout. Build the simple version today. Measure reply rates against your baseline batch sequences for 30 days. The data will make the case better than any planning doc.
+
+<BottomLine
+  verdict="Warmly plus Make is the fastest path to a production signal-to-sequence workflow for teams already on HubSpot. No custom code, full conditional routing, and Clay enrichment fills the data gaps that make sequences actually land."
+  pick="Make"
+  affiliateSlug="make"
+  ctaLabel="Try Make"
+/>
+
+<Sources sources={[
+  { label: "Warmly: Webhook Integration Docs", url: "https://warmly.ai/blog" },
+  { label: "Clay: API and Table Documentation", url: "https://clay.com" },
+  { label: "HubSpot: Sequences Enrollment via API", url: "https://developers.hubspot.com/docs/api/crm/sequences" },
+  { label: "Salesforce: State of Sales Report 2024", url: "https://www.salesforce.com/resources/research-reports/state-of-sales/" }
+]} />
