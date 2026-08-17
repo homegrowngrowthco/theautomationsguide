@@ -17,7 +17,8 @@
 //                             drive the management API. Create one at
 //                             PostHog -> Settings -> Personal API keys
 //                             (scopes: insight write + dashboard write, project read).
-//   POSTHOG_PROJECT_ID        (optional) auto-discovered via GET /api/projects/ if unset.
+//   POSTHOG_PROJECT_ID        (optional) defaults to the pinned TAG_PROJECT_ID below.
+//                             NOT auto-discovered: /api/projects/ 403s for a scoped key.
 //   POSTHOG_HOST              (optional) default https://us.posthog.com
 //                             (US-cloud management host; differs from the
 //                             us.i.posthog.com INGEST host).

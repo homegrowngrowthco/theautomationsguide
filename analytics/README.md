@@ -31,8 +31,8 @@ default, `--apply` to mutate), matching `backlog/build-backlog.mjs` /
 
 | Var | Required | Notes |
 |---|---|---|
-| `POSTHOG_PERSONAL_API_KEY` | for `--apply` | A **personal** key (`phx_...`). The `phc_` key in Analytics.astro is write-only ingest and cannot drive the management API. Create at PostHog -> Settings -> Personal API keys with scopes **`dashboard:read`, `dashboard:write`, `insight:read`, `insight:write`** (read is needed for the idempotency check; write to create). A key scoped to a single project is fine; the script resolves it via the `@current` alias. |
-| `POSTHOG_PROJECT_ID` | no | Auto-discovered via `GET /api/projects/` if unset. |
+| `POSTHOG_PERSONAL_API_KEY` | for `--apply` | A **personal** key (`phx_...`). The `phc_` key in Analytics.astro is write-only ingest and cannot drive the management API. Create at PostHog -> Settings -> Personal API keys with scopes **`dashboard:read`, `dashboard:write`, `insight:read`, `insight:write`** (read is needed for the idempotency check; write to create). A key scoped to a single project is fine, and Ian's deliberately stays that way. |
+| `POSTHOG_PROJECT_ID` | no | Defaults to the pinned `TAG_PROJECT_ID` (408442). **It is NOT auto-discovered:** `GET /api/projects/` returns 403 for a project-scoped key, and the `@current` alias follows whichever project was last opened in the PostHog UI, which returned two different ids inside one session on 2026-08-13. Set this only to point the script at a different project on purpose. |
 | `POSTHOG_HOST` | no | Default `https://us.posthog.com` (US-cloud management host; differs from the `us.i.posthog.com` ingest host). |
 
 ### Usage (run from the repo root)
