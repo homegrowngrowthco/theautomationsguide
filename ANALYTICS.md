@@ -42,13 +42,35 @@ That override enables **both** PostHog and GA4.
 > "visitor". Historical numbers before that date are inflated accordingly; scope any
 > backward-looking query to `$host = 'theautomationsguide.com'`.
 
-## Project 408442 is shared with FlyrAI
-The project is named "The Automations Guide", but FlyrAI ingests into it as well and is
-the larger writer (63.5% of all events). Every insight in the **TAG Overview** dashboard
-therefore scopes its `$pageview`/`$autocapture` series to
-`$host = theautomationsguide.com`. Do the same in any ad-hoc query or the numbers you
-read are mostly a meal-planning app's. See [analytics/README.md](analytics/README.md) for
-the split table and what finishing the separation requires.
+## Project 408442 was shared with FlyrAI — split 2026-08-13
+FlyrAI used to ingest into this project and was the larger writer (4,539 events, 63.5% of
+all-time). It now has **its own project, 555096**: the new `phc_` token is in Vercel
+`NEXT_PUBLIC_POSTHOG_KEY` for `contentengine/flyrai` and production was redeployed, so
+flyrai.vercel.app stopped writing here from that deploy onward.
+
+Two things this does NOT do:
+- **History is not moved.** Every pre-split FlyrAI event still sits in 408442, so any
+  backward-looking query must still scope by `$host` — the filter is permanent, not
+  transitional.
+- **Preview deploys are unset on purpose.** flyrai's Preview environment has no
+  `NEXT_PUBLIC_POSTHOG_KEY` (nor any other var), so previews do not track. Measured
+  before deciding: flyrai previews produced **0 events all-time**, so nothing is lost.
+
+Every `$pageview`/`$autocapture` series in the **TAG Overview** dashboard scopes to the
+production host. Match that in ad-hoc queries or you are reading a meal-planning app.
+
+**Filter on BOTH host spellings.** A browser resolving the fully-qualified domain sends
+the root-dotted form, so `$host` arrives as `theautomationsguide.com.` — measured
+2026-08-13 at 3 events against 1,620. An `exact` filter on the bare string drops them
+silently. PostHog treats an array under `exact` as IN, which is what
+`PROD_HOSTS` in [analytics/posthog-setup.mjs](analytics/posthog-setup.mjs) uses (verified:
+732 + 3 = 735).
+
+**`@current` is not safe to resolve against any more.** It means "whichever project this
+user last opened in the PostHog UI", so with two projects the same command resolved to
+555096 and then 408442 within one session. `posthog-setup.mjs` REWRITES insight
+definitions, so it now pins `TAG_PROJECT_ID = '408442'` (override with
+`POSTHOG_PROJECT_ID`). See [analytics/README.md](analytics/README.md).
 
 ## GA4 status and follow-ups
 GA4 (`G-RKWHJ95P3H`) is live as of the design-refresh deploy. The CSP in [public/_headers](public/_headers) already allows the GA4 domains (`googletagmanager.com`, `*.google-analytics.com`, `*.analytics.google.com`).

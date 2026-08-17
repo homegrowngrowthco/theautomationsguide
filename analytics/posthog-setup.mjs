@@ -45,7 +45,14 @@ const UPDATE = process.argv.includes('--update');
 
 const KEY = process.env.POSTHOG_PERSONAL_API_KEY;
 const HOST = (process.env.POSTHOG_HOST || 'https://us.posthog.com').replace(/\/+$/, '');
-let PROJECT_ID = process.env.POSTHOG_PROJECT_ID || '';
+// TAG's PostHog project, pinned. Do NOT fall back to the `@current` alias here:
+// `@current` means "whichever project this user last opened in the PostHog UI",
+// so once a second project existed (FlyrAI, 555096, created 2026-08-13) the same
+// command resolved to 555096 and then to 408442 within the same session. This
+// script REWRITES insight definitions, so resolving to the wrong project would
+// silently rewrite the wrong dashboard. Override via POSTHOG_PROJECT_ID.
+const TAG_PROJECT_ID = '408442';
+let PROJECT_ID = process.env.POSTHOG_PROJECT_ID || TAG_PROJECT_ID;
 
 // The key is required to talk to PostHog. A DRY RUN works without it (it just
 // builds + writes the definition JSON for review); only --apply (and the live
@@ -87,10 +94,15 @@ const trends = (series, extra = {}) => ({
 // src/pages/go/[tool].astro and historically carry no $host at all. They also need
 // no filter — FlyrAI has no /go/ pages, so affiliate_click is TAG-exclusive by
 // construction.
-const PROD_HOST = 'theautomationsguide.com';
+// Both spellings are real and both are ours. A browser that resolves the
+// fully-qualified domain name sends the ROOT-dotted form, so `$host` arrives as
+// `theautomationsguide.com.` — measured 2026-08-13 at 3 events vs 1,620. An
+// `exact` filter on the bare string silently drops those. PostHog treats an
+// array value under `exact` as IN, so list every variant instead.
+const PROD_HOSTS = ['theautomationsguide.com', 'theautomationsguide.com.'];
 const onProdHost = (node) => ({
   ...node,
-  properties: [...(node.properties || []), { key: '$host', value: PROD_HOST, operator: 'exact', type: 'event' }],
+  properties: [...(node.properties || []), { key: '$host', value: PROD_HOSTS, operator: 'exact', type: 'event' }],
 });
 
 const INSIGHTS = [
