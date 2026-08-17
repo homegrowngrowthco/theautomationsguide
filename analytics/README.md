@@ -49,10 +49,27 @@ PATCHes the ones that differ. The diff canonicalizes both sides first (recursive
 sort, minus PostHog's server-managed `version` field), otherwise every insight reports
 drift on every run.
 
-### Project 408442 is shared with FlyrAI
+### Project 408442 WAS shared with FlyrAI — split 2026-08-13
 
-PostHog project 408442 is named "The Automations Guide" but **FlyrAI ingests into it
-too**, and it is the larger writer. All-time event split measured 2026-08-12:
+FlyrAI now ingests into its own project, **516881 ("flyrai")**. Its `phc_` token is in
+Vercel `NEXT_PUBLIC_POSTHOG_KEY` for `contentengine/flyrai`, and production was
+redeployed, so `flyrai.vercel.app` stopped writing here from that deploy onward.
+
+**The `$host` scoping below is PERMANENT, not transitional.** Splitting the projects does
+not move history: every pre-split FlyrAI event still sits in 408442, so any query that
+looks back past 2026-08-13 still has to scope by host.
+
+Two traps worth knowing before you touch this file:
+
+- **A `phc_` ingest token does not reveal which project it belongs to** (not via
+  `/decide`, not via `/array/<token>/config`). The receiving project was first recorded
+  here as 555096, inferred from `@current`, and that was WRONG — 555096 ("Flyr") is a
+  separate empty project. The only way to identify it is to see where events land.
+- **Never resolve `@current`** in anything that writes. It follows whichever project was
+  last opened in the PostHog UI and returned two different ids inside one session. This
+  script pins `TAG_PROJECT_ID`.
+
+All-time event split as measured 2026-08-12, the day before the split:
 
 | Source | Events | Share |
 |---|---|---|
@@ -61,9 +78,12 @@ too**, and it is the larger writer. All-time event split measured 2026-08-12:
 | TAG Netlify deploy previews | 894 | 12.8% |
 | localhost | 81 | 1.2% |
 
-Until the projects are actually separated, every insight here scopes its
-`$pageview` / `$autocapture` series to `$host = theautomationsguide.com`. Without that
-scoping the dashboard overstated TAG by **3.6x on pageviews and 79x on form submits**
+Every insight here scopes its `$pageview` / `$autocapture` series to the TAG production
+host. Filter on **both** spellings: a browser resolving the fully-qualified domain sends
+the root-dotted `theautomationsguide.com.`, which an `exact` filter on the bare string
+drops silently (3 events against 1,620). PostHog treats an array under `exact` as IN,
+which is what `PROD_HOSTS` uses. Without host scoping the dashboard overstated TAG by
+**3.6x on pageviews and 79x on form submits**
 (the newsletter-intent tile was counting FlyrAI signups), and listed `github.com` as a
 top TAG referrer when those 24 sessions were FlyrAI's.
 
@@ -71,10 +91,14 @@ top TAG referrer when those 24 sessions were FlyrAI's.
 pages, so the event is TAG-exclusive by construction, and events captured before
 2026-08-12 carry no `$host` at all — filtering would silently drop them.
 
-**To finish the split, see [../TODO.md](../TODO.md).** It needs a PostHog UI action or an
-org-scoped personal key; the key in `.env` is project-scoped and gets
-`403 permission_denied` from `/api/organizations/` and `/api/projects/`, so no script
-can create a project with it.
+**The key in `.env` is project-scoped and always will be** (Ian's standing decision,
+2026-08-13, for a smaller blast radius). It gets `403 permission_denied` from
+`/api/organizations/` and `/api/projects/`, so no script can create a project or read
+any project it is not scoped to. Treat that as a permanent constraint to plan around,
+not a blocker to raise again: anything cross-project needs Ian in the UI.
+
+FlyrAI's project has **no insights or dashboards** and that is deliberate for now; it
+collects raw events only.
 
 A keyless dry run still builds and writes `posthog-insights.json` (the exact
 definitions) for review, so you can eyeball the queries before supplying a key.
