@@ -47,8 +47,8 @@ const KEY = process.env.POSTHOG_PERSONAL_API_KEY;
 const HOST = (process.env.POSTHOG_HOST || 'https://us.posthog.com').replace(/\/+$/, '');
 // TAG's PostHog project, pinned. Do NOT fall back to the `@current` alias here:
 // `@current` means "whichever project this user last opened in the PostHog UI",
-// so once a second project existed (FlyrAI, 555096, created 2026-08-13) the same
-// command resolved to 555096 and then to 408442 within the same session. This
+// so once other projects existed in the org (2026-08-13) the same command
+// resolved to 555096 and then to 408442 within the same session. This
 // script REWRITES insight definitions, so resolving to the wrong project would
 // silently rewrite the wrong dashboard. Override via POSTHOG_PROJECT_ID.
 const TAG_PROJECT_ID = '408442';

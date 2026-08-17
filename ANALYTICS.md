@@ -44,9 +44,16 @@ That override enables **both** PostHog and GA4.
 
 ## Project 408442 was shared with FlyrAI — split 2026-08-13
 FlyrAI used to ingest into this project and was the larger writer (4,539 events, 63.5% of
-all-time). It now has **its own project, 555096**: the new `phc_` token is in Vercel
+all-time). It now has **its own project, 516881 ("flyrai")**: the new `phc_` token is in Vercel
 `NEXT_PUBLIC_POSTHOG_KEY` for `contentengine/flyrai` and production was redeployed, so
 flyrai.vercel.app stopped writing here from that deploy onward.
+
+> **A separate empty project 555096 ("Flyr") also exists and receives nothing.** Do not
+> confuse the two. An earlier version of this file named 555096 as FlyrAI's project: that
+> was an INFERENCE from `@current` resolving to 555096 at the moment the token was handed
+> over, never a measurement. A `phc_` ingest token does not reveal its own project through
+> any public endpoint, so the only way to tell is to look at which project receives the
+> events. Ian did, and it is 516881.
 
 Two things this does NOT do:
 - **History is not moved.** Every pre-split FlyrAI event still sits in 408442, so any
