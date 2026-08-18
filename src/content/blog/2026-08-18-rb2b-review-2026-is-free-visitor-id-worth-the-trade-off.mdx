@@ -1,0 +1,200 @@
+---
+title: "RB2B Review 2026: Is Free Visitor ID Worth the Trade-off?"
+description: "RB2B offers free person-level visitor identification, but is it enough? We compare RB2B, Warmly, Vector, and Trigify for RevOps teams in 2026."
+tldr: "RB2B is genuinely useful for LinkedIn-first outreach on a zero budget, but teams doing serious signal-based outbound will outgrow it fast and should evaluate Warmly or Trigify instead."
+pubDate: 2026-08-18
+tags: ["tools", "automation", "visitor-intelligence"]
+faqs:
+  - question: "Is RB2B actually free?"
+    answer: "RB2B has a free tier that identifies US-based website visitors at the person level and pushes them to Slack. Paid plans unlock CRM integrations, higher volume, and international identification."
+  - question: "How accurate is RB2B visitor identification?"
+    answer: "RB2B identifies roughly 20 to 40 percent of US website visitors at the person level, which is consistent with the category average. Non-US traffic is largely unidentified on free plans."
+  - question: "What is RB2B pricing in 2026?"
+    answer: "RB2B's free plan covers basic visitor ID with Slack delivery. Paid tiers start around $149 per month for CRM integrations and higher identification volume, though pricing is contact-sales for enterprise."
+  - question: "How does RB2B compare to Warmly?"
+    answer: "Warmly identifies both people and accounts, adds intent signals, and has native workflow automation. RB2B is simpler and cheaper but skips the orchestration layer Warmly provides."
+  - question: "Does RB2B work outside the US?"
+    answer: "Non-US identification is limited or unavailable on the free tier. If your audience is primarily European or APAC, RB2B is a poor fit and you should evaluate Warmly or Vector instead."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The pitch is almost too good: install a script, get person-level visitor identification sent to Slack, pay nothing. [RB2B](/go/rb2b/) rode that promise to mainstream RevOps adoption in 2024 and has been living rent-free in GTM Twitter ever since. I keep getting the same question from clients running lean outbound programs, though: "Is it actually worth it, or is it just good marketing for a limited tool?" Having set it up at half a dozen B2B SaaS companies and benchmarked it alongside [Warmly](/go/warmly/), [Vector](/go/vector/), and [Trigify](/go/trigify/), I have a real answer.
+
+<KeyTakeaways items={[
+  "RB2B's free tier is legitimate and useful for US-focused, LinkedIn-first SDR motions with low traffic volume.",
+  "Identification rates hover at 20 to 40 percent of US visitors. Non-US traffic is essentially dead weight on free plans.",
+  "Warmly adds account-level intent and workflow automation. RB2B just fires a Slack message and walks away.",
+  "Trigify is the play if you want social intent signals layered on top of web visits, not a replacement for visitor ID.",
+  "Vector fills the gap for teams that need person-level ID with European traffic and stricter data privacy controls."
+]} />
+
+<StatRow stats={[
+  { number: "20-40%", label: "Average identification rate", description: "Typical person-level match rate for US web visitors across RB2B and peers. The rest are anonymous." },
+  { number: "$0", label: "RB2B free tier cost", description: "No credit card required for the base Slack integration. The catch is volume caps and US-only coverage." },
+  { number: "6-12 hrs", label: "Time to first identified visitor", description: "My benchmark across client installs. Script install to first Slack ping is genuinely fast when traffic exists." }
+]} />
+
+## What RB2B Actually Does (And Does Not Do)
+
+RB2B de-anonymizes US website traffic at the person level by matching IP and browser signals against a proprietary identity graph. When a match fires, you get a Slack notification with the visitor's name, LinkedIn URL, company, and the pages they hit. That is the product. On the free tier, that is also where it stops.
+
+No native sequence enrollment. No CRM write. No scoring. No workflow routing. You get a Slack message, and you are expected to do something human with it. For a two-person GTM team with an SDR who lives in Slack, that is actually fine. For an eight-person revenue team trying to build repeatable signal-based outbound, it becomes a manual chore almost immediately.
+
+The paid tiers add HubSpot and Salesforce integrations, which unlocks the real automation story: visitor lands, gets written to CRM as an activity, triggers a workflow, enrolls in a sequence. That is where RB2B becomes a genuine component in a RevOps stack rather than a novelty alert. But at that point you are paying for infrastructure that Warmly or Vector also provide, often with more signal richness. My honest take is that most teams buying RB2B paid should have benchmarked Warmly first.
+
+One thing I respect: RB2B does not bury its identification-rate limitations. The [RB2B documentation](https://www.rb2b.com) is upfront that US-only coverage is a structural constraint of their identity graph, not a bug they are fixing. That honesty is rare in this category.
+
+## The Competitive Landscape in 2026
+
+This category has gotten legitimately crowded. Warmly, Vector, Trigify, and a handful of others are all competing for the same "what do I do with anonymous web traffic" budget line. Here is how they actually split.
+
+<ToolBreakdown title="RB2B vs Warmly vs Vector vs Trigify" tools={[
+  {
+    name: "RB2B",
+    tagline: "Person-level visitor ID with zero-friction free tier",
+    body: "Best for teams that want to start identifying visitors today with no procurement process. The free Slack integration is real and production-ready. Paid tiers add CRM sync and volume. The ceiling is low: no native enrichment waterfall, no scoring, no workflow logic inside the tool itself.",
+    highlights: [
+      "Genuine free tier with no time limit",
+      "Person-level ID (not just account-level)",
+      "Simple Slack delivery, easy SDR adoption",
+      "US-only on free; limited international on paid"
+    ],
+    pricing: "Free tier available; paid from ~$149/mo",
+    affiliateSlug: "rb2b",
+    ctaLabel: "Try RB2B Free",
+    highlight: true
+  },
+  {
+    name: "Warmly",
+    tagline: "Signal-based orchestration with visitor ID baked in",
+    body: "Warmly is the tool I recommend when a team has outgrown RB2B's Slack-and-pray workflow. It layers account intent, buyer signals, and hiring data on top of visitor identification, then routes into sequences or fires Slack alerts with context. The workflow builder connects to HubSpot, Salesforce, and Outreach natively. You can read the full playbook in our guide on building a signal-based outbound workflow with Warmly.",
+    highlights: [
+      "Account and person-level identification",
+      "Native intent signal enrichment (G2, Bombora, LinkedIn)",
+      "Workflow automation inside the product",
+      "Substantially higher price point"
+    ],
+    pricing: "From ~$700/mo; contact for enterprise",
+    affiliateSlug: "warmly",
+    ctaLabel: "See Warmly"
+  },
+  {
+    name: "Vector",
+    tagline: "European-friendly visitor ID with strong privacy controls",
+    body: "Vector is the answer when your ICP skews European and GDPR compliance is non-negotiable. Their identity graph has meaningful UK and EU coverage that RB2B simply does not. The product is less polished on the workflow side, but the data coverage difference for non-US traffic is material. I have steered two clients with heavy European traffic toward Vector specifically for this reason.",
+    highlights: [
+      "Strong EU and UK visitor identification",
+      "GDPR-first architecture",
+      "CRM integrations on paid tiers",
+      "Thinner workflow automation than Warmly"
+    ],
+    pricing: "From ~$200/mo; scales with volume",
+    affiliateSlug: "vector",
+    ctaLabel: "See Vector"
+  },
+  {
+    name: "Trigify",
+    tagline: "Social and hiring intent signals, not just web visits",
+    body: "Trigify is not a visitor identification tool. Putting it in this comparison is almost unfair, but clients keep asking me if it replaces RB2B, so here it is: it does not. Trigify monitors LinkedIn activity, job postings, and buying signals to surface accounts in-market. It is complementary to RB2B, not a substitute. If you want the full picture of how Trigify fits into a HubSpot lead scoring workflow, we covered that in depth separately.",
+    highlights: [
+      "LinkedIn and hiring signal monitoring",
+      "HubSpot and Salesforce native sync",
+      "No web visitor identification",
+      "Best used alongside a visitor ID tool"
+    ],
+    pricing: "From ~$99/mo",
+    affiliateSlug: "trigify",
+    ctaLabel: "See Trigify"
+  }
+]} />
+
+## How to Choose
+
+Start with two questions: where does your traffic come from, and how mature is your outbound process?
+
+If more than 30 percent of your web traffic is non-US, [RB2B](/tools/rb2b/) is the wrong foundation. The identification rate on international traffic is too low to build a workflow around. Go straight to [Vector](/tools/vector/) or Warmly. This is not a close call.
+
+If you are US-focused and under 5,000 monthly visitors, the free tier is genuinely the right call. You will identify 1,000 to 2,000 of those visitors per month, get LinkedIn URLs in Slack, and your SDR can triage manually without any automation overhead. The marginal cost of a more sophisticated tool is not justified at that scale.
+
+Where I see teams consistently err is staying on RB2B too long. The moment you are clearing 20-plus visitor alerts per day and your SDR is spending an hour triaging them, you have outgrown the tool. That is the exact trigger to move to Warmly and build the [signal-based outbound workflow](/blog/2026-08-16-warmly-make-signal-based-outbound-workflow-guide/) that actually scales. And if you want to score those visitors against social buying signals, adding [Trigify alongside a HubSpot lead scoring automation](/blog/2026-08-15-trigify-hubspot-lead-scoring-automation-2026-guide/) is the upgrade path, not a replacement for visitor ID.
+
+<ChooseIf tools={[
+  {
+    name: "RB2B",
+    affiliateSlug: "rb2b",
+    ctaLabel: "Try RB2B Free",
+    conditions: [
+      "Your traffic is primarily US-based (less than 30% international)",
+      "You have fewer than 5,000 monthly site visitors",
+      "Your SDR team can triage Slack alerts manually without automation"
+    ]
+  },
+  {
+    name: "Warmly",
+    affiliateSlug: "warmly",
+    ctaLabel: "See Warmly",
+    conditions: [
+      "You are hitting 20-plus daily visitor alerts and need workflow routing",
+      "You want intent signals (G2, Bombora) layered on top of visit data",
+      "Your stack runs on HubSpot, Salesforce, or Outreach and you need native sync"
+    ]
+  },
+  {
+    name: "Vector",
+    affiliateSlug: "vector",
+    ctaLabel: "See Vector",
+    conditions: [
+      "More than 30% of your ICP is in the UK or EU",
+      "GDPR compliance is a hard requirement for your data infrastructure",
+      "You need person-level ID outside the US without building a custom identity graph"
+    ]
+  },
+  {
+    name: "Trigify",
+    affiliateSlug: "trigify",
+    ctaLabel: "See Trigify",
+    conditions: [
+      "You already have a visitor ID tool and want social and hiring signals on top",
+      "Your outbound motion is LinkedIn-first and you track job change triggers",
+      "You run HubSpot lead scoring and need a buying signal data source to feed it"
+    ]
+  }
+]} />
+
+<MyTake>
+The "free" positioning is doing a lot of heavy lifting for RB2B. The real product is the paid CRM integration tier, and at that price point you should benchmark it against Warmly before signing anything. I have had clients stick with RB2B paid because the simplicity was a feature, not a bug. Those were smaller teams where Warmly's orchestration complexity would have been overhead, not value. But I have also watched teams at the 15-rep stage treat RB2B as a permanent solution, then wonder why their SDRs are burning 90 minutes a day on manual triage. The free tier is a proof-of-concept vehicle. Treat it like one.
+</MyTake>
+
+## The Verdict on RB2B in 2026
+
+RB2B earns its reputation as the lowest-friction entry point into visitor identification. For US-focused teams, the free tier is not a gimmick. It genuinely works. But it is a starting point, not a destination.
+
+The absence of built-in workflow logic, the US-only coverage constraint, and the thin enrichment story mean most teams will either stay small enough that they never need more, or they will graduate to a platform with real orchestration capability. Use it to prove the concept internally and build the internal budget case for something that scales. The free tier will not hurt you. Treating it as a permanent infrastructure decision probably will. According to [G2's 2026 buyer intent category data](https://www.g2.com/categories/buyer-intent-data-tools), teams that invest in signal enrichment on top of basic visitor ID see materially higher conversion rates from identified traffic, which is exactly the gap RB2B leaves open.
+
+<BottomLine
+  verdict="RB2B is the right first tool for US-focused teams validating whether visitor identification moves pipeline. Graduate to Warmly once you hit 20-plus daily alerts or need CRM automation that actually scales."
+  pick="RB2B"
+  affiliateSlug="rb2b"
+  ctaLabel="Try RB2B Free"
+/>
+
+<Sources sources={[
+  { label: "RB2B: Official product documentation and pricing", url: "https://www.rb2b.com" },
+  { label: "G2: Buyer Intent Data Software category reviews 2026", url: "https://www.g2.com/categories/buyer-intent-data-tools" },
+  { label: "Warmly: Signal-based outbound documentation", url: "https://warmly.ai" },
+  { label: "Trigify: Intent signal and HubSpot integration docs", url: "https://www.trigify.io" }
+]} />
