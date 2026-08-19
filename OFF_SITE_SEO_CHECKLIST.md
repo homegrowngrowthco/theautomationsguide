@@ -69,6 +69,30 @@ Done: 4a Crunchbase (2026-07-01, https://www.crunchbase.com/organization/the-aut
 - [ ] **Newsletter swaps:** find 3-5 small adjacent newsletters once you're at 100+ subs; do swaps. Beehiiv Boost program available at 500+
 - [ ] Submit to: r/RevOps (be careful — read rules first), Indie Hackers, Hacker News (Show HN for big launches only)
 
+## Pricing-index pitch targets (verified active 2026-08-19; fetch-checked, not from memory)
+
+Best-fit order. Only ONE concrete email exists on any fetched page: **gtmnow@gtmfund.com** (covers GTMnow + The GTM Newsletter in one pitch). Everything else is DM/form.
+
+| # | Target | Why | Route |
+|---|---|---|---|
+| 1 | RevOps Impact Newsletter (Jeff Ignacio) | Pure RevOps, posted TODAY 8/19, latest post is about pricing/quoting | Substack DM revengine.substack.com or LinkedIn DM Jeff Ignacio |
+| 2 | Growth Unhinged (Kyle Poyar) | SaaS pricing is his beat; 7/22 issue: "Pricing used to last 18 months. Now it's down to 6." Features guest data | Substack DM growthunhinged.com or LinkedIn DM |
+| 3 | RevOps Co-op | 19k newsletter / 15k Slack, dead-center audience; blog active 8/17 | Partner call at revopscoop.com/who-we-are/become-a-revops-co-op-partner (Book Time CTA); or join Slack and share as practitioner |
+| 4 | r/RevOps | Active (posts 2-8 days old), tool-COST threads thrive there | Direct self-post; READ SIDEBAR RULES logged-in first; dataset-only framing, zero product angle |
+| 5 | RevGenius | 60k community, events active this week | "Contribute to Mag" Typeform in revgenius.com footer |
+| 6 | WizOps (wizops.org) | 46% SalesOps/31% MktgOps members. NOT wizardofops.co (now an options-trading site, do not contact) | Join free wizops.org/join-wizops, share inside |
+| 7 | GTMnow + GTM Newsletter | Both active Aug 2026; one pitch covers both | **gtmnow@gtmfund.com** |
+| 8 | MKT1 (Emily Kramer) | 85k subs; 8/12 issue was GTM-stack workflows | Substack DM newsletter.mkt1.co or LinkedIn DM |
+| 9 | Elena's Growth Scoop (Elena Verna) | 97k subs, monetization themes | Substack DM elenaverna.com or LinkedIn DM |
+| 10 | Exit Five | 40k subs, B2B marketing adjacent | Sponsorship Typeform via exitfive.com |
+| — | Superpath | Marginal fit | Low priority |
+| — | Pavilion | Paid sponsorship gate only | Skip for now |
+| — | r/sales | Self-promo effectively BANNED (5 of 11 rules; off-site funneling = permaban) | Comments-only, never post the link |
+
+**Pitch template (DM/email, adapt the first line per target):**
+
+> Hi <name>, long-time reader. I maintain The Automations Guide, a RevOps automation review site. I recently published something your readers might find genuinely useful: a pricing index of 93 RevOps tools where every figure is extracted from the vendor's own pricing page (no guesses; if a vendor hides pricing the field is null with a reason), rebuilt quarterly, and published CC BY 4.0 so anyone can reuse the data with attribution. theautomationsguide.com/revops-automation-pricing/ No ask beyond a look. If it is useful for a future issue, the whole dataset is downloadable.
+
 ## GEO Baseline Test (run once, then monthly)
 
 Run these searches in **ChatGPT, Perplexity, Claude, and Gemini**. Log whether the site is cited. This is your "before" snapshot — re-run monthly and track improvement.
