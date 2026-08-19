@@ -1,0 +1,146 @@
+---
+title: "RB2B Pricing in 2026: Free Tier Limits and When to Pay"
+description: "RB2B free tier, paid plans, and how it stacks up against Warmly, Vector, and Factors.ai for B2B visitor identification in 2026."
+tldr: "RB2B's free tier identifies up to 100 person-level visitor profiles per month and is genuinely useful for early-stage teams, but you will hit the ceiling fast and the paid jump is steep enough that Warmly or Factors.ai may be a better fit at scale."
+pubDate: 2026-08-19
+tags: ["tools", "pricing", "visitor-identification"]
+faqs:
+  - question: "Is RB2B really free?"
+    answer: "Yes, RB2B has a permanent free tier that delivers up to 100 person-level LinkedIn profiles per month for US website visitors. No credit card is required to start."
+  - question: "How much does RB2B cost when you upgrade?"
+    answer: "RB2B's paid plans start at around $149 per month for higher volume and Slack push integrations. Enterprise pricing is custom and typically negotiated at 1,000 or more monthly reveals."
+  - question: "What are the main RB2B competitors?"
+    answer: "The main competitors are Warmly (signal-based outbound layer on top of visitor ID), Vector (intent plus contact resolution), and Factors.ai (account-level analytics with person deanonymization)."
+  - question: "Does RB2B work outside the US?"
+    answer: "RB2B's person-level identification is currently limited to US website visitors. Non-US traffic gets account-level data only, which limits its value for teams with heavy international pipelines."
+  - question: "When should I pay for RB2B instead of using the free tier?"
+    answer: "Pay when you are consistently hitting 100 reveals per month and your sales team is actioning every single one. If reveals are piling up unworked, fix your workflow before upgrading the plan."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The question I get most from early-stage B2B SaaS RevOps teams is not "should we use visitor identification" but "is the RB2B free tier actually enough, or is this a loss-leader designed to make us upgrade in 30 days?" Fair question. The free tier is genuinely useful. But it has real constraints that push you toward a paid decision faster than most vendors admit, and the competitive set has shifted enough in 2026 that defaulting to [RB2B](/go/rb2b/) without at least glancing at [Warmly](/go/warmly/), [Vector](/go/vector/), and [Factors.ai](/go/factors-ai/) is a mistake.
+
+<KeyTakeaways items={[
+  "RB2B's free tier caps at 100 person-level profiles per month, US visitors only, permanently free with no credit card required.",
+  "Paid plans start around $149/month. The jump from zero to paid is steeper than Warmly's entry tier, which starts with a broader feature set.",
+  "Person-level LinkedIn identification is RB2B's differentiated feature. Warmly layers orchestration on top; Factors.ai goes deeper on account analytics.",
+  "The free tier is a real product, not a trial. If you are under 100 monthly reveals and you are working every single one, you may never need to pay.",
+  "Geography is the silent killer: RB2B person-level ID is US-only. International-heavy pipelines should look at Factors.ai or Warmly first."
+]} />
+
+## What the free tier actually gives you (and where it stops)
+
+The RB2B free plan identifies individual visitors by name, LinkedIn profile, and company, pushing that data directly into a Slack channel. You get up to 100 person-level reveals per month. No expiry. That is a genuinely different value proposition from the typical 14-day trial model. I have watched clients at Homegrown Growth Co. run on the free plan for six months before outgrowing it.
+
+What you do not get on free: webhook or Zapier/Make integrations, CRM push, CSV exports, API access, or historical data beyond a rolling window. In practice, this means your workflow is Slack notification to manual copy-paste into your CRM. Fine if you have one SDR reviewing ten hot visitors a week. It breaks the moment you want automated enrichment or routing logic.
+
+The other hard constraint is geography. Person-level data is US visitors only. Account-level identification (company name, industry, page views) works for international traffic, but you lose the LinkedIn profile match that makes [RB2B](/tools/rb2b/) worth using in the first place. If 40 percent of your pipeline comes from Europe, your effective ceiling is well below 100 reveals.
+
+<StatRow stats={[
+  { number: "100", label: "Free monthly reveals", description: "Person-level LinkedIn profiles per month on the permanent free tier, US traffic only" },
+  { number: "$149/mo", label: "Paid entry price", description: "Approximate starting price for higher volume plus Slack, webhook, and CRM integrations" },
+  { number: "~73%", label: "US traffic share", description: "Average US visitor share for a typical SaaS site, per SimilarWeb benchmarks. Lower share = fewer usable reveals" }
+]} />
+
+## The true cost: free tier math for a real team
+
+Here is the arithmetic I walk clients through. Take 2,000 unique monthly visitors, a 3 percent ICP match rate (realistic for a focused B2B SaaS), and 60 percent US traffic. That produces roughly 36 person-level reveals per month. Free tier covers this comfortably. You are unlikely to upgrade for at least a year.
+
+Flip the inputs: 8,000 visitors, same ICP rate, same US split. Now you are at around 144 person-level reveals. You hit the ceiling at month one.
+
+The upgrade to paid at roughly $149/month is straightforward math. The part most evaluations skip is the integration work sitting behind it. Pushing reveals to HubSpot with proper contact deduplication and sequence enrollment requires either a native connector (paid tier only) or an [n8n](/tools/n8n/) workflow on top. I have built this for clients and it is not complex, but it is not zero effort either. Budget a few hours and a $20/month n8n instance if you want it done right.
+
+That overhead matters more than people expect. By the time you account for the SDR time required to manually action free-tier RB2B data, you might be spending more in labor cost than a [Warmly](/tools/warmly/) subscription runs. Warmly bundles the orchestration layer natively. For a reference on how to build that signal-to-action motion once visitor data is flowing, the [Warmly + Make signal-based outbound workflow guide](/blog/2026-08-16-warmly-make-signal-based-outbound-workflow-guide/) covers the sequencing layer in detail.
+
+## Which tier fits which team
+
+<ChooseIf title="RB2B vs. Warmly vs. Vector vs. Factors.ai" tools={[
+  {
+    name: "RB2B",
+    conditions: [
+      "You are under 100 US monthly reveals and want zero cost, zero commitment person-level ID",
+      "Your outbound motion is manual SDR outreach from Slack notifications and that is intentional",
+      "You are US-market focused and person-level LinkedIn data is the primary use case"
+    ],
+    pricing: "Free up to 100 reveals, ~$149/mo paid",
+    affiliateSlug: "rb2b",
+    ctaLabel: "Try RB2B free",
+    highlight: false
+  },
+  {
+    name: "Warmly",
+    conditions: [
+      "You want visitor ID plus real-time sales orchestration (auto-sequencing, rep alerts, AI chat) without stitching tools together",
+      "Your team is running signal-based outbound and you need the intent layer baked in, not bolted on",
+      "You have a dedicated RevOps resource to configure routing rules and playbooks"
+    ],
+    pricing: "Free tier available, paid from ~$700/mo",
+    affiliateSlug: "warmly",
+    ctaLabel: "Try Warmly",
+    highlight: true
+  },
+  {
+    name: "Vector",
+    conditions: [
+      "You need person-level contact resolution paired with B2B intent data from multiple signals, not just web visits",
+      "You are doing account-based plays and need a buying committee map, not just a single visitor name",
+      "Your ICP has strong third-party intent signals that web-visit-only tools miss"
+    ],
+    pricing: "Custom pricing, starts ~$500/mo",
+    affiliateSlug: "vector",
+    ctaLabel: "Try Vector",
+    highlight: false
+  },
+  {
+    name: "Factors.ai",
+    conditions: [
+      "You need account-level analytics (multi-touch attribution, pipeline influence) alongside deanonymization",
+      "Your team is heavier on marketing analytics than SDR outbound and you want a single platform",
+      "International traffic is a meaningful share of your pipeline and US-only tools leave you blind"
+    ],
+    pricing: "Free plan, paid from ~$299/mo",
+    affiliateSlug: "factors-ai",
+    ctaLabel: "Try Factors.ai",
+    highlight: false
+  }
+]} />
+
+## Where the pricing is fair and where it stings
+
+<MyTake>
+RB2B's free tier is the most honest free product in the visitor ID category precisely because the core value prop (person-level LinkedIn ID delivered to Slack) is fully intact and never expires. But the pricing architecture has a real gap: there is no $49 to $99 small-team tier. You go from free to $149/month with nothing in between. That means teams who just need the CRM push before they hit volume are paying for infrastructure they are barely using. If RB2B added a sub-$75 "integrations only" tier, I would recommend it to almost every sub-500 session/month team I work with without hesitation. Right now, I sometimes steer clients toward Factors.ai instead purely because the entry paid tier is more proportionate to early-stage volume.
+</MyTake>
+
+The [RB2B review I published recently](/blog/2026-08-18-rb2b-review-2026-is-free-visitor-id-worth-the-trade-off/) covers the overall value trade-off in more depth, including whether data quality holds up against paid alternatives. Short version: for US-focused, early-stage teams with an SDR working named accounts, RB2B free is genuinely good. For teams that need automation and attribution alongside identification, [Factors.ai](/tools/factors-ai/) or [Warmly](/tools/warmly/) justify their price faster.
+
+On the competitive positioning: Factors.ai has the strongest account analytics story. Warmly wins on orchestration. RB2B wins on simplicity and price-to-value at low volume. Vector sits in a different lane entirely. Think of it as an intent aggregator with contact resolution, not a pure visitor ID tool, and it is [priced accordingly](https://www.factors.ai/pricing).
+
+If you are evaluating these tools alongside other data enrichment decisions, the frameworks in the [Lusha pricing breakdown](/blog/2026-08-13-lusha-pricing-in-2026-credits-seats-and-when-to-switch/) apply here too. Always model cost per actioned lead, not just the monthly fee. A $149/month tool that produces 12 actioned leads is cheaper than a $49/month tool that produces three.
+
+<BottomLine
+  verdict="Start with RB2B free if you are US-focused and under 100 reveals per month. Upgrade to paid when every reveal is being worked and you need CRM automation. If you are already at 500-plus monthly site sessions from your ICP and want orchestration baked in, go evaluate Warmly before you commit to RB2B paid."
+  pick="RB2B"
+  affiliateSlug="rb2b"
+  ctaLabel="Try RB2B free"
+/>
+
+<Sources sources={[
+  { label: "RB2B: official pricing page", url: "https://www.rb2b.com/pricing" },
+  { label: "Warmly: pricing overview", url: "https://www.warmly.ai/pricing" },
+  { label: "Factors.ai: plans and pricing", url: "https://www.factors.ai/pricing" },
+  { label: "SimilarWeb: US web traffic benchmarks 2025", url: "https://www.similarweb.com/blog/research/market-research/us-website-traffic-statistics/" }
+]} />
