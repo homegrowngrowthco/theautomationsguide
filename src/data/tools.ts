@@ -797,7 +797,7 @@ export const tools: Tool[] = [
     badge: 'Free trial',
     ctaLabel: 'Try Reply.io',
     ctaPrimary: true,
-    listed: false,
+    listed: true,
     logo: '/brand/tools/reply-io.webp',
     aliases: ['Reply.io'],
     blurb:

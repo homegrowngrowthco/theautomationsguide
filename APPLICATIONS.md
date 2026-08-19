@@ -67,7 +67,7 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Landing page to cite: `/tools/reply-io/`
 - Relevant content: `/tools/reply-io/` (hub), `/blog/2026-05-28-outreach-alternatives-for-mid-market-revops-in-2026/`, `/blog/2026-05-19-why-revops-teams-are-abandoning-outreach-in-2026/`
 - Why we cover it / promo angle: "Reply.io fits two buyer searches at once: best multichannel sequencer and AI SDR (its Jason layer). We feature it in our Outreach-alternatives and multichannel-sequencing comparisons plus the hub page."
-- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
+- Applied: [x]  Approved: [x] (2026-08-19; 3 links: main /tag, /tag-pricing, /tag-ai — registered as reply-io, reply-io-pricing, reply-io-ai)
 
 ### 13. KrispCall
 - **Apply link: https://krispcall.partnerstack.com/** (PartnerStack direct)
@@ -148,6 +148,26 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Relevant content: `/tools/brevo/` (hub), `/blog/2026-05-22-best-mailchimp-alternatives-for-creators-and-small-operators/`, `/blog/2026-05-13-beehiiv-vs-substack-vs-hubspot-email-newsletter-for-b2b/`
 - Why we cover it / promo angle: "Brevo is our value pick (volume-based pricing, email + SMS + light CRM) in email-automation comparisons against GetResponse and ActiveCampaign. Promoted via the hub page and email-tool comparison posts."
 - Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
+
+---
+
+## PartnerStack Network application (rewritten 2026-08-19 for the resubmit)
+
+Prior submissions were repeatedly rejected; the old block claimed ~5,000 monthly visits (25x measured reality, and PartnerStack can check). This version leads with what is verifiably strong. Use `ian@theautomationsguide.com`, never Gmail.
+
+| Field | Paste this |
+|---|---|
+| Company / site | The Automations Guide, https://theautomationsguide.com (published by Homegrown Growth Co, https://homegrowngrowth.co) |
+| Partner type | Content / affiliate publisher (B2B SaaS review and comparison site) |
+| Audience | RevOps and GTM practitioners: founders, revenue operations managers, and sales/marketing ops teams actively evaluating CRM, outbound, enrichment, and automation tooling |
+| Monthly traffic | Early-stage and compounding: 13,000+ Google impressions in the last 28 days, 179 of 196 pages indexed, 105 published posts, publishing daily. If a bracket is forced, select the smallest (0-1K visits/mo) |
+| Promotion methods | SEO comparison and pricing content, per-tool hub pages, email newsletter (Beehiiv), LinkedIn |
+
+**"Tell us about your business / how you promote" (paste verbatim):**
+
+> The Automations Guide is a RevOps and GTM automation publication with 105 published posts and a fully mapped per-tool hub system: every tool we cover gets a dedicated landing page, contextual placement in head-to-head comparisons, and tracked affiliate CTAs. We are already an active, revenue-generating partner on PartnerStack-powered programs including Apollo, Kit (ConvertKit), and Lusha, with applications live at ActiveCampaign, FullEnrich, and Close, and 26 affiliate programs live across all platforms. We also publish the RevOps Automation Pricing Index (theautomationsguide.com/revops-automation-pricing/), a CC BY 4.0 dataset of verified pricing for 93 RevOps tools that we maintain quarterly. We rank tools on fit for the reader, not commission size. Immediate PartnerStack programs we intend to join through the Network: Pipedrive and Cognism, both of which already feature in published and scheduled comparison content.
+
+**Why this framing:** the single strongest signal is the existing PartnerStack vendor relationships (Apollo/Kit/Lusha pay through PartnerStack today); lead with those. Never cite a visits number bigger than the smallest bracket.
 
 ---
 

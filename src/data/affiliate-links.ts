@@ -211,10 +211,25 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   },
   'reply-io': {
     name: 'Reply.io',
-    url: '',
+    url: 'https://get.reply.io/tag',
     homepageFallback: 'https://reply.io/',
-    status: 'applied',
-    notes: 'Applied 2026-08-19 (direct program, ~20% recurring), awaiting response.',
+    status: 'live',
+    notes: 'Approved 2026-08-19 (direct program, ~20% recurring). Two deep-link variants registered below: reply-io-pricing, reply-io-ai.',
+  },
+  // Reply.io deep links (same program, page-specific destinations for contextual CTAs).
+  'reply-io-pricing': {
+    name: 'Reply.io Pricing',
+    url: 'https://get.reply.io/tag-pricing',
+    homepageFallback: 'https://reply.io/pricing/',
+    status: 'live',
+    notes: 'Approved 2026-08-19. Deep link to the pricing page; use in pricing/cost posts.',
+  },
+  'reply-io-ai': {
+    name: 'Reply.io AI Variables',
+    url: 'https://get.reply.io/tag-ai',
+    homepageFallback: 'https://reply.io/',
+    status: 'live',
+    notes: 'Approved 2026-08-19. Deep link to the AI variables page; use in AI-SDR/personalization posts.',
   },
   krispcall: {
     name: 'KrispCall',
