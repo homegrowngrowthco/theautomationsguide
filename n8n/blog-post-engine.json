@@ -113,7 +113,7 @@
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ filter: { property: 'Status', select: { equals: 'Queued' } }, sorts: [{ property: 'Priority', direction: 'descending' }, { property: 'Created', direction: 'ascending' }], page_size: 1 }) }}",
+        "body": "={{ JSON.stringify({ filter: { property: 'Status', select: { equals: 'Queued' } }, sorts: [{ property: 'Priority', direction: 'ascending' }, { property: 'Created', direction: 'ascending' }], page_size: 1 }) }}",
         "options": {
           "timeout": 30000
         }
