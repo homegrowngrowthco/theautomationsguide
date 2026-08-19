@@ -27,7 +27,7 @@ RevOps/GTM automation blog at **theautomationsguide.com**. Affiliate-monetized (
 - Flow: Notion Content Calendar (`Status: Queued`) → generate/humanize (Sonnet) → sanitize → PR on `content/<slug>` branch → QA workflow (auto-register + gates + Vision) → human merge (auto-merge backstop after 2 days green).
 - Notion DBs: Content Calendar `62f34586-4f78-4b83-b2ac-105f500d059e`, Drafts `7399699b-ef9d-4ef4-8c2c-4749f99b5b76`. Queue lives in Notion — never snapshot it into the repo.
 - Engine changes: edit via an idempotent `n8n/update-engine-*.mjs` updater, dry-run, `deploy-engine.mjs --apply`, then GET-verify live. Keep `n8n/blog-post-engine.json` in sync with the live instance.
-- Other live workflows: Topic Suggestor, Daily Briefing, PostHog Monitor, Notion Publish Status (webhook on PR merge), Error Trigger, PR + Backlink Monitor. All TAG Slack alerts lead with `🤖 *The Automations Guide*` (keep for any new alerting workflow).
+- Other live workflows: Topic Suggestor, Daily Briefing, PostHog Monitor, Notion Publish Status (webhook on PR merge: Notion + Slack + per-post IndexNow; Google Indexing API branch built but OFF), Error Trigger. **PR + Backlink Monitor exists but is INACTIVE** (verified 2026-08-19; triage in TODO). All TAG Slack alerts lead with `🤖 *The Automations Guide*` (keep for any new alerting workflow).
 
 ## Docs + logging conventions (2026-07-17)
 

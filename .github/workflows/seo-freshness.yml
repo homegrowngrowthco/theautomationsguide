@@ -1,0 +1,41 @@
+# Weekly SEO plumbing watchdog. Born 2026-08-19, the day we found GSC had not
+# re-read the sitemap in 58 days and nothing noticed. Checks the PIPE, not the
+# outcome: is Google reading our sitemap, recently, and seeing all of it?
+#
+# Requires repo secret GSC_TOKEN_JSON (full contents of ~/.gsc/token.json).
+# Until that secret exists the job FAILS LOUDLY — a skipped check must not
+# read as a passing one.
+
+name: seo-freshness
+
+on:
+  schedule:
+    - cron: '0 13 * * 1' # Mondays 13:00 UTC
+  workflow_dispatch:
+
+jobs:
+  sitemap-freshness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --quiet google-auth google-auth-oauthlib google-api-python-client
+      - name: Check GSC sitemap freshness
+        id: check
+        env:
+          GSC_TOKEN_JSON: ${{ secrets.GSC_TOKEN_JSON }}
+        run: |
+          if [ -z "$GSC_TOKEN_JSON" ]; then
+            echo "::error::GSC_TOKEN_JSON secret is not set - the sitemap watchdog is BLIND. Paste the contents of ~/.gsc/token.json into the repo secret."
+            exit 1
+          fi
+          python gsc-sitemap-freshness.py
+      - name: Slack alert on failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          MSG="🤖 *The Automations Guide* — SEO freshness check FAILED: Google's read of the sitemap is stale, incomplete, or the watchdog has no credentials. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          curl -s -X POST -H 'Content-type: application/json' --data "{\"text\":\"$MSG\"}" "$SLACK_WEBHOOK_URL"
