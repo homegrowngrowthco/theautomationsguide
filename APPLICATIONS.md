@@ -169,6 +169,28 @@ Prior submissions were repeatedly rejected; the old block claimed ~5,000 monthly
 
 **Why this framing:** the single strongest signal is the existing PartnerStack vendor relationships (Apollo/Kit/Lusha pay through PartnerStack today); lead with those. Never cite a visits number bigger than the smallest bracket.
 
+**Complete field-by-field answers (every question their form asks):**
+
+| Form field | Answer |
+|---|---|
+| Full name | Ian Chamberland |
+| Work email | ian@theautomationsguide.com (NOT Gmail) |
+| Company name | The Automations Guide (legal/parent: Homegrown Growth Co) |
+| Company website | https://theautomationsguide.com |
+| Country | United States |
+| Partner type | Affiliate / Content publisher |
+| Company size | 1-10 |
+| Software categories you promote | Sales, CRM, Marketing Automation, Data & Enrichment, Productivity |
+| Who is your audience? | RevOps and GTM practitioners: founders, revenue operations managers, sales/marketing ops teams evaluating CRM, outbound, enrichment, and automation tooling |
+| Audience size / monthly visitors | Select the smallest bracket offered (0-1K or equivalent). If a free-text field: "Early-stage: 13,000+ Google impressions/28 days and compounding ~40%/mo; 105 published posts; 196 of 217 pages indexed" |
+| Promotion channels | Content/SEO (primary), Email newsletter (Beehiiv), LinkedIn, X |
+| Do you run paid ads? | No. Organic content and SEO only; no brand bidding |
+| How do you drive referrals? | Buyer-intent comparison and pricing content ranking in organic search, per-tool hub pages with tracked CTAs, and newsletter features. Every tool gets a dedicated landing page plus contextual placement in head-to-head comparisons |
+| Existing partnerships | Active on PartnerStack today via Apollo, Kit (ConvertKit), and Lusha vendor programs; 27 affiliate programs live overall (Make, Clay, Beehiiv, Smartlead, Instantly, Reply.io, ZeroBounce, and others) |
+| Programs you want to join | Pipedrive, Cognism (both already featured in published and scheduled comparison content) |
+| Anything else / about your business | Use the long-form block above verbatim |
+| Social profiles | LinkedIn: linkedin.com/company/the-automations-guide · X: @the_automations · Crunchbase: crunchbase.com/organization/the-automations-guide |
+
 ---
 
 ## Wave 3 (2026-08-19): tools in the upcoming High-priority queue
