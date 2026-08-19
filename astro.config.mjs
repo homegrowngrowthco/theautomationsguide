@@ -2,10 +2,33 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
 import { FontaineTransform } from 'fontaine';
+import { readdirSync, readFileSync } from 'node:fs';
 
 // Pages we intentionally noindex — must be excluded from the sitemap, otherwise
 // GSC reports "Excluded by 'noindex' tag" (sitemap and page directive disagree).
 const NOINDEX_PATHS = ['/search/', '/privacy/', '/terms/', '/disclosure/'];
+
+// Real lastmod dates for blog URLs (updatedDate if present, else pubDate), read
+// straight from frontmatter at config-load time. Only blog posts get lastmod —
+// stamping a fake "today" on every static page each build would teach Google to
+// distrust the field. GSC hadn't re-downloaded the sitemap in 58 days when this
+// shipped (2026-08-19); lastmod gives it a change signal worth re-reading.
+const BLOG_LASTMOD = (() => {
+  const map = new Map();
+  const dateOf = (src, field) => {
+    // Quote-agnostic + CRLF-aware frontmatter scan (registry-parser bug class).
+    const m = src.match(new RegExp(`^${field}:\\s*["']?(\\d{4}-\\d{2}-\\d{2})`, 'm'));
+    return m ? m[1] : null;
+  };
+  for (const f of readdirSync('./src/content/blog')) {
+    if (!/\.(md|mdx)$/.test(f)) continue;
+    const src = readFileSync(`./src/content/blog/${f}`, 'utf8');
+    const slug = f.replace(/\.(md|mdx)$/, '');
+    const d = dateOf(src, 'updatedDate') || dateOf(src, 'pubDate');
+    if (d) map.set(`/blog/${slug}/`, d);
+  }
+  return map;
+})();
 
 // In-body markdown affiliate links — [Clay](/go/clay) — render as bare <a> with
 // no rel. The structured component CTAs already carry rel="noopener noreferrer
@@ -73,6 +96,11 @@ export default defineConfig({
         if (path.startsWith('/go/')) return false;
         if (path.startsWith('/og/')) return false; // per-post OG images, not indexable pages
         return !NOINDEX_PATHS.includes(path);
+      },
+      serialize: (item) => {
+        const path = new URL(item.url).pathname;
+        const lastmod = BLOG_LASTMOD.get(path);
+        return lastmod ? { ...item, lastmod } : item;
       },
     }),
   ],
