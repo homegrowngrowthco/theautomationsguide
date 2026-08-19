@@ -57,7 +57,7 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Landing page to cite: `/tools/lindy/`
 - Relevant content: `/tools/lindy/` (hub) and our automation comparison `/blog/2026-05-03-make-vs-zapier-vs-n8n-in-2026-which-should-revops-pick/`
 - Why we cover it / promo angle: "We position Lindy as the ready-made AI-assistant layer (inbox triage, meeting prep, CRM updates) that pairs with the workflow tools our audience already runs (Make, n8n). Promoted via the hub page and AI-agent comparison content."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
 
 ### 12. Reply.io
 - **Apply link: https://reply.io/affiliates/** (direct; own affiliate platform)
@@ -67,7 +67,7 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Landing page to cite: `/tools/reply-io/`
 - Relevant content: `/tools/reply-io/` (hub), `/blog/2026-05-28-outreach-alternatives-for-mid-market-revops-in-2026/`, `/blog/2026-05-19-why-revops-teams-are-abandoning-outreach-in-2026/`
 - Why we cover it / promo angle: "Reply.io fits two buyer searches at once: best multichannel sequencer and AI SDR (its Jason layer). We feature it in our Outreach-alternatives and multichannel-sequencing comparisons plus the hub page."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
 
 ### 13. KrispCall
 - **Apply link: https://krispcall.partnerstack.com/** (PartnerStack direct)
@@ -77,7 +77,7 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Landing page to cite: `/tools/krispcall/`
 - Relevant content: `/tools/krispcall/` (hub). Dialer comparison content (vs JustCall / CloudTalk) is on the roadmap.
 - Why we cover it / promo angle: "We position KrispCall as the affordable SMB cloud phone + dialer (vs JustCall and CloudTalk). Promoted via the hub page and forthcoming dialer comparison content."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
 
 ### 14. Laxis
 - **Apply link: https://www.laxis.com/affiliate-program** (own page; PartnerStack-backed)
@@ -87,7 +87,7 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Landing page to cite: `/tools/laxis/`
 - Relevant content: `/tools/laxis/` (hub), `/blog/2026-06-12-gong-alternatives-for-revenue-intelligence-that-actually-fit/`, `/blog/2026-05-14-gong-vs-outreach-vs-salesloft-which-wins-in-2026/`
 - Why we cover it / promo angle: "Laxis is the sales-copilot notetaker (CRM sync + follow-up drafting) in our revenue-intelligence content. Promoted via the hub page and Gong-alternatives / revenue-intel comparisons."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x]  Approved: [x] (2026-08-19)
 
 ### 15. Close
 - **Apply link: https://dash.partnerstack.com/application?company=close&group=closeaffiliatepartner** (PartnerStack direct)
@@ -97,7 +97,7 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Landing page to cite: `/tools/close/`
 - Relevant content: `/tools/close/` (hub), `/blog/2026-06-11-hubspot-vs-pipedrive-for-outbound-sequences/`, `/blog/2026-06-01-pipedrive-vs-apollo-outbound-which-wins-in-2026/`
 - Why we cover it / promo angle: "Close is our sales-first, sell-from-one-screen CRM pick (native calling + sequencing) against HubSpot and Pipedrive. Promoted via the hub page and CRM/outbound comparison posts."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
 
 ### 16. Nutshell
 - **Apply link: https://www.nutshell.com/partner-program/affiliate-partner-program** (affiliate-specific page; via PartnerStack)
@@ -107,7 +107,7 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Landing page to cite: `/tools/nutshell/`
 - Relevant content: `/tools/nutshell/` (hub), `/blog/2026-06-11-hubspot-vs-pipedrive-for-outbound-sequences/`, `/blog/2026-06-01-pipedrive-vs-apollo-outbound-which-wins-in-2026/`
 - Why we cover it / promo angle: "Nutshell is our friendly, affordable SMB CRM (sequencing + light marketing) alternative to HubSpot, alongside Pipedrive and Close. Promoted via the hub page and SMB-CRM comparisons."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
 
 ### 17. GetResponse
 - **Apply link: https://dash.partnerstack.com/application?company=getresponse&group=default** (PartnerStack direct)
@@ -117,7 +117,7 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Landing page to cite: `/tools/getresponse/`
 - Relevant content: `/tools/getresponse/` (hub), `/blog/2026-05-22-best-mailchimp-alternatives-for-creators-and-small-operators/`, `/blog/2026-05-13-beehiiv-vs-substack-vs-hubspot-email-newsletter-for-b2b/`
 - Why we cover it / promo angle: "GetResponse is the all-in-one SMB marketing suite (email + landing pages + funnels) in our email-platform comparisons against Brevo, ActiveCampaign, and Kit. Promoted via the hub page and email-tool comparison posts."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
 
 ### 18. AdCreative.ai
 - **Apply link: https://dash.partnerstack.com/application?company=adcreative** (PartnerStack direct)
@@ -127,7 +127,7 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Landing page to cite: `/tools/adcreative/`
 - Relevant content: **Dedicated published post** `/blog/2026-06-08-adcreativeai-vs-canva-vs-creatify-which-ai-ad-tool-wins/` plus the hub `/tools/adcreative/`
 - Why we cover it / promo angle: "We already have a live head-to-head review (AdCreative.ai vs Canva vs Creatify) ranking for AI-ad-tool intent. AdCreative.ai is positioned as the volume + scored-creative pick for performance marketers. Promoted via that post, the hub page, and the newsletter."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
 
 ### 19. Motion
 - **Apply link: https://affiliate.usemotion.com/** (affiliate resource center + apply)
@@ -137,7 +137,7 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Landing page to cite: `/tools/motion/`
 - Relevant content: `/tools/motion/` (hub). Featured in productivity / workflow content for the people running GTM.
 - Why we cover it / promo angle: "Motion is the broadly appealing AI calendar / auto-scheduler we recommend to the founders and operators reading us. Promoted via the hub page and productivity-focused newsletter slots."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x]  Approved: [x] (2026-08-19)
 
 ### 20. Brevo
 - **Apply link: https://www.brevo.com/partners/affiliates/** (direct; via PartnerStack — use ian@theautomationsguide.com, NOT Gmail)
@@ -147,7 +147,7 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Landing page to cite: `/tools/brevo/`
 - Relevant content: `/tools/brevo/` (hub), `/blog/2026-05-22-best-mailchimp-alternatives-for-creators-and-small-operators/`, `/blog/2026-05-13-beehiiv-vs-substack-vs-hubspot-email-newsletter-for-b2b/`
 - Why we cover it / promo angle: "Brevo is our value pick (volume-based pricing, email + SMS + light CRM) in email-automation comparisons against GetResponse and ActiveCampaign. Promoted via the hub page and email-tool comparison posts."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
 
 ---
 
@@ -162,7 +162,7 @@ These 10 tools all feature in posts publishing over the next ~3 weeks (the High 
 - Landing page to cite: `/tools/vapi/`
 - Relevant content: `/blog/2026-07-13-bland-ai-vs-vapi-vs-synthflow-which-closes-in-2026/`, `/blog/2026-07-30-migrate-from-vapi-to-synthflow-no-code-ai-voice-agents/` + a dedicated Vapi review is queued (High)
 - Promo angle: "We cover Vapi as the developer-grade AI voice agent platform in head-to-heads vs Bland and Synthflow, plus migration guides. A dedicated review is scheduled."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x]  Approved: [x] (2026-08-19)
 
 ### 22. FullEnrich
 - **Apply link: https://fullenrich.partnerstack.com/** (vendor page: fullenrich.com/affiliates)
@@ -172,7 +172,7 @@ These 10 tools all feature in posts publishing over the next ~3 weeks (the High 
 - Landing page to cite: `/tools/fullenrich/`
 - Relevant content: `/blog/2026-07-13-fullenrich-vs-bettercontact-vs-surfe-waterfall-enrichment-co/` + "Migrate from Lusha to FullEnrich" is queued (High)
 - Promo angle: "FullEnrich is our waterfall-enrichment pick in comparison content vs BetterContact and Surfe, with a Lusha migration guide scheduled."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
 
 ### 23. LeadMagic
 - **Apply link: https://partners.dub.co/leadmagic** (Dub Partners)
@@ -181,7 +181,7 @@ These 10 tools all feature in posts publishing over the next ~3 weeks (the High 
 - Landing page to cite: `/tools/leadmagic/`
 - Relevant content: **Dedicated published review** `/blog/2026-08-10-leadmagic-review-2026-is-the-linkedin-enrichment-worth-it/` + `/blog/2026-07-22-leadmagic-vs-surfe-vs-findymail-best-linkedin-enrichment-too/` + LeadMagic pricing post queued (High)
 - Promo angle: "We already publish a dedicated LeadMagic review and a 3-way enrichment comparison; a pricing deep-dive is scheduled."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
 
 ### 24. Cognism
 - **Apply link: https://market.partnerstack.com/page/cognism** ("Apply to program")
@@ -190,7 +190,7 @@ These 10 tools all feature in posts publishing over the next ~3 weeks (the High 
 - Landing page to cite: `/tools/cognism/`
 - Relevant content: `/blog/2026-07-24-cognism-vs-apollo-vs-lusha-best-for-european-outbound/` + "Apollo Data Quality vs Cognism vs Zerobounce" queued (High)
 - Promo angle: "Cognism is our European-outbound data pick vs Apollo and Lusha, with a data-quality head-to-head scheduled."
-- Applied: [ ]  Approved: [ ]
+- Applied: [ ] BLOCKED on pending PartnerStack Network approval  Approved: [ ]
 
 ### 25. JustCall
 - **Apply link: https://justcall.io/partner-program/?apply=affiliate** (landing: justcall.io/affiliates/)
@@ -199,7 +199,7 @@ These 10 tools all feature in posts publishing over the next ~3 weeks (the High 
 - Landing page to cite: `/tools/justcall/`
 - Relevant content: `/blog/2026-06-22-krispcall-vs-justcall-vs-aircall-for-sdr-teams/` + "What JustCall Actually Costs in 2026" queued (High)
 - Promo angle: "JustCall features in our SDR dialer comparison; a dedicated pricing breakdown is scheduled."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
 
 ### 26. ActiveCampaign
 - **Apply link: https://activecampaign.partnerstack.com/?group=affiliatepartners**
@@ -208,7 +208,7 @@ These 10 tools all feature in posts publishing over the next ~3 weeks (the High 
 - Landing page to cite: `/tools/activecampaign/`
 - Relevant content: `/blog/2026-07-18-migrate-activecampaign-to-hubspot-keep-automations-intact/` + "ActiveCampaign vs HubSpot vs Brevo" queued (High) + a GetResponse-to-ActiveCampaign migration queued (Medium)
 - Promo angle: "ActiveCampaign anchors our email-automation comparison cluster (vs HubSpot, Brevo, GetResponse) with migration guides in both directions."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
 
 ### 27. ZeroBounce
 - **Apply link: https://www.zerobounce.net/members/signin/register-affiliate-program** (program page: zerobounce.net/affiliate-program)
@@ -217,7 +217,7 @@ These 10 tools all feature in posts publishing over the next ~3 weeks (the High 
 - Landing page to cite: `/tools/zerobounce/`
 - Relevant content: `/blog/2026-07-03-zerobounce-vs-bouncer-vs-mailreach-best-email-verification-t/`, `/blog/2026-08-17-cold-email-deliverability-monitoring-workflow-smartlead-zero/` + the Apollo/Cognism/Zerobounce data-quality post queued (High)
 - Promo angle: "ZeroBounce features in our email-verification comparison, a published deliverability-workflow guide, and a scheduled data-quality head-to-head."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x]  Approved: [x] (2026-08-19)
 
 ### 28. Aircall
 - **Apply link: https://aircall.partnerstack.com/?group=affiliatemarketingprogram** (vendor page: aircall.io/partners/affiliate-partners/)
@@ -227,7 +227,7 @@ These 10 tools all feature in posts publishing over the next ~3 weeks (the High 
 - Landing page to cite: `/tools/aircall/`
 - Relevant content: **Dedicated published pricing post** `/blog/2026-08-14-aircall-pricing-in-2026-per-seat-costs-and-hidden-add-ons/` + `/blog/2026-06-22-krispcall-vs-justcall-vs-aircall-for-sdr-teams/`
 - Promo angle: "We publish a dedicated Aircall pricing breakdown and an SDR dialer comparison, exactly the intent-stage content a pay-per-lead program monetizes."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x]  Approved: REJECTED 2026-08-19 (re-apply when traffic builds)
 
 ### 29. Trigify
 - **Apply link: https://trigify-io-1.getrewardful.com/signup** (Rewardful; unadvertised on trigify.io — this portal is the only entry point)
@@ -236,7 +236,7 @@ These 10 tools all feature in posts publishing over the next ~3 weeks (the High 
 - Landing page to cite: `/tools/trigify/`
 - Relevant content: **Dedicated published guide** `/blog/2026-08-15-trigify-hubspot-lead-scoring-automation-2026-guide/` + `/blog/2026-08-18-rb2b-review-2026-is-free-visitor-id-worth-the-trade-off/` (mentions)
 - Promo angle: "We published a dedicated Trigify + HubSpot automation guide and cover it across our signal-based-outbound cluster."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x]  Approved: [x] (2026-08-19)
 
 ### 30. Findymail
 - **Apply link: https://findymail.getrewardful.com/signup** ("Friends of Findymail"; the old Reflio invite link is dead)
@@ -247,4 +247,4 @@ These 10 tools all feature in posts publishing over the next ~3 weeks (the High 
 - Landing page to cite: no hub yet — cite the review content directly
 - Relevant content: `/blog/2026-07-22-leadmagic-vs-surfe-vs-findymail-best-linkedin-enrichment-too/`
 - Promo angle: "Findymail features in our LinkedIn-enrichment 3-way comparison; it already carries /go/findymail CTAs waiting on a live link."
-- Applied: [ ]  Approved: [ ]
+- Applied: [x]  Approved: [x] (2026-08-19)
