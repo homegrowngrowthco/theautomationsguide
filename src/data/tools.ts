@@ -2177,6 +2177,194 @@ export const tools: Tool[] = [
     blurb:
       'Create beautiful emails, automate campaigns, and track performance. Try it now and see how our tools can drive your business.',
   },
+
+  // --- LP-builder additions (listed:false; flip to listed:true + add a logo once approved/published). ---
+  {
+    slug: "findymail",
+    name: "Findymail",
+    category: "Lead Data & Enrichment",
+    badge: "Free tier available",
+    badgeFree: true,
+    ctaLabel: "Try Findymail",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["Findymail", "findymail.com", "Find y mail"],
+    blurb: "Findymail finds and verifies professional email addresses, with a waterfall enrichment layer that pulls from multiple data sources to raise match rates.",
+    bestFor: "Outbound sales teams and SDRs who need verified B2B emails at scale without paying for a monolithic data platform.",
+    body: [
+      "Findymail is an email-finding and verification tool that locates professional email addresses from LinkedIn profiles, company domains, and sales navigator exports. It has added a waterfall enrichment approach, meaning it queries multiple underlying data providers in sequence and returns the first verified result, which lifts match rates compared with querying a single vendor. Waterfall enrichment as a standalone category is relatively new in the market, having matured significantly between 2024 and 2026 as teams grew frustrated with any single provider covering only a portion of a prospect list. Findymail sits at the affordable end of the category and targets individual reps and lean teams alongside agency users.",
+      "In a RevOps stack, Findymail typically sits between a prospecting or list-building layer (LinkedIn Sales Navigator, Apollo, or a CRM export) and a sequencing tool (Instantly, Smartlead, or Outreach). Buyers comparing Findymail will likely also evaluate Hunter.io for its domain-search depth, Snov.io for its combined prospecting and email features, and Icypeas for similar waterfall logic. The core trade-off is coverage versus cost: Findymail's per-credit pricing model tends to favour teams running moderate volumes who want verified emails without committing to an enterprise data contract.",
+    ],
+    faqs: [
+      {
+        question: "What is Findymail and how does it find emails?",
+        answer: "Findymail is an email finder that queries multiple data sources in a waterfall sequence and returns a verified professional email address. It integrates with LinkedIn and Sales Navigator via a browser extension and also accepts bulk CSV uploads.",
+      },
+      {
+        question: "How does Findymail compare to Hunter.io?",
+        answer: "Hunter.io is stronger for domain-level search and has a longer track record, while Findymail's waterfall approach tends to return higher match rates on individual prospect lookups. Pricing structures differ, so the better choice depends on whether you primarily search by domain or by person.",
+      },
+      {
+        question: "Who should not use Findymail?",
+        answer: "Teams that need a full prospecting database with built-in intent signals and CRM enrichment in one tool will likely outgrow Findymail quickly. In that case, a platform like Apollo or Clay may be a more appropriate fit.",
+      },
+    ],
+  },
+  {
+    slug: "watermelon",
+    name: "Watermelon",
+    category: "AI Agents",
+    badge: "Free trial",
+    ctaLabel: "Try Watermelon",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["Watermelon", "Watermelon AI", "watermelon.ai"],
+    blurb: "Watermelon is a no-code AI chatbot and customer service automation platform that lets support and marketing teams deploy GPT-powered agents across web, WhatsApp, and social channels.",
+    bestFor: "SMB and mid-market customer service teams that want to automate a high share of inbound conversations without engineering resources.",
+    body: [
+      "Watermelon builds AI-powered customer service chatbots using a visual, no-code editor layered on top of large language models, primarily GPT-4 class models. Teams can connect a knowledge base, product catalog, or help docs and the bot handles common queries, escalates edge cases to a live agent, and logs conversations in an integrated inbox. The platform supports deployment across website chat, WhatsApp Business, Facebook Messenger, and Instagram, which makes it practical for businesses where customer contact is spread across multiple channels. Automations can trigger follow-up actions such as ticket creation or CRM updates without requiring a separate integration layer.",
+      "In a GTM or RevOps stack, Watermelon typically replaces or augments a traditional live-chat tool and sits upstream of a helpdesk or CRM. Buyers evaluating Watermelon will likely compare it against Intercom for its AI Fin feature, Tidio for SMB-friendly pricing, and Freshchat or Zoho SalesIQ for teams already inside those ecosystems. The platform is most competitive when a business wants a self-contained solution that bundles the bot builder, the agent inbox, and the channel connectors in one subscription rather than assembling those pieces separately.",
+    ],
+    faqs: [
+      {
+        question: "What is Watermelon and what problems does it solve?",
+        answer: "Watermelon is an AI chatbot platform that automates customer service conversations across chat and messaging channels using a no-code builder. It is designed to reduce inbound support volume and response time without requiring custom development.",
+      },
+      {
+        question: "How does Watermelon compare to Intercom?",
+        answer: "Intercom is a broader customer communications platform with deeper CRM, product tours, and outbound messaging features, while Watermelon focuses more narrowly on AI-driven support automation at a lower price point. Teams that only need chat automation often find Watermelon simpler to configure and more affordable.",
+      },
+      {
+        question: "Is Watermelon suitable for enterprise teams?",
+        answer: "Watermelon is positioned primarily at SMB and mid-market buyers; larger enterprises with complex escalation logic, strict data residency requirements, or deep CRM integrations may find it limiting. Evaluating on a free trial is advisable before committing to higher-volume plans.",
+      },
+    ],
+  },
+
+  // --- LP-builder additions (listed:false; flip to listed:true + add a logo once approved/published). ---
+  {
+    slug: "appy-ai",
+    name: "Appy.AI",
+    category: "AI Agents",
+    badge: "Free tier available",
+    badgeFree: true,
+    ctaLabel: "Try Appy.AI",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["Appy.AI", "Appy AI", "appy.ai"],
+    blurb: "Appy.AI is an AI coworker platform: a Director-of-AI orchestrator called Violet delegates your requests to specialized AI agents for finance, marketing, sales, and operations work, natively inside Slack and Microsoft Teams.",
+    bestFor: "Lean SMB teams that want AI agents doing real sales, marketing, and ops work inside the Slack or Teams workspace they already live in.",
+    body: [
+      "Appy.AI takes a different shape from the chatbot builders that dominate the AI-agent category. Instead of configuring one bot, you work through Violet, a Director-of-AI that receives natural-language requests, decides which of the platform's specialized AI coworkers should handle each piece (a finance analyst, a marketer, a salesperson, an operator), and coordinates their output back to you. The pitch is scaling output without headcount, and the platform is aimed squarely at small teams rather than enterprises.",
+      "The distribution choice matters most for evaluation: Appy.AI runs natively inside Slack and Microsoft Teams rather than as another browser tab, so the agents sit where a GTM team already communicates. It starts on a free tier with $100 in credits and no credit card, which makes a low-risk pilot straightforward. Buyers comparing it will look at Lindy for prebuilt assistant workflows and Relevance AI for build-your-own agent teams; Appy.AI's angle is the delegation layer, where one orchestrator routes work across a bench of specialized agents.",
+    ],
+    faqs: [
+      {
+        question: "What is Appy.AI and how does it work?",
+        answer: "Appy.AI is an AI coworker platform built around Violet, a Director-of-AI orchestrator. You make requests in natural language and Violet delegates them to specialized AI agents for finance, marketing, sales, and operations, then coordinates the results, all inside Slack or Microsoft Teams.",
+      },
+      {
+        question: "How is Appy.AI different from a chatbot builder?",
+        answer: "Chatbot builders produce a single bot you configure and embed. Appy.AI provides a team of prebuilt specialized agents plus an orchestrator that routes work between them, so the unit of value is delegated work output rather than automated conversations.",
+      },
+      {
+        question: "What does Appy.AI cost to try?",
+        answer: "It offers a free tier with $100 in usage credits and no credit card required, with paid usage-based tiers beyond that. That makes a bounded pilot on one workflow a sensible first step.",
+      },
+    ],
+  },
+  {
+    slug: "voiceos",
+    name: "VoiceOS",
+    category: "Scheduling & Productivity",
+    badge: "Free trial",
+    ctaLabel: "Try VoiceOS",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["VoiceOS", "Voice OS", "voiceos.com"],
+    blurb: "VoiceOS is a voice-to-action assistant for Mac from YC-backed WakoAI: dictation that produces polished text, plus an agent mode that executes voice commands across Gmail, Slack, Google Calendar, and Notion.",
+    bestFor: "Founders, reps, and operators on Mac who want to clear email, scheduling, and note-taking by voice instead of typing.",
+    body: [
+      "VoiceOS is not a phone-calling platform, despite what the name suggests; it is a desktop voice assistant for Mac with two distinct modes. Dictation Mode turns speech into polished written text anywhere you can type. Agent Mode goes further than dictation entirely: you speak a command and VoiceOS executes the task, sending emails through Gmail, scheduling meetings on Google Calendar, posting to Slack, or filing tasks and notes into Notion.",
+      "The privacy posture is a genuine differentiator in this category: processing is emphasized as on-device, with no audio retention. For a sales or RevOps context, the practical use is the text-heavy connective work of the day: follow-up emails, CRM and meeting notes, and calendar wrangling done hands-free between calls. Buyers will compare it with Wispr Flow, which is the stronger pure-dictation product across more platforms, while VoiceOS's agent mode, actually executing tasks in your tools, is the capability Wispr Flow does not attempt.",
+    ],
+    faqs: [
+      {
+        question: "What is VoiceOS and what does it actually do?",
+        answer: "VoiceOS is a Mac voice assistant from WakoAI (Y Combinator backed) with two modes: polished speech-to-text dictation, and an agent mode that executes voice commands, like sending Gmail messages, scheduling Google Calendar meetings, and filing Notion tasks.",
+      },
+      {
+        question: "How does VoiceOS compare to Wispr Flow?",
+        answer: "Wispr Flow is the deeper pure-dictation tool and runs on Mac, Windows, iPhone, and Android. VoiceOS is Mac-only but adds an agent layer that acts on your words, executing tasks across Gmail, Slack, Calendar, and Notion rather than just transcribing.",
+      },
+      {
+        question: "Is VoiceOS private enough for work content?",
+        answer: "VoiceOS emphasizes on-device processing and states it does not retain audio. As with any tool touching work email and calendars, check your company's data policy, but the on-device posture is stronger than cloud-first dictation services.",
+      },
+    ],
+  },
+  {
+    slug: "runable",
+    name: "Runable",
+    category: "AI Agents",
+    badge: "Free tier available",
+    badgeFree: true,
+    ctaLabel: "Try Runable",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["Runable", "runable.com"],
+    blurb: "Runable is a general-purpose AI agent that plans and executes end-to-end: it generates websites, slides, video, images, reports, sheets, and workflows from a prompt, pitched as replacing a multi-tool subscription stack.",
+    bestFor: "Solo operators and small business owners who want one AI subscription to produce decks, sites, reports, and creative assets instead of juggling several tools.",
+    body: [
+      "Runable positions itself as an AI general agent that thinks, plans, and executes end-to-end. Give it a goal and it produces finished artifacts: websites, slide decks, video and audio, images, apps, reports, and spreadsheets. The commercial pitch is consolidation, one roughly $15/month subscription (billed yearly) standing in for a stack of ChatGPT, Canva, and Midjourney-style tools, and the company claims over 1.5 million customers with apps on iPhone, Android, and Mac.",
+      "For a RevOps or GTM reader, Runable is not a pipeline tool; it will not sync your CRM or run your sequences. Where it earns a slot is the output layer around the pipeline: sales decks, one-pager sites for campaigns, quick reports, and social creative, produced by describing what you want rather than assembling it. Buyers comparing it should weigh it against simply using ChatGPT plus a design tool; Runable's bet is that an agent that carries a task from plan to finished file beats prompting each tool separately.",
+    ],
+    faqs: [
+      {
+        question: "What is Runable and what does it produce?",
+        answer: "Runable is a general-purpose AI agent that executes tasks end-to-end, generating websites, slides, video, audio, images, apps, reports, and spreadsheets from natural-language instructions. It runs on iPhone, Android, and Mac.",
+      },
+      {
+        question: "What does Runable cost?",
+        answer: "Around $15 per month billed yearly (roughly $20 month-to-month), positioned explicitly as cheaper than the multi-tool stack it aims to replace.",
+      },
+      {
+        question: "Is Runable a fit for RevOps work?",
+        answer: "Not for pipeline automation, it does not manage CRM data or outbound sequences. It fits the content and asset side of GTM work: decks, landing pages, reports, and creative produced quickly by one agent instead of several point tools.",
+      },
+    ],
+  },
+  {
+    slug: "wispr-flow",
+    name: "Wispr Flow",
+    category: "Scheduling & Productivity",
+    badge: "Free tier available",
+    badgeFree: true,
+    ctaLabel: "Try Wispr Flow",
+    ctaPrimary: true,
+    listed: false,
+    aliases: ["Wispr Flow", "Wispr", "wispr.ai"],
+    blurb: "Wispr Flow is AI voice dictation that works system-wide in any app on Mac, Windows, iPhone, and Android: speak naturally and it produces polished, formatted text, stripping filler words and fixing mid-sentence corrections.",
+    bestFor: "Reps, founders, and writers who compose high volumes of email, CRM notes, and messages and want roughly 4x typing speed by voice on any device.",
+    body: [
+      "Wispr Flow is a voice-to-text layer that sits across every application on Mac, Windows, iPhone, and Android, so you can dictate into Gmail, Notion, Salesforce, Slack, or anything else without switching context. Its edge over built-in dictation is the cleanup: it strips filler words, handles mid-sentence corrections the way you actually speak them, auto-punctuates and formats, and learns your personal vocabulary over time. It supports 100+ languages and claims around 220 words per minute, roughly 4x typing speed.",
+      "The company raised an $81M Series B in 2026 and lists teams at Microsoft, Amazon, Notion, and Vercel among its users, which for this category is meaningful maturity signal. The free tier covers 2,000 words per week with no trial countdown; Flow Pro removes the cap, and Teams and Enterprise tiers exist for rollouts. For sales and RevOps work specifically, the payoff is the text-heavy grind: follow-ups, CRM notes after calls, and LinkedIn messages dictated at speaking speed with output clean enough to send.",
+    ],
+    faqs: [
+      {
+        question: "What is Wispr Flow and how is it different from built-in dictation?",
+        answer: "Wispr Flow is an AI dictation tool that works system-wide in any app on Mac, Windows, iPhone, and Android. Unlike built-in dictation it strips filler words, handles self-corrections naturally, auto-formats, and learns your vocabulary, so output needs little to no editing.",
+      },
+      {
+        question: "What does Wispr Flow cost?",
+        answer: "The free tier includes 2,000 words per week with no expiring trial. Flow Pro removes the word cap, and Teams and Enterprise plans add centralized billing and controls.",
+      },
+      {
+        question: "Is Wispr Flow useful for sales or RevOps teams specifically?",
+        answer: "Yes, for the text-heavy parts of the job: follow-up emails, CRM and meeting notes, and prospecting messages dictated at speaking speed. It does not replace a sales engagement platform; it speeds up the writing that surrounds one.",
+      },
+    ],
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body

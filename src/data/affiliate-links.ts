@@ -702,6 +702,44 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
+
+  // --- Quick-approval batch, 2026-08-19 (Ian applied directly; all links verified resolving with attribution intact). ---
+  // findymail intentionally NOT re-added here: its live entry is earlier in this object (a duplicate key would silently shadow it).
+  watermelon: {
+    name: "Watermelon",
+    url: 'https://link.watermelon.ai/tag',
+    homepageFallback: "https://watermelon.ai/",
+    status: 'live',
+    notes: "Approved 2026-08-19 (Dub referral). AI customer service agent platform; adjacent to core GTM coverage.",
+  },
+  'appy-ai': {
+    name: "Appy.AI",
+    url: 'https://refer.appy.ai/tag',
+    homepageFallback: "https://appy.ai/",
+    status: 'live',
+    notes: "Approved 2026-08-19 (Dub referral). NOTE: referral link lands on the signup form (builder.appy.ai), not the marketing homepage, so surrounding copy must explain the product.",
+  },
+  voiceos: {
+    name: "VoiceOS",
+    url: 'https://voiceos.com/r?via=tag',
+    homepageFallback: "https://www.voiceos.com/",
+    status: 'live',
+    notes: "Approved 2026-08-19 (first-party referral; referred users get 1 month VoiceOS Pro free). Mac voice-to-action assistant, NOT a phone/dialer product.",
+  },
+  runable: {
+    name: "Runable",
+    url: 'https://runable.link/tag',
+    homepageFallback: "https://runable.com/",
+    status: 'live',
+    notes: "Approved 2026-08-19 (Dub referral). General-purpose AI agent (consumer/creator leaning), ~$15/mo yearly.",
+  },
+  'wispr-flow': {
+    name: "Wispr Flow",
+    url: 'https://ref.wisprflow.ai/the-automations-guide',
+    homepageFallback: "https://wisprflow.ai/",
+    status: 'live',
+    notes: "Approved 2026-08-19 (Dub referral, slug the-automations-guide). Cross-platform AI dictation (Mac/Windows/iOS/Android).",
+  },
 };
 
 /**
