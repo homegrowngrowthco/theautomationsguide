@@ -8,7 +8,16 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-08-13 (Session 77).
+Last updated 2026-08-19 (Session 78).
+
+## Session 78 (2026-08-19) — engine priority sort was INVERTED; traffic + affiliate re-read
+
+- **Shipped:** fixed the "Get Next Topic" Notion sort. Notion orders a select by its option order (High, Medium, Low), so `Priority: descending` read **Low → Medium → High** and the engine had been draining the queue lowest-priority-first: five Low posts 8/10-8/14, Mediums 8/15-8/19 (incl. the back-to-back RB2B pair Ian noticed), while all 17 Highs sat queued since June. `n8n/update-engine-priority-sort.mjs`, deployed `--apply`, GET-verified live (`direction: 'ascending'`, active). SHA `6802060`.
+- **RB2B adjacency itself was a second, smaller cause:** the weekly stager created the review+pricing twins 1s apart, and the Created-asc tiebreak publishes batch neighbors on consecutive days. Logged as @low TODO (interleave tools when staging); dedup worked correctly (3 other RB2B near-dupes properly Skipped).
+- **Traffic re-read (28d to 8/16):** 19 clicks / 13,182 impr / pos 37.6. Weekly clicks 3→4→5→7 — rising but under the 10-click-week gate, so **2x/day stays NO**. Next month of posts is now the June/July High backlog (migrations = the format that earns clicks), which raises expected clicks-per-post without raising volume. Re-check ~9/09.
+- **Affiliate re-read:** 15 live / 70 pending / 2 rejected (hubspot, n8n). PostHog `affiliate_click` (28d, host-scoped): **2 clicks total** (creatify, bettercontact — both pending, so $0 either way). Coverage isn't the revenue bottleneck, but the 13 tools in the upcoming High queue are ALL pending — applications re-scoped to that list in TODO (lead time matters; posts land in the next ~3 weeks).
+- **Verify:** tomorrow's 8am ET run should pick "Migrate from HubSpot to Attio Without Losing Deal History or Workflows" (oldest queued High).
+- **Revert:** `git revert 6802060` then `node --env-file=../growth-engine/.env n8n/deploy-engine.mjs --apply`.
 
 ## Quick reference: recent additions (Session 77, 2026-08-13)
 
