@@ -313,8 +313,8 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     name: "Attio",
     url: '',
     homepageFallback: "https://attio.com/",
-    status: 'pending',
-    notes: "Pipeline (not yet applied). Attio runs a partner program; affiliate or referral terms should be confirmed directly with their partnerships team.",
+    status: 'no-program',
+    notes: "Verified 2026-08-19: no cash affiliate program. attio.com/partners lists App/Creator/Expert Partners (none pay commission); attio.com/refer is a $200-gift-card customer referral. /go/attio stays a plain CTA via homepage fallback.",
   },
   findymail: {
     name: "Findymail",

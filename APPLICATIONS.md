@@ -1,6 +1,6 @@
-# Affiliate Applications (Wave 2, tools 11-20)
+# Affiliate Applications (Wave 2: tools 11-20 · Wave 3: the High-queue batch)
 
-Paste-ready answers for the Wave-2 affiliate/partner applications listed in [AFFILIATE_PIPELINE.md](AFFILIATE_PIPELINE.md) (rows 11-20). Copy the **Standard answers** block into the common fields, then drop in the per-tool block for the specific program.
+Paste-ready answers for affiliate/partner applications (waves defined in [AFFILIATE_PIPELINE.md](AFFILIATE_PIPELINE.md)). Copy the **Standard answers** block into the common fields, then drop in the per-tool block for the specific program. **Wave 3 (added 2026-08-19) covers the tools featured in the upcoming High-priority posts — apply to those first**; every Wave-3 apply URL was fetch-verified 2026-08-19.
 
 > Commission figures are June-2026 research and indicative only. Verify exact terms, cookie window, recurring vs one-time, and whether paid-ads / brand-bidding are allowed on application. No signup URLs are pre-filled here; apply through each program's portal or network (PartnerStack, Rewardful, Tolt, FirstPromoter, Impact, or the vendor's direct page).
 
@@ -22,7 +22,7 @@ Paste-ready answers for the Wave-2 affiliate/partner applications listed in [AFF
 | Published by | Homegrown Growth Co (fractional RevOps consultancy), https://homegrowngrowth.co |
 | Country | United States |
 | Audience | RevOps and GTM automation practitioners: founders, RevOps operators/admins, and sales/marketing ops teams evaluating and building their tech stack |
-| Monthly traffic | ~5,000 monthly visits and growing (clean SEO foundation: Lighthouse SEO 1.00, 67 of 89 pages indexed) |
+| Monthly traffic | Early-stage and compounding: 13,000+ Google impressions in the last 28 days (up from 10.8k at the start of August), 179 of 196 pages indexed, 105 published posts. If a form forces a visits number, pick the smallest bracket (e.g. "0-1K/mo") — never invent a bigger one; programs spot-check and a caught inflation is a permanent rejection |
 | Newsletter | Beehiiv (Daily "The Briefing" + Weekly "The Guide") |
 | Social | LinkedIn (company/the-automations-guide) and X (@the_automations) |
 | Primary promotion methods | Content / blog, Email / newsletter, SEO, Social |
@@ -37,7 +37,11 @@ Paste-ready answers for the Wave-2 affiliate/partner applications listed in [AFF
 
 **Track record (cite if asked about existing partnerships):**
 
-> Already live as affiliates: Instantly, RB2B, Relevance AI, Pabbly, Lusha, Cal.com, plus Make, Apollo, Clay, Beehiiv, Smartlead, Kit, and Lemlist. We applied to and onboarded 10 programs in our first wave; this is wave two.
+> Already live as affiliates (15 programs): Make, Apollo, Clay, Beehiiv, Smartlead, Lemlist, Kit, Instantly, RB2B, Warmly, Pabbly, Lusha, Surfer, Relevance AI, and MoltSets.
+
+**Unique asset worth citing (added 2026-08-19):**
+
+> We also publish the RevOps Automation Pricing Index (theautomationsguide.com/revops-automation-pricing/), an openly licensed (CC BY 4.0) dataset of verified pricing for 93 RevOps tools, extracted only from each vendor's own pricing page and rebuilt quarterly.
 
 ---
 
@@ -143,4 +147,104 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Landing page to cite: `/tools/brevo/`
 - Relevant content: `/tools/brevo/` (hub), `/blog/2026-05-22-best-mailchimp-alternatives-for-creators-and-small-operators/`, `/blog/2026-05-13-beehiiv-vs-substack-vs-hubspot-email-newsletter-for-b2b/`
 - Why we cover it / promo angle: "Brevo is our value pick (volume-based pricing, email + SMS + light CRM) in email-automation comparisons against GetResponse and ActiveCampaign. Promoted via the hub page and email-tool comparison posts."
+- Applied: [ ]  Approved: [ ]
+
+---
+
+## Wave 3 (2026-08-19): tools in the upcoming High-priority queue
+
+These 10 tools all feature in posts publishing over the next ~3 weeks (the High backlog unblocked by the 8/19 sort fix). All apply URLs fetch-verified 2026-08-19. Also in this wave but covered elsewhere: **Lindy** (block #11 above), **Brevo** (block #20 above), **Pipedrive** (blocked on PartnerStack Network approval, see TODO), **Attio** (NO cash affiliate program exists — only a $200-gift-card referral at attio.com/refer and a non-cash Creator Partners track; registry flipped to `no-program`).
+
+### 21. Vapi
+- **Apply link: https://affiliates.vapi.ai/** (Tolt-hosted; open email signup, no gatekeeping)
+- Program / network: Tolt
+- Est. commission: 15% referral revenue (community/creators-page sourced; not on a public terms page — confirm after login). NOTE: the separate Creators Program (vapi.ai/creators) shows "applications on hold" — use the Tolt portal, not that.
+- Landing page to cite: `/tools/vapi/`
+- Relevant content: `/blog/2026-07-13-bland-ai-vs-vapi-vs-synthflow-which-closes-in-2026/`, `/blog/2026-07-30-migrate-from-vapi-to-synthflow-no-code-ai-voice-agents/` + a dedicated Vapi review is queued (High)
+- Promo angle: "We cover Vapi as the developer-grade AI voice agent platform in head-to-heads vs Bland and Synthflow, plus migration guides. A dedicated review is scheduled."
+- Applied: [ ]  Approved: [ ]
+
+### 22. FullEnrich
+- **Apply link: https://fullenrich.partnerstack.com/** (vendor page: fullenrich.com/affiliates)
+- Program / network: PartnerStack (migrated from Rewardful — the old getrewardful portal is inactive)
+- Est. commission: tiered 15% → 20% (>$10K referred) → 25% (>$50K), paid on first 12 months of each referred subscription; 90-day cookie, resets on re-click; monthly PayPal/Stripe payout, no minimum
+- Requirements gotcha: **paid ads forfeit the entire payout** — content-only promotion (which is all we do anyway)
+- Landing page to cite: `/tools/fullenrich/`
+- Relevant content: `/blog/2026-07-13-fullenrich-vs-bettercontact-vs-surfe-waterfall-enrichment-co/` + "Migrate from Lusha to FullEnrich" is queued (High)
+- Promo angle: "FullEnrich is our waterfall-enrichment pick in comparison content vs BetterContact and Surfe, with a Lusha migration guide scheduled."
+- Applied: [ ]  Approved: [ ]
+
+### 23. LeadMagic
+- **Apply link: https://partners.dub.co/leadmagic** (Dub Partners)
+- Program / network: Dub Partners (leadmagic.io/partners is the agency track — wrong one)
+- Est. commission: 20% per sale, recurring for 1 year
+- Landing page to cite: `/tools/leadmagic/`
+- Relevant content: **Dedicated published review** `/blog/2026-08-10-leadmagic-review-2026-is-the-linkedin-enrichment-worth-it/` + `/blog/2026-07-22-leadmagic-vs-surfe-vs-findymail-best-linkedin-enrichment-too/` + LeadMagic pricing post queued (High)
+- Promo angle: "We already publish a dedicated LeadMagic review and a 3-way enrichment comparison; a pricing deep-dive is scheduled."
+- Applied: [ ]  Approved: [ ]
+
+### 24. Cognism
+- **Apply link: https://market.partnerstack.com/page/cognism** ("Apply to program")
+- Program / network: PartnerStack (cognism.com/partners is agency/tech partnerships — wrong one)
+- Est. commission: 20% of first-year contract value per referred paying customer (year-1, not lifetime); quarterly payout after the customer pays
+- Landing page to cite: `/tools/cognism/`
+- Relevant content: `/blog/2026-07-24-cognism-vs-apollo-vs-lusha-best-for-european-outbound/` + "Apollo Data Quality vs Cognism vs Zerobounce" queued (High)
+- Promo angle: "Cognism is our European-outbound data pick vs Apollo and Lusha, with a data-quality head-to-head scheduled."
+- Applied: [ ]  Approved: [ ]
+
+### 25. JustCall
+- **Apply link: https://justcall.io/partner-program/?apply=affiliate** (landing: justcall.io/affiliates/)
+- Program / network: FirstPromoter (dashboard justcall.firstpromoter.com). Avoid the channel/reseller and in-app referral programs — different tracks
+- Est. commission: up to 20% recurring for 2 years; 90-day cookie; PayPal monthly, net-45, $100 minimum balance
+- Landing page to cite: `/tools/justcall/`
+- Relevant content: `/blog/2026-06-22-krispcall-vs-justcall-vs-aircall-for-sdr-teams/` + "What JustCall Actually Costs in 2026" queued (High)
+- Promo angle: "JustCall features in our SDR dialer comparison; a dedicated pricing breakdown is scheduled."
+- Applied: [ ]  Approved: [ ]
+
+### 26. ActiveCampaign
+- **Apply link: https://activecampaign.partnerstack.com/?group=affiliatepartners**
+- Program / network: PartnerStack
+- Est. commission: 30% recurring up to first 12 months (December signups +10% bonus); 90-day cookie, resets on re-click; monthly payout
+- Landing page to cite: `/tools/activecampaign/`
+- Relevant content: `/blog/2026-07-18-migrate-activecampaign-to-hubspot-keep-automations-intact/` + "ActiveCampaign vs HubSpot vs Brevo" queued (High) + a GetResponse-to-ActiveCampaign migration queued (Medium)
+- Promo angle: "ActiveCampaign anchors our email-automation comparison cluster (vs HubSpot, Brevo, GetResponse) with migration guides in both directions."
+- Applied: [ ]  Approved: [ ]
+
+### 27. ZeroBounce
+- **Apply link: https://www.zerobounce.net/members/signin/register-affiliate-program** (program page: zerobounce.net/affiliate-program)
+- Program / network: in-house (ZeroBounce Members portal)
+- Est. commission: 18% on all orders in year 1, then 5% lifetime; applies to subscriptions AND one-time credit purchases; cash out or redeem as credits
+- Landing page to cite: `/tools/zerobounce/`
+- Relevant content: `/blog/2026-07-03-zerobounce-vs-bouncer-vs-mailreach-best-email-verification-t/`, `/blog/2026-08-17-cold-email-deliverability-monitoring-workflow-smartlead-zero/` + the Apollo/Cognism/Zerobounce data-quality post queued (High)
+- Promo angle: "ZeroBounce features in our email-verification comparison, a published deliverability-workflow guide, and a scheduled data-quality head-to-head."
+- Applied: [ ]  Approved: [ ]
+
+### 28. Aircall
+- **Apply link: https://aircall.partnerstack.com/?group=affiliatemarketingprogram** (vendor page: aircall.io/partners/affiliate-partners/)
+- Program / network: PartnerStack
+- Est. commission: **$75 per qualified lead** (pay-per-lead, not revenue share); 90-day cookie; monthly payout
+- Fit note: program is "built for marketing affiliates only" — B2B review/comparison sites is exactly us; cite the pricing post
+- Landing page to cite: `/tools/aircall/`
+- Relevant content: **Dedicated published pricing post** `/blog/2026-08-14-aircall-pricing-in-2026-per-seat-costs-and-hidden-add-ons/` + `/blog/2026-06-22-krispcall-vs-justcall-vs-aircall-for-sdr-teams/`
+- Promo angle: "We publish a dedicated Aircall pricing breakdown and an SDR dialer comparison, exactly the intent-stage content a pay-per-lead program monetizes."
+- Applied: [ ]  Approved: [ ]
+
+### 29. Trigify
+- **Apply link: https://trigify-io-1.getrewardful.com/signup** (Rewardful; unadvertised on trigify.io — this portal is the only entry point)
+- Program / network: Rewardful
+- Est. commission: 20% on ALL payments from referred customers (recurring, no stated duration cap)
+- Landing page to cite: `/tools/trigify/`
+- Relevant content: **Dedicated published guide** `/blog/2026-08-15-trigify-hubspot-lead-scoring-automation-2026-guide/` + `/blog/2026-08-18-rb2b-review-2026-is-free-visitor-id-worth-the-trade-off/` (mentions)
+- Promo angle: "We published a dedicated Trigify + HubSpot automation guide and cover it across our signal-based-outbound cluster."
+- Applied: [ ]  Approved: [ ]
+
+### 30. Findymail
+- **Apply link: https://findymail.getrewardful.com/signup** ("Friends of Findymail"; the old Reflio invite link is dead)
+- Program / network: Rewardful
+- Est. commission: 25% on all payments (recurring); PayPal monthly, $50 minimum, payable 30 days after the referred customer's billing date
+- Requirements gotcha: no self-referrals, no paid search on brand terms, no Facebook ads
+- Caveat: scattered Trustpilot complaints allege unpaid affiliate commissions (unverified) — watch the first payout
+- Landing page to cite: no hub yet — cite the review content directly
+- Relevant content: `/blog/2026-07-22-leadmagic-vs-surfe-vs-findymail-best-linkedin-enrichment-too/`
+- Promo angle: "Findymail features in our LinkedIn-enrichment 3-way comparison; it already carries /go/findymail CTAs waiting on a live link."
 - Applied: [ ]  Approved: [ ]
