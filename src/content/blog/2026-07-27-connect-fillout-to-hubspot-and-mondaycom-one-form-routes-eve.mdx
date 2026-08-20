@@ -146,7 +146,7 @@ Once the core Fillout to HubSpot and Monday.com pipeline is live, a few extensio
 
 **Fillout conditional routing by answer.** If you use Fillout's "route to page" logic based on a qualifying question (company size, use case), you can also conditionally fire different webhook payloads to different Monday boards. The [Fillout vs Tally vs Chili Piper](/blog/2026-07-21-fillout-vs-tally-vs-chili-piper-best-forms-and-routing-tool/) breakdown covers Fillout's routing depth in more detail.
 
-**Scheduling link injection post-submit.** On the Fillout thank-you screen, embed a [Cal.com](/go/cal-com/) or Calendly link. If you want the booking to auto-associate with the HubSpot deal, the [automate demo scheduling with Cal.com, HubSpot, and n8n](/blog/2026-07-23-automate-demo-scheduling-with-calcom-hubspot-and-n8n/) guide covers that exact connection.
+**Scheduling link injection post-submit.** On the Fillout thank-you screen, embed a [Cal.com](/go/cal-com/) or [Calendly](/tools/calendly/) link. If you want the booking to auto-associate with the HubSpot deal, the [automate demo scheduling with Cal.com, HubSpot, and n8n](/blog/2026-07-23-automate-demo-scheduling-with-calcom-hubspot-and-n8n/) guide covers that exact connection.
 
 According to [Fillout's integration documentation](https://www.fillout.com/help/hubspot), the HubSpot connector supports creating both contacts and deals in a single submission, so you are not limited to contact sync. And per [Monday.com's API v2 reference](https://developer.monday.com/api-reference/reference/items), item creation supports up to 10 MB of column data per request, meaning rich form payloads with file uploads are not a concern.
 

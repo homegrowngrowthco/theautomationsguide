@@ -36,7 +36,7 @@ Most enrichment pipelines I see at B2B SaaS companies share the same failure mod
 
 ## What This Pipeline Does and Why It Matters
 
-The workflow I'm walking you through is the one I've deployed at several Homegrown Growth Co. clients running outbound at scale: 500 to 5,000 new leads per week. The core idea is simple. A new lead lands in Clay (sourced from LinkedIn, a form submission, a ZoomInfo export, whatever your top-of-funnel looks like). Clay runs its waterfall enrichment: job title verification, email finding, company firmographics, maybe an AI persona column. When that row is complete, Clay fires a webhook to n8n. n8n evaluates the lead against your ICP criteria, branches accordingly, pushes qualified leads into [Smartlead](/go/smartlead/) sequences, and creates or updates the contact in [HubSpot](/go/hubspot/).
+The workflow I'm walking you through is the one I've deployed at several Homegrown Growth Co. clients running outbound at scale: 500 to 5,000 new leads per week. The core idea is simple. A new lead lands in Clay (sourced from LinkedIn, a form submission, a [ZoomInfo](/tools/zoominfo/) export, whatever your top-of-funnel looks like). Clay runs its waterfall enrichment: job title verification, email finding, company firmographics, maybe an AI persona column. When that row is complete, Clay fires a webhook to n8n. n8n evaluates the lead against your ICP criteria, branches accordingly, pushes qualified leads into [Smartlead](/go/smartlead/) sequences, and creates or updates the contact in [HubSpot](/go/hubspot/).
 
 No CSV exports. No manual imports. No three-day lag.
 

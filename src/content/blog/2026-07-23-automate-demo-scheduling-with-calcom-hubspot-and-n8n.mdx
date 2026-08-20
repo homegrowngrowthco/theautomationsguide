@@ -38,7 +38,7 @@ Every RevOps team I've worked with has the same manual leak. An AE books a demo,
 
 Cal.com fires a webhook the instant a booking is created, rescheduled, or cancelled. n8n catches that webhook, lets you reshape the payload however you need, and then calls HubSpot's API to upsert the contact and create or update a deal. No Zapier tax. No black-box integration that breaks when Cal.com renames a field.
 
-I've run this stack at several clients now. What makes it durable is that n8n gives you the raw JSON from Cal.com with nothing stripped out. Calendly's native HubSpot app maps a small, fixed set of fields and gives you no flexibility. Cal.com's own [HubSpot app in the App Store](https://app.cal.com/apps/hubspot) creates contacts but does not touch deals or pipeline stage at all. That matters a lot when your RevOps motion requires deal creation at the moment of booking, not after the call ends.
+I've run this stack at several clients now. What makes it durable is that n8n gives you the raw JSON from Cal.com with nothing stripped out. [Calendly](/tools/calendly/)'s native HubSpot app maps a small, fixed set of fields and gives you no flexibility. Cal.com's own [HubSpot app in the App Store](https://app.cal.com/apps/hubspot) creates contacts but does not touch deals or pipeline stage at all. That matters a lot when your RevOps motion requires deal creation at the moment of booking, not after the call ends.
 
 <StatRow stats={[
   { number: "0", label: "Deal creation steps", description: "Manual steps your reps take after a booking fires through this workflow" },
