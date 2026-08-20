@@ -1046,6 +1046,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'motion',
+    logo: '/brand/tools/motion.svg',
     name: 'Motion',
     category: 'Scheduling & Productivity',
     badge: 'Free trial',
@@ -1728,7 +1729,7 @@ export const tools: Tool[] = [
   {
     slug: 'calendly',
     name: 'Calendly',
-    category: 'Sales Engagement',
+    category: 'Scheduling',
     badge: 'Paid',
     ctaLabel: 'Try Calendly',
     ctaPrimary: false,
@@ -1737,6 +1738,25 @@ export const tools: Tool[] = [
     aliases: ['Calendly'],
     blurb:
       'Calendly is the modern scheduling platform that makes finding time a breeze. When connecting is easy, your teams can get more done.',
+    bestFor: "Revenue teams that want inbound leads and customer meetings booked automatically, with routing and round robin once more than one rep is involved.",
+    body: [
+      "Calendly is built around the event type: a bookable meeting definition carrying its own rules, which publishes as a public booking page. It reads and writes your connected calendars to compute real availability, prevents double booking, provisions the conferencing link, and sends the reminders. Paid team tiers add the parts that matter for revenue teams: round robin distribution across reps, and a routing layer that qualifies an inbound lead through form logic and books them with the right person. It connects to roughly 150 tools including Google Calendar, Outlook, Zoom, Teams, Salesforce, HubSpot, Slack, and Stripe.",
+      "In a GTM stack Calendly sits on the handoff between demand generation and sales, which makes it a speed to lead instrument more than a calendar utility: the gap between form fill and booked meeting is where inbound pipeline leaks. Buyers comparing it will look at Chili Piper for heavier inbound routing and qualification, HubSpot Meetings if the CRM is already HubSpot and basic booking is enough, and Cal.com for an open source, self hostable alternative. As of 2026 Calendly has repositioned around the whole meeting lifecycle rather than scheduling alone, adding an AI assistant called Callie that schedules over email (marked beta) and a paid Notetaker add on for recordings and recaps.",
+    ],
+    faqs: [
+      {
+        question: "How much does Calendly cost?",
+        answer: "Calendly publishes a free plan at $0, Standard at $10 per seat per month, and Teams at $16 per seat per month, both billed yearly. Enterprise starts at $15,000 per year with a 50 seat minimum, which is a sharp jump and the point where most teams price out Chili Piper alongside it.",
+      },
+      {
+        question: "What are the limits of the free Calendly plan?",
+        answer: "The free plan is permanent rather than a trial, but it is capped at one event type and one connected calendar, and it only supports one to one meetings. Round robin, routing forms, and CRM integrations all sit on paid tiers, so any team use case moves you to Standard or Teams.",
+      },
+      {
+        question: "Is Calendly or Chili Piper better for inbound leads?",
+        answer: "Chili Piper is the stronger tool when inbound routing is complex: real time qualification, concierge handoff, and dense territory or account ownership rules. Calendly wins on price, adoption, and simplicity, and its routing forms cover most teams below enterprise scale. If your bottleneck is speed to lead on high volume inbound, price both.",
+      },
+    ],
   },
   {
     slug: 'chili-piper',
@@ -1993,7 +2013,26 @@ export const tools: Tool[] = [
     logo: '/brand/tools/moltsets.svg',
     aliases: ['MoltSets'],
     blurb:
-      'Unlimited, 100%-verified B2B contact data APIs built for Clay and Claude Code — from $27/mo. Enrich prospect lists and join the MoltSets closed beta.',
+      'MoltSets is an API first B2B enrichment service for Clay, Claude Code, and custom agents, with no dashboard by design. Published plans start at $27/mo. Currently in closed beta, and its rate limits are the real constraint rather than record counts.',
+    bestFor: "Developers and GTM engineers whose outbound already runs through Clay, Claude Code, or custom agents, and who want raw enrichment calls rather than another dashboard.",
+    body: [
+      "MoltSets is an API first B2B enrichment service, deliberately scoped to five operations: people search, company search, email enrichment, phone enrichment, and email validation. There is no dashboard by design. Consumption is over REST or a native MCP server, which is the point of the product: it is meant to sit underneath an orchestration tool such as Clay or a coding agent, not beside it. The vendor describes an in house database that falls through to a multi vendor waterfall when a record is missing, and returns business and personal emails with a risk score plus carrier verified mobile numbers. Its developer site publishes a genuine OpenAPI 3.1.0 specification.",
+      "Two caveats belong in front of any evaluation, and both come from the vendor own materials. First, MoltSets entered closed beta around June 2026, so it is roughly two months old, access is by enrollment form rather than self serve signup, and there is no independent review base on G2 or Capterra to corroborate its data quality claims. Second, the unlimited framing is about pricing, not physics: the FAQ concedes the service is limited by rate limits, using burst and pause windows with weekly record caps, and the API returns remaining record counters. Third party vendor data also draws separate token charges. The company is bootstrapped, founded by Adam Robinson, and its parent is Retention.com, which also owns RB2B.",
+    ],
+    faqs: [
+      {
+        question: "Is MoltSets generally available?",
+        answer: "Not yet. MoltSets entered closed beta around June 2026 and access runs through an enrollment form rather than self serve signup. Treat it as an early stage entrant: the API and documentation are real and specific, but the product is young and its data quality claims have no independent review base to check them against.",
+      },
+      {
+        question: "What does unlimited actually mean on MoltSets pricing?",
+        answer: "It refers to the absence of a per record price, not the absence of limits. The vendor FAQ states the service is limited by rate limits instead, using burst and pause windows measured in five hour periods with weekly record caps that scale by tier, and the API exposes remaining record counters. Enrichment sourced from third party vendors also consumes separate tokens.",
+      },
+      {
+        question: "Who should not use MoltSets?",
+        answer: "Anyone who wants a user interface. There is no dashboard, no sequencing, and no CRM, which is a deliberate scoping decision rather than a gap. Teams that need a full prospecting workspace should look at Clay or Apollo, and teams that need enterprise procurement guarantees should wait for general availability.",
+      },
+    ],
   },
   {
     slug: 'zoominfo',
@@ -2007,6 +2046,25 @@ export const tools: Tool[] = [
     aliases: ['ZoomInfo'],
     blurb:
       'ZoomInfo is a leading provider of company and contact information. Identify, target and convert your ideal customers with a free trial of ZoomInfo today.',
+    bestFor: "Enterprise and mid market revenue teams that need a system of record data foundation, with the budget and procurement process that implies.",
+    body: [
+      "ZoomInfo is a B2B data and go to market platform, and its scale is the product: the vendor cites more than 500 million contact profiles, 100 million company profiles, 200 million verified business emails, and 135 million verified phone numbers including over 120 million direct dials. That data reaches you three ways, and the choice matters more than most buyers expect: as its own user interface, as enrichment written directly into your CRM, and as raw data through API and cloud data shares into Snowflake, Databricks, AWS, or Google Cloud.",
+      "The 2026 repositioning is significant enough to change how the tool fits a stack. The company changed its Nasdaq ticker from ZI to GTM, launched GTM Studio as a unified planning and activation workspace, and shipped GTM.AI, a headless context layer that exposes the data graph over API and the Model Context Protocol with named connectors to Microsoft Copilot, Salesforce Agentforce, HubSpot Breeze, and Gong. The direction of travel is that ZoomInfo increasingly becomes the layer other agents in your stack query rather than a destination interface. Buyers will compare Apollo on price and self serve access, Cognism on European coverage and compliance, and HubSpot Breeze Intelligence when the CRM is already HubSpot.",
+    ],
+    faqs: [
+      {
+        question: "How much does ZoomInfo cost?",
+        answer: "ZoomInfo does not publish pricing; it is quote only through a sales conversation, and contracts are typically annual and negotiated by seat count and module. We will not print a dollar figure we could not verify on the vendor own page, and you should treat any specific number you find in third party content as unconfirmed. Expect enterprise procurement rather than a card on file.",
+      },
+      {
+        question: "ZoomInfo or Apollo?",
+        answer: "Apollo is self serve, far cheaper, and bundles sequencing, which makes it the default for startups and most mid market teams. ZoomInfo competes on data depth, direct dial coverage, intent, and the ability to deliver data as infrastructure into a warehouse or CRM rather than as a UI. The honest test is a side by side sample against your own ICP, because coverage varies sharply by segment and geography.",
+      },
+      {
+        question: "What is GTM.AI and why does it matter?",
+        answer: "GTM.AI is ZoomInfo headless context layer, exposing its data graph over API and the Model Context Protocol so external agents can query it, with connectors to Microsoft Copilot, Salesforce Agentforce, HubSpot Breeze, and Gong. It matters because it changes the buying question from whether your team will log into ZoomInfo to whether your existing agents and workflows can call its data.",
+      },
+    ],
   },
   {
     slug: 'cognism',
@@ -2033,6 +2091,25 @@ export const tools: Tool[] = [
     aliases: ['Gumloop'],
     blurb:
       'Gumloop is the multiplayer AI agent builder. Let anyone at your company build agents with any AI model, any integration while IT controls access.',
+    bestFor: "Mid market and enterprise GTM teams that want AI agents doing pipeline research and CRM work against their existing stack, priced per credit rather than per seat.",
+    body: [
+      "Gumloop has repositioned from a no code automation builder into an agent platform. The core objects are agents (task scoped AI workers), skills (reusable playbooks that agents write and refine), connectors, and a shared knowledge base it calls the Company Brain. The GTM use cases are named explicitly on the product: pipeline management, prospect research, CRM updating, meeting prep, and call analysis. It ships roughly 300 connectors including Salesforce, HubSpot, Apollo, Gong, Slack, Notion, Linear, and Zendesk, and supports custom MCP servers plus open source model choice.",
+      "In a RevOps stack Gumloop is the orchestration layer, the place where enrichment, CRM writes, and research get stitched into a repeatable play. Buyers will compare it against Clay when the job is list building and waterfall enrichment, Zapier when the work is deterministic app to app plumbing rather than agentic, and n8n when the team wants to self host and write real code. One structural difference worth pricing out: Gumloop meters credits and includes unlimited seats on its Pro tier, which inverts the per seat math that governs most of this category.",
+    ],
+    faqs: [
+      {
+        question: "How much does Gumloop cost?",
+        answer: "Gumloop publishes two tiers: Pro starting at $37 per month with 20,000 credits and unlimited seats, and Enterprise at custom pricing behind a sales conversation. Because it meters credits rather than seats, cost scales with how much agent work you run, not with headcount.",
+      },
+      {
+        question: "Does Gumloop have a free plan?",
+        answer: "No. Gumloop offers a 14 day free trial and does not publish a permanently free tier, and the trial credit allowance is not stated on the pricing page. Budget for a paid month if you intend to evaluate it properly against real workflows.",
+      },
+      {
+        question: "How is Gumloop different from Clay?",
+        answer: "Clay is strongest as a spreadsheet native enrichment and list building surface, where the unit of work is a row. Gumloop is aimed at agents that carry a multi step task across tools, with a shared knowledge base and skills that persist between runs. Teams running serious outbound often end up using an enrichment tool and an orchestration tool rather than choosing between them.",
+      },
+    ],
   },
   {
     slug: 'quickmail',
@@ -2046,6 +2123,25 @@ export const tools: Tool[] = [
     aliases: ['Quickmail'],
     blurb:
       'Cold email software that is easy to use, with automated follow-ups when there is no response. Customizable outbound email tracking software for sales.',
+    bestFor: "Growth teams and lead generation agencies running email plus LinkedIn outreach who want unlimited sending inboxes and seats without per seat pricing.",
+    body: [
+      "QuickMail runs cold outreach across email and LinkedIn from a single campaign, automating connection requests filtered by ICP alongside email steps, with replies from both channels landing in one consolidated inbox. Deliverability infrastructure is built in rather than bolted on: inbox rotation, blacklist monitoring, and warmup through its MailFlow network. It also sells and configures sending domains inside the platform, which removes a vendor from the setup path. Campaign activity syncs to HubSpot and Pipedrive. Note the canonical domain is quickmail.com; the older quickmail.io address now redirects there.",
+      "Its pricing structure is the real differentiator in a crowded category. Every tier includes unlimited email senders, unlimited LinkedIn accounts, and unlimited users, with cost driven by contacts and monthly sends instead. That is structurally different from Mailshake, which meters connected email addresses, and from Saleshandy, which meters prospects and lead credits. Buyers should also price Instantly, Smartlead, and Lemlist. The practical read: if you run many inboxes across a small team, QuickMail metering favors you; if you send low volume from one or two inboxes, cheaper entry tiers elsewhere will win.",
+    ],
+    faqs: [
+      {
+        question: "How much does QuickMail cost?",
+        answer: "QuickMail publishes Starter at $49 per month (1,000 contacts, 5,000 emails), Growth at $99 per month (25,000 contacts, 100,000 emails, API access), and Agency at $299 per month (100,000 contacts, 500,000 emails, two workspaces plus $49 for each extra). All tiers include unlimited email senders, LinkedIn accounts, and users.",
+      },
+      {
+        question: "Does QuickMail have a free trial?",
+        answer: "Yes, 14 days, but a credit card is required to start it. QuickMail frames the card requirement as an anti spam measure and states it does not auto charge when the trial ends.",
+      },
+      {
+        question: "QuickMail or Saleshandy for cold outreach?",
+        answer: "Both include unlimited sending inboxes and both handle deliverability setup, so the decision is usually about what else you need. Saleshandy bundles its own lead database and verification credits, which can replace a separate data vendor. QuickMail leans harder into LinkedIn as a native channel and sells sending domains in platform. Compare on the metering axis: contacts and sends against prospects and lead credits.",
+      },
+    ],
   },
   {
     slug: 'mailshake',
@@ -2059,6 +2155,25 @@ export const tools: Tool[] = [
     aliases: ['Mailshake'],
     blurb:
       'Generate leads, build relationships, and promote content.',
+    bestFor: "SMB sales teams and agencies that want email, phone, and social outreach in one campaign and are comfortable paying before they trial.",
+    body: [
+      "Mailshake is a sales engagement platform for cold outreach built around the campaign: a mail merged sequence with follow ups that trigger on engagement, extended into phone and social touches. Higher tiers bundle a power dialer and a pool of data finder credits for sourcing contacts, so a team can source, sequence, and call from one tool. It sends through Gmail, Outlook, or raw SMTP, and pushes activity into Salesforce, Pipedrive, HubSpot, Calendly, and Vidyard. Its AI writer, SHAKEspeare, drafts copy and produces A/B variants with Spintax randomization.",
+      "The honest way to choose among the cold email tools is the metering axis, not the feature list, because the feature sets have converged. Mailshake prices on the number of connected email addresses; QuickMail prices on contacts and sends while leaving inboxes and seats unlimited; Saleshandy prices on prospects and lead credits with unlimited inboxes. Buyers will also weigh Instantly, Smartlead, and Lemlist here. One point of friction to plan around: Mailshake states plainly that it collects payment up front and offers no free trial, which is unusual in a category where every major competitor lets you test before paying.",
+    ],
+    faqs: [
+      {
+        question: "How much does Mailshake cost?",
+        answer: "Mailshake publishes Starter at $29 per month (one email address, 1,500 sends), Email Outreach at $49 per month (two email addresses, unlimited sends, email rotation, CRM integrations), and Sales Engagement at $99 per month (ten email addresses, 2,500 data finder credits, five phone numbers, power dialer). Agency pricing is quote only, and add ons run roughly $12 to $19 per month.",
+      },
+      {
+        question: "Does Mailshake offer a free trial?",
+        answer: "No. Mailshake states that it collects payment up front and does not offer a free trial, which it frames as an anti spam measure. Every major alternative in this category offers either a trial or a free tier, so factor the cost of a throwaway month into your evaluation.",
+      },
+      {
+        question: "Mailshake or Instantly for cold email?",
+        answer: "Instantly and Smartlead are built around running many sending inboxes at high volume, and both let you test before paying. Mailshake is the better fit when you want sequencing, a dialer, and contact data in a single tool for a small team, and when metering by email address matches how you actually send. High volume senders usually find the per address pricing constraining.",
+      },
+    ],
   },
   {
     slug: 'saleshandy',
@@ -2072,6 +2187,25 @@ export const tools: Tool[] = [
     aliases: ['Saleshandy'],
     blurb:
       'The best cold email outreach software to generate more leads. Automate your outreach with unlimited email accounts, high deliverability, and better open and reply rates.',
+    bestFor: "SDR teams and agencies that want prospect data, sending, and verification in one contract instead of stitching together three vendors.",
+    body: [
+      "Saleshandy is a multichannel outbound platform that bundles its own lead database with sequencing. The vendor cites a database of over 850 million contacts and 42 million companies with 50 or more buying signals and dense search filtering, feeding sequences that step across email, calls, LinkedIn, WhatsApp, and custom tasks, escalating a prospect to the next channel when there is no reply. It auto configures SPF, DKIM, and DMARC for new sending domains, consolidates replies from many inboxes into one place, and includes a lightweight deal pipeline. WhatsApp as a native sequence step is unusual in this category.",
+      "The pitch is consolidation: replacing a data vendor, a verification tool, and a sending platform with one subscription. That simplifies attribution and billing, and it concentrates risk, because deliverability problems and data quality problems then share a single vendor. Buyers will compare Instantly and Smartlead on sending at volume, and Apollo when the data layer matters most. Every Saleshandy tier includes unlimited email accounts, so like QuickMail it does not punish teams for running many inboxes; unlike QuickMail, it meters prospects and lead credits rather than contacts and sends.",
+    ],
+    faqs: [
+      {
+        question: "How much does Saleshandy cost?",
+        answer: "Saleshandy publishes Starter at $34 per month billed annually (2,000 prospects, 6,000 emails, 1,500 lead credits), Pro at $76 per month annually (30,000 prospects, 100,000 emails, 4,000 lead credits), and Scale at $149 per month annually (unlimited prospects, 200,000 emails, 8,000 lead credits). Monthly billing runs higher. Enterprise with SSO and white labeling is quote only, and every tier includes unlimited email accounts.",
+      },
+      {
+        question: "Does Saleshandy offer a free trial?",
+        answer: "Yes, seven days with no credit card required, which is the least friction of the cold email tools we cover. Mailshake by contrast requires payment up front with no trial at all.",
+      },
+      {
+        question: "Is the bundled Saleshandy lead database good enough to replace a data vendor?",
+        answer: "That depends on your market, and it deserves a real test during the trial rather than a decision on the headline count. Run your actual ICP filters, export a sample, and verify a slice against a second source before you cancel another data contract. The bundle is the main reason to choose Saleshandy, so it is the thing to validate first.",
+      },
+    ],
   },
   {
     slug: 'zapier',
@@ -2084,7 +2218,7 @@ export const tools: Tool[] = [
     logo: '/brand/tools/zapier.png',
     aliases: ['Zapier'],
     blurb:
-      'Build and scale AI workflows and agents across 9,000+ apps with Zapier—the most connected AI orchestration platform. Trusted by 3 million+ businesses.',
+      'Build and scale AI workflows and agents across 9,000+ apps with Zapier, the most connected AI orchestration platform. Trusted by 3 million+ businesses.',
   },
   {
     slug: 'canva',
@@ -2097,7 +2231,26 @@ export const tools: Tool[] = [
     logo: '/brand/tools/canva.png',
     aliases: ['Canva'],
     blurb:
-      'Unsupported client – Canva',
+      'Canva is a browser based design tool built around templates and a drag and drop editor, extended into presentations, video, docs, and websites. Brand Kit controls keep everything non designers produce on brand.',
+    bestFor: "Marketing and GTM teams without a dedicated designer who need on brand campaign assets, decks, and social creative produced quickly.",
+    body: [
+      "Canva is a browser based design tool whose core object is a design built from a template in a drag and drop editor. It has expanded well past graphics into what it calls the Visual Suite: presentations, video, websites, docs, sheets, email, and whiteboards inside one editor. For a company rather than an individual, the load bearing feature is the Brand Kit, which enforces approved logos, fonts, and colors across everything non designers produce. It integrates with LinkedIn, Google Drive, Dropbox, Slack, Mailchimp, Shopify, Salesforce, and Microsoft Teams through its apps directory.",
+      "In a GTM context Canva is creative supply for campaign execution: the ad variants, one pagers, and social assets that would otherwise queue behind a designer. Buyers will compare it against Adobe Express for deeper creative control, Figma when the work is product or web design rather than marketing collateral, and VistaCreate at the budget end. Note two 2026 changes before you plan a rollout: Canva Teams no longer exists as a tier (plans are now Free, Pro, Business, and Enterprise), and AI usage is metered as an explicit allowance across Standard, Premium, and Ultra tiers, with a separate AI Pass add on for teams that exhaust it.",
+    ],
+    faqs: [
+      {
+        question: "How much does Canva cost for a team?",
+        answer: "Canva publishes Free at $0, Pro at $180 per year for one person, and Business at $250 per year per person, with Enterprise gated behind a sales conversation. Prices exclude tax. Business is the tier that carries the Brand Kit controls most marketing teams actually need.",
+      },
+      {
+        question: "What happened to Canva Teams?",
+        answer: "Canva discontinued the Teams tier and now sells Free, Pro, Business, and Enterprise. Canva maintains a dedicated FAQ about the change. If you are working from older comparison content that still lists Teams pricing, treat that content as stale.",
+      },
+      {
+        question: "Is the free Canva plan enough for a small company?",
+        answer: "The free plan is permanent and has no stated cap on the number of designs, but it limits access to premium content and shares a smaller AI allowance. The practical trigger for upgrading is usually the Brand Kit and shared brand controls rather than hitting a design limit.",
+      },
+    ],
   },
   {
     slug: 'creatify',
@@ -2181,13 +2334,14 @@ export const tools: Tool[] = [
   // --- LP-builder additions (listed:false; flip to listed:true + add a logo once approved/published). ---
   {
     slug: "findymail",
+    logo: '/brand/tools/findymail.png',
     name: "Findymail",
     category: "Lead Data & Enrichment",
     badge: "Free tier available",
     badgeFree: true,
     ctaLabel: "Try Findymail",
     ctaPrimary: true,
-    listed: false,
+    listed: true,
     aliases: ["Findymail", "findymail.com", "Find y mail"],
     blurb: "Findymail finds and verifies professional email addresses, with a waterfall enrichment layer that pulls from multiple data sources to raise match rates.",
     bestFor: "Outbound sales teams and SDRs who need verified B2B emails at scale without paying for a monolithic data platform.",
@@ -2212,12 +2366,13 @@ export const tools: Tool[] = [
   },
   {
     slug: "watermelon",
+    logo: '/brand/tools/watermelon.png',
     name: "Watermelon",
     category: "AI Agents",
     badge: "Free trial",
     ctaLabel: "Try Watermelon",
     ctaPrimary: true,
-    listed: false,
+    listed: true,
     aliases: ["Watermelon", "Watermelon AI", "watermelon.ai"],
     blurb: "Watermelon is a no-code AI chatbot and customer service automation platform that lets support and marketing teams deploy GPT-powered agents across web, WhatsApp, and social channels.",
     bestFor: "SMB and mid-market customer service teams that want to automate a high share of inbound conversations without engineering resources.",
@@ -2244,13 +2399,14 @@ export const tools: Tool[] = [
   // --- LP-builder additions (listed:false; flip to listed:true + add a logo once approved/published). ---
   {
     slug: "appy-ai",
+    logo: '/brand/tools/appy-ai.png',
     name: "Appy.AI",
     category: "AI Agents",
     badge: "Free tier available",
     badgeFree: true,
     ctaLabel: "Try Appy.AI",
     ctaPrimary: true,
-    listed: false,
+    listed: true,
     aliases: ["Appy.AI", "Appy AI", "appy.ai"],
     blurb: "Appy.AI is an AI coworker platform: a Director-of-AI orchestrator called Violet delegates your requests to specialized AI agents for finance, marketing, sales, and operations work, natively inside Slack and Microsoft Teams.",
     bestFor: "Lean SMB teams that want AI agents doing real sales, marketing, and ops work inside the Slack or Teams workspace they already live in.",
@@ -2275,12 +2431,13 @@ export const tools: Tool[] = [
   },
   {
     slug: "voiceos",
+    logo: '/brand/tools/voiceos.png',
     name: "VoiceOS",
     category: "Scheduling & Productivity",
     badge: "Free trial",
     ctaLabel: "Try VoiceOS",
     ctaPrimary: true,
-    listed: false,
+    listed: true,
     aliases: ["VoiceOS", "Voice OS", "voiceos.com"],
     blurb: "VoiceOS is a voice-to-action assistant for Mac from YC-backed WakoAI: dictation that produces polished text, plus an agent mode that executes voice commands across Gmail, Slack, Google Calendar, and Notion.",
     bestFor: "Founders, reps, and operators on Mac who want to clear email, scheduling, and note-taking by voice instead of typing.",
@@ -2305,13 +2462,14 @@ export const tools: Tool[] = [
   },
   {
     slug: "runable",
+    logo: '/brand/tools/runable.png',
     name: "Runable",
     category: "AI Agents",
     badge: "Free tier available",
     badgeFree: true,
     ctaLabel: "Try Runable",
     ctaPrimary: true,
-    listed: false,
+    listed: true,
     aliases: ["Runable", "runable.com"],
     blurb: "Runable is a general-purpose AI agent that plans and executes end-to-end: it generates websites, slides, video, images, reports, sheets, and workflows from a prompt, pitched as replacing a multi-tool subscription stack.",
     bestFor: "Solo operators and small business owners who want one AI subscription to produce decks, sites, reports, and creative assets instead of juggling several tools.",
@@ -2336,13 +2494,14 @@ export const tools: Tool[] = [
   },
   {
     slug: "wispr-flow",
+    logo: '/brand/tools/wispr-flow.png',
     name: "Wispr Flow",
     category: "Scheduling & Productivity",
     badge: "Free tier available",
     badgeFree: true,
     ctaLabel: "Try Wispr Flow",
     ctaPrimary: true,
-    listed: false,
+    listed: true,
     aliases: ["Wispr Flow", "Wispr", "wispr.ai"],
     blurb: "Wispr Flow is AI voice dictation that works system-wide in any app on Mac, Windows, iPhone, and Android: speak naturally and it produces polished, formatted text, stripping filler words and fixing mid-sentence corrections.",
     bestFor: "Reps, founders, and writers who compose high volumes of email, CRM notes, and messages and want roughly 4x typing speed by voice on any device.",

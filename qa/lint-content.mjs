@@ -255,6 +255,20 @@ for (const e of toolEntries) {
     registryHard.push(`tools.ts "${e.slug}" logo: ${e.logo} → file missing at public${e.logo}.`);
   }
 }
+// A3b — the em/en dash rule applies to tools.ts too. Hub pages render `blurb`,
+// `bestFor`, `body`, and FAQ text as published content, but this gate only ever
+// scanned blog MDX, so vendor copy pasted into the registry shipped dashes
+// straight to production (found 2026-08-20: a Zapier blurb, and a MoltSets one).
+// Comment lines are exempt; only reader-visible strings are flagged.
+{
+  const raw = readFileSync('src/data/tools.ts', 'utf-8').split(/\r?\n/);
+  raw.forEach((line, i) => {
+    if (/^\s*(\/\/|\*|\/\*)/.test(line)) return; // code comment, not content
+    if (EN_EM_DASH.test(line)) {
+      registryHard.push(`tools.ts:${i + 1} em/en dash in reader-visible copy: ${line.trim().slice(0, 80)}`);
+    }
+  });
+}
 if (registryHard.length) {
   console.log('\nsrc/data/tools.ts (logo registry)');
   registryHard.forEach((h) => console.log(`  ✗ HARD: ${h}`));

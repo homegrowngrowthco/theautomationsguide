@@ -343,6 +343,12 @@ async function validateRasterLogo(buf) {
   try { sharp = (await import('sharp')).default; } catch { return null; } // can't validate -> don't ship it
   let data, info;
   try { ({ data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true })); } catch { return null; }
+  // Reject OpenGraph social banners. pickIcon falls back to og:image when a site
+  // exposes no usable favicon, and an og:image is a 1200x630 captioned banner —
+  // it can pass every transparency/luminance test and still render as a
+  // stretched screenshot on a tool card (measured 2026-08-20: voiceos + runable
+  // both served 1200x630, 489KB in runable's case). Big AND wide = not a mark.
+  if (info.width >= 600 && info.width / info.height > 1.5) return null;
   const px = (x, y) => { const i = (y * info.width + x) * 4; return [data[i], data[i + 1], data[i + 2], data[i + 3]]; };
   const corners = [px(0, 0), px(info.width - 1, 0), px(0, info.height - 1), px(info.width - 1, info.height - 1)];
   if (corners.some((c) => c[3] < 8)) return { buf, ext: null }; // transparent corners -> passes the gate as-is
@@ -467,7 +473,53 @@ function changedPosts() {
   }
 }
 
+// --logo-for <slug[,slug...]>: source a logo for tools ALREADY in the registries
+// (approved affiliates whose hub shipped logo-less). Reuses the exact sourceLogo
+// + validateRasterLogo path the post flow uses, so a logo added here clears the
+// same lint-logos bar. Never touches affiliate-links.ts and never registers
+// anything new. Homepage comes from the affiliate registry, or --url-hint.
+async function logoOnlyMode(slugs) {
+  let toolsSrc = readFileSync(TOOLS_PATH, 'utf8');
+  const homepages = registryHomepages(readFileSync(AFF_PATH, 'utf8'));
+  const report = { added: [], failed: [], skipped: [] };
+
+  for (const slug of slugs) {
+    // Entry bounds by index, not a bounded regex: LP-builder entries carry body
+    // + FAQs and run well past any fixed character window (a {0,2000} window
+    // reported six present tools as "not in tools.ts").
+    const slugIdx = toolsSrc.search(new RegExp(`slug:\\s*['"]${slug}['"]`));
+    if (slugIdx === -1) { report.failed.push({ slug, why: 'not in tools.ts' }); continue; }
+    const endIdx = toolsSrc.indexOf('\n  },', slugIdx);
+    const block = endIdx === -1 ? toolsSrc.slice(slugIdx) : toolsSrc.slice(slugIdx, endIdx);
+    if (/logo:\s*['"]/.test(block)) { report.skipped.push({ slug, why: 'already has a logo' }); continue; }
+
+    const homepage = urlHints.get(slug) || homepages.get(slug);
+    if (!homepage) { report.failed.push({ slug, why: 'no homepage in affiliate registry; pass --url-hint' }); continue; }
+    const host = new URL(homepage).host;
+    // A homepage that blocks our UA (Cloudflare: findymail, pandadoc) is not a
+    // dead end — sourceLogo always appends the Google favicon service as a
+    // deterministic fallback, which needs only the host. Carry on with no HTML.
+    const html = (await fetchText(homepage))?.html || '';
+    const logo = await sourceLogo(slug, html, homepage, host);
+    if (!logo) { report.failed.push({ slug, why: 'no icon passed transparency/luminance validation' }); continue; }
+    const next = addLogoToTool(toolsSrc, slug, logo.rel);
+    if (!next) { report.failed.push({ slug, why: 'could not splice logo into entry' }); continue; }
+    toolsSrc = next;
+    report.added.push({ slug, ...logo });
+  }
+
+  if (!DRY && report.added.length) writeFileSync(TOOLS_PATH, toolsSrc);
+  console.log(JSON.stringify(report, null, 2));
+  console.log(DRY ? '\nDRY RUN (no files written).' : `\nWrote ${report.added.length} logo(s) + tools.ts entries.`);
+  process.exit(0);
+}
+
 async function main() {
+  const lIdx = args.indexOf('--logo-for');
+  if (lIdx !== -1 && args[lIdx + 1]) {
+    return logoOnlyMode(args[lIdx + 1].split(',').map((s) => s.trim()).filter(Boolean));
+  }
+
   let posts = [];
   const pIdx = args.indexOf('--post');
   if (pIdx !== -1 && args[pIdx + 1]) posts = [path.resolve(args[pIdx + 1])];
