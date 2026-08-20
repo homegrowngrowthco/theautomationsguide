@@ -8,7 +8,7 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-08-19 (Session 78).
+Last updated 2026-08-20 (Session 78, ran across 2026-08-19/20).
 
 ## Session 78 (2026-08-19) — engine priority sort was INVERTED; traffic + affiliate re-read
 
