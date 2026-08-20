@@ -7,7 +7,7 @@ Last updated: 2026-07-17
 ## Search Engine Submission
 
 - [x] Submit `https://theautomationsguide.com/sitemap-index.xml` in Google Search Console (2026-04-24)
-- [x] Set up Bing Webmaster Tools (2026-04-24)
+- [x] Set up Bing Webmaster Tools (2026-04-24). **Verified still live 2026-08-20** — property was added by **importing the Google Search Console property**, so there is deliberately NO `BingSiteAuth.xml` and NO `msvalidate` meta tag on the site; do not treat their absence as "not registered" (that mistake was made 2026-08-19). Engine IndexNow pings land here daily as "Self" submissions; sitemaps sync automatically from GSC. Nothing to maintain.
 - [x] Run URL Inspection → Request Indexing on homepage in GSC (after next push)
 - [x] Run URL Inspection → Request Indexing on `/blog`, `/tools`, `/about`
 
@@ -20,7 +20,7 @@ Last updated: 2026-07-17
 
 ## Directory listings (brand-term Step 4 — paste-ready)
 
-Done: 4a Crunchbase (2026-07-01, https://www.crunchbase.com/organization/the-automations-guide) · 4b Product Hunt (2026-07-01, https://www.producthunt.com/products/the-automations-guide).
+Done: 4a Crunchbase (2026-07-01, https://www.crunchbase.com/organization/the-automations-guide) · 4b Product Hunt (2026-07-01, https://www.producthunt.com/products/the-automations-guide). **Both re-verified live 2026-08-20** in a real browser. Note: the PH listing links out with `rel="noopener noreferrer ugc"`, so Google will never credit it in the GSC Links report and PH's own search UI does not surface the page — its absence from either is expected, not a problem.
 
 **Status (2026-07-23):** 4c IH account created but posting is gated for new accounts (wait). 4e AlternativeTo new free accounts must age 7 days before submitting → **submit on/after 2026-07-31** (same session as 4c). **4d BetaList DROPPED** — it is now paid-only with no free submission tier, not worth the fee for a single DA-75 link. Every field below is copy-paste ready; brand term appears verbatim in the first line of each description for the branded-search play, and the tool entities (HubSpot/Clay/n8n/Zapier/Make/Apollo) are seeded for GEO citation.
 
