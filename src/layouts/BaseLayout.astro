@@ -291,8 +291,9 @@ const breadcrumbSchema = {
         document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape' && menu.dataset.open === 'true') setOpen(false);
         });
-        // If the viewport grows past mobile while drawer is open, close it
-        const mq = window.matchMedia('(min-width: 768px)');
+        // If the viewport grows past the drawer breakpoint while open, close it
+        // (must match the global.css drawer media query: <1024px = drawer)
+        const mq = window.matchMedia('(min-width: 1024px)');
         const handleMq = () => { if (mq.matches) setOpen(false); };
         if (mq.addEventListener) mq.addEventListener('change', handleMq);
         else mq.addListener(handleMq);
@@ -348,8 +349,8 @@ const breadcrumbSchema = {
           <a href="/teams/">Teams</a>
           <a href="/playbooks/">Playbooks</a>
           <a href="/tools/">Tools</a>
-          <!-- Footer, not the header nav: the header already overflows the viewport
-               at 768px (see TODO), and another item there would make that worse. -->
+          <!-- Footer, not the header nav: the desktop header bar is width-budgeted
+               (~1040px min); another inline item would push the drawer breakpoint higher. -->
           <a href="/revops-automation-pricing/">Pricing index</a>
           <a href="/blog/">Latest</a>
           <a href="/about/">About</a>

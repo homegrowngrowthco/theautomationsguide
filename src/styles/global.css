@@ -209,9 +209,9 @@ a:hover { text-decoration: underline; }
 }
 /* Invisible bridge over the 0.35rem gap between the toggle and the popover:
    without it :hover drops while the pointer crosses the gap and the menu
-   closes before a subitem can be clicked. Desktop popover only — the mobile
-   drawer (<768px) renders the menu inline. */
-@media (min-width: 768px) {
+   closes before a subitem can be clicked. Desktop popover only — the
+   drawer (<1024px) renders the menu inline. */
+@media (min-width: 1024px) {
   .nav-dropdown-menu::before {
     content: '';
     position: absolute;
@@ -237,8 +237,10 @@ a:hover { text-decoration: underline; }
 }
 
 /* Right-side nav cluster: links + search + CTA + icons.
-   On desktop/tablet: inline flex row.
-   On mobile (<768px): becomes a drawer toggled by the hamburger button. */
+   On desktop (>=1024px): inline flex row.
+   Below 1024px: becomes a drawer toggled by the hamburger button. The full
+   bar needs ~1040px (measured: scrollWidth 1040 at a 768px viewport made the
+   whole site scroll sideways on tablets), so tablet gets the drawer too. */
 .nav-end {
   display: flex;
   align-items: center;
@@ -332,11 +334,11 @@ a:hover { text-decoration: underline; }
   text-decoration: none;
 }
 
-/* Mobile (<768px): nav-end becomes a slide-down drawer, hidden by default.
-   Hamburger button toggles `data-open="true"` to reveal it. Inline nav-links
-   on the bar would overflow at 375px (logo + 3 links = ~400px vs 327px
-   available), so we collapse them into the drawer. */
-@media (max-width: 767px) {
+/* Mobile + tablet (<1024px): nav-end becomes a slide-down drawer, hidden by
+   default. Hamburger button toggles `data-open="true"` to reveal it. The
+   inline bar overflows any viewport under ~1040px (logo + 6 links + search
+   + CTA + icons), so everything below the desktop breakpoint collapses. */
+@media (max-width: 1023px) {
   .nav-hamburger { display: inline-flex; align-items: center; justify-content: center; }
 
   .nav-end {
@@ -403,13 +405,17 @@ a:hover { text-decoration: underline; }
   .nav-icon-link { align-self: center; }
 }
 
-/* Tablet (768–1023px): CTA + LinkedIn icon stay hidden inline to avoid
-   crowding the bar; search input still visible. Hamburger hidden.
-   `.btn.nav-cta` bumps specificity over the later-declared `.btn` rule
-   (line ~315) which would otherwise win on source order. */
-@media (min-width: 768px) and (max-width: 1023px) {
+/* Laptop band (1024-1279px): the FULL desktop bar measures ~1258px (logo 198
+   + links 558 + search 220 + CTA 120 + icons 72 + gaps/padding), so it only
+   truly fits at >=1280. In this band: keep the links (the part that matters),
+   hide CTA + social icons (both also live in the footer/drawer), and slim the
+   search input, focus-grow included. `.btn.nav-cta` bumps specificity over the
+   later-declared `.btn` rule which would otherwise win on source order. */
+@media (min-width: 1024px) and (max-width: 1279px) {
   .btn.nav-cta { display: none; }
   .nav-icon-link { display: none; }
+  .nav-search input { width: 170px; }
+  .nav-search input:focus { width: 190px; }
 }
 
 /* ── Main / layout ─────────────────────────────── */
