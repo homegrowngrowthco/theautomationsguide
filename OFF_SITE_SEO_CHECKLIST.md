@@ -24,7 +24,8 @@ Done: 4a Crunchbase (2026-07-01, https://www.crunchbase.com/organization/the-aut
 
 **Status (2026-07-23):** 4c IH account created but posting is gated for new accounts (wait). 4e AlternativeTo new free accounts must age 7 days before submitting → **submit on/after 2026-07-31** (same session as 4c). **4d BetaList DROPPED** — it is now paid-only with no free submission tier, not worth the fee for a single DA-75 link. Every field below is copy-paste ready; brand term appears verbatim in the first line of each description for the branded-search play, and the tool entities (HubSpot/Clay/n8n/Zapier/Make/Apollo) are seeded for GEO citation.
 
-**4c — Indie Hackers** (DA 75). URL: https://www.indiehackers.com/product/new → creates `indiehackers.com/product/the-automations-guide`.
+**4c — Indie Hackers — DROPPED 2026-08-20** (Ian attempted: now requires paid membership / activity gates; not worth it for one link). Fields kept below in case the calculus changes.
+(DA 75). URL: https://www.indiehackers.com/product/new → creates `indiehackers.com/product/the-automations-guide`.
 - **Product name:** `The Automations Guide`
 - **Website URL:** `https://theautomationsguide.com`
 - **Tagline / one-liner:** `Independent RevOps automation reviews and workflow playbooks`
@@ -32,7 +33,8 @@ Done: 4a Crunchbase (2026-07-01, https://www.crunchbase.com/organization/the-aut
 - **Description:** `The Automations Guide is an independent review site for RevOps and GTM automation tools. It publishes hands-on tool reviews, head-to-head comparisons (Zapier vs Make vs n8n, HubSpot vs Salesforce workflows), migration guides, and step-by-step workflow playbooks for teams building their revenue operations stack. Every write-up comes from tools we have actually run in production, not vendor documentation. We cover HubSpot, Clay, n8n, Zapier, Make, Apollo, and 50+ more, and we never rank tools by affiliate commission. Published by Homegrown Growth Co, a fractional RevOps consultancy founded by Ian Chamberland.`
 - **Maker bio:** `Ian Chamberland, founder of Homegrown Growth Co, a fractional RevOps consultancy. 8 years building GTM systems and automations inside high-growth teams. I write The Automations Guide to share the playbooks, tool comparisons, and workflow tactics we use in real client engagements.`
 
-**4e — AlternativeTo** (DA 80). URL: https://alternativeto.net/software/add/. Position as an alternative to vendor-written documentation.
+**4e — AlternativeTo — DROPPED 2026-08-20** (Ian attempted: paid/activity-gated in practice despite the account aging out). Fields kept below in case the calculus changes.
+(DA 80). URL: https://alternativeto.net/software/add/. Position as an alternative to vendor-written documentation.
 - **Software name:** `The Automations Guide`
 - **Website:** `https://theautomationsguide.com`
 - **Short description:** `Independent automation review blog for RevOps and GTM teams. Reviews, head-to-head comparisons, and workflow playbooks for HubSpot, Clay, n8n, Zapier, Make, and Apollo.`
