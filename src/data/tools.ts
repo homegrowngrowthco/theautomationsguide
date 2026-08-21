@@ -688,7 +688,7 @@ export const tools: Tool[] = [
     badge: 'Paid',
     ctaLabel: 'Try Surfer',
     ctaPrimary: true,
-    listed: false,
+    listed: true,
     aliases: ['Surfer SEO', 'Surfer'],
     blurb:
       'Surfer is an SEO content platform that scores and optimizes your writing against what is already ranking, blending AI drafting with on-page guidance.',
@@ -834,7 +834,7 @@ export const tools: Tool[] = [
     badge: 'Paid',
     ctaLabel: 'Try KrispCall',
     ctaPrimary: true,
-    listed: false,
+    listed: true,
     aliases: ['KrispCall'],
     blurb:
       'KrispCall is a cloud phone system and dialer for sales and support teams, with international numbers, call automation, and CRM integrations at SMB pricing.',
@@ -907,7 +907,7 @@ export const tools: Tool[] = [
     badge: 'Free trial',
     ctaLabel: 'Try Close',
     ctaPrimary: true,
-    listed: false,
+    listed: true,
     aliases: ['Close CRM', 'Close.com'],
     blurb:
       'Close is a sales-first CRM with built-in calling, SMS, and email sequencing, designed for SMB teams that want to sell from one screen instead of bolting tools onto a generic CRM.',
@@ -943,7 +943,7 @@ export const tools: Tool[] = [
     badge: 'Free trial',
     ctaLabel: 'Try Nutshell',
     ctaPrimary: true,
-    listed: false,
+    listed: true,
     aliases: ['Nutshell'],
     blurb:
       'Nutshell is an easy-to-use SMB CRM that bundles pipeline management, email sequences, and basic marketing, aimed at small teams that find HubSpot heavy and overpriced.',
@@ -1190,7 +1190,7 @@ export const tools: Tool[] = [
     badgeFree: true,
     ctaLabel: "Try FullEnrich",
     ctaPrimary: true,
-    listed: false,
+    listed: true,
     aliases: ["FullEnrich", "Full Enrich", "fullenrich"],
     blurb: "FullEnrich runs contact enrichment queries across multiple data providers in sequence, improving email and phone match rates compared to relying on a single source.",
     bestFor: "RevOps teams and growth marketers who need high match-rate contact data but want to avoid paying for a full Clay subscription or managing multiple data provider contracts separately.",
@@ -1615,8 +1615,8 @@ export const tools: Tool[] = [
     category: 'Sales Engagement',
     badge: 'Paid',
     ctaLabel: 'Try ActiveCampaign',
-    ctaPrimary: false,
-    listed: false,
+    ctaPrimary: true,
+    listed: true,
     logo: '/brand/tools/activecampaign.png',
     aliases: ['ActiveCampaign'],
     blurb:

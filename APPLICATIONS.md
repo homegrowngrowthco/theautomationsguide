@@ -77,7 +77,7 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Landing page to cite: `/tools/krispcall/`
 - Relevant content: `/tools/krispcall/` (hub). Dialer comparison content (vs JustCall / CloudTalk) is on the roadmap.
 - Why we cover it / promo angle: "We position KrispCall as the affordable SMB cloud phone + dialer (vs JustCall and CloudTalk). Promoted via the hub page and forthcoming dialer comparison content."
-- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
+- Applied: [x] (2026-08-19)  Approved: [x] (2026-08-21; main + pricing deep link registered)
 
 ### 14. Laxis
 - **Apply link: https://www.laxis.com/affiliate-program** (own page; PartnerStack-backed)
@@ -97,7 +97,7 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Landing page to cite: `/tools/close/`
 - Relevant content: `/tools/close/` (hub), `/blog/2026-06-11-hubspot-vs-pipedrive-for-outbound-sequences/`, `/blog/2026-06-01-pipedrive-vs-apollo-outbound-which-wins-in-2026/`
 - Why we cover it / promo angle: "Close is our sales-first, sell-from-one-screen CRM pick (native calling + sequencing) against HubSpot and Pipedrive. Promoted via the hub page and CRM/outbound comparison posts."
-- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
+- Applied: [x] (2026-08-19)  Approved: [x] (2026-08-21; homepage + signup + Chloe links registered — slugs not customizable)
 
 ### 16. Nutshell
 - **Apply link: https://www.nutshell.com/partner-program/affiliate-partner-program** (affiliate-specific page; via PartnerStack)
@@ -107,7 +107,7 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 - Landing page to cite: `/tools/nutshell/`
 - Relevant content: `/tools/nutshell/` (hub), `/blog/2026-06-11-hubspot-vs-pipedrive-for-outbound-sequences/`, `/blog/2026-06-01-pipedrive-vs-apollo-outbound-which-wins-in-2026/`
 - Why we cover it / promo angle: "Nutshell is our friendly, affordable SMB CRM (sequencing + light marketing) alternative to HubSpot, alongside Pipedrive and Close. Promoted via the hub page and SMB-CRM comparisons."
-- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
+- Applied: [x] (2026-08-19)  Approved: [x] (2026-08-21; main + 4 deep links registered)
 
 ### 17. GetResponse
 - **Apply link: https://dash.partnerstack.com/application?company=getresponse&group=default** (PartnerStack direct)
@@ -154,6 +154,8 @@ Each block: program/network, est. commission, the landing page to cite, and rele
 ## PartnerStack Network application (rewritten 2026-08-19 for the resubmit)
 
 Prior submissions were repeatedly rejected; the old block claimed ~5,000 monthly visits (25x measured reality, and PartnerStack can check). This version leads with what is verifiably strong. Use `ian@theautomationsguide.com`, never Gmail.
+
+**STATUS: submitted 2026-08-21 with these answers (counts refreshed: 28 programs live at submit time, 196/217 indexed). Awaiting response. On approval: apply Pipedrive + Cognism (see TODO).**
 
 | Field | Paste this |
 |---|---|
@@ -214,7 +216,7 @@ These 10 tools all feature in posts publishing over the next ~3 weeks (the High 
 - Landing page to cite: `/tools/fullenrich/`
 - Relevant content: `/blog/2026-07-13-fullenrich-vs-bettercontact-vs-surfe-waterfall-enrichment-co/` + "Migrate from Lusha to FullEnrich" is queued (High)
 - Promo angle: "FullEnrich is our waterfall-enrichment pick in comparison content vs BetterContact and Surfe, with a Lusha migration guide scheduled."
-- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
+- Applied: [x] (2026-08-19)  Approved: [x] (2026-08-21; fullenrich.partnerlinks.io/tag)
 
 ### 23. LeadMagic
 - **Apply link: https://partners.dub.co/leadmagic** (Dub Partners)
@@ -250,7 +252,7 @@ These 10 tools all feature in posts publishing over the next ~3 weeks (the High 
 - Landing page to cite: `/tools/activecampaign/`
 - Relevant content: `/blog/2026-07-18-migrate-activecampaign-to-hubspot-keep-automations-intact/` + "ActiveCampaign vs HubSpot vs Brevo" queued (High) + a GetResponse-to-ActiveCampaign migration queued (Medium)
 - Promo angle: "ActiveCampaign anchors our email-automation comparison cluster (vs HubSpot, Brevo, GetResponse) with migration guides in both directions."
-- Applied: [x] (2026-08-19)  Approved: [ ] awaiting response
+- Applied: [x] (2026-08-19)  Approved: [x] (2026-08-21; email-marketing main + 4 deep links registered)
 
 ### 27. ZeroBounce
 - **Apply link: https://www.zerobounce.net/members/signin/register-affiliate-program** (program page: zerobounce.net/affiliate-program)

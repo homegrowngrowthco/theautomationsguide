@@ -8,7 +8,18 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-08-20 (Session 78, ran across 2026-08-19/20).
+Last updated 2026-08-21 (Session 79).
+
+## Session 79 (2026-08-21) — PartnerStack Network submitted; 6-program approval wave registered
+
+- **PartnerStack Network application SUBMITTED** using the APPLICATIONS.md honest-numbers block (28 programs live / 196-217 indexed at submit; smallest traffic bracket per the standing rule). On approval: apply Pipedrive + Cognism (TODO). Status line added to APPLICATIONS.md.
+- **6 programs approved same day and registered live:** ActiveCampaign (email-marketing main + sms/pricing/pricing-calculator/free), FullEnrich (partnerlinks.io/tag), Surfer (+ai/+ai-detector/+pricing), KrispCall (+pricing), Close (homepage main + signup + Chloe — PartnerStack refused custom slugs), Nutshell (+signup/best-crm/pricing/features). All 6 hubs flipped `listed:true` (ActiveCampaign also `ctaPrimary:true`); logos already present.
+- **Kit/Instantly/Apollo deep links added, mains deliberately untouched** (attribution proven on the existing URLs; new vanity /tag equivalents noted in each entry): kit-vs-mailchimp, kit-convertkit; instantly-vip/crm/website-visitors; apollo-signup/pricing.
+- **Registry census (re-derived from the file, not asserted): 55 live entries = 32 live programs + 23 deep-link variants.** All 6 new program mains curl-verified 200 with `ps_partner_key=NWNiNzNkZWQ1ZWYw` in the landing URL.
+- **First PartnerStack-side click data (as of 8/21): Kit 56, Instantly 49, Apollo 36, Lusha 25, lemlist 21, Reply.io 10.** Point-in-time snapshot; the durable read stays PostHog `affiliate_click`.
+- **Docs trued up:** AFFILIATE_PIPELINE Wave-1/2 tables had drifted from APPLICATIONS.md (none of the 8/19 applies were checked); both now agree. TODO: awaiting list 12 → 6 (leadmagic, justcall, lindy, getresponse, adcreative, brevo); Request-Indexing item extended to the 6 newly-listed hubs.
+- **Verify:** tsc clean on both data files; qa gates + build below; post-deploy /go/ spot-check.
+- **Revert:** `git revert <sha of this session's registry commit>` (Netlify redeploys on push).
 
 ## Session 78 (2026-08-19) — engine priority sort was INVERTED; traffic + affiliate re-read
 

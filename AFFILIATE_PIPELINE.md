@@ -33,23 +33,23 @@ All 20 have a confirmed self-serve program (no sales call) and an unlisted landi
 | 6 | **Pabbly** | Affiliate (per-product) | Recurring/lifetime | `/tools/pabbly` LP | ☑ | ☑ (live 2026-06-11, Pabbly Connect) |
 | 7 | **Lusha** | PartnerStack | ~20% first 12 mo | `/tools/lusha` LP | ☑ | ☑ (live 2026-06-11) |
 | 8 | **Synthflow** | PartnerStack | ~20% for 12 mo | `/tools/synthflow` LP | ☑ | ☐ |
-| 9 | **Surfer** | PartnerStack | CPA-based (up to ~125% CPA) | `/tools/surfer` LP | ☑ | ☐ |
+| 9 | **Surfer** | PartnerStack | CPA-based (up to ~125% CPA) | `/tools/surfer` LP | ☑ | ☑ (live 2026-08-21, +3 deep links) |
 | 10 | **Cal.com** | Direct (cal.com/affiliate-program) | 20% recurring 12 mo | `/tools/cal-com` LP | ☑ | ☑ (live 2026-06-09) |
 
 ### Wave 2 — next (11-20)
 
 | # | Tool | Program / platform | Est. commission (verify) | Landing page | Applied? | Approved? |
 |---|---|---|---|---|---|---|
-| 11 | **Lindy** | Affiliate | Verify | `/tools/lindy` LP | ☐ | ☐ |
-| 12 | **Reply.io** | Affiliate/partner | Verify | `/tools/reply-io` LP | ☐ | ☐ |
-| 13 | **KrispCall** | PartnerStack | ~30% lifetime | `/tools/krispcall` LP | ☐ | ☐ |
-| 14 | **Laxis** | PartnerStack | up to ~35% (30% first 12 mo) | `/tools/laxis` LP | ☐ | ☐ |
-| 15 | **Close** | Affiliate | Recurring (verify) | `/tools/close` LP | ☐ | ☐ |
-| 16 | **Nutshell** | PartnerStack | ~20-40% first year | `/tools/nutshell` LP | ☐ | ☐ |
-| 17 | **GetResponse** | Affiliate | ~40-60% recurring 12 mo, or bounty | `/tools/getresponse` LP | ☐ | ☐ |
-| 18 | **AdCreative.ai** | Affiliate | ~30% recurring rev share | `/tools/adcreative` LP | ☐ | ☐ |
-| 19 | **Motion** | Affiliate | ~$50 per paid sub | `/tools/motion` LP | ☐ | ☐ |
-| 20 | **Brevo** | Affiliate | Verify | `/tools/brevo` LP | ☐ | ☐ |
+| 11 | **Lindy** | Affiliate | Verify | `/tools/lindy` LP | ☑ (2026-08-19) | ☐ |
+| 12 | **Reply.io** | Affiliate/partner | ~20% recurring | `/tools/reply-io` LP | ☑ | ☑ (live 2026-08-19, +2 deep links) |
+| 13 | **KrispCall** | PartnerStack | ~30% lifetime | `/tools/krispcall` LP | ☑ | ☑ (live 2026-08-21, +1 deep link) |
+| 14 | **Laxis** | PartnerStack | up to ~35% (30% first 12 mo) | `/tools/laxis` LP | ☑ | ☑ (live 2026-08-19) |
+| 15 | **Close** | PartnerStack | ~30% first 12 mo | `/tools/close` LP | ☑ | ☑ (live 2026-08-21, +2 deep links) |
+| 16 | **Nutshell** | PartnerStack | ~20-40% first year | `/tools/nutshell` LP | ☑ | ☑ (live 2026-08-21, +4 deep links) |
+| 17 | **GetResponse** | Affiliate | ~40-60% recurring 12 mo, or bounty | `/tools/getresponse` LP | ☑ (2026-08-19) | ☐ |
+| 18 | **AdCreative.ai** | Affiliate | ~30% recurring rev share | `/tools/adcreative` LP | ☑ (2026-08-19) | ☐ |
+| 19 | **Motion** | Affiliate | ~$50 per paid sub | `/tools/motion` LP | ☑ | ☑ (live 2026-08-19) |
+| 20 | **Brevo** | Affiliate | Verify | `/tools/brevo` LP | ☑ (2026-08-19) | ☐ |
 
 ---
 
@@ -85,7 +85,7 @@ Build landing pages + apply as content warrants. ⭐ = strongest first-mover opp
 |---|---|---|
 | Surfe | 🔎 verify ⭐ | LinkedIn to CRM, newer |
 | LeadMagic | 🔎 verify ⭐ | Waterfall enrichment |
-| FullEnrich | 🔎 verify ⭐ | Waterfall; strong "vs Clay" angle |
+| FullEnrich | ☑ LIVE 2026-08-21 | Waterfall; strong "vs Clay" angle. PartnerStack, 15-25% tiered |
 | BetterContact | 🔎 verify ⭐ | Waterfall |
 | Findymail | 🔎 affiliate | Email finder |
 | Prospeo | 🔎 affiliate | Email/phone finder |
@@ -174,7 +174,7 @@ Build landing pages + apply as content warrants. ⭐ = strongest first-mover opp
 ### Marketing automation / email / creator
 | Tool | Program | Notes |
 |---|---|---|
-| ActiveCampaign | 🔎 affiliate | Automation |
+| ActiveCampaign | ☑ LIVE 2026-08-21 | Automation. PartnerStack, 30% recurring 12 mo, +4 deep links |
 | Webflow | 🔎 affiliate | (your old Tier 2) |
 | Taplio | 🔎 affiliate ⭐ | LinkedIn growth (AI) |
 | Loops | 🔎 verify ⭐ | New SaaS email tool |
