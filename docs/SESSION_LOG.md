@@ -18,8 +18,8 @@ Last updated 2026-08-21 (Session 79).
 - **Registry census (re-derived from the file, not asserted): 55 live entries = 32 live programs + 23 deep-link variants.** All 6 new program mains curl-verified 200 with `ps_partner_key=NWNiNzNkZWQ1ZWYw` in the landing URL.
 - **First PartnerStack-side click data (as of 8/21): Kit 56, Instantly 49, Apollo 36, Lusha 25, lemlist 21, Reply.io 10.** Point-in-time snapshot; the durable read stays PostHog `affiliate_click`.
 - **Docs trued up:** AFFILIATE_PIPELINE Wave-1/2 tables had drifted from APPLICATIONS.md (none of the 8/19 applies were checked); both now agree. TODO: awaiting list 12 → 6 (leadmagic, justcall, lindy, getresponse, adcreative, brevo); Request-Indexing item extended to the 6 newly-listed hubs.
-- **Verify:** tsc clean on both data files; qa gates + build below; post-deploy /go/ spot-check.
-- **Revert:** `git revert <sha of this session's registry commit>` (Netlify redeploys on push).
+- **Verify:** tsc clean on both data files; qa:lint 0 hard, qa:logos 0 hard, full build green; post-deploy /go/ spot-check (below).
+- **Revert:** `git revert 7d68d6b` (Netlify redeploys on push, ~90s).
 
 ## Session 78 (2026-08-19) — engine priority sort was INVERTED; traffic + affiliate re-read
 
