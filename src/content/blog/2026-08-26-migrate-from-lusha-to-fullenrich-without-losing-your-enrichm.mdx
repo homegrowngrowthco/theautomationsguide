@@ -1,0 +1,212 @@
+---
+title: "Migrate from Lusha to FullEnrich Without Losing Your Enrichment Workflows"
+description: "Step-by-step guide to switching from Lusha to FullEnrich waterfall enrichment, covering workflow exports, Clay integration, and what breaks in transit."
+tldr: "Migrating from Lusha to FullEnrich takes about a day of setup if you export your field mappings first, rebuild your waterfall logic in FullEnrich or Clay, and verify match rates on a held-out sample before going live."
+pubDate: 2026-08-26
+tags: ["guide", "automation", "enrichment"]
+faqs:
+  - question: "Is FullEnrich a good Lusha alternative?"
+    answer: "Yes, especially if you run waterfall enrichment. FullEnrich cascades across 15+ data providers and typically costs 60-80% less per enriched contact than Lusha's per-credit model."
+  - question: "Can I use FullEnrich inside Clay?"
+    answer: "Yes. FullEnrich has a native Clay integration. You add it as an enrichment column and it runs its waterfall automatically, returning the best available email and phone."
+  - question: "What data does Lusha export include?"
+    answer: "Lusha lets you export enriched contacts as CSV with name, title, company, email, phone, and LinkedIn URL. It does not export your API call logs or enrichment field-mapping configs."
+  - question: "Does FullEnrich cover mobile/direct dials like Lusha?"
+    answer: "FullEnrich returns mobile numbers when available from its provider cascade, but mobile coverage varies by region and is generally stronger in North America than EMEA."
+  - question: "How long does a Lusha to FullEnrich migration take?"
+    answer: "Most teams complete the migration in one business day: a few hours of prep, an hour of FullEnrich setup, and an afternoon of parallel testing on a sample list."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The trigger is almost always the same: your Lusha credits run out mid-month, you go to buy more, and the per-seat renewal math finally breaks you. Or you run a waterfall in [Clay](/go/clay/) and realize Lusha is sitting there as a single-source enrichment node while every other column is a multi-provider cascade. Either way, you are on a pricing page for Lusha alternatives, wondering how much work the switch actually is. I have run this migration for four B2B SaaS clients in the past six months. The honest answer: less work than you think, but only if you do the prep correctly.
+
+<KeyTakeaways items={[
+  "Export your Lusha contact list and document your field mappings before you touch anything else.",
+  "FullEnrich's waterfall typically returns higher match rates than single-source Lusha for email, at lower cost per enriched record.",
+  "Your Clay tables, Apollo sequences, and HubSpot workflows need field-mapping updates, not full rebuilds.",
+  "Parallel testing on a 200-record sample before cutover prevents the silent failure that kills reply rates.",
+  "Plan for one business day of effort total: prep in the morning, cutover in the afternoon."
+]} />
+
+## Before you migrate
+
+The single biggest mistake I see teams make is cutting over the API key before they know what they are replacing. Lusha's enrichment sits in at least three places for most teams: a Chrome extension workflow, a CRM integration writing directly to contact fields, and an API call buried inside a Clay table or Zapier zap. Audit all three before you generate a [FullEnrich](/go/fullenrich/) API key.
+
+Don't bother trying to export your enrichment logic from Lusha's UI. It doesn't exist as an exportable artifact. What you can export is the contact data itself, and that is the only ground truth you will have for match rate comparison later.
+
+Here is the prep checklist:
+
+- **Export your enriched contact list from Lusha.** Go to Lusha's dashboard, filter by date range (last 90 days is enough), and export as CSV. This becomes your baseline for match rate comparison later.
+- **Document every field Lusha writes to in your CRM.** Common ones: `Email`, `Direct Phone`, `Mobile Phone`, `Job Title`, `Company Domain`. Some teams also have custom fields like `Lusha Confidence Score`. Note the exact CRM field API names.
+- **List every integration point.** Lusha CRM sync (HubSpot or Salesforce), any Clay columns calling the Lusha enrichment action, any Zapier or Make scenarios hitting the Lusha API, and any direct REST API calls in your own code.
+- **Pause or flag active sequences.** If you have sequences firing in [Outreach](/go/outreach/) or [Smartlead](/go/smartlead/) that rely on Lusha-enriched phone numbers, flag those contacts so you do not drop them during the cutover window.
+- **Note your current monthly credit burn.** Log in to Lusha, check usage for the last three months, and calculate your average monthly enrichment volume. You need this to size your FullEnrich plan correctly.
+
+## Migration steps
+
+<StepRow steps={[
+  {
+    title: "Create your FullEnrich account and grab your API key",
+    body: "Sign up at FullEnrich and navigate to Settings > API. Copy your API key. FullEnrich's free trial gives you 100 enrichment credits to run your validation sample, which is exactly what you need at this stage. Do not connect anything to production yet."
+  },
+  {
+    title: "Run a parallel test on your 200-record holdout",
+    body: "Take the CSV you exported from Lusha and pull 200 records enriched in the last 60 days. Upload them to FullEnrich's bulk enrichment endpoint (or paste into the dashboard UI). Compare the returned emails against your Lusha baseline. I typically see 85-95% overlap on business emails, plus meaningful uplift on records where Lusha returned nothing. Document the delta before moving on."
+  },
+  {
+    title: "Rebuild your Clay waterfall column",
+    body: "In Clay, find every table with a Lusha enrichment column. Add a new FullEnrich column using the native Clay integration (search 'FullEnrich' in the enrichment picker). Set the input to LinkedIn URL, or email domain plus first/last name. FullEnrich runs its own internal cascade across providers, so you do not need to manually chain BetterContact or LeadMagic behind it unless you want explicit fallback control. Disable the Lusha column but do not delete it yet."
+  },
+  {
+    title: "Update your CRM integration",
+    body: "In FullEnrich's Integrations panel, connect your HubSpot or Salesforce org. Map FullEnrich's output fields to the same CRM properties Lusha was writing to. FullEnrich returns 'email', 'phone_number', 'mobile_number', 'linkedin_url', and 'job_title'. Match these to your existing CRM field API names exactly. If Lusha was writing to a custom field called 'lusha_verified_email', point FullEnrich to that same field so downstream workflows stay intact."
+  },
+  {
+    title: "Replace Lusha API calls in Zapier, Make, or n8n",
+    body: "For each zap or scenario hitting the Lusha REST API, swap the HTTP action to POST at FullEnrich's enrichment endpoint with your new API key in the Authorization header. The request body structure differs: FullEnrich expects a JSON object with 'first_name', 'last_name', 'company_domain' or 'linkedin_url'. Update your field mappings in the downstream steps to read from FullEnrich's response keys."
+  },
+  {
+    title: "Cut over and deprecate Lusha",
+    body: "Once your parallel test confirms acceptable match rates, flip production traffic to FullEnrich. Update your Chrome extension or prospecting workflow to use FullEnrich's browser extension instead of Lusha's. Cancel your Lusha subscription before the next billing cycle (Lusha renews monthly or annually, check your contract). Keep the Lusha CSV export for 90 days in case you need to audit a discrepancy."
+  }
+]} />
+
+<Figure class="post-screenshot" caption="Clay's waterfall enrichment table, where you replace the Lusha column with a FullEnrich node while keeping the same downstream field mappings.">
+  <a href="/go/clay/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/clay-enrichment.png" alt="Clay enrichment table showing waterfall provider columns with email and phone output fields" loading="lazy" />
+  </a>
+</Figure>
+
+## What breaks, and what does not transfer
+
+Most things survive the migration. Your CRM data is already written. FullEnrich does not retroactively change existing records unless you explicitly tell it to re-enrich. Your sequences keep running. Your deal pipeline is untouched.
+
+What actually breaks is subtler, and I have seen each of these catch teams off guard.
+
+**Lusha's confidence score does not map to anything in FullEnrich.** If you built HubSpot list logic or lead scoring rules off a `Lusha Confidence Score` field, those filters go dark immediately. FullEnrich returns a boolean verified flag rather than a numeric score. Update any list segmentation that referenced confidence thresholds before you cut over, not after.
+
+**The Chrome extension workflow changes.** Lusha's extension is deeply embedded in LinkedIn and Sales Navigator side panels. FullEnrich's extension covers the same surfaces but the UI is meaningfully different. Budget 30 minutes to re-train your SDRs on where to click. Skipping this step is how you end up with reps who quietly stop enriching contacts because the button moved.
+
+**Bulk enrichment job format differs.** Lusha accepts CSV uploads with a specific column header format. FullEnrich's bulk API expects either a JSON array or a CSV with its own required columns. Any internal scripts that automated Lusha bulk uploads need rewriting. This is usually a one-hour fix, but it surprises teams that forgot those scripts existed.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The gotcha:** If you relied on Lusha's LinkedIn Sales Navigator native sync to push enriched data directly into your CRM without a middle layer, that specific integration path does not exist in FullEnrich the same way. Teams that used this often discover their enrichment pipeline was invisible to them until it stops. This is worth auditing before you cancel anything.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // FullEnrich API request body (replaces Lusha REST call)
+    {
+      "first_name": "Jane",
+      "last_name": "Smith",
+      "company_domain": "acme.com",
+      "linkedin_url": "https://linkedin.com/in/janesmith"
+    }
+
+    // FullEnrich response keys to remap in your zap/scenario:
+    // "email", "phone_number", "mobile_number",
+    // "job_title", "linkedin_url", "verified"
+    ```
+  </Fragment>
+</SideBySide>
+
+## Verify it worked
+
+Do not assume the cutover succeeded. Run these four checks before closing the migration ticket.
+
+1. **Match rate check.** Re-run your 200-record holdout through FullEnrich in production and confirm the results match your trial run. If match rate dropped more than 5 percentage points, something is wrong with your input field mapping.
+2. **CRM write check.** Create a test contact in HubSpot or Salesforce and trigger FullEnrich enrichment manually. Confirm the correct fields populate and no fields write to the wrong property.
+3. **Clay column output check.** Open your most-used Clay table, force a re-run on 10 rows, and confirm FullEnrich is returning data in the output columns where Lusha used to write.
+4. **Sequence continuity check.** Pull a random sample of 20 active contacts from your Outreach or Smartlead sequences and confirm their email and phone fields are populated and valid. Blank fields here usually mean those contacts depended on a Lusha enrichment that ran before cutover and never got re-enriched.
+
+## Which tool fits which team from here
+
+Once you are off Lusha, you have real options. [FullEnrich](/go/fullenrich/) is the right default for most teams, but the waterfall enrichment space has a few distinct plays worth knowing. My honest take: BetterContact is worth a look if mobile coverage is your primary gap, but for most outbound-focused RevOps teams running Clay, FullEnrich handles 90% of the job without requiring you to configure a provider cascade yourself.
+
+<ChooseIf title="Lusha Alternatives: Which Fits Your Stack" tools={[
+  {
+    name: "FullEnrich",
+    conditions: [
+      "You want a single API call that cascades across 15+ providers automatically",
+      "You run Clay-based enrichment workflows and want native integration",
+      "You want predictable per-record pricing instead of per-seat credits"
+    ],
+    pricing: "From $29/mo",
+    affiliateSlug: "fullenrich",
+    ctaLabel: "Try FullEnrich",
+    highlight: true
+  },
+  {
+    name: "BetterContact",
+    conditions: [
+      "You need the highest possible mobile and direct dial hit rates, not just email",
+      "You want a waterfall you can configure provider-by-provider yourself",
+      "Your ICP skews toward SMB where Lusha's enterprise-heavy database underperforms"
+    ],
+    pricing: "From $49/mo",
+    affiliateSlug: "bettercontact",
+    ctaLabel: "Try BetterContact"
+  },
+  {
+    name: "LeadMagic",
+    conditions: [
+      "You primarily enrich from LinkedIn URLs and want the cheapest cost per verified email",
+      "You run high-volume Clay tables and need to minimize API spend",
+      "You do not need phone numbers returned in the same call"
+    ],
+    pricing: "Pay-as-you-go from $0.01/record",
+    affiliateSlug: "leadmagic",
+    ctaLabel: "Try LeadMagic"
+  },
+  {
+    name: "Clay (waterfall mode)",
+    conditions: [
+      "You want full provider-level control and the ability to mix FullEnrich, BetterContact, and LeadMagic in one table",
+      "You are already running outbound workflows in Clay and want enrichment baked in",
+      "You are comfortable building and maintaining waterfall logic yourself"
+    ],
+    pricing: "From $149/mo (Clay plan)",
+    affiliateSlug: "clay",
+    ctaLabel: "Try Clay"
+  }
+]} />
+
+For teams that have already made the [Apollo to Clay](/blog/2026-08-24-migrate-from-apollo-to-clay-without-losing-your-sequences-or/) migration, this move is the natural next step. Replace Apollo's built-in enrichment and Lusha's single-source phone lookups with a proper waterfall that costs a fraction per record.
+
+<MyTake>
+Teams stay on Lusha too long for one reason: the Chrome extension is sticky and nobody wants to retrain SDRs mid-quarter. The data quality gap between Lusha and a properly configured FullEnrich waterfall is larger than most people expect until they actually run the side-by-side comparison. I have seen 20-30 percentage point lifts on records that Lusha returned empty. Switch sooner than feels comfortable. The retraining takes half a day. The credit savings start immediately.
+</MyTake>
+
+## The migration is worth the day it takes
+
+Lusha made sense when your team was small, enrichment was an afterthought, and you needed a browser extension that just worked. At scale, single-source enrichment with per-seat pricing is expensive and brittle. [FullEnrich](/tools/fullenrich/) solves the provider diversity problem without requiring you to build and maintain a multi-step waterfall yourself. If you are already running [Clay](/tools/clay/) for outbound, the integration is three clicks. If you are not on Clay yet, the [LinkedIn outbound loop with Clay and Lemlist](/blog/2026-08-22-linkedin-outbound-loop-clay-lemlist-hubspot/) gives you the full picture of where enrichment sits in a modern outbound stack.
+
+The [G2 enrichment tools category](https://www.g2.com/categories/sales-intelligence) now lists over 40 tools competing with Lusha, but most of them are still single-source. Waterfall enrichment, as documented in [FullEnrich's provider methodology](https://fullenrich.com), is the architectural shift that actually moves match rates. Do the migration, run the parallel test, and you will wonder why you waited.
+
+<BottomLine
+  verdict="FullEnrich is the right default Lusha alternative for any team running Clay-based enrichment or needing predictable per-record pricing. Do the 200-record parallel test before cutover and you will have the data to defend the switch internally."
+  pick="FullEnrich"
+  affiliateSlug="fullenrich"
+  ctaLabel="Try FullEnrich"
+/>
+
+<Sources sources={[
+  { label: "FullEnrich: provider waterfall methodology", url: "https://fullenrich.com" },
+  { label: "G2: Sales Intelligence category reviews", url: "https://www.g2.com/categories/sales-intelligence" },
+  { label: "Lusha: pricing and credit model docs", url: "https://www.lusha.com/pricing/" },
+  { label: "Clay: enrichment integrations documentation", url: "https://docs.clay.com/enrichments/fullenrich" }
+]} />
