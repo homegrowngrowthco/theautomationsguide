@@ -823,7 +823,35 @@ function dedup(proposals, universe, covered) {
 
   const rank = { High: 0, Medium: 1, Low: 2 };
   kept.sort((a, b) => (rank[a.priority] - rank[b.priority]) || (Number(b.firstMover) - Number(a.firstMover)));
-  return { kept, dropped };
+  return { kept: interleaveByAnchorTool(kept), dropped };
+}
+
+// stageToNotion() below writes `kept` to Notion in array order, and the engine's
+// daily pick sorts Priority asc then Created asc within that band — so array order
+// here IS the eventual publish order. Left un-interleaved, same-tool twins (e.g.
+// "RB2B Review" + "RB2B Pricing", proposed seconds apart at equal priority) stage
+// with Created timestamps seconds apart too, and the engine then publishes them on
+// consecutive days (the 8/18-8/19 RB2B pair). Round-robin by anchorTool WITHIN each
+// priority band (the sort above already grouped bands contiguously) so twins land
+// several topics apart instead of back-to-back, without disturbing priority order.
+function interleaveByAnchorTool(items) {
+  const out = [];
+  let bandStart = 0;
+  while (bandStart < items.length) {
+    let bandEnd = bandStart;
+    while (bandEnd < items.length && items[bandEnd].priority === items[bandStart].priority) bandEnd++;
+    const byTool = new Map();
+    for (const t of items.slice(bandStart, bandEnd)) {
+      if (!byTool.has(t.anchorTool)) byTool.set(t.anchorTool, []);
+      byTool.get(t.anchorTool).push(t);
+    }
+    const queues = [...byTool.values()];
+    for (let i = 0; out.length < bandEnd; i++) {
+      for (const q of queues) if (i < q.length) out.push(q[i]);
+    }
+    bandStart = bandEnd;
+  }
+  return out;
 }
 
 // ---------- 5. OUTPUT ----------

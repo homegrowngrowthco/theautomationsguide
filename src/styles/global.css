@@ -536,7 +536,17 @@ main { flex: 1; }
   .hero-visual { display: none; }
 }
 
-/* ── Tools-we-cover logo strip ─────────────────── */
+/* ── Tools-we-cover logo strip ──────────────────────────────────────────
+   A single-row auto-scrolling marquee, not a wrapping grid: many of the
+   logos in the registry are icon-only app marks (JustCall, Aircall,
+   KrispCall, ...) that nobody recognizes without the product name next to
+   them, so every item is an icon+name lockup rather than a bare logo.
+   .logo-strip-track renders the tool list TWICE and animates translateX by
+   exactly -50% (one copy's width), which loops seamlessly into the second,
+   identical copy. That second copy is aria-hidden + untabbable in the
+   markup so assistive tech and keyboard nav only ever reach one real link
+   per tool. Speed comes from the --marquee-duration custom property set
+   inline per stripTools.length, so pace stays constant as tools are added. */
 .logo-strip-section {
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
@@ -555,52 +565,63 @@ main { flex: 1; }
 }
 
 .logo-strip {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  row-gap: 1.25rem;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black 64px, black calc(100% - 64px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, black 64px, black calc(100% - 64px), transparent 100%);
 }
 
-/* Equal-width cells: every logo gets the same bounding box and is capped on
-   BOTH axes, so a wide wordmark (Cal.com) and a compact mark (KIT) read at a
-   consistent visual weight instead of ballooning/shrinking by width alone.
-   3 per row on mobile, 5 on desktop; centered trailing rows. */
+.logo-strip-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: logo-strip-scroll var(--marquee-duration, 32s) linear infinite;
+}
+
+.logo-strip:hover .logo-strip-track,
+.logo-strip:focus-within .logo-strip-track {
+  animation-play-state: paused;
+}
+
+@keyframes logo-strip-scroll {
+  to { transform: translateX(-50%); }
+}
+
 .logo-strip-item {
-  flex: 0 0 33.333%;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.55rem;
   height: 40px;
-  padding: 0 0.85rem;
+  padding: 0 1.5rem;
   opacity: 0.85;
-  transition: opacity 0.15s, transform 0.15s;
+  white-space: nowrap;
+  transition: opacity 0.15s;
 }
 
-@media (min-width: 600px) {
-  .logo-strip-item { flex-basis: 25%; }
-}
-
-.logo-strip-item:hover { opacity: 1; transform: translateY(-1px); text-decoration: none; }
+.logo-strip-item:hover,
+.logo-strip-item:focus-visible { opacity: 1; text-decoration: none; }
 
 .logo-strip-item img {
-  max-height: 28px;
-  max-width: 100%;
-  width: auto;
+  height: 22px;
+  width: 22px;
   object-fit: contain;
-  display: block;
+  border-radius: 5px;
+  flex-shrink: 0;
 }
 
-.logo-strip-wordmark {
+.logo-strip-name {
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.05rem;
+  font-weight: 700;
+  font-size: 0.95rem;
   letter-spacing: -0.01em;
   color: var(--text);
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+/* Manual horizontal scroll instead of a continuous animation; still one row. */
+@media (prefers-reduced-motion: reduce) {
+  .logo-strip { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+  .logo-strip-track { animation: none; width: max-content; }
+  .logo-strip-track > .logo-strip-item[aria-hidden='true'] { display: none; }
 }
 
 /* ── Browse-by-topic tiles ─────────────────────── */
