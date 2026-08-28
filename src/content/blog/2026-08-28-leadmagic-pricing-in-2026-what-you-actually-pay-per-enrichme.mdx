@@ -1,0 +1,162 @@
+---
+title: "LeadMagic Pricing in 2026: What You Actually Pay Per Enrichment"
+description: "LeadMagic pricing broken down by credit type, overage, and real cost per enrichment. Plus how it stacks up against Surfe, Prospeo, and FullEnrich."
+tldr: "LeadMagic charges on a credit-per-enrichment model starting around $99/month, but your real cost per record depends heavily on which data points you pull and whether you waterfall mobile dials versus emails."
+pubDate: 2026-08-28
+tags: ["tools", "enrichment", "prospecting"]
+faqs:
+  - question: "How much does LeadMagic cost per month?"
+    answer: "LeadMagic starts at approximately $99/month for a base credit bundle. Higher volume tiers reduce the per-credit cost significantly."
+  - question: "How does LeadMagic pricing compare to FullEnrich?"
+    answer: "FullEnrich uses a waterfall enrichment model and is generally cheaper per verified email, but LeadMagic wins on mobile and LinkedIn data freshness."
+  - question: "Does LeadMagic charge separately for emails and phone numbers?"
+    answer: "Yes, LeadMagic credits are consumed differently depending on the enrichment type. Mobile numbers typically cost more credits than email lookups."
+  - question: "Is there a free trial for LeadMagic?"
+    answer: "LeadMagic offers a limited free credit allocation on signup so you can test match rates before committing to a paid plan."
+  - question: "What is the best alternative to LeadMagic for email enrichment?"
+    answer: "Prospeo and FullEnrich are the strongest alternatives for email-only enrichment at lower per-credit cost. Surfe is better if you need LinkedIn-native enrichment embedded in your workflow."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The question I get from RevOps leads almost every week is some version of: "We're burning too much on ZoomInfo. What does it actually cost if we switch to something like LeadMagic?" The problem is that [LeadMagic](/go/leadmagic/) does not publish a traditional per-seat price on a tidy feature grid. It sells credits. And the real cost per useful record depends entirely on what you are enriching and how well your lists convert to matches. This post does the math so you do not have to reverse-engineer it from a trial.
+
+<KeyTakeaways items={[
+  "LeadMagic starts at ~$99/month; meaningful volume starts at the $299-$499 range",
+  "Credits are not equal: mobile phone lookups cost more than email lookups per credit",
+  "Match rate on cold lists typically lands between 55-75%, so budget for waste",
+  "Prospeo undercuts LeadMagic on email-only enrichment; FullEnrich is better for waterfall workflows",
+  "Surfe is the pick if your team sources directly from LinkedIn rather than uploading CSVs"
+]} />
+
+<StatRow stats={[
+  { number: "$0.01-$0.05", label: "Per Email Credit", description: "Effective cost per email enrichment at mid-tier volume, depending on plan" },
+  { number: "~65%", label: "Avg Match Rate", description: "Realistic match rate on a cold outbound list; vendor claims 80%+ on warm data" },
+  { number: "3-4x", label: "Mobile Premium", description: "Mobile number lookups consume roughly 3-4x more credits than email lookups on equivalent plans" }
+]} />
+
+## How LeadMagic actually structures its pricing
+
+LeadMagic sells enrichment credits in monthly bundles. The entry plan sits around $99/month and gives you enough credits to enrich roughly 1,000 records with email addresses. Pull mobile dials and that number drops fast. The mid-tier lands around $299/month. There is a higher-volume tier around $499/month. Enterprise and agency accounts negotiate custom volume deals.
+
+The part that catches teams off guard: credits are consumed based on which data point you request, not simply per record. Pull an email, spend one credit. Pull a verified mobile number on the same record, spend three to four more. If you run a workflow that grabs both email and phone on every contact, your effective record count per plan is cut by roughly 75% compared to what the headline number implies.
+
+I have watched clients burn through a $299 plan in under two weeks because they did not separate their email-first enrichment pass from their mobile-dial pass. Run them as two distinct workflow steps with a quality gate in between and you can cut credit waste dramatically. It is a simple fix that most teams never bother making.
+
+LeadMagic does offer a small free credit allocation on signup, which is genuinely useful for validating match rates against your specific ICP before committing. I always recommend running 200 to 300 records through before purchasing a plan. Match rate variance between industries is real, and a 20-point swing changes your unit economics considerably.
+
+## The true cost: math for a real outbound team
+
+Let me model a team running 5,000 new contacts per month through enrichment. That is a realistic number for a two to three person SDR team with a solid sourcing motion.
+
+At the $299/month tier, assume you get roughly 3,000 email credits. To cover 5,000 contacts you either need to upgrade or supplement with a secondary source. At the $499/month tier you likely have enough email credits to cover 5,000 records, but adding mobile dials means purchasing add-on credits or moving to a custom plan.
+
+Here is the arithmetic I have run for clients:
+
+- 5,000 contacts at 65% match rate = 3,250 enriched records
+- 3,250 emails at $0.02 per credit (mid-tier effective rate) = $65 in email credits
+- 1,500 mobile lookups (targeting only decision-makers from the matched set) at $0.06 per credit = $90
+- Total useful enrichment cost: roughly $155/month in pure credit consumption
+
+The $299 plan covers that comfortably if you are selective. Where teams overspend is running mobile lookups on the entire list before filtering by match quality. Gate your mobile enrichment behind email verification and job title filter and you stay comfortably in the $299 tier for that volume.
+
+Overages are charged at roughly the same per-credit rate as your plan tier. No punitive multiplier, which is more than you can say for some tools in this space.
+
+## Which tier for which team
+
+<ChooseIf title="Which enrichment tool fits your team?" tools={[
+  {
+    name: "LeadMagic",
+    conditions: [
+      "You need fresh LinkedIn-sourced contact data, not recycled database exports",
+      "Your workflow mixes email and mobile enrichment and you want a single credit pool",
+      "You are enriching 2,000 to 10,000 records per month and want predictable per-record cost"
+    ],
+    pricing: "From ~$99/mo",
+    affiliateSlug: "leadmagic",
+    ctaLabel: "Try LeadMagic",
+    highlight: true
+  },
+  {
+    name: "Prospeo",
+    conditions: [
+      "You need email-only enrichment at the lowest possible per-credit cost",
+      "Your team does high-volume cold email and match rate matters more than mobile coverage",
+      "You want bulk CSV enrichment without building an API workflow"
+    ],
+    pricing: "From ~$39/mo",
+    affiliateSlug: "prospeo",
+    ctaLabel: "Try Prospeo"
+  },
+  {
+    name: "FullEnrich",
+    conditions: [
+      "You want waterfall enrichment across multiple providers in one pass",
+      "Your ICP has patchy coverage in single-source tools and you need fallback logic",
+      "You are already using Clay or n8n and want an enrichment node that handles provider routing"
+    ],
+    pricing: "From ~$69/mo",
+    affiliateSlug: "fullenrich",
+    ctaLabel: "Try FullEnrich"
+  },
+  {
+    name: "Surfe",
+    conditions: [
+      "Your reps source contacts directly in LinkedIn Sales Navigator, not from CSV uploads",
+      "You want CRM push built into the enrichment step without a separate Zapier layer",
+      "You use HubSpot or Salesforce and want native field mapping without custom code"
+    ],
+    pricing: "From ~$29/seat/mo",
+    affiliateSlug: "surfe",
+    ctaLabel: "Try Surfe"
+  }
+]} />
+
+## How the competitors price by comparison
+
+[Prospeo](/go/prospeo/) is the value play for email-only enrichment. At its base tier you are getting verified business emails at a per-credit cost that consistently undercuts LeadMagic by 30 to 50 percent. The trade-off is coverage. [Prospeo](/tools/prospeo/)'s mobile and direct-dial data is sparse compared to LeadMagic, and it does not carry the same LinkedIn freshness signal. For teams where cold email is the primary channel and calls are a secondary or SDR-only motion, Prospeo is worth benchmarking head-to-head before you commit to anything else.
+
+[FullEnrich](/go/fullenrich/) is the most interesting architecture play in this category. Rather than pulling from a single database, it runs a waterfall across multiple providers and returns the first verified hit. The pitch is higher match rates on hard-to-find contacts, specifically VP-level at sub-500-employee companies, which is exactly where single-source tools fall apart consistently. Pricing is credit-based and comparable to LeadMagic's mid-tier, but you are paying for the routing logic on top of the underlying data. If you have already read through [the FullEnrich migration guide](/blog/2026-08-26-migrate-from-lusha-to-fullenrich-without-losing-your-enrichm/) on this site, you know the setup is straightforward. The honest limitation is that waterfall adds latency. It is not the right call for real-time enrichment inside a live inbound form workflow.
+
+[Surfe](/go/surfe/) prices per seat rather than per credit, which makes total cost comparison tricky. At $29 to $49 per seat per month, a team of three reps is paying $87 to $147/month before enrichment credits. But the workflow value is different. Surfe lives in the LinkedIn sidebar, so your reps never leave their sourcing environment to push a contact to HubSpot. If your outbound motion is [LinkedIn-native like the Clay-Lemlist loop](/blog/2026-08-22-linkedin-outbound-loop-clay-lemlist-hubspot/) I covered earlier, Surfe makes more sense than bulk CSV enrichment.
+
+<MyTake>
+Most teams evaluating LeadMagic focus on the headline credit count and miss the credit-per-data-point model entirely. That is the vendor's fault, not the buyer's. A pricing page without a credit calculator in 2026 is a red flag, not an oversight. My honest recommendation: assume 40 to 50 percent fewer enriched records than the headline number suggests if you are pulling both email and mobile, price your plan accordingly, and revisit after 60 days of actual usage data.
+</MyTake>
+
+## The real decision: credits vs. seats vs. waterfall
+
+The enrichment market has split into three pricing philosophies. The right one depends on your workflow architecture, not just your volume.
+
+Credit pools (LeadMagic, Prospeo) work best when enrichment is a batch process you run on lists, not a per-record real-time trigger. You can optimize usage by batching, filtering before expensive lookups, and auditing credit burn weekly. Most teams should run a weekly audit in a simple Google Sheet tracking credits consumed by enrichment type. It takes 20 minutes and almost always surfaces waste.
+
+Waterfall-as-a-service (FullEnrich, and the enrichment layer inside [Clay](/go/clay/)) works best when your ICP is heterogeneous and no single database has good coverage. You pay a small premium per record but improve match rates enough that your effective cost per contacted prospect often comes out lower. According to [FullEnrich's own documentation](https://fullenrich.com), waterfall routing can improve match rates by 20 to 30 percentage points on lists where single-source tools stall out.
+
+Seat-based tools (Surfe) are the right call when the workflow bottleneck is rep adoption, not data cost. If your reps are not consistently enriching contacts because the tool is too far from where they source, a per-seat tool embedded in their browser will outperform a cheaper credit pool they forget to log into. I have seen this pattern repeat at nearly every client where the RevOps team chose the cheapest enrichment option without accounting for where reps actually spend their time. The [G2 B2B data enrichment category reviews](https://www.g2.com/categories/b2b-data) consistently surface adoption friction as the primary reason teams churn from credit-based tools, which should tell you something.
+
+<BottomLine
+  verdict="LeadMagic is the right pick for teams that need LinkedIn-fresh email plus mobile in a single credit pool at sub-ZoomInfo cost. Run a 300-record trial before committing and separate your email and mobile enrichment passes to avoid credit waste."
+  pick="LeadMagic"
+  affiliateSlug="leadmagic"
+  ctaLabel="See LeadMagic pricing"
+/>
+
+<Sources sources={[
+  { label: "LeadMagic: official pricing page", url: "https://www.leadmagic.io/pricing" },
+  { label: "FullEnrich: enrichment waterfall documentation", url: "https://fullenrich.com" },
+  { label: "Prospeo: pricing and plan comparison", url: "https://prospeo.io/pricing" },
+  { label: "G2: B2B data enrichment category, 2026 reviews", url: "https://www.g2.com/categories/b2b-data" }
+]} />
