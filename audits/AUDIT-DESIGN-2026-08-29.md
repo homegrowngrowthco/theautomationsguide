@@ -1,6 +1,6 @@
 # Design audit: why the site reads as AI-generated, and the plan to fix it
 
-**Date:** 2026-08-29. **Status:** PLAN FOR IAN'S REVIEW, nothing implemented. Findings freeze here; execution is tracked in TODO.md.
+**Date:** 2026-08-29. **Status:** DECISIONS MADE (8/29), IMPLEMENTATION NOT STARTED. Findings freeze here; execution is tracked in TODO.md.
 
 **Evidence base:** live homepage (Ian's screenshots), live post page (LeadMagic pricing, 8/28), live /tools/, the OG card generator, and full-page captures of the two references Ian named: morningbrew.com and latestly.ai. Plus the source: `src/pages/index.astro`, `src/styles/global.css`, `PostCard.astro`, `BlogPostLayout.astro`, `src/pages/og/[...route].ts`.
 
@@ -85,10 +85,12 @@ Full-bleed teal subscribe bar at the very top (the Morning Brew move) is worth a
 
 ---
 
-## 5. Decisions needed from Ian
+## 5. Decisions (Ian, 2026-08-29)
 
-1. **Approve the phase order** (tells first, then imagery, then front page, then tools/post). Phase 1 can ship this week as one PR.
-2. **Typography:** serif-led headlines (Source Serif 4, already loaded; the Latestly / newspaper feel) vs. a bold grotesk (the Morning Brew feel, would mean a new font). Recommendation: serif, it is already on the site and it is the opposite of the geometric-sans AI signature.
-3. **Card imagery:** are templated brand cards (logos + section tab + headline, build-time) acceptable as the card image, with real screenshots only inside posts? Recommendation: yes; it is the only route to 100% coverage this week.
-4. **Homepage lead story:** newest High-priority post automatically, or a hand-picked `featured: true` frontmatter flag? Recommendation: automatic, with the flag as an override.
-5. **Engine change for post anatomy** (Phase 4.11) touches the generation prompt; it needs a dry-run and a canary post before the 3-box cap goes live.
+1. **Phase order: APPROVED as planned.** Tells first (Phase 1, one PR this week), then imagery, then front page, then /tools/ and post-page.
+2. **Typography: Source Serif 4** for headlines site-wide (already loaded as the H1 face; zero new font cost). Outfit is retired from display use.
+3. **Card imagery: templated brand cards APPROVED** (logos + section tab + headline, generated at build time via the OG-route pattern) for all 116 posts. Real product screenshots stay reserved for use inside posts only, never as the card thumbnail.
+4. **Homepage lead story: automatic + manual override.** Newest High-priority post is the default lead; a `featured: true` frontmatter flag lets Ian hand-pick an override.
+5. **Engine change for post anatomy** (Phase 4.11) touches the generation prompt; it needs a dry-run and a canary post before the 3-box cap goes live. Standing requirement, not reopened for debate.
+
+**Next action:** implement Phase 1 (tells removal: emoji, pill styling, boilerplate copy, radius, typography swap, author-headshot-on-cards) as one PR against `master`, worktree in `C:\tmp`, full QA gate pass + breakpoint screenshots before requesting review.
