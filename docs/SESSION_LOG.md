@@ -8,7 +8,14 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-08-29 (Session 80).
+Last updated 2026-08-29 (Session 81).
+
+## Session 81 (2026-08-29) — Design de-AI Phase 1 shipped (PR #258)
+
+- **Shipped, PR #258 (unmerged):** tells-removal per `audits/AUDIT-DESIGN-2026-08-29.md` §5 decisions. Deleted the 4-card "What you'll find here" section (emoji icons) and the duplicate "Built for teams" CTA strip. `.tag`/`.hero-eyebrow` lose border/background/radius, become small-caps accent-colored text (`.tag--filter` keeps its own pill chrome so the blog filter buttons stay clickable); `--radius-lg` 14px→6px. Dropped the boilerplate `.section-sub` lines the audit quoted verbatim; rewrote the newsletter heading off the same phrasing. Topic tiles now use an editorial label map (crm→CRM, hubspot→HubSpot, n8n stays lowercase) instead of CSS `capitalize`, which was mangling brand casing; `guide`/`tools` meta-tags dropped from the tile set. `--font-display` now points at `--font-serif` (Source Serif 4, already loaded at weight 600) — Outfit retired entirely, its fontsource imports removed, and the 3 elements that used to request weight 800 in that family (nav-logo, logo-strip wordmark fallback, tool-card logo-text fallback) dropped to 600 to match the loaded weight and avoid synthetic-bold. Author headshot added next to "Ian Chamberland" on `PostCard.astro` (20px) and the post byline in `BlogPostLayout.astro` (24px).
+- **Verify:** `qa:lint`/`qa:render`/`qa:overflow`/`qa:logos` all 0 hard (pre-existing warnings only); `npm run build` green (355 pages, pagefind indexed). Playwright-checked homepage, a post, `/blog/`, `/tools/` at 1280px + 390px — 0 console errors, no overflow, filter pills still clickable post-split, headshot renders on both surfaces.
+- **Revert:** single commit (`c4c273f`) on `design/phase1-tells-removal`; `git revert` cleanly undoes it, nothing downstream depends on it yet.
+- **Next:** Phase 2 (templated build-time card imagery, the real gap) after Ian merges #258 — do not start without checking in first per the audit's standing note.
 
 ## Session 80 (2026-08-28/29) — backlog-stager/logo-strip PR, design de-AI audit, a self-correction
 
