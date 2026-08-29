@@ -139,18 +139,28 @@ const tagIconMap: Record<string, string> = {
     </div>
   </section>
 
-  <!-- Tools we cover (logo strip) -->
+  <!-- Tools we cover (logo strip): a single-row auto-scrolling marquee. The track
+       renders stripTools TWICE back to back and animates translateX(-50%), which
+       moves exactly one copy's width and loops seamlessly into the second (identical)
+       copy. The second copy is aria-hidden + untabbable so screen readers and
+       keyboard nav only ever see one real set of links. Speed is set in JS below
+       from stripTools.length so the pace stays constant as tools are added. -->
   <section class="logo-strip-section">
     <div class="container--wide">
       <p class="logo-strip-label">Tools we cover</p>
-      <div class="logo-strip">
+    </div>
+    <div class="logo-strip">
+      <div class="logo-strip-track" style={`--marquee-duration:${Math.max(20, stripTools.length * 1.8)}s`}>
         {stripTools.map((tool) => (
-          <a href={`/tools/${tool.slug}/`} class="logo-strip-item" title={tool.name}>
-            {tool.logo ? (
-              <img src={tool.logo} alt={`${tool.name} logo`} loading="lazy" decoding="async" />
-            ) : (
-              <span class="logo-strip-wordmark">{tool.name}</span>
-            )}
+          <a href={`/tools/${tool.slug}/`} class="logo-strip-item">
+            {tool.logo && <img src={tool.logo} alt="" loading="lazy" decoding="async" />}
+            <span class="logo-strip-name">{tool.name}</span>
+          </a>
+        ))}
+        {stripTools.map((tool) => (
+          <a href={`/tools/${tool.slug}/`} class="logo-strip-item" aria-hidden="true" tabindex="-1">
+            {tool.logo && <img src={tool.logo} alt="" loading="lazy" decoding="async" />}
+            <span class="logo-strip-name">{tool.name}</span>
           </a>
         ))}
       </div>
