@@ -19,7 +19,10 @@ for (const p of allPosts) {
     tagCounts.set(k, (tagCounts.get(k) ?? 0) + 1);
   }
 }
+// "guide" and "tools" are meta-tags describing the content type, not a topic —
+// drop them so the tile set is all real subject matter.
 const topicTiles = [...tagCounts.entries()]
+  .filter(([tag]) => tag !== 'guide' && tag !== 'tools')
   .sort((a, b) => b[1] - a[1])
   .slice(0, 8);
 
@@ -27,22 +30,20 @@ const topicTiles = [...tagCounts.entries()]
 // Only listed tools appear here; pipeline tools (listed:false) still get a hub page.
 const stripTools = tools.filter((t) => t.listed !== false);
 
-const tagIconMap: Record<string, string> = {
-  automation:   '⚡',
-  comparison:   '⚖️',
-  outbound:     '🚀',
-  guide:        '📖',
-  revops:       '📊',
-  tools:        '🛠️',
-  email:        '✉️',
-  'cold-email': '❄️',
-  hubspot:      '🔶',
-  linkedin:     '💼',
-  zapier:       '🔁',
-  make:         '🔄',
-  n8n:          '🤖',
-  ai:           '🤖',
+// Editorial casing for topic tiles — CSS text-transform:capitalize breaks
+// brand casing (HubSpot -> Hubspot, n8n -> N8n), so map it explicitly.
+const topicLabelMap: Record<string, string> = {
+  crm: 'CRM',
+  hubspot: 'HubSpot',
+  revops: 'RevOps',
+  ai: 'AI',
+  n8n: 'n8n',
+  saas: 'SaaS',
 };
+function topicLabel(tag: string): string {
+  if (topicLabelMap[tag]) return topicLabelMap[tag];
+  return tag.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
 ---
 
 <BaseLayout
@@ -167,40 +168,11 @@ const tagIconMap: Record<string, string> = {
     </div>
   </section>
 
-  <!-- What you'll find here -->
-  <section class="section--sm" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg-secondary);">
-    <div class="container--wide">
-      <div class="features">
-        <div class="feature-item">
-          <div class="feature-icon">&#9889;</div>
-          <h2>Tool Reviews</h2>
-          <p>Honest takes on the automation platforms your RevOps team is actually considering.</p>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon">&#128257;</div>
-          <h2>Workflow Playbooks</h2>
-          <p>Step-by-step guides you can copy, adapt, and ship to your stack immediately.</p>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon">&#128202;</div>
-          <h2>RevOps Strategy</h2>
-          <p>Frameworks for aligning sales, marketing, and CS around automated, reliable data.</p>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon">&#128295;</div>
-          <h2>Stack Comparisons</h2>
-          <p>Side-by-side breakdowns so you can pick the right tool for the right job.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- Latest Posts -->
   <section class="section">
     <div class="container--wide">
       <p class="section-label">Latest from the blog</p>
       <h2 class="section-heading">Recent Articles</h2>
-      <p class="section-sub">No fluff. Just actionable automation content for GTM teams.</p>
 
       {recentPosts.length > 0 ? (
         <div class="card-grid">
@@ -243,13 +215,11 @@ const tagIconMap: Record<string, string> = {
       <div class="container--wide">
         <p class="section-label">Find what you need</p>
         <h2 class="section-heading">Browse by topic</h2>
-        <p class="section-sub">Jump straight to the guides and reviews for a specific tool or theme.</p>
         <div class="topic-tiles">
           {topicTiles.map(([tag, count]) => (
             <a href={`/blog/?tag=${encodeURIComponent(tag)}`} class="topic-tile">
-              <span class="topic-tile-icon">{tagIconMap[tag] ?? '🏷️'}</span>
               <span class="topic-tile-body">
-                <span class="topic-tile-name">{tag}</span>
+                <span class="topic-tile-name">{topicLabel(tag)}</span>
                 <span class="topic-tile-count">{count} article{count === 1 ? '' : 's'}</span>
               </span>
             </a>
@@ -266,17 +236,4 @@ const tagIconMap: Record<string, string> = {
     </div>
   </section>
 
-  <!-- CTA strip -->
-  <section style="background:var(--bg-secondary);border-top:1px solid var(--border);padding:4rem 0;">
-    <div class="container" style="text-align:center;">
-      <h2 style="font-size:1.75rem;font-weight:800;letter-spacing:-0.025em;margin-bottom:0.75rem;">
-        Built for teams that run on automation
-      </h2>
-      <p style="color:var(--text-muted);margin-bottom:2rem;max-width:480px;margin-left:auto;margin-right:auto;">
-        Whether you're a one-person RevOps team or scaling a GTM motion, this site
-        covers the tools and tactics that actually matter.
-      </p>
-      <a href="/blog/" class="btn btn--primary">Start reading &rarr;</a>
-    </div>
-  </section>
 </BaseLayout>

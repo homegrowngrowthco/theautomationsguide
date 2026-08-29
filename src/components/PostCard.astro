@@ -35,6 +35,11 @@ const date = post.data.pubDate.toLocaleDateString('en-US', {
   <div class="post-card-meta">
     <span>{date}</span>
     <span class="post-meta-sep">&middot;</span>
-    <span>{author}</span>
+    <span class="post-card-byline">
+      {author === 'Ian Chamberland' && (
+        <img src="/images/ian-headshot.jpg" alt="" class="post-avatar" width="20" height="20" />
+      )}
+      {author}
+    </span>
   </div>
 </a>

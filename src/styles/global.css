@@ -42,7 +42,7 @@
      its font-family walk skips, so they're listed explicitly. */
   --font-sans:    'Inter', 'Inter fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-serif:   'Source Serif 4', 'Source Serif 4 fallback', 'Iowan Old Style', Georgia, serif;
-  --font-display: 'Outfit', 'Outfit fallback', -apple-system, 'Segoe UI', sans-serif;
+  --font-display: var(--font-serif);
 
   /* ── Site-token aliases — KIT LIGHT MODE (warm cream, the kit's non-dark palette) ── */
   --bg:            #fdfcf8;                         /* warm off-white stationery */
@@ -64,7 +64,7 @@
   --shadow-md:     0 4px 12px rgba(13, 17, 23, 0.08);
   --shadow-lg:     0 12px 32px rgba(13, 17, 23, 0.12);
   --radius:        8px;
-  --radius-lg:     14px;
+  --radius-lg:     6px;
   --max-w:         760px;
   --max-w-wide:    1280px;
   --max-w-reading: 880px;
@@ -133,7 +133,7 @@ a:hover { text-decoration: underline; }
 
 /* Kit wordmark lockup: "Automations" dominant in ink (800) with a teal period;
    "The"/"Guide" stay quiet (500, muted, inherited from .nav-logo). */
-.nav-logo .logo-word { color: var(--text); font-weight: 800; }
+.nav-logo .logo-word { color: var(--text); font-weight: 600; }
 .nav-logo .logo-dot { color: var(--accent-dim); }
 
 .nav-links {
@@ -445,16 +445,12 @@ main { flex: 1; }
 
 .hero-eyebrow {
   display: inline-block;
-  font-size: 0.78rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-variant: small-caps;
+  letter-spacing: 0.03em;
   color: var(--accent-text);
   margin-bottom: 1.25rem;
-  padding: 0.3rem 0.75rem;
-  border: 1px solid var(--accent-dim);
-  border-radius: 999px;
-  background: var(--accent-glow);
 }
 
 .hero h1 {
@@ -612,7 +608,7 @@ main { flex: 1; }
 
 .logo-strip-name {
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 600;
   font-size: 0.82rem;
   letter-spacing: -0.005em;
   color: var(--text);
@@ -652,12 +648,6 @@ main { flex: 1; }
   text-decoration: none;
 }
 
-.topic-tile-icon {
-  font-size: 1.4rem;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
 .topic-tile-body {
   display: flex;
   flex-direction: column;
@@ -669,7 +659,6 @@ main { flex: 1; }
   font-weight: 700;
   font-size: 0.95rem;
   color: var(--text);
-  text-transform: capitalize;
 }
 
 .topic-tile-count {
@@ -747,15 +736,11 @@ main { flex: 1; }
 }
 
 .tag {
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  background: var(--accent-glow);
+  font-variant: small-caps;
+  letter-spacing: 0.02em;
   color: var(--accent-text);
-  border: 1px solid var(--accent-dim);
   white-space: nowrap;
 }
 
@@ -784,6 +769,16 @@ main { flex: 1; }
 
 .post-card-meta span { display: flex; align-items: center; gap: 0.25rem; }
 
+.post-card-byline { gap: 0.4rem; }
+
+.post-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
 /* ── Section heading ───────────────────────────── */
 .section-label {
   font-size: 0.78rem;
@@ -800,13 +795,6 @@ main { flex: 1; }
   letter-spacing: -0.025em;
   color: var(--text);
   margin-bottom: 0.5rem;
-}
-
-.section-sub {
-  color: var(--text-muted);
-  font-size: 1rem;
-  margin-bottom: 2.5rem;
-  max-width: 500px;
 }
 
 /* ── Blog post prose ───────────────────────────── */
@@ -932,6 +920,14 @@ main { flex: 1; }
 
 .post-meta-sep { color: var(--text-faint); }
 
+.post-byline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.post-byline .post-avatar { width: 24px; height: 24px; }
+
 /* Byline links to /about for crawler-verifiable authorship (E-E-A-T). */
 .post-byline-author {
   color: inherit;
@@ -1037,39 +1033,6 @@ main { flex: 1; }
 
 .about-content {
   padding: 3rem 0;
-}
-
-/* ── Features row ──────────────────────────────── */
-.features {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1.25rem;
-  margin-top: 0;
-}
-
-.feature-item {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-}
-
-.feature-icon {
-  font-size: 1.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.feature-item h3 {
-  font-size: 1rem;
-  font-weight: 700;
-  margin-bottom: 0.4rem;
-  color: var(--text);
-}
-
-.feature-item p {
-  font-size: 0.875rem;
-  color: var(--text-muted);
-  line-height: 1.6;
 }
 
 /* ── Footer ────────────────────────────────────── */
@@ -1205,11 +1168,18 @@ main { flex: 1; }
    so the tag filter needs a higher-specificity rule to actually hide cards. */
 .post-card[hidden] { display: none; }
 
-/* Make the existing .tag pill behave as a real filter button. */
+/* .tag is a plain small-caps label everywhere else (Phase 1 de-AI pass); the
+   blog filter buttons still need a real clickable pill, so restore that chrome
+   here rather than on the shared base class. */
 .tag--filter {
   cursor: pointer;
   font-family: var(--font-mono);
+  font-variant: normal;
   text-transform: lowercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--accent-glow);
+  border: 1px solid var(--accent-dim);
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
@@ -1374,7 +1344,7 @@ main { flex: 1; }
 
 .tool-card-logo-text {
   font-family: var(--font-display);
-  font-weight: 800;
+  font-weight: 600;
   font-size: 1.15rem;
   letter-spacing: -0.01em;
   color: var(--text);
