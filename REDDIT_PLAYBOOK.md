@@ -2,7 +2,9 @@
 
 Last updated: 2026-07-06
 
-This is the audit and the operating manual for using Reddit as a distribution channel for The Automations Guide (TAG). Part 1 is the honest reality check. Part 2 is profile setup. Part 3 is the subreddit map. Part 4 is the weekly operating rhythm. Part 5 is what will get you banned. Part 6 is the light-automation plan that sits on top of the `PR + Backlink Monitor` n8n workflow you already run.
+> **Correction (2026-08-29): the `PR + Backlink Monitor` workflow described in Part 6 has been OFF since 2026-07-14.** Ian deactivated it after a 12-day live audit found it produced zero backlinks (drafts omitted the link + a keyword substring bug). Full history and the fixes required before any revive: `../pr-backlink-monitor/STATUS.md`. Part 6 and Part 4 step 1 below describe it as running; they have not been rewritten since the shutdown — treat them as the ORIGINAL DESIGN INTENT, not current state.
+
+This is the audit and the operating manual for using Reddit as a distribution channel for The Automations Guide (TAG). Part 1 is the honest reality check. Part 2 is profile setup. Part 3 is the subreddit map. Part 4 is the weekly operating rhythm. Part 5 is what will get you banned. Part 6 is the light-automation plan that sits on top of the `PR + Backlink Monitor` n8n workflow (currently OFF, see correction above).
 
 Read Part 1 before doing anything. Reddit is the single highest-risk, highest-reward off-site channel, and the failure mode is not "it doesn't work," it is "you get shadowbanned and never find out."
 

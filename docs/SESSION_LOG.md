@@ -8,7 +8,16 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-08-21 (Session 79).
+Last updated 2026-08-29 (Session 80).
+
+## Session 80 (2026-08-28/29) — backlog-stager/logo-strip PR, design de-AI audit, a self-correction
+
+- **Shipped, PR #256 (unmerged):** `build-backlog.mjs` round-robins same-anchorTool topics within each priority band so twins (RB2B Review/Pricing-style) land several topics apart instead of back-to-back. Homepage logo strip rebuilt as a single-row auto-scrolling marquee, icon-over-name (40px icons, per Ian's review pass), pauses on hover/focus, `prefers-reduced-motion` fallback. Incidental: 2 missing hub links added (FullEnrich, BetterContact) in the LeadMagic review post via `internal-link-mesh.mjs --no-llm`.
+- **Investigated, no code change:** factors-ai/prospeo orphan-hub-links — mechanical fix is exhausted (full-corpus `--no-llm` dry run finds zero safe anchors left; real gap needs new prose). JustCall logo — their own site serves the exact byte-identical 45x44 favicon already in the repo; nothing better to auto-source.
+- **Self-correction (important):** first pass at triaging `PR + Backlink Monitor` claimed "zero executions ever, never activated" (based on n8n's execution list being empty). **That was wrong.** A separate tracked project, `../pr-backlink-monitor/`, already had the definitive answer: it ran live 12 days (2026-07-02 to 07-14, 20+ executions), then Ian deactivated it after an audit found it produced no backlinks — n8n's execution history had simply aged out by 8/28, 6 weeks later. Corrected CLAUDE.md's gotcha line and `REDDIT_PLAYBOOK.md` (added a top-of-file correction note rather than rewriting the whole doc) to point at that project instead of re-describing stale state. Lesson: an empty result from a live API is a claim about the CURRENT window, not history — cross-check sibling projects before concluding "never ran."
+- **Design audit written:** `audits/AUDIT-DESIGN-2026-08-29.md` — Ian flagged the site as visibly AI-generated (emoji icons, zero imagery on 116 posts, template section rhythm, pill-everything, boilerplate copy) vs. morningbrew.com/latestly.ai. 4-phase plan; decisions made 8/29 (serif headlines via Source Serif 4, templated build-time card images approved, automatic+`featured:true`-override lead story, full phase order approved). Next action: Phase 1 (tells removal) as one PR.
+- **Verify:** `npm run qa:lint`/`qa:render`/`qa:overflow` all 0 hard on PR #256; full `npm run build` green (354 pages); marquee manually screenshotted at 1280px/390px, animation frame-advance + hover-pause + reduced-motion fallback all confirmed in-browser.
+- **Revert:** PR #256 unmerged, close it to drop all 3 code changes. Docs corrections are plain commits on master (`983a873`, `1e63f1f`, `6d6db7f`, this entry's SHA) — revert individually if needed.
 
 ## Session 79 (2026-08-21) — PartnerStack Network submitted; 6-program approval wave registered
 
