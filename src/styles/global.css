@@ -589,10 +589,11 @@ main { flex: 1; }
 .logo-strip-item {
   flex: 0 0 auto;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.55rem;
-  height: 40px;
-  padding: 0 1.5rem;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.25rem 1.75rem;
   opacity: 0.85;
   white-space: nowrap;
   transition: opacity 0.15s;
@@ -602,18 +603,18 @@ main { flex: 1; }
 .logo-strip-item:focus-visible { opacity: 1; text-decoration: none; }
 
 .logo-strip-item img {
-  height: 22px;
-  width: 22px;
+  height: 40px;
+  width: 40px;
   object-fit: contain;
-  border-radius: 5px;
+  border-radius: 9px;
   flex-shrink: 0;
 }
 
 .logo-strip-name {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 0.95rem;
-  letter-spacing: -0.01em;
+  font-size: 0.82rem;
+  letter-spacing: -0.005em;
   color: var(--text);
 }
 
