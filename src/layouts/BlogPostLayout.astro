@@ -6,6 +6,7 @@ import PostFaqs from '../components/post/PostFaqs.astro';
 import TableOfContents from '../components/post/TableOfContents.astro';
 import RelatedPosts from '../components/post/RelatedPosts.astro';
 import { tools, postMentionsTool } from '../data/tools';
+import { hasToc } from '../lib/post-toc';
 import type { CollectionEntry } from 'astro:content';
 import type { MarkdownHeading } from 'astro';
 
@@ -17,6 +18,11 @@ interface Props {
 
 const { post, headings = [], related = [] } = Astro.props;
 const { title, description, tldr, pubDate, updatedDate, author, tags, faqs } = post.data;
+
+// TL;DR and the TOC pair up into a two-column intro block when both exist
+// (see .post-intro--paired in global.css); either renders alone, full-width,
+// when only one is present.
+const showToc = hasToc(headings);
 
 // Byline person. Posts without an explicit author fall back to the org name
 // ("The Automations Guide"); show the human (Ian Chamberland) there instead, so
@@ -136,14 +142,17 @@ const faqSchema =
         </div>
       </header>
 
-      {tldr && (
-        <div class="post-tldr">
-          <p class="post-tldr-label">TL;DR</p>
-          <p class="post-tldr-text">{tldr}</p>
+      {(tldr || showToc) && (
+        <div class={`post-intro${tldr && showToc ? ' post-intro--paired' : ''}`}>
+          {tldr && (
+            <div class="post-tldr">
+              <p class="post-tldr-label">TL;DR</p>
+              <p class="post-tldr-text">{tldr}</p>
+            </div>
+          )}
+          <TableOfContents headings={headings} />
         </div>
       )}
-
-      <TableOfContents headings={headings} />
 
       <div class="prose">
         <slot />

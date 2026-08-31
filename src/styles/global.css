@@ -599,8 +599,14 @@ main { flex: 1; }
 .logo-strip-item:focus-visible { opacity: 1; text-decoration: none; }
 
 .logo-strip-item img {
+  /* Fixed HEIGHT + auto width (not a fixed square box) — the registry mixes
+     square icon marks with wide wordmark logos (up to ~7.6:1), and forcing
+     both into the same 40x40 box made wordmarks shrink to near-invisible
+     slivers to fit the width. max-width keeps any one outlier from
+     dominating the row. */
   height: 40px;
-  width: 40px;
+  width: auto;
+  max-width: 130px;
   object-fit: contain;
   border-radius: 9px;
   flex-shrink: 0;
@@ -1468,6 +1474,34 @@ main { flex: 1; }
 }
 .quick-answer strong { color: var(--accent-text); margin-right: 0.35em; }
 .quick-answer p { margin: 0; }
+
+/* ── Post intro: TL;DR paired with the TOC ─────────
+   When both exist, they sit as a matched pair (TL;DR wider, TOC as a compact
+   card) instead of two separate full-width stacked boxes. Mobile-first: plain
+   stacked block below 640px (TL;DR then TOC, each keeps its own styling),
+   grid from 640px up — same pattern as .stat-row above. When only one of the
+   two exists, .post-intro carries no --paired modifier and it just renders
+   alone at its own natural width. */
+.post-intro {
+  margin: 0 0 2rem;
+}
+.post-intro .post-tldr {
+  margin: 0;
+}
+@media (min-width: 640px) {
+  .post-intro--paired {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+    gap: 1.25rem;
+  }
+  .post-intro--paired .post-tldr {
+    margin-bottom: 0;
+  }
+  .post-intro--paired .post-toc {
+    margin-top: 0;
+  }
+}
 
 /* ── Post TL;DR (frontmatter-driven, answer-first block at top of post) ── */
 .post-tldr {

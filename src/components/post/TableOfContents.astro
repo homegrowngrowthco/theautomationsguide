@@ -1,22 +1,18 @@
 ---
-// On-page table of contents — a full-width collapsible block at the top of the
-// article (NOT a sidebar, to avoid restructuring the single-column reading layout).
-// Renders H2 jump-links from the post's `headings` (Astro injects matching ids on
-// the headings). Helps navigation/dwell-time + gives search engines section links.
-// Renders nothing for short posts (< 3 H2s).
+// On-page table of contents. Paired with the TL;DR box (see BlogPostLayout.astro's
+// .post-intro/.post-intro--paired) when both exist, so it reads as a compact
+// sidebar-style card rather than a lone full-width strip. hasToc()/tocHeadings()
+// live in src/lib/post-toc.ts so the layout can know ahead of render whether this
+// will show at all. Renders nothing for short posts (< 3 H2s).
+import { tocHeadings, hasToc, type TocHeading } from '../../lib/post-toc';
 
-interface Heading {
-  depth: number;
-  slug: string;
-  text: string;
-}
 interface Props {
-  headings?: Heading[];
+  headings?: TocHeading[];
 }
 
 const { headings = [] } = Astro.props;
-const h2s = headings.filter((h) => h.depth === 2 && h.text?.trim());
-const show = h2s.length >= 3;
+const h2s = tocHeadings(headings);
+const show = hasToc(headings);
 ---
 
 {show && (
@@ -34,11 +30,23 @@ const show = h2s.length >= 3;
 
 <style>
   .post-toc {
+    /* Standalone width cap (no TL;DR to pair with) — matches the grid column
+       width .post-intro--paired gives it when both are present, so the card
+       reads the same size either way instead of stretching full-width. */
+    max-width: 420px;
     margin: 1.5rem 0 2rem;
     background: var(--bg-secondary);
     border: 1px solid var(--border);
     border-radius: 0.6rem;
     padding: 0.85rem 1.25rem;
+  }
+  .post-intro--paired .post-toc {
+    max-width: none;
+    /* Mobile-stacked (below the grid breakpoint in global.css): top gap from
+       the TL;DR box above it; .post-intro's own bottom margin handles the
+       space before the article body. At the grid breakpoint this collapses
+       to 0 since the grid's gap takes over. */
+    margin: 1rem 0 0;
   }
   .post-toc-summary {
     font-family: var(--font-mono, monospace);
@@ -58,24 +66,17 @@ const show = h2s.length >= 3;
     font-weight: 700;
   }
   .post-toc[open] .post-toc-summary::after { content: "\2212"; }
-  /* Horizontal inline list: jump-links sit on one line (wrapping only when they
-     run out of room), separated by a faint dot. Keeps the TOC to a compact strip
-     so it doesn't push the article body down. */
+  /* Vertical list — one link per line. A narrow sidebar-style card reads better
+     as a stacked list than a wrapped horizontal strip. */
   .post-toc-list {
     margin: 0.6rem 0 0;
     padding-left: 0;
     list-style: none;
     display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    row-gap: 0.3rem;
+    flex-direction: column;
+    gap: 0.45rem;
   }
   .post-toc-list li { margin: 0; }
-  .post-toc-list li:not(:last-child)::after {
-    content: "\00b7";
-    margin: 0 0.65rem;
-    color: var(--text-faint);
-  }
   .post-toc-list a {
     color: var(--text);
     text-decoration: none;
