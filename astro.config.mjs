@@ -95,6 +95,7 @@ export default defineConfig({
         const path = new URL(page).pathname;
         if (path.startsWith('/go/')) return false;
         if (path.startsWith('/og/')) return false; // per-post OG images, not indexable pages
+        if (path.startsWith('/cards/')) return false; // per-post card thumbnails, not indexable pages
         return !NOINDEX_PATHS.includes(path);
       },
       serialize: (item) => {
