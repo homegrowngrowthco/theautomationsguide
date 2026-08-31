@@ -8,7 +8,18 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-08-31 (Session 86).
+Last updated 2026-08-31 (Session 87).
+
+## Session 87 (2026-08-31) — Wired card imagery into every post-listing template (PR #263)
+
+- Ian: "do it now" (the PostCard/homepage/hubs wiring left open when PR #261 merged) + "what else is pending." Answered the pending-work question from TODO.md, then built this in a new worktree (`C:\tmp\tag-card-wiring`, `feat/wire-card-imagery`).
+- Mapped every card-rendering site first via Explore agent rather than guessing: `PostCard.astro` (blog index, `/teams/[role]/`, `/playbooks/`, `/reviews/` — all 4 already used the shared component identically), the homepage (`index.astro`, which had a **hand-duplicated copy** of the card markup showing only 2 tags and no byline — silent drift from `PostCard`), and `RelatedPosts.astro` (`BlogPostLayout.astro`'s "Keep reading" strip — fully independent markup, doesn't wrap `PostCard`, different prop shape).
+- **Shipped:** `PostCard.astro` now renders `image → tags → headline → dek → author·date` (the exact order [AUDIT-DESIGN-2026-08-29.md](../audits/AUDIT-DESIGN-2026-08-29.md) §3 item 8 specifies) — image full-bleed at the card top, existing content moved into a new `.post-card-body` wrapper so padding doesn't apply to the image. Homepage's duplicated markup replaced with a real `<PostCard>` call (one template, not two silently-drifting copies). `RelatedPosts.astro` got the same image treatment on its own markup, deriving `/cards/<slug>.png` from the slug it already receives.
+- **Real bug caught before shipping, not in scope going in:** `<img width="1200" height="675">` — the HTML attributes needed to reserve layout space pre-load — map to a UA-stylesheet `height` that wins the CSS cascade over `aspect-ratio` unless `height: auto` is set explicitly. Without it every card rendered at a literal 675px tall regardless of column width (confirmed via `astro preview` screenshot, then via `getComputedStyle`, before diagnosing and fixing). Both new image rules now carry `height: auto` with a comment.
+- **Also hit and diagnosed, not a real bug:** `astro dev` 404s on `/cards/<slug>.png` and the pre-existing `/og/<slug>.png` route — a dev-server-only quirk with `[...route].ts` dynamic endpoints, reproduced on untouched code. Switched to `astro build` + `astro preview` for all visual verification instead of chasing it.
+- **Verify:** `qa:lint`/`qa:render`/`qa:overflow`/`qa:logos`/`qa:cards` all 0 hard; full `astro build` (357 pages) clean; visually confirmed at 1440px and 390px on the homepage, `/blog/`, `/teams/sales/`, `/playbooks/`, and a post's "Keep reading" section.
+- **Shipped, PR #263 (open, unmerged):** pushed `1e343eb` to `feat/wire-card-imagery`.
+- **Revert:** single commit `1e343eb`, cleanly revertible once merged.
 
 ## Session 86 (2026-08-31) — PR #262: all 3 Session 85 issues fixed, then 2 more found in Ian's live re-review
 

@@ -4,7 +4,7 @@ Tracked by todo-sync (see ../todo-sync/CONVENTION.md). **Open tasks only, most i
 
 ## TODO
 
-- [ ] **Design de-AI Phase 2: card imagery merged (PR #261, 8/31) — still needs wiring in.** All 118 posts produce a `/cards/<slug>.png` (qa:cards gate + full QA suite green). **Open: wire the image into PostCard.astro/homepage/hubs (audit §3 item 8).** @high [audits/AUDIT-DESIGN-2026-08-29.md](audits/AUDIT-DESIGN-2026-08-29.md)
+- [ ] **Design de-AI Phase 2 complete, PR #263 needs review.** Card imagery (PR #261) wired into PostCard.astro/homepage/hubs/related-posts (audit §3 item 8) — image → tags → headline → dek → author·date on every listing. @high [audits/AUDIT-DESIGN-2026-08-29.md](audits/AUDIT-DESIGN-2026-08-29.md)
 - [ ] **Watch whether the 7 new hubs index (~2026-09-01).** Ian chose to mint them 8/12 (L-9/C-4, against the standing recommendation). If they sit unknown-to-Google like the other 9, that settles it: thin hubs need prose + links, not registration. Same re-check as the index sweep below. @med
 - [ ] **Pitch the pricing index to 5-10 RevOps newsletters/communities.** The asset is BUILT and live at `/revops-automation-pricing/` (8/12); pitching it is the half that earns the links, and it is the whole point. @high @ian [pricing/README.md](pricing/README.md)
 - [ ] **Authority sprint (audit 8/04 §10 — the binding constraint):** LinkedIn 3-5x/wk RUNNING as of ~8/19 (per Ian; Notion draft-status tracking dropped, cadence is what matters); brand-search nudge in next newsletter/LinkedIn post (brand-term step 5) still open. Linkable-asset half shipped. @high @ian [audits/AUDIT-GROWTH-2026-08-04.md](audits/AUDIT-GROWTH-2026-08-04.md)
