@@ -8,7 +8,17 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-08-31 (Session 83).
+Last updated 2026-08-31 (Session 84).
+
+## Session 84 (2026-08-31) — 3 production layout bugs found by eye, fixed (PR #262)
+
+- Ian sent 3 screenshots of the live site: homepage logo strip looked mismatched, `/tools/` header looked narrower than the nav (assumed also on pricing/about), TOC box looked awkward next to TL;DR. Root-caused each in code before touching anything, since none of these were in scope of the just-shipped PR #261.
+- **Logo strip:** `.logo-strip-item img` forced every logo into a fixed 40x40 box with `object-fit: contain` — square icons filled it, but wide wordmarks (up to 7.6:1, e.g. mailreach/pipedrive/lusha) shrank to near-invisible slivers to fit the width. Switched to fixed height + auto width + a max-width safety cap (the standard logo-cloud pattern).
+- **Header width:** `/tools/` and `/revops-automation-pricing/` heroes used `.container` (760px) while the nav and rest of each page use `.container--wide` (1280px). Fixed both. Deliberately left the pricing page's "How this was built" prose section on the narrow container — that's a correct reading-width choice, not the bug. Checked `/about/` directly: it was already `container--wide` throughout, no bug there despite Ian's assumption it was affected too.
+- **TOC/TL;DR:** were unwrapped full-width siblings, TOC rendering as an awkward single-line horizontal strip. New `.post-intro`/`.post-intro--paired` two-column grid (TL;DR wider, TOC as a compact vertical-list card), mobile-first stacking below 640px matching the existing `.stat-row` pattern. New `src/lib/post-toc.ts` (`hasToc`/`tocHeadings`) shared between the component and `BlogPostLayout.astro`, which needs to know pre-render whether the TOC will show to decide whether to pair it.
+- **Verify:** `qa:lint`/`qa:render`/`qa:overflow`/`qa:logos` all green (0 hard). Visually checked every fix at 1440px and 390px via Playwright, plus the standalone-TOC (no TL;DR) fallback case. One false alarm caught and ruled out before reporting anything: a screenshot showed what looked like a horizontal scrollbar on mobile — `qa:overflow --slug` on that exact post confirmed 0 overflow, so it was just browser-chrome rendering in the screenshot, not a real bug.
+- **Revert:** PR #262 is unmerged; a single squash commit once merged, cleanly revertible.
+- **Not investigated further:** whether the same 40x40-box sizing bug pattern exists anywhere else logos render at a fixed size (only the homepage strip was reported/checked).
 
 ## Session 83 (2026-08-31) — Design de-AI Phase 2: card imagery (PR #261, generate + verify only)
 
