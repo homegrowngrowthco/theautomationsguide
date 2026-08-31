@@ -642,8 +642,14 @@ main { flex: 1; }
   gap: 0.75rem;
   background: var(--bg-card);
   border: 1px solid var(--border);
+  /* Resting-state accent (same left-rule language as .key-takeaways /
+     .quick-answer elsewhere) so the tile reads as intentionally minimal
+     rather than an empty box — hover is a separate, additional cue, not
+     the only sign of life. */
+  border-left: 3px solid var(--accent-dim);
   border-radius: var(--radius-lg);
-  padding: 1rem 1.25rem;
+  padding: 1rem 1.25rem 1rem 1.1rem;
+  box-shadow: var(--shadow-sm);
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
 
@@ -669,7 +675,9 @@ main { flex: 1; }
 
 .topic-tile-count {
   font-size: 0.8rem;
-  color: var(--text-faint);
+  /* A touch of brand color instead of flat gray, so the tile carries some
+     of the same palette as the rest of the page even before it's hovered. */
+  color: var(--accent-text);
 }
 
 /* ── Buttons ───────────────────────────────────── */
