@@ -8,7 +8,17 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-08-31 (Session 82).
+Last updated 2026-08-31 (Session 83).
+
+## Session 83 (2026-08-31) — Design de-AI Phase 2: card imagery (PR #261, generate + verify only)
+
+- Ian: "pick up phase 2." Checked in per TODO.md's standing note before building: render engine = custom `sharp` route, not `astro-og-canvas` (it can only place one logo, can't decode the 19 SVG-format tool logos); section label = build the Phase 3 editorial classifier now rather than just reusing `tags[0]`; scope = generate + verify only, template wiring is a separate pass.
+- **Shipped, PR #261 (open, unmerged):** `/cards/<slug>.png` for all 118 posts — teal section tab, up to 3 tool logos (VS layout for exactly 2), headline. New `src/lib/post-cards.ts` (`classifySection`/`selectCardLogos` — deliberately not `postMentionsTool`, whose full-body scan saturates at 3+ tool matches for 117/118 posts, useless as a card signal), `src/lib/topic-label.ts` (extracted from `index.astro`, no behavior change), `src/pages/cards/[...route].ts`, `qa/lint-cards.mjs` (new gate — zero prior QA coverage existed for any generated OG/card image), `astro.config.mjs` sitemap exclusion.
+- **Real bug caught in my own review, fixed before commit:** the tag-fallback section label picked `automation` (96 of 118 posts — exactly as generic as the already-excluded `guide`/`tools` meta-tags). Extended the exclusion set; the card that surfaced it went from "AUTOMATION" to "BUDGET".
+- **Font-rendering risk resolved empirically:** spiked base64 WOFF1 (not WOFF2 — more broadly supported) `@font-face` data URIs read straight from the already-installed `@fontsource` packages, rasterized via `sharp`'s bundled librsvg. Worked first try, no network fetch needed (unlike `astro-og-canvas`'s undocumented default of live-fetching Noto Sans from `api.fontsource.org` every build).
+- **Verify:** `npx astro build` — 118/118 cards generated; `npm run qa:cards` 118/118 clean; `qa:lint`/`qa:render`/`qa:overflow`/`qa:logos` all pass (0 hard). Visually inspected 0/1/2/3-logo cases, each of the 4 classified sections + the tag fallback, the corpus's longest title (ellipsis truncation), and a title with `&` (XML escaping) — all correct.
+- **Revert:** PR #261 is unmerged; closing it (or reverting its squash commit once merged) removes the new route/files with nothing else touched.
+- **Not done, by design:** template wiring (audit §3 item 8 — PostCard.astro, homepage, related posts, hub cards) is a separate follow-up once #261 is reviewed. TODO.md updated.
 
 ## Session 82 (2026-08-31) — PR #258 + #259 merged; a real logo bug found reviewing content
 
