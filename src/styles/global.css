@@ -630,16 +630,26 @@ main { flex: 1; }
 /* ── Browse-by-topic tiles ─────────────────────── */
 .topic-tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
+  /* Fixed 4-column grid (4x2 for the current 8-topic set) rather than
+     auto-fill, which wrapped unevenly (6 tiles on one row, 2 orphaned on
+     the next) at desktop widths. */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.1rem;
   margin-top: 2rem;
+}
+
+@media (max-width: 860px) {
+  .topic-tiles { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .topic-tiles { grid-template-columns: 1fr; }
 }
 
 .topic-tile {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 1.1rem;
   background: var(--bg-card);
   border: 1px solid var(--border);
   /* Resting-state accent (same left-rule language as .key-takeaways /
@@ -648,7 +658,7 @@ main { flex: 1; }
      the only sign of life. */
   border-left: 3px solid var(--accent-dim);
   border-radius: var(--radius-lg);
-  padding: 1rem 1.25rem 1rem 1.1rem;
+  padding: 1.35rem 1.5rem;
   box-shadow: var(--shadow-sm);
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
@@ -656,28 +666,48 @@ main { flex: 1; }
 .topic-tile:hover {
   border-color: var(--accent-dim);
   box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   text-decoration: none;
 }
 
-.topic-tile-body {
+.topic-tile:hover .topic-tile-arrow {
+  transform: translateX(3px);
+  color: var(--accent-text);
+}
+
+.topic-tile-top {
   display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .topic-tile-name {
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.topic-tile-arrow {
+  color: var(--accent-dim);
+  font-size: 1.1rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.2s, color 0.2s;
 }
 
 .topic-tile-count {
-  font-size: 0.8rem;
-  /* A touch of brand color instead of flat gray, so the tile carries some
-     of the same palette as the rest of the page even before it's hovered. */
+  /* A pill instead of flat gray text — gives the tile a resting-state
+     touch of brand color and reads more like a clickable UI affordance
+     than a plain caption line. */
+  align-self: flex-start;
+  font-size: 0.78rem;
+  font-weight: 600;
   color: var(--accent-text);
+  background: var(--accent-glow);
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
 }
 
 /* ── Buttons ───────────────────────────────────── */
