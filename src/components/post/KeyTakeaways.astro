@@ -22,11 +22,17 @@ const { title = 'Key takeaways', items } = Astro.props;
 
 <style>
   .key-takeaways {
+    /* Deliberately NOT the .post-tldr mint-box recipe (accent-glow fill +
+       accent-dim border) — sitting right below the paired TL;DR/TOC intro,
+       an identical box reads as a duplicate. This is a neutral card with a
+       teal left rule instead: same family, different silhouette. */
     margin: 1.75rem 0;
-    background: var(--accent-glow);
-    border: 1px solid var(--accent-dim);
-    border-radius: 0.6rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent-dim);
+    border-radius: var(--radius-lg);
     padding: 1.1rem 1.35rem;
+    box-shadow: var(--shadow-sm);
   }
   .key-takeaways-title {
     font-family: var(--font-mono, monospace);
@@ -34,7 +40,7 @@ const { title = 'Key takeaways', items } = Astro.props;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--accent-dim, var(--accent));
+    color: var(--text-faint);
     margin: 0 0 0.6rem;
   }
   .key-takeaways-list {

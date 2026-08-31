@@ -599,8 +599,14 @@ main { flex: 1; }
 .logo-strip-item:focus-visible { opacity: 1; text-decoration: none; }
 
 .logo-strip-item img {
+  /* Fixed HEIGHT + auto width (not a fixed square box) — the registry mixes
+     square icon marks with wide wordmark logos (up to ~7.6:1), and forcing
+     both into the same 40x40 box made wordmarks shrink to near-invisible
+     slivers to fit the width. max-width keeps any one outlier from
+     dominating the row. */
   height: 40px;
-  width: 40px;
+  width: auto;
+  max-width: 130px;
   object-fit: contain;
   border-radius: 9px;
   flex-shrink: 0;
@@ -636,8 +642,14 @@ main { flex: 1; }
   gap: 0.75rem;
   background: var(--bg-card);
   border: 1px solid var(--border);
+  /* Resting-state accent (same left-rule language as .key-takeaways /
+     .quick-answer elsewhere) so the tile reads as intentionally minimal
+     rather than an empty box — hover is a separate, additional cue, not
+     the only sign of life. */
+  border-left: 3px solid var(--accent-dim);
   border-radius: var(--radius-lg);
-  padding: 1rem 1.25rem;
+  padding: 1rem 1.25rem 1rem 1.1rem;
+  box-shadow: var(--shadow-sm);
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
 
@@ -663,7 +675,9 @@ main { flex: 1; }
 
 .topic-tile-count {
   font-size: 0.8rem;
-  color: var(--text-faint);
+  /* A touch of brand color instead of flat gray, so the tile carries some
+     of the same palette as the rest of the page even before it's hovered. */
+  color: var(--accent-text);
 }
 
 /* ── Buttons ───────────────────────────────────── */
@@ -742,6 +756,13 @@ main { flex: 1; }
   letter-spacing: 0.02em;
   color: var(--accent-text);
   white-space: nowrap;
+}
+
+/* Post-header tags sit directly above an H1 (unlike the compact post-card
+   context .tag was sized for), so they need the larger "eyebrow" scale used
+   elsewhere for label text above a headline. */
+.post-header .tag {
+  font-size: 0.95rem;
 }
 
 .post-card h2 {
@@ -970,7 +991,11 @@ main { flex: 1; }
   color: var(--text-muted);
   font-size: 1.0625rem;
   line-height: 1.75;
-  max-width: 580px;
+  /* .about-hero-copy is a flex item that grows to fill ~992px (container
+     minus the photo column) — a 580px cap left ~400px of dead space between
+     the text and the photo. Widened to use most of that column; the flex
+     layout (photo + gap) already stops it from crowding the photo. */
+  max-width: 880px;
   margin-top: 1rem;
 }
 
@@ -1416,7 +1441,6 @@ main { flex: 1; }
 /* ── Tools page ────────────────────────────────── */
 .tools-hero {
   padding: 4rem 0 3rem;
-  text-align: center;
   border-bottom: 1px solid var(--border);
 }
 
@@ -1432,8 +1456,11 @@ main { flex: 1; }
 .tools-hero p {
   font-size: 1.0625rem;
   color: var(--text-muted);
-  max-width: 540px;
-  margin: 0 auto;
+  /* 680px still left ~550px of dead space in the 1232px-wide container —
+     widened to match the reading measure that already resolved the same
+     complaint on the pricing page's lede (see .pi-lede). */
+  max-width: 880px;
+  margin: 0;
   line-height: 1.7;
 }
 
@@ -1468,6 +1495,37 @@ main { flex: 1; }
 }
 .quick-answer strong { color: var(--accent-text); margin-right: 0.35em; }
 .quick-answer p { margin: 0; }
+
+/* ── Post intro: TL;DR paired with the TOC ─────────
+   When both exist, they sit as a matched pair (TL;DR wider, TOC as a compact
+   card) instead of two separate full-width stacked boxes. Mobile-first: plain
+   stacked block below 640px (TL;DR then TOC, each keeps its own styling),
+   grid from 640px up — same pattern as .stat-row above. When only one of the
+   two exists, .post-intro carries no --paired modifier and it just renders
+   alone at its own natural width. */
+.post-intro {
+  margin: 0 0 2rem;
+}
+.post-intro .post-tldr {
+  margin: 0;
+}
+@media (min-width: 640px) {
+  .post-intro--paired {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+    gap: 1.25rem;
+  }
+  .post-intro--paired .post-tldr {
+    margin-bottom: 0;
+  }
+  /* .post-toc's own top-alignment override lives in TableOfContents.astro's
+     scoped style now, using :global() on the .post-intro--paired ancestor —
+     a plain rule here never actually matched: Astro scopes .post-toc to its
+     own component, but .post-toc's rendering component can't scope a class
+     that BlogPostLayout.astro (a different component) put on its wrapper,
+     so this selector silently never fired. */
+}
 
 /* ── Post TL;DR (frontmatter-driven, answer-first block at top of post) ── */
 .post-tldr {
