@@ -20,6 +20,7 @@ Last updated 2026-08-31 (Session 87).
 - **Verify:** `qa:lint`/`qa:render`/`qa:overflow`/`qa:logos`/`qa:cards` all 0 hard; full `astro build` (357 pages) clean; visually confirmed at 1440px and 390px on the homepage, `/blog/`, `/teams/sales/`, `/playbooks/`, and a post's "Keep reading" section.
 - **Shipped, PR #263 (open, unmerged):** pushed `1e343eb` to `feat/wire-card-imagery`.
 - **Revert:** single commit `1e343eb`, cleanly revertible once merged.
+- **Same session, immediate follow-up:** Ian saw the topic-tile touch-up from Session 86 and called it "still looks like basic html boxes," asked for a real 4x2 (or 2x4) grid people would want to click. New worktree/branch (`C:\tmp\tag-topic-tiles`, `fix/topic-tile-grid`). Fixed `.topic-tiles` to an explicit `repeat(4, 1fr)` grid (was `auto-fill minmax(180px,1fr)`, which wrapped 6-then-2 unevenly at desktop) — 2 columns at tablet, 1 at phone. Restructured each tile from a single row into a real card: bold name + trailing arrow (reuses the site's existing `->` affordance from "View all articles ->"/"Read more ->", not new iconography — stays icon-free per Ian's Session 86 direction), article count as a teal pill badge instead of flat gray text, more padding now that fixed columns give more room. **Shipped, PR #264 (open, unmerged):** pushed `08968d3` to `fix/topic-tile-grid`. `qa:lint`/`render`/`overflow` 0 hard; visually confirmed 1440px (4x2), 700px (2x4), 390px (1-col) via `astro preview`.
 
 ## Session 86 (2026-08-31) — PR #262: all 3 Session 85 issues fixed, then 2 more found in Ian's live re-review
 
