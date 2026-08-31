@@ -983,7 +983,11 @@ main { flex: 1; }
   color: var(--text-muted);
   font-size: 1.0625rem;
   line-height: 1.75;
-  max-width: 580px;
+  /* .about-hero-copy is a flex item that grows to fill ~992px (container
+     minus the photo column) — a 580px cap left ~400px of dead space between
+     the text and the photo. Widened to use most of that column; the flex
+     layout (photo + gap) already stops it from crowding the photo. */
+  max-width: 880px;
   margin-top: 1rem;
 }
 
@@ -1444,7 +1448,10 @@ main { flex: 1; }
 .tools-hero p {
   font-size: 1.0625rem;
   color: var(--text-muted);
-  max-width: 680px;
+  /* 680px still left ~550px of dead space in the 1232px-wide container —
+     widened to match the reading measure that already resolved the same
+     complaint on the pricing page's lede (see .pi-lede). */
+  max-width: 880px;
   margin: 0;
   line-height: 1.7;
 }
