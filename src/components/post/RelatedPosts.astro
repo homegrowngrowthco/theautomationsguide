@@ -21,9 +21,20 @@ const { posts = [] } = Astro.props;
     <div class="related-posts-grid">
       {posts.map((p) => (
         <a class="related-post-card" href={`/blog/${p.slug}/`}>
-          <span class="related-post-card-title">{p.title}</span>
-          <span class="related-post-card-desc">{p.description}</span>
-          <span class="related-post-card-more">Read more &rarr;</span>
+          <img
+            src={`/cards/${p.slug}.png`}
+            alt=""
+            class="related-post-card-image"
+            width="1200"
+            height="675"
+            loading="lazy"
+            decoding="async"
+          />
+          <span class="related-post-card-body">
+            <span class="related-post-card-title">{p.title}</span>
+            <span class="related-post-card-desc">{p.description}</span>
+            <span class="related-post-card-more">Read more &rarr;</span>
+          </span>
         </a>
       ))}
     </div>
@@ -52,17 +63,33 @@ const { posts = [] } = Astro.props;
   .related-post-card {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
     background: var(--bg-secondary);
     border: 1px solid var(--border);
     border-radius: 0.6rem;
-    padding: 1.1rem 1.2rem;
+    overflow: hidden;
     text-decoration: none;
     transition: border-color 0.15s, box-shadow 0.15s;
   }
   .related-post-card:hover {
     border-color: var(--accent);
     box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.08));
+  }
+  .related-post-card-image {
+    display: block;
+    width: 100%;
+    /* height:auto is required for aspect-ratio to win over the img's
+       width/height attributes — see .post-card-image in global.css. */
+    height: auto;
+    aspect-ratio: 1200 / 675;
+    object-fit: cover;
+    background: var(--bg-card);
+  }
+  .related-post-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1.1rem 1.2rem;
+    flex: 1;
   }
   .related-post-card-title {
     font-weight: 700;

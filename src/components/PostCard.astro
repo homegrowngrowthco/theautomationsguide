@@ -25,21 +25,32 @@ const date = post.data.pubDate.toLocaleDateString('en-US', {
   class="post-card"
   data-tags={post.data.tags.map((t) => t.toLowerCase()).join('|')}
 >
-  {post.data.tags.length > 0 && (
-    <div class="post-card-tags">
-      {post.data.tags.slice(0, 3).map((tag) => <span class="tag">{tag}</span>)}
+  <img
+    src={`/cards/${post.slug}.png`}
+    alt=""
+    class="post-card-image"
+    width="1200"
+    height="675"
+    loading="lazy"
+    decoding="async"
+  />
+  <div class="post-card-body">
+    {post.data.tags.length > 0 && (
+      <div class="post-card-tags">
+        {post.data.tags.slice(0, 3).map((tag) => <span class="tag">{tag}</span>)}
+      </div>
+    )}
+    <h2>{post.data.title}</h2>
+    <p>{post.data.description}</p>
+    <div class="post-card-meta">
+      <span>{date}</span>
+      <span class="post-meta-sep">&middot;</span>
+      <span class="post-card-byline">
+        {author === 'Ian Chamberland' && (
+          <img src="/images/ian-headshot.jpg" alt="" class="post-avatar" width="20" height="20" />
+        )}
+        {author}
+      </span>
     </div>
-  )}
-  <h2>{post.data.title}</h2>
-  <p>{post.data.description}</p>
-  <div class="post-card-meta">
-    <span>{date}</span>
-    <span class="post-meta-sep">&middot;</span>
-    <span class="post-card-byline">
-      {author === 'Ian Chamberland' && (
-        <img src="/images/ian-headshot.jpg" alt="" class="post-avatar" width="20" height="20" />
-      )}
-      {author}
-    </span>
   </div>
 </a>
