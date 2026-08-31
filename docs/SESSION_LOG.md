@@ -8,7 +8,16 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-08-31 (Session 84).
+Last updated 2026-08-31 (Session 85).
+
+## Session 85 (2026-08-31) — PR #262 re-review: the width fix was a no-op, plus 2 new issues (handoff, session ended here)
+
+- Ian reviewed the PR #262 deploy preview. Logo strip fix confirmed good. Three things still wrong, none of them fixed this session — Ian needs to close/restart VS Code, so this is a handoff, not a fix.
+- **(1) Post header tags too small.** `.tag` (`global.css:738`, used via `.post-card-tags` in `BlogPostLayout.astro`'s header) is `font-size: 0.8rem` with `font-variant: small-caps` — reads as "incredibly small" sitting above an H1. Not touched this session.
+- **(2) TL;DR/TOC pairing now reads as a duplicate of "Key Takeaways."** `KeyTakeaways.astro` (lines ~22-34) uses the exact same box recipe as `.post-tldr`: `background: var(--accent-glow); border: 1px solid var(--accent-dim); border-radius: 0.6rem; padding: 1.1rem 1.35rem;`, and `.key-takeaways-title` mirrors `.post-tldr-label` styling too. This duplication predates Session 84, but making TL;DR+TOC a more prominent paired unit made the immediate repetition (two near-identical mint boxes back to back) more visible. Also: spacing/alignment between the new `.post-intro` pair and the content below it needs a look. Not touched this session.
+- **(3) `/tools/` hero still looks exactly like before — the Session 84 fix was a real CSS change with zero visible effect.** Session 84 swapped `.tools-hero`'s wrapper from `.container` (760px) to `.container--wide` (1280px), assuming the narrow OUTER container was the bug. It wasn't the visible cause: `.tools-hero p { max-width: 540px; margin: 0 auto; }` plus `.tools-hero { text-align: center; }` already self-constrain and center the actual text regardless of the outer container's width — so the swap changed markup that has no visible effect on where the text renders. **Likely the same story on `/revops-automation-pricing/`'s hero** (`.pi-lede`/`.pi-sub` cap themselves via their own `ch`-based `max-width`) — treat that page as unverified too, despite the Session 84 log claiming it was fixed.
+- **Process lesson (worth a standing memory, not yet written):** Session 84 verified "fixed" by confirming the CSS class changed and taking a screenshot, but never diff-compared that screenshot against Ian's ORIGINAL complaint framing to check the specific thing he pointed at actually looked different. A post-fix screenshot that looks visually identical to the pre-fix one is a signal the wrong root cause was targeted — not a sign the bug is fine.
+- **Not started, for next session:** (a) increase `.tag` font-size in the post-header context, (b) differentiate TL;DR/TOC from Key Takeaways visually (different border/background treatment, not just proximity) and fix the spacing/alignment below the pair, (c) actually fix the hero width complaint on `/tools/` and `/revops-automation-pricing/` by addressing the CONTENT's own width/alignment constraints, not the outer container class — get a fresh screenshot side-by-side against Ian's original complaint before claiming done this time. All in the existing `fix/homepage-header-toc-layout` worktree/branch (`C:\tmp\tag-layout-fixes`, PR #262 already open) — amend that PR, don't open a new one.
 
 ## Session 84 (2026-08-31) — 3 production layout bugs found by eye, fixed (PR #262)
 
