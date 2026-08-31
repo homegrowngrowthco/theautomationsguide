@@ -14,7 +14,7 @@ const BEEHIIV_FORM_ID = 'd41efc59-7041-482b-8178-6d238e6c3cfa';
     <div class="email-signup-copy">
       <p class="email-signup-eyebrow">Free Newsletter</p>
       <h3 class="email-signup-heading">
-        Get weekly automation playbooks for RevOps teams. No fluff.
+        One automation playbook a week, straight from the field.
       </h3>
       <p class="email-signup-sub">
         Join RevOps and GTM operators who get our best automation guides, tool reviews,
@@ -85,5 +85,18 @@ const BEEHIIV_FORM_ID = 'd41efc59-7041-482b-8178-6d238e6c3cfa';
     /* Reserve the ~290px the beehiiv iframe occupies so the lazy injection
        doesn't shift layout (keeps CLS at 0). */
     min-height: 290px;
+  }
+
+  /* Beehiiv's iframe is a fixed cross-origin widget we can't restyle inside
+     (see the loader comment above) — below ~301px wide, its own responsive
+     layout clips the "Subscribe" label to "Subscri". Below the 768px
+     breakpoint where the card is single-column, bleed the wrapper past the
+     card's own horizontal padding so the iframe gets that width back; the
+     copy column keeps its inset via .email-signup-copy. */
+  @media (max-width: 767px) {
+    .beehiiv-form-wrapper {
+      margin-left: -2rem;
+      margin-right: -2rem;
+    }
   }
 </style>
