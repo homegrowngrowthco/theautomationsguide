@@ -8,7 +8,17 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-08-29 (Session 81).
+Last updated 2026-08-31 (Session 82).
+
+## Session 82 (2026-08-31) — PR #258 + #259 merged; a real logo bug found reviewing content
+
+- **Ian merged PR #258 himself** (`c64dcb9`) after reviewing it. Asked me to review #259 (an engine-generated content PR, "Pipedrive vs Attio") before merging, since he'd already pushed #260 (a different content PR) without reviewing #258/#259 first.
+- **Reviewed #259 beyond what CI covers:** the automated `qa-pr-review.mjs` Claude pass had already given it a clean "no issues," and I additionally verified the specifics that pass doesn't check — all 4 referenced tools (Pipedrive, Attio, Folk, Salesflare) are registered in `tools.ts`, both internal cross-links (`migrate-pipedrive-to-hubspot`, `migrate-hubspot-to-attio`) resolve to real posts, the Pipedrive product screenshot is genuine (confirmed via its own "Search Pipedrive" placeholder text, not fabricated), affiliate CTAs resolve correctly even where `pending` (fall back to the real homepage per `affiliate-links.ts`), and no em/en dashes.
+- **Found a real, live-since-May bug in the process: Attio's registered logo (`public/brand/tools/attio.png`) was a 1200x630 marketing banner, not an icon** — rendered as a near-blank cropped sliver in #259's ChooseIf card, which is what actually made it visible (older, smaller card treatments hid it). Root cause: registered via PR #225, which predates the aspect-ratio reject guard `validateRasterLogo` gained on 2026-08-20 — the guard was never applied retroactively. attio.com exposes no `apple-touch-icon` (sharp can't decode their bare `favicon.ico`), so re-sourced from Google's favicon-service render of the same mark and validated it against the actual gate logic (32x32, transparent corners, passes as-is) before committing. Fixed directly on master (`553d534`, pure asset swap, no code) rather than folding into either PR, since it's unrelated to both PRs' own content and affects every page that mentions Attio.
+- **Merged both:** #258 already merged by Ian; #259 squash-merged (`7829dc1`) after the logo fix landed on master underneath it.
+- **Verify:** production checked live post-deploy — the Pipedrive vs Attio post renders the corrected Attio mark in its ChooseIf card (no more broken sliver), and the homepage confirms every Phase 1 change live (no emoji, small-caps eyebrow/tags, feature-cards + CTA-strip gone, serif headlines, author headshot, new post-card layout). 0 design regressions found.
+- **Revert:** `git revert 553d534` for the logo fix alone; #258/#259 are each a single squash commit, revertible independently via their merge SHAs.
+- **New TODO opened, not investigated further:** the banner-vs-icon bug class may affect other tools registered before 2026-08-20 (roughly 100 logos never re-validated against the newer guard) — flagged `@low`, not audited this session.
 
 ## Session 81 (2026-08-29) — Design de-AI Phase 1 shipped (PR #258)
 
