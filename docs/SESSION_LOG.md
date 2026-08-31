@@ -8,7 +8,18 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-08-31 (Session 85).
+Last updated 2026-08-31 (Session 86).
+
+## Session 86 (2026-08-31) — PR #262: all 3 Session 85 issues fixed, pushed (`3d70435`)
+
+- Picked up the Session 85 handoff in the existing `fix/homepage-header-toc-layout` worktree (`C:\tmp\tag-layout-fixes`). Root-caused each with a real dev server + Playwright screenshots before touching CSS, not from the text description alone.
+- **(1) Tags:** `.post-header .tag` now 0.95rem (matches the site's existing `.hero-eyebrow` scale); post-card and filed-under tags untouched at 0.8rem.
+- **(2) Key Takeaways vs TL;DR duplication:** restyled `.key-takeaways` off the `.post-tldr` mint-box recipe (accent-glow fill + accent-dim border) onto a neutral `--bg-card` card with a teal left rule, so it reads as a distinct element instead of a repeated box.
+- **Real bug found while fixing (2)'s alignment, not in the original 3 items:** `.post-intro--paired .post-toc` in `TableOfContents.astro`'s scoped `<style>` had never actually applied, at any point since Session 84 wrote it. Astro appends a component's scope hash to every class in a selector; `.post-intro--paired` is rendered by `BlogPostLayout.astro`, a different component, so the compiled selector required an attribute that ancestor never carries — it silently matched nothing. The TOC card was falling back to its standalone rule's `margin: 1.5rem` the whole time, sitting 24px lower than the TL;DR box with mismatched label baselines. The global.css override that looked like it should have caught this had the same problem for the opposite reason (equal specificity, but the scoped tag renders later in the DOM so it still lost) — deleted as dead code. Real fix: `:global(.post-intro--paired) .post-toc` in the component's own style, confirmed via `getBoundingClientRect()` that both boxes now share the same top pixel.
+- **(3) `/tools/` + pricing hero width:** confirmed via screenshot the Session 84 container swap was genuinely a no-op — `.tools-hero` was `text-align:center` with `.tools-hero p{max-width:540px}` self-constraining regardless of wrapper width. Left-aligned `.tools-hero` (now matches every other internal page header — `.page-header`/`.about-hero`/`.pi-hero` were already left-aligned; only this one and the homepage `.hero` were centered) and widened text to 680px. Pricing page's `.pi-lede`/`.pi-sub` were already left-aligned but capped at 62/68ch, leaving roughly half the 1280px container empty — widened to 80/88ch. Before/after screenshots confirm both now visibly use the wide container instead of floating a narrow column inside it.
+- **Verify:** `qa:lint`/`qa:render`/`qa:overflow`/`qa:logos` all 0 hard; full `npx astro build` (357 pages) clean, spot-checked the compiled `:global()` selector in `dist/` output; visually confirmed all 3 fixes at 1440px and 390px via Playwright (measured pixel positions, not just eyeballed).
+- **Shipped:** `3d70435` pushed to `fix/homepage-header-toc-layout`, PR #262 updated with a summary comment. Still unmerged — Ian to review.
+- **Revert:** single commit `3d70435` on top of `1709652`; reverting it alone leaves PR #262 at its Session 84 state (logo strip + width-swap-that-does-nothing + unaligned TOC/TL;DR).
 
 ## Session 85 (2026-08-31) — PR #262 re-review: the width fix was a no-op, plus 2 new issues (handoff, session ended here)
 
