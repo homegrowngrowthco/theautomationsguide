@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import EmailSignup from '../components/EmailSignup.astro';
 import { getCollection } from 'astro:content';
 import { tools } from '../data/tools';
+import { topicLabel } from '../lib/topic-label';
 
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);
 const recentPosts = allPosts
@@ -29,21 +30,6 @@ const topicTiles = [...tagCounts.entries()]
 // "Tools we cover" strip: dedupe by slug, stable order from the registry.
 // Only listed tools appear here; pipeline tools (listed:false) still get a hub page.
 const stripTools = tools.filter((t) => t.listed !== false);
-
-// Editorial casing for topic tiles — CSS text-transform:capitalize breaks
-// brand casing (HubSpot -> Hubspot, n8n -> N8n), so map it explicitly.
-const topicLabelMap: Record<string, string> = {
-  crm: 'CRM',
-  hubspot: 'HubSpot',
-  revops: 'RevOps',
-  ai: 'AI',
-  n8n: 'n8n',
-  saas: 'SaaS',
-};
-function topicLabel(tag: string): string {
-  if (topicLabelMap[tag]) return topicLabelMap[tag];
-  return tag.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-}
 ---
 
 <BaseLayout
