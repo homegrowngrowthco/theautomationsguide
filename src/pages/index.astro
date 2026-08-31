@@ -184,10 +184,11 @@ const stripTools = tools.filter((t) => t.listed !== false);
         <div class="topic-tiles">
           {topicTiles.map(([tag, count]) => (
             <a href={`/blog/?tag=${encodeURIComponent(tag)}`} class="topic-tile">
-              <span class="topic-tile-body">
+              <span class="topic-tile-top">
                 <span class="topic-tile-name">{topicLabel(tag)}</span>
-                <span class="topic-tile-count">{count} article{count === 1 ? '' : 's'}</span>
+                <span class="topic-tile-arrow" aria-hidden="true">&rarr;</span>
               </span>
+              <span class="topic-tile-count">{count} article{count === 1 ? '' : 's'}</span>
             </a>
           ))}
         </div>
