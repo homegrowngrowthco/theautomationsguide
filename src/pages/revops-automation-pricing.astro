@@ -233,8 +233,10 @@ const datasetLd = {
 
 <style>
   .pi-hero { padding: 3rem 0 1.5rem; }
-  .pi-lede { font-size: 1.15rem; max-width: 62ch; }
-  .pi-sub { color: var(--color-muted, #5b6472); max-width: 68ch; font-size: 0.95rem; }
+  /* Wide enough to actually use the .container--wide wrapper instead of
+     self-constraining back down to the old 760px-container reading width. */
+  .pi-lede { font-size: 1.15rem; max-width: 80ch; }
+  .pi-sub { color: var(--color-muted, #5b6472); max-width: 88ch; font-size: 0.95rem; }
   .pi-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; }
   .pi-btn {
     display: inline-block; padding: 0.6rem 1.1rem; border-radius: 6px;

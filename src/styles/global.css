@@ -750,6 +750,13 @@ main { flex: 1; }
   white-space: nowrap;
 }
 
+/* Post-header tags sit directly above an H1 (unlike the compact post-card
+   context .tag was sized for), so they need the larger "eyebrow" scale used
+   elsewhere for label text above a headline. */
+.post-header .tag {
+  font-size: 0.95rem;
+}
+
 .post-card h2 {
   font-size: 1.1rem;
   font-weight: 700;
@@ -1422,7 +1429,6 @@ main { flex: 1; }
 /* ── Tools page ────────────────────────────────── */
 .tools-hero {
   padding: 4rem 0 3rem;
-  text-align: center;
   border-bottom: 1px solid var(--border);
 }
 
@@ -1438,8 +1444,8 @@ main { flex: 1; }
 .tools-hero p {
   font-size: 1.0625rem;
   color: var(--text-muted);
-  max-width: 540px;
-  margin: 0 auto;
+  max-width: 680px;
+  margin: 0;
   line-height: 1.7;
 }
 
@@ -1498,9 +1504,12 @@ main { flex: 1; }
   .post-intro--paired .post-tldr {
     margin-bottom: 0;
   }
-  .post-intro--paired .post-toc {
-    margin-top: 0;
-  }
+  /* .post-toc's own top-alignment override lives in TableOfContents.astro's
+     scoped style now, using :global() on the .post-intro--paired ancestor —
+     a plain rule here never actually matched: Astro scopes .post-toc to its
+     own component, but .post-toc's rendering component can't scope a class
+     that BlogPostLayout.astro (a different component) put on its wrapper,
+     so this selector silently never fired. */
 }
 
 /* ── Post TL;DR (frontmatter-driven, answer-first block at top of post) ── */

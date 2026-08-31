@@ -40,13 +40,31 @@ const show = hasToc(headings);
     border-radius: 0.6rem;
     padding: 0.85rem 1.25rem;
   }
-  .post-intro--paired .post-toc {
+  /* :global() on the ancestor is required, not stylistic: .post-intro--paired
+     is rendered by BlogPostLayout.astro, a different component. Astro appends
+     this component's own scope hash to every compound selector segment, so a
+     plain `.post-intro--paired .post-toc` here compiles to
+     `.post-intro--paired[data-astro-cid-…] .post-toc[data-astro-cid-…]` — the
+     ancestor never actually carries this component's hash, so that selector
+     silently never matches anything. This was true of the original rule too;
+     it just never fired, and every "paired" override below inherited that. */
+  :global(.post-intro--paired) .post-toc {
     max-width: none;
     /* Mobile-stacked (below the grid breakpoint in global.css): top gap from
        the TL;DR box above it; .post-intro's own bottom margin handles the
-       space before the article body. At the grid breakpoint this collapses
-       to 0 since the grid's gap takes over. */
+       space before the article body. */
     margin: 1rem 0 0;
+  }
+  @media (min-width: 640px) {
+    :global(.post-intro--paired) .post-toc {
+      /* Grid gap only adds horizontal space between the two columns — it does
+         not collapse this box's own top margin, so without zeroing it here
+         the TOC card sits visibly lower than the TL;DR box beside it instead
+         of sharing its top edge. Padding-top is also bumped to match
+         .post-tldr's, so the "TL;DR" and "On this page" labels line up too. */
+      margin-top: 0;
+      padding-top: 1.1rem;
+    }
   }
   .post-toc-summary {
     font-family: var(--font-mono, monospace);
