@@ -1,0 +1,1450 @@
+{
+  "pulled": "2026-09-06",
+  "property": "sc-domain:theautomationsguide.com",
+  "settled_end": "2026-09-03",
+  "daily": [
+    {
+      "date": "2026-06-26",
+      "clicks": 0,
+      "impressions": 212,
+      "position": 50.22641509433962
+    },
+    {
+      "date": "2026-06-27",
+      "clicks": 0,
+      "impressions": 247,
+      "position": 50.67611336032389
+    },
+    {
+      "date": "2026-06-28",
+      "clicks": 0,
+      "impressions": 218,
+      "position": 51.81651376146789
+    },
+    {
+      "date": "2026-06-29",
+      "clicks": 0,
+      "impressions": 253,
+      "position": 45.865612648221344
+    },
+    {
+      "date": "2026-06-30",
+      "clicks": 0,
+      "impressions": 367,
+      "position": 54.97547683923706
+    },
+    {
+      "date": "2026-07-01",
+      "clicks": 2,
+      "impressions": 308,
+      "position": 51.142857142857146
+    },
+    {
+      "date": "2026-07-02",
+      "clicks": 1,
+      "impressions": 268,
+      "position": 47.39179104477612
+    },
+    {
+      "date": "2026-07-03",
+      "clicks": 0,
+      "impressions": 211,
+      "position": 56.90995260663507
+    },
+    {
+      "date": "2026-07-04",
+      "clicks": 0,
+      "impressions": 224,
+      "position": 46.870535714285715
+    },
+    {
+      "date": "2026-07-05",
+      "clicks": 0,
+      "impressions": 272,
+      "position": 47.970588235294116
+    },
+    {
+      "date": "2026-07-06",
+      "clicks": 0,
+      "impressions": 309,
+      "position": 37.6084142394822
+    },
+    {
+      "date": "2026-07-07",
+      "clicks": 0,
+      "impressions": 309,
+      "position": 40.77022653721683
+    },
+    {
+      "date": "2026-07-08",
+      "clicks": 0,
+      "impressions": 392,
+      "position": 37.83163265306123
+    },
+    {
+      "date": "2026-07-09",
+      "clicks": 0,
+      "impressions": 333,
+      "position": 40.906906906906904
+    },
+    {
+      "date": "2026-07-10",
+      "clicks": 0,
+      "impressions": 424,
+      "position": 39.51650943396226
+    },
+    {
+      "date": "2026-07-11",
+      "clicks": 0,
+      "impressions": 523,
+      "position": 39.97323135755258
+    },
+    {
+      "date": "2026-07-12",
+      "clicks": 0,
+      "impressions": 527,
+      "position": 43.62428842504744
+    },
+    {
+      "date": "2026-07-13",
+      "clicks": 1,
+      "impressions": 486,
+      "position": 43.565843621399175
+    },
+    {
+      "date": "2026-07-14",
+      "clicks": 0,
+      "impressions": 490,
+      "position": 37.957142857142856
+    },
+    {
+      "date": "2026-07-15",
+      "clicks": 2,
+      "impressions": 407,
+      "position": 36.83046683046683
+    },
+    {
+      "date": "2026-07-16",
+      "clicks": 0,
+      "impressions": 324,
+      "position": 42.101851851851855
+    },
+    {
+      "date": "2026-07-17",
+      "clicks": 1,
+      "impressions": 291,
+      "position": 41.9106529209622
+    },
+    {
+      "date": "2026-07-18",
+      "clicks": 0,
+      "impressions": 298,
+      "position": 38.37919463087248
+    },
+    {
+      "date": "2026-07-19",
+      "clicks": 0,
+      "impressions": 282,
+      "position": 38.43617021276596
+    },
+    {
+      "date": "2026-07-20",
+      "clicks": 0,
+      "impressions": 305,
+      "position": 36.65245901639344
+    },
+    {
+      "date": "2026-07-21",
+      "clicks": 1,
+      "impressions": 271,
+      "position": 37.693726937269375
+    },
+    {
+      "date": "2026-07-22",
+      "clicks": 1,
+      "impressions": 363,
+      "position": 35.09641873278237
+    },
+    {
+      "date": "2026-07-23",
+      "clicks": 0,
+      "impressions": 301,
+      "position": 36.39867109634552
+    },
+    {
+      "date": "2026-07-24",
+      "clicks": 0,
+      "impressions": 374,
+      "position": 33.67112299465241
+    },
+    {
+      "date": "2026-07-25",
+      "clicks": 0,
+      "impressions": 356,
+      "position": 34.80337078651685
+    },
+    {
+      "date": "2026-07-26",
+      "clicks": 1,
+      "impressions": 352,
+      "position": 33.14204545454545
+    },
+    {
+      "date": "2026-07-27",
+      "clicks": 2,
+      "impressions": 504,
+      "position": 32.710317460317455
+    },
+    {
+      "date": "2026-07-28",
+      "clicks": 0,
+      "impressions": 441,
+      "position": 36.099773242630384
+    },
+    {
+      "date": "2026-07-29",
+      "clicks": 1,
+      "impressions": 461,
+      "position": 32.377440347071584
+    },
+    {
+      "date": "2026-07-30",
+      "clicks": 0,
+      "impressions": 488,
+      "position": 38.3094262295082
+    },
+    {
+      "date": "2026-07-31",
+      "clicks": 1,
+      "impressions": 409,
+      "position": 38.27383863080684
+    },
+    {
+      "date": "2026-08-01",
+      "clicks": 0,
+      "impressions": 475,
+      "position": 36.94105263157895
+    },
+    {
+      "date": "2026-08-02",
+      "clicks": 0,
+      "impressions": 512,
+      "position": 38.376953125
+    },
+    {
+      "date": "2026-08-03",
+      "clicks": 1,
+      "impressions": 449,
+      "position": 33.57015590200445
+    },
+    {
+      "date": "2026-08-04",
+      "clicks": 3,
+      "impressions": 478,
+      "position": 36.1255230125523
+    },
+    {
+      "date": "2026-08-05",
+      "clicks": 0,
+      "impressions": 528,
+      "position": 31.06628787878788
+    },
+    {
+      "date": "2026-08-06",
+      "clicks": 1,
+      "impressions": 501,
+      "position": 35.091816367265466
+    },
+    {
+      "date": "2026-08-07",
+      "clicks": 0,
+      "impressions": 368,
+      "position": 34.19565217391305
+    },
+    {
+      "date": "2026-08-08",
+      "clicks": 0,
+      "impressions": 310,
+      "position": 40.49677419354839
+    },
+    {
+      "date": "2026-08-09",
+      "clicks": 0,
+      "impressions": 599,
+      "position": 38.68280467445743
+    },
+    {
+      "date": "2026-08-10",
+      "clicks": 0,
+      "impressions": 730,
+      "position": 35.12191780821918
+    },
+    {
+      "date": "2026-08-11",
+      "clicks": 3,
+      "impressions": 769,
+      "position": 36.161248374512354
+    },
+    {
+      "date": "2026-08-12",
+      "clicks": 3,
+      "impressions": 641,
+      "position": 41.35413416536662
+    },
+    {
+      "date": "2026-08-13",
+      "clicks": 0,
+      "impressions": 674,
+      "position": 43.14540059347181
+    },
+    {
+      "date": "2026-08-14",
+      "clicks": 1,
+      "impressions": 503,
+      "position": 44.739562624254475
+    },
+    {
+      "date": "2026-08-15",
+      "clicks": 0,
+      "impressions": 514,
+      "position": 46.1147859922179
+    },
+    {
+      "date": "2026-08-16",
+      "clicks": 0,
+      "impressions": 522,
+      "position": 46.946360153256705
+    },
+    {
+      "date": "2026-08-17",
+      "clicks": 2,
+      "impressions": 644,
+      "position": 40.77950310559006
+    },
+    {
+      "date": "2026-08-18",
+      "clicks": 0,
+      "impressions": 597,
+      "position": 42.44053601340033
+    },
+    {
+      "date": "2026-08-19",
+      "clicks": 0,
+      "impressions": 598,
+      "position": 41.27759197324415
+    },
+    {
+      "date": "2026-08-20",
+      "clicks": 0,
+      "impressions": 733,
+      "position": 41.663028649386085
+    },
+    {
+      "date": "2026-08-21",
+      "clicks": 0,
+      "impressions": 644,
+      "position": 41.3027950310559
+    },
+    {
+      "date": "2026-08-22",
+      "clicks": 2,
+      "impressions": 600,
+      "position": 42.656666666666666
+    },
+    {
+      "date": "2026-08-23",
+      "clicks": 0,
+      "impressions": 669,
+      "position": 39.92077727952167
+    },
+    {
+      "date": "2026-08-24",
+      "clicks": 2,
+      "impressions": 784,
+      "position": 36.32525510204081
+    },
+    {
+      "date": "2026-08-25",
+      "clicks": 1,
+      "impressions": 936,
+      "position": 38.5
+    },
+    {
+      "date": "2026-08-26",
+      "clicks": 2,
+      "impressions": 996,
+      "position": 34.74698795180723
+    },
+    {
+      "date": "2026-08-27",
+      "clicks": 0,
+      "impressions": 1067,
+      "position": 34.59512652296157
+    },
+    {
+      "date": "2026-08-28",
+      "clicks": 3,
+      "impressions": 874,
+      "position": 39.20823798627002
+    },
+    {
+      "date": "2026-08-29",
+      "clicks": 1,
+      "impressions": 920,
+      "position": 43.34891304347826
+    },
+    {
+      "date": "2026-08-30",
+      "clicks": 0,
+      "impressions": 975,
+      "position": 43.967179487179486
+    },
+    {
+      "date": "2026-08-31",
+      "clicks": 1,
+      "impressions": 909,
+      "position": 35.02200220022002
+    },
+    {
+      "date": "2026-09-01",
+      "clicks": 1,
+      "impressions": 1003,
+      "position": 22.94616151545364
+    },
+    {
+      "date": "2026-09-02",
+      "clicks": 1,
+      "impressions": 1020,
+      "position": 18.933333333333334
+    },
+    {
+      "date": "2026-09-03",
+      "clicks": 1,
+      "impressions": 825,
+      "position": 24.169696969696968
+    }
+  ],
+  "weekly_mon_sun": [
+    {
+      "week_start_mon": "2026-06-22",
+      "week_end_sun": "2026-06-28",
+      "clicks": 0,
+      "impressions": 677,
+      "days": 3
+    },
+    {
+      "week_start_mon": "2026-06-29",
+      "week_end_sun": "2026-07-05",
+      "clicks": 3,
+      "impressions": 1903,
+      "days": 7
+    },
+    {
+      "week_start_mon": "2026-07-06",
+      "week_end_sun": "2026-07-12",
+      "clicks": 0,
+      "impressions": 2817,
+      "days": 7
+    },
+    {
+      "week_start_mon": "2026-07-13",
+      "week_end_sun": "2026-07-19",
+      "clicks": 4,
+      "impressions": 2578,
+      "days": 7
+    },
+    {
+      "week_start_mon": "2026-07-20",
+      "week_end_sun": "2026-07-26",
+      "clicks": 3,
+      "impressions": 2322,
+      "days": 7
+    },
+    {
+      "week_start_mon": "2026-07-27",
+      "week_end_sun": "2026-08-02",
+      "clicks": 4,
+      "impressions": 3290,
+      "days": 7
+    },
+    {
+      "week_start_mon": "2026-08-03",
+      "week_end_sun": "2026-08-09",
+      "clicks": 5,
+      "impressions": 3233,
+      "days": 7
+    },
+    {
+      "week_start_mon": "2026-08-10",
+      "week_end_sun": "2026-08-16",
+      "clicks": 7,
+      "impressions": 4353,
+      "days": 7
+    },
+    {
+      "week_start_mon": "2026-08-17",
+      "week_end_sun": "2026-08-23",
+      "clicks": 4,
+      "impressions": 4485,
+      "days": 7
+    },
+    {
+      "week_start_mon": "2026-08-24",
+      "week_end_sun": "2026-08-30",
+      "clicks": 9,
+      "impressions": 6552,
+      "days": 7
+    },
+    {
+      "week_start_mon": "2026-08-31",
+      "week_end_sun": "2026-09-06",
+      "clicks": 4,
+      "impressions": 3757,
+      "days": 4
+    }
+  ],
+  "trailing_7day_blocks_newest_first": [
+    {
+      "start": "2026-08-28",
+      "end": "2026-09-03",
+      "clicks": 8,
+      "impressions": 6526
+    },
+    {
+      "start": "2026-08-21",
+      "end": "2026-08-27",
+      "clicks": 7,
+      "impressions": 5696
+    },
+    {
+      "start": "2026-08-14",
+      "end": "2026-08-20",
+      "clicks": 3,
+      "impressions": 4111
+    },
+    {
+      "start": "2026-08-07",
+      "end": "2026-08-13",
+      "clicks": 6,
+      "impressions": 4091
+    },
+    {
+      "start": "2026-07-31",
+      "end": "2026-08-06",
+      "clicks": 6,
+      "impressions": 3352
+    },
+    {
+      "start": "2026-07-24",
+      "end": "2026-07-30",
+      "clicks": 4,
+      "impressions": 2976
+    },
+    {
+      "start": "2026-07-17",
+      "end": "2026-07-23",
+      "clicks": 3,
+      "impressions": 2111
+    },
+    {
+      "start": "2026-07-10",
+      "end": "2026-07-16",
+      "clicks": 3,
+      "impressions": 3181
+    }
+  ],
+  "totals_28d": {
+    "clicks": 24,
+    "impressions": 20424,
+    "ctr": 0.0011750881316098707,
+    "position": 37.256854680767724
+  },
+  "totals_28d_window": [
+    "2026-08-07",
+    "2026-09-03"
+  ],
+  "apollo_vs_pipedrive": {
+    "last28_site": [
+      {
+        "clicks": 0,
+        "impressions": 147,
+        "ctr": 0,
+        "position": 23.972789115646258
+      }
+    ],
+    "last28_by_page": [
+      {
+        "keys": [
+          "https://theautomationsguide.com/blog/2026-06-01-pipedrive-vs-apollo-outbound-which-wins-in-2026/"
+        ],
+        "clicks": 0,
+        "impressions": 110,
+        "ctr": 0,
+        "position": 17.263636363636362
+      },
+      {
+        "keys": [
+          "https://theautomationsguide.com/tools/apollo/"
+        ],
+        "clicks": 0,
+        "impressions": 101,
+        "ctr": 0,
+        "position": 44.32673267326733
+      }
+    ],
+    "pre_0812_28d_site": [
+      {
+        "clicks": 0,
+        "impressions": 208,
+        "ctr": 0,
+        "position": 27.014423076923077
+      }
+    ],
+    "pre_0812_window": [
+      "2026-07-16",
+      "2026-08-12"
+    ],
+    "post_0813_to_end_site": [
+      {
+        "clicks": 0,
+        "impressions": 103,
+        "ctr": 0,
+        "position": 22.42718446601942
+      }
+    ],
+    "post_window": [
+      "2026-08-13",
+      "2026-09-03"
+    ],
+    "daily_since_0716": [
+      {
+        "keys": [
+          "2026-07-16"
+        ],
+        "clicks": 0,
+        "impressions": 9,
+        "ctr": 0,
+        "position": 32.44444444444444
+      },
+      {
+        "keys": [
+          "2026-07-17"
+        ],
+        "clicks": 0,
+        "impressions": 9,
+        "ctr": 0,
+        "position": 27.77777777777778
+      },
+      {
+        "keys": [
+          "2026-07-18"
+        ],
+        "clicks": 0,
+        "impressions": 2,
+        "ctr": 0,
+        "position": 32.5
+      },
+      {
+        "keys": [
+          "2026-07-19"
+        ],
+        "clicks": 0,
+        "impressions": 2,
+        "ctr": 0,
+        "position": 21
+      },
+      {
+        "keys": [
+          "2026-07-20"
+        ],
+        "clicks": 0,
+        "impressions": 6,
+        "ctr": 0,
+        "position": 24.833333333333332
+      },
+      {
+        "keys": [
+          "2026-07-21"
+        ],
+        "clicks": 0,
+        "impressions": 6,
+        "ctr": 0,
+        "position": 17.5
+      },
+      {
+        "keys": [
+          "2026-07-22"
+        ],
+        "clicks": 0,
+        "impressions": 9,
+        "ctr": 0,
+        "position": 23.77777777777778
+      },
+      {
+        "keys": [
+          "2026-07-23"
+        ],
+        "clicks": 0,
+        "impressions": 1,
+        "ctr": 0,
+        "position": 20
+      },
+      {
+        "keys": [
+          "2026-07-24"
+        ],
+        "clicks": 0,
+        "impressions": 5,
+        "ctr": 0,
+        "position": 28.4
+      },
+      {
+        "keys": [
+          "2026-07-25"
+        ],
+        "clicks": 0,
+        "impressions": 8,
+        "ctr": 0,
+        "position": 25.125
+      },
+      {
+        "keys": [
+          "2026-07-26"
+        ],
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 25
+      },
+      {
+        "keys": [
+          "2026-07-27"
+        ],
+        "clicks": 0,
+        "impressions": 11,
+        "ctr": 0,
+        "position": 21.272727272727273
+      },
+      {
+        "keys": [
+          "2026-07-28"
+        ],
+        "clicks": 0,
+        "impressions": 9,
+        "ctr": 0,
+        "position": 27.77777777777778
+      },
+      {
+        "keys": [
+          "2026-07-29"
+        ],
+        "clicks": 0,
+        "impressions": 20,
+        "ctr": 0,
+        "position": 27.15
+      },
+      {
+        "keys": [
+          "2026-07-30"
+        ],
+        "clicks": 0,
+        "impressions": 6,
+        "ctr": 0,
+        "position": 33
+      },
+      {
+        "keys": [
+          "2026-07-31"
+        ],
+        "clicks": 0,
+        "impressions": 5,
+        "ctr": 0,
+        "position": 29
+      },
+      {
+        "keys": [
+          "2026-08-01"
+        ],
+        "clicks": 0,
+        "impressions": 8,
+        "ctr": 0,
+        "position": 28.25
+      },
+      {
+        "keys": [
+          "2026-08-02"
+        ],
+        "clicks": 0,
+        "impressions": 8,
+        "ctr": 0,
+        "position": 32.375
+      },
+      {
+        "keys": [
+          "2026-08-03"
+        ],
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 32.25
+      },
+      {
+        "keys": [
+          "2026-08-04"
+        ],
+        "clicks": 0,
+        "impressions": 10,
+        "ctr": 0,
+        "position": 27.8
+      },
+      {
+        "keys": [
+          "2026-08-05"
+        ],
+        "clicks": 0,
+        "impressions": 13,
+        "ctr": 0,
+        "position": 22.076923076923077
+      },
+      {
+        "keys": [
+          "2026-08-06"
+        ],
+        "clicks": 0,
+        "impressions": 10,
+        "ctr": 0,
+        "position": 30.1
+      },
+      {
+        "keys": [
+          "2026-08-07"
+        ],
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 12
+      },
+      {
+        "keys": [
+          "2026-08-08"
+        ],
+        "clicks": 0,
+        "impressions": 1,
+        "ctr": 0,
+        "position": 18
+      },
+      {
+        "keys": [
+          "2026-08-09"
+        ],
+        "clicks": 0,
+        "impressions": 1,
+        "ctr": 0,
+        "position": 17
+      },
+      {
+        "keys": [
+          "2026-08-10"
+        ],
+        "clicks": 0,
+        "impressions": 18,
+        "ctr": 0,
+        "position": 28.833333333333332
+      },
+      {
+        "keys": [
+          "2026-08-11"
+        ],
+        "clicks": 0,
+        "impressions": 9,
+        "ctr": 0,
+        "position": 27.555555555555557
+      },
+      {
+        "keys": [
+          "2026-08-12"
+        ],
+        "clicks": 0,
+        "impressions": 12,
+        "ctr": 0,
+        "position": 31.333333333333332
+      },
+      {
+        "keys": [
+          "2026-08-13"
+        ],
+        "clicks": 0,
+        "impressions": 9,
+        "ctr": 0,
+        "position": 28.77777777777778
+      },
+      {
+        "keys": [
+          "2026-08-14"
+        ],
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 26.333333333333332
+      },
+      {
+        "keys": [
+          "2026-08-15"
+        ],
+        "clicks": 0,
+        "impressions": 8,
+        "ctr": 0,
+        "position": 27.5
+      },
+      {
+        "keys": [
+          "2026-08-16"
+        ],
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 28.333333333333332
+      },
+      {
+        "keys": [
+          "2026-08-17"
+        ],
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 31.5
+      },
+      {
+        "keys": [
+          "2026-08-18"
+        ],
+        "clicks": 0,
+        "impressions": 2,
+        "ctr": 0,
+        "position": 17.5
+      },
+      {
+        "keys": [
+          "2026-08-19"
+        ],
+        "clicks": 0,
+        "impressions": 5,
+        "ctr": 0,
+        "position": 24.4
+      },
+      {
+        "keys": [
+          "2026-08-20"
+        ],
+        "clicks": 0,
+        "impressions": 8,
+        "ctr": 0,
+        "position": 22.75
+      },
+      {
+        "keys": [
+          "2026-08-21"
+        ],
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 19.333333333333332
+      },
+      {
+        "keys": [
+          "2026-08-22"
+        ],
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 18
+      },
+      {
+        "keys": [
+          "2026-08-23"
+        ],
+        "clicks": 0,
+        "impressions": 6,
+        "ctr": 0,
+        "position": 21.833333333333332
+      },
+      {
+        "keys": [
+          "2026-08-24"
+        ],
+        "clicks": 0,
+        "impressions": 5,
+        "ctr": 0,
+        "position": 27.6
+      },
+      {
+        "keys": [
+          "2026-08-25"
+        ],
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 27
+      },
+      {
+        "keys": [
+          "2026-08-26"
+        ],
+        "clicks": 0,
+        "impressions": 5,
+        "ctr": 0,
+        "position": 19.6
+      },
+      {
+        "keys": [
+          "2026-08-27"
+        ],
+        "clicks": 0,
+        "impressions": 10,
+        "ctr": 0,
+        "position": 24.8
+      },
+      {
+        "keys": [
+          "2026-08-28"
+        ],
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 22.25
+      },
+      {
+        "keys": [
+          "2026-08-29"
+        ],
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 13.25
+      },
+      {
+        "keys": [
+          "2026-08-30"
+        ],
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 13
+      },
+      {
+        "keys": [
+          "2026-08-31"
+        ],
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 14.666666666666666
+      },
+      {
+        "keys": [
+          "2026-09-01"
+        ],
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 13
+      },
+      {
+        "keys": [
+          "2026-09-02"
+        ],
+        "clicks": 0,
+        "impressions": 5,
+        "ctr": 0,
+        "position": 14.4
+      },
+      {
+        "keys": [
+          "2026-09-03"
+        ],
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 10.333333333333334
+      }
+    ],
+    "weekly": [
+      {
+        "week_start": "2026-07-06",
+        "impressions": 53,
+        "clicks": 0,
+        "pos_x_impr": 1371.0,
+        "avg_position": 25.9
+      },
+      {
+        "week_start": "2026-07-13",
+        "impressions": 43,
+        "clicks": 0,
+        "pos_x_impr": 1240.0,
+        "avg_position": 28.8
+      },
+      {
+        "week_start": "2026-07-20",
+        "impressions": 38,
+        "clicks": 0,
+        "pos_x_impr": 906.0,
+        "avg_position": 23.8
+      },
+      {
+        "week_start": "2026-07-27",
+        "impressions": 67,
+        "clicks": 0,
+        "pos_x_impr": 1855.0,
+        "avg_position": 27.7
+      },
+      {
+        "week_start": "2026-08-03",
+        "impressions": 42,
+        "clicks": 0,
+        "pos_x_impr": 1066.0,
+        "avg_position": 25.4
+      },
+      {
+        "week_start": "2026-08-10",
+        "impressions": 62,
+        "clicks": 0,
+        "pos_x_impr": 1786.0,
+        "avg_position": 28.8
+      },
+      {
+        "week_start": "2026-08-17",
+        "impressions": 31,
+        "clicks": 0,
+        "pos_x_impr": 708.0,
+        "avg_position": 22.8
+      },
+      {
+        "week_start": "2026-08-24",
+        "impressions": 35,
+        "clicks": 0,
+        "pos_x_impr": 773.0,
+        "avg_position": 22.1
+      },
+      {
+        "week_start": "2026-08-31",
+        "impressions": 14,
+        "clicks": 0,
+        "pos_x_impr": 186.0,
+        "avg_position": 13.3
+      }
+    ]
+  },
+  "apollo_queries_28d_top": [
+    {
+      "keys": [
+        "apollo vs pipedrive"
+      ],
+      "clicks": 0,
+      "impressions": 147,
+      "ctr": 0,
+      "position": 23.972789115646258
+    },
+    {
+      "keys": [
+        "apollo vs hubspot"
+      ],
+      "clicks": 0,
+      "impressions": 97,
+      "ctr": 0,
+      "position": 35.98969072164948
+    },
+    {
+      "keys": [
+        "apollo vs phantombuster"
+      ],
+      "clicks": 0,
+      "impressions": 75,
+      "ctr": 0,
+      "position": 30.6
+    },
+    {
+      "keys": [
+        "dripify vs apollo"
+      ],
+      "clicks": 0,
+      "impressions": 62,
+      "ctr": 0,
+      "position": 38.774193548387096
+    },
+    {
+      "keys": [
+        "moltsets vs apollo"
+      ],
+      "clicks": 0,
+      "impressions": 35,
+      "ctr": 0,
+      "position": 5.314285714285714
+    },
+    {
+      "keys": [
+        "how does moltsets compare to apollo?"
+      ],
+      "clicks": 0,
+      "impressions": 30,
+      "ctr": 0,
+      "position": 4.5
+    },
+    {
+      "keys": [
+        "how do i choose between apollo and cognism for a global outbound team?"
+      ],
+      "clicks": 0,
+      "impressions": 20,
+      "ctr": 0,
+      "position": 8.5
+    },
+    {
+      "keys": [
+        "apollo or dripify"
+      ],
+      "clicks": 0,
+      "impressions": 19,
+      "ctr": 0,
+      "position": 45.73684210526316
+    },
+    {
+      "keys": [
+        "lusha vs apollo"
+      ],
+      "clicks": 0,
+      "impressions": 19,
+      "ctr": 0,
+      "position": 50.26315789473684
+    },
+    {
+      "keys": [
+        "apollo workflow management"
+      ],
+      "clicks": 0,
+      "impressions": 16,
+      "ctr": 0,
+      "position": 16.5625
+    },
+    {
+      "keys": [
+        "which is better for enrichment, moltsets or apollo?"
+      ],
+      "clicks": 0,
+      "impressions": 14,
+      "ctr": 0,
+      "position": 7.785714285714286
+    },
+    {
+      "keys": [
+        "apollo and dripify"
+      ],
+      "clicks": 0,
+      "impressions": 12,
+      "ctr": 0,
+      "position": 35.5
+    },
+    {
+      "keys": [
+        "lusha vs apollo vs zoominfo"
+      ],
+      "clicks": 0,
+      "impressions": 9,
+      "ctr": 0,
+      "position": 42
+    },
+    {
+      "keys": [
+        "apollo vs lusha"
+      ],
+      "clicks": 0,
+      "impressions": 8,
+      "ctr": 0,
+      "position": 49.75
+    },
+    {
+      "keys": [
+        "evaluate the b2b ai sales company lusha on apollo vs cognism"
+      ],
+      "clicks": 0,
+      "impressions": 6,
+      "ctr": 0,
+      "position": 7.666666666666667
+    },
+    {
+      "keys": [
+        "apollo crm automation"
+      ],
+      "clicks": 0,
+      "impressions": 5,
+      "ctr": 0,
+      "position": 8
+    },
+    {
+      "keys": [
+        "apollo io vs hubspot"
+      ],
+      "clicks": 0,
+      "impressions": 5,
+      "ctr": 0,
+      "position": 27
+    },
+    {
+      "keys": [
+        "apollo.io vs leadswift"
+      ],
+      "clicks": 0,
+      "impressions": 5,
+      "ctr": 0,
+      "position": 63.2
+    },
+    {
+      "keys": [
+        "how do mid-market revops teams typically evaluate apollo versus outreach?"
+      ],
+      "clicks": 0,
+      "impressions": 5,
+      "ctr": 0,
+      "position": 4.6
+    },
+    {
+      "keys": [
+        "apollo vs n8n"
+      ],
+      "clicks": 0,
+      "impressions": 4,
+      "ctr": 0,
+      "position": 16.25
+    },
+    {
+      "keys": [
+        "apollo vs sales navigator"
+      ],
+      "clicks": 0,
+      "impressions": 4,
+      "ctr": 0,
+      "position": 42.5
+    },
+    {
+      "keys": [
+        "attio vs apollo"
+      ],
+      "clicks": 0,
+      "impressions": 4,
+      "ctr": 0,
+      "position": 25
+    },
+    {
+      "keys": [
+        "apollo io vs dripify"
+      ],
+      "clicks": 0,
+      "impressions": 3,
+      "ctr": 0,
+      "position": 25.666666666666668
+    },
+    {
+      "keys": [
+        "site: apollo.io, \u201csubscriber\u201d"
+      ],
+      "clicks": 0,
+      "impressions": 3,
+      "ctr": 0,
+      "position": 4.666666666666666
+    },
+    {
+      "keys": [
+        "apollo io automation"
+      ],
+      "clicks": 0,
+      "impressions": 2,
+      "ctr": 0,
+      "position": 4.5
+    }
+  ],
+  "apollo_cluster_pages": {
+    "/tools/apollo/": {
+      "last28": {
+        "clicks": 0,
+        "impressions": 606,
+        "ctr": 0,
+        "position": 37.65841584158416
+      },
+      "pre_0812_28d": {
+        "clicks": 0,
+        "impressions": 275,
+        "ctr": 0,
+        "position": 37.95272727272727
+      }
+    },
+    "/blog/2026-06-01-pipedrive-vs-apollo-outbound-which-wins-in-2026/": {
+      "last28": {
+        "clicks": 0,
+        "impressions": 139,
+        "ctr": 0,
+        "position": 15.93525179856115
+      },
+      "pre_0812_28d": {
+        "clicks": 0,
+        "impressions": 164,
+        "ctr": 0,
+        "position": 17.371951219512194
+      }
+    },
+    "/blog/2026-05-06-apollo-vs-clay-vs-linkedin-sales-nav-best-for-outbound-2026/": {
+      "last28": {
+        "clicks": 2,
+        "impressions": 323,
+        "ctr": 0.006191950464396285,
+        "position": 7.826625386996904
+      },
+      "pre_0812_28d": {
+        "clicks": 0,
+        "impressions": 24,
+        "ctr": 0,
+        "position": 8.291666666666668
+      }
+    },
+    "/blog/2026-06-17-apollo-sequences-vs-hubspot-sequences-the-truth/": {
+      "last28": {
+        "clicks": 0,
+        "impressions": 32,
+        "ctr": 0,
+        "position": 8.75
+      },
+      "pre_0812_28d": {
+        "clicks": 3,
+        "impressions": 62,
+        "ctr": 0.04838709677419355,
+        "position": 8.112903225806452
+      }
+    },
+    "/blog/2026-06-26-lusha-vs-apollo-vs-zoominfo-b2b-contact-data-compared/": {
+      "last28": {
+        "clicks": 0,
+        "impressions": 80,
+        "ctr": 0,
+        "position": 25.125
+      },
+      "pre_0812_28d": {
+        "clicks": 0,
+        "impressions": 101,
+        "ctr": 0,
+        "position": 19.534653465346533
+      }
+    },
+    "/blog/2026-07-24-cognism-vs-apollo-vs-lusha-best-for-european-outbound/": {
+      "last28": {
+        "clicks": 0,
+        "impressions": 56,
+        "ctr": 0,
+        "position": 9.857142857142858
+      },
+      "pre_0812_28d": {
+        "clicks": 0,
+        "impressions": 60,
+        "ctr": 0,
+        "position": 20.316666666666666
+      }
+    }
+  }
+}

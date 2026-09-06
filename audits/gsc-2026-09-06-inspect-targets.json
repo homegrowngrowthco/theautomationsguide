@@ -1,0 +1,656 @@
+{
+  "pulled": "2026-09-06",
+  "property": "sc-domain:theautomationsguide.com",
+  "sitemap_url_count": 233,
+  "results": {
+    "/blog/2026-05-06-apollo-vs-clay-vs-linkedin-sales-nav-best-for-outbound-2026/": {
+      "groups": [
+        "q3_apollo_cluster"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-20T21:27:42Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/blog/2026-05-06-apollo-vs-clay-vs-linkedin-sales-nav-best-for-outbound-2026/",
+      "userCanonical": "https://theautomationsguide.com/blog/2026-05-06-apollo-vs-clay-vs-linkedin-sales-nav-best-for-outbound-2026/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/tools/gong/",
+        "https://theautomationsguide.com/tools/smartlead/",
+        "https://theautomationsguide.com/sitemap-0.xml"
+      ]
+    },
+    "/blog/2026-06-01-pipedrive-vs-apollo-outbound-which-wins-in-2026/": {
+      "groups": [
+        "q3_apollo_cluster"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-06-09T12:28:05Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/blog/2026-06-01-pipedrive-vs-apollo-outbound-which-wins-in-2026/",
+      "userCanonical": "https://theautomationsguide.com/blog/2026-06-01-pipedrive-vs-apollo-outbound-which-wins-in-2026/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-06-10-instantly-alternatives-2026-when-youve-hit-the-limits/"
+      ]
+    },
+    "/blog/2026-06-17-apollo-sequences-vs-hubspot-sequences-the-truth/": {
+      "groups": [
+        "q3_apollo_cluster"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-09-03T22:57:48Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/blog/2026-06-17-apollo-sequences-vs-hubspot-sequences-the-truth/",
+      "userCanonical": "https://theautomationsguide.com/blog/2026-06-17-apollo-sequences-vs-hubspot-sequences-the-truth/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/tools/hubspot/"
+      ]
+    },
+    "/blog/2026-06-26-lusha-vs-apollo-vs-zoominfo-b2b-contact-data-compared/": {
+      "groups": [
+        "q3_apollo_cluster"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-06-27T13:37:15Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/blog/2026-06-26-lusha-vs-apollo-vs-zoominfo-b2b-contact-data-compared/",
+      "userCanonical": "https://theautomationsguide.com/blog/2026-06-26-lusha-vs-apollo-vs-zoominfo-b2b-contact-data-compared/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/?tag=automation"
+      ]
+    },
+    "/blog/2026-07-24-cognism-vs-apollo-vs-lusha-best-for-european-outbound/": {
+      "groups": [
+        "q3_apollo_cluster"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-07-25T21:17:25Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/blog/2026-07-24-cognism-vs-apollo-vs-lusha-best-for-european-outbound/",
+      "userCanonical": "https://theautomationsguide.com/blog/2026-07-24-cognism-vs-apollo-vs-lusha-best-for-european-outbound/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": null
+    },
+    "/tools/activecampaign/": {
+      "groups": [
+        "q5_request_indexing"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-30T09:03:55Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/activecampaign/",
+      "userCanonical": "https://theautomationsguide.com/tools/activecampaign/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-06-30-loops-vs-customerio-vs-brevo-best-email-platform-for-b2b-saa/"
+      ]
+    },
+    "/tools/apollo/": {
+      "groups": [
+        "q3_apollo_cluster"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-23T14:22:55Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/apollo/",
+      "userCanonical": "https://theautomationsguide.com/tools/apollo/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-05-28-outreach-alternatives-for-mid-market-revops-in-2026/",
+        "https://theautomationsguide.com/sitemap-0.xml"
+      ]
+    },
+    "/tools/calendly/": {
+      "groups": [
+        "q2_treatment"
+      ],
+      "in_sitemap": true,
+      "verdict": "NEUTRAL",
+      "coverageState": "Discovered - currently not indexed",
+      "indexingState": "INDEXING_STATE_UNSPECIFIED",
+      "robotsTxtState": "ROBOTS_TXT_STATE_UNSPECIFIED",
+      "pageFetchState": "PAGE_FETCH_STATE_UNSPECIFIED",
+      "lastCrawlTime": null,
+      "crawledAs": "CRAWLING_USER_AGENT_UNSPECIFIED",
+      "googleCanonical": null,
+      "userCanonical": null,
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-07-13-storydoc-vs-pandadoc-vs-qwilr-best-ai-proposal-tool-2026/",
+        "https://theautomationsguide.com/blog/2026-07-08-calcom-vs-calendly-vs-chili-piper-scheduling-for-revenue-tea/"
+      ]
+    },
+    "/tools/canva/": {
+      "groups": [
+        "q1_hubs_minted_0812_sessionlog",
+        "q2_control"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-20T13:00:48Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/canva/",
+      "userCanonical": "https://theautomationsguide.com/tools/canva/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": null
+    },
+    "/tools/close/": {
+      "groups": [
+        "q5_request_indexing"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-06-28T20:07:11Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/close/",
+      "userCanonical": "https://theautomationsguide.com/tools/close/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-06-27-close-vs-pipedrive-vs-hubspot-best-crm-for-outbound/"
+      ]
+    },
+    "/tools/creatify/": {
+      "groups": [
+        "q1_hubs_minted_0812_sessionlog"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-16T12:35:36Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/creatify/",
+      "userCanonical": "https://theautomationsguide.com/tools/creatify/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/revops-automation-pricing/"
+      ]
+    },
+    "/tools/factors-ai/": {
+      "groups": [
+        "q1_hubs_named_in_0819_audit",
+        "q5_request_indexing"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-30T08:44:56Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/factors-ai/",
+      "userCanonical": "https://theautomationsguide.com/tools/factors-ai/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-07-09-rb2b-alternatives-rb2b-vs-warmly-vs-vector-vs-factors/"
+      ]
+    },
+    "/tools/fullenrich/": {
+      "groups": [
+        "q5_request_indexing"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-06-23T11:24:15Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/fullenrich/",
+      "userCanonical": "https://theautomationsguide.com/tools/fullenrich/",
+      "sitemap": null,
+      "referringUrls": [
+        "https://theautomationsguide.com/sitemap-0.xml"
+      ]
+    },
+    "/tools/gong/": {
+      "groups": [
+        "q1_hubs_minted_0812_sessionlog"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-18T17:00:50Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/gong/",
+      "userCanonical": "https://theautomationsguide.com/tools/gong/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-08-08-smartlead-to-hubspot-via-n8n-sync-replies-and-book-meetings/",
+        "https://theautomationsguide.com/blog/2026-08-15-trigify-hubspot-lead-scoring-automation-2026-guide/"
+      ]
+    },
+    "/tools/gumloop/": {
+      "groups": [
+        "q2_control"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-22T13:07:03Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/gumloop/",
+      "userCanonical": "https://theautomationsguide.com/tools/gumloop/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-07-26-migrate-from-relevance-ai-to-lindy-without-rebuilding-gtm-ag/"
+      ]
+    },
+    "/tools/krispcall/": {
+      "groups": [
+        "q5_request_indexing"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-17T10:57:35Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/krispcall/",
+      "userCanonical": "https://theautomationsguide.com/tools/krispcall/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/revops-automation-pricing/"
+      ]
+    },
+    "/tools/linkedin-sales-navigator/": {
+      "groups": [
+        "q1_hubs_minted_0812_sessionlog"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-16T13:19:52Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/linkedin-sales-navigator/",
+      "userCanonical": "https://theautomationsguide.com/tools/linkedin-sales-navigator/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/revops-automation-pricing/"
+      ]
+    },
+    "/tools/mailchimp/": {
+      "groups": [
+        "q1_hubs_minted_0812_sessionlog"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-16T10:18:12Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/mailchimp/",
+      "userCanonical": "https://theautomationsguide.com/tools/mailchimp/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-07-18-migrate-activecampaign-to-hubspot-keep-automations-intact/"
+      ]
+    },
+    "/tools/mailshake/": {
+      "groups": [
+        "q2_control"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-20T13:00:49Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/mailshake/",
+      "userCanonical": "https://theautomationsguide.com/tools/mailshake/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": null
+    },
+    "/tools/moltsets/": {
+      "groups": [
+        "q2_control"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-20T01:20:17Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/moltsets/",
+      "userCanonical": "https://theautomationsguide.com/tools/moltsets/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-07-23-moltsets-cheap-b2b-contact-data-api/"
+      ]
+    },
+    "/tools/motion/": {
+      "groups": [
+        "q1_hubs_named_in_0819_audit"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-24T00:52:49Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/motion/",
+      "userCanonical": "https://theautomationsguide.com/tools/motion/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/?ref=producthunt"
+      ]
+    },
+    "/tools/nutshell/": {
+      "groups": [
+        "q5_request_indexing"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-09-05T14:32:38Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/nutshell/",
+      "userCanonical": "https://theautomationsguide.com/tools/nutshell/",
+      "sitemap": null,
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-06-25-nutshell-vs-pipedrive-vs-close-best-affordable-sales-crm/",
+        "https://theautomationsguide.com/sitemap-0.xml"
+      ]
+    },
+    "/tools/outreach/": {
+      "groups": [
+        "q1_hubs_minted_0812_sessionlog"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-16T19:55:12Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/outreach/",
+      "userCanonical": "https://theautomationsguide.com/tools/outreach/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-08-10-leadmagic-review-2026-is-the-linkedin-enrichment-worth-it/"
+      ]
+    },
+    "/tools/prospeo/": {
+      "groups": [
+        "q1_hubs_named_in_0819_audit",
+        "q5_request_indexing"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-09-06T02:19:01Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/prospeo/",
+      "userCanonical": "https://theautomationsguide.com/tools/prospeo/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-07-22-leadmagic-vs-surfe-vs-findymail-best-linkedin-enrichment-too/"
+      ]
+    },
+    "/tools/quickmail/": {
+      "groups": [
+        "q2_control"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-23T02:16:40Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/quickmail/",
+      "userCanonical": "https://theautomationsguide.com/tools/quickmail/",
+      "sitemap": null,
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-07-28-migrate-from-saleshandy-to-instantly-without-wrecking-your-s/"
+      ]
+    },
+    "/tools/reply-io/": {
+      "groups": [
+        "q5_request_indexing"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-19T20:11:52Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/reply-io/",
+      "userCanonical": "https://theautomationsguide.com/tools/reply-io/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-06-23-replyio-vs-smartlead-vs-instantly-sequencing-in-2026/",
+        "https://theautomationsguide.com/sitemap-0.xml"
+      ]
+    },
+    "/tools/saleshandy/": {
+      "groups": [
+        "q2_control"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-20T11:01:18Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/saleshandy/",
+      "userCanonical": "https://theautomationsguide.com/tools/saleshandy/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": null
+    },
+    "/tools/salesloft/": {
+      "groups": [
+        "q1_hubs_minted_0812_sessionlog"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-17T03:33:49Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/salesloft/",
+      "userCanonical": "https://theautomationsguide.com/tools/salesloft/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-08-16-warmly-make-signal-based-outbound-workflow-guide/",
+        "https://theautomationsguide.com/blog/2026-08-13-lusha-pricing-in-2026-credits-seats-and-when-to-switch/"
+      ]
+    },
+    "/tools/surfer/": {
+      "groups": [
+        "q5_request_indexing"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-07-04T14:38:41Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/surfer/",
+      "userCanonical": "https://theautomationsguide.com/tools/surfer/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-07-02-geo-workflow-optimize-gtm-content-with-frase-and-profound/",
+        "https://theautomationsguide.com/sitemap-0.xml"
+      ]
+    },
+    "/tools/trigify/": {
+      "groups": [
+        "q1_hubs_named_in_0819_audit"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-16T16:21:42Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/trigify/",
+      "userCanonical": "https://theautomationsguide.com/tools/trigify/",
+      "sitemap": null,
+      "referringUrls": [
+        "https://theautomationsguide.com/revops-automation-pricing/",
+        "https://theautomationsguide.com/sitemap-0.xml"
+      ]
+    },
+    "/tools/zoominfo/": {
+      "groups": [
+        "q2_treatment"
+      ],
+      "in_sitemap": true,
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "robotsTxtState": "ALLOWED",
+      "pageFetchState": "SUCCESSFUL",
+      "lastCrawlTime": "2026-08-20T14:27:47Z",
+      "crawledAs": "MOBILE",
+      "googleCanonical": "https://theautomationsguide.com/tools/zoominfo/",
+      "userCanonical": "https://theautomationsguide.com/tools/zoominfo/",
+      "sitemap": [
+        "https://theautomationsguide.com/sitemap-index.xml"
+      ],
+      "referringUrls": [
+        "https://theautomationsguide.com/blog/2026-07-23-moltsets-cheap-b2b-contact-data-api/",
+        "https://theautomationsguide.com/blog/2026-07-31-connect-clay-to-n8n-for-a-fully-automated-enrichment-pipelin/"
+      ]
+    }
+  }
+}

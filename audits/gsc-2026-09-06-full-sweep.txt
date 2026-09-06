@@ -1,0 +1,261 @@
+Property: sc-domain:theautomationsguide.com   URLs: 233
+
+PATH                                           VERDICT   COVERAGE STATE                       LAST CRAWL
+--------------------------------------------------------------------------------------------------------------------
+/                                              PASS      Submitted and indexed                2026-08-23
+/about/                                        PASS      Submitted and indexed                2026-08-14
+/blog/                                         PASS      Submitted and indexed                2026-08-30
+/blog/2026-05-03-make-vs-zapier-vs-n8n-in-2026-which-should-revops-pick/ PASS      Submitted and indexed                2026-07-17
+/blog/2026-05-03-revops-automation-stack-wed-build-with-500mo-in-2026/ PASS      Submitted and indexed                2026-07-21
+/blog/2026-05-04-5-revops-automation-mistakes-killing-your-pipeline-data/ NEUTRAL   Crawled - currently not indexed      2026-05-22
+/blog/2026-05-06-apollo-vs-clay-vs-linkedin-sales-nav-best-for-outbound-2026/ PASS      Submitted and indexed                2026-08-20
+/blog/2026-05-07-apollo-alternatives-for-mid-market-outbound-teams-in-2026/ PASS      Submitted and indexed                2026-06-19
+/blog/2026-05-07-clay-smartlead-n8n-cold-email-automation-stack/ PASS      Submitted and indexed                2026-07-13
+/blog/2026-05-08-cheap-outbound-sales-stack-for-small-b2b-teams-under-200mo/ NEUTRAL   Crawled - currently not indexed      2026-07-03
+/blog/2026-05-11-kit-n8n-4-newsletter-automations-every-operator-should-set-u/ NEUTRAL   Crawled - currently not indexed      2026-05-25
+/blog/2026-05-12-newsletter-automation-stack-wed-build-with-kit-n8n-notion-in/ NEUTRAL   Crawled - currently not indexed      2026-05-25
+/blog/2026-05-13-beehiiv-vs-substack-vs-hubspot-email-newsletter-for-b2b/ PASS      Submitted and indexed                2026-08-30
+/blog/2026-05-14-automated-reactivation-sequence-with-apollo-hubspot/ NEUTRAL   Crawled - currently not indexed      2026-06-20
+/blog/2026-05-14-gong-vs-outreach-vs-salesloft-which-wins-in-2026/ PASS      Submitted and indexed                2026-09-03
+/blog/2026-05-15-clay-vs-zapier-for-b2b-lead-enrichment-workflows/ PASS      Submitted and indexed                2026-05-28
+/blog/2026-05-18-lemlist-vs-apollo-for-b2b-outbound-2026-pick/ PASS      Submitted and indexed                2026-05-28
+/blog/2026-05-19-why-revops-teams-are-abandoning-outreach-in-2026/ PASS      Submitted and indexed                2026-08-06
+/blog/2026-05-20-b2b-lead-enrichment-without-clay-the-lean-stack/ NEUTRAL   Crawled - currently not indexed      2026-06-01
+/blog/2026-05-21-kit-vs-substack-vs-beehiiv-the-honest-3-way-comparison/ PASS      Submitted and indexed                2026-08-23
+/blog/2026-05-21-migrate-substack-to-kit-without-losing-subscribers/ PASS      Submitted and indexed                2026-08-23
+/blog/2026-05-22-best-mailchimp-alternatives-for-creators-and-small-operators/ PASS      Submitted and indexed                2026-06-10
+/blog/2026-05-25-n8n-vs-make-for-cold-outbound-clay-webhooks-compared/ PASS      Submitted and indexed                2026-08-30
+/blog/2026-05-27-lemlist-vs-smartlead-vs-instantly-2026-cold-email-showdown/ PASS      Submitted and indexed                2026-09-05
+/blog/2026-05-28-outreach-alternatives-for-mid-market-revops-in-2026/ PASS      Submitted and indexed                2026-06-19
+/blog/2026-05-29-best-salesforce-automation-tools-no-make-or-n8n/ PASS      Submitted and indexed                2026-06-19
+/blog/2026-06-01-pipedrive-vs-apollo-outbound-which-wins-in-2026/ PASS      Submitted and indexed                2026-06-09
+/blog/2026-06-03-the-1kmo-enterprise-revops-stack-decoded/ PASS      Submitted and indexed                2026-06-10
+/blog/2026-06-05-pabbly-vs-zapier-vs-make-budget-automation-compared/ PASS      Submitted and indexed                2026-06-14
+/blog/2026-06-08-adcreativeai-vs-canva-vs-creatify-which-ai-ad-tool-wins/ PASS      Submitted and indexed                2026-07-15
+/blog/2026-06-09-lemlist-vs-clay-for-outbound-b2b-enrichment-email-2026/ PASS      Submitted and indexed                2026-06-20
+/blog/2026-06-10-instantly-alternatives-2026-when-youve-hit-the-limits/ PASS      Submitted and indexed                2026-06-19
+/blog/2026-06-11-hubspot-vs-pipedrive-for-outbound-sequences/ PASS      Submitted and indexed                2026-09-06
+/blog/2026-06-12-gong-alternatives-for-revenue-intelligence-that-actually-fit/ PASS      Submitted and indexed                2026-07-19
+/blog/2026-06-13-make-hubspot-workflows-for-revops-4-builds-that-matter/ PASS      Submitted and indexed                2026-09-06
+/blog/2026-06-14-why-revops-teams-ship-deals-faster-in-2026/ PASS      Submitted and indexed                2026-08-07
+/blog/2026-06-15-kit-vs-beehiiv-2026-which-newsletter-platform-wins/ PASS      Submitted and indexed                2026-06-22
+/blog/2026-06-16-lemlist-vs-instantly-2026-why-revops-is-switching/ PASS      Submitted and indexed                2026-06-22
+/blog/2026-06-17-apollo-sequences-vs-hubspot-sequences-the-truth/ PASS      Submitted and indexed                2026-09-03
+/blog/2026-06-18-why-hubspot-automation-fails-your-data-quality/ PASS      Submitted and indexed                2026-07-07
+/blog/2026-06-19-outreach-alternatives-under-300mo-in-2026/ PASS      Submitted and indexed                2026-07-04
+/blog/2026-06-20-why-revops-teams-chose-n8n-over-make-in-2026/ PASS      Submitted and indexed                2026-08-26
+/blog/2026-06-21-getresponse-vs-brevo-vs-mailchimp-which-wins-in-2026/ PASS      Submitted and indexed                2026-07-06
+/blog/2026-06-22-krispcall-vs-justcall-vs-aircall-for-sdr-teams/ PASS      Submitted and indexed                2026-06-22
+/blog/2026-06-23-replyio-vs-smartlead-vs-instantly-sequencing-in-2026/ PASS      Submitted and indexed                2026-08-23
+/blog/2026-06-24-laxis-vs-fireflies-vs-otter-which-ai-notetaker-wins-for-revo/ PASS      Submitted and indexed                2026-06-25
+/blog/2026-06-25-nutshell-vs-pipedrive-vs-close-best-affordable-sales-crm/ PASS      Submitted and indexed                2026-06-26
+/blog/2026-06-26-lusha-vs-apollo-vs-zoominfo-b2b-contact-data-compared/ PASS      Submitted and indexed                2026-06-27
+/blog/2026-06-27-close-vs-pipedrive-vs-hubspot-best-crm-for-outbound/ PASS      Submitted and indexed                2026-06-27
+/blog/2026-06-28-automate-outbound-follow-ups-with-n8n-clay-and-hubspot/ PASS      Submitted and indexed                2026-07-01
+/blog/2026-06-29-taplio-vs-lemlist-vs-linkedin-native-best-linkedin-outreach/ PASS      Submitted and indexed                2026-06-30
+/blog/2026-06-30-loops-vs-customerio-vs-brevo-best-email-platform-for-b2b-saa/ PASS      Submitted and indexed                2026-08-23
+/blog/2026-07-01-route-inbound-leads-automatically-with-fillout-and-hubspot/ PASS      Submitted and indexed                2026-07-04
+/blog/2026-07-02-attio-alternatives-best-modern-crms-for-startups-in-2026/ PASS      Submitted and indexed                2026-07-04
+/blog/2026-07-02-geo-workflow-optimize-gtm-content-with-frase-and-profound/ PASS      Submitted and indexed                2026-08-24
+/blog/2026-07-02-storydoc-hubspot-proposal-automation-workflow/ PASS      Submitted and indexed                2026-07-07
+/blog/2026-07-03-zerobounce-vs-bouncer-vs-mailreach-best-email-verification-t/ PASS      Submitted and indexed                2026-07-04
+/blog/2026-07-04-beehiiv-kit-newsletter-automation-stack-under-300/ PASS      Submitted and indexed                2026-07-05
+/blog/2026-07-05-why-your-revops-stack-grows-too-fast-in-2026/ PASS      Submitted and indexed                2026-07-06
+/blog/2026-07-06-relevance-ai-vs-lindy-vs-n8n-ai-agents-for-gtm-teams/ PASS      Submitted and indexed                2026-07-06
+/blog/2026-07-07-best-ai-sdr-tools-in-2026-aisdr-vs-11x-vs-artisan/ PASS      Submitted and indexed                2026-08-22
+/blog/2026-07-08-calcom-vs-calendly-vs-chili-piper-scheduling-for-revenue-tea/ PASS      Submitted and indexed                2026-07-08
+/blog/2026-07-09-activepieces-vs-bardeen-vs-pabbly-best-budget-automation-202/ PASS      Submitted and indexed                2026-07-14
+/blog/2026-07-09-rb2b-alternatives-rb2b-vs-warmly-vs-vector-vs-factors/ PASS      Submitted and indexed                2026-09-03
+/blog/2026-07-10-cold-email-deliverability-is-breaking-in-2026/ PASS      Submitted and indexed                2026-07-11
+/blog/2026-07-11-surfer-vs-frase-vs-clearscope-best-for-geo-in-2026/ PASS      Submitted and indexed                2026-07-13
+/blog/2026-07-12-maildoso-vs-mailforge-vs-warmforge-best-cold-email-infra-202/ PASS      Submitted and indexed                2026-07-13
+/blog/2026-07-13-bland-ai-vs-vapi-vs-synthflow-which-closes-in-2026/ PASS      Submitted and indexed                2026-07-13
+/blog/2026-07-13-fullenrich-vs-bettercontact-vs-surfe-waterfall-enrichment-co/ PASS      Submitted and indexed                2026-07-14
+/blog/2026-07-13-storydoc-vs-pandadoc-vs-qwilr-best-ai-proposal-tool-2026/ PASS      Submitted and indexed                2026-07-14
+/blog/2026-07-14-profound-vs-surfer-vs-frase-best-geo-tool-in-2026/ PASS      Submitted and indexed                2026-07-14
+/blog/2026-07-15-circleback-vs-fathom-vs-tldv-best-ai-meeting-notetaker-for-r/ PASS      Submitted and indexed                2026-09-03
+/blog/2026-07-17-migrate-mailchimp-to-brevo-without-losing-automations/ PASS      Submitted and indexed                2026-07-17
+/blog/2026-07-18-migrate-activecampaign-to-hubspot-keep-automations-intact/ PASS      Submitted and indexed                2026-08-16
+/blog/2026-07-19-instantly-to-pipedrive-via-n8n-auto-create-deals-from-replie/ PASS      Submitted and indexed                2026-08-24
+/blog/2026-07-20-migrate-from-close-crm-to-pipedrive-without-losing-sequences/ PASS      Submitted and indexed                2026-08-23
+/blog/2026-07-21-fillout-vs-tally-vs-chili-piper-best-forms-and-routing-tool/ PASS      Submitted and indexed                2026-07-25
+/blog/2026-07-22-leadmagic-vs-surfe-vs-findymail-best-linkedin-enrichment-too/ PASS      Submitted and indexed                2026-07-22
+/blog/2026-07-23-automate-demo-scheduling-with-calcom-hubspot-and-n8n/ PASS      Submitted and indexed                2026-08-01
+/blog/2026-07-23-moltsets-cheap-b2b-contact-data-api/ PASS      Submitted and indexed                2026-08-05
+/blog/2026-07-24-cognism-vs-apollo-vs-lusha-best-for-european-outbound/ PASS      Submitted and indexed                2026-07-25
+/blog/2026-07-25-migrate-from-activecampaign-to-loops-without-losing-triggers/ PASS      Submitted and indexed                2026-08-01
+/blog/2026-07-26-migrate-from-relevance-ai-to-lindy-without-rebuilding-gtm-ag/ PASS      Submitted and indexed                2026-08-01
+/blog/2026-07-27-connect-fillout-to-hubspot-and-mondaycom-one-form-routes-eve/ PASS      Submitted and indexed                2026-07-27
+/blog/2026-07-28-migrate-from-saleshandy-to-instantly-without-wrecking-your-s/ PASS      Submitted and indexed                2026-08-01
+/blog/2026-07-29-beehiiv-lead-generation-gtm-the-90-day-newsletter-playbook/ PASS      Submitted and indexed                2026-07-30
+/blog/2026-07-30-migrate-from-vapi-to-synthflow-no-code-ai-voice-agents/ PASS      Submitted and indexed                2026-07-30
+/blog/2026-07-31-connect-clay-to-n8n-for-a-fully-automated-enrichment-pipelin/ PASS      Submitted and indexed                2026-08-02
+/blog/2026-08-01-vector-n8n-website-visitor-signal-workflow/ PASS      Submitted and indexed                2026-08-03
+/blog/2026-08-02-hubspot-n8n-lead-routing-without-fillout-full-guide/ PASS      Submitted and indexed                2026-08-03
+/blog/2026-08-03-aisdr-hubspot-workflow-full-setup-guide-for-2026/ PASS      Submitted and indexed                2026-08-04
+/blog/2026-08-04-attio-n8n-crm-enrichment-workflow-2026-guide/ PASS      Submitted and indexed                2026-08-04
+/blog/2026-08-05-bland-ai-hubspot-n8n-book-meetings-on-autopilot/ PASS      Submitted and indexed                2026-08-07
+/blog/2026-08-06-revops-stack-cost-per-rep-at-10-reps-2026-breakdown/ PASS      Submitted and indexed                2026-08-07
+/blog/2026-08-07-n8n-self-host-vs-cloud-in-2026-the-revops-decision-guide/ PASS      Submitted and indexed                2026-08-16
+/blog/2026-08-08-smartlead-to-hubspot-via-n8n-sync-replies-and-book-meetings/ PASS      Submitted and indexed                2026-08-16
+/blog/2026-08-09-connect-apollo-to-n8n-automate-lead-pulls-enrichment-and-crm/ PASS      Submitted and indexed                2026-08-16
+/blog/2026-08-10-leadmagic-review-2026-is-the-linkedin-enrichment-worth-it/ PASS      Submitted and indexed                2026-08-16
+/blog/2026-08-11-pabbly-connect-review-2026-honest-take-for-budget-teams/ PASS      Submitted and indexed                2026-08-16
+/blog/2026-08-12-what-pipedrive-actually-costs-in-2026-seats-add-ons-and-hidd/ PASS      Submitted and indexed                2026-08-17
+/blog/2026-08-13-lusha-pricing-in-2026-credits-seats-and-when-to-switch/ PASS      Submitted and indexed                2026-08-16
+/blog/2026-08-14-aircall-pricing-in-2026-per-seat-costs-and-hidden-add-ons/ PASS      Submitted and indexed                2026-08-16
+/blog/2026-08-15-trigify-hubspot-lead-scoring-automation-2026-guide/ PASS      Submitted and indexed                2026-08-16
+/blog/2026-08-16-warmly-make-signal-based-outbound-workflow-guide/ PASS      Submitted and indexed                2026-08-17
+/blog/2026-08-17-cold-email-deliverability-monitoring-workflow-smartlead-zero/ PASS      Submitted and indexed                2026-08-18
+/blog/2026-08-18-rb2b-review-2026-is-free-visitor-id-worth-the-trade-off/ PASS      Submitted and indexed                2026-08-20
+/blog/2026-08-19-rb2b-pricing-in-2026-free-tier-limits-and-when-to-pay/ PASS      Submitted and indexed                2026-08-20
+/blog/2026-08-20-migrate-hubspot-to-attio-without-losing-deal-history/ PASS      Submitted and indexed                2026-08-21
+/blog/2026-08-21-vapi-review-2026-ai-voice-agents-for-sales-without-engineers/ PASS      Submitted and indexed                2026-08-23
+/blog/2026-08-22-linkedin-outbound-loop-clay-lemlist-hubspot/ PASS      Submitted and indexed                2026-08-24
+/blog/2026-08-23-lindy-hubspot-sales-workflow-inbox-zero-agent-guide/ PASS      Submitted and indexed                2026-08-25
+/blog/2026-08-24-migrate-from-apollo-to-clay-without-losing-your-sequences-or/ PASS      Submitted and indexed                2026-08-25
+/blog/2026-08-25-migrate-pipedrive-to-hubspot-without-wrecking-your-pipeline/ PASS      Submitted and indexed                2026-08-30
+/blog/2026-08-26-migrate-from-lusha-to-fullenrich-without-losing-your-enrichm/ PASS      Submitted and indexed                2026-08-30
+/blog/2026-08-27-how-to-migrate-lemlist-to-smartlead-2026-guide/ PASS      Submitted and indexed                2026-08-31
+/blog/2026-08-28-leadmagic-pricing-in-2026-what-you-actually-pay-per-enrichme/ PASS      Submitted and indexed                2026-08-31
+/blog/2026-08-29-apollo-vs-cognism-data-quality-2026-which-list-wins/ PASS      Submitted and indexed                2026-08-30
+/blog/2026-08-30-pipedrive-vs-attio-which-crm-wins-for-gtm-teams-in-2026/ NEUTRAL   Discovered - currently not indexed   -
+/blog/2026-08-31-lemlist-review-2026-the-honest-take-for-b2b-outbound-teams/ NEUTRAL   Discovered - currently not indexed   -
+/blog/2026-09-01-activecampaign-vs-hubspot-vs-brevo-which-owns-your-workflows/ NEUTRAL   Discovered - currently not indexed   -
+/blog/2026-09-02-migrate-from-pipedrive-to-attio-without-losing-deal-history/ NEUTRAL   Discovered - currently not indexed   -
+/blog/2026-09-03-relevance-ai-pricing-in-2026-agent-credits-seats-and-roi/ NEUTRAL   Discovered - currently not indexed   -
+/blog/2026-09-04-lusha-reviews-2026-the-honest-take-for-outbound-data-teams/ NEUTRAL   URL is unknown to Google             -
+/blog/automate-sales-handoff-hubspot-slack/    NEUTRAL   Crawled - currently not indexed      2026-06-09
+/blog/zapier-vs-make-for-gtm-teams/            PASS      Submitted and indexed                2026-05-29
+/playbooks/                                    PASS      Submitted and indexed                2026-08-20
+/reviews/                                      PASS      Submitted and indexed                2026-08-31
+/revops-automation-pricing/                    PASS      Submitted and indexed                2026-08-16
+/teams/                                        PASS      Submitted and indexed                2026-06-23
+/teams/founders/                               PASS      Submitted and indexed                2026-06-19
+/teams/marketing/                              PASS      Submitted and indexed                2026-08-23
+/teams/revops/                                 PASS      Submitted and indexed                2026-08-31
+/teams/sales/                                  PASS      Submitted and indexed                2026-08-22
+/tools/                                        PASS      Submitted and indexed                2026-08-20
+/tools/11x/                                    PASS      Submitted and indexed                2026-07-14
+/tools/activecampaign/                         PASS      Submitted and indexed                2026-08-30
+/tools/activepieces/                           PASS      Submitted and indexed                2026-07-15
+/tools/adcreative/                             PASS      Submitted and indexed                2026-06-11
+/tools/aircall/                                PASS      Submitted and indexed                2026-06-27
+/tools/aisdr/                                  PASS      Submitted and indexed                2026-07-08
+/tools/aloware/                                PASS      Submitted and indexed                2026-07-13
+/tools/apollo/                                 PASS      Submitted and indexed                2026-08-23
+/tools/appy-ai/                                PASS      Submitted and indexed                2026-08-20
+/tools/artisan/                                PASS      Submitted and indexed                2026-07-14
+/tools/attio/                                  PASS      Submitted and indexed                2026-07-04
+/tools/avoma/                                  PASS      Submitted and indexed                2026-08-23
+/tools/bardeen/                                PASS      Submitted and indexed                2026-08-31
+/tools/beehiiv/                                PASS      Submitted and indexed                2026-07-12
+/tools/bettercontact/                          PASS      Submitted and indexed                2026-07-14
+/tools/bland-ai/                               PASS      Submitted and indexed                2026-06-23
+/tools/bouncer/                                PASS      Submitted and indexed                2026-07-04
+/tools/brevo/                                  PASS      Submitted and indexed                2026-06-26
+/tools/cal-com/                                PASS      Submitted and indexed                2026-09-05
+/tools/calendly/                               NEUTRAL   Discovered - currently not indexed   -
+/tools/canva/                                  PASS      Submitted and indexed                2026-08-20
+/tools/chili-piper/                            PASS      Submitted and indexed                2026-07-08
+/tools/circleback/                             PASS      Submitted and indexed                2026-07-16
+/tools/clay/                                   PASS      Submitted and indexed                2026-07-15
+/tools/clearscope/                             PASS      Submitted and indexed                2026-07-13
+/tools/close/                                  PASS      Submitted and indexed                2026-06-28
+/tools/cognism/                                PASS      Submitted and indexed                2026-08-16
+/tools/creatify/                               PASS      Submitted and indexed                2026-08-16
+/tools/customerio/                             PASS      Submitted and indexed                2026-09-06
+/tools/factors-ai/                             PASS      Submitted and indexed                2026-08-30
+/tools/fathom/                                 PASS      Submitted and indexed                2026-07-16
+/tools/fillout/                                PASS      Submitted and indexed                2026-08-23
+/tools/findymail/                              PASS      Submitted and indexed                2026-08-25
+/tools/fireflies/                              PASS      Submitted and indexed                2026-07-07
+/tools/folk/                                   PASS      Submitted and indexed                2026-09-02
+/tools/frase/                                  PASS      Submitted and indexed                2026-07-13
+/tools/fullenrich/                             PASS      Submitted and indexed                2026-06-23
+/tools/getaccept/                              PASS      Submitted and indexed                2026-07-14
+/tools/getresponse/                            PASS      Submitted and indexed                2026-06-26
+/tools/gong/                                   PASS      Submitted and indexed                2026-08-18
+/tools/gumloop/                                PASS      Submitted and indexed                2026-08-22
+/tools/hubspot/                                PASS      Submitted and indexed                2026-08-23
+/tools/instantly/                              PASS      Submitted and indexed                2026-08-23
+/tools/justcall/                               PASS      Submitted and indexed                2026-06-28
+/tools/kit/                                    PASS      Submitted and indexed                2026-08-27
+/tools/krispcall/                              PASS      Submitted and indexed                2026-08-17
+/tools/laxis/                                  PASS      Submitted and indexed                2026-08-16
+/tools/leadmagic/                              PASS      Submitted and indexed                2026-07-14
+/tools/lemlist/                                PASS      Submitted and indexed                2026-07-13
+/tools/lindy/                                  PASS      Submitted and indexed                2026-07-06
+/tools/linkedin-sales-navigator/               PASS      Submitted and indexed                2026-08-16
+/tools/loops/                                  PASS      Submitted and indexed                2026-07-01
+/tools/lusha/                                  PASS      Submitted and indexed                2026-08-21
+/tools/mailchimp/                              PASS      Submitted and indexed                2026-08-16
+/tools/maildoso/                               PASS      Submitted and indexed                2026-07-11
+/tools/mailforge/                              PASS      Submitted and indexed                2026-07-14
+/tools/mailreach/                              PASS      Submitted and indexed                2026-07-04
+/tools/mailshake/                              PASS      Submitted and indexed                2026-08-20
+/tools/make/                                   PASS      Submitted and indexed                2026-08-31
+/tools/moltsets/                               PASS      Submitted and indexed                2026-08-20
+/tools/motion/                                 PASS      Submitted and indexed                2026-08-24
+/tools/n8n/                                    PASS      Submitted and indexed                2026-08-21
+/tools/nutshell/                               PASS      Submitted and indexed                2026-09-05
+/tools/otter/                                  PASS      Submitted and indexed                2026-08-16
+/tools/outreach/                               PASS      Submitted and indexed                2026-08-16
+/tools/pabbly/                                 PASS      Submitted and indexed                2026-07-10
+/tools/pandadoc/                               PASS      Submitted and indexed                2026-09-03
+/tools/pipedrive/                              PASS      Submitted and indexed                2026-08-26
+/tools/profound/                               PASS      Submitted and indexed                2026-07-17
+/tools/prospeo/                                PASS      Submitted and indexed                2026-09-06
+/tools/quickmail/                              PASS      Submitted and indexed                2026-08-23
+/tools/qwilr/                                  PASS      Submitted and indexed                2026-08-30
+/tools/rb2b/                                   PASS      Submitted and indexed                2026-08-26
+/tools/relevance-ai/                           PASS      Submitted and indexed                2026-08-26
+/tools/reply-io/                               PASS      Submitted and indexed                2026-08-19
+/tools/runable/                                PASS      Submitted and indexed                2026-08-19
+/tools/salesflare/                             PASS      Submitted and indexed                2026-07-04
+/tools/salesforce/                             PASS      Submitted and indexed                2026-08-31
+/tools/saleshandy/                             PASS      Submitted and indexed                2026-08-20
+/tools/salesloft/                              PASS      Submitted and indexed                2026-08-17
+/tools/smartlead/                              PASS      Submitted and indexed                2026-08-22
+/tools/storydoc/                               PASS      Submitted and indexed                2026-07-14
+/tools/surfe/                                  PASS      Submitted and indexed                2026-07-14
+/tools/surfer/                                 PASS      Submitted and indexed                2026-07-04
+/tools/synthflow/                              PASS      Submitted and indexed                2026-07-13
+/tools/tally/                                  PASS      Submitted and indexed                2026-08-04
+/tools/taplio/                                 PASS      Submitted and indexed                2026-06-30
+/tools/tl-dv/                                  PASS      Submitted and indexed                2026-07-16
+/tools/trigify/                                PASS      Submitted and indexed                2026-08-16
+/tools/vapi/                                   PASS      Submitted and indexed                2026-07-14
+/tools/vector/                                 PASS      Submitted and indexed                2026-08-04
+/tools/voiceos/                                PASS      Submitted and indexed                2026-08-20
+/tools/warmforge/                              PASS      Submitted and indexed                2026-07-13
+/tools/warmly/                                 PASS      Submitted and indexed                2026-06-25
+/tools/watermelon/                             PASS      Submitted and indexed                2026-08-19
+/tools/wispr-flow/                             PASS      Submitted and indexed                2026-08-20
+/tools/zapier/                                 PASS      Submitted and indexed                2026-08-16
+/tools/zerobounce/                             PASS      Submitted and indexed                2026-08-30
+/tools/zoominfo/                               PASS      Submitted and indexed                2026-08-20
+
+Summary by coverage state:
+  219  Submitted and indexed
+    7  Crawled - currently not indexed
+    6  Discovered - currently not indexed
+    1  URL is unknown to Google
+
+====================================================================================================================
+NEEDS INDEXING (14 URLs not currently indexed):
+--------------------------------------------------------------------------------------------------------------------
+  [Crawled - currently not indexed]  https://theautomationsguide.com/blog/2026-05-04-5-revops-automation-mistakes-killing-your-pipeline-data/
+  [Crawled - currently not indexed]  https://theautomationsguide.com/blog/2026-05-08-cheap-outbound-sales-stack-for-small-b2b-teams-under-200mo/
+  [Crawled - currently not indexed]  https://theautomationsguide.com/blog/2026-05-11-kit-n8n-4-newsletter-automations-every-operator-should-set-u/
+  [Crawled - currently not indexed]  https://theautomationsguide.com/blog/2026-05-12-newsletter-automation-stack-wed-build-with-kit-n8n-notion-in/
+  [Crawled - currently not indexed]  https://theautomationsguide.com/blog/2026-05-14-automated-reactivation-sequence-with-apollo-hubspot/
+  [Crawled - currently not indexed]  https://theautomationsguide.com/blog/2026-05-20-b2b-lead-enrichment-without-clay-the-lean-stack/
+  [Discovered - currently not indexed]  https://theautomationsguide.com/blog/2026-08-30-pipedrive-vs-attio-which-crm-wins-for-gtm-teams-in-2026/
+  [Discovered - currently not indexed]  https://theautomationsguide.com/blog/2026-08-31-lemlist-review-2026-the-honest-take-for-b2b-outbound-teams/
+  [Discovered - currently not indexed]  https://theautomationsguide.com/blog/2026-09-01-activecampaign-vs-hubspot-vs-brevo-which-owns-your-workflows/
+  [Discovered - currently not indexed]  https://theautomationsguide.com/blog/2026-09-02-migrate-from-pipedrive-to-attio-without-losing-deal-history/
+  [Discovered - currently not indexed]  https://theautomationsguide.com/blog/2026-09-03-relevance-ai-pricing-in-2026-agent-credits-seats-and-roi/
+  [URL is unknown to Google]  https://theautomationsguide.com/blog/2026-09-04-lusha-reviews-2026-the-honest-take-for-outbound-data-teams/
+  [Crawled - currently not indexed]  https://theautomationsguide.com/blog/automate-sales-handoff-hubspot-slack/
+  [Discovered - currently not indexed]  https://theautomationsguide.com/tools/calendly/

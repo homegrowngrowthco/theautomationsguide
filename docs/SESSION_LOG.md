@@ -8,7 +8,17 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-08-31 (Session 87).
+Last updated 2026-09-06 (Session 88).
+
+## Session 88 (2026-09-06) — GSC index sweep (4 TODO reads), logo retro audit (PR #271), pricing-index pitch list
+
+- Part of a cross-project TODO batch run by Fable 5.1 on Ian's "work through these"; three background agents did the TAG work, the main session folded results into TODO.md.
+- **Index sweep** ([audits/AUDIT-INDEX-2026-09-06.md](../audits/AUDIT-INDEX-2026-09-06.md), raw pulls beside it): the 7 hubs minted 8/12 all indexed by 08-20 (the 08-19 audit had named the wrong four); split test read = control 6/6 indexed with zero inbound links, treatment 1/2 (calendly "Discovered, never crawled"), so links were NOT required and "FAQs = indexed" is not separable from the 08-19 sitemap re-read; "apollo vs pipedrive" 24.0 on 28d (27.0 pre-merge, last two weeks 22.8/22.1, target < 20 not met); best click week 9, no 10 yet; indexation 219/233 = 94.0% raw, 96.5% excluding posts under a week old, shortfall = 7 May-era crawled-not-indexed posts; all 9 "Request Indexing" candidates were already indexed. Read-only OAuth, no Request Indexing submitted.
+- **Logo retro audit, PR #271 (draft, awaiting Ian):** 10 of 77 rasters failed the banner rule (5 OG banners, 5 oversize wordmarks); 3 re-sourced by script (`--replace` flag added to `auto-register-tools.mjs --logo-for`), zapier hand-sourced, warmforge dropped to text wordmark, 5 downscaled; the 4 hand marks (pandadoc, activepieces, profound, justcall) sourced from press/brand assets and pass the guard; banner rule promoted to a HARD check in `qa/lint-logos.mjs`, proven against the pre-fix files. Table in `audits/LOGO-AUDIT-2026-09-06.md` (in the PR). Worktree `C:\tmp\tag-logo-audit` left in place until merge.
+- **Pitch list:** [pricing/PITCH-LIST-2026-09-06.md](../pricing/PITCH-LIST-2026-09-06.md), 10 outlets with verified contact paths and a 3-sentence pitch each; Ian sends. r/revops rules unverified (reddit blocked the fetch).
+- **TODO.md:** 3 items deleted (7 hubs, Request Indexing, banner audit + JustCall folded into the PR #271 review item), 6 rewritten with the 9/06 numbers, PR #271 review item added. `qa:docs` 0 hard.
+- **Not sweepable from a Claude session:** affiliate approvals (ian@theautomationsguide.com), noted on the TODO item.
+- **Revert:** docs-only on master, `git revert` the single commit; PR #271 reverts independently.
 
 ## Session 87 (2026-08-31) — Wired card imagery into every post-listing template (PR #263)
 
