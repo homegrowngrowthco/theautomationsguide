@@ -24,7 +24,7 @@
 //   node qa/auto-register-tools.mjs --post <p> --dry-run        # report only, no writes
 //   node qa/auto-register-tools.mjs --post <p> --url-hint slug=https://...  # skip TLD probe for slug
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 
@@ -478,10 +478,27 @@ function changedPosts() {
 // + validateRasterLogo path the post flow uses, so a logo added here clears the
 // same lint-logos bar. Never touches affiliate-links.ts and never registers
 // anything new. Homepage comes from the affiliate registry, or --url-hint.
+//
+// --replace: also re-source tools that ALREADY carry a logo, swapping the
+// registry path and deleting the old file if its extension changed. Used by the
+// retro audit (qa/audit-logos-retro.mjs) to redo logos registered before the
+// 2026-08-20 banner rule existed; without it a bad old logo is "skipped".
+const REPLACE = args.includes('--replace');
+
+function replaceLogoInTool(src, slug, logoRel) {
+  const slugIdx = src.search(new RegExp(`slug:\\s*['"]${slug}['"]`));
+  if (slugIdx === -1) return null;
+  const endIdx = src.indexOf('\n  },', slugIdx);
+  const block = endIdx === -1 ? src.slice(slugIdx) : src.slice(slugIdx, endIdx);
+  const m = block.match(/logo:\s*(['"])[^'"]*\1/);
+  if (!m) return null;
+  return src.slice(0, slugIdx) + block.replace(m[0], `logo: '${logoRel}'`) + src.slice(slugIdx + block.length);
+}
+
 async function logoOnlyMode(slugs) {
   let toolsSrc = readFileSync(TOOLS_PATH, 'utf8');
   const homepages = registryHomepages(readFileSync(AFF_PATH, 'utf8'));
-  const report = { added: [], failed: [], skipped: [] };
+  const report = { added: [], replaced: [], failed: [], skipped: [] };
 
   for (const slug of slugs) {
     // Entry bounds by index, not a bounded regex: LP-builder entries carry body
@@ -491,7 +508,8 @@ async function logoOnlyMode(slugs) {
     if (slugIdx === -1) { report.failed.push({ slug, why: 'not in tools.ts' }); continue; }
     const endIdx = toolsSrc.indexOf('\n  },', slugIdx);
     const block = endIdx === -1 ? toolsSrc.slice(slugIdx) : toolsSrc.slice(slugIdx, endIdx);
-    if (/logo:\s*['"]/.test(block)) { report.skipped.push({ slug, why: 'already has a logo' }); continue; }
+    const oldRel = (block.match(/logo:\s*['"]([^'"]+)['"]/) || [])[1] || null;
+    if (oldRel && !REPLACE) { report.skipped.push({ slug, why: 'already has a logo (pass --replace to re-source)' }); continue; }
 
     const homepage = urlHints.get(slug) || homepages.get(slug);
     if (!homepage) { report.failed.push({ slug, why: 'no homepage in affiliate registry; pass --url-hint' }); continue; }
@@ -502,15 +520,26 @@ async function logoOnlyMode(slugs) {
     const html = (await fetchText(homepage))?.html || '';
     const logo = await sourceLogo(slug, html, homepage, host);
     if (!logo) { report.failed.push({ slug, why: 'no icon passed transparency/luminance validation' }); continue; }
+    if (oldRel) {
+      const next = replaceLogoInTool(toolsSrc, slug, logo.rel);
+      if (!next) { report.failed.push({ slug, why: 'could not replace logo in entry' }); continue; }
+      toolsSrc = next;
+      if (oldRel !== logo.rel && !DRY) {
+        const oldPath = path.join(ROOT, 'public', oldRel);
+        if (existsSync(oldPath)) unlinkSync(oldPath);
+      }
+      report.replaced.push({ slug, from: oldRel, ...logo });
+      continue;
+    }
     const next = addLogoToTool(toolsSrc, slug, logo.rel);
     if (!next) { report.failed.push({ slug, why: 'could not splice logo into entry' }); continue; }
     toolsSrc = next;
     report.added.push({ slug, ...logo });
   }
 
-  if (!DRY && report.added.length) writeFileSync(TOOLS_PATH, toolsSrc);
+  if (!DRY && (report.added.length || report.replaced.length)) writeFileSync(TOOLS_PATH, toolsSrc);
   console.log(JSON.stringify(report, null, 2));
-  console.log(DRY ? '\nDRY RUN (no files written).' : `\nWrote ${report.added.length} logo(s) + tools.ts entries.`);
+  console.log(DRY ? '\nDRY RUN (no files written).' : `\nWrote ${report.added.length} new + ${report.replaced.length} replaced logo(s) + tools.ts entries.`);
   process.exit(0);
 }
 
