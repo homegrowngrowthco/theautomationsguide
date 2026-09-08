@@ -1,0 +1,179 @@
+---
+title: "GetResponse Pricing in 2026: Plans, Limits, and When to Switch"
+description: "A no-fluff breakdown of GetResponse pricing tiers, real costs for growing teams, and how it stacks up against Brevo, ActiveCampaign, and Mailchimp."
+tldr: "GetResponse starts at $19/month for 1,000 contacts but real mid-tier costs land between $59 and $119/month once you need automation and ecommerce features, making it competitive but not always the cheapest option for fast-growing lists."
+pubDate: 2026-09-08
+tags: ["tools", "email-marketing", "pricing"]
+faqs:
+  - question: "How much does GetResponse cost per month?"
+    answer: "GetResponse plans start at $19/month for 1,000 contacts on the Email Marketing tier. Costs scale with list size, reaching around $59/month at 5,000 contacts on the Marketing Automation plan."
+  - question: "Does GetResponse have a free plan?"
+    answer: "Yes. GetResponse offers a free plan capped at 500 contacts and 2,500 newsletters per month, with no automation or landing page A/B testing included."
+  - question: "Is GetResponse cheaper than Mailchimp?"
+    answer: "At equivalent list sizes, GetResponse is generally 15 to 30 percent cheaper than Mailchimp's Standard tier, especially once you factor in automation workflows that Mailchimp gates behind higher plans."
+  - question: "Does GetResponse charge for unsubscribes?"
+    answer: "No. GetResponse only counts active contacts toward your plan limit, not unsubscribes or bounced addresses, which helps manage billing at scale."
+  - question: "When should I switch from GetResponse to ActiveCampaign?"
+    answer: "Switch when you need deep CRM pipeline functionality, lead scoring with custom attributes, or multi-channel automation beyond email and SMS, all of which ActiveCampaign handles more natively."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The question I get most from early-stage SaaS founders evaluating email tools is not "which platform is best" but "how bad does the bill get by the time I actually need the features?" [GetResponse](/go/getresponse/) is a platform I keep recommending to certain profiles, and passing over for others, almost entirely because of how its pricing ladder works. This post runs the real math, flags the gotchas, and tells you exactly when to look at [Brevo](/go/brevo/), [ActiveCampaign](/go/activecampaign/), or [Mailchimp](/go/mailchimp/) instead.
+
+<KeyTakeaways items={[
+  "GetResponse's free plan caps at 500 contacts with no automation, making it useful for testing only",
+  "The sweet spot is the Marketing Automation tier: $59/month at 5,000 contacts covers most B2B use cases",
+  "List-size pricing means a 25,000-contact list costs $179/month on Marketing Automation, which is where Brevo's send-volume model gets competitive",
+  "GetResponse MAX (enterprise) requires a custom quote and bundles SMS, transactional email, and dedicated infrastructure",
+  "ActiveCampaign wins on CRM depth; Brevo wins on transactional volume; GetResponse wins on the all-in-one bundle for mid-market"
+]} />
+
+<StatRow stats={[
+  { number: "$19/mo", label: "Entry price", description: "Email Marketing plan, 1,000 contacts, billed monthly" },
+  { number: "$59/mo", label: "Real mid-tier cost", description: "Marketing Automation at 5,000 contacts, the minimum for serious workflow use" },
+  { number: "30%", label: "List-size price jump", description: "Approximate cost increase moving from 5,000 to 10,000 contacts within the same tier" }
+]} />
+
+## What you actually get at each tier
+
+GetResponse publishes four self-serve tiers: Free, Email Marketing, Marketing Automation, and eCommerce Marketing, plus an enterprise MAX tier. The naming sounds straightforward. The feature gates are not. I have had clients purchase Email Marketing thinking automation was included, and it is not. Visual workflow automation only unlocks at Marketing Automation. That single misread burned two onboarding timelines I was directly involved with.
+
+Here is how the tiers map to real capability:
+
+**Free:** 500 contacts, 2,500 newsletters per month, one landing page, no automation workflows, no A/B testing. Useful only for validating deliverability before committing a budget.
+
+**Email Marketing ($19/month at 1k contacts):** Unlimited newsletters, autoresponders, one automation workflow with a five-step limit, basic segmentation, and landing pages. That workflow cap is the wall. If you need branching nurture sequences, you hit it on day one.
+
+**Marketing Automation ($59/month at 5k contacts):** Unlimited automation workflows, lead scoring, event-based triggers, webinar hosting for up to 100 attendees, and the contact scoring model. This is where the platform earns its keep for B2B teams. Most clients I consult with on email infrastructure land here and stay here.
+
+**eCommerce Marketing ($119/month at 5k contacts):** Adds abandoned cart recovery, promo codes, product recommendations, and web push notifications. If you are not running an ecommerce store, skip this tier entirely. Do not pay for abandoned cart recovery you will never trigger.
+
+**MAX (custom pricing):** Dedicated IP, SSO, transactional email API, SMS marketing, and a dedicated account manager. [GetResponse's enterprise page](https://www.getresponse.com/pricing) does not publish a floor price. In my experience, teams budgeting under $500/month rarely justify the conversation.
+
+## The true cost: running real math
+
+Let me model a specific scenario. A B2B SaaS company with 12,000 contacts needs email nurture automation, basic lead scoring, and webinar capability for a monthly demo series.
+
+The only tier covering all three is Marketing Automation. At 12,500 contacts (the bracket above 10,000), [GetResponse's pricing page](https://www.getresponse.com/pricing) puts you at roughly $95/month billed monthly or $79/month on an annual commitment.
+
+Add the annual discount and the math looks like this:
+
+- Marketing Automation, 12,500 contacts, annual: $79/month ($948/year)
+- Webinar bump to 300 attendees add-on: $40/month ($480/year)
+- **True annual cost: $1,428**
+
+Compare that to a similar configuration on ActiveCampaign (Plus tier, 12,500 contacts, annual): approximately $1,860/year. On [Mailchimp](/tools/mailchimp/) (Standard, 12,500 contacts, annual): approximately $2,040/year.
+
+GetResponse wins this comparison cleanly. Where it loses is contact count. If your list hits 50,000 active contacts, the per-contact pricing on Marketing Automation climbs to around $299/month, and Brevo's send-volume model (pay per email sent, not per contact stored) starts looking materially cheaper.
+
+## Which tier for which team
+
+<ChooseIf title="GetResponse vs. the alternatives: choose by fit" tools={[
+  {
+    name: "GetResponse",
+    conditions: [
+      "You need email automation, landing pages, and webinar hosting bundled at one price",
+      "Your list is under 25,000 contacts and growing steadily but not explosively",
+      "You want a lower entry price than ActiveCampaign without sacrificing workflow depth"
+    ],
+    pricing: "From $19/mo (Email Marketing) to $119/mo (eCommerce) at 5k contacts",
+    affiliateSlug: "getresponse",
+    ctaLabel: "Try GetResponse",
+    highlight: true
+  },
+  {
+    name: "Brevo",
+    conditions: [
+      "You have a large stored list but relatively low monthly send volume",
+      "You need transactional email (SMTP/API) tightly integrated with marketing sends",
+      "Your list size fluctuates, making per-contact billing feel penalizing"
+    ],
+    pricing: "Free tier available; Starter from $9/mo by email volume",
+    affiliateSlug: "brevo",
+    ctaLabel: "Try Brevo"
+  },
+  {
+    name: "ActiveCampaign",
+    conditions: [
+      "You need CRM pipeline management alongside email automation in one tool",
+      "Lead scoring with custom object attributes is a hard requirement",
+      "Your sales team needs deal stage automation that email platforms treat as an afterthought"
+    ],
+    pricing: "Starter from $15/mo; Plus from $49/mo (1k contacts)",
+    affiliateSlug: "activecampaign",
+    ctaLabel: "Try ActiveCampaign"
+  },
+  {
+    name: "Mailchimp",
+    conditions: [
+      "Your team is non-technical and the priority is template design speed over automation depth",
+      "You are primarily running one-off campaign sends rather than ongoing nurture sequences",
+      "You are already embedded in the Intuit ecosystem and integration overhead matters"
+    ],
+    pricing: "Free tier up to 500 contacts; Standard from $20/mo at 500 contacts",
+    affiliateSlug: "mailchimp",
+    ctaLabel: "Try Mailchimp"
+  }
+]} />
+
+If you are evaluating ActiveCampaign versus other platforms more broadly, the post [ActiveCampaign vs HubSpot vs Brevo: Which Owns Your Workflows](/blog/2026-09-01-activecampaign-vs-hubspot-vs-brevo-which-owns-your-workflows/) goes deep on the automation philosophy differences.
+
+## The hidden costs most buyers miss
+
+GetResponse has a few billing behaviors worth knowing before you sign an annual contract. None of them are secrets. All of them catch people off guard.
+
+First, contact count brackets jump in large increments. Going from 9,900 to 10,001 contacts does not trigger a small uplift. It moves you to the 10,000-25,000 bracket immediately. Run aggressive lead gen and hit that ceiling mid-year on an annual plan, and you are paying the higher bracket now, not at renewal.
+
+Second, the webinar add-on is separate from the plan tier. Marketing Automation includes webinars for up to 100 attendees. If you run demand-gen webinars with 200 or 300 attendees (common in SaaS), you are adding $40 to $99/month on top of plan cost. That is not disclosed prominently during signup. I have seen this surprise show up on the first invoice more than once.
+
+Third, SMS is not included on any self-serve plan. It is MAX-only. If SMS nurture is part of your lifecycle strategy, GetResponse is not the right platform unless you are budgeting for MAX or routing SMS through a separate tool via webhook.
+
+[G2's GetResponse reviews](https://www.g2.com/products/getresponse/reviews) consistently surface billing transparency as a friction point. That tracks with what I hear from clients who did not read the add-on documentation carefully before committing annually.
+
+<MyTake>
+Most pricing comparisons treat GetResponse as a budget Mailchimp alternative. That framing is wrong and it sends people to the wrong tier. GetResponse at Marketing Automation is actually a credible mid-market automation platform, closer to ActiveCampaign Lite than to Mailchimp Standard. The founders I have watched struggle with it are the ones who bought it as a cheap newsletter tool and then needed workflow logic six months later. Buy it for the automation or do not buy it at all.
+</MyTake>
+
+## When to switch away from GetResponse
+
+There are three signals I watch for in client accounts.
+
+Active contact count regularly exceeds 30,000 and monthly send volume is low relative to list size. This is where Brevo's send-count model saves real money. Per [Brevo's pricing documentation](https://www.brevo.com/pricing/), storing unlimited contacts at the Business tier costs $65/month for up to 1 million contacts, limited only by monthly send volume. If you are sitting on a large list and emailing it infrequently, that math flips hard in Brevo's favor.
+
+You need attribution beyond email open and click. GetResponse's analytics are email-centric. Once clients need revenue attribution tied to contact journey milestones and pipeline stage, they typically migrate to [ActiveCampaign](/tools/activecampaign/) or connect to a dedicated CRM. GetResponse does not solve this cleanly on self-serve plans.
+
+Your team is building multi-channel sequences that combine email, SMS, and in-app triggers. GetResponse's channel coverage on self-serve plans is email-first, with webinar as the main add-on. Cross-channel orchestration requires MAX or a separate tool layered on top.
+
+The migration itself is not painless. Exporting segments, rebuilding automation workflows, and re-warming a sending IP all take real time. If you are thinking about switching to a platform with stronger transactional infrastructure, [Brevo's help documentation](https://help.brevo.com/) covers list import and authentication setup clearly and is worth reading before you commit to a migration timeline.
+
+## One number that matters more than plan price
+
+Deliverability is the silent multiplier on every pricing comparison. A platform that costs $40/month less but delivers to inbox at 5 percent lower rates is almost always the worse value. Full stop. [GetResponse publishes a 99 percent deliverability rate](https://www.getresponse.com/features/email-deliverability) across its shared IP infrastructure, which I have seen hold reasonably well in practice for clients with clean lists and consistent sending cadence. It is not a vanity stat if your list hygiene is solid.
+
+<BottomLine
+  verdict="GetResponse is the most cost-efficient choice for SMB and mid-market teams who need automation, landing pages, and webinars bundled together, as long as your list stays under 25,000 contacts. Beyond that, model your 18-month contact growth and compare against Brevo's send-volume pricing before committing."
+  pick="GetResponse"
+  affiliateSlug="getresponse"
+  ctaLabel="See GetResponse pricing"
+/>
+
+<Sources sources={[
+  { label: "GetResponse: Official pricing page", url: "https://www.getresponse.com/pricing" },
+  { label: "Brevo: Pricing and plan details", url: "https://www.brevo.com/pricing/" },
+  { label: "G2: GetResponse user reviews 2026", url: "https://www.g2.com/products/getresponse/reviews" },
+  { label: "GetResponse: Email deliverability features", url: "https://www.getresponse.com/features/email-deliverability" }
+]} />
