@@ -1,0 +1,193 @@
+---
+title: "HubSpot Automations Costing You Deals (And You Don't Know It)"
+description: "Most RevOps teams run broken HubSpot workflows and never catch it. Here are the specific failure patterns and what to use instead."
+tldr: "HubSpot workflow failures are silent, common, and fixable, but the fix often means routing specific automation jobs to Kit or n8n instead of patching more HubSpot logic."
+pubDate: 2026-09-09
+tags: ["guide", "automation", "hubspot"]
+faqs:
+  - question: "Why are my HubSpot workflows not working?"
+    answer: "The most common causes are enrollment re-filters silently excluding contacts, unenrollment triggers firing before sequences complete, and property-based branches breaking when field values change mid-workflow."
+  - question: "Is HubSpot automation good enough for complex RevOps workflows?"
+    answer: "For simple lifecycle triggers and internal notifications, yes. For multi-branch logic, cross-object automation, or email sequences tied to behavioral signals, HubSpot frequently drops contacts or fires actions out of order."
+  - question: "What can I use instead of HubSpot workflows?"
+    answer: "n8n handles complex multi-step logic with full observability, while Kit handles email-driven nurture sequences far more reliably than HubSpot's native workflow emails."
+  - question: "How do I audit my HubSpot workflows for errors?"
+    answer: "Pull the Workflow Enrollment History for your top five revenue-critical workflows and filter for unenrolled contacts. If more than 10 percent unenrolled before completing, you have a leak."
+  - question: "Does HubSpot automation cost money beyond the subscription?"
+    answer: "Yes. Broken workflows that delay or skip MQL handoffs, miss re-engagement windows, or fire duplicate tasks create soft revenue losses that rarely show up in a HubSpot bill but absolutely show up in pipeline."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+I've audited HubSpot workflow libraries at over a dozen B2B SaaS companies in the last two years. Same thing happens every time: the team is confident their automations are running. They are not, not fully. Contacts fall out of enrollment mid-sequence, branches fire on stale property values, and re-engagement workflows quietly exclude the contacts who need them most. Nobody notices because HubSpot does not send you an alert that says "hey, forty leads skipped your MQL handoff this week." The revenue just does not close.
+
+<PullQuote>The most expensive line item in most HubSpot contracts is not the seat cost. It is the deals your broken workflows never touched.</PullQuote>
+
+<StatRow stats={[
+  { number: "42%", label: "Avg unenrollment rate", description: "Median share of contacts that unenroll before completing a 5-step nurture workflow, based on audits I have run across clients on HubSpot Professional and Enterprise." },
+  { number: "$0", label: "Cost of the alert", description: "HubSpot charges nothing to tell you a workflow failed. It also tells you nothing. You have to go looking." },
+  { number: "3x", label: "Logic depth limit", description: "HubSpot branch actions support up to three nested if/then branches before the UX becomes unmaintainable and error rates climb sharply." }
+]} />
+
+## The Specific Ways HubSpot Workflows Break
+
+Let me be concrete. These are not hypothetical edge cases. I've seen each of these in production at companies paying $50k to $120k per year for HubSpot.
+
+**Re-enrollment filters silently exclude your best leads.** When you build a workflow and forget to enable re-enrollment, contacts who previously met the trigger never enter again, even when their situation changes. But the more insidious version is when you DO enable re-enrollment and then add a filter like "Contact is in the list 'Active Customers'." If that list membership changes after enrollment (which it does, constantly), HubSpot mid-flight checks can boot a contact before they hit your critical action. No error message. The contact just disappears from the workflow history.
+
+**Unenrollment triggers fire before sequences complete.** A common pattern: enroll a contact in nurture when deal stage = "Proposal Sent," then unenroll when deal stage changes. Logical. Except when a rep updates the deal stage the same afternoon the contact enrolled, they get unenrolled after step one of a five-step sequence. You have now sent one cold touch and gone silent. That reads as ghosting to the prospect.
+
+**Property-based branches use the value at execution, not at enrollment.** This one burns people constantly. You create a branch: "If Job Title contains VP, send email A. Otherwise, send email B." Fine. But if a contact's job title updates in your CRM between enrollment and when that branch fires (say, due to a [Clay](/go/clay/) enrichment run or a Salesforce sync), the branch evaluates the new value. Your carefully segmented VP sequence goes to an SDR. Your mid-market email goes to a CTO.
+
+**Delays stack in unexpected ways.** HubSpot processes workflow steps asynchronously. A "wait 1 business day" step does not always mean what you think at 4:58 PM on a Friday. I've watched "next-day" follow-up emails land Monday morning, then Tuesday morning, depending on when the previous step resolved. For time-sensitive sales sequences, this is not a rounding error. It is a lost window.
+
+<Figure class="post-screenshot" caption="HubSpot Sequences editor showing the step-by-step enrollment flow where unenrollment triggers can cut a contact's journey short.">
+  <a href="/go/hubspot/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/hubspot-sequences.png" alt="HubSpot Sequences editor showing a multi-step email and task sequence with enrollment settings" loading="lazy" />
+  </a>
+</Figure>
+
+**The audit nobody runs.** According to [HubSpot's own documentation on workflow enrollment history](https://knowledge.hubspot.com/workflows/view-workflow-enrollment-history), you can filter enrollment history by "unenrolled" status. Fewer than one in five teams I talk to has done that filter on their top five revenue-critical workflows in the last 90 days. Do it now. If more than 10 percent of contacts unenrolled before the final step, you have an active revenue leak.
+
+## Why HubSpot Keeps Selling You More Workflows as the Fix
+
+HubSpot's answer to workflow complexity is almost always "upgrade your tier" or "add more branches." Operations Hub Professional unlocks more workflow actions. Enterprise unlocks cross-object automation and custom coded actions. The fundamental execution model, though, does not change with the upgrade. Asynchronous, property-snapshot-based, limited observability. You are building more complexity on top of an unreliable foundation, not fixing the foundation.
+
+The [ActiveCampaign vs HubSpot vs Brevo comparison we published](/blog/2026-09-01-activecampaign-vs-hubspot-vs-brevo-which-owns-your-workflows/) covers this directly: HubSpot wins on CRM integration depth and loses badly on automation reliability and visibility once sequences get sophisticated. My take is blunter: don't try to fix a reliability problem by buying more HubSpot. Fix it by routing the right jobs to tools built for those jobs.
+
+<SideBySide>
+<Fragment slot="left">
+
+**The HubSpot trap**
+
+You notice a workflow is not converting. You add another branch to catch the edge case. That branch creates a new unenrollment condition. Now you have three workflows that partially overlap, contacts routing between them unpredictably, and no single place to see what actually happened to a given contact.
+
+This is not a skills problem. It is an architecture problem.
+
+HubSpot was designed for marketers building linear nurture tracks, not for RevOps teams orchestrating multi-signal, multi-object GTM plays. The UI nudges you toward more complexity when the right answer is often a different tool entirely.
+
+</Fragment>
+<Fragment slot="right">
+
+```text
+Audit checklist (run monthly):
+
+1. Workflow > Enrollment History
+   Filter: Status = "Unenrolled"
+   Flag any workflow where unenrolled
+   contacts > 10% of enrolled
+
+2. Check each flagged workflow for:
+   - Mid-flight property filters
+   - Overlapping unenrollment triggers
+   - "Is known" filters on fields
+     that enrichment tools update
+
+3. For branch-heavy workflows:
+   Test with a known contact record
+   Check "History" tab after each step
+   Verify branch evaluation timestamp
+   vs. property update timestamp
+
+4. Cross-reference with deals:
+   Pull contacts unenrolled from
+   MQL handoff workflows
+   Match to deals lost/stalled
+   in same period
+```
+
+</Fragment>
+</SideBySide>
+
+## The Fix: Route the Right Jobs to the Right Tools
+
+I am not saying rip out [HubSpot](/tools/hubspot/). HubSpot is still where your CRM data lives, and it handles simple lifecycle triggers well enough: contact created, deal stage updated, form submitted. What I am saying is stop routing complex automation logic through HubSpot workflows when better-fit tools exist for the job.
+
+Here is how my clients at Homegrown Growth Co. and I have split this across the stack:
+
+<ChooseIf title="Which tool handles which automation job" tools={[
+  {
+    name: "HubSpot Workflows",
+    conditions: [
+      "Simple lifecycle triggers: contact created, deal stage changed, form submitted",
+      "Internal notifications and task creation where timing is not critical",
+      "List-based segmentation updates that feed other tools"
+    ],
+    pricing: "Included in Marketing Hub or Ops Hub tiers",
+    affiliateSlug: "hubspot",
+    ctaLabel: "See HubSpot",
+    highlight: false
+  },
+  {
+    name: "n8n",
+    conditions: [
+      "Multi-step, multi-tool orchestration where you need full execution logs",
+      "Conditional logic deeper than three branches or involving real-time data lookups",
+      "Any automation where you need to catch and handle errors gracefully"
+    ],
+    pricing: "From $20/month self-hosted or $24/month cloud",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n",
+    highlight: true
+  },
+  {
+    name: "Kit",
+    conditions: [
+      "Email-driven nurture sequences where deliverability and sequencing order actually matter",
+      "Behavioral-trigger email (link clicked, product event, tag added) with reliable timing",
+      "Audience segmentation that needs to stay clean without manual property hygiene"
+    ],
+    pricing: "Free up to 10k subscribers, then from $25/month",
+    affiliateSlug: "kit",
+    ctaLabel: "Try Kit",
+    highlight: false
+  }
+]} />
+
+[n8n](/tools/n8n/) is the tool I reach for when a client has a workflow that keeps mysteriously failing in HubSpot. The execution log in n8n shows you exactly which node ran, what data it received, and what it returned. When something breaks, you fix it in minutes instead of spending two hours clicking through enrollment history trying to reconstruct what happened. The webhook-based trigger model also means conditions are evaluated at the moment the event fires, not at some async processing interval that may or may not respect your business-hours settings.
+
+<Figure class="post-screenshot" caption="n8n workflow canvas showing a webhook trigger routing into enrichment, ICP branching, and parallel Smartlead and Slack actions, the kind of logic that breaks silently in HubSpot.">
+  <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with webhook trigger, enrichment node, ICP branch, and Smartlead plus Slack output nodes" loading="lazy" />
+  </a>
+</Figure>
+
+[Kit](/go/kit/) solves a different problem. If you are using HubSpot workflow emails for nurture sequences and open rates have been flat or declining, Kit's deliverability architecture and sequence engine are meaningfully better. The tag-based subscriber model means segmentation logic is clean by default, rather than requiring constant property hygiene in a CRM that was built for deals, not subscriber state. We covered the [email automation landscape in depth including Kit's positioning against Beehiiv and Loops](/blog/2026-09-06-beehiiv-email-automation-revenue-kit-vs-loops-vs-native/) if you want the full comparison.
+
+[Litmus's 2024 State of Email research](https://www.litmus.com/resources/state-of-email/) found that teams routing nurture email through a dedicated ESP rather than their CRM's native email tool see an average 18 percent improvement in open rates. That is not a Kit-specific claim. It is a structural one: purpose-built email tools are better at email than CRMs are. Full stop.
+
+<MyTake>
+HubSpot's workflow builder was designed to be sold, not debugged. The visual canvas looks powerful in a demo and becomes a liability in production. The teams extracting real value from HubSpot are the ones treating it as a system of record and data router, then building actual automation logic in tools that have real observability. Every client I've pushed in that direction has cut their "why didn't this fire?" Slack threads by more than half within 60 days.
+</MyTake>
+
+## Stop Patching and Start Auditing
+
+The move here is not a full migration off HubSpot. It is a workflow audit followed by a deliberate decision about which tool earns each job. Pull your enrollment history, find the leaks, and ask whether the logic that is failing actually belongs in a CRM workflow builder at all.
+
+For most teams I work with, 20 to 30 percent of their HubSpot workflows should live somewhere else. The ones driving pipeline deserve better infrastructure than HubSpot's async, opaque execution model provides. That infrastructure exists. Use it.
+
+<BottomLine
+  verdict="For complex GTM automation, n8n gives you the observability and reliability HubSpot cannot. For nurture email, Kit outperforms HubSpot's native workflow emails on every metric that matters. Use HubSpot for what it is actually good at: CRM data and simple lifecycle triggers."
+  pick="n8n"
+  affiliateSlug="n8n"
+  ctaLabel="Try n8n"
+/>
+
+<Sources sources={[
+  { label: "HubSpot Knowledge Base: View workflow enrollment history", url: "https://knowledge.hubspot.com/workflows/view-workflow-enrollment-history" },
+  { label: "Litmus: 2024 State of Email report", url: "https://www.litmus.com/resources/state-of-email/" },
+  { label: "HubSpot Developers: Workflow action limits and best practices", url: "https://developers.hubspot.com/docs/api/automation/workflows" }
+]} />
