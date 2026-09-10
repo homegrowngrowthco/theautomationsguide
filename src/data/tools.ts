@@ -1183,7 +1183,7 @@ export const tools: Tool[] = [
   },
   {
     slug: "fullenrich",
-    logo: '/brand/tools/fullenrich.png',
+    logo: '/brand/tools/fullenrich.svg',
     name: "FullEnrich",
     category: "Lead Data & Enrichment",
     badge: "Free tier available",
@@ -1539,7 +1539,7 @@ export const tools: Tool[] = [
     ctaLabel: 'Try JustCall',
     ctaPrimary: false,
     listed: false,
-    logo: '/brand/tools/justcall.png',
+    logo: '/brand/tools/justcall.svg',
     aliases: ['JustCall'],
     blurb:
       'JustCall is the AI-powered phone and SMS platform built for sales and support teams. Automate calls, texts, and follow-ups with 100+ integrations. Trusted by 6,000+ businesses. Try free.',
@@ -1786,6 +1786,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'activepieces',
+    logo: '/brand/tools/activepieces.svg',
     name: 'Activepieces',
     category: 'Sales Engagement',
     badge: 'Paid',
@@ -1817,7 +1818,6 @@ export const tools: Tool[] = [
     ctaLabel: 'Try Warmforge',
     ctaPrimary: false,
     listed: false,
-    logo: '/brand/tools/warmforge.png',
     aliases: ['Warmforge'],
     blurb:
       'Warmforge is featured in a comparison on The Automations Guide.',
@@ -1876,6 +1876,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'pandadoc',
+    logo: '/brand/tools/pandadoc.svg',
     name: 'PandaDoc',
     category: 'Outbound & Lead Generation',
     badge: 'Paid',
@@ -1927,6 +1928,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'profound',
+    logo: '/brand/tools/profound.svg',
     name: 'Profound',
     category: 'SEO & Content',
     badge: 'Paid',
@@ -2215,7 +2217,7 @@ export const tools: Tool[] = [
     ctaLabel: 'Try Zapier',
     ctaPrimary: false,
     listed: false,
-    logo: '/brand/tools/zapier.png',
+    logo: '/brand/tools/zapier.svg',
     aliases: ['Zapier'],
     blurb:
       'Build and scale AI workflows and agents across 9,000+ apps with Zapier, the most connected AI orchestration platform. Trusted by 3 million+ businesses.',

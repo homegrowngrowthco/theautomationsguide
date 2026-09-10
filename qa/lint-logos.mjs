@@ -13,6 +13,12 @@
 //      background makes them opaque.
 //   2. ASPECT-RATIO OUTLIER (WARN) — a logo far wider/taller than its peers will
 //      render at an odd visual weight in the equal-cell strip; worth an eyeball.
+//   3. OG BANNER (HARD): big AND wide (>= 600px wide with w/h > 1.5) is a social
+//      card, not a mark. Same rule auto-register-tools.mjs applies at sourcing
+//      time since 2026-08-20; added here after the 2026-09-06 retro audit found
+//      10 pre-rule logos (attio.png was a 1200x630 OG banner, found by hand 8/31)
+//      that the sourcing guard never re-checks. A genuine wide wordmark passes
+//      by being served under 600px wide.
 //
 // SVGs are skipped (vector wordmarks in this set are transparent by construction;
 // a white <rect> bg would be a different, rarer check).
@@ -33,6 +39,9 @@ const OPAQUE_ALPHA = 250;
 // Aspect ratio (width/height) sanity band for a wordmark/icon logo.
 const AR_MIN = 0.4; // taller than this-ratio is unusual
 const AR_MAX = 9.0; // wider than this renders as a sliver at capped height
+// OG-banner reject (keep in sync with validateRasterLogo in auto-register-tools.mjs).
+const BANNER_MIN_W = 600;
+const BANNER_AR = 1.5;
 
 async function inspect(file) {
   const path = join(DIR, file);
@@ -74,6 +83,12 @@ for (const file of files) {
   }
   if (r.ar < AR_MIN || r.ar > AR_MAX) {
     warn.push(`${file}: aspect ratio ${r.ar.toFixed(2)} (${r.width}x${r.height}) is an outlier — may read oddly in the logo strip.`);
+  }
+  if (r.width >= BANNER_MIN_W && r.ar > BANNER_AR) {
+    hard.push(
+      `${file}: ${r.width}x${r.height} (ratio ${r.ar.toFixed(2)}) is an OG/social banner, not a mark; ` +
+        `re-source the icon (node qa/auto-register-tools.mjs --logo-for <slug> --replace) or downscale a real wordmark below ${BANNER_MIN_W}px.`
+    );
   }
 }
 
