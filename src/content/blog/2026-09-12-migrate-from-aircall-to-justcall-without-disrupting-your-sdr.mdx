@@ -1,0 +1,214 @@
+---
+title: "Migrate from Aircall to JustCall Without Disrupting Your SDR Team"
+description: "Step-by-step guide to switching from Aircall to JustCall, including data exports, CRM re-wiring, and how to keep your SDRs dialing through cutover."
+tldr: "Migrating from Aircall to JustCall takes 5 to 7 business days if you pre-export call logs, rebuild CRM integrations before cutover, and run both platforms in parallel for one sprint."
+pubDate: 2026-09-12
+tags: ["guide", "automation", "sales-tools"]
+faqs:
+  - question: "Is JustCall a good Aircall alternative?"
+    answer: "Yes. JustCall covers the same VoIP dialer and SMS use cases as Aircall, adds AI call scoring and a built-in sales dialer on lower tiers, and generally costs 20 to 40 percent less per seat at comparable feature levels."
+  - question: "Will my Aircall call recordings transfer to JustCall?"
+    answer: "No. Aircall does not provide a bulk export API for recordings. You need to download them manually or via a Zapier loop before your Aircall contract ends."
+  - question: "How long does an Aircall to JustCall migration take?"
+    answer: "Most RevOps teams complete the full switch in 5 to 7 business days: 1 to 2 days of prep, 2 to 3 days of parallel running, and 1 day of final cutover and verification."
+  - question: "Does JustCall integrate with HubSpot and Salesforce?"
+    answer: "Yes. JustCall has native two-way integrations with both HubSpot and Salesforce, syncing calls, recordings, and disposition tags to contact and deal records automatically."
+  - question: "What happens to my Aircall numbers when I cancel?"
+    answer: "You can port your numbers out of Aircall to JustCall before canceling. Submit a porting request to JustCall support at least 7 to 10 business days before your Aircall renewal date to avoid a gap."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The moment most teams decide to leave [Aircall](/go/aircall/) is not a dramatic outage. It is a quiet Tuesday when the CFO pulls the renewal invoice, notices the per-seat cost climbing north of $50/month, and asks whether the team is actually using the AI features they are paying for. I have been in that meeting three times now. The answer is almost always no. What follows is the migration playbook I use with my clients at Homegrown Growth Co. to get SDR teams off Aircall and onto [JustCall](/go/justcall/) without a single missed call.
+
+<KeyTakeaways items={[
+  "You gain AI call scoring, SMS sequences, and a power dialer at a lower per-seat cost than Aircall's comparable tiers.",
+  "You lose Aircall's native call recordings export; you must pull them manually before canceling.",
+  "Number porting takes 7 to 10 business days, so start that process before anything else.",
+  "Budget 5 to 7 business days total for a clean parallel-run cutover that keeps SDRs dialing throughout."
+]} />
+
+## Before you migrate
+
+Do not touch your JustCall account until you have completed the prep checklist below. Skipping even one item is how teams end up re-entering two years of call history by hand. I have seen it happen. It is painful, it is preventable, and there is no excuse for it.
+
+- **Export your Aircall call logs.** Go to Analytics > Call Details, set the date range to your full account history, and export as CSV. Do this for every team workspace. Aircall caps exports at 10,000 rows per pull, so segment by quarter if your volume is high.
+- **Download call recordings.** There is no bulk API. Use the Aircall API endpoint `GET /v1/calls` with a Zapier loop (or a simple n8n HTTP node) to hit each recording URL and pipe files to S3 or Google Drive. My preferred setup: a [Zapier](/go/zapier/) multi-step zap that triggers on each call record row, downloads the audio URL, uploads to Drive, and logs the Drive link to a tracking sheet.
+- **Document your CRM integration mappings.** Screenshot or export every field mapping in Aircall's HubSpot or Salesforce connector. JustCall maps fields differently by default and you will lose your custom disposition-to-deal-stage logic if you do not write it down first.
+- **List every active number.** Export your number inventory from Aircall's Numbers settings page. Flag which numbers are on live campaigns, which are sitting in email signatures, and which handle inbound routing.
+- **Pause or notify active sequences.** If you are running outbound sequences in Outreach, Salesloft, or a similar tool that dials through Aircall, pause those steps now. Re-activate them only after JustCall is verified live.
+- **Confirm your Aircall contract end date.** You need at least 10 business days of overlap before renewal to port numbers without a gap. If you are within 10 days of renewal, request a 30-day extension before initiating the port.
+
+## Migration steps
+
+<StepRow steps={[
+  {
+    title: "Provision your JustCall workspace and seats",
+    body: "Create your JustCall account, add users, and assign roles before touching any phone numbers. Set your timezone, business hours, and voicemail greetings in Settings > Business Hours now so SDRs are not configuring these individually on day one. Invite your entire SDR team as users even if they are not active yet. JustCall charges per seat, but having users provisioned ahead of cutover prevents a last-minute scramble."
+  },
+  {
+    title: "Submit number porting requests immediately",
+    body: "This is the longest lead-time item in the entire migration. Submit a Letter of Authorization (LOA) and your most recent Aircall invoice to JustCall's porting team via their in-app request form. Standard US number porting takes 7 to 10 business days; toll-free numbers can take up to 15. While the port is pending, JustCall will provide temporary numbers your team can use for outbound immediately so no one sits idle."
+  },
+  {
+    title: "Rebuild your CRM integration in JustCall",
+    body: "JustCall has native connectors for HubSpot, Salesforce, Pipedrive, and most major CRMs. Go to JustCall Integrations, connect your CRM, and rebuild your field mappings using the notes you captured in the prep phase. Pay close attention to call disposition mapping: Aircall uses a free-text notes model while JustCall uses structured outcome tags. Map each Aircall disposition to a JustCall outcome tag and a corresponding CRM pipeline stage. This is where most teams lose data fidelity if they rush."
+  },
+  {
+    title: "Configure your dialer and SMS workflows",
+    body: "Set up your auto-dialer queues, call routing rules, and IVR flows in JustCall. If you are moving to JustCall's AI plan, enable AI call scoring and connect it to your CRM so scored calls write back to the contact record automatically. For SMS, recreate any templated message sequences your SDRs use. JustCall's SMS inbox supports shared team inboxes, which is a genuine upgrade over Aircall's more limited SMS tooling."
+  },
+  {
+    title: "Run both platforms in parallel for one sprint",
+    body: "For 3 to 5 business days, have SDRs dial outbound from JustCall while Aircall stays live for any inbound calls coming to your existing numbers (which have not fully ported yet). This parallel window surfaces integration gaps before full cutover. Run daily 10-minute standups with your SDRs to catch anything broken. The most common issue I see here: voicemail drops not firing because the audio file format differs between platforms."
+  },
+  {
+    title: "Cut over inbound and cancel Aircall",
+    body: "Once number porting confirms, flip your inbound routing to JustCall, verify calls are logging to CRM, and cancel Aircall before the next billing cycle. Download one final copy of any remaining Aircall data before you lose access. Set a calendar reminder 30 days out to audit that no contact records are still pointing to Aircall as their last-touch channel."
+  }
+]} />
+
+## What breaks and what does not transfer
+
+Most of the migration is mechanical and predictable. The things that actually bite teams are subtle. Do not skip this section just because the steps above felt manageable.
+
+<SideBySide>
+  <Fragment slot="left">
+    **Gotcha: Aircall call tags do not map 1:1 to JustCall outcome tags.**
+
+    Aircall lets reps freehand call tags ("left VM," "callback Thu," "not interested"). JustCall uses a structured outcome tag system with a fixed list you configure. Any custom freehand tags from Aircall will not import. If your CRM workflows or reports depend on specific tag strings, those automations will silently stop firing after cutover. I have seen this break an entire set of HubSpot lifecycle-stage workflows at a client without anyone noticing for a full week.
+
+    Also worth flagging: Aircall's "team performance" dashboard metrics do not export. Screenshot anything you use as a benchmark before you lose access.
+  </Fragment>
+  <Fragment slot="right">
+    ```yaml
+    # JustCall outcome tag config example
+    # Settings > Call Outcomes in JustCall dashboard
+
+    outcome_tags:
+      - id: vm_left
+        label: "Voicemail Left"
+        crm_disposition: "Left Voicemail"
+        next_step: "Auto-enroll in SMS follow-up sequence"
+
+      - id: not_interested
+        label: "Not Interested"
+        crm_disposition: "Closed Lost"
+        next_step: "Move to nurture list"
+
+      - id: callback_requested
+        label: "Callback Requested"
+        crm_disposition: "Follow Up"
+        next_step: "Create task in CRM, due +1 business day"
+
+      - id: connected_demo_booked
+        label: "Demo Booked"
+        crm_disposition: "Meeting Scheduled"
+        next_step: "Trigger deal creation workflow"
+
+    # Map each Aircall freehand tag to one
+    # of these structured outcomes before cutover.
+    # Do not leave unmapped tags in your export CSV.
+    ```
+  </Fragment>
+</SideBySide>
+
+**What transfers cleanly:** Your phone numbers (via porting), your team user list (re-invite by email), your CRM contact data (it lives in your CRM, not Aircall), and your SDR muscle memory. The JustCall dialer UI is familiar enough that ramp time is under a day for most reps.
+
+**What does not transfer:** Call recordings (manual download required), call tag history, dashboard benchmarks, and any Aircall-specific Zapier or webhook automations. Rebuild those against JustCall's webhook schema, which is well-documented in the [JustCall developer docs](https://developers.justcall.io/).
+
+## Verify it worked
+
+Do not call the migration done until you have confirmed all four of these. Seriously. I have watched teams declare victory and then discover a logging gap three weeks later when pipeline reporting looked wrong.
+
+1. **Make a test call from JustCall and confirm it logs to your CRM** with the correct contact association, call duration, recording link, and outcome tag.
+2. **Send a test SMS from JustCall** and confirm it threads in both the JustCall inbox and the CRM contact timeline.
+3. **Trigger a voicemail drop** on a test contact and confirm the audio plays correctly and the outcome tag fires.
+4. **Pull a one-week activity report in your CRM** after cutover and verify call volume and outcome distribution match your pre-migration baseline. If the numbers look dramatically different, you have a logging gap, not a performance problem.
+
+If you have [HubSpot automations](/blog/2026-09-09-hubspot-automations-costing-you-deals-and-you-dont-know-it/) that branch on call dispositions, specifically check those workflow enrollment triggers. They are the most common silent failure mode after a dialer switch. According to [HubSpot's integration documentation](https://knowledge.hubspot.com/workflows/create-workflows), workflow re-enrollment criteria do not automatically update when the underlying property source changes, which is exactly what happens when you swap dialers.
+
+<ChooseIf title="Should you switch, or is there a better Aircall alternative for your team?" tools={[
+  {
+    name: "JustCall",
+    conditions: [
+      "You want AI call scoring and SMS sequences without a separate tool",
+      "Your team is 3 to 50 seats and price sensitivity is real",
+      "You need solid HubSpot or Salesforce two-way sync out of the box"
+    ],
+    pricing: "From $29/seat/month",
+    affiliateSlug: "justcall",
+    ctaLabel: "Try JustCall",
+    highlight: true
+  },
+  {
+    name: "KrispCall",
+    conditions: [
+      "Your team is internationally distributed and needs global number coverage",
+      "You want a simpler setup with fewer configuration options",
+      "Budget is the primary driver and call volume is moderate"
+    ],
+    pricing: "From $15/seat/month",
+    affiliateSlug: "krispcall",
+    ctaLabel: "Try KrispCall"
+  },
+  {
+    name: "Aloware",
+    conditions: [
+      "You run high-volume outbound and need a power dialer with DNC compliance baked in",
+      "Your sequences live in HubSpot and you want the dialer embedded directly in the CRM",
+      "Your team dials 80 or more calls per rep per day"
+    ],
+    pricing: "From $30/seat/month",
+    affiliateSlug: "aloware",
+    ctaLabel: "Try Aloware"
+  },
+  {
+    name: "Aircall",
+    conditions: [
+      "You are on an enterprise contract with Aircall and switching costs exceed savings",
+      "Your team relies on Aircall's Intercom or Front integrations with no JustCall equivalent",
+      "You have a dedicated Aircall CSM and the relationship is delivering real value"
+    ],
+    pricing: "From $40/seat/month",
+    affiliateSlug: "aircall",
+    ctaLabel: "Stay on Aircall"
+  }
+]} />
+
+<MyTake>
+The real reason most teams stay on Aircall longer than they should has nothing to do with feature gaps or integration risk. Nobody in the RevOps function owns the migration project, so it rots on the backlog indefinitely. That is it. JustCall is good enough to replace Aircall for 90 percent of SDR teams, the [JustCall pricing breakdown](/blog/2026-09-05-what-justcall-actually-costs-in-2026-full-pricing-breakdown/) shows you recover the migration effort within one billing cycle at 10 seats or more, and the parallel-run approach above means your SDRs never go dark. The objection to switching is organizational, not technical. Fix the ownership problem first.
+</MyTake>
+
+## Do the migration in the next sprint
+
+An Aircall-to-JustCall migration is one of the highest-ROI infrastructure swaps a RevOps team can run this year. The playbook is straightforward: export before you touch anything, port your numbers first, rebuild your CRM mappings with intention, run parallel for one sprint, and verify with four concrete checks before you cancel. According to [G2's VoIP category data](https://www.g2.com/categories/voip), JustCall consistently ranks above Aircall on ease of setup and quality of support, which tracks with what I see from clients I have moved through this process.
+
+The biggest risk is not the migration itself. It is waiting another quarter because it feels complicated. It is not. [KrispCall](/tools/krispcall/) and [Aloware](/tools/aloware/) are worth a look if your situation matches those profiles above, but for most B2B SaaS SDR teams, [JustCall](/tools/justcall/) is the pragmatic call.
+
+<BottomLine
+  verdict="JustCall is the right Aircall alternative for most SDR teams under 50 seats. The feature coverage matches, the CRM integrations are solid, and the per-seat savings fund the migration effort within the first billing cycle."
+  pick="JustCall"
+  affiliateSlug="justcall"
+  ctaLabel="Try JustCall"
+/>
+
+<Sources sources={[
+  { label: "JustCall: Developer API documentation", url: "https://developers.justcall.io/" },
+  { label: "Aircall: Analytics and reporting export guide", url: "https://support.aircall.io/hc/en-us/articles/360006946499" },
+  { label: "G2: VoIP Software category reviews 2026", url: "https://www.g2.com/categories/voip" },
+  { label: "JustCall: HubSpot integration setup guide", url: "https://help.justcall.io/en/articles/hubspot-integration" }
+]} />
