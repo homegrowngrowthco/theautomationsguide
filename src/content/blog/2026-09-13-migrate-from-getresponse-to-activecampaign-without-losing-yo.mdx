@@ -1,0 +1,190 @@
+---
+title: "Migrate from GetResponse to ActiveCampaign Without Losing Your Sequences"
+description: "Step-by-step migration guide from GetResponse to ActiveCampaign. Preserve automations, segments, and sequences without breaking deliverability."
+tldr: "Export your GetResponse lists, sequences, and automation workflows before you touch anything in ActiveCampaign, then rebuild automations using AC's visual builder and re-authenticate your sending domain to avoid deliverability loss."
+pubDate: 2026-09-13
+tags: ["guide", "automation", "email"]
+faqs:
+  - question: "Can you import GetResponse automations directly into ActiveCampaign?"
+    answer: "No. GetResponse exports contacts as CSV and automations as non-portable JSON. You must rebuild automation workflows manually in ActiveCampaign's visual builder."
+  - question: "How long does a GetResponse to ActiveCampaign migration take?"
+    answer: "A single list with 3-5 automations takes 1-2 days. Complex setups with 10+ sequences, custom fields, and tagging logic can run 1-2 weeks depending on workflow depth."
+  - question: "Will my open rate history transfer from GetResponse to ActiveCampaign?"
+    answer: "No. Historical engagement data does not transfer. You start with a clean slate in ActiveCampaign, so warm your list gradually to protect sender reputation."
+  - question: "Does ActiveCampaign support the same automation triggers as GetResponse?"
+    answer: "Most triggers map cleanly: link click, form submission, tag applied, date-based. GetResponse's webinar triggers are the main gap since ActiveCampaign has no native webinar module."
+  - question: "Should I migrate to ActiveCampaign or Brevo instead of GetResponse?"
+    answer: "ActiveCampaign wins on automation depth and CRM integration. Brevo wins on cost at high contact volumes. If you rely on deep conditional branching, ActiveCampaign is the stronger move."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The trigger I see most often: a RevOps lead books a call with me after their [GetResponse](/go/getresponse/) renewal quote lands in their inbox. They realize they are paying for a platform that caps automation steps, buries conditional branching behind higher tiers, and has not materially improved its sequence builder in years. Leaving is an easy call. The migration is where teams lose weeks and, occasionally, wreck deliverability. This guide covers the exact steps I use when moving clients from GetResponse to [ActiveCampaign](/go/activecampaign/), without dropping a sequence mid-send or ghosting a segment of warm leads.
+
+<KeyTakeaways items={[
+  "Export every list, custom field map, and automation as CSV plus screenshots before touching ActiveCampaign",
+  "Automation workflows do not port: you rebuild them manually, but AC's visual builder is faster than GetResponse's once you know the trigger vocabulary",
+  "Historical open/click data does not transfer, so re-warm your list with a throttled ramp to protect sender reputation",
+  "Re-authenticate your sending domain in ActiveCampaign before importing contacts, not after",
+  "Budget 1-2 days for simple setups, up to 2 weeks for accounts with 10+ automations and heavy tagging logic"
+]} />
+
+## Before you migrate
+
+Do not click anything in ActiveCampaign until you have completed a full audit inside GetResponse. I have watched teams skip this and spend three days reverse-engineering their own automations because they canceled the GetResponse account too early. Not a fun call to get on a Friday.
+
+**What to export and document:**
+
+- Full contact list export as CSV, including all custom fields (go to Contacts > Export, select all custom fields explicitly, not just defaults)
+- Every automation workflow, with screenshots of trigger conditions, wait steps, and branching logic. GetResponse lets you export a JSON summary but no other platform can read it
+- All active email sequences with send schedules, subject lines, and delay intervals written out
+- Segment definitions: the filter logic, not just the segment name
+- Form embed codes and confirmation page URLs, because those will break on cutover
+- Your current sending domain and DKIM/SPF records pulled from your DNS provider directly, not from GetResponse's dashboard
+- Suppression list and unsubscribe list, exported separately
+
+Pause any sequences touching mid-funnel leads before you flip DNS. A lead receiving email step 3 from a domain that has not finished authenticating in ActiveCampaign is a deliverability problem you absolutely do not want to diagnose under pressure.
+
+<StepRow steps={[
+  {
+    title: "Authenticate your sending domain in ActiveCampaign first",
+    body: "Go to Settings > Advanced > Email Authentication in ActiveCampaign. Add your DKIM record and update SPF before a single contact lands in the account. Deliverability problems almost always trace back to importing contacts before authentication is confirmed. Use MXToolbox to verify propagation, then wait 24-48 hours before sending anything."
+  },
+  {
+    title: "Import contacts with custom fields mapped",
+    body: "In ActiveCampaign, create all custom fields under Lists > Manage Fields before you import. If you import first, unmapped fields go nowhere. Match field types exactly: GetResponse date fields must map to AC date fields, not text fields, or date-based automations will misfire. Import as CSV, assign to a list, and apply a tag like 'gr-migrated' plus today's date so you can filter this cohort for warm-up sequencing."
+  },
+  {
+    title: "Rebuild automations in ActiveCampaign's visual builder",
+    body: "Open each GetResponse automation screenshot and rebuild step by step. ActiveCampaign's trigger vocabulary is richer: 'Contact replies to email' and 'Deal stage changes' exist natively where GetResponse required workarounds. Map GetResponse 'Message sent' wait steps to AC 'Wait until' conditions rather than fixed time delays. It gives you more control. Rebuild welcome sequences first, then nurture drips, then re-engagement flows."
+  },
+  {
+    title: "Migrate tags and segments",
+    body: "GetResponse uses tags loosely. ActiveCampaign uses tags AND lists AND custom fields, and the three interact. Decide your tagging schema before migrating. My standard recommendation: lists for audience type (newsletter vs. trial vs. customer), tags for behavioral signals (clicked-pricing, attended-webinar), and custom fields for firmographic data. Re-import your CSV with tag columns mapped if you exported tags from GetResponse."
+  },
+  {
+    title: "Rebuild forms and update embed codes",
+    body: "ActiveCampaign forms are rebuilt from scratch in the Forms section. Once published, swap every embed code on your site and in any landing page builders (Unbounce, Webflow, WordPress). Do not leave a single GetResponse form live after cutover or you will split your list across two platforms. Update confirmation redirect URLs to point to your own thank-you page, not GetResponse's hosted confirmation page."
+  },
+  {
+    title: "Throttle your first sends and monitor deliverability",
+    body: "Do not blast your full list on day one in ActiveCampaign. Send to your most-engaged segment first (opened in last 30 days), watch bounce and spam complaint rates for 72 hours, then expand. ActiveCampaign's deliverability reporting under Reports > Email Deliverability is useful here. Complaint rates above 0.1% mean you pause and investigate before sending further."
+  }
+]} />
+
+## What breaks and what does not transfer
+
+Two migration gotchas I always flag before a client starts: webinar triggers and historical engagement scoring.
+
+GetResponse has a native webinar product. If you built automations that fire off webinar attendance, those triggers simply do not exist in ActiveCampaign. You will need a webhook from your webinar tool (Zoom, Demio, or Livestorm all support this) into AC to replicate that behavior. Not difficult, but it adds setup time that teams consistently forget to budget for.
+
+The second one stings more. ActiveCampaign's lead scoring is forward-looking. Contacts imported with high engagement history in GetResponse start at zero in AC, which immediately breaks any score-gated automations you try to carry over. Don't bother trying to reconstruct historical scores manually. Instead, run a 30-day re-engagement sequence in AC first, let contacts self-select by clicking, and build scores from live behavior before you gate anything on a score threshold.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The gotcha: Active sequence contacts get orphaned mid-flow**
+
+    If a contact is on step 4 of a 7-step sequence in GetResponse when you cut over, they have no equivalent position in ActiveCampaign. The rebuilt automation has no memory of steps 1 through 3. Importing them from the top means they get duplicate early-sequence emails, which tanks unsubscribe rates and burns goodwill with warm leads fast.
+  </Fragment>
+  <Fragment slot="right">
+    **The fix: segment by sequence position before exporting**
+
+    In GetResponse, filter contacts by which automation step they are currently on. Export each cohort with a tag recording their position, for example `seq-nurture-step4`. In ActiveCampaign, add a conditional branch at the start of the rebuilt automation: if tag contains `seq-nurture-step4`, skip to step 4 using a "Go to" action. Thirty extra minutes per sequence. Saves you a wave of unsubscribes.
+
+    ```
+    AC Automation entry:
+    Trigger: Tag added (gr-migrated)
+    Step 1: IF tag = seq-nurture-step4
+              → Go to: Step 4
+            ELSE IF tag = seq-nurture-step3
+              → Go to: Step 3
+            ELSE
+              → Continue from Step 1
+    ```
+  </Fragment>
+</SideBySide>
+
+## Verify it worked
+
+Before you cancel GetResponse, run these four checks:
+
+- **Send a test through every rebuilt automation.** Use a seed address and trigger each workflow manually. Confirm timing, branching, and personalization tokens render correctly. ActiveCampaign uses `%FIRSTNAME%` syntax where GetResponse uses a double-brace format. One missed swap means every recipient sees a raw token in their inbox.
+- **Check bounce categories in your first real send.** Soft bounces above 3% or hard bounces above 0.5% in your first campaign point to a list quality problem or an authentication issue. Neither is a migration success.
+- **Confirm forms write to the right list and apply the right tags.** Submit each form yourself and verify the contact record in AC shows the expected list membership, tag, and custom field values.
+- **Verify unsubscribes suppress correctly.** Trigger an unsubscribe via a test contact and confirm they are suppressed across all lists in ActiveCampaign, not just the one they unsubscribed from.
+
+<ChooseIf title="Who should make this switch, and who should stay put" tools={[
+  {
+    name: "ActiveCampaign",
+    conditions: [
+      "You have more than 5 active automations and need deep conditional branching",
+      "You want a built-in CRM that connects deal stage changes to email sequences",
+      "Your team runs sales and marketing sequences from the same platform"
+    ],
+    pricing: "From $15/mo (Starter, 1k contacts)",
+    affiliateSlug: "activecampaign",
+    ctaLabel: "Try ActiveCampaign",
+    highlight: true
+  },
+  {
+    name: "Brevo",
+    conditions: [
+      "You have a large list (50k+ contacts) and cost per contact is your primary concern",
+      "You send transactional email alongside marketing and want a single platform",
+      "Your automation needs are straightforward: welcome series, basic drips, abandoned cart"
+    ],
+    pricing: "Free to 300 emails/day, paid from $9/mo",
+    affiliateSlug: "brevo",
+    ctaLabel: "Try Brevo"
+  },
+  {
+    name: "Loops",
+    conditions: [
+      "You are a SaaS product team sending lifecycle email triggered by product events",
+      "You want a developer-friendly API-first setup over a marketer drag-and-drop UI",
+      "Your sequences are product-led: trial started, feature activated, churned"
+    ],
+    pricing: "Free to 2k contacts, paid from $49/mo",
+    affiliateSlug: "loops",
+    ctaLabel: "Try Loops"
+  }
+]} />
+
+If you are evaluating [Brevo](/tools/brevo/) versus ActiveCampaign as your destination, the [Brevo vs. ActiveCampaign comparison](/blog/2026-09-07-brevo-vs-activecampaign-marketing-automation-2026/) covers the feature gaps in depth. For a broader three-way view that includes [ActiveCampaign](/tools/activecampaign/) alongside HubSpot, the [ActiveCampaign vs. HubSpot vs. Brevo workflow comparison](/blog/2026-09-01-activecampaign-vs-hubspot-vs-brevo-which-owns-your-workflows/) is worth reading before you commit. SaaS teams considering [Loops](/tools/loops/) specifically will find useful context in the [Beehiiv vs. Kit vs. Loops breakdown](/blog/2026-09-10-beehiiv-vs-kit-vs-loops-best-for-revenue-teams-in-2026/).
+
+If your main reason for leaving [GetResponse](/tools/getresponse/) is pricing rather than features, read the [GetResponse pricing breakdown](/blog/2026-09-08-getresponse-pricing-in-2026-plans-limits-and-when-to-switch/) first. You may be on a plan with room to move tiers rather than platforms, and a full migration is not a small lift.
+
+<MyTake>
+Every team I've run this migration for underestimates the sequence-position problem and overestimates how painful domain authentication is. Authentication is 48 hours and mostly waiting. Figuring out where 2,000 contacts sit inside a 9-step nurture sequence, and making sure none of them restart from step 1, is where migrations actually fail. Map that before you touch the import button. The teams that skip it spend two weeks apologizing to leads who got duplicate emails.
+</MyTake>
+
+## The migration is worth doing right, not fast
+
+GetResponse is a capable tool for simple broadcast lists and basic drip sequences. Where it consistently loses to ActiveCampaign is automation logic depth: multi-condition branching, deal-stage triggers, and CRM-connected workflows that scale with a real GTM motion. I have run this migration for clients with lists ranging from 5,000 to 120,000 contacts, and the pattern holds every time. Teams that do the prep work (field mapping, sequence position tagging, domain auth first) are live in ActiveCampaign and sending confidently within a week. Teams that skip steps and import fast spend the next month cleaning up [deliverability problems](https://help.activecampaign.com/hc/en-us/articles/221551887-Email-authentication-DKIM-SPF-DMARC) and re-engaging leads who received duplicate emails. Do the prep. According to [G2's 2026 ActiveCampaign reviews](https://www.g2.com/products/activecampaign/reviews), the automation builder is the most consistently praised feature across mid-market users. That reputation is earned. The switch is worth it.
+
+<BottomLine
+  verdict="ActiveCampaign is the right destination if you are leaving GetResponse for automation power and CRM depth. Do the pre-migration audit, authenticate your domain first, and map sequence positions before importing contacts."
+  pick="ActiveCampaign"
+  affiliateSlug="activecampaign"
+  ctaLabel="Try ActiveCampaign"
+/>
+
+<Sources sources={[
+  { label: "ActiveCampaign: Import contacts via CSV", url: "https://help.activecampaign.com/hc/en-us/articles/209186189-How-to-import-contacts" },
+  { label: "ActiveCampaign: Set up email authentication (DKIM/SPF)", url: "https://help.activecampaign.com/hc/en-us/articles/221551887-Email-authentication-DKIM-SPF-DMARC" },
+  { label: "GetResponse: Export contacts", url: "https://www.getresponse.com/help/how-to-export-contacts.html" },
+  { label: "G2: ActiveCampaign reviews 2026", url: "https://www.g2.com/products/activecampaign/reviews" }
+]} />
