@@ -18,9 +18,13 @@ interface Props {
 }
 
 const { steps = [] } = Astro.props;
+// Cap at 4 columns per row: beyond that, columns get too narrow to read
+// comfortably at typical content width, so a 5-6 step block wraps to a
+// second row instead of cramming into one.
+const cols = Math.min(steps.length, 4) || 3;
 ---
 
-<div class="step-row" style={`--cols: ${steps.length}`}>
+<div class="step-row" style={`--cols: ${cols}`}>
   {steps.map((step, i) => (
     <div class="step-card">
       <div class="step-card-number">Step {i + 1}</div>

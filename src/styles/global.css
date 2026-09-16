@@ -802,8 +802,11 @@ main { flex: 1; }
 }
 
 .tag {
-  font-size: 0.8rem;
-  font-weight: 600;
+  /* Sized up from 0.8rem/600 so the category label reads at a glance in the
+     card grid; still flat with no background/border/padding chrome per the
+     Aug 2026 de-AI audit (PRs #258-264) — do not reintroduce pill styling. */
+  font-size: 0.88rem;
+  font-weight: 700;
   font-variant: small-caps;
   letter-spacing: 0.02em;
   color: var(--accent-text);
@@ -823,6 +826,14 @@ main { flex: 1; }
   line-height: 1.4;
   color: var(--text);
   letter-spacing: -0.01em;
+  overflow-wrap: break-word;
+  /* Clamp to 3 lines instead of letting a long title grow the card
+     unpredictably and unbalance the row (.post-card has overflow: hidden
+     with no clamp today). */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .post-card p {
@@ -875,6 +886,18 @@ main { flex: 1; }
   font-size: 1.0625rem;
   line-height: 1.8;
   color: var(--text);
+  /* Narrow-column post components (StepRow, ChooseIf, tables) have no room
+     for an unbroken long token (snake_case API params, long URLs) to wrap
+     normally, so it overflows the column instead. overflow-wrap inherits
+     into every descendant, so this is one fix for the whole class of
+     components rather than patching each one's CSS individually. */
+  overflow-wrap: break-word;
+}
+
+/* Code keeps its own overflow-x: auto scrolling (.prose pre below); breaking
+   mid-token there would mangle code formatting instead of just scrolling it. */
+.prose code, .prose pre {
+  overflow-wrap: normal;
 }
 
 .prose h1, .prose h2, .prose h3, .prose h4 {
@@ -1707,6 +1730,14 @@ main { flex: 1; }
 @media (min-width: 768px) {
   .side-by-side { grid-template-columns: 1fr 1fr; gap: 1.75rem; }
   .side-by-side[data-reverse="true"] > .side-by-side-pane:first-child { order: 2; }
+  /* Set client-side once rendered pane heights are known (SideBySide.astro's
+     script) when the two panes are very lopsided in length. */
+  .side-by-side.side-by-side--stacked {
+    grid-template-columns: 1fr;
+  }
+  .side-by-side.side-by-side--stacked[data-reverse="true"] > .side-by-side-pane:first-child {
+    order: 0;
+  }
 }
 
 /* ── Component: Pull quote ─────────────────────── */

@@ -2,9 +2,8 @@
 // audits/AUDIT-DESIGN-2026-08-29.md §3). Produces /cards/<slug>.png: cream
 // ground, a teal section tab, up to 3 tool logos (a "VS" divider when exactly
 // 2), and the headline. Distinct from /og/<slug>.png (src/pages/og/[...route].ts,
-// which stays the social-share card) — this route is the future card-thumbnail
-// image for post listings. NOT YET WIRED into any template (generate + verify
-// only this pass; see TODO.md).
+// a simpler astro-og-canvas card used for social-share previews) — this route
+// is the card-grid thumbnail, wired into PostCard.astro (PR #261/263).
 //
 // Rendered with `sharp` directly rather than astro-og-canvas: that library can
 // only place a single logo and can't decode the SVG-format tool logos at all,

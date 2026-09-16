@@ -27,3 +27,32 @@ const { reverse = false, align = 'top' } = Astro.props;
   <div class="side-by-side-pane"><slot name="left" /></div>
   <div class="side-by-side-pane"><slot name="right" /></div>
 </div>
+
+<script>
+  // A short paragraph next to a tall code block otherwise leaves a large
+  // empty gutter under the short pane. Stack to one column instead when the
+  // rendered panes are very lopsided (shorter one under ~30% of the taller).
+  const RATIO_THRESHOLD = 0.3;
+  const STACK_MIN_WIDTH = 768; // matches the desktop breakpoint in global.css
+
+  function evaluate(el: HTMLElement) {
+    const panes = el.querySelectorAll<HTMLElement>(':scope > .side-by-side-pane');
+    if (panes.length !== 2) return;
+    el.classList.remove('side-by-side--stacked');
+    if (window.innerWidth < STACK_MIN_WIDTH) return; // already 1 column
+    const a = panes[0].offsetHeight;
+    const b = panes[1].offsetHeight;
+    if (a === 0 || b === 0) return;
+    const ratio = Math.min(a, b) / Math.max(a, b);
+    if (ratio < RATIO_THRESHOLD) el.classList.add('side-by-side--stacked');
+  }
+
+  const els = document.querySelectorAll<HTMLElement>('.side-by-side');
+  els.forEach(evaluate);
+
+  let raf = 0;
+  window.addEventListener('resize', () => {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => els.forEach(evaluate));
+  });
+</script>
