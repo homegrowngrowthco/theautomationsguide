@@ -111,6 +111,14 @@ const DECISIONTREE_GRANDFATHERED = new Set([
 const CAMEL_SVG = /(textAnchor|fontWeight|fontSize|fontFamily|strokeWidth|strokeDasharray|strokeLinecap|strokeLinejoin|markerEnd|markerStart|clipPath|fillOpacity|strokeOpacity)=/;
 const STYLE_BLOCK = /<style>[\s\S]*?<\/style>/g;
 const EN_EM_DASH = /[–—]/;
+// Scrubbed 2026-09-16: the engine used to encourage "my clients", "clients I've worked
+// with" as personal-voice filler, which drifted into fabricated-scale claims ("half a
+// dozen clients", "several clients") across the archive. Anchored to "client(s)" as the
+// head noun (0-2 filler words allowed) so generic usage like "multiple client domains"
+// doesn't false-fire — "domains", not "clients", is the head noun there.
+// Requires plural "clients" (not "client") so compound nouns like "client domains" or
+// "client accounts", where singular "client" modifies a different head noun, don't match.
+const CLIENT_SCALE = /\b(?:dozens?(?:\s+of)?|half\s+a\s+dozen|scores\s+of|hundreds\s+of|countless|numerous|several|multiple|many)\s+(?:[a-z0-9-]+\s+){0,2}clients\b/i;
 
 // The squish bug (PR #51) is a MULTI-COLUMN grid/flex wrapper around components.
 // width:100% / overflow / single-column 1fr are harmless full-width wrappers — don't flag those.
@@ -183,6 +191,14 @@ function lintFile(file) {
   // in a <Sources> block (e.g. emailtooltester.com/en/blog/...) can't false-fire.
   for (const m of body.matchAll(/(?:\]\(|href=["'])\/blog\/([a-z0-9-]+)/g)) {
     if (!validPostSlugs.has(m[1])) hard.push(`/blog/${m[1]} → no post with that slug exists (would 404). Fix or drop the link.`);
+  }
+
+  // Client-scale claims: "half a dozen clients", "several clients" etc. imply a large,
+  // unverifiable client roster (2026-09-16 scrub, see docs/SESSION_LOG.md). WARN, not
+  // hard: it's a judgment call whether a given sentence needs rewording or is a rare
+  // legitimate exception, so a human reviews the PR diff rather than the gate autofixing.
+  for (const phrase of new Set([...body.matchAll(new RegExp(CLIENT_SCALE, 'gi'))].map((m) => m[0]))) {
+    warn.push(`client-scale claim ("${phrase}") implies a large client roster. Reword to at most one modest reference ("a client I worked with") or drop it, per the 2026-09-16 client-mentions scrub.`);
   }
 
   // S-4 CTA floor: a post that names >=2 registered tools but exposes <2 affiliate
