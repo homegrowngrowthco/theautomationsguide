@@ -17,7 +17,8 @@ Last updated 2026-09-16 (Session 89).
 - **Shipped as PR #282** (branch `fix/tools-page-cta-alignment`, `1fd889c`), awaiting Ian's merge (not docs-only, so did not commit direct to master).
 - **TODO.md:** removed the "Review + merge PR #271" line — confirmed via `gh pr view 271` + `git log origin/master` that it merged 9/10 as `b1aa814`, 6 sessions ago, and was just stale. Updated the "Audit lows remaining" line to mark L-9 closed instead of pending on that merge.
 - **Traffic-driver read (Ian asked what changed since mid-August to keep doing more of):** the 8/19 priority-sort fix (`6802060`, PR #247) is the load-bearing cause — Notion's select-sort bug had been publishing Low-priority topics first since the engine went live, starving all 17 High-priority posts (the migration/comparison formats that are this site's only proven click format per the 8/04 audit) until it was fixed. TODO.md's volume-ramp line already tracks the outcome (28d impressions +55% vs 8/19); no separate doc needed, just pointing Ian at the existing read.
-- **Revert:** PR #282 reverts independently (unmerged as of this entry); TODO.md edit is docs-only, `git revert` the single commit.
+- **CLAUDE.md staleness fixed:** `qa:docs` was HARD-failing — the "Current strategic state" header was still dated 8/21, >14 days behind the latest code change. Wrote a fresh 2026-09-16 section synthesizing Sessions 82-89 (design de-AI phases 1-4 complete across PRs #258/261/262/263/264, the 8/19 priority-sort fix confirmed working via the 9/06 GSC read, PR #271 logo audit merged, pitch list drafted but not yet sent) and demoted the old section to "Prior strategic state (2026-08-21)". `qa:docs` now 0 hard.
+- **Revert:** PR #282 reverts independently (unmerged as of this entry); TODO.md/CLAUDE.md edits are docs-only, `git revert` the commit(s).
 
 ## Session 88 (2026-09-06) — GSC index sweep (4 TODO reads), logo retro audit (PR #271), pricing-index pitch list
 
