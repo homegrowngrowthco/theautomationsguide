@@ -8,7 +8,16 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-09-06 (Session 88).
+Last updated 2026-09-16 (Session 89).
+
+## Session 89 (2026-09-16) — Tools-page CTA alignment fix (PR #282), TODO cleanup, traffic-driver read
+
+- Ian flagged misaligned "Try X" buttons on `/tools/` via screenshot (CRM + Outbound rows). Root cause: `.tool-card-actions` was a row + `flex-wrap` layout, so cards whose button label filled the card width (HubSpot, Pipedrive) wrapped the article-count link onto its own line while shorter labels (Close, Nutshell) kept both on one line; since the block is bottom-pinned via `margin-top: auto`, the extra-line cards' buttons sat visibly higher. Fixed by switching the block to a fixed-height column so position no longer depends on label length or link presence.
+- Verified with a local dev server + Playwright at 1280px (`/tools/#crm`, `/tools/#outbound-lead-generation`) and 390px mobile before shipping — not just gate-passed.
+- **Shipped as PR #282** (branch `fix/tools-page-cta-alignment`, `1fd889c`), awaiting Ian's merge (not docs-only, so did not commit direct to master).
+- **TODO.md:** removed the "Review + merge PR #271" line — confirmed via `gh pr view 271` + `git log origin/master` that it merged 9/10 as `b1aa814`, 6 sessions ago, and was just stale. Updated the "Audit lows remaining" line to mark L-9 closed instead of pending on that merge.
+- **Traffic-driver read (Ian asked what changed since mid-August to keep doing more of):** the 8/19 priority-sort fix (`6802060`, PR #247) is the load-bearing cause — Notion's select-sort bug had been publishing Low-priority topics first since the engine went live, starving all 17 High-priority posts (the migration/comparison formats that are this site's only proven click format per the 8/04 audit) until it was fixed. TODO.md's volume-ramp line already tracks the outcome (28d impressions +55% vs 8/19); no separate doc needed, just pointing Ian at the existing read.
+- **Revert:** PR #282 reverts independently (unmerged as of this entry); TODO.md edit is docs-only, `git revert` the single commit.
 
 ## Session 88 (2026-09-06) — GSC index sweep (4 TODO reads), logo retro audit (PR #271), pricing-index pitch list
 
