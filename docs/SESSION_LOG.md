@@ -8,7 +8,17 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-09-16 (Session 89).
+Last updated 2026-09-16 (Session 90).
+
+## Session 90 (2026-09-16) — Scrub fabricated-scale client mentions (PR #283)
+
+- Ian flagged that posts kept implying a large, unverifiable client roster ("I've seen this at half a dozen clients", "my clients who skip this step"). Root cause: `update-engine-v5.mjs`'s PERSONAL VOICE prompt explicitly listed "my clients" / "clients I've worked with" as encouraged first-person markers, and Humanize's verify step injected more of the same whenever a draft fell short of its 3-marker quota.
+- **Shipped as PR #283**, branch `content/scrub-client-mentions`, worktree at `C:\tmp\tag-scrub-client-mentions`. Two commits: engine + QA gate fix (`8026b90`), then the 113-post content scrub (`17f031e`).
+- **Engine fix (`n8n/update-engine-client-mentions.mjs`):** Generate Draft and Humanize now cap client references at 1-2 modest, singular mentions per post and steer the first-person quota toward other framing ("in my testing...", "when we ran this internally..."). Deployed live to workflow `sjZADhZGIuz9tZHK` (dry-run then `--apply`), GET-verified both prompt bodies contain the new block.
+- **New QA gate:** `qa/lint-content.mjs` WARNs on quantified client-scale phrases ("dozens of clients", "several clients", etc.), anchored to plural "clients" as the head noun so "client domains"/"client accounts" don't false-fire. Tested against 10 hand-built cases before landing.
+- **Content scrub:** 8 parallel subagents (15 files each) reworded or dropped scale-implying client anecdotes across all 116 posts that mentioned "client". Site-wide occurrences: 384 -> 63, across 116 -> 35 posts. Verify: `npm run build && npm run qa:render` = 0 hard on 134 posts; `npm run qa:lint` = 0 hard, 45 warn (down from 49 baseline; the 3 remaining client-scale warns are correct false positives, reader-facing "your agency manages multiple clients" phrasing).
+- **Revert path:** `git revert 17f031e 8026b90` on master after merge; engine revert needs a matching `deploy-engine.mjs --apply` re-run against the pre-patch JSON.
+- **Gotcha:** the encouraged-anecdote pattern was baked into the *prompt*, not just drifted content, so a content-only fix would have silently regressed on the next publish. Root-cause-first (engine, then archive) is the right order for any "the model keeps writing X" complaint here.
 
 ## Session 89 (2026-09-16) — Tools-page CTA fix (PR #282), volume-ramp gate cleared + cadence 2x/day, 16-tool early-coverage batch
 
