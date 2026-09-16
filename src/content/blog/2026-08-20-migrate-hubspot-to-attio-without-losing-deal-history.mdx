@@ -3,6 +3,7 @@ title: "Migrate HubSpot to Attio Without Losing Deal History"
 description: "Step-by-step guide to migrating from HubSpot to Attio: export deal history, rebuild workflows, and avoid the data gaps that kill most CRM migrations."
 tldr: "You can migrate from HubSpot to Attio in roughly one to two weeks by exporting contacts, companies, and deals as CSVs, importing them into Attio's structured data model, and rebuilding automations natively or via n8n."
 pubDate: 2026-08-20
+updatedDate: 2026-09-16
 tags: ["guide", "automation", "crm"]
 faqs:
   - question: "Can HubSpot deal history be migrated to Attio?"
@@ -32,7 +33,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-The moment teams decide to leave [HubSpot](/go/hubspot/) is almost always the same. Someone opens the billing page, sees the renewal quote for Sales Hub Professional, and realizes they're paying $500 or $900 per month for a contact database and a handful of automations they could replace with a purpose-built relational CRM for a fraction of the cost. That's when I get the call. I've run this migration for four B2B SaaS clients in the last 18 months, and the thing that trips every team up is not the export step. It's the assumption that "deal history" means the same thing in both systems. It does not.
+The moment teams decide to leave [HubSpot](/go/hubspot/) is almost always the same. Someone opens the billing page, sees the renewal quote for Sales Hub Professional, and realizes they're paying $500 or $900 per month for a contact database and a handful of automations they could replace with a purpose-built relational CRM for a fraction of the cost. That's when I get the call. I've run this migration for B2B SaaS teams in the last 18 months, and the thing that trips every team up is not the export step. It's the assumption that "deal history" means the same thing in both systems. It does not.
 
 <KeyTakeaways items={[
   "Deal and contact data migrates cleanly via CSV, but HubSpot email activity logs and sequence history do not export in any usable format.",
@@ -91,7 +92,7 @@ Also check your HubSpot integrations panel. If you have live syncs running to to
 
 ## What breaks and what does not transfer
 
-This is the section most migration guides skip. It's also where I spend the most client time. Don't skim it.
+This is the section most migration guides skip. It's also where I spend the most time. Don't skim it.
 
 **What transfers cleanly:** Contact names, emails, phone numbers, company names and domains, deal names, deal amounts, close dates, pipeline stages (if names match exactly), and custom properties that you pre-created in Attio's data model.
 

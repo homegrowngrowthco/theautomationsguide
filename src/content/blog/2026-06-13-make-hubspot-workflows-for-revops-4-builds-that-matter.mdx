@@ -2,7 +2,7 @@
 title: "Make + HubSpot Workflows for RevOps: 4 Builds That Matter"
 description: "Step-by-step guide to building lead routing, deal tagging, and sequence triggers with Make and HubSpot. Includes free n8n alternatives."
 pubDate: 2026-07-03
-updatedDate: 2026-07-09
+updatedDate: 2026-09-16
 tags: ["guide", "automation", "hubspot"]
 faqs:
   - question: "What can Make do with HubSpot that native workflows can't?"
@@ -35,7 +35,7 @@ import BottomLine from '@/components/post/BottomLine.astro';
 
 [HubSpot](/go/hubspot) workflows are genuinely good at linear, single-object automation. Lifecycle stage changes, simple task creation, internal emails when a deal moves stages. But every RevOps practitioner I know hits the same wall within six months: the moment your logic needs to reach outside HubSpot, read from a spreadsheet, branch across two objects simultaneously, or call an endpoint that returns nested JSON, native workflows tap out. That is exactly where [Make](/go/make) earns its seat in the stack.
 
-<div class="quick-answer"><strong>Quick answer:</strong> Make fills the gaps HubSpot workflows can't touch by acting as a stateful middleware layer, and the four builds below cover the revenue-critical ones I deploy at almost every B2B SaaS client.</div>
+<div class="quick-answer"><strong>Quick answer:</strong> Make fills the gaps HubSpot workflows can't touch by acting as a stateful middleware layer, and the four builds below cover the revenue-critical ones I deploy on almost every B2B SaaS engagement.</div>
 
 <KeyTakeaways items={[
   "HubSpot workflows max out at single-object linear logic. Make handles multi-app branching, external lookups, and nested API responses.",
@@ -145,7 +145,7 @@ When [Clay](/go/clay) or Clearbit posts enrichment data to a webhook, HubSpot ha
 
 ### Workflow 3: Sequence Enrollment Triggers Based on External Signals
 
-HubSpot can enroll contacts in sequences based on internal properties. It has no mechanism for external signals like G2 intent, Bombora surges, or product usage hitting a threshold. I have built this exact workflow for three SaaS clients in the past year, and in every case it cut the time between a signal firing and a rep following up from over 48 hours to under 10 minutes.
+HubSpot can enroll contacts in sequences based on internal properties. It has no mechanism for external signals like G2 intent, Bombora surges, or product usage hitting a threshold. I have built this exact workflow for SaaS teams in the past year, and it consistently cuts the time between a signal firing and a rep following up from over 48 hours to under 10 minutes.
 
 <StepRow steps={[
   {
@@ -198,12 +198,12 @@ Reps leave deal intelligence in Slack, not in HubSpot. That is not laziness. It 
 ]} />
 
 <MyTake>
-The Slack feedback loop looks like a rep-enablement win. It is actually a data quality trap if you build it wrong. Every client I have deployed this for saw note volume spike immediately, and then note usefulness crater within 60 days because reps treated the modal like a form to blast through in three seconds. Keep the form to four fields maximum. Make Competitor Mentioned a dropdown, not free text. Free text competitor fields are where your CRM data goes to die.
+The Slack feedback loop looks like a rep-enablement win. It is actually a data quality trap if you build it wrong. Every team I have deployed this for saw note volume spike immediately, and then note usefulness crater within 60 days because reps treated the modal like a form to blast through in three seconds. Keep the form to four fields maximum. Make Competitor Mentioned a dropdown, not free text. Free text competitor fields are where your CRM data goes to die.
 </MyTake>
 
 ## Make vs. n8n for HubSpot Automation
 
-For teams deciding whether to absorb Make's operation costs or self-host [n8n](/go/n8n) instead, the answer is mostly a function of infrastructure comfort and monthly volume. I default to Make for clients without an in-house engineer. For technical teams already running containerized workloads on Railway or Render, [n8n self-hosted](/tools/n8n/) is effectively free and the [HubSpot node coverage](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.hubspot/) is solid enough to replicate every workflow in this post.
+For teams deciding whether to absorb Make's operation costs or self-host [n8n](/go/n8n) instead, the answer is mostly a function of infrastructure comfort and monthly volume. I default to Make for teams without an in-house engineer. For technical teams already running containerized workloads on Railway or Render, [n8n self-hosted](/tools/n8n/) is effectively free and the [HubSpot node coverage](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.hubspot/) is solid enough to replicate every workflow in this post.
 
 <ChooseIf title="Make or n8n for HubSpot automation?" tools={[
   {

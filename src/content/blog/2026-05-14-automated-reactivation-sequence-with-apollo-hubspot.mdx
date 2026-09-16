@@ -3,7 +3,7 @@ title: "Automated Reactivation Sequence with Apollo + HubSpot"
 description: "Build a dead-pipeline reactivation workflow using HubSpot segments, Apollo sequences, and bi-directional outcome syncing. Step-by-step RevOps playbook."
 tldr: "Build a dynamic HubSpot list of stalled or closed-lost contacts, export them to an Apollo sequence via the native integration, and configure Apollo to write reply and meeting outcomes back to HubSpot deal properties so your pipeline reflects reality."
 pubDate: 2026-05-14
-updatedDate: 2026-07-09
+updatedDate: 2026-09-16
 tags: ["guide", "automation", "apollo"]
 faqs:
   - question: "Can Apollo sequences sync back to HubSpot automatically?"
@@ -32,7 +32,7 @@ Every RevOps team I've worked with has the same graveyard sitting in their CRM: 
 
 Most teams treat closed-lost as a write-off. That instinct is expensive. [HubSpot Research on sales productivity](https://blog.hubspot.com/sales/sales-statistics) consistently shows that re-engaging a contact who already knows your product takes fewer touches than converting a cold prospect from scratch. These people raised their hand once. Something interrupted the deal, not your product-market fit.
 
-Reactivation requires a different message, a different cadence, and a different owner than your standard outbound sequence. Sending a generic "just checking in" to a contact you lost 8 months ago is worse than sending nothing. I've watched that exact mistake at clients who had solid lists but lazy copy, and the unsubscribe rate alone poisoned their domain reputation for months. The workflow I'm walking you through treats reactivation as a distinct motion with its own segment logic, sequence copy, and attribution tracking.
+Reactivation requires a different message, a different cadence, and a different owner than your standard outbound sequence. Sending a generic "just checking in" to a contact you lost 8 months ago is worse than sending nothing. I've seen that exact mistake happen when the list was solid but the copy was lazy, and the unsubscribe rate alone poisoned the domain reputation for months. The workflow I'm walking you through treats reactivation as a distinct motion with its own segment logic, sequence copy, and attribution tracking.
 
 <StatRow
  
@@ -82,7 +82,7 @@ The part that breaks silently is the bi-directional sync. Apollo writes back to 
 
 <SideBySide>
   <Fragment slot="left">
-    Build a HubSpot workflow triggered on the contact property "Reactivation Reply = Yes." The workflow should do three things: re-open the associated deal and move it to a stage like "Reactivation Qualified," stamp a date property "Reactivation Reply Date" with today's date, and notify the deal owner via an internal HubSpot notification or a Slack message using HubSpot's native Slack integration. Without this workflow, a replied contact sits orphaned with no deal movement and no rep alert. My clients who skip this step consistently misattribute reactivation wins to whatever sequence the rep happened to touch last, which makes the whole motion invisible in reporting.
+    Build a HubSpot workflow triggered on the contact property "Reactivation Reply = Yes." The workflow should do three things: re-open the associated deal and move it to a stage like "Reactivation Qualified," stamp a date property "Reactivation Reply Date" with today's date, and notify the deal owner via an internal HubSpot notification or a Slack message using HubSpot's native Slack integration. Without this workflow, a replied contact sits orphaned with no deal movement and no rep alert. Skip this step and you'll consistently misattribute reactivation wins to whatever sequence the rep happened to touch last, which makes the whole motion invisible in reporting.
   </Fragment>
   <Fragment slot="right">
     ```
@@ -124,4 +124,4 @@ Once this workflow is live, you need one report to justify the motion to leaders
 
 According to [Apollo's integration documentation](https://apolloio.github.io/apollo-api-docs/), sequence activity data is available via API if you want to build a more granular attribution model in a BI tool like Looker or Metabase. For most teams, the native HubSpot deal report is enough. Don't overbuild the reporting layer before you've proven the sequence converts.
 
-The reactivation motion is one of the highest-ROI workflows I build with clients, not because the technology is complex, but because almost nobody does it systematically. A clean [HubSpot segment](/tools/hubspot/), a dedicated [Apollo sequence](/tools/apollo/) with purpose-built copy, and a write-back workflow that keeps your CRM honest will generate pipeline from contacts you've already paid to acquire. You spent money getting those conversations started. This is how you get a second shot at closing them.
+The reactivation motion is one of the highest-ROI workflows you can build, not because the technology is complex, but because almost nobody does it systematically. A clean [HubSpot segment](/tools/hubspot/), a dedicated [Apollo sequence](/tools/apollo/) with purpose-built copy, and a write-back workflow that keeps your CRM honest will generate pipeline from contacts you've already paid to acquire. You spent money getting those conversations started. This is how you get a second shot at closing them.

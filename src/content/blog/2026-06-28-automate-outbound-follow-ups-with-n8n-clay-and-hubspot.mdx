@@ -3,7 +3,7 @@ title: "Automate Outbound Follow-ups with n8n, Clay, and HubSpot"
 description: "Step-by-step n8n automation for cold email follow-ups: trigger from Smartlead or Instantly, enrich with Clay, and log to HubSpot or Pipedrive."
 tldr: "Use n8n to listen for reply or bounce events from Smartlead or Instantly, enrich the contact with Clay, then write the result back to HubSpot or Pipedrive automatically so no follow-up falls through the cracks."
 pubDate: 2026-06-28
-updatedDate: 2026-07-09
+updatedDate: 2026-09-16
 tags: ["guide", "automation", "cold-email"]
 faqs:
   - question: "Can n8n connect directly to Smartlead or Instantly?"
@@ -37,7 +37,7 @@ Most outbound follow-up breakdowns I've seen at mid-market B2B SaaS companies ha
 
 ## What This Workflow Actually Does
 
-Three nodes deep. That is the whole pattern: capture an event from your cold email tool, enrich the sender's company with [Clay](/go/clay), then write a deal or contact note to [HubSpot](/go/hubspot) or [Pipedrive](/go/pipedrive). The whole thing runs in under four seconds per event in production. I've deployed this stack at clients running 2,000 to 8,000 outbound touches per month, and it eliminates the black hole where replied or bounced contacts vanish from the CRM pipeline entirely.
+Three nodes deep. That is the whole pattern: capture an event from your cold email tool, enrich the sender's company with [Clay](/go/clay), then write a deal or contact note to [HubSpot](/go/hubspot) or [Pipedrive](/go/pipedrive). The whole thing runs in under four seconds per event in production. I've deployed this stack on outbound programs running 2,000 to 8,000 touches per month, and it eliminates the black hole where replied or bounced contacts vanish from the CRM pipeline entirely.
 
 Before wiring a single node, make sure three things are in place: API keys for your sequencer ([Smartlead](/go/smartlead) or Instantly), a Clay table configured with the enrichment waterfall you want (I run Clearbit first, then LinkedIn, then [Apollo](/go/apollo) as the final fallback), and a [HubSpot](/tools/hubspot/) or [Pipedrive](/tools/pipedrive/) sandbox to test writes against. The [n8n docs on HTTP Request nodes](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/) are genuinely good. Skim them before you start.
 
@@ -70,7 +70,7 @@ The enrichment step is where most implementations stall. [Clay's API](/tools/cla
 
 <SideBySide>
   <Fragment slot="left">
-    **The trap:** Setting the HTTP Request node to fire-and-forget on the Clay row creation call. The downstream CRM node runs immediately, reads an empty enrichment response, and writes a skeleton contact record. Your reps see contacts with no company data and assume the automation is broken. They stop trusting it and go back to manual logging. I've watched this exact pattern kill adoption at two clients. Both had solid webhook setups. Both got tripped up right here.
+    **The trap:** Setting the HTTP Request node to fire-and-forget on the Clay row creation call. The downstream CRM node runs immediately, reads an empty enrichment response, and writes a skeleton contact record. Your reps see contacts with no company data and assume the automation is broken. They stop trusting it and go back to manual logging. I've watched this exact pattern kill adoption on two separate builds. Both had solid webhook setups. Both got tripped up right here.
   </Fragment>
   <Fragment slot="right">
     ```javascript
@@ -111,7 +111,7 @@ The teams I've seen get the most out of this stack are not the ones with the mos
 
 Once the workflow passes testing in the n8n sandbox, flip it to active and monitor the first 48 hours manually. Check three things: webhook delivery rate from the sequencer (Smartlead logs these under Settings > Webhook Logs), Clay enrichment success rate per row (anything below 70% means your waterfall sources need reconfiguration), and CRM write errors in n8n's execution history. Then set up an error workflow in n8n that catches failed executions and posts a Slack message with the contact email and the error reason. This is not optional. Silent failures in CRM sync are the fastest way to lose rep trust in any automation, and rep trust is harder to rebuild than the workflow itself.
 
-According to [HubSpot Research's 2024 Sales Trends report](https://www.hubspot.com/sales-trends-report), sales reps spend an average of 21% of their day on manual data entry. This workflow does not eliminate that entirely. What I've measured at clients running high-volume outbound is roughly an 80% reduction in cold-email-to-CRM data entry time, which frees reps to focus on calls and personalization instead.
+According to [HubSpot Research's 2024 Sales Trends report](https://www.hubspot.com/sales-trends-report), sales reps spend an average of 21% of their day on manual data entry. This workflow does not eliminate that entirely. What I've measured on high-volume outbound programs is roughly an 80% reduction in cold-email-to-CRM data entry time, which frees reps to focus on calls and personalization instead.
 
 The full stack costs under $200 per month for most mid-market teams. [n8n Cloud](/tools/n8n/) at around $50, Clay on a starter plan, and whatever you're already paying for HubSpot or Pipedrive. One RevOps operator, about one day of work to implement from scratch. That is a better return than any sequencer add-on I've evaluated at that price point. Wire the webhook, normalize the payload, enrich before you write, and your outbound motion finally has a memory.
 

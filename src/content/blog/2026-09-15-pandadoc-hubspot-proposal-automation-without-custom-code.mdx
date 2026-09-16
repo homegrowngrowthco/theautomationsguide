@@ -3,6 +3,7 @@ title: "PandaDoc + HubSpot Proposal Automation Without Custom Code"
 description: "Connect PandaDoc to HubSpot for automated proposals using native integrations and n8n. No custom code, no dev tickets, real workflow steps."
 tldr: "You can fully automate PandaDoc proposals from HubSpot deal stages using the native HubSpot integration plus n8n for advanced routing, no custom code required."
 pubDate: 2026-09-15
+updatedDate: 2026-09-16
 tags: ["automation", "integration", "proposals"]
 faqs:
   - question: "Does PandaDoc integrate natively with HubSpot?"
@@ -32,7 +33,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-Most RevOps teams I talk to have the same proposal problem: reps manually building docs in Google Slides, copy-pasting pricing from HubSpot, then emailing a PDF and losing all visibility the moment it lands in the buyer's inbox. The fix is not a six-month dev project. [PandaDoc](/go/pandadoc/) connects to HubSpot natively, and with a handful of workflow steps plus optionally [n8n](/go/n8n/) for conditional routing, you can have deal-stage-triggered proposals firing automatically inside a week. This post is the exact recipe I walk clients through, including where the native integration stops and where you need a middleware layer.
+Most RevOps teams I talk to have the same proposal problem: reps manually building docs in Google Slides, copy-pasting pricing from HubSpot, then emailing a PDF and losing all visibility the moment it lands in the buyer's inbox. The fix is not a six-month dev project. [PandaDoc](/go/pandadoc/) connects to HubSpot natively, and with a handful of workflow steps plus optionally [n8n](/go/n8n/) for conditional routing, you can have deal-stage-triggered proposals firing automatically inside a week. This post is the exact recipe I use for this, including where the native integration stops and where you need a middleware layer.
 
 <KeyTakeaways items={[
   "PandaDoc's native HubSpot integration syncs deal properties, contacts, and line items with no code required",

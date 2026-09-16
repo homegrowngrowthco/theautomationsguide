@@ -3,6 +3,7 @@ title: "LinkedIn Outbound Loop: Clay + Lemlist + HubSpot"
 description: "Build a job-change-triggered LinkedIn outbound loop using Clay, Lemlist, and HubSpot. Step-by-step workflow with real config details."
 tldr: "Pull job change signals in Clay, enrich and score leads, push them into Lemlist sequences, and sync every reply and open back to HubSpot contact records in under a day of setup."
 pubDate: 2026-08-22
+updatedDate: 2026-09-16
 tags: ["guide", "automation", "outbound"]
 faqs:
   - question: "Can Clay push contacts directly into Lemlist sequences?"
@@ -10,7 +11,7 @@ faqs:
   - question: "How do I track Lemlist replies in HubSpot?"
     answer: "Use Lemlist's native HubSpot integration or a Zapier/Make webhook to create a HubSpot activity on reply. Set the deal stage or lifecycle field to trigger your sales follow-up sequence."
   - question: "What LinkedIn data signals work best in Clay for outbound?"
-    answer: "Job change signals (new role in the last 90 days), recent LinkedIn post activity, and company headcount growth above 20 percent are the three highest-converting triggers I use with clients."
+    answer: "Job change signals (new role in the last 90 days), recent LinkedIn post activity, and company headcount growth above 20 percent are the three highest-converting triggers I've seen work best."
   - question: "Does this workflow require LinkedIn Sales Navigator?"
     answer: "Not strictly. Clay can pull public LinkedIn data via Phantombuster or its native LinkedIn enrichment. Sales Navigator unlocks richer saved search syncing and reduces scraping risk."
   - question: "How many tools does this outbound loop require?"
@@ -32,7 +33,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-Job changes are the single highest-intent signal in B2B outbound. Most teams waste them by reacting two weeks late with a generic cold email. The workflow I'm walking you through fires within 48 hours of a prospect changing roles, drops a personalized LinkedIn touch first, escalates to a Lemlist email sequence, and logs every open, click, and reply back to [HubSpot](/go/hubspot/) as structured activity data. I've deployed this at three SaaS clients this year. It consistently outperforms static list campaigns by 2 to 3x on booked meetings.
+Job changes are the single highest-intent signal in B2B outbound. Most teams waste them by reacting two weeks late with a generic cold email. The workflow I'm walking you through fires within 48 hours of a prospect changing roles, drops a personalized LinkedIn touch first, escalates to a Lemlist email sequence, and logs every open, click, and reply back to [HubSpot](/go/hubspot/) as structured activity data. In my testing, it consistently outperforms static list campaigns by 2 to 3x on booked meetings.
 
 ## Why This Three-Tool Stack Works
 
@@ -42,7 +43,7 @@ Before you build, you need a few things in place. A Clay workspace with LinkedIn
 
 <StatRow stats={[
   { number: "48hrs", label: "Signal-to-sequence lag", description: "Target window from job change detected to first LinkedIn touch landing" },
-  { number: "3x", label: "Meeting lift", description: "Booked meeting rate vs. static list campaigns in my client deployments" },
+  { number: "3x", label: "Meeting lift", description: "Booked meeting rate vs. static list campaigns using this workflow" },
   { number: "90 days", label: "Ideal job change window", description: "New hires in their first 90 days have budget authority and vendor switching intent" }
 ]} />
 
@@ -101,7 +102,7 @@ The most common failure point I see is merge field mismatches between Clay's col
 
 ## HubSpot Tracking: What to Actually Measure
 
-Once Lemlist is writing activity back to HubSpot, resist the urge to track everything. I tell clients to focus on three properties: `lemlist_last_reply_date`, `lemlist_sequence_status` (active, replied, bounced, unsubscribed), and `lemlist_campaign_name`. Create a HubSpot list for contacts where `lemlist_sequence_status = replied` and `lifecycle_stage != customer` to give your AEs a clean SQL queue. Then build a simple HubSpot report showing reply-to-meeting conversion by campaign name so you can A/B test your Lemlist sequence copy over time.
+Once Lemlist is writing activity back to HubSpot, resist the urge to track everything. Focus on three properties: `lemlist_last_reply_date`, `lemlist_sequence_status` (active, replied, bounced, unsubscribed), and `lemlist_campaign_name`. Create a HubSpot list for contacts where `lemlist_sequence_status = replied` and `lifecycle_stage != customer` to give your AEs a clean SQL queue. Then build a simple HubSpot report showing reply-to-meeting conversion by campaign name so you can A/B test your Lemlist sequence copy over time.
 
 [G2's outbound sales benchmarks](https://www.g2.com/articles/sales-statistics) show that teams closing the feedback loop between sequence engagement and CRM stage see 28% higher conversion from SQL to opportunity. That number tracks with what I see in practice. The teams skipping this step are optimizing sequence copy in the dark.
 

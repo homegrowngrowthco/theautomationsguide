@@ -3,6 +3,7 @@ title: "Connect Fillout to HubSpot and Monday.com: One Form, Routes Everywhere"
 description: "Step-by-step tutorial: wire one Fillout form to HubSpot CRM and Monday.com simultaneously using native integrations, n8n, or Make. No duplicate data entry."
 tldr: "Use Fillout's native HubSpot integration plus an n8n or Make webhook to route a single form submission to both HubSpot contacts and Monday.com items in under 30 minutes."
 pubDate: 2026-07-27
+updatedDate: 2026-09-16
 tags: ["automation", "forms", "crm"]
 faqs:
   - question: "Does Fillout have a native Monday.com integration?"
@@ -36,7 +37,7 @@ Most GTM teams end up maintaining two separate intake processes: one for the CRM
 
 ## Why one form matters more than you think
 
-The pattern I see constantly at Homegrown Growth Co. clients is that forms accumulate. Marketing runs Typeform for leads. Sales ops runs a separate form for intake requests. The ops team built something in Monday's native form builder. Each one is a silo. The data never reconciles cleanly.
+The pattern I see constantly at Homegrown Growth Co. is that forms accumulate. Marketing runs Typeform for leads. Sales ops runs a separate form for intake requests. The ops team built something in Monday's native form builder. Each one is a silo. The data never reconciles cleanly.
 
 [Fillout](/tools/fillout/) is purpose-built for this kind of multi-destination routing. It has a native HubSpot connector that maps fields directly to contact and deal properties, handles deduplication by email, and supports conditional logic so you can branch the form flow based on answers. What it does not have natively is a Monday.com connector, but that gap closes easily with a webhook into either [n8n](/go/n8n/) or [Make](/go/make/).
 
@@ -77,7 +78,7 @@ The architecture I am walking through here: one Fillout form, two simultaneous d
   <Fragment slot="left">
     **The Monday column_values gotcha**
 
-    The most common failure point I see is a Monday item creation that succeeds but lands with blank columns. The item creates, the name is right, but status and all the mapped fields are empty. This almost always means the column_values payload was passed as a plain JavaScript object instead of a JSON string. Monday's API expects column_values to be a stringified JSON object, not a nested object. In n8n, wrap it with `JSON.stringify()` in an expression. Make handles this for you automatically in its Monday module, which is one reason I reach for Make first when clients want the fastest possible setup.
+    The most common failure point I see is a Monday item creation that succeeds but lands with blank columns. The item creates, the name is right, but status and all the mapped fields are empty. This almost always means the column_values payload was passed as a plain JavaScript object instead of a JSON string. Monday's API expects column_values to be a stringified JSON object, not a nested object. In n8n, wrap it with `JSON.stringify()` in an expression. Make handles this for you automatically in its Monday module, which is one reason I reach for Make first when speed matters most.
   </Fragment>
   <Fragment slot="right">
     ```json
@@ -140,7 +141,7 @@ If you are not already running n8n and want this live today, [Make](/tools/make/
 
 ## Extending the workflow
 
-Once the core Fillout to HubSpot and Monday.com pipeline is live, a few extensions I have shipped for clients that add real value on top of it:
+Once the core Fillout to HubSpot and Monday.com pipeline is live, a few extensions I have shipped that add real value on top of it:
 
 **HubSpot deal stage to Monday status sync (bidirectional).** Use a HubSpot workflow to fire a webhook when a deal moves stages, then update the Monday item status via the same n8n or Make workflow in reverse. This keeps your ops team's board current without manual updates.
 

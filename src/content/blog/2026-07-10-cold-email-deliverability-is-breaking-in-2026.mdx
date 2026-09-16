@@ -3,6 +3,7 @@ title: "Cold Email Deliverability Is Breaking in 2026"
 description: "Gmail and Outlook auth changes are wrecking cold email deliverability in 2026. Here is which infrastructure tools handle it best and why it matters now."
 tldr: "Cold email deliverability in 2026 is failing because Gmail and Outlook now enforce DMARC alignment, CNAME-based tracking, and stricter SPF flattening that most senders never configured correctly, and tools like Maildoso, Warmforge, Instantly, and Reply handle this infrastructure gap very differently."
 pubDate: 2026-07-10
+updatedDate: 2026-09-16
 tags: ["revops", "cold-email", "deliverability"]
 faqs:
   - question: "Why is cold email deliverability getting worse in 2026?"
@@ -46,7 +47,7 @@ I've watched three well-run outbound programs quietly die in the past six months
 
 Google's [bulk sender requirements](https://support.google.com/mail/answer/81126) that rolled out in early 2024 mandated DMARC, DKIM, and SPF for any domain sending over 5,000 messages per day. That part got press. What got far less attention was the secondary wave: stricter DMARC alignment enforcement in late 2025, where Google started actively applying quarantine and reject policies even for domains that had set `p=none` but showed consistent SPF or DKIM misalignment. Microsoft followed with analogous changes to [Outlook's Enhanced Anti-Spoofing](https://learn.microsoft.com/en-us/defender-office-365/anti-spoofing-protection-about) posture around the same window.
 
-The result is that a cold email program can have a passing DMARC record and still land in spam consistently. The DKIM signing domain does not match the From header domain (that is a DMARC alignment failure), or the SPF record has silently exceeded 10 DNS lookups and is returning `permerror` instead of `pass`. I have audited SPF records for clients who were confident their authentication was clean. I found 13 or 14 lookups after counting their transactional ESP, their CRM's outbound connector, their warmup tool, and a leftover include from a vendor they stopped using two years ago. Nobody had touched the zone file since 2023.
+The result is that a cold email program can have a passing DMARC record and still land in spam consistently. The DKIM signing domain does not match the From header domain (that is a DMARC alignment failure), or the SPF record has silently exceeded 10 DNS lookups and is returning `permerror` instead of `pass`. I have audited SPF records for teams who were confident their authentication was clean. I found 13 or 14 lookups after counting their transactional ESP, their CRM's outbound connector, their warmup tool, and a leftover include from a vendor they stopped using two years ago. Nobody had touched the zone file since 2023.
 
 CNAME-based tracking compounds this. Most cold email platforms historically hosted click tracking on shared domains like `click.theirplatform.com`. When other senders on that shared infrastructure get flagged, every domain using those tracking links absorbs a reputation hit. Mailbox providers have gotten much better at correlating this. It is now a measurable deliverability drag, not a theoretical risk. The fix (using your own CNAME tracking subdomain) exists in most enterprise email tools. It is buried, optional, and almost never configured.
 
@@ -82,13 +83,13 @@ dig +short TXT _dmarc.yourdomain.com
 
 ## How the Infrastructure Tools Are Responding
 
-The market is splitting in a clear and telling way. Tools built primarily as sequencers are retrofitting deliverability features after the fact. Tools built infrastructure-first are pulling ahead fast. I have been watching four players closely because clients keep asking me which one to consolidate around. My opinion: if you have to pick one axis to optimize, pick the infrastructure layer first. A beautiful sequencer on a broken domain is just a faster way to burn your reputation.
+The market is splitting in a clear and telling way. Tools built primarily as sequencers are retrofitting deliverability features after the fact. Tools built infrastructure-first are pulling ahead fast. I have been watching four players closely because teams keep asking me which one to consolidate around. My opinion: if you have to pick one axis to optimize, pick the infrastructure layer first. A beautiful sequencer on a broken domain is just a faster way to burn your reputation.
 
 <ToolBreakdown title="Cold Email Infrastructure Tools in 2026" tools={[
   {
     name: "Maildoso",
     tagline: "Managed inbox infrastructure with automatic auth",
-    body: "Maildoso is the most opinionated infrastructure play in this space. You provision inboxes through their platform and they handle domain registration, DNS setup, DKIM/DMARC alignment, and SPF management automatically. You do not touch a zone file. For teams that have been burned by DNS debt, that is genuinely appealing. The trade-off is real: you are inside their infrastructure model, and porting out requires rebuilding your domain reputation elsewhere. I have set this up for two clients who had completely wrecked their primary domain reputation and needed a clean restart inside a managed environment. Both were sending at scale within three weeks.",
+    body: "Maildoso is the most opinionated infrastructure play in this space. You provision inboxes through their platform and they handle domain registration, DNS setup, DKIM/DMARC alignment, and SPF management automatically. You do not touch a zone file. For teams that have been burned by DNS debt, that is genuinely appealing. The trade-off is real: you are inside their infrastructure model, and porting out requires rebuilding your domain reputation elsewhere. I have set this up for a client who had completely wrecked their primary domain reputation and needed a clean restart inside a managed environment. They were sending at scale within three weeks.",
     highlights: [
       "Automatic DMARC alignment on every provisioned inbox",
       "Handles SPF flattening natively so you never exceed the 10-lookup limit",

@@ -3,6 +3,7 @@ title: "Migrate Pipedrive to HubSpot Without Wrecking Your Pipeline"
 description: "Step-by-step guide to migrating from Pipedrive to HubSpot, covering data export, field mapping, deal preservation, and the gotchas that kill pipelines."
 tldr: "Migrating from Pipedrive to HubSpot takes 2 to 4 weeks done properly: export contacts and deals as CSV, map custom fields before import, rebuild automations natively in HubSpot, and validate every deal stage before going live."
 pubDate: 2026-08-25
+updatedDate: 2026-09-16
 tags: ["guide", "automation", "crm-migration"]
 faqs:
   - question: "How long does a Pipedrive to HubSpot migration take?"
@@ -48,7 +49,7 @@ I've run this migration more times than I care to count at Homegrown Growth Co. 
 
 Resist the urge to export everything immediately. The prep work you do in the next 48 hours determines whether reps trust the new CRM on day one or file a support ticket every morning for two weeks.
 
-Here is the pre-migration checklist I run with every client:
+Here is the pre-migration checklist I run before every migration:
 
 - **Audit your Pipedrive data quality first.** Pull a full contact export and check for duplicate organizations, orphaned deals (no contact associated), and fields that haven't been populated in 12 months. Clean it in Pipedrive, not in HubSpot after import. Cleaning post-import is four times slower.
 - **Document every custom field** in Pipedrive with its field type: text, number, dropdown, date, phone. HubSpot's importer cannot infer field types from CSV values. You will create each of these as a custom property in HubSpot before a single CSV lands.
@@ -128,7 +129,7 @@ Not everything survives a CRM migration. Pretending otherwise is how you create 
     Node 5: Airtable, log deal_id + status
     ```
 
-    This pulls Pipedrive's mail messages via API (requires Pipedrive Professional or above for full email sync access) and writes them as Email engagements in HubSpot. I run this for clients before the CSV imports complete so email context lands on day one. Expect 3 to 5 hours of n8n setup and 1 to 8 hours of runtime depending on record volume.
+    This pulls Pipedrive's mail messages via API (requires Pipedrive Professional or above for full email sync access) and writes them as Email engagements in HubSpot. I run this before the CSV imports complete so email context lands on day one. Expect 3 to 5 hours of n8n setup and 1 to 8 hours of runtime depending on record volume.
   </Fragment>
 </SideBySide>
 
@@ -173,7 +174,7 @@ For teams running [HubSpot lead scoring tied to deal signals](/blog/2026-08-15-t
 
 If you are on the fence because of cost, the honest math: [HubSpot's Sales Hub](https://www.hubspot.com/pricing/sales) at Starter runs $20/seat/month. For a 10-rep team that is $2,400/year. Pipedrive Professional, which unlocks the automation features most teams actually need, runs $49/seat/month. That same 10-rep team pays $5,880/year. The gap is smaller than most RevOps leaders assume, and HubSpot gives you the marketing attribution and reporting surface that Pipedrive simply doesn't have. If you're also evaluating [moving the other direction](/blog/2026-08-20-migrate-hubspot-to-attio-without-losing-deal-history/), the tradeoffs flip entirely.
 
-For teams running API-heavy migration workflows, [n8n](/tools/n8n/) is the right tool. Full stop. Don't bother with Zapier's CRM migration templates for anything over 5,000 records. n8n handles pagination, transformation, error logging, and retry logic in ways Zapier's template-based approach can't touch. My clients who used Zapier for migrations at scale spent two extra weeks cleaning up partial imports. The ones who used n8n had clean logs and knew exactly what failed. I've also used n8n to build parallel-write periods where new records land in both systems simultaneously during a two-week cutover window. That alone reduces the "we missed a deal" anxiety that tanks adoption. If you're already using n8n for outbound automation (as in a [LinkedIn outbound loop](/blog/2026-08-22-linkedin-outbound-loop-clay-lemlist-hubspot/)), the migration workflow fits naturally into existing infrastructure without spinning up new tooling.
+For teams running API-heavy migration workflows, [n8n](/tools/n8n/) is the right tool. Full stop. Don't bother with Zapier's CRM migration templates for anything over 5,000 records. n8n handles pagination, transformation, error logging, and retry logic in ways Zapier's template-based approach can't touch. Teams that used Zapier for migrations at scale spent two extra weeks cleaning up partial imports. The ones that used n8n had clean logs and knew exactly what failed. I've also used n8n to build parallel-write periods where new records land in both systems simultaneously during a two-week cutover window. That alone reduces the "we missed a deal" anxiety that tanks adoption. If you're already using n8n for outbound automation (as in a [LinkedIn outbound loop](/blog/2026-08-22-linkedin-outbound-loop-clay-lemlist-hubspot/)), the migration workflow fits naturally into existing infrastructure without spinning up new tooling.
 
 <MyTake>
 The technically perfect migration is not the hard part. I've watched clean, well-documented migrations fail inside 30 days because no one trained the sales team on what the new deal stages actually mean. Reps reverted to spreadsheets within two weeks. The data transfer is solvable with a checklist. Rep adoption requires a change management plan, stage definition documentation, and someone willing to sit in deal reviews for the first month catching bad stage hygiene in real time. Most RevOps teams skip that entirely and then wonder why reporting looks wrong six weeks later.

@@ -3,6 +3,7 @@ title: "Migrate from Smartlead to Reply.io Without Losing Your Sending Domains"
 description: "Step-by-step migration guide from Smartlead to Reply.io, covering domain auth, sequence export, and inbox warm-up so you never skip a beat."
 tldr: "You can migrate from Smartlead to Reply.io in about a week without losing sending domain reputation, as long as you export sequences first, re-authenticate your mailboxes in Reply.io, and run a short warm-up overlap before cutting over."
 pubDate: 2026-09-14
+updatedDate: 2026-09-16
 tags: ["guide", "automation", "outbound"]
 faqs:
   - question: "Is Reply.io a good Smartlead alternative?"
@@ -98,7 +99,7 @@ Gather the following before you touch a single setting:
 
 ## What breaks and what does not transfer
 
-The gotchas in this migration are predictable once you know where to look. Here is what I have seen trip up teams most often, and a few of these surprised even clients who had done platform migrations before.
+The gotchas in this migration are predictable once you know where to look. Here is what I have seen trip up teams most often, and a few of these surprised even teams who had done platform migrations before.
 
 **What does not transfer:**
 - Smartlead's A/B test data stays in Smartlead. You cannot export winner variants with statistical context.
@@ -127,7 +128,7 @@ The gotchas in this migration are predictable once you know where to look. Here 
 
 ## Verify it worked
 
-Before you declare the migration complete, run these four checks. My clients who skip even one of them tend to find out the hard way three weeks later when a domain gets flagged.
+Before you declare the migration complete, run these four checks. Teams that skip even one of them tend to find out the hard way three weeks later when a domain gets flagged.
 
 1. **MX Toolbox DKIM lookup.** Enter your domain and Reply.io's selector at [MXToolbox DKIM lookup](https://mxtoolbox.com/dkim.aspx). You should see a valid public key returned. If it errors, DNS has not propagated yet or the record was entered incorrectly.
 2. **Send a test sequence to a seed inbox.** Use a personal Gmail or a tool like [Mail-Tester](https://www.mail-tester.com/) to send a real Reply.io sequence email and check the spam score. A score of 9/10 or above means auth is clean.
@@ -189,7 +190,7 @@ I have watched the [Instantly vs. Smartlead vs. Lemlist](/tools/instantly/) deci
 If your migration anxiety is really about deliverability infrastructure rather than the sequencing tool itself, the [domain-auth challenges that surface in phone-stack migrations](/blog/2026-09-12-migrate-from-aircall-to-justcall-without-disrupting-your-sdr/) are worth reading too. The overlap window and dual-auth principles apply across platforms.
 
 <MyTake>
-Reply.io's multichannel story is genuinely strong, but teams doing more than 5,000 emails per day on Smartlead consistently feel the pinch on Reply.io's mailbox limits at entry tiers and end up adding seats faster than they budgeted. I have seen this happen at three clients in the past year. The migration earns its keep for mid-market B2B teams who actually work the LinkedIn and calling steps. For agencies running high-volume cold email at razor margins, stay on Smartlead or move to [Instantly](/go/instantly/). Switching to Reply.io purely on feature FOMO is how you inflate your tooling bill without improving pipeline.
+Reply.io's multichannel story is genuinely strong, but teams doing more than 5,000 emails per day on Smartlead consistently feel the pinch on Reply.io's mailbox limits at entry tiers and end up adding seats faster than they budgeted. I have seen this happen more than once in the past year. The migration earns its keep for mid-market B2B teams who actually work the LinkedIn and calling steps. For agencies running high-volume cold email at razor margins, stay on Smartlead or move to [Instantly](/go/instantly/). Switching to Reply.io purely on feature FOMO is how you inflate your tooling bill without improving pipeline.
 </MyTake>
 
 ## One week to a cleaner outbound stack

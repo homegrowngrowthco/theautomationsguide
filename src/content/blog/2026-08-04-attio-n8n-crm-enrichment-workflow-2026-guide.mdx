@@ -3,6 +3,7 @@ title: "Attio + n8n CRM Enrichment Workflow (2026 Guide)"
 description: "Build an automated Attio CRM enrichment pipeline using n8n, Clay, and FullEnrich. Step-by-step workflow for RevOps and GTM operators."
 tldr: "Connect Attio to n8n via webhook or API node, trigger enrichment through Clay or FullEnrich on new record creation, then write structured data back to Attio custom attributes automatically."
 pubDate: 2026-08-04
+updatedDate: 2026-09-16
 tags: ["automation", "crm", "enrichment"]
 faqs:
   - question: "Does Attio have a native n8n integration?"
@@ -32,7 +33,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-Most RevOps teams I talk to are still running enrichment as a manual task. Someone exports a CSV, uploads it to Apollo or Clay, downloads the result, and pastes it back into the CRM. If you have moved to [Attio](/go/attio/) as your CRM, you do not have to accept that. Attio's REST API is clean, its webhook automation triggers are reliable, and [n8n](/go/n8n/) can sit in the middle and orchestrate every enrichment provider you want without a line of Python. This guide walks through the exact workflow I use with clients who run Attio as their system of record and want enrichment that fires within 90 seconds of a record hitting the database.
+Most RevOps teams I talk to are still running enrichment as a manual task. Someone exports a CSV, uploads it to Apollo or Clay, downloads the result, and pastes it back into the CRM. If you have moved to [Attio](/go/attio/) as your CRM, you do not have to accept that. Attio's REST API is clean, its webhook automation triggers are reliable, and [n8n](/go/n8n/) can sit in the middle and orchestrate every enrichment provider you want without a line of Python. This guide walks through the exact workflow I use for teams that run Attio as their system of record and want enrichment that fires within 90 seconds of a record hitting the database.
 
 ## Why Attio Plus n8n Is Worth the Setup Time
 
@@ -46,7 +47,7 @@ On the n8n side, the Webhook node receives that payload, and from there you have
   { number: "$0", label: "n8n self-hosted cost", description: "Run the orchestration layer on a $6/mo VPS; pay only for enrichment API credits consumed" }
 ]} />
 
-The enrichment layer is where you choose your weapon. For most of my clients I recommend a waterfall: try [FullEnrich](/go/fullenrich/) first for mobile and direct email (it is cheaper per credit and has strong European coverage), then fall through to [Clay](/go/clay/) for everything else including firmographic data. If you want the single-vendor approach, Clay alone covers most use cases. I will show both paths below.
+The enrichment layer is where you choose your weapon. For most teams I recommend a waterfall: try [FullEnrich](/go/fullenrich/) first for mobile and direct email (it is cheaper per credit and has strong European coverage), then fall through to [Clay](/go/clay/) for everything else including firmographic data. If you want the single-vendor approach, Clay alone covers most use cases. I will show both paths below.
 
 <Figure class="post-screenshot" caption="The n8n workflow canvas showing a webhook trigger feeding into enrichment and then branching back to Attio via HTTP Request nodes.">
   <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
@@ -73,7 +74,7 @@ Before you build: you need an Attio workspace on Plus or above for API access, a
   },
   {
     title: "Branch on data quality",
-    body: "Add an IF node after the enrichment response. If confidence score is below 80 (FullEnrich returns a confidence field) or if the email field is null, route to a Slack notification node that posts to #revops-alerts with the Attio record URL. If enrichment succeeded, pass the clean data to the write-back node. This prevents garbage data from entering Attio silently, which is the failure mode I see most often in clients' existing workflows."
+    body: "Add an IF node after the enrichment response. If confidence score is below 80 (FullEnrich returns a confidence field) or if the email field is null, route to a Slack notification node that posts to #revops-alerts with the Attio record URL. If enrichment succeeded, pass the clean data to the write-back node. This prevents garbage data from entering Attio silently, which is the failure mode I see most often in existing workflows."
   },
   {
     title: "Write enriched data back to Attio via PATCH",
@@ -83,7 +84,7 @@ Before you build: you need an Attio workspace on Plus or above for API access, a
 
 <SideBySide>
   <Fragment slot="left">
-    **The gotcha that kills most first attempts:** Attio's API returns email addresses nested inside a `values` array, not as a flat string. If you try to pass `body.email` directly from the webhook payload, you get undefined, enrichment fails silently, and the record stays blank. I have debugged this exact issue for three separate clients who built the workflow independently and hit the same wall.
+    **The gotcha that kills most first attempts:** Attio's API returns email addresses nested inside a `values` array, not as a flat string. If you try to pass `body.email` directly from the webhook payload, you get undefined, enrichment fails silently, and the record stays blank. I have debugged this exact issue three separate times, for teams that built the workflow independently and hit the same wall.
   </Fragment>
   <Fragment slot="right">
     ```json
@@ -114,7 +115,7 @@ Before you build: you need an Attio workspace on Plus or above for API access, a
 
 ## Choosing Your Enrichment Layer
 
-The orchestration is n8n regardless. The decision is which enrichment provider sits in the middle. Here is how I frame it for clients.
+The orchestration is n8n regardless. The decision is which enrichment provider sits in the middle. Here is how I frame it.
 
 <ChooseIf title="Pick your enrichment provider" tools={[
   {
@@ -153,7 +154,7 @@ For teams also running [n8n for lead routing out of HubSpot](/blog/2026-08-02-hu
 
 New record enrichment is the easy part. Backfilling 10,000 existing Attio contacts is where teams get stuck. My approach: use Attio's [list filtering API](https://developers.attio.com/reference/post_v2-objects-people-records-query) to pull all records where `mobile_phone` is empty, paginate through them in n8n using a Loop Over Items node, and throttle to 10 requests per second to stay inside both Attio's rate limit (60 requests per minute on Plus) and your enrichment provider's limit. Schedule this as an n8n workflow on a cron trigger running nightly until the backfill completes.
 
-Don't try to run the backfill as one giant batch. I watched a client hammer Attio's API with 8,000 simultaneous PATCH requests and get rate-limited for six hours. Ten records per second, paced with a Wait node set to 100ms, finishes 10,000 records in under three hours without a single 429.
+Don't try to run the backfill as one giant batch. I watched a team hammer Attio's API with 8,000 simultaneous PATCH requests and get rate-limited for six hours. Ten records per second, paced with a Wait node set to 100ms, finishes 10,000 records in under three hours without a single 429.
 
 <MyTake>
 Every team I have consulted for over-engineers the enrichment layer and under-engineers the write-back validation. A bad phone number sitting in Attio is actively worse than no phone number. Reps notice bad data faster than missing data, and once they stop trusting the CRM, you have a much bigger problem than enrichment coverage. Spend 20% of your build time on the confidence-score branch and the Slack alert. Not on adding a fifth enrichment provider.
@@ -161,7 +162,7 @@ Every team I have consulted for over-engineers the enrichment layer and under-en
 
 ## Ship It, Then Tune It
 
-This workflow takes about four hours to build from scratch. Thirty minutes on the Attio automation, 90 minutes on the n8n canvas including testing, 30 minutes tuning the enrichment provider configuration, and 60 minutes on the write-back validation logic. After that, it runs without intervention. I have clients who have had this workflow running for eight months with zero maintenance beyond rotating API keys once.
+This workflow takes about four hours to build from scratch. Thirty minutes on the Attio automation, 90 minutes on the n8n canvas including testing, 30 minutes tuning the enrichment provider configuration, and 60 minutes on the write-back validation logic. After that, it runs without intervention. I have seen this workflow run for eight months with zero maintenance beyond rotating API keys once.
 
 The next layer worth adding, once this is stable, is a scoring node after enrichment. Pull the enriched firmographics, run them against your ICP definition in an n8n Function node, write an `icp_score` attribute back to Attio, and trigger a different Attio automation for high-score records that notifies the AE. That is the full signal-to-action loop, entirely code-light once the enrichment plumbing is in place. For teams also tracking website visitor signals into their CRM, the [Vector n8n visitor signal workflow](/blog/2026-08-01-vector-n8n-website-visitor-signal-workflow/) uses the same Attio write-back pattern and slots cleanly into this architecture.
 

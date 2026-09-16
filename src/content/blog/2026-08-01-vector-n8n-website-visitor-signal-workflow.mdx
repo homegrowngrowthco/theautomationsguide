@@ -3,6 +3,7 @@ title: "Vector + n8n Website Visitor Signal Workflow"
 description: "Build a website visitor intent workflow with Vector and n8n. Turn anonymous traffic into enriched, routed leads automatically. Step-by-step playbook."
 tldr: "Use Vector to identify and score website visitors, pipe the signal into n8n, enrich with Clay, and route hot accounts to your CRM or sequencer in under 30 minutes of build time."
 pubDate: 2026-08-01
+updatedDate: 2026-09-16
 tags: ["automation", "intent", "visitor-tracking"]
 faqs:
   - question: "What is Vector used for in sales automation?"
@@ -32,9 +33,9 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-Most website visitor intent tools hand you a CSV on Monday morning and call it a workflow. You get a list of companies, no contact data, no routing logic, and no way to act on it before the window closes. I've watched clients burn real pipeline on exactly this setup. The fix is wiring a real-time signal from [Vector](/go/vector/) into [n8n](/go/n8n/) so the moment a target account hits your pricing page, the right rep gets a Slack ping with enriched context, not a spreadsheet two days later.
+Most website visitor intent tools hand you a CSV on Monday morning and call it a workflow. You get a list of companies, no contact data, no routing logic, and no way to act on it before the window closes. I've watched teams burn real pipeline on exactly this setup. The fix is wiring a real-time signal from [Vector](/go/vector/) into [n8n](/go/n8n/) so the moment a target account hits your pricing page, the right rep gets a Slack ping with enriched context, not a spreadsheet two days later.
 
-This post is the first detailed build tutorial for Vector's webhook output. There are no official workflow examples yet, so I'm documenting the exact steps my team uses with clients running outbound-heavy B2B SaaS GTM motions.
+This post is the first detailed build tutorial for Vector's webhook output. There are no official workflow examples yet, so I'm documenting the exact steps my team uses for outbound-heavy B2B SaaS GTM motions.
 
 <KeyTakeaways items={[
   "Vector emits a webhook payload on every scored visitor event, ready to catch in n8n with zero custom code",
@@ -48,7 +49,7 @@ This post is the first detailed build tutorial for Vector's webhook output. Ther
 
 Website visitor identification has been a category for years. The tooling just caught up to the automation use case. [RB2B](/go/rb2b/) is excellent for LinkedIn-identified individual visitors and I still recommend it for founder-led outbound. But RB2B's output is email-first and not designed to be a real-time automation trigger. Vector takes a different angle: it scores accounts by behavior across your site, assigns intent tiers, and exposes that signal as a structured webhook payload you can act on immediately.
 
-The gap I keep hitting with clients is that visitor intent tools generate noise without a filter layer. A mid-market ICP account hitting your docs once is not the same signal as an enterprise account that visited pricing, the integration page, and your security whitepaper in one session. Vector's scoring model handles that differentiation. [n8n](/tools/n8n/) is the right orchestration layer here because you need conditional branching (ICP check, score threshold, existing CRM contact check) before you write anything downstream. Zapier can do a linear chain. n8n can do a real decision tree. That distinction matters more than most people admit before they've hit Zapier's filter limits at 3am.
+The gap I keep hitting is that visitor intent tools generate noise without a filter layer. A mid-market ICP account hitting your docs once is not the same signal as an enterprise account that visited pricing, the integration page, and your security whitepaper in one session. Vector's scoring model handles that differentiation. [n8n](/tools/n8n/) is the right orchestration layer here because you need conditional branching (ICP check, score threshold, existing CRM contact check) before you write anything downstream. Zapier can do a linear chain. n8n can do a real decision tree. That distinction matters more than most people admit before they've hit Zapier's filter limits at 3am.
 
 <StatRow stats={[
   { number: "98%", label: "of website visitors", description: "leave without filling out a form, according to Demand Gen Report research on anonymous traffic" },
@@ -67,7 +68,7 @@ The workflow has four logical stages: capture the Vector signal, enrich the acco
   },
   {
     title: "Configure Vector's webhook output",
-    body: "In Vector, go to Integrations > Webhooks and paste your n8n URL. Set the trigger to 'Intent Score Changed' and choose the minimum score threshold you care about (I default to 70 out of 100 for most clients). Check the boxes for company domain, visitor page path, session count, and the intent tier label. Save and trigger a test visit to confirm the payload arrives in n8n's execution log."
+    body: "In Vector, go to Integrations > Webhooks and paste your n8n URL. Set the trigger to 'Intent Score Changed' and choose the minimum score threshold you care about (I default to 70 out of 100 for most setups). Check the boxes for company domain, visitor page path, session count, and the intent tier label. Save and trigger a test visit to confirm the payload arrives in n8n's execution log."
   },
   {
     title: "Add an ICP filter node before enrichment",
@@ -172,7 +173,7 @@ Vector is the first intent tool I've used where the automation primitive feels l
 
 ## The workflow is the moat
 
-The dirty secret of website visitor intent: every competitor in your space has access to the same identification technology. The edge is not the data. It's the speed and precision of what you do with it. A [Clay](/tools/clay/) enrichment waterfall that verifies contacts before they hit your sequencer, an ICP gate that keeps reps focused on real signals, and a 90-second end-to-end latency from page visit to personalized outreach are not features any tool ships out of the box. They're things you build. This Vector and [n8n](/tools/n8n/) stack is the fastest path to building them correctly, and the clients I've run it for have seen reply rates on intent-triggered sequences land consistently above 15 percent compared to 4-5 percent on cold lists pulled from the same accounts.
+The dirty secret of website visitor intent: every competitor in your space has access to the same identification technology. The edge is not the data. It's the speed and precision of what you do with it. A [Clay](/tools/clay/) enrichment waterfall that verifies contacts before they hit your sequencer, an ICP gate that keeps reps focused on real signals, and a 90-second end-to-end latency from page visit to personalized outreach are not features any tool ships out of the box. They're things you build. This Vector and [n8n](/tools/n8n/) stack is the fastest path to building them correctly, and teams running it have seen reply rates on intent-triggered sequences land consistently above 15 percent compared to 4-5 percent on cold lists pulled from the same accounts.
 
 <BottomLine
   verdict="Vector's structured webhook output combined with n8n's conditional routing gives RevOps teams the most automation-ready visitor intent stack available right now. Build this before your competitors do."

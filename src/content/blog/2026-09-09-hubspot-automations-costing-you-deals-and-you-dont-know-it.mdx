@@ -3,6 +3,7 @@ title: "HubSpot Automations Costing You Deals (And You Don't Know It)"
 description: "Most RevOps teams run broken HubSpot workflows and never catch it. Here are the specific failure patterns and what to use instead."
 tldr: "HubSpot workflow failures are silent, common, and fixable, but the fix often means routing specific automation jobs to Kit or n8n instead of patching more HubSpot logic."
 pubDate: 2026-09-09
+updatedDate: 2026-09-16
 tags: ["guide", "automation", "hubspot"]
 faqs:
   - question: "Why are my HubSpot workflows not working?"
@@ -37,7 +38,7 @@ I've audited HubSpot workflow libraries at over a dozen B2B SaaS companies in th
 <PullQuote>The most expensive line item in most HubSpot contracts is not the seat cost. It is the deals your broken workflows never touched.</PullQuote>
 
 <StatRow stats={[
-  { number: "42%", label: "Avg unenrollment rate", description: "Median share of contacts that unenroll before completing a 5-step nurture workflow, based on audits I have run across clients on HubSpot Professional and Enterprise." },
+  { number: "42%", label: "Avg unenrollment rate", description: "Median share of contacts that unenroll before completing a 5-step nurture workflow, based on audits I have run on HubSpot Professional and Enterprise accounts." },
   { number: "$0", label: "Cost of the alert", description: "HubSpot charges nothing to tell you a workflow failed. It also tells you nothing. You have to go looking." },
   { number: "3x", label: "Logic depth limit", description: "HubSpot branch actions support up to three nested if/then branches before the UX becomes unmaintainable and error rates climb sharply." }
 ]} />
@@ -116,7 +117,7 @@ Audit checklist (run monthly):
 
 I am not saying rip out [HubSpot](/tools/hubspot/). HubSpot is still where your CRM data lives, and it handles simple lifecycle triggers well enough: contact created, deal stage updated, form submitted. What I am saying is stop routing complex automation logic through HubSpot workflows when better-fit tools exist for the job.
 
-Here is how my clients at Homegrown Growth Co. and I have split this across the stack:
+Here is how I split this across the stack at Homegrown Growth Co.:
 
 <ChooseIf title="Which tool handles which automation job" tools={[
   {
@@ -170,7 +171,7 @@ Here is how my clients at Homegrown Growth Co. and I have split this across the 
 [Litmus's 2024 State of Email research](https://www.litmus.com/resources/state-of-email/) found that teams routing nurture email through a dedicated ESP rather than their CRM's native email tool see an average 18 percent improvement in open rates. That is not a Kit-specific claim. It is a structural one: purpose-built email tools are better at email than CRMs are. Full stop.
 
 <MyTake>
-HubSpot's workflow builder was designed to be sold, not debugged. The visual canvas looks powerful in a demo and becomes a liability in production. The teams extracting real value from HubSpot are the ones treating it as a system of record and data router, then building actual automation logic in tools that have real observability. Every client I've pushed in that direction has cut their "why didn't this fire?" Slack threads by more than half within 60 days.
+HubSpot's workflow builder was designed to be sold, not debugged. The visual canvas looks powerful in a demo and becomes a liability in production. The teams extracting real value from HubSpot are the ones treating it as a system of record and data router, then building actual automation logic in tools that have real observability. Teams I've pushed in that direction have cut their "why didn't this fire?" Slack threads by more than half within 60 days.
 </MyTake>
 
 ## Stop Patching and Start Auditing

@@ -3,6 +3,7 @@ title: "Warmly + Make: Signal-Based Outbound Workflow Guide"
 description: "How to wire Warmly visitor signals into Make automations that enrich leads in Clay and trigger sequences in HubSpot. A hands-on RevOps playbook."
 tldr: "Connect Warmly webhooks to Make, enrich identified visitors in Clay, and auto-enroll them in HubSpot sequences based on intent tier for a fully automated signal-to-sequence outbound engine."
 pubDate: 2026-08-16
+updatedDate: 2026-09-16
 tags: ["automation", "outbound", "signal-based-selling"]
 faqs:
   - question: "Can Warmly trigger Make automations automatically?"
@@ -48,7 +49,7 @@ The core idea is simple. [Warmly](/tools/warmly/) identifies a visitor, fires a 
 
 Here is why this combination outperforms Warmly's native automations alone. Warmly's built-in playbooks are solid for Slack alerts and basic CRM writes. They do not give you multi-step conditional logic for ICP filtering, deduplication, and enrichment branching. Make fills that orchestration gap. [Clay](/go/clay/) fills the data quality gap, running waterfall enrichment across Apollo, LinkedIn, and Clearbit in a single HTTP call from Make. The result is a visitor signal that arrives in HubSpot as a fully enriched, correctly routed contact ready for sequence enrollment, not just a company name and a URL.
 
-I have built this stack for clients at Homegrown Growth Co. The first time it fires correctly in production is genuinely satisfying. A VP of Engineering visits your integration page, Warmly fires within seconds, Make routes them to a Clay table, Clay appends their mobile number and confirms they are in a 200-500 person ICP company, and HubSpot enrolls them in the technical sequence before the rep has finished their coffee.
+I have built this stack for teams at Homegrown Growth Co. The first time it fires correctly in production is genuinely satisfying. A VP of Engineering visits your integration page, Warmly fires within seconds, Make routes them to a Clay table, Clay appends their mobile number and confirms they are in a 200-500 person ICP company, and HubSpot enrolls them in the technical sequence before the rep has finished their coffee.
 
 <Figure class="post-screenshot" caption="Clay's waterfall enrichment table mapping Warmly visitor data to verified contact fields before HubSpot write-back">
   <a href="/go/clay/" target="_blank" rel="noopener noreferrer sponsored">
@@ -161,10 +162,10 @@ Once this is running, you get three things a manual or batch-based process canno
 
 For teams thinking about [building a broader signal-based lead scoring system on top of HubSpot](/blog/2026-08-15-trigify-hubspot-lead-scoring-automation-2026-guide/), this workflow pairs naturally with Trigify or similar intent enrichment layers feeding the same score object.
 
-The one thing I would not skip is the deduplication filter. Without the `warmly_enrolled` property check, a prospect who visits your pricing page three times in a week gets enrolled three times. I have seen this happen in a client's HubSpot instance. It is the fastest way to get your domain flagged and your sales team embarrassed.
+The one thing I would not skip is the deduplication filter. Without the `warmly_enrolled` property check, a prospect who visits your pricing page three times in a week gets enrolled three times. I have seen this happen in practice. It is the fastest way to get your domain flagged and your sales team embarrassed.
 
 <MyTake>
-Most teams overcomplicate the ICP filter before they have shipped a single sequence. I have watched clients want to score 15 signals before allowing enrollment. In practice, page URL plus company headcount plus job seniority from Clay correctly routes about 85 percent of decisions. Ship the simple version, let it run for two weeks, then layer in refinements based on actual conversion data from HubSpot. The teams that iterate from real data always outperform the teams that design the perfect filter upfront.
+Most teams overcomplicate the ICP filter before they have shipped a single sequence. I have watched teams want to score 15 signals before allowing enrollment. In practice, page URL plus company headcount plus job seniority from Clay correctly routes about 85 percent of decisions. Ship the simple version, let it run for two weeks, then layer in refinements based on actual conversion data from HubSpot. The teams that iterate from real data always outperform the teams that design the perfect filter upfront.
 </MyTake>
 
 ## Ship It This Week

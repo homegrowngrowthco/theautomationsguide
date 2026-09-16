@@ -3,6 +3,7 @@ title: "Migrate from ActiveCampaign to Loops Without Losing Triggers"
 description: "Step-by-step migration guide for moving from ActiveCampaign to Loops, covering contact export, event mapping, automation rebuild, and verification. No data left behind."
 tldr: "Migrating from ActiveCampaign to Loops takes 2 to 4 days if you map your triggers to Loops events first, export contacts with all custom fields, and rebuild automations as event-driven flows before you cut over DNS."
 pubDate: 2026-07-25
+updatedDate: 2026-09-16
 tags: ["guide", "automation", "email"]
 faqs:
   - question: "Does Loops have a migration tool for ActiveCampaign?"
@@ -32,7 +33,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-The trigger is almost always the same. A product team ships a new signup flow, needs to fire a lifecycle email when a user hits a milestone, and discovers that wiring that through [ActiveCampaign](/go/activecampaign/) requires a Zapier zap, a custom field update, and three nested automation conditions just to send one email. That friction is exactly why [Loops](/go/loops/) is pulling PLG teams away fast. The problem is that Loops publishes no migration guide, and if you just export a CSV and hit "import," you will gut every behavioral trigger you spent months tuning in AC. This guide covers the full migration in the order I run it for clients, so you keep your automation logic and your deliverability.
+The trigger is almost always the same. A product team ships a new signup flow, needs to fire a lifecycle email when a user hits a milestone, and discovers that wiring that through [ActiveCampaign](/go/activecampaign/) requires a Zapier zap, a custom field update, and three nested automation conditions just to send one email. That friction is exactly why [Loops](/go/loops/) is pulling PLG teams away fast. The problem is that Loops publishes no migration guide, and if you just export a CSV and hit "import," you will gut every behavioral trigger you spent months tuning in AC. This guide covers the full migration in the order I run it, so you keep your automation logic and your deliverability.
 
 <KeyTakeaways items={[
   "Map every ActiveCampaign trigger to a Loops event before you touch a single export",

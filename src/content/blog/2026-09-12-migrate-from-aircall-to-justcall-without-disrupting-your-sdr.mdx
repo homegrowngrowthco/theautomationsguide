@@ -3,6 +3,7 @@ title: "Migrate from Aircall to JustCall Without Disrupting Your SDR Team"
 description: "Step-by-step guide to switching from Aircall to JustCall, including data exports, CRM re-wiring, and how to keep your SDRs dialing through cutover."
 tldr: "Migrating from Aircall to JustCall takes 5 to 7 business days if you pre-export call logs, rebuild CRM integrations before cutover, and run both platforms in parallel for one sprint."
 pubDate: 2026-09-12
+updatedDate: 2026-09-16
 tags: ["guide", "automation", "sales-tools"]
 faqs:
   - question: "Is JustCall a good Aircall alternative?"
@@ -32,7 +33,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-The moment most teams decide to leave [Aircall](/go/aircall/) is not a dramatic outage. It is a quiet Tuesday when the CFO pulls the renewal invoice, notices the per-seat cost climbing north of $50/month, and asks whether the team is actually using the AI features they are paying for. I have been in that meeting three times now. The answer is almost always no. What follows is the migration playbook I use with my clients at Homegrown Growth Co. to get SDR teams off Aircall and onto [JustCall](/go/justcall/) without a single missed call.
+The moment most teams decide to leave [Aircall](/go/aircall/) is not a dramatic outage. It is a quiet Tuesday when the CFO pulls the renewal invoice, notices the per-seat cost climbing north of $50/month, and asks whether the team is actually using the AI features they are paying for. I have been in that meeting three times now. The answer is almost always no. What follows is the migration playbook I use at Homegrown Growth Co. to get SDR teams off Aircall and onto [JustCall](/go/justcall/) without a single missed call.
 
 <KeyTakeaways items={[
   "You gain AI call scoring, SMS sequences, and a power dialer at a lower per-seat cost than Aircall's comparable tiers.",
@@ -195,7 +196,7 @@ The real reason most teams stay on Aircall longer than they should has nothing t
 
 ## Do the migration in the next sprint
 
-An Aircall-to-JustCall migration is one of the highest-ROI infrastructure swaps a RevOps team can run this year. The playbook is straightforward: export before you touch anything, port your numbers first, rebuild your CRM mappings with intention, run parallel for one sprint, and verify with four concrete checks before you cancel. According to [G2's VoIP category data](https://www.g2.com/categories/voip), JustCall consistently ranks above Aircall on ease of setup and quality of support, which tracks with what I see from clients I have moved through this process.
+An Aircall-to-JustCall migration is one of the highest-ROI infrastructure swaps a RevOps team can run this year. The playbook is straightforward: export before you touch anything, port your numbers first, rebuild your CRM mappings with intention, run parallel for one sprint, and verify with four concrete checks before you cancel. According to [G2's VoIP category data](https://www.g2.com/categories/voip), JustCall consistently ranks above Aircall on ease of setup and quality of support, which tracks with what I see when I run this migration.
 
 The biggest risk is not the migration itself. It is waiting another quarter because it feels complicated. It is not. [KrispCall](/tools/krispcall/) and [Aloware](/tools/aloware/) are worth a look if your situation matches those profiles above, but for most B2B SaaS SDR teams, [JustCall](/tools/justcall/) is the pragmatic call.
 
