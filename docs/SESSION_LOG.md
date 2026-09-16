@@ -8,7 +8,19 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-09-16 (Session 90).
+Last updated 2026-09-16 (Session 91).
+
+## Session 91 (2026-09-16) — Component formatting bugs (PR #284), overflow QA gate extended
+
+- Ian flagged 4 formatting bugs from a screenshot of the Aug 9 Apollo→n8n post. All 4 traced to shared components, not the post — every post using StepRow/SideBySide/ChooseIf (53/73/94 posts respectively) and the homepage had the same defects. Verified each with real Playwright renders (DOM measurement + screenshots at 390/700/900/1280px) before fixing; static code reading alone was misleading for 2 of the 4.
+- **StepRow:** confirmed real overflow via `scrollWidth > clientWidth` on cards with unbreakable long tokens (`organization_num_employees_ranges`) at 6-column width — invisible at exactly 1280px because the next card's opaque background painted over it (same DOM order = paint order), visible at other widths. Fix: `overflow-wrap: break-word` added to `.prose` (one broad fix covering StepRow + ChooseIf lists + tables, global.css had zero `overflow-wrap` project-wide), capped StepRow at 4 cols/row (wraps to 2nd row at 5-6 steps).
+- **SideBySide:** confirmed real (184px pane next to 791px pane, 23% ratio). Per Ian: panes now stack to 1 column client-side when rendered-height ratio is under 30%.
+- **ChooseIf "CTA misalignment": did not reproduce** — CTA buttons land at the identical Y at 1280/700/390px in a clean build, the existing flex+`margin-top:auto` pattern already works. Per Ian: no code change, documented as not-reproduced.
+- **Homepage cards:** `.tag` sized up (0.8rem/600→0.88rem/700, kept flat per the de-AI audit, no chrome reintroduced); `.post-card h2` got `overflow-wrap` + 3-line `-webkit-line-clamp`. Card-thumbnail-image redesign (generic-looking PNG) needs a design decision, not code — 3 directions mocked up and published: https://claude.ai/artifact/DSCXbtK88MXGpVCA8cDhW8. Also flagged there: `/og/<slug>.png` (social previews, astro-og-canvas) is a separate simpler pipeline from `/cards/<slug>.png` (card-grid thumbnail, custom sharp generator) — worth deciding if the picked direction should extend to both.
+- **QA gate extended** (`qa/mobile-overflow.mjs`): was viewport-edge-only at 390px scoped to prose/article/main, so it couldn't have caught any of the above. Added a card-containment check (child past its OWN `.post-card`/`.step-card`/`.ci-card`/`.stat-card` edge — catches overflow masked by a sibling's background), a 1280px desktop pass, `.card-grid`/`.step-row`/`.chooseif-grid` scope, and a homepage check (false-positived on the logo-strip marquee first — added an `overflow-x:hidden` ancestor exemption to fix).
+- **Verify:** `qa:lint` 134 posts 0 hard (45 pre-existing warns); `build && qa:render` 0 hard; `build && qa:overflow --all` = **135 pages (134 posts + homepage) at 390/1280px, 0 overflow**. Also fixed a stale "NOT YET WIRED" comment in `cards/[...route].ts` (wired since PR #261/263).
+- **PR #284 open** (branch `fix/component-formatting-bugs`, worktree `C:\tmp\tag-component-fixes`, commit `0130907`), not yet merged — agent-only commits, Ian merges per the standing rule. **Revert:** `git revert` the squash-merge commit on master; no engine/data changes, pure component+QA-gate diff (5 files).
+- **Gotcha:** an overflowing element with no ancestor `overflow-x:auto/scroll` and no viewport-edge crossing is still invisible in a screenshot if a later-painted sibling's opaque background covers it — DOM measurement (`scrollWidth`/`getBoundingClientRect`), not just a screenshot, is what actually proves overflow. The new card-containment QA check formalizes this instead of relying on a screenshot catching it by luck.
 
 ## Session 90 (2026-09-16) — Scrub fabricated-scale client mentions (PR #283)
 
