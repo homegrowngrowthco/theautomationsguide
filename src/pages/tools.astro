@@ -139,14 +139,18 @@ const articleCount = (slug: string) => {
   .tool-card:hover h3 a { color: var(--accent); }
   .tool-card-actions {
     display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-    /* Pin the CTA + article-link row to the bottom of every card so badges,
-       blurbs, and actions line up across each category row regardless of
-       blurb length or whether the optional article link is present. */
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    /* Pin the CTA + article-link block to the bottom of every card, at a fixed
+       height, so buttons line up across a category row regardless of blurb
+       length, button-label length, or whether the optional article link is
+       present. Row layout used to wrap the article link onto its own line
+       whenever the button text was long enough to fill the card width, which
+       made that card's block one line taller and pushed its button above the
+       row's other buttons. Stacking removes the wrap that caused it. */
     margin-top: auto;
-    min-height: 2.4rem;
+    min-height: 4rem;
   }
   .tool-card-actions > * {
     position: relative;
