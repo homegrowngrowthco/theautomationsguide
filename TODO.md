@@ -4,7 +4,6 @@ Tracked by todo-sync (see ../todo-sync/CONVENTION.md). **Open tasks only, most i
 
 ## TODO
 
-- [ ] **Review + merge PR #283 (client-mentions scrub).** Reworded fabricated-scale client anecdotes ("half a dozen clients" etc.) in 113 posts; engine prompt fix (root cause) already deployed live and GET-verified separately from the PR. @high @ian [docs/SESSION_LOG.md](docs/SESSION_LOG.md) S90
 - [ ] **Pitch the pricing index to 5-10 RevOps newsletters/communities.** The asset is BUILT and live at `/revops-automation-pricing/` (8/12); pitching it is the half that earns the links, and it is the whole point. 9/06: 10 outlets with verified contact paths + a 3-sentence pitch each in [pricing/PITCH-LIST-2026-09-06.md](pricing/PITCH-LIST-2026-09-06.md); Ian sends. @high @ian [pricing/README.md](pricing/README.md)
 - [ ] **Authority sprint (audit 8/04 §10 — the binding constraint):** LinkedIn 3-5x/wk RUNNING as of ~8/19 (per Ian; Notion draft-status tracking dropped, cadence is what matters); brand-search nudge in next newsletter/LinkedIn post (brand-term step 5) still open. Linkable-asset half shipped. @high @ian [audits/AUDIT-GROWTH-2026-08-04.md](audits/AUDIT-GROWTH-2026-08-04.md)
 - [ ] **Rebuild the pricing index quarterly (next ~2026-11-12)** and diff first: a big swing in one row is likelier an extraction regression than a real price change. 28 of 93 tools unpriced (19 client-rendered, 6 blocking, 3 unreachable); blocked ones go in `pricing/manual-overrides.json`, as Make does. @med [pricing/README.md](pricing/README.md)
