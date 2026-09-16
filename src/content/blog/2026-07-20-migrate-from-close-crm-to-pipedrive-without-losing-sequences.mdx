@@ -32,7 +32,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-The trigger I see most often: a founder or sales manager opens their Close bill, realizes they are paying for a built-in dialer their reps stopped using six months ago, and starts asking whether [Pipedrive](/go/pipedrive/) could do the job for half the cost. The answer is usually yes. But the migration is where teams get into trouble. Close's sequences and custom fields have no direct export path into Pipedrive, and if you go in unprepared, you lose activity history, orphan deals from contacts, and rebuild sequences from memory. I have run this migration for three B2B SaaS clients in the last two years. Here is what actually works.
+The trigger I see most often: a founder or sales manager opens their Close bill, realizes they are paying for a built-in dialer their reps stopped using six months ago, and starts asking whether [Pipedrive](/go/pipedrive/) could do the job for half the cost. The answer is usually yes. But the migration is where teams get into trouble. Close's sequences and custom fields have no direct export path into Pipedrive, and if you go in unprepared, you lose activity history, orphan deals from contacts, and rebuild sequences from memory. I have run this migration for B2B SaaS teams in the last two years. Here is what actually works.
 
 <KeyTakeaways items={[
   "Close sequences do not export as automation objects. You rebuild them in Pipedrive or a connected sequencer like Lemlist.",
@@ -53,7 +53,7 @@ Start by auditing your Close account:
 - **Pause or complete any active sequences.** Contacts mid-sequence will get orphaned when you cut over. Either finish the steps manually, move them to a holding list, or accept that they need to be re-enrolled on the Pipedrive side.
 - **Audit your integrations.** If you have Zapier or native integrations firing on Close Lead status changes, those need to be re-pointed before you deactivate Close.
 
-For clients I work with at Homegrown Growth Co., I also pull a count of Leads with no associated Contact. Close's Lead-centric model means you will have orphaned records that Pipedrive's Contact-first model simply cannot receive as-is. Knowing that number before you start prevents a nasty surprise on import day.
+For teams I work with at Homegrown Growth Co., I also pull a count of Leads with no associated Contact. Close's Lead-centric model means you will have orphaned records that Pipedrive's Contact-first model simply cannot receive as-is. Knowing that number before you start prevents a nasty surprise on import day.
 
 <StepRow steps={[
   {
@@ -66,7 +66,7 @@ For clients I work with at Homegrown Growth Co., I also pull a count of Leads wi
   },
   {
     title: "Clean and join your exported CSVs",
-    body: "Open your Close Contacts and Opportunities exports in Google Sheets or DBeaver. Join on the Lead ID so each Opportunity row carries the Contact's email address. Pipedrive's importer links Deals to Contacts by email. Without this join, every deal imports as a floating record with no person attached. This single step prevents the most common post-migration complaint I hear from clients."
+    body: "Open your Close Contacts and Opportunities exports in Google Sheets or DBeaver. Join on the Lead ID so each Opportunity row carries the Contact's email address. Pipedrive's importer links Deals to Contacts by email. Without this join, every deal imports as a floating record with no person attached. This single step prevents the most common post-migration complaint I hear from teams."
   },
   {
     title: "Import in order: Contacts, then Organizations, then Deals",
@@ -163,7 +163,7 @@ According to [Pipedrive's import documentation](https://support.pipedrive.com/en
 ]} />
 
 <MyTake>
-Most teams going through this migration think the hard part is the data move. It is not. The hard part is that a meaningful chunk of their sales process lives inside Close's sequence builder, not in the CRM fields at all. When you land in Pipedrive, you are forced to decide: rebuild cadences in Pipedrive's Workflow Automation, bolt on [Lemlist](/go/lemlist/) or [Smartlead](/go/smartlead/), or admit you were over-engineering the cadences and simplify. That decision should happen before migration day. Every client I have worked with who punted on it ended up with reps having nowhere to enroll leads for two weeks post-cutover.
+Most teams going through this migration think the hard part is the data move. It is not. The hard part is that a meaningful chunk of their sales process lives inside Close's sequence builder, not in the CRM fields at all. When you land in Pipedrive, you are forced to decide: rebuild cadences in Pipedrive's Workflow Automation, bolt on [Lemlist](/go/lemlist/) or [Smartlead](/go/smartlead/), or admit you were over-engineering the cadences and simplify. That decision should happen before migration day. Every team I have worked with who punted on it ended up with reps having nowhere to enroll leads for two weeks post-cutover.
 </MyTake>
 
 ## The migration is the easy part

@@ -62,7 +62,7 @@ My blunt recommendation: skip Vapi's native voices entirely for outbound sales a
 
 ## Setting up a Vapi outbound sales agent
 
-Here is how I walk RevOps clients through the build. This assumes you have a Vapi account, a list in your CRM, and an outbound number already ported or provisioned.
+Here is how I walk RevOps teams through the build. This assumes you have a Vapi account, a list in your CRM, and an outbound number already ported or provisioned.
 
 <StepRow steps={[
   {
@@ -71,7 +71,7 @@ Here is how I walk RevOps clients through the build. This assumes you have a Vap
   },
   {
     title: "Configure the assistant in Vapi's builder",
-    body: "In the Vapi dashboard, create a new assistant. Paste your system prompt, set your LLM (I use GPT-4o for most clients because its instruction-following at speed is still best-in-class), select your voice (Cartesia's 'Classy British Man' and ElevenLabs 'Rachel' both pass the 'sounds like a real person' test), and set your endpointing sensitivity. Endpointing is how quickly the agent decides you have finished speaking. Too fast and it interrupts constantly. Too slow and there are awkward pauses."
+    body: "In the Vapi dashboard, create a new assistant. Paste your system prompt, set your LLM (I default to GPT-4o because its instruction-following at speed is still best-in-class), select your voice (Cartesia's 'Classy British Man' and ElevenLabs 'Rachel' both pass the 'sounds like a real person' test), and set your endpointing sensitivity. Endpointing is how quickly the agent decides you have finished speaking. Too fast and it interrupts constantly. Too slow and there are awkward pauses."
   },
   {
     title: "Define your tool calls",
@@ -221,10 +221,10 @@ That is dramatically cheaper than the fully loaded cost of a SDR touching those 
 
 The [G2 AI Sales Assistant category](https://www.g2.com/categories/ai-sales-assistant) shows Vapi with a strong upward review trajectory in 2026, particularly from operators who have moved past the initial setup friction. The [Vapi documentation](https://docs.vapi.ai) is genuinely thorough and covers tool-calling, webhook configuration, and voice provider setup in enough depth that a motivated RevOps operator can go from zero to configured without an engineer.
 
-One number I track with every client deployment: agent-to-booked-meeting conversion rate. For a well-tuned Vapi agent on a warm signal list (website visitors, re-engaged contacts), we see 4 to 8% connect-to-meeting rates. Cold list with no signal context runs closer to 1 to 2%. That gap is almost entirely prompt quality and targeting, not platform. As [Lenny's Newsletter has documented on AI adoption curves](https://www.lennysnewsletter.com), the teams winning with AI tools treat prompt development with the same rigor as copy testing. They are not assuming the model does the heavy lifting.
+One number I track on every deployment: agent-to-booked-meeting conversion rate. For a well-tuned Vapi agent on a warm signal list (website visitors, re-engaged contacts), we see 4 to 8% connect-to-meeting rates. Cold list with no signal context runs closer to 1 to 2%. That gap is almost entirely prompt quality and targeting, not platform. As [Lenny's Newsletter has documented on AI adoption curves](https://www.lennysnewsletter.com), the teams winning with AI tools treat prompt development with the same rigor as copy testing. They are not assuming the model does the heavy lifting.
 
 <MyTake>
-Most teams adopt Vapi expecting the AI to handle the hard part, then discover the hard part was always their call script, their targeting, and their ICP definition. Vapi just makes the gap visible faster and cheaper than hiring another SDR to expose the same problems. I would rather a client spend three weeks on prompt iteration than six months managing a rep who is working off a bad playbook.
+Most teams adopt Vapi expecting the AI to handle the hard part, then discover the hard part was always their call script, their targeting, and their ICP definition. Vapi just makes the gap visible faster and cheaper than hiring another SDR to expose the same problems. I would rather spend three weeks on prompt iteration than six months managing a rep who is working off a bad playbook.
 </MyTake>
 
 ## The bottom line on Vapi in 2026

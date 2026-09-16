@@ -54,7 +54,7 @@ LeadMagic sells enrichment credits in monthly bundles. The entry plan sits aroun
 
 The part that catches teams off guard: credits are consumed based on which data point you request, not simply per record. Pull an email, spend one credit. Pull a verified mobile number on the same record, spend three to four more. If you run a workflow that grabs both email and phone on every contact, your effective record count per plan is cut by roughly 75% compared to what the headline number implies.
 
-I have watched clients burn through a $299 plan in under two weeks because they did not separate their email-first enrichment pass from their mobile-dial pass. Run them as two distinct workflow steps with a quality gate in between and you can cut credit waste dramatically. It is a simple fix that most teams never bother making.
+I have watched teams burn through a $299 plan in under two weeks because they did not separate their email-first enrichment pass from their mobile-dial pass. Run them as two distinct workflow steps with a quality gate in between and you can cut credit waste dramatically. It is a simple fix that most teams never bother making.
 
 LeadMagic does offer a small free credit allocation on signup, which is genuinely useful for validating match rates against your specific ICP before committing. I always recommend running 200 to 300 records through before purchasing a plan. Match rate variance between industries is real, and a 20-point swing changes your unit economics considerably.
 
@@ -64,7 +64,7 @@ Let me model a team running 5,000 new contacts per month through enrichment. Tha
 
 At the $299/month tier, assume you get roughly 3,000 email credits. To cover 5,000 contacts you either need to upgrade or supplement with a secondary source. At the $499/month tier you likely have enough email credits to cover 5,000 records, but adding mobile dials means purchasing add-on credits or moving to a custom plan.
 
-Here is the arithmetic I have run for clients:
+Here is the arithmetic I use to model this:
 
 - 5,000 contacts at 65% match rate = 3,250 enriched records
 - 3,250 emails at $0.02 per credit (mid-tier effective rate) = $65 in email credits
@@ -145,7 +145,7 @@ Credit pools (LeadMagic, Prospeo) work best when enrichment is a batch process y
 
 Waterfall-as-a-service (FullEnrich, and the enrichment layer inside [Clay](/go/clay/)) works best when your ICP is heterogeneous and no single database has good coverage. You pay a small premium per record but improve match rates enough that your effective cost per contacted prospect often comes out lower. According to [FullEnrich's own documentation](https://fullenrich.com), waterfall routing can improve match rates by 20 to 30 percentage points on lists where single-source tools stall out.
 
-Seat-based tools (Surfe) are the right call when the workflow bottleneck is rep adoption, not data cost. If your reps are not consistently enriching contacts because the tool is too far from where they source, a per-seat tool embedded in their browser will outperform a cheaper credit pool they forget to log into. I have seen this pattern repeat at nearly every client where the RevOps team chose the cheapest enrichment option without accounting for where reps actually spend their time. The [G2 B2B data enrichment category reviews](https://www.g2.com/categories/b2b-data) consistently surface adoption friction as the primary reason teams churn from credit-based tools, which should tell you something.
+Seat-based tools (Surfe) are the right call when the workflow bottleneck is rep adoption, not data cost. If your reps are not consistently enriching contacts because the tool is too far from where they source, a per-seat tool embedded in their browser will outperform a cheaper credit pool they forget to log into. I have seen this pattern repeat often: a RevOps team chooses the cheapest enrichment option without accounting for where reps actually spend their time. The [G2 B2B data enrichment category reviews](https://www.g2.com/categories/b2b-data) consistently surface adoption friction as the primary reason teams churn from credit-based tools, which should tell you something.
 
 <BottomLine
   verdict="LeadMagic is the right pick for teams that need LinkedIn-fresh email plus mobile in a single credit pool at sub-ZoomInfo cost. Run a 300-record trial before committing and separate your email and mobile enrichment passes to avoid credit waste."

@@ -36,7 +36,7 @@ Most enrichment pipelines I see at B2B SaaS companies share the same failure mod
 
 ## What This Pipeline Does and Why It Matters
 
-The workflow I'm walking you through is the one I've deployed at several Homegrown Growth Co. clients running outbound at scale: 500 to 5,000 new leads per week. The core idea is simple. A new lead lands in Clay (sourced from LinkedIn, a form submission, a [ZoomInfo](/tools/zoominfo/) export, whatever your top-of-funnel looks like). Clay runs its waterfall enrichment: job title verification, email finding, company firmographics, maybe an AI persona column. When that row is complete, Clay fires a webhook to n8n. n8n evaluates the lead against your ICP criteria, branches accordingly, pushes qualified leads into [Smartlead](/go/smartlead/) sequences, and creates or updates the contact in [HubSpot](/go/hubspot/).
+The workflow I'm walking you through is the one I've deployed at Homegrown Growth Co. for teams running outbound at scale: 500 to 5,000 new leads per week. The core idea is simple. A new lead lands in Clay (sourced from LinkedIn, a form submission, a [ZoomInfo](/tools/zoominfo/) export, whatever your top-of-funnel looks like). Clay runs its waterfall enrichment: job title verification, email finding, company firmographics, maybe an AI persona column. When that row is complete, Clay fires a webhook to n8n. n8n evaluates the lead against your ICP criteria, branches accordingly, pushes qualified leads into [Smartlead](/go/smartlead/) sequences, and creates or updates the contact in [HubSpot](/go/hubspot/).
 
 No CSV exports. No manual imports. No three-day lag.
 
@@ -45,7 +45,7 @@ The reason n8n wins as the glue layer here (instead of Make, which I covered in 
 <StatRow stats={[
   { number: "~3 min", label: "Median enrichment lag", description: "Typical time from lead creation in Clay to contact appearing in HubSpot with this pipeline running" },
   { number: "0 CSVs", label: "Manual touchpoints", description: "Once the pipeline is live, no human hand touches the data between Clay and your sequencer" },
-  { number: "40%+", label: "Reply rate lift", description: "Clients I've worked with see meaningful reply rate improvement when sequences fire within 5 minutes of enrichment vs. batched day-old data" }
+  { number: "40%+", label: "Reply rate lift", description: "Teams see meaningful reply rate improvement when sequences fire within 5 minutes of enrichment vs. batched day-old data" }
 ]} />
 
 ## The Step-by-Step Build
@@ -87,7 +87,7 @@ The reason n8n wins as the glue layer here (instead of Make, which I covered in 
 
 <SideBySide>
   <Fragment slot="left">
-    **Gotcha 1: Clay fires the webhook on every row update, not just on first completion.** Re-run enrichment on a row to refresh a title field and Clay fires the webhook again. Smartlead gets a duplicate subscription attempt. HubSpot logs a redundant update. I've had clients accidentally re-enroll contacts into active sequences because of exactly this.
+    **Gotcha 1: Clay fires the webhook on every row update, not just on first completion.** Re-run enrichment on a row to refresh a title field and Clay fires the webhook again. Smartlead gets a duplicate subscription attempt. HubSpot logs a redundant update. I've seen contacts accidentally re-enrolled into active sequences because of exactly this.
 
     **Gotcha 2: n8n's free cloud tier throttles webhook executions.** Push high volume and the execution queue backs up, Clay's webhook times out, and that row never makes it downstream. No error surfaces. You get silent data loss, which is the worst kind.
   </Fragment>
@@ -120,7 +120,7 @@ The reason n8n wins as the glue layer here (instead of Make, which I covered in 
   </Fragment>
 </SideBySide>
 
-For gotcha 2, the fix is straightforward: self-host n8n on a $12/month DigitalOcean droplet or deploy it on Railway. The [n8n self-hosting docs](https://docs.n8n.io/hosting/installation/docker/) walk you through a Docker setup in under 30 minutes. Every high-volume client I've worked with has moved to self-hosted within a month of going live. Don't wait until you hit the throttle wall to make the switch.
+For gotcha 2, the fix is straightforward: self-host n8n on a $12/month DigitalOcean droplet or deploy it on Railway. The [n8n self-hosting docs](https://docs.n8n.io/hosting/installation/docker/) walk you through a Docker setup in under 30 minutes. Every high-volume team I've worked with has moved to self-hosted within a month of going live. Don't wait until you hit the throttle wall to make the switch.
 
 ## What to Do With the HubSpot Data
 

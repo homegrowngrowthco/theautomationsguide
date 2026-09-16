@@ -54,9 +54,9 @@ The n8n Cloud pricing page makes the math look simple. Starter is $20/month for 
 
 On Make, every module step inside a scenario counts as an operation. A 12-step enrichment workflow that runs 1,000 times per month burns 12,000 operations. On the Make Core plan, you get 10,000 operations for $10.59/month, so that single workflow blows through your quota. At GTM scale running [Clay-to-CRM enrichment pipelines](/blog/2026-07-31-connect-clay-to-n8n-for-a-fully-automated-enrichment-pipelin/) or [website visitor signals from Vector](/blog/2026-08-01-vector-n8n-website-visitor-signal-workflow/), you can easily hit 100k+ operations per month on Make and be looking at $59-299/month before you've built half your stack.
 
-Pabbly Connect's lifetime deal ($249-499 one-time) sounds like a steal. For simple linear workflows, it is. But Pabbly has a 30-minute minimum polling interval on most triggers, no native webhook server for instant triggers, and their "unlimited" plans throttle heavily on multi-step workflows. My clients who have migrated off Pabbly did so for one specific reason: their lead routing workflows were lagging 25-30 minutes behind form submissions. That is not a minor inconvenience when you are trying to hit a five-minute lead response time.
+Pabbly Connect's lifetime deal ($249-499 one-time) sounds like a steal. For simple linear workflows, it is. But Pabbly has a 30-minute minimum polling interval on most triggers, no native webhook server for instant triggers, and their "unlimited" plans throttle heavily on multi-step workflows. Teams that migrate off Pabbly usually do it for one specific reason: their lead routing workflows were lagging 25-30 minutes behind form submissions. That is not a minor inconvenience when you are trying to hit a five-minute lead response time.
 
-For self-hosted n8n, here is the honest cost breakdown I see with clients at Homegrown Growth Co.:
+For self-hosted n8n, here is the honest cost breakdown I have put together at Homegrown Growth Co.:
 
 - **VPS (Hetzner CX22 or DigitalOcean Basic):** $6-20/month depending on region and specs
 - **Managed Postgres (Supabase free tier or Railway):** $0-25/month
@@ -74,7 +74,7 @@ All-in: a properly maintained self-hosted n8n instance costs $350-440/month in t
 
 ## Where Each Option Actually Wins
 
-Don't choose self-host because you think it's cheaper. Do the full math first, including your own time. Here's how I frame it for clients.
+Don't choose self-host because you think it's cheaper. Do the full math first, including your own time. Here's how I frame it.
 
 <ChooseIf title="n8n Self-Host vs Cloud vs Alternatives" tools={[
   {
@@ -129,7 +129,7 @@ Don't choose self-host because you think it's cheaper. Do the full math first, i
 
 ## How to Choose: The Framework I Actually Use
 
-When I audit a client's automation stack at Homegrown Growth Co., I ask four questions in order.
+When I audit an automation stack at Homegrown Growth Co., I ask four questions in order.
 
 First: does anyone on this team maintain servers as part of their job description already? If yes, self-host is on the table. If no, stop there and use Cloud. The DevOps tax is real, and it falls on whoever is closest to the problem. In RevOps shops, that is usually the person who built the workflows, not someone who enjoys debugging Docker networking at 9pm.
 
@@ -137,7 +137,7 @@ Second: what is the [current and projected cost per rep across your full stack](
 
 Third: do you have data residency requirements? EU-based teams with GDPR obligations or US healthcare-adjacent companies often cannot send workflow payloads through a vendor's cloud. Self-host is not optional in those cases. It is the compliance decision. According to the [n8n docs on self-hosting](https://docs.n8n.io/hosting/), you can run n8n completely air-gapped with outbound telemetry disabled.
 
-Fourth: how often are you shipping new workflows? Cloud removes the "update the n8n version before adding this new node" friction entirely. When a client team is iterating weekly on new GTM automations, that friction compounds fast. I have seen teams stall for two or three days because a weekend upgrade broke their queue workers and they were afraid to roll back.
+Fourth: how often are you shipping new workflows? Cloud removes the "update the n8n version before adding this new node" friction entirely. When a team is iterating weekly on new GTM automations, that friction compounds fast. I have seen teams stall for two or three days because a weekend upgrade broke their queue workers and they were afraid to roll back.
 
 <MyTake>
 Most RevOps teams that choose self-hosting do it for the wrong reason: they think it is cheaper. It is almost never cheaper unless you already have free DevOps capacity sitting idle. The teams I have seen run self-host well are the ones with a platform engineer who would be standing up infrastructure anyway, and n8n just becomes one more service in the stack. Everyone else is subsidizing the ego of running their own server with their own time, and they usually figure that out around the third unplanned Saturday incident.

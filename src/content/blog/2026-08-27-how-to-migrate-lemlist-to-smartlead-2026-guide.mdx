@@ -71,7 +71,7 @@ Here is the pre-migration checklist:
   },
   {
     title: "Enable Smartlead's warm-up on every new inbox",
-    body: "Before rebuilding campaigns, turn on warm-up for every inbox you just connected. Set the daily warm-up volume to start at 5 and ramp by 5 per day. Smartlead's warm-up network exchanges emails with real inboxes, not a closed loop, which matters for reputation signals. Do not skip this step even for domains that are only weeks old. I have seen clients burn freshly registered domains in 72 hours by blasting 200 emails per day immediately after setup."
+    body: "Before rebuilding campaigns, turn on warm-up for every inbox you just connected. Set the daily warm-up volume to start at 5 and ramp by 5 per day. Smartlead's warm-up network exchanges emails with real inboxes, not a closed loop, which matters for reputation signals. Do not skip this step even for domains that are only weeks old. I have seen teams burn freshly registered domains in 72 hours by blasting 200 emails per day immediately after setup."
   },
   {
     title: "Rebuild your sequences in Smartlead campaigns",
@@ -101,14 +101,14 @@ Here is the pre-migration checklist:
 
 Two things consistently catch teams off guard: LinkedIn steps and video personalization.
 
-Lemlist has native LinkedIn connection request and message steps built into sequences. Smartlead does not. If your sequences were multichannel, you need to either rebuild the LinkedIn touchpoints in a separate tool (most clients I work with run a [Clay](/tools/clay/) workflow to trigger LinkedIn tasks in parallel) or accept that you are running email-only sequences in Smartlead for now. That trade-off is real. Plan for it before you migrate, not after.
+Lemlist has native LinkedIn connection request and message steps built into sequences. Smartlead does not. If your sequences were multichannel, you need to either rebuild the LinkedIn touchpoints in a separate tool (most teams I see run a [Clay](/tools/clay/) workflow to trigger LinkedIn tasks in parallel) or accept that you are running email-only sequences in Smartlead for now. That trade-off is real. Plan for it before you migrate, not after.
 
 Lemlist's video personalization feature (the dynamic intro video thumbnails) also has no Smartlead equivalent. If that was doing work for your reply rates, you need to compensate with copy quality and tighter list segmentation, not a feature swap.
 
 <SideBySide>
   <Fragment slot="left">
     **The gotcha: domain reputation does not travel with you.**
-    Teams assume that because a domain "works," they can re-authenticate it in Smartlead and continue at full volume. That assumption is wrong. The domain's sending history follows it. If you burned a domain through bad list hygiene or high spam complaints in Lemlist, re-authenticating it in Smartlead inherits that reputation. You cannot wash a domain by switching ESPs. I have seen this mistake cost clients 30 days of ramp time they did not budget for.
+    Teams assume that because a domain "works," they can re-authenticate it in Smartlead and continue at full volume. That assumption is wrong. The domain's sending history follows it. If you burned a domain through bad list hygiene or high spam complaints in Lemlist, re-authenticating it in Smartlead inherits that reputation. You cannot wash a domain by switching ESPs. I have seen this mistake cost teams 30 days of ramp time they did not budget for.
   </Fragment>
   <Fragment slot="right">
     ```
@@ -171,12 +171,12 @@ For teams running the full [cold email deliverability monitoring workflow](/blog
 If you built your outbound motion around Clay for enrichment feeding into Lemlist, the transition I described in the [LinkedIn outbound loop: Clay, Lemlist, HubSpot guide](/blog/2026-08-22-linkedin-outbound-loop-clay-lemlist-hubspot/) maps directly to the same stack with Smartlead as the sending layer instead.
 
 <MyTake>
-Lemlist built a real brand on deliverability. But in 2026, its infrastructure is not keeping pace with the volume teams are pushing through it. Smartlead's multi-inbox architecture is genuinely better for high-volume sequences, and I have not had a single client regret the switch once they are past the warm-up window. The only teams I tell to stay on Lemlist are the ones where LinkedIn steps inside the sequence are load-bearing. Rebuilding that multichannel workflow externally adds real overhead, and for some teams the math does not work out.
+Lemlist built a real brand on deliverability. But in 2026, its infrastructure is not keeping pace with the volume teams are pushing through it. Smartlead's multi-inbox architecture is genuinely better for high-volume sequences, and in my experience nobody regrets the switch once they are past the warm-up window. The only teams I tell to stay on Lemlist are the ones where LinkedIn steps inside the sequence are load-bearing. Rebuilding that multichannel workflow externally adds real overhead, and for some teams the math does not work out.
 </MyTake>
 
 ## Getting back to full volume
 
-The migration itself is a weekend project. The hard part is the 10 to 14 day warm-up window, and that is exactly what teams consistently try to shortcut. Every client I have seen blast full volume before warm-up completes has ended up in spam folders and had to restart from scratch. Respect the ramp. Use that time to audit your list quality, tighten your copy, and get the [n8n](/tools/n8n/) CRM sync working so that when replies do start coming in, they land in your pipeline automatically.
+The migration itself is a weekend project. The hard part is the 10 to 14 day warm-up window, and that is exactly what teams consistently try to shortcut. Every team I have seen blast full volume before warm-up completes has ended up in spam folders and had to restart from scratch. Respect the ramp. Use that time to audit your list quality, tighten your copy, and get the [n8n](/tools/n8n/) CRM sync working so that when replies do start coming in, they land in your pipeline automatically.
 
 Smartlead without CRM sync is still a manual reply-tracking operation. With the webhook workflow running, every reply triggers a task, moves a deal stage, and creates an audit trail. For any RevOps team operating at scale, that is not optional. Per [Google's email sender guidelines](https://support.google.com/mail/answer/81126), maintaining clean sending practices and prompt reply handling is also increasingly a deliverability factor, not just a sales hygiene one. Wire it up on day one.
 

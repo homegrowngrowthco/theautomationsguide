@@ -34,7 +34,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-Instantly became the default cold email tool for lean outbound teams around 2022, and honestly, for good reason: clean UI, built-in warmup, and pricing that made running 10+ sending accounts actually affordable. But I keep getting the same message from clients in 2025 and into 2026. Reply rates are slipping. Warmup pools feel stale. The moment you try to scale past roughly 25 sending accounts or 50,000 emails per month, the platform starts showing cracks. If you've hit that ceiling and you're shopping in the $200 to $500 per month range, here is how the real alternatives actually stack up.
+Instantly became the default cold email tool for lean outbound teams around 2022, and honestly, for good reason: clean UI, built-in warmup, and pricing that made running 10+ sending accounts actually affordable. But I keep hearing the same message from teams in 2025 and into 2026. Reply rates are slipping. Warmup pools feel stale. The moment you try to scale past roughly 25 sending accounts or 50,000 emails per month, the platform starts showing cracks. If you've hit that ceiling and you're shopping in the $200 to $500 per month range, here is how the real alternatives actually stack up.
 
 <KeyTakeaways items={[
   "Instantly's Hypergrowth plan ($77/mo) caps warmup at 50 accounts; Smartlead's Pro removes that ceiling entirely",
@@ -52,7 +52,7 @@ Instantly became the default cold email tool for lean outbound teams around 2022
 
 ## Where Instantly actually breaks down
 
-Instantly's architecture is built for the solo operator or small agency running 10 to 30 domains. The warmup network works well at that scale. What I've seen fall apart at clients running outbound at serious volume (think 100K emails per month across 60+ sender accounts) comes down to two things: warmup pool saturation and inbox rotation logic.
+Instantly's architecture is built for the solo operator or small agency running 10 to 30 domains. The warmup network works well at that scale. What I've seen fall apart at teams running outbound at serious volume (think 100K emails per month across 60+ sender accounts) comes down to two things: warmup pool saturation and inbox rotation logic.
 
 When too many senders in the same network warm up against each other, ESPs start pattern-matching the traffic. Google and Microsoft have both tightened their heuristics for inter-account warm traffic since 2024, and a smaller pool means the same sending pairs appear more often. [Google's Email Sender Guidelines update](https://support.google.com/mail/answer/81126) from early 2024 made this worse for any tool relying on a closed warmup loop. Instantly hasn't meaningfully disclosed how it's addressed this. That should give volume senders pause.
 
@@ -118,7 +118,7 @@ The cleanest signal is what's actually breaking for you right now. If Instantly 
 
 If you're losing deals because prospects are flagging your outreach as generic (a problem no volume tool solves, by the way), [Lemlist's](/go/lemlist) personalization layer is where I'd put the budget. The per-user pricing stings but the conversion math often works out if your ACV is above $10K and you're reaching mid-market or enterprise buyers who receive 50 cold emails a day.
 
-For teams running a real SDR motion with a CRM, managed handoffs, and call steps, [Reply.io](/tools/reply-io/) is the only tool here built for that workflow. Trying to bolt those features onto [Smartlead](/tools/smartlead/) or [Lemlist](/tools/lemlist/) via Zapier is a maintenance burden I've watched clients regret within 90 days.
+For teams running a real SDR motion with a CRM, managed handoffs, and call steps, [Reply.io](/tools/reply-io/) is the only tool here built for that workflow. Trying to bolt those features onto [Smartlead](/tools/smartlead/) or [Lemlist](/tools/lemlist/) via Zapier is a maintenance burden I've watched teams regret within 90 days.
 
 <DecisionTree
   caption="Start here to pick your Instantly alternative"
@@ -147,7 +147,7 @@ For teams running a real SDR motion with a CRM, managed handoffs, and call steps
 />
 
 <MyTake>
-Most teams blame the tool when the real problem is list quality and ICP definition. Switching platforms buys them a false sense of progress for about 60 days before reply rates slide right back. I've seen Smartlead perform brilliantly for clients with clean, well-researched lists and crater for clients running scraped databases. The alternative you pick matters less than the data going into it. I'd rather a client spend $200 on better data enrichment in Clay than $200 more per month on a new sending platform.
+Most teams blame the tool when the real problem is list quality and ICP definition. Switching platforms buys them a false sense of progress for about 60 days before reply rates slide right back. I've seen Smartlead perform brilliantly for teams with clean, well-researched lists and crater for teams running scraped databases. The alternative you pick matters less than the data going into it. I'd rather someone spend $200 on better data enrichment in Clay than $200 more per month on a new sending platform.
 </MyTake>
 
 ## The migration reality
@@ -156,7 +156,7 @@ Switching cold email platforms is lower-stakes than switching a CRM, but it's no
 
 I'd also [verify your DMARC, DKIM, and SPF records](https://mxtoolbox.com/dmarc.aspx) fresh before migrating. Domain auth problems that Instantly's infrastructure partially masked will surface immediately on a new platform. Get that hygiene right first. The actual platform migration is a weekend project once you do.
 
-One more thing teams consistently underestimate: re-warming matters even for established domains. A domain that's been sending at 200 emails per day through Instantly isn't automatically trusted at 200 per day through Smartlead's infrastructure. Ramp it back up over 10 to 14 days. Boring advice, but skipping it is the single most common reason I see deliverability dip post-migration for clients who otherwise had everything set up correctly.
+One more thing teams consistently underestimate: re-warming matters even for established domains. A domain that's been sending at 200 emails per day through Instantly isn't automatically trusted at 200 per day through Smartlead's infrastructure. Ramp it back up over 10 to 14 days. Boring advice, but skipping it is the single most common reason I see deliverability dip post-migration for teams who otherwise had everything set up correctly.
 
 <BottomLine
   verdict="Smartlead is the right default for teams hitting Instantly's volume and warmup limits. It's the closest feature match, priced similarly, and the warmup pool advantage is real and measurable. Upgrade to Lemlist if personalization is the lever, or Reply.io if you're running a managed SDR motion that needs CRM-native sequencing."

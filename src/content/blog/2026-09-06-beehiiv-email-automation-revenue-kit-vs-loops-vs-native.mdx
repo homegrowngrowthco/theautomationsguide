@@ -77,7 +77,7 @@ I've run this audit at Homegrown Growth Co. across a dozen newsletter-first GTM 
   {
     name: "Kit",
     tagline: "Creator commerce and conditional logic for product revenue",
-    body: "Kit (formerly ConvertKit) earns its place in the stack when you sell digital products, courses, or paid communities off the back of your newsletter. Its visual automation builder handles purchase-triggered sequences, tag-based branching, and commerce integrations that Beehiiv cannot replicate. The workflow I run for clients: Beehiiv webhook fires on new subscriber, Zapier pushes to Kit with a source tag, Kit handles all product purchase sequences and affiliate link click tracking. The subscriber lives in Beehiiv for broadcast. Kit owns the revenue event logic. Keep those responsibilities separate and both tools perform better.",
+    body: "Kit (formerly ConvertKit) earns its place in the stack when you sell digital products, courses, or paid communities off the back of your newsletter. Its visual automation builder handles purchase-triggered sequences, tag-based branching, and commerce integrations that Beehiiv cannot replicate. The workflow I run: Beehiiv webhook fires on new subscriber, Zapier pushes to Kit with a source tag, Kit handles all product purchase sequences and affiliate link click tracking. The subscriber lives in Beehiiv for broadcast. Kit owns the revenue event logic. Keep those responsibilities separate and both tools perform better.",
     highlights: [
       "Purchase-triggered automation with native commerce integration",
       "Tag and form-based conditional branching",
@@ -136,7 +136,7 @@ Here is the specific workflow architecture I've validated across newsletter oper
 
 <SideBySide>
   <Fragment slot="left">
-    **The gotcha:** Beehiiv's webhook retry logic is limited. If your Zapier or Make endpoint is down when a subscriber.upgraded event fires, you will miss that event entirely. Beehiiv does not queue failed webhooks for retry beyond a short window. I've personally watched clients lose premium upgrade automation triggers for hours during Zapier maintenance windows. Build the backup poll or you will feel this pain.
+    **The gotcha:** Beehiiv's webhook retry logic is limited. If your Zapier or Make endpoint is down when a subscriber.upgraded event fires, you will miss that event entirely. Beehiiv does not queue failed webhooks for retry beyond a short window. I've personally watched teams lose premium upgrade automation triggers for hours during Zapier maintenance windows. Build the backup poll or you will feel this pain.
   </Fragment>
   <Fragment slot="right">
     ```js

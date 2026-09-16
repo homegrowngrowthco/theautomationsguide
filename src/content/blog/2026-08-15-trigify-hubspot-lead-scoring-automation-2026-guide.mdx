@@ -32,7 +32,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-Most inbound lead scoring in [HubSpot](/go/hubspot/) is still demographic-only: company size, title, industry. It tells you who a lead is, not what they actually care about right now. [Trigify](/go/trigify/) changes that by surfacing LinkedIn behavioral signals. Who liked a competitor's post. Who just changed jobs into a buying role. Who is engaging with content on your exact topic. The problem is there is zero published playbook connecting the two. I built this workflow for a B2B SaaS client with an 8-person sales team, and it cut their lead response time from 4 hours to under 12 minutes on high-intent signals. Here is exactly how it works.
+Most inbound lead scoring in [HubSpot](/go/hubspot/) is still demographic-only: company size, title, industry. It tells you who a lead is, not what they actually care about right now. [Trigify](/go/trigify/) changes that by surfacing LinkedIn behavioral signals. Who liked a competitor's post. Who just changed jobs into a buying role. Who is engaging with content on your exact topic. The problem is there is zero published playbook connecting the two. I built this workflow for a B2B SaaS company with an 8-person sales team, and it cut their lead response time from 4 hours to under 12 minutes on high-intent signals. Here is exactly how it works.
 
 ## Why Demographic Scoring Alone Is a Waste of Everyone's Time
 
@@ -45,7 +45,7 @@ My contrarian take here: stop obsessing over point thresholds before you have si
 <StatRow stats={[
   { number: "61%", label: "cite lead quality as top challenge", description: "HubSpot Research 2024, yet most CRM scoring still ignores real-time behavioral signals" },
   { number: "5x", label: "higher reply rate on intent-timed outreach", description: "Outreach benchmark data: contacts in active research mode respond at 5x the baseline rate" },
-  { number: "12 min", label: "median response time after this workflow", description: "From Trigify signal firing to rep notified via Slack, in the client build I describe below" }
+  { number: "12 min", label: "median response time after this workflow", description: "From Trigify signal firing to rep notified via Slack, in the build I describe below" }
 ]} />
 
 ## The Architecture Before You Touch a Single Automation
@@ -147,7 +147,7 @@ Not every team needs Clay in the middle. Here is how I think about the right con
   }
 ]} />
 
-For the client I mentioned above, we went with the Clay path. Their ACV was high enough that a single additional closed deal from better intent routing paid for six months of the full stack. If you want to see how a similar n8n-based routing pattern works, the [Smartlead to HubSpot via n8n guide](/blog/2026-08-08-smartlead-to-hubspot-via-n8n-sync-replies-and-book-meetings/) covers the webhook-to-CRM wiring in detail and the concepts translate directly.
+For the company I mentioned above, we went with the Clay path. Their ACV was high enough that a single additional closed deal from better intent routing paid for six months of the full stack. If you want to see how a similar n8n-based routing pattern works, the [Smartlead to HubSpot via n8n guide](/blog/2026-08-08-smartlead-to-hubspot-via-n8n-sync-replies-and-book-meetings/) covers the webhook-to-CRM wiring in detail and the concepts translate directly.
 
 ## The Clay Enrichment Table in Action
 
@@ -157,7 +157,7 @@ For the client I mentioned above, we went with the Clay path. Their ACV was high
   </a>
 </Figure>
 
-Here is something I have had to tell almost every client who builds this: the scoring formula matters less than the signal selection. Teams spend hours calibrating point values but never audit which signal types actually convert. Add a UTM-style tag to every intent-triggered sequence email so you can track pipeline back to the specific Trigify signal type in HubSpot. After 90 days, you will see clearly whether job change signals or competitor engagement signals are generating replies. In my experience across multiple builds, job change signals win by a factor of 3 to 1 over passive likes. Stop weighting likes so heavily.
+Here is something I have had to tell almost every team that builds this: the scoring formula matters less than the signal selection. Teams spend hours calibrating point values but never audit which signal types actually convert. Add a UTM-style tag to every intent-triggered sequence email so you can track pipeline back to the specific Trigify signal type in HubSpot. After 90 days, you will see clearly whether job change signals or competitor engagement signals are generating replies. In my experience across multiple builds, job change signals win by a factor of 3 to 1 over passive likes. Stop weighting likes so heavily.
 
 You can also layer this on top of a broader enrichment motion. If you are using [Clay](/tools/clay/) for waterfall enrichment on inbound form fills too, the Trigify table becomes one more source feeding the same HubSpot properties. That keeps scoring consistent across channels. The [Apollo to n8n enrichment workflow](/blog/2026-08-09-connect-apollo-to-n8n-automate-lead-pulls-enrichment-and-crm/) covers a parallel approach for outbound that complements this inbound scoring model well.
 

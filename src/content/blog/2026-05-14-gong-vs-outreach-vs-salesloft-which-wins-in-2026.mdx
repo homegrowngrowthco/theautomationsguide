@@ -80,7 +80,7 @@ Gong is genuinely exceptional at surfacing that a deal has gone dark, that a cha
   <Fragment slot="left">
     **Choosing by team motion**
 
-    If your team runs high-volume outbound with SDRs working hundreds of accounts, Outreach's sequence engine is still the most battle-tested option available. I have seen clients run 10,000 touch sequences per month through it with conditional branching on email opens, reply detection, and CRM stage changes. Salesloft's cadence engine handles all of that more rigidly, and the difference shows at volume.
+    If your team runs high-volume outbound with SDRs working hundreds of accounts, Outreach's sequence engine is still the most battle-tested option available. I have seen teams run 10,000 touch sequences per month through it with conditional branching on email opens, reply detection, and CRM stage changes. Salesloft's cadence engine handles all of that more rigidly, and the difference shows at volume.
 
     If your AEs own complex, multi-stakeholder deals with cycles running 90 days or longer, Salesloft's Deals module and Rhythm prioritization genuinely changes rep behavior in ways a pure sequence tool cannot. I watched one enterprise team cut their average deal review prep time in half after moving pipeline management into Salesloft. That is not a marginal improvement.
 
@@ -110,7 +110,7 @@ Gong is genuinely exceptional at surfacing that a deal has gone dark, that a cha
 
 ## The action-trigger layer none of them fully solve natively
 
-This is where I spend the majority of my consulting time with clients running these stacks. Gong fires a deal risk alert. Someone sees it in Slack. Maybe. The deal slips anyway because the next step, enrolling the account in a re-engagement cadence, creating a CRM task for the AE's manager, pinging the SE to schedule a technical review, lives across three different systems with no connective tissue between them.
+This is where I spend the majority of my consulting time, working with teams running these stacks. Gong fires a deal risk alert. Someone sees it in Slack. Maybe. The deal slips anyway because the next step, enrolling the account in a re-engagement cadence, creating a CRM task for the AE's manager, pinging the SE to schedule a technical review, lives across three different systems with no connective tissue between them.
 
 [Make](/go/make) and [n8n](/go/n8n) are where I wire these together. The pattern I use most often is a Gong webhook (available on Business and Enterprise plans, documented in the [Gong developer API docs](https://us-east.app.gong.io/settings/api/documentation)) firing into a [Make](/tools/make/) scenario that evaluates the risk signal type and then branches. Deal risk with no activity in 14 days triggers a Salesloft cadence enrollment via API, a Salesforce task creation, and a Slack DM to the rep's manager simultaneously. A competitive mention on the last call triggers a separate branch that pulls the relevant battlecard from Notion and posts it directly to the deal's Slack channel. Four tools, one trigger, zero manual handoffs.
 

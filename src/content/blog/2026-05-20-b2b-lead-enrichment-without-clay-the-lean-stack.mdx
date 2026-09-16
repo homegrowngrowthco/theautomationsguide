@@ -26,7 +26,7 @@ import StepRow from '@/components/post/StepRow.astro';
 import Figure from '@/components/post/Figure.astro';
 import ComparisonTable from '@/components/ComparisonTable.astro';
 
-Every RevOps operator I talk to has the same reaction when they see a [Clay](/go/clay) quote for a two-person SDR team: genuine sticker shock, followed by a hunt for alternatives. Clay is excellent software. I use it with larger clients and recommend it without hesitation when the workflow complexity justifies it. But if you have fewer than three SDRs running outbound, you are almost certainly paying for a Ferrari to do grocery runs. There is a composable stack using [Apollo](/go/apollo) and [Make](/go/make) or [n8n](/go/n8n) that handles 80% of what Clay does at roughly 30% of the cost. I have been running it for clients at Homegrown Growth Co. for the past 18 months.
+Every RevOps operator I talk to has the same reaction when they see a [Clay](/go/clay) quote for a two-person SDR team: genuine sticker shock, followed by a hunt for alternatives. Clay is excellent software. I use it on larger engagements and recommend it without hesitation when the workflow complexity justifies it. But if you have fewer than three SDRs running outbound, you are almost certainly paying for a Ferrari to do grocery runs. There is a composable stack using [Apollo](/go/apollo) and [Make](/go/make) or [n8n](/go/n8n) that handles 80% of what Clay does at roughly 30% of the cost. I have been running it at Homegrown Growth Co. for the past 18 months.
 
 <PullQuote>Clay is overkill for most teams under three SDRs. The real unlock is separating the data layer from the automation layer and owning each one independently.</PullQuote>
 
@@ -40,7 +40,7 @@ Every RevOps operator I talk to has the same reaction when they see a [Clay](/go
 
 Clay's real value proposition is the [waterfall enrichment](/tools/clay/) model: it queries multiple data providers in sequence, falls back gracefully when one source misses, and gives you a no-code interface to stitch it all together with AI columns and conditional logic. That is genuinely powerful for a team doing high-volume, persona-diverse prospecting across multiple segments. The [Clay documentation on waterfall enrichment](https://docs.clay.com/docs/waterfall-enrichment) shows just how deep that rabbit hole goes.
 
-Here is the honest audit I run with every client before recommending Clay: how many distinct enrichment signals are you actually using per record? For most sub-three-SDR outbound motions, the answer is four to six fields. Company name, industry, headcount, contact title, verified email, and LinkedIn URL. [Apollo's enrichment API](/tools/apollo/) returns all six on a single call. You do not need a six-provider waterfall for that. The [Salesforce State of Sales report](https://www.salesforce.com/resources/research-reports/state-of-sales/) consistently shows that high-performing SDR teams prioritize signal quality over signal volume, which means a clean, reliable single-source enrichment often outperforms a noisy waterfall.
+Here is the honest audit to run before recommending Clay: how many distinct enrichment signals are you actually using per record? For most sub-three-SDR outbound motions, the answer is four to six fields. Company name, industry, headcount, contact title, verified email, and LinkedIn URL. [Apollo's enrichment API](/tools/apollo/) returns all six on a single call. You do not need a six-provider waterfall for that. The [Salesforce State of Sales report](https://www.salesforce.com/resources/research-reports/state-of-sales/) consistently shows that high-performing SDR teams prioritize signal quality over signal volume, which means a clean, reliable single-source enrichment often outperforms a noisy waterfall.
 
 Don't bother building a multi-provider fallback chain until your match rate on Apollo drops below 70% for your specific ICP. For most B2B SaaS target markets, it won't.
 
@@ -83,7 +83,7 @@ Don't bother building a multi-provider fallback chain until your match rate on A
 
 Stop thinking about this as a "Clay replacement." It's two separate jobs: data retrieval and workflow orchestration. Apollo owns the first. Your automation layer owns the second. Once that mental model clicks, the build becomes obvious.
 
-Here is how I set this up for clients when they come to me after a Clay pricing conversation.
+Here is how I set this up after a Clay pricing conversation.
 
 <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
 <StepRow steps={[
@@ -146,12 +146,12 @@ The most common mistake I see when teams migrate to this stack: treating Apollo 
 </Fragment>
 </SideBySide>
 
-<MyTake>Waterfall enrichment sounds like it improves data quality. In practice, for teams running fewer than 2,000 contacts a month, it mostly introduces field conflicts and maintenance overhead that a one or two-person RevOps function cannot sustain. I have rebuilt more broken Clay waterfalls than I care to count for clients who added providers "just in case" and ended up with three sources writing to the same HubSpot field. One clean source beats three mediocre ones every time. Start with Apollo alone, and only add a second provider when you have the match-rate data that proves you need it.</MyTake>
+<MyTake>Waterfall enrichment sounds like it improves data quality. In practice, for teams running fewer than 2,000 contacts a month, it mostly introduces field conflicts and maintenance overhead that a one or two-person RevOps function cannot sustain. I have rebuilt more broken Clay waterfalls than I care to count, built by teams that added providers "just in case" and ended up with three sources writing to the same HubSpot field. One clean source beats three mediocre ones every time. Start with Apollo alone, and only add a second provider when you have the match-rate data that proves you need it.</MyTake>
 
 ## When to Actually Upgrade to Clay
 
 I want to be direct here because the internet dramatically undersells Clay's legitimate use cases. If your team is processing more than 500 new contacts per week, operating across three or more distinct ICPs with different enrichment signals, or needs technographic data from Clearbit or BuiltWith layered on top of contact data, the Apollo plus [Make](/tools/make/) stack will start to show its limits. Clay's waterfall genuinely saves time at that scale. The [G2 reviews for Clay](https://www.g2.com/products/clay/reviews) consistently highlight the waterfall and AI columns as the two features operators cannot replicate easily elsewhere, and I agree with that read.
 
-The threshold I use with clients: if you are enriching more than 2,000 contacts per month and pulling from more than two providers per record, do the math on Clay versus the operational cost of maintaining a custom multi-source pipeline. Clay might win on total cost of ownership even at its price point. The per-hour cost of a RevOps contractor maintaining brittle API logic adds up fast.
+The threshold to use: if you are enriching more than 2,000 contacts per month and pulling from more than two providers per record, do the math on Clay versus the operational cost of maintaining a custom multi-source pipeline. Clay might win on total cost of ownership even at its price point. The per-hour cost of a RevOps contractor maintaining brittle API logic adds up fast.
 
 For everyone else, which is most of the early-stage SaaS teams I work with, Apollo plus Make or [n8n](/tools/n8n/) is the right call. It is composable, auditable, and cheap enough to iterate on without anxiety. Build it lean. Add complexity only when your data tells you to.

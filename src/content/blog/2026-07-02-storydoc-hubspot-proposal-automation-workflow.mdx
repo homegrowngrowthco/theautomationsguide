@@ -41,7 +41,7 @@ Storydoc changes the output format. [HubSpot](/go/hubspot) anchors the record. [
 
 The goal: a rep moves a deal to "Proposal" stage in [HubSpot](/tools/hubspot/) and, within 90 seconds, a fully personalized Storydoc story exists. The prospect's name, company, use case, and pricing are pulled directly from deal properties. A share link lands on the deal record. A follow-up enrollment fires only when the prospect actually opens the deck, not on a three-day timer.
 
-Storydoc is worth calling out specifically because it tracks engagement at the section level. You can see that a viewer spent 4 minutes on the ROI slide and skipped the team slide entirely. That signal is ten times more actionable than a generic "proposal opened" ping from PandaDoc, and I'd push back on anyone who says otherwise. [Storydoc's own benchmark data](https://www.storydoc.com) shows interactive presentations close at higher rates than static PDFs. I've seen that hold directionally true across the B2B SaaS clients I work with at Homegrown Growth Co. The [HubSpot Research Sales Trends report](https://www.hubspot.com/sales-trends) consistently flags follow-up timing as a top close-rate driver, which is exactly what this automation addresses.
+Storydoc is worth calling out specifically because it tracks engagement at the section level. You can see that a viewer spent 4 minutes on the ROI slide and skipped the team slide entirely. That signal is ten times more actionable than a generic "proposal opened" ping from PandaDoc, and I'd push back on anyone who says otherwise. [Storydoc's own benchmark data](https://www.storydoc.com) shows interactive presentations close at higher rates than static PDFs. I've seen that hold directionally true across the B2B SaaS teams I work with at Homegrown Growth Co. The [HubSpot Research Sales Trends report](https://www.hubspot.com/sales-trends) consistently flags follow-up timing as a top close-rate driver, which is exactly what this automation addresses.
 
 <StatRow stats={[
   { number: "45 min", label: "Avg manual proposal time", description: "Typical time a rep spends building and sending a one-off proposal without automation" },
@@ -121,7 +121,7 @@ Reps don't resist automation because they're lazy. They resist it because it usu
 
 Once this is running, you have a closed loop. Deal stage change creates a trackable proposal. Engagement data lands on the deal record automatically. Follow-up sequences fire on real buyer intent signals rather than arbitrary time delays.
 
-The first extension I build for clients after this is a Gong alert that fires when a deal has been in Proposal stage for more than five days without a single Storydoc view. That is a dead proposal. The rep needs a phone call, not another drip email.
+The first extension I usually build after this is a Gong alert that fires when a deal has been in Proposal stage for more than five days without a single Storydoc view. That is a dead proposal. The rep needs a phone call, not another drip email.
 
 If your team needs e-signature on top of engagement analytics, don't try to squeeze PandaDoc into the Storydoc slot. Use them sequentially. Storydoc handles the "sell the vision" moment. PandaDoc closes the paperwork. They are not competitors in a well-designed proposal stack. They serve different jobs at different points in the same conversation. That hand-off can also be automated: when Proposal View Count exceeds 3 in HubSpot, trigger a PandaDoc document send via Make using the same contact and deal data you've already mapped.
 

@@ -32,7 +32,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-Website visitor identification went from a niche DemandGen experiment to a core outbound signal in about eighteen months. Now there are four tools fighting for the same budget line, each with a meaningfully different take on what "identified" even means and what you're supposed to do with it. I've run [RB2B](/go/rb2b/) and [Warmly](/go/warmly/) in production at clients, evaluated [Vector](/go/vector/) during a competitive bake-off last quarter, and spent enough time in [Factors.ai](/go/factors-ai/) dashboards to have a real opinion. Here's how they actually compare.
+Website visitor identification went from a niche DemandGen experiment to a core outbound signal in about eighteen months. Now there are four tools fighting for the same budget line, each with a meaningfully different take on what "identified" even means and what you're supposed to do with it. I've run [RB2B](/go/rb2b/) and [Warmly](/go/warmly/) in production, evaluated [Vector](/go/vector/) during a competitive bake-off last quarter, and spent enough time in [Factors.ai](/go/factors-ai/) dashboards to have a real opinion. Here's how they actually compare.
 
 <KeyTakeaways items={[
   "RB2B is the cheapest entry point and the fastest to deploy, but it tops out quickly for teams that need CRM-native workflows.",
@@ -118,7 +118,7 @@ Every tool in this category starts from the same foundation: a JavaScript snippe
 
 The honest framing is: what do you plan to do with the identification data, and how fast?
 
-If your answer is "a rep will review a Slack message and decide whether to send a LinkedIn connection request," RB2B handles that beautifully and costs almost nothing to test. The free tier is genuinely usable, not a crippled demo. I've had clients run it for 90 days and generate real pipeline before ever paying a dollar. That's not a marketing claim. That's what happened at a 40-person SaaS company we worked with at Homegrown Growth Co. last year.
+If your answer is "a rep will review a Slack message and decide whether to send a LinkedIn connection request," RB2B handles that beautifully and costs almost nothing to test. The free tier is genuinely usable, not a crippled demo. I've seen it run for 90 days and generate real pipeline before ever paying a dollar. That's not a marketing claim. That's what happened at a 40-person SaaS company we worked with at Homegrown Growth Co. last year.
 
 If your answer is "I want visitors routed to the right rep, enriched with CRM context, and either auto-enrolled in a sequence or surfaced for same-day outreach," that's a Warmly problem. You will pay more, you will spend more time on setup, and you will get dramatically more return per identified visitor. The [Warmly documentation on CRM integration](https://warmly.ai/blog) is thorough and the routing logic is genuinely flexible. Their intent-based trigger rules inside HubSpot workflows are the best I've seen in this category.
 
@@ -134,7 +134,7 @@ Most teams evaluating "RB2B alternatives" are really asking whether they've outg
 
 Visitor identification is no longer a vendor differentiator. It's table stakes for any outbound-oriented GTM stack. What separates these tools now is the action layer, not the identification layer.
 
-[G2's intent data category](https://www.g2.com/categories/buyer-intent-data-tools) has grown substantially year over year, and the consolidation pressure from tools like Clay (which can waterfall-enrich identified visitors through its own enrichment table) is real. My clients at Homegrown Growth Co. are increasingly asking whether they need a dedicated visitor ID tool at all, or whether Clay plus a good enrichment waterfall covers enough of the workflow. For now, the dedicated tools still win on real-time alerting and match rate. That gap is narrowing, though. Give it another 18 months.
+[G2's intent data category](https://www.g2.com/categories/buyer-intent-data-tools) has grown substantially year over year, and the consolidation pressure from tools like Clay (which can waterfall-enrich identified visitors through its own enrichment table) is real. Teams we work with at Homegrown Growth Co. are increasingly asking whether they need a dedicated visitor ID tool at all, or whether Clay plus a good enrichment waterfall covers enough of the workflow. For now, the dedicated tools still win on real-time alerting and match rate. That gap is narrowing, though. Give it another 18 months.
 
 <BottomLine
   verdict="RB2B is the right starting point for most teams: free, fast, and Slack-native. Upgrade to Warmly when you have the SDR capacity and CRM maturity to act on enriched signals at scale."

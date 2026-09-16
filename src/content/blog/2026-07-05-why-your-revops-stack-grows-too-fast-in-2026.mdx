@@ -33,7 +33,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-Every RevOps team I consult with arrives at the same confession about six months into our engagement: "We bought Apollo because sales wanted sequences, then Outreach because the AEs said Apollo was not enterprise enough, then [ZoomInfo](/tools/zoominfo/) because the SDRs said Apollo data was bad, and now we are paying for three tools that all touch the same contact record." That is not a budget problem. That is automation debt compounding in real time. In 2026 it is happening faster than ever, because every SaaS vendor is slapping an AI badge on a feature that already existed in the tool you are currently paying for.
+Every RevOps team I talk to arrives at the same confession about six months in: "We bought Apollo because sales wanted sequences, then Outreach because the AEs said Apollo was not enterprise enough, then [ZoomInfo](/tools/zoominfo/) because the SDRs said Apollo data was bad, and now we are paying for three tools that all touch the same contact record." That is not a budget problem. That is automation debt compounding in real time. In 2026 it is happening faster than ever, because every SaaS vendor is slapping an AI badge on a feature that already existed in the tool you are currently paying for.
 
 <PullQuote>The real cost of a bloated RevOps stack is not the SaaS invoices. It is the three hours per week your ops person spends debugging sync errors between tools that were never meant to talk to each other.</PullQuote>
 
@@ -53,7 +53,7 @@ The result is what I call automation debt: a stack where data fidelity degrades 
 
 ## The Consolidation Pattern Nobody Talks About
 
-Here is my contrarian take: the answer is not always fewer tools. It is fewer integration seams. A four-tool stack with bad data plumbing is worse than a six-tool stack with clean, unidirectional data flow. The goal is to reduce the number of places where a contact record gets written by more than one system without a source-of-truth rule. Most consultants will tell you to cut the tool count. I tell clients to cut the bidirectional syncs first and see what shakes out.
+Here is my contrarian take: the answer is not always fewer tools. It is fewer integration seams. A four-tool stack with bad data plumbing is worse than a six-tool stack with clean, unidirectional data flow. The goal is to reduce the number of places where a contact record gets written by more than one system without a source-of-truth rule. Most consultants will tell you to cut the tool count. My advice is to cut the bidirectional syncs first and see what shakes out.
 
 The stack I keep coming back to for B2B SaaS teams under 15 reps: [Clay](/go/clay/) for enrichment and list building, [n8n](/go/n8n/) for orchestration and routing, [Lemlist](/go/lemlist/) for multichannel outreach, and [HubSpot](/tools/hubspot/) as the system of record. Four tools. One direction of data flow. No Zapier tax.
 
@@ -71,7 +71,7 @@ Let me show the actual math on what this costs for a team running two SDRs and o
 
 **Clay Starter:** $149/mo, which gets you 2,000 credits per month. At roughly one credit per enrichment action, that covers a 500-lead/month outbound motion with waterfall lookups from Clearbit, Hunter, and People Data Labs without paying for any of those providers separately. [Clay's pricing page](https://www.clay.com/pricing) is transparent about the credit math, and it pencils out clearly against buying ZoomInfo or Apollo data as standalone subscriptions.
 
-**[n8n](/tools/n8n/) Cloud:** $50/mo on the Starter cloud plan, or free if you self-host on a $20/mo VPS. I default clients to cloud unless they have an engineer on staff. This replaces Zapier entirely. The [n8n](/go/n8n/) canvas handles four jobs: pulling enriched records from Clay via webhook, scoring and routing with a simple ICP filter workflow, pushing clean records to HubSpot with deduplication logic, and triggering Lemlist sequences based on lifecycle stage. One canvas. No Zaps. No per-task pricing surprises at the end of the month.
+**[n8n](/tools/n8n/) Cloud:** $50/mo on the Starter cloud plan, or free if you self-host on a $20/mo VPS. I default to cloud unless there's an engineer on staff. This replaces Zapier entirely. The [n8n](/go/n8n/) canvas handles four jobs: pulling enriched records from Clay via webhook, scoring and routing with a simple ICP filter workflow, pushing clean records to HubSpot with deduplication logic, and triggering Lemlist sequences based on lifecycle stage. One canvas. No Zaps. No per-task pricing surprises at the end of the month.
 
 **Lemlist:** $99/mo for one seat on the Email Pro plan. Multichannel sequences (email plus LinkedIn touchpoints), built-in email warm-up via Lemwarm included, deliverability managed from a single dashboard. For two SDRs, add another $99. I have watched teams try to run sequences out of HubSpot Starter and then wonder why reply rates are sitting at 1.2 percent. Dedicated sending infrastructure matters more than most people think.
 
@@ -85,7 +85,7 @@ Let me show the actual math on what this costs for a team running two SDRs and o
 
 ## Where This Stack Breaks (and What to Do About It)
 
-No stack is perfect. These are the three friction points I see consistently, and how I handle them with clients at Homegrown Growth Co.
+No stack is perfect. These are the three friction points I see consistently, and how I handle them at Homegrown Growth Co.
 
 <SideBySide>
 <Fragment slot="left">

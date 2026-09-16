@@ -32,7 +32,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-[Apollo](/go/apollo/) has become the default prospecting database for scrappy B2B outbound teams. [n8n](/go/n8n/) has become the default automation layer for RevOps operators who want full control without per-task pricing. The problem is that almost nobody has written down exactly how to wire them together. I've built this workflow for at least a dozen clients at Homegrown Growth Co., and every time I share the recipe the question is the same: "Why isn't this documented anywhere?" Consider this that documentation.
+[Apollo](/go/apollo/) has become the default prospecting database for scrappy B2B outbound teams. [n8n](/go/n8n/) has become the default automation layer for RevOps operators who want full control without per-task pricing. The problem is that almost nobody has written down exactly how to wire them together. I've built this workflow repeatedly at Homegrown Growth Co., and every time I share the recipe the question is the same: "Why isn't this documented anywhere?" Consider this that documentation.
 
 ## Why This Workflow Exists
 
@@ -43,7 +43,7 @@ The gap between "I use Apollo" and "Apollo feeds my CRM automatically" is usuall
 <StatRow stats={[
   { number: "275M+", label: "Apollo contacts", description: "Searchable via the People Search API with filter parity to the UI" },
   { number: "$0", label: "Per-task cost in n8n", description: "Self-hosted n8n has no execution limits; cloud plans charge by workflow run, not by record" },
-  { number: "~40 min", label: "Build time", description: "From blank canvas to a working Apollo-to-HubSpot push, based on what I see with clients who have touched n8n before" }
+  { number: "~40 min", label: "Build time", description: "From blank canvas to a working Apollo-to-HubSpot push, based on what I see with teams who have touched n8n before" }
 ]} />
 
 ## The Workflow Architecture

@@ -38,7 +38,7 @@ Every RevOps team I work with hits the same dead zone. A rep gets a positive rep
 
 Instantly is purpose-built for cold outreach at volume. Pipedrive is purpose-built for pipeline management. Neither has a strong incentive to build a deep native integration with the other, so the handoff lands on your team. Most operators paper over it with a manual process, or worse, a one-size-fits-all Zapier zap that fires on every reply and floods Pipedrive with out-of-office messages and unsubscribes.
 
-The smarter path is a filtered n8n workflow. [n8n's self-hosted architecture](https://docs.n8n.io/hosting/) means your API keys stay on your infrastructure, the workflow logic is yours to version-control, and you are not paying per-task fees the moment volume picks up. I've deployed this exact stack for three SaaS clients in the last six months. It consistently cuts CRM lag from 24 to 48 hours down to under 15 minutes.
+The smarter path is a filtered n8n workflow. [n8n's self-hosted architecture](https://docs.n8n.io/hosting/) means your API keys stay on your infrastructure, the workflow logic is yours to version-control, and you are not paying per-task fees the moment volume picks up. I've deployed this exact stack for SaaS teams in the last six months. It consistently cuts CRM lag from 24 to 48 hours down to under 15 minutes.
 
 <StatRow stats={[
   { number: "73%", label: "Deals created late", description: "G2 research shows most manual CRM updates happen more than 24 hours after the qualifying signal" },
@@ -106,7 +106,7 @@ The trickiest part of the whole workflow is the `since_timestamp` parameter. Mis
   </Fragment>
 </SideBySide>
 
-This pattern uses n8n's `$getWorkflowStaticData('global')` to persist the last successful run timestamp across executions. It is the correct solution, and it is buried in [n8n's static data docs](https://docs.n8n.io/code/cookbook/workflow-static-data/) rather than anywhere obvious in the UI. I've spent more time explaining this single concept to clients than any other part of the build combined.
+This pattern uses n8n's `$getWorkflowStaticData('global')` to persist the last successful run timestamp across executions. It is the correct solution, and it is buried in [n8n's static data docs](https://docs.n8n.io/code/cookbook/workflow-static-data/) rather than anywhere obvious in the UI. I've spent more time explaining this single concept to teams than any other part of the build combined.
 
 ## Mapping the Instantly Payload to Pipedrive Fields
 
@@ -173,7 +173,7 @@ Pipeline leakage at the cold-email-to-CRM handoff is almost always bigger than t
 
 This workflow is a foundation, not a ceiling. Once deals are flowing into Pipedrive automatically, you can layer in enrichment (pull company data via [Clay](/tools/clay/) before deal creation), routing logic (assign deals to different owners by campaign or territory), or a Slack notification so reps get a ping the moment a warm reply lands. The cold email to CRM handoff also connects directly to [how deliverability affects reply rates](/blog/2026-07-10-cold-email-deliverability-is-breaking-in-2026/), because a workflow that fires on 50 replies a day will fire on 12 if your domain health deteriorates.
 
-Build the four-node version first. Verify it runs cleanly for a full week before extending it. Every client I've set this up for asks the same question around day ten: "Why didn't we do this six months ago?"
+Build the four-node version first. Verify it runs cleanly for a full week before extending it. Every team I've set this up for asks the same question around day ten: "Why didn't we do this six months ago?"
 
 <BottomLine
   verdict="n8n is the right middleware for this integration. Self-hosted, no per-task fees, and enough flexibility to add deduplication and enrichment that Zapier cannot handle cleanly at volume. Instantly is the cold email engine; Pipedrive is the CRM; n8n is the connective tissue that makes the stack actually work together."

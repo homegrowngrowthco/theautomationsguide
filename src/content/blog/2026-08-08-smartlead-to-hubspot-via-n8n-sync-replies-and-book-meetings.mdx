@@ -32,7 +32,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-Most outbound teams run [Smartlead](/go/smartlead/) for sequencing and HubSpot for CRM, then burn 20 minutes per rep per day manually copying reply data between them. Someone responds positively, an SDR screenshots it, pastes it into a HubSpot note, and maybe updates the lifecycle stage if they remember. That is not a RevOps stack. That is a data entry job with a Slack distraction layer on top. I have fixed this exact problem at three different B2B SaaS clients in the last year, and the answer is always the same: a lightweight [n8n](/go/n8n/) workflow that listens to Smartlead webhooks and handles every CRM update automatically, including firing a meeting booking link when a reply looks positive.
+Most outbound teams run [Smartlead](/go/smartlead/) for sequencing and HubSpot for CRM, then burn 20 minutes per rep per day manually copying reply data between them. Someone responds positively, an SDR screenshots it, pastes it into a HubSpot note, and maybe updates the lifecycle stage if they remember. That is not a RevOps stack. That is a data entry job with a Slack distraction layer on top. I have fixed this exact problem at three different B2B SaaS companies in the last year, and the answer is always the same: a lightweight [n8n](/go/n8n/) workflow that listens to Smartlead webhooks and handles every CRM update automatically, including firing a meeting booking link when a reply looks positive.
 
 ## What this workflow does and why it matters
 

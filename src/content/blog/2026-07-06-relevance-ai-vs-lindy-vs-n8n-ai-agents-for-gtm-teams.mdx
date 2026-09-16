@@ -33,7 +33,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-The AI agent category exploded in late 2024 and every GTM tool vendor promptly slapped "agentic" on their marketing page. Three tools keep coming up in real RevOps conversations, though: [Relevance AI](/go/relevance-ai/), [Lindy](/go/lindy/), and [n8n](/go/n8n/). They are not competing for the same buyer. I have spent time deploying all three for B2B SaaS clients at Homegrown Growth Co., and the category confusion is costing teams real money on tools that do not fit their actual workflows.
+The AI agent category exploded in late 2024 and every GTM tool vendor promptly slapped "agentic" on their marketing page. Three tools keep coming up in real RevOps conversations, though: [Relevance AI](/go/relevance-ai/), [Lindy](/go/lindy/), and [n8n](/go/n8n/). They are not competing for the same buyer. I have spent time deploying all three for B2B SaaS teams at Homegrown Growth Co., and the category confusion is costing teams real money on tools that do not fit their actual workflows.
 
 <KeyTakeaways items={[
   "Relevance AI is purpose-built for multi-agent GTM workflows that a sales team runs at scale, not just one power user.",
@@ -51,7 +51,7 @@ The AI agent category exploded in late 2024 and every GTM tool vendor promptly s
 
 ## What each tool actually is
 
-Before getting into the comparison, a framing note matters here: these tools sit at different layers of the GTM automation stack. Relevance AI lives at the [agent-logic layer](/tools/relevance-ai/). Lindy lives at the [personal-assistant layer](/tools/lindy/). [n8n](/tools/n8n/) lives at the integration and orchestration layer. Conflating them is the single most common mistake I see when clients arrive after a failed evaluation. They spent three months piloting the wrong tool for the job they needed done.
+Before getting into the comparison, a framing note matters here: these tools sit at different layers of the GTM automation stack. Relevance AI lives at the [agent-logic layer](/tools/relevance-ai/). Lindy lives at the [personal-assistant layer](/tools/lindy/). [n8n](/tools/n8n/) lives at the integration and orchestration layer. Conflating them is the single most common mistake I see when teams arrive after a failed evaluation. They spent three months piloting the wrong tool for the job they needed done.
 
 <Figure class="post-screenshot" caption="n8n workflow canvas showing a webhook trigger feeding into enrichment, ICP branching, and parallel Smartlead and Slack actions.">
   <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
@@ -112,11 +112,11 @@ Before getting into the comparison, a framing note matters here: these tools sit
 
 ## How to choose
 
-The decision comes down to two questions: who runs the automation, and what does it need to do. If you have a RevOps team or a technical operator managing GTM workflows on behalf of a sales floor, Relevance AI gives you the fastest path to deploying AI agents that do real prospecting work at volume. The visual builder is good enough that I have set up five-step enrichment and personalization agents for clients in a single afternoon, without touching code.
+The decision comes down to two questions: who runs the automation, and what does it need to do. If you have a RevOps team or a technical operator managing GTM workflows on behalf of a sales floor, Relevance AI gives you the fastest path to deploying AI agents that do real prospecting work at volume. The visual builder is good enough that I have set up five-step enrichment and personalization agents in a single afternoon, without touching code.
 
 If the use case is helping an individual rep stay on top of their inbox, prep for calls, and log notes without lifting a finger, Lindy is the better fit. Almost no setup required. The natural language interface means reps will actually use it, which is not a small thing.
 
-n8n is the right answer when you need to glue the other two together with the rest of your stack, when compliance requires self-hosted infrastructure, or when the automation logic is complex enough that a visual agent builder would abstract away too much control. My current recommendation for most clients: run Relevance AI agents that fire via webhook into n8n, then let n8n handle CRM writes, Slack alerts, and Smartlead enrollment downstream. That combination outperforms any of the three tools running in isolation. Don't try to make Relevance AI do the integration plumbing. That is not what it is for.
+n8n is the right answer when you need to glue the other two together with the rest of your stack, when compliance requires self-hosted infrastructure, or when the automation logic is complex enough that a visual agent builder would abstract away too much control. My current recommendation for most teams: run Relevance AI agents that fire via webhook into n8n, then let n8n handle CRM writes, Slack alerts, and Smartlead enrollment downstream. That combination outperforms any of the three tools running in isolation. Don't try to make Relevance AI do the integration plumbing. That is not what it is for.
 
 <ChooseIf tools={[
   {

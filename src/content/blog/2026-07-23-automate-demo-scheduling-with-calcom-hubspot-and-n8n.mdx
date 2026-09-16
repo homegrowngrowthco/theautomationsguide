@@ -38,7 +38,7 @@ Every RevOps team I've worked with has the same manual leak. An AE books a demo,
 
 Cal.com fires a webhook the instant a booking is created, rescheduled, or cancelled. n8n catches that webhook, lets you reshape the payload however you need, and then calls HubSpot's API to upsert the contact and create or update a deal. No Zapier tax. No black-box integration that breaks when Cal.com renames a field.
 
-I've run this stack at several clients now. What makes it durable is that n8n gives you the raw JSON from Cal.com with nothing stripped out. [Calendly](/tools/calendly/)'s native HubSpot app maps a small, fixed set of fields and gives you no flexibility. Cal.com's own [HubSpot app in the App Store](https://app.cal.com/apps/hubspot) creates contacts but does not touch deals or pipeline stage at all. That matters a lot when your RevOps motion requires deal creation at the moment of booking, not after the call ends.
+I've run this stack in production. What makes it durable is that n8n gives you the raw JSON from Cal.com with nothing stripped out. [Calendly](/tools/calendly/)'s native HubSpot app maps a small, fixed set of fields and gives you no flexibility. Cal.com's own [HubSpot app in the App Store](https://app.cal.com/apps/hubspot) creates contacts but does not touch deals or pipeline stage at all. That matters a lot when your RevOps motion requires deal creation at the moment of booking, not after the call ends.
 
 <StatRow stats={[
   { number: "0", label: "Deal creation steps", description: "Manual steps your reps take after a booking fires through this workflow" },
@@ -173,7 +173,7 @@ Most teams I consult with reach for Chili Piper because their VP of Sales saw a 
 
 Once the core booking-to-deal flow is live, the natural extensions are enrichment and sequencing. On the BOOKING_CREATED branch, after you upsert the HubSpot contact, add a [Clay](/tools/clay/) or [Apollo](/tools/apollo/) enrichment step to backfill company size, industry, and LinkedIn URL before your AE ever opens the CRM record. This matters most when prospects book through a self-serve link and only provide name and email. You want your reps walking into a demo with context, not a blank contact.
 
-For post-demo follow-up, wire the deal creation into a HubSpot workflow that auto-enrolls the contact in a follow-up sequence the moment the deal enters "Demo Scheduled" stage. My clients who have built this combination have cut average time-to-follow-up from 8 hours to under 10 minutes. The n8n workflow handles the CRM work. HubSpot's sequences engine handles the outreach from there. Neither system needs a human to trigger it.
+For post-demo follow-up, wire the deal creation into a HubSpot workflow that auto-enrolls the contact in a follow-up sequence the moment the deal enters "Demo Scheduled" stage. Teams that build this combination cut average time-to-follow-up from 8 hours to under 10 minutes. The n8n workflow handles the CRM work. HubSpot's sequences engine handles the outreach from there. Neither system needs a human to trigger it.
 
 According to [HubSpot Research's State of Sales 2024](https://www.hubspot.com/state-of-sales), reps spend an average of 21% of their week on manual data entry. This workflow does not eliminate all of that, but it removes one of the highest-friction examples entirely.
 

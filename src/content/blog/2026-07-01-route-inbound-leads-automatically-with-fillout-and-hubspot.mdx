@@ -35,20 +35,20 @@ import BottomLine from '@/components/post/BottomLine.astro';
 
 Most inbound lead routing failures are not a CRM problem. They are a form problem. The form collects a name and an email, hands nothing useful to [HubSpot](/go/hubspot), and leaves a human to open the record and decide what to do next. [Fillout](/tools/fillout/) changes that equation. It lets you capture real qualification data with conditional logic on every step, sync every field directly into [HubSpot](/tools/hubspot/) contact and deal properties, and hand off to a routing workflow before the prospect has closed the tab.
 
-This is the exact stack I use with B2B SaaS clients: Fillout as the intake layer, [HubSpot workflows](/blog/2026-06-13-make-hubspot-workflows-for-revops-4-builds-that-matter/) as the routing engine, [Make](/go/make) for cross-system edge cases, and [Chili Piper](/tools/chili-piper/) for live calendar booking. No code. No Zapier tax.
+This is the exact stack I use for B2B SaaS inbound routing: Fillout as the intake layer, [HubSpot workflows](/blog/2026-06-13-make-hubspot-workflows-for-revops-4-builds-that-matter/) as the routing engine, [Make](/go/make) for cross-system edge cases, and [Chili Piper](/tools/chili-piper/) for live calendar booking. No code. No Zapier tax.
 
 ## Why This Stack Beats Native HubSpot Forms
 
 Native HubSpot forms are fine for newsletter signups. For qualification-heavy inbound flows, they are genuinely limiting. You get basic conditional logic on Pro tiers, no multi-step layout, and design options that feel like 2018. Skip native HubSpot forms for any flow where you need more than three qualifying questions.
 
-Fillout gives you a proper multi-step builder with per-page branching logic, calculated fields, file uploads, and a form UX that does not make prospects abandon halfway through. The native HubSpot sync is bidirectional, meaning it pre-fills fields for known contacts returning to your site. That alone saves my clients meaningful rep time on re-engagement campaigns.
+Fillout gives you a proper multi-step builder with per-page branching logic, calculated fields, file uploads, and a form UX that does not make prospects abandon halfway through. The native HubSpot sync is bidirectional, meaning it pre-fills fields for known contacts returning to your site. That alone saves meaningful rep time on re-engagement campaigns.
 
 The routing logic itself still lives in HubSpot workflows, because that is where contact owner, lifecycle stage, and deal creation need to happen. What Fillout does is feed the workflow enough signal to make routing decisions automatically. Without good form data, your workflow branches have nothing to branch on.
 
 <StatRow stats={[
   { number: "78%", label: "of B2B buyers", description: "go with the vendor that responds first, per Drift's conversational marketing benchmarks" },
   { number: "5 min", label: "response window", description: "after which lead conversion rates drop by 80x, according to the original Harvard Business Review lead response study" },
-  { number: "30%+", label: "routing accuracy gain", description: "that clients I've worked with typically see when form fields map cleanly to HubSpot owner-assignment branches" }
+  { number: "30%+", label: "routing accuracy gain", description: "that teams typically see when form fields map cleanly to HubSpot owner-assignment branches" }
 ]} />
 
 ## The Step-by-Step Routing Build
