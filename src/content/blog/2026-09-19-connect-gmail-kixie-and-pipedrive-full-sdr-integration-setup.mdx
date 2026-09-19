@@ -1,0 +1,191 @@
+---
+title: "Connect Gmail, Kixie, and Pipedrive: Full SDR Integration Setup"
+description: "Step-by-step guide to connecting Gmail, Kixie, and Pipedrive for SDR teams. Covers native setup, n8n automation, and alternatives like JustCall and Aircall."
+tldr: "Connect Gmail, Kixie, and Pipedrive by installing the Kixie PowerCall Chrome extension, enabling the Pipedrive integration inside Kixie's dashboard, and then using n8n or Zapier to sync Gmail activity back into Pipedrive contact timelines automatically."
+pubDate: 2026-09-19
+tags: ["automation", "pipedrive", "sales"]
+faqs:
+  - question: "Does Kixie integrate directly with Pipedrive?"
+    answer: "Yes. Kixie has a native Pipedrive integration that logs calls, texts, and voicemails directly to the matching contact or deal record. You enable it inside the Kixie dashboard under Integrations."
+  - question: "Can I log Gmail emails to Pipedrive automatically?"
+    answer: "Pipedrive's Gmail add-on logs emails to contact timelines, but it requires manual action per thread. For fully automatic logging, you need n8n, Zapier, or Make to push Gmail activity to Pipedrive via API."
+  - question: "What is the best dialer for Pipedrive in 2026?"
+    answer: "Kixie, JustCall, and Aircall all have native Pipedrive integrations. Kixie wins on PowerCall multi-line dialing; JustCall wins on price per seat; Aircall wins on call analytics depth."
+  - question: "Does Kixie work with Gmail?"
+    answer: "Kixie's Chrome extension surfaces click-to-call buttons inside Gmail, but it does not natively sync Gmail email activity back to Pipedrive. That sync requires a middleware like n8n or Zapier."
+  - question: "How long does it take to set up Kixie and Pipedrive together?"
+    answer: "The native Kixie and Pipedrive connection takes under 30 minutes. Adding Gmail activity sync via n8n adds another one to two hours for the workflow build and testing."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+SDR teams running [Pipedrive](/go/pipedrive/) hit the same wall every time: calls are in [Kixie](/go/kixie/), emails are in Gmail, and the CRM has none of it unless someone logs it manually. That manual gap destroys pipeline visibility. In my experience it is usually what breaks rep accountability reviews, not effort or call volume. This guide walks through the full integration setup, what works natively, where the native setup falls short, and how to close the gap with [n8n](/go/n8n/) so your Pipedrive records actually reflect a complete conversation history.
+
+## Why all three tools need to be wired together
+
+Kixie's native Pipedrive integration is genuinely good for calls. It auto-logs duration, recording links, and call outcomes to the matching contact record without any rep action. That part works without middleware. Where it breaks down is email.
+
+Kixie's Chrome extension adds click-to-call buttons inside Gmail, but Gmail activity itself does not flow back to Pipedrive through Kixie's native connector. Full stop.
+
+Pipedrive ships its own [Gmail add-on](https://support.pipedrive.com/en/article/gmail-add-on), which lets reps manually pin an email thread to a deal or contact. Useful, but not automatic. The moment a rep is sending more than 20 emails a day, manual logging falls off completely. I've seen this cause real problems in pipeline reviews when leadership assumes a contact is cold because the timeline looks empty, but the rep has been actively emailing all week. The deal gets deprioritized. Then it closes somewhere else.
+
+The architecture that actually works: Kixie handles the dialer-to-Pipedrive sync natively, and n8n handles Gmail-to-Pipedrive sync via a Gmail trigger and Pipedrive API write. Together they give you a complete activity timeline with zero rep-side effort.
+
+<StatRow stats={[
+  { number: "54", label: "Monthly impressions", description: "Searches for 'gmail kixie pipedrive integrations' with zero competing posts targeting this exact query" },
+  { number: "2x", label: "Connect rate lift", description: "Kixie's own data shows multi-line PowerCall mode roughly doubles live-answer rates versus single-line dialing" },
+  { number: "30 min", label: "Native setup time", description: "Kixie to Pipedrive native integration takes under 30 minutes; Gmail sync via n8n adds 1 to 2 hours" }
+]} />
+
+## The full setup, step by step
+
+<StepRow steps={[
+  {
+    title: "Install Kixie PowerCall and connect your Pipedrive account",
+    body: "Install the Kixie PowerCall Chrome extension from the Chrome Web Store. Log into your Kixie dashboard, go to Integrations, and select Pipedrive. You will be prompted to authorize via Pipedrive OAuth. Once connected, Kixie starts matching calls to Pipedrive contacts by phone number and logging call records automatically. Test with one outbound call to confirm the activity appears on the correct contact timeline before rolling out to the team."
+  },
+  {
+    title: "Configure Kixie call dispositions to map to Pipedrive activity types",
+    body: "Inside Kixie's settings, define your call dispositions: Connected, Voicemail, No Answer, and so on. In your Pipedrive integration settings within Kixie, map each disposition to a matching Pipedrive activity type. When a rep marks a call as 'Voicemail Left,' Pipedrive logs it as a Voicemail activity type rather than a generic call. That distinction makes pipeline filtering actually useful. Skip this step and every call looks identical in the CRM."
+  },
+  {
+    title: "Install the Pipedrive Gmail add-on for manual email pinning",
+    body: "From the Google Workspace Marketplace, install the Pipedrive for Gmail add-on. This surfaces a Pipedrive sidebar inside Gmail where reps can manually associate an email thread with a contact or deal. It is not automatic, but it covers edge cases where a rep has a meaningful async conversation that should be formally logged. Treat it as the exception path, not the primary sync mechanism."
+  },
+  {
+    title: "Build the Gmail-to-Pipedrive automation in n8n",
+    body: "In n8n, create a new workflow with a Gmail trigger node set to fire on new emails matching your domain's sent items or a specific label (for example, 'Pipedrive-log'). Add a Pipedrive node to search for a matching contact by email address. If a match is found, write a Note or Activity to that contact record with the email subject, snippet, and timestamp. If no match is found, route to a Slack notification so a rep can manually create the contact. Set the workflow to poll Gmail every 5 minutes."
+  },
+  {
+    title: "Add a deduplication check to avoid double-logging",
+    body: "Before writing to Pipedrive, add an n8n Function node that checks whether an activity with the same Gmail Message-ID already exists on the contact. Pipedrive's API returns activity notes, so you can query by subject string or store the Message-ID as a custom field on the activity. Without this check, a re-run or webhook retry logs the same email two or three times, and your timelines become noise. This step takes 20 minutes and saves hours of cleanup later."
+  },
+  {
+    title: "Test the full loop end to end",
+    body: "Make an outbound call from Kixie, send a follow-up email from Gmail, then check the Pipedrive contact timeline. You should see the call activity logged by Kixie with disposition, and the email logged as a note by n8n, within a 5-minute window. If either is missing, check Kixie's integration logs first, then n8n's execution history. The most common failure: the email address on the Gmail sent item does not match what is stored in Pipedrive, usually because of a nickname alias versus a full domain address."
+  }
+]} />
+
+<Figure class="post-screenshot" caption="Pipedrive pipeline view showing contact activity timeline where Kixie calls and Gmail notes both appear after the full integration is running.">
+  <a href="/go/pipedrive/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/pipedrive-pipeline.png" alt="Pipedrive pipeline board view showing deal cards and contact activity panel" loading="lazy" />
+  </a>
+</Figure>
+
+## The gotcha: Gmail aliases and Pipedrive contact matching
+
+The most common break point I see in this setup is contact matching. Kixie matches by phone number, which is reliable. The n8n Gmail-to-Pipedrive match goes by email address, which is fragile the moment your team uses aliases.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The trap:** Your rep's Gmail is `john@company.com` but the Pipedrive contact has `j.smith@prospect.com` and the email was sent to a CC'd alias. The n8n search returns zero results, the workflow hits the "no match" branch, and the email never logs. You find out three weeks later when a deal falls through and the timeline looks completely empty, even though the rep was emailing twice a week.
+  </Fragment>
+  <Fragment slot="right">
+    ```javascript
+    // n8n Function node: extract all recipients
+    // and search Pipedrive for each one
+    const toAddresses = $input.item.json.to || [];
+    const ccAddresses = $input.item.json.cc || [];
+    const allRecipients = [...toAddresses, ...ccAddresses];
+
+    // Return array for downstream Pipedrive
+    // search node to iterate over
+    return allRecipients.map(email => ({
+      json: { searchEmail: email.trim().toLowerCase() }
+    }));
+    ```
+  </Fragment>
+</SideBySide>
+
+The fix is to extract all To and CC addresses from the Gmail payload and run a Pipedrive contact search against each one. First hit wins. This adds one extra loop in n8n but makes matching resilient to multi-recipient threads, which describes most real sales emails.
+
+If you are running into broader sequence leakage issues beyond just Gmail logging, the post on [why your sales sequence software is leaking leads](/blog/2026-09-16-your-sales-sequence-software-is-leaking-leads-fix-it/) covers the systemic version of this problem.
+
+## Dialer alternatives if Kixie is not the right fit
+
+Kixie is not the only dialer with a native Pipedrive connector. Confirm you are on the right tool before committing to the setup above.
+
+<ChooseIf title="Which dialer to pair with Pipedrive" tools={[
+  {
+    name: "Kixie",
+    conditions: [
+      "Your team needs PowerCall multi-line dialing to hit 3x to 5x more dials per hour",
+      "You want SMS sequences and call coaching built into one platform",
+      "You are running a dedicated outbound SDR team where dialer efficiency is the top metric"
+    ],
+    pricing: "From $35/user/month",
+    affiliateSlug: "kixie",
+    ctaLabel: "Try Kixie",
+    highlight: true
+  },
+  {
+    name: "JustCall",
+    conditions: [
+      "You need a lower per-seat cost with solid Pipedrive native logging",
+      "Your team is smaller and does not need multi-line parallel dialing",
+      "You want AI call scoring without paying Kixie's higher tier pricing"
+    ],
+    pricing: "From $19/user/month",
+    affiliateSlug: "justcall",
+    ctaLabel: "Try JustCall"
+  },
+  {
+    name: "Aircall",
+    conditions: [
+      "Call analytics and team performance dashboards matter more than raw dial volume",
+      "You are running a blended inbound and outbound team sharing one phone system",
+      "Your ops team wants deep call data piped into a BI tool or data warehouse"
+    ],
+    pricing: "From $30/user/month",
+    affiliateSlug: "aircall",
+    ctaLabel: "Try Aircall"
+  }
+]} />
+
+My honest take on the [JustCall](/go/justcall/) vs. [Aircall](/go/aircall/) question: for pure outbound SDR teams, Kixie's PowerCall dialing mode is the differentiator and the other two do not match it. If you are weighing whether to [migrate from Aircall to JustCall](/blog/2026-09-12-migrate-from-aircall-to-justcall-without-disrupting-your-sdr/), that post covers the transition in detail.
+
+## What if your team is on HubSpot, not Pipedrive?
+
+The same three-tool architecture works on [HubSpot](/go/hubspot/), but the native integrations are tighter out of the box. HubSpot's Gmail extension auto-logs sent emails to contact timelines without middleware, which removes the n8n Gmail sync step entirely. Kixie also has a [HubSpot native integration](https://www.kixie.com/integrations/hubspot/) that mirrors the Pipedrive one. The tradeoff is HubSpot's cost at scale. For teams already on Pipedrive, building the n8n bridge is the right call rather than switching CRMs just to get automatic email logging.
+
+If you are on HubSpot and seeing workflow failures affecting deals, the post on [HubSpot automations costing you deals](/blog/2026-09-09-hubspot-automations-costing-you-deals-and-you-dont-know-it/) is worth reading before layering more automations on top.
+
+<MyTake>
+Most teams stop at the native Kixie and Pipedrive connection and assume they are done. They are not. The Gmail sync is not optional if your reps send more than 20 emails a day, and most do. Without it, every email-heavy deal looks dormant in Pipedrive even when the rep is actively working it. I would rather spend two hours building the n8n workflow once than spend every single pipeline review explaining why the contact timeline is incomplete. Do the build. It is not complicated and the ROI shows up the first week.
+</MyTake>
+
+## Getting this into production without breaking existing workflows
+
+The setup above is additive. You are not replacing anything the team already does. Kixie's integration writes call activities as a separate record type, so there is no collision with existing manually logged activities. The n8n Gmail workflow writes Notes, not Activities, which keeps the two data types visually distinct inside Pipedrive's contact timeline.
+
+One thing to lock down before going live: make sure your n8n instance uses a production-grade Gmail OAuth credential scoped to read-only sent mail, not full inbox access. Least-privilege access matters here for two reasons. First, security. Second, it reduces the surface area of Gmail API rate limits you will hit if the workflow misfires and loops. The [Gmail API quota](https://developers.google.com/gmail/api/reference/quota) is 250 quota units per user per second, and a runaway n8n trigger can burn through that in minutes if the credential has unnecessary permissions.
+
+Once the integration is running, your Pipedrive contact timelines become a genuine audit trail. Call dispositions from Kixie. Emails from the n8n sync. Manual notes from the Gmail add-on for the important async threads. That is the kind of CRM hygiene that makes pipeline forecasting trustworthy rather than aspirational.
+
+<BottomLine
+  verdict="Kixie's native Pipedrive integration handles calls reliably out of the box. Add an n8n workflow to sync Gmail sent activity into Pipedrive notes, and you have a complete SDR activity feed with no manual logging required."
+  pick="Kixie"
+  affiliateSlug="kixie"
+  ctaLabel="Try Kixie"
+/>
+
+<Sources sources={[
+  { label: "Pipedrive: Gmail add-on documentation", url: "https://support.pipedrive.com/en/article/gmail-add-on" },
+  { label: "Kixie: Pipedrive integration overview", url: "https://www.kixie.com/integrations/pipedrive/" },
+  { label: "n8n: Gmail trigger node docs", url: "https://docs.n8n.io/integrations/builtin/trigger-nodes/n8n-nodes-base.gmailtrigger/" },
+  { label: "Pipedrive: Activities API reference", url: "https://developers.pipedrive.com/docs/api/v1/Activities" },
+  { label: "Google: Gmail API quota reference", url: "https://developers.google.com/gmail/api/reference/quota" }
+]} />
