@@ -1023,6 +1023,13 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: 'Real program confirmed 2026-09-16: refer.smartreach.io, up to 40% recurring commission for 12 months. Not yet applied.',
   },
+  kixie: {
+    name: 'Kixie',
+    url: '',
+    homepageFallback: 'https://www.kixie.com/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
 };
 
 /**
