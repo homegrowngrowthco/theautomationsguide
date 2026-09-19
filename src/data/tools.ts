@@ -2754,6 +2754,19 @@ export const tools: Tool[] = [
       'SmartReach is a multichannel sales engagement platform combining cold email, LinkedIn, and calling sequences with built-in deliverability tools, positioned as an affordable option for agencies managing outbound on behalf of multiple clients. It comes up in cold-email roundups as a budget-friendly option next to Instantly and Smartlead.',
     bestFor: 'Agencies running outbound for multiple clients who want multichannel sequencing, not just email, at a lower price point.',
   },
+  {
+    slug: 'kixie',
+    name: 'Kixie',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Kixie',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/kixie.png',
+    aliases: ['Kixie'],
+    blurb:
+      'Kixie’s AI-powered sales platform offers advanced dialers, including PowerDialer and Click-to-Call, with AI-driven call routing, voicemail detection, and CRM integration to supercharge your sales team',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
