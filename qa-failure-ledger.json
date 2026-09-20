@@ -1,14 +1,8 @@
 [
   {
-    "date": "2026-07-22T12:03:14.454Z",
-    "pr": 210,
-    "sha": "57129de773d13f438c5834f921798a9908fb4e54",
-    "signature": "lint-content"
-  },
-  {
-    "date": "2026-07-25T12:03:50.616Z",
-    "pr": 215,
-    "sha": "9d7910ab2479b10183c8a99088e6ea49d45d1359",
-    "signature": "render-acceptance"
+    "date": "2026-09-20T12:04:03.949Z",
+    "pr": 292,
+    "sha": "27e40df8d7b9627bbc4392f0a41ae75c6bd30aca",
+    "signature": "mobile-overflow"
   }
 ]
