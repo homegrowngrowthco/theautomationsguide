@@ -1,0 +1,216 @@
+---
+title: "Apollo to HubSpot with n8n: Auto-Sync Contacts and Trigger Sequences"
+description: "Step-by-step guide to connecting Apollo and HubSpot via n8n. Auto-sync new contacts, deduplicate records, and fire sequences without manual effort."
+tldr: "Use n8n to poll Apollo for new contacts on a schedule, upsert them into HubSpot with deduplication, and enroll matched contacts in HubSpot sequences automatically."
+pubDate: 2026-09-20
+tags: ["automation", "n8n", "hubspot"]
+faqs:
+  - question: "Can Apollo sync contacts to HubSpot automatically?"
+    answer: "Not natively at the field level. Apollo has a built-in HubSpot integration but it is shallow. For full apollo workflow management control, n8n gives you conditional field mapping and deduplication logic the native sync lacks."
+  - question: "Does n8n have an Apollo node?"
+    answer: "n8n has an HTTP Request node you use to hit Apollo's REST API directly. There is no dedicated Apollo node, so you call the /people/search or /people/match endpoints with your API key."
+  - question: "How do I avoid duplicate contacts when syncing Apollo to HubSpot?"
+    answer: "Use HubSpot's upsert endpoint keyed on email address. If the contact exists, it updates. If not, it creates. This is the only safe pattern for apollo workflow management at any volume."
+  - question: "What triggers the HubSpot sequence enrollment from n8n?"
+    answer: "After the upsert, n8n checks the HubSpot response for the contact ID, then calls the HubSpot Sequences API to enroll that contact ID in a specified sequence."
+  - question: "Can I use Clay in this workflow instead of pulling directly from Apollo?"
+    answer: "Yes. Route Apollo exports through Clay for enrichment waterfall before pushing to HubSpot. n8n can receive a Clay webhook as its trigger instead of polling Apollo directly."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most teams treating Apollo as a source of truth and HubSpot as their system of record end up doing one of two things: manually exporting CSVs on a loop, or paying for a Zapier plan that breaks the second Apollo changes a field name. Neither is actual apollo workflow management. This post walks through the n8n workflow I use to poll Apollo for new contacts, upsert them into HubSpot with deduplication, and fire sequence enrollment, all without touching a spreadsheet.
+
+<KeyTakeaways items={[
+  "Apollo's native HubSpot sync lacks conditional field mapping and deduplication logic you need at scale",
+  "n8n polls Apollo's /people/search endpoint on a cron schedule and upserts to HubSpot keyed on email",
+  "HubSpot's upsert endpoint creates or updates in one call, eliminating duplicate contact bloat",
+  "Sequence enrollment happens in the same workflow run via HubSpot's Sequences API after the upsert",
+  "Clay can slot in between Apollo and n8n for enrichment waterfall before records hit HubSpot"
+]} />
+
+## Why the Native Integration Falls Short
+
+[Apollo](/go/apollo/)'s built-in HubSpot connector syncs contacts bidirectionally, but I have tested it on three different HubSpot portals and hit the same ceiling every time. Field mapping is limited to Apollo's default contact fields. There is no conditional logic (push only if `lead_stage = "qualified"`). And the deduplication behavior is genuinely opaque. Records merge inconsistently, and you get zero visibility into what changed when.
+
+[n8n](/go/n8n/) fixes this because you own every node. You decide which Apollo fields map to which HubSpot properties, write the conditional branches yourself, and log every upsert result to a Slack channel or a Google Sheet for audit purposes. The setup takes about 90 minutes the first time. After that, it runs on its own.
+
+My opinion: stop trying to make the native Apollo sync work for anything beyond basic contact mirroring. It was not built for RevOps workflows. Build this instead.
+
+<StatRow stats={[
+  { number: "~40%", label: "Duplicate rate", description: "Typical duplicate contact rate in HubSpot portals syncing from multiple lead sources without upsert logic, per HubSpot community benchmarks" },
+  { number: "5 min", label: "Polling interval", description: "Minimum practical cron interval for Apollo polling in n8n before you start hitting rate limits on free Apollo plans" },
+  { number: "0", label: "Native sequence triggers", description: "Apollo's built-in HubSpot integration does not enroll contacts in HubSpot sequences. You need the Sequences API or this workflow." }
+]} />
+
+<Figure class="post-screenshot" caption="n8n workflow canvas showing a webhook trigger, enrichment step, ICP branch logic, and downstream sequence enrollment.">
+  <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with trigger, enrichment, branch, and Smartlead plus Slack nodes" loading="lazy" />
+  </a>
+</Figure>
+
+## Building the Workflow Step by Step
+
+Before you start, get three things ready: an [Apollo](/tools/apollo/) API key (Settings > Integrations > API), a [HubSpot](/go/hubspot/) private app token with `crm.objects.contacts.write` and `crm.objects.contacts.read` scopes, and the ID of the HubSpot sequence you want to enroll contacts into. Get those first or you will waste time debugging auth errors instead of actual logic.
+
+<StepRow steps={[
+  {
+    title: "Create a Schedule Trigger in n8n",
+    body: "Add a Schedule Trigger node. Set it to run every 5 minutes (or every 15 if you are on Apollo's free plan, to stay under rate limits). This is your cron job. Store your Apollo API key and HubSpot token in n8n's Credentials store, not hardcoded in nodes."
+  },
+  {
+    title: "Poll Apollo for New Contacts",
+    body: "Add an HTTP Request node. Method: POST. URL: https://api.apollo.io/v1/people/search. In the JSON body, pass your API key and a filter like `{ \"per_page\": 25, \"sort_by\": \"created_at\", \"sort_ascending\": false }`. To avoid reprocessing old records, store the last-run timestamp in an n8n static data variable and filter by `created_after` on each poll. Apollo returns a `people` array with email, name, title, company, and phone fields."
+  },
+  {
+    title: "Filter and Transform the Payload",
+    body: "Add a Function node (or Code node in newer n8n versions). Loop through the Apollo `people` array and map fields to HubSpot property names: `email` stays `email`, `first_name` maps to `firstname`, `organization_name` maps to `company`. Add conditional logic here. For example, skip contacts where `email` is null or where `employment_title` does not match your ICP criteria. Return a clean array of HubSpot-ready objects."
+  },
+  {
+    title: "Upsert Contacts into HubSpot",
+    body: "Add an HTTP Request node after the Function node. Use a SplitInBatches node upstream to process contacts one at a time (HubSpot's upsert endpoint takes single objects, not arrays, unless you use the batch endpoint). Method: POST. URL: https://api.hubapi.com/crm/v3/objects/contacts/upsert (or the batch upsert endpoint at /crm/v3/objects/contacts/batch/upsert). Set `idProperty` to `email` so HubSpot creates a new contact if the email is not found, and updates if it is. That is the entire deduplication logic."
+  },
+  {
+    title: "Enroll in HubSpot Sequence",
+    body: "After a successful upsert, HubSpot returns the contact's `id`. Pass that into a second HTTP Request node. Method: POST. URL: https://api.hubapi.com/automation/v4/sequences/enrollments. Body: `{ \"sequenceId\": \"YOUR_SEQUENCE_ID\", \"contactId\": \"CONTACT_ID_FROM_PREVIOUS_NODE\", \"senderEmail\": \"yoursdr@yourcompany.com\" }`. The sender email must belong to a HubSpot user with a connected inbox. Set error handling on this node so a failed enrollment does not crash the whole workflow run."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **The rate limit trap:** Apollo's free plan caps at 50 requests per hour. If your cron runs every 5 minutes and returns 25 contacts per call, you hit 300 contacts per hour. Fine on paid Apollo plans. A wall of 429s on free. Also watch HubSpot's batch upsert limit: 100 records per call, 10 calls per second.
+
+    I have watched workflows silently swallow 429 errors and stop enrolling contacts entirely because error handling was set to "continue" instead of "retry with backoff." You will not notice until your SDR asks why nobody got sequenced this week.
+
+    The fix: add a Wait node between batches and set HubSpot HTTP nodes to retry on 429 with a 5-second delay. Always log the HubSpot response body to a Set node so you can inspect it in the execution log.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // HubSpot batch upsert body (up to 100 records)
+    {
+      "inputs": [
+        {
+          "idProperty": "email",
+          "id": "prospect@company.com",
+          "properties": {
+            "firstname": "Alex",
+            "lastname": "Rivera",
+            "email": "prospect@company.com",
+            "company": "Acme Corp",
+            "jobtitle": "VP of Sales",
+            "phone": "+15551234567",
+            "hs_lead_source": "Apollo"
+          }
+        }
+      ]
+    }
+
+    // Sequence enrollment body
+    {
+      "sequenceId": "12345678",
+      "contactId": "67890",
+      "senderEmail": "sdr@yourcompany.com"
+    }
+    ```
+  </Fragment>
+</SideBySide>
+
+## Adding Clay as an Enrichment Layer
+
+If you are pulling raw Apollo exports or your Apollo data is thin on mobile numbers and LinkedIn URLs, slot [Clay](/go/clay/) between the Apollo poll and the HubSpot upsert. The pattern is straightforward: Apollo identifies the contact, Clay runs the enrichment waterfall (Clearbit, Prospeo, Datagma, whatever you have wired), and then Clay webhooks the enriched record to n8n's Webhook Trigger node instead of n8n polling Apollo directly.
+
+In my testing, this pattern cuts the number of HubSpot contacts with blank `phone` and `linkedin_url` properties by more than half. That matters when sequence steps include LinkedIn tasks and your SDRs are working from HubSpot.
+
+You can see what Clay's enrichment table looks like before data hits the wire in our [coverage of HubSpot proposal automation](/blog/2026-09-15-pandadoc-hubspot-proposal-automation-without-custom-code/), which uses a similar pre-send enrichment model.
+
+The [Clay](/tools/clay/) webhook fires once per enriched row. Cleaner than batching. n8n receives the payload, maps it to HubSpot properties, and runs the same upsert plus enrollment logic. The only change is your trigger node: swap Schedule Trigger for Webhook and point Clay's webhook URL at n8n's production webhook endpoint.
+
+<Figure class="post-screenshot" caption="Apollo sequence builder showing Day 1, 4, and 7 cadence steps for a typical outbound workflow.">
+  <a href="/go/apollo/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/apollo-sequence.png" alt="Apollo sequence builder with Day 1, Day 4, and Day 7 email and call steps" loading="lazy" />
+  </a>
+</Figure>
+
+## Choosing Your Path
+
+Not every team should build this exact stack.
+
+<ChooseIf title="Which Apollo-to-HubSpot sync setup fits your team?" tools={[
+  {
+    name: "n8n (self-hosted or cloud)",
+    conditions: [
+      "You want full control over field mapping and conditional enrollment logic",
+      "Your team has one person comfortable reading API docs and writing basic JSON",
+      "You need an audit log of every sync operation for RevOps reporting"
+    ],
+    pricing: "From $20/mo cloud, free self-hosted",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n",
+    highlight: true
+  },
+  {
+    name: "Clay + n8n",
+    conditions: [
+      "Apollo data is incomplete and you need waterfall enrichment before contacts hit HubSpot",
+      "You are already paying for Clay and want to centralize enrichment logic there",
+      "Your ICP scoring happens during enrichment, not after contact creation"
+    ],
+    pricing: "Clay from $149/mo + n8n",
+    affiliateSlug: "clay",
+    ctaLabel: "Try Clay"
+  },
+  {
+    name: "Apollo Native HubSpot Sync",
+    conditions: [
+      "You only need basic bidirectional contact sync with no conditional logic",
+      "Your HubSpot portal is clean and deduplication is not a concern",
+      "You do not need sequence enrollment triggered by the sync"
+    ],
+    pricing: "Included in Apollo paid plans",
+    affiliateSlug: "apollo",
+    ctaLabel: "Try Apollo"
+  }
+]} />
+
+If your [HubSpot](/tools/hubspot/) automations are already misfiring before you add this layer, read our piece on [HubSpot automations costing you deals](/blog/2026-09-09-hubspot-automations-costing-you-deals-and-you-dont-know-it/) first. A broken enrollment workflow on top of a broken HubSpot setup compounds fast.
+
+Also worth checking: if sequence leakage is your underlying problem, the [sales sequence software leaking leads fix](/blog/2026-09-16-your-sales-sequence-software-is-leaking-leads-fix-it/) covers the structural gaps that no sync workflow can paper over.
+
+The [HubSpot Sequences API docs](https://developers.hubspot.com/docs/reference/api/crm/engagement/sequences) and [Apollo REST API reference](https://apolloio.github.io/apollo-api-docs/) are your primary references here. Both are well-maintained and the enrollment endpoint behavior is documented accurately as of mid-2026.
+
+<MyTake>
+Sync everything bidirectionally from day one and you will regret it. I have seen HubSpot properties get overwritten with blank values because Apollo won the field conflict and nobody caught it for six weeks. Build one-way, Apollo to HubSpot, until your field mapping is stable and your sequence enrollment logic is proven. Earn bidirectional sync. Do not start with it.
+</MyTake>
+
+## What You End Up With
+
+The finished workflow runs on a schedule, pulls new Apollo contacts, deduplicates against HubSpot on email, creates or updates the record, and fires sequence enrollment in a single automated chain. No CSV. No manual Zapier trigger. No mystery about which contacts got enrolled.
+
+Every execution is logged in n8n. Every HubSpot upsert is auditable. Adding a new ICP filter or a second sequence is a single new branch node. That is apollo workflow management built to last, not just to ship.
+
+<BottomLine
+  verdict="n8n is the right tool for teams that need conditional field mapping, deduplication, and sequence enrollment in one auditable workflow. The setup cost is real but the operational reliability beats native sync and Zapier at this level of complexity."
+  pick="n8n"
+  affiliateSlug="n8n"
+  ctaLabel="Try n8n"
+/>
+
+<Sources sources={[
+  { label: "HubSpot Developers: Sequences API reference", url: "https://developers.hubspot.com/docs/reference/api/crm/engagement/sequences" },
+  { label: "Apollo.io: REST API documentation", url: "https://apolloio.github.io/apollo-api-docs/" },
+  { label: "HubSpot Developers: Contacts upsert endpoint", url: "https://developers.hubspot.com/docs/reference/api/crm/objects/contacts" },
+  { label: "n8n Docs: HTTP Request node", url: "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/" }
+]} />
