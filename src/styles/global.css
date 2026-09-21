@@ -1819,6 +1819,10 @@ main { flex: 1; }
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  /* Grid item: without this, a long unbroken token (URL, snake_case param)
+     in any one card's body forces the whole .step-row column wider than
+     its container, overflowing every card in that column uniformly. */
+  min-width: 0;
 }
 
 .step-card-number {
