@@ -8,7 +8,18 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-09-16 (Session 91).
+Last updated 2026-09-22 (Session 92).
+
+## Session 92 (2026-09-21/22) — PR #292 mobile-overflow gate fixed (PR #295)
+
+- GitHub AI's PR-comment diagnosis on PR #292 (Apollo→HubSpot-with-n8n post) flagged a `.step-card` mobile-overflow failure; verified the root cause independently rather than taking the diagnosis on faith.
+- Confirmed: `.step-card` is a `.step-row` grid item missing `min-width:0` — present on every other card grid in `global.css` (`.side-by-side-pane`, `.about-hero-copy`). A long unbroken token in one card's body (a raw API URL) forced the whole single-column grid track wider than its container, overflowing all 5 cards in that column uniformly (the "uniform 101-105px" signature the AI reported).
+- Did NOT use the AI's broader suggested rewrite (universal `.step-card *` max-width rules, media-query changes) — added the same one-line fix this codebase already uses elsewhere, with a comment explaining why.
+- Verified in an isolated `C:\tmp` worktree off PR #292's branch: pre-fix build reproduced the exact failure (`qa/mobile-overflow.mjs --slug ...`, 5 cards +101px); post-fix rebuild → 0 overflow on that post and across `--all` 138 pages (no regression to other StepRow usages).
+- Shipped as its own PR (`fix/step-card-grid-overflow`, matching the #284 precedent — component bugs get a standalone PR, not folded into content PRs). PR #295 merged `88c6937`.
+- Updated PR #292's branch via `gh api pulls/292/update-branch` to pull in the fix; its `qa` workflow reran and passed clean including the Mobile-overflow gate.
+- **Verify:** `gh run watch` on the rerun `qa` job (35634589494) — all steps ✓ including Mobile-overflow gate, "QA pass" comment posted.
+- **Revert:** `git revert 88c6937` removes the CSS fix; PR #292 itself carries no code change (only its merge-base moved).
 
 ## Session 91 (2026-09-16) — Component formatting bugs (PR #284), overflow QA gate extended
 
