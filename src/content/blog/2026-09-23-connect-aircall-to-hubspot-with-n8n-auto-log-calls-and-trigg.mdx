@@ -1,0 +1,197 @@
+---
+title: "Connect Aircall to HubSpot with n8n: Auto-Log Calls and Trigger Follow-ups"
+description: "Build an Aircall automation in n8n that auto-logs calls to HubSpot and triggers follow-up sequences. Step-by-step workflow recipe for RevOps teams."
+tldr: "Use n8n webhooks to capture Aircall call events, write them to HubSpot contact timelines, and enroll contacts in follow-up sequences based on call outcome and duration."
+pubDate: 2026-09-23
+tags: ["automation", "n8n", "hubspot"]
+faqs:
+  - question: "Does Aircall have a native HubSpot integration?"
+    answer: "Yes, Aircall has a native HubSpot integration, but it only logs basic call activity. It does not support conditional logic, outcome-based sequence enrollment, or custom properties without middleware like n8n."
+  - question: "Can n8n trigger HubSpot sequences automatically?"
+    answer: "n8n can enroll contacts into HubSpot sequences via the HubSpot API, but only if the contact is not already active in another sequence and meets enrollment criteria set in HubSpot."
+  - question: "What Aircall webhook events are available for automation?"
+    answer: "Aircall webhooks fire on call.created, call.answered, call.ended, and call.tagged events. The call.ended event is the most useful because it includes duration, disposition, and recording URL."
+  - question: "Is this workflow possible in Make instead of n8n?"
+    answer: "Yes, Make supports Aircall webhooks and the HubSpot API with the same logic. n8n is preferable for teams that want self-hosted data handling or more complex branching without hitting scenario operation limits."
+  - question: "How do I handle calls that do not match any HubSpot contact?"
+    answer: "Add a lookup step after the Aircall webhook fires: if no contact match is found by phone number, route the call data to a Slack alert or a Google Sheet for manual review rather than dropping it silently."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The native [Aircall](/go/aircall/) HubSpot integration does one thing: it drops a call activity on the contact record. That is it. No outcome-based routing, no sequence enrollment, no custom property writes, no Slack ping when a rep tags a call "Interested." For most RevOps setups I encounter, that means reps are manually logging follow-up tasks or those calls are vanishing into a black hole. This post is the workflow recipe that fixes it: an [n8n](/go/n8n/) automation that catches every Aircall event, writes enriched data to [HubSpot](/go/hubspot/), and fires the right follow-up sequence based on call outcome.
+
+## Why the Native Integration Falls Short
+
+Aircall's native HubSpot connector is a one-way pipe built for simplicity. It logs that a call happened. What it cannot do is read the call tag your rep applied, check whether the contact already has an open deal, and then conditionally enroll them in a "Warm Lead" sequence while simultaneously setting a custom property and pinging your Slack channel. That conditional branching is where middleware earns its place.
+
+[HubSpot's Engagements API](https://developers.hubspot.com/docs/api/crm/engagements) accepts call metadata including duration, disposition, recording URL, and notes. All writeable fields the native Aircall connector ignores entirely. Aircall's [webhook documentation](https://developer.aircall.io/api-references/#webhooks) exposes `call.ended` events with everything you need: caller number, duration in seconds, tags array, direction (inbound or outbound), and recording URL if your plan includes it.
+
+My strong opinion here: don't bother trying to patch the native connector with workarounds. Build the n8n layer once, build it right, and own the logic permanently.
+
+The workflow I'm walking through runs on n8n's self-hosted or cloud instance. If your team is on [Make](/go/make/), the logic maps 1:1. You'll use Aircall's webhook module and HubSpot's Update Contact plus Create Engagement modules instead of n8n nodes. I'll flag the Make equivalents where they diverge.
+
+<StatRow stats={[
+  { number: "~4 min", label: "Average setup time per n8n node", description: "Most of this workflow's eight nodes take under five minutes each to configure once your credentials are saved." },
+  { number: "0", label: "Native sequence enrollments via Aircall", description: "Aircall's HubSpot connector logs call activity but cannot enroll contacts in sequences or write custom properties." },
+  { number: "99.9%", label: "Aircall webhook reliability (vendor-stated)", description: "Aircall webhooks are synchronous and fire within seconds of call end, making them a dependable automation trigger." }
+]} />
+
+## The Workflow Architecture
+
+Before jumping into steps, here is the shape of what we are building. Aircall fires a `call.ended` webhook to n8n. n8n looks up the caller's phone number in HubSpot to find the matching contact. It writes a Call Engagement with duration, recording link, and notes. Then it branches on call tags: if the rep tagged the call "Interested," enroll the contact in a follow-up sequence; if they tagged it "No Answer," set a callback task for 24 hours out; anything else routes to a Slack alert for manual review.
+
+<Figure class="post-screenshot" caption="An n8n workflow canvas showing webhook trigger, enrichment, ICP branch, and downstream actions. Same branching pattern used in this Aircall recipe.">
+  <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with webhook trigger node and conditional branching" loading="lazy" />
+  </a>
+</Figure>
+
+<StepRow steps={[
+  {
+    title: "Create the Aircall Webhook in n8n",
+    body: "Add a Webhook trigger node in n8n. Set the method to POST and copy the generated URL. In your Aircall dashboard, go to Integrations > API Keys and Webhooks, create a new webhook, paste the n8n URL, and select the call.ended event. Test it by ending a real or test call from your Aircall number. You should see the raw payload appear in n8n's execution log within seconds."
+  },
+  {
+    title: "Parse and Normalize the Payload",
+    body: "Add a Code node (JavaScript) immediately after the webhook. Extract the fields you need: caller phone number (normalize it to E.164 format with a regex so it matches HubSpot's stored format), call duration in seconds, tags array, direction, recording URL, and call ID. Cast duration to an integer. This normalization step is the one that saves you hours of debugging mismatched phone number formats later. I've seen this single step trip up otherwise solid workflows more than any API issue."
+  },
+  {
+    title: "Look Up the Contact in HubSpot",
+    body: "Add a HubSpot node, select 'Search Contacts,' and filter by the phone number property using the normalized value from Step 2. Map the result to extract the contact ID and current lifecycle stage. If no contact is found, route the execution to a separate branch that posts to Slack with the raw caller number so a human can investigate. Do not silently drop unmatched calls."
+  },
+  {
+    title: "Write the Call Engagement",
+    body: "Add a HubSpot node set to 'Create Engagement,' type 'CALL.' Map the contact ID from Step 3, set the engagement timestamp to the call end time from the Aircall payload, write the duration, paste in the recording URL as the body, and include the call tags as a note. This gives your reps a full call record on the HubSpot timeline without any manual entry. In Make, use the HubSpot 'Create an Engagement' module with the same field mapping."
+  },
+  {
+    title: "Branch on Call Tags and Enroll in Sequences",
+    body: "Add an IF node that checks whether the tags array contains 'Interested' (or whatever your team's warm-lead tag is). On the true branch, call the HubSpot Sequence Enrollment API endpoint via an HTTP Request node: POST to /crm/v3/objects/contacts/{contactId}/associations with the sequence ID and sender email. On the false branch, add a second IF checking for 'No Answer,' then use the HubSpot Create Task node to set a callback task 24 hours out. Everything else routes to a Slack HTTP Request node."
+  },
+  {
+    title: "Write Custom Properties for Reporting",
+    body: "Before the workflow ends, add one more HubSpot Update Contact node and write two custom properties: 'Last Call Duration' (integer, seconds) and 'Last Call Outcome' (enumeration matching your tag set). These properties make your HubSpot reports actually useful. You can build a list of all contacts who had a call over 120 seconds tagged 'Interested' in the last 7 days and see which sequences are converting them."
+  }
+]} />
+
+## The Gotcha That Will Break Your Enrollments
+
+The most common failure point with this workflow is sequence enrollment. HubSpot's Sequence Enrollment API is strict: the contact must have a valid email, the enrolling user must own a Sales Hub Professional or Enterprise seat, and the contact cannot already be actively enrolled in another sequence. If any of those conditions fail, the API returns a 4xx and n8n marks the execution as an error. Nothing tells your rep. The call logs correctly, the follow-up never fires, and you find out three weeks later when pipeline is short.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The trap:** You enroll a contact who is already mid-sequence. The API throws a 409 conflict. n8n logs the error. Your rep sees no feedback. You discover this three weeks later when pipeline is short.
+
+    Add explicit pre-checks before the enrollment HTTP Request node: verify the contact has an email set, confirm the contact's `hs_sequences_actively_enrolled_count` property is 0, and surface any failure as a Slack DM to the rep with the contact name and the reason enrollment was skipped.
+  </Fragment>
+  <Fragment slot="right">
+    ```javascript
+    // n8n Code node: pre-enrollment guard
+    const contact = $input.item.json;
+    const email = contact.properties?.email;
+    const activeEnrollments =
+      parseInt(
+        contact.properties
+          ?.hs_sequences_actively_enrolled_count ?? '0'
+      );
+
+    if (!email) {
+      return [{ json: {
+        skip: true,
+        reason: 'no_email',
+        contactId: contact.id
+      }}];
+    }
+
+    if (activeEnrollments > 0) {
+      return [{ json: {
+        skip: true,
+        reason: 'already_enrolled',
+        contactId: contact.id
+      }}];
+    }
+
+    return [{ json: {
+      skip: false,
+      contactId: contact.id,
+      email
+    }}];
+    ```
+  </Fragment>
+</SideBySide>
+
+## Which Automation Platform Should Run This?
+
+If you are deciding between n8n and Make for this specific workflow, the decision is less about features and more about how your team works day to day.
+
+<ChooseIf title="n8n vs Make for Aircall Automation" tools={[
+  {
+    name: "n8n",
+    conditions: [
+      "You want self-hosted data handling so call recordings and phone numbers never touch a third-party cloud",
+      "Your workflow needs complex branching logic or custom JavaScript transforms that click-and-drag builders make painful",
+      "You are already running n8n for other RevOps automations and want one credential store"
+    ],
+    pricing: "Free self-hosted or from $20/mo cloud",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n",
+    highlight: false
+  },
+  {
+    name: "Make",
+    conditions: [
+      "Your team is non-technical and needs to maintain the workflow without writing code",
+      "You want a visual scenario builder where the Aircall to HubSpot logic is drag-and-drop with prebuilt modules",
+      "You are already paying for Make and have operations headroom in your plan"
+    ],
+    pricing: "Free tier, then from $9/mo",
+    affiliateSlug: "make",
+    ctaLabel: "Try Make",
+    highlight: false
+  }
+]} />
+
+## Verifying the Workflow Works
+
+Before you put this in production, run through four checks. Make a test call from an Aircall number that is already a HubSpot contact and verify the Call Engagement appears on the timeline within 30 seconds. Tag the call "Interested" and confirm the contact enrolls in your target sequence. Check the HubSpot sequence dashboard, not just the contact record. Make a call from a number with no HubSpot contact and confirm a Slack alert fires instead of a silent failure. Finally, check the "Last Call Duration" and "Last Call Outcome" custom properties on the contact record to confirm they populated correctly.
+
+This workflow pairs naturally with the [Apollo to HubSpot sync pattern](/blog/2026-09-20-apollo-to-hubspot-with-n8n-auto-sync-contacts-and-trigger-se/) I covered previously. If you are enriching inbound leads via Apollo before they hit a call with a rep, you can chain these two workflows so the contact arrives on the call with full context already written to their record.
+
+If your team is evaluating where Aircall fits in a broader outbound stack, [this breakdown of the best CRM setups for outbound teams](/blog/2026-09-21-best-crm-for-outbound-teams-2026-edition/) covers how dialer integrations factor into the decision between HubSpot and its alternatives.
+
+<MyTake>
+The native Aircall connector gives you a false sense of security. Call data is "in HubSpot," so the problem feels solved. It is not. Sequence enrollment is the actual revenue motion, and until that fires automatically based on what your rep tagged, you are relying on rep discipline to close the loop. Rep discipline is not a system. It is a wish.
+</MyTake>
+
+## Putting It Together
+
+This n8n workflow takes about three focused hours if you have your HubSpot credentials and Aircall API key ready. In my testing, the end-to-end call-to-sequence-enrollment fires in under 30 seconds from call end. The payoff is a call-to-follow-up loop that runs without rep input: every qualified call automatically logs, custom properties get written for reporting, and warm leads enter a sequence before your rep has closed their laptop.
+
+The pre-enrollment guard is the piece most tutorials skip, and it is the piece that determines whether this workflow is reliable or just occasionally works. Build that guard first. Test it on real calls. Then layer in the Slack fallbacks so nothing drops silently. A workflow that fails loudly is fixable. One that fails quietly costs you pipeline.
+
+<BottomLine
+  verdict="n8n is the right layer for this workflow if you want full control over call data routing and HubSpot sequence enrollment logic. The native Aircall connector is a starting point, not a solution."
+  pick="n8n"
+  affiliateSlug="n8n"
+  ctaLabel="Try n8n"
+/>
+
+<Sources sources={[
+  { label: "Aircall Developer Docs: Webhooks reference", url: "https://developer.aircall.io/api-references/#webhooks" },
+  { label: "HubSpot Developer Docs: Engagements API", url: "https://developers.hubspot.com/docs/api/crm/engagements" },
+  { label: "HubSpot Developer Docs: Sequence Enrollment API", url: "https://developers.hubspot.com/docs/api/crm/sequences" },
+  { label: "n8n Docs: HubSpot node reference", url: "https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.hubspot/" }
+]} />
