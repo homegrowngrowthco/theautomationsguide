@@ -77,6 +77,11 @@ const orgSchema = {
       'https://www.linkedin.com/in/ianchamberland/',
       'https://homegrowngrowth.co',
     ],
+    worksFor: {
+      '@type': 'Organization',
+      name: 'Homegrown Growth Co',
+      url: 'https://homegrowngrowth.co',
+    },
   },
   sameAs: [
     'https://www.linkedin.com/company/the-automations-guide/',
@@ -118,6 +123,7 @@ const segmentLabels: Record<string, string> = {
   playbooks: 'Playbooks',
   tools: 'Tools',
   about: 'About',
+  guides: 'Guides',
 };
 
 const crumbs: { name: string; url: string }[] = [
@@ -349,6 +355,10 @@ const breadcrumbSchema = {
           <a href="/tools/">Tools</a>
           <!-- Footer, not the header nav: the desktop header bar is width-budgeted
                (~1040px min); another inline item would push the drawer breakpoint higher. -->
+          <a href="/guides/migrations/">Migration guides</a>
+          <a href="/guides/tool-vs-tool/">Tool vs tool</a>
+          <a href="/guides/pricing/">Pricing breakdowns</a>
+          <a href="/reviews/">Reviews</a>
           <a href="/revops-automation-pricing/">Pricing index</a>
           <a href="/blog/">Latest</a>
           <a href="/about/">About</a>

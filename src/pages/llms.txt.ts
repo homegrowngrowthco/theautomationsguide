@@ -22,6 +22,10 @@ export const GET: APIRoute = async () => {
 - [Home](https://theautomationsguide.com/): Overview of the publication
 - [About](https://theautomationsguide.com/about/): Mission and editorial approach
 - [Blog](https://theautomationsguide.com/blog/): All articles
+- [Migration guides](https://theautomationsguide.com/guides/migrations/): Guides for switching RevOps tools without losing data
+- [Tool vs tool](https://theautomationsguide.com/guides/tool-vs-tool/): Head-to-head RevOps tool comparisons
+- [Pricing breakdowns](https://theautomationsguide.com/guides/pricing/): What RevOps tools actually cost
+- [Reviews](https://theautomationsguide.com/reviews/): Tool comparisons and head-to-head reviews
 
 ## Articles
 ${articleLines}
