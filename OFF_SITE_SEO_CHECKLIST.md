@@ -99,11 +99,13 @@ Best-fit order. Only ONE concrete email exists on any fetched page: **gtmnow@gtm
 
 Run these searches in **ChatGPT, Perplexity, Claude, and Gemini**. Log whether the site is cited. This is your "before" snapshot — re-run monthly and track improvement.
 
-- [ ] "best RevOps automation blogs"
-- [ ] "Make vs Zapier comparison for GTM teams"
-- [ ] "how to automate sales handoff HubSpot Slack"
-- [ ] "best RevOps automation tools 2026"
-- [ ] "RevOps automation stack budget"
+- [x] "best RevOps automation blogs"
+- [x] "Make vs Zapier comparison for GTM teams"
+- [x] "how to automate sales handoff HubSpot Slack"
+- [x] "best RevOps automation tools 2026"
+- [x] "RevOps automation stack budget"
+
+**Baseline run 2026-09-24** (pre-PR #302, the homepage Phase 3 front-page rebuild — this is the "before" marker). 5 queries x 5 engines (Claude, Gemini, ChatGPT, Perplexity, and Grok — Grok added as a bonus beyond the original 4) = 25 query/engine pairs. **1/25 cited theautomationsguide.com.** ChatGPT's answer to "RevOps automation stack budget" cited the site by name ("The Automations Guide") for the claim "a 10-rep lean stack around $1,500/mo, while a fuller configuration can approach $3,800/mo" — traced to [2026-08-06-revops-stack-cost-per-rep-at-10-reps-2026-breakdown.mdx](src/content/blog/2026-08-06-revops-stack-cost-per-rep-at-10-reps-2026-breakdown.mdx), which has those exact figures ($1,500-$2,000/mo and $3,400-$3,800/mo for 10 reps). Zero citations across Claude, Gemini, Perplexity, and Grok, and zero on the other 4 queries in any engine. Consistent with the standing read: zero independent referring domains means these engines have almost nothing to cite TAG for outside the one post whose numbers happen to be specific and quotable. Next re-run ~2026-10-24 (monthly cadence), ideally after PR #302 (homepage Phase 3) has been live long enough to matter. Full raw responses from all 4 non-ChatGPT engines archived at [audits/AUDIT-GEO-2026-09-24.md](audits/AUDIT-GEO-2026-09-24.md).
 
 ## Affiliate Program Applications
 
