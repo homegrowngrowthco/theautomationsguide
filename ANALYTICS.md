@@ -20,6 +20,32 @@ This site runs two analytics tools side by side. Both are loaded once, on every 
     auto-derived. `$host` was missing until 2026-08-12; every `affiliate_click`
     before that date has `$host = null` and cannot be filtered by site.
 
+#### PostHog toolbar renders unstyled under the strict CSP (known, not a bug for visitors)
+Launching the PostHog in-app toolbar ("Launch toolbar" from the PostHog UI) leaves a
+hedgehog logo, an "Authenticate" button, and a menu button floating at the bottom of the
+page, unstyled and non-functional, on **any** page of the live site. This is the "animal"
+some sessions have flagged from a screenshot of production.
+
+- **Visitors never see this.** Confirmed 2026-09-24 in a clean session (no URL hash, no
+  `sessionStorage` state): the toolbar renders nothing, fires nothing. The toolbar only
+  activates when the URL carries `#__posthog=...` (or `#state=...`) or
+  `sessionStorage._postHogToolbarParams` is set, both of which only happen after clicking
+  "Launch toolbar" in the PostHog UI from a browser already signed into this project. That
+  gate is confirmed directly in the live `array.js` bundle (`us-assets.i.posthog.com`), not
+  inferred.
+- **Why it renders broken:** the toolbar's own UI/auth host is `us.posthog.com` (confirmed
+  in the same bundle), which is not on the CSP allowlist in
+  [public/_headers](public/_headers) — only the ingest hosts `us.i.posthog.com` and
+  `us-assets.i.posthog.com` are allowed. The toolbar's asset and auth calls get blocked, so
+  it never styles or authenticates.
+- **To clear it in your own browser:** open DevTools console and run
+  `sessionStorage.removeItem('_postHogToolbarParams')`, then reload. If it came in via a
+  `#__posthog=` URL hash, reload without that hash.
+- **Decision (2026-09-24):** left as-is rather than extending the CSP to `us.posthog.com`.
+  It costs nothing for real traffic and the toolbar itself is rarely used day to day; if
+  that changes, add `us.posthog.com` to `connect-src`, `style-src`, and `img-src` in
+  `public/_headers` and test on a deploy preview with the toolbar launched before shipping.
+
 ### Google Analytics 4 (live)
 - **Measurement ID:** `G-RKWHJ95P3H` (hardcoded as the default in `Analytics.astro`, the same way the PostHog key is).
 - Loaded via the standard `gtag.js` snippet, alongside PostHog, on every page.
