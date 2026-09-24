@@ -25,7 +25,7 @@ export const GET: APIRoute = async () => {
 - [Migration guides](https://theautomationsguide.com/guides/migrations/): Guides for switching RevOps tools without losing data
 - [Tool vs tool](https://theautomationsguide.com/guides/tool-vs-tool/): Head-to-head RevOps tool comparisons
 - [Pricing breakdowns](https://theautomationsguide.com/guides/pricing/): What RevOps tools actually cost
-- [Reviews](https://theautomationsguide.com/reviews/): Tool comparisons and head-to-head reviews
+- [Reviews](https://theautomationsguide.com/reviews/): Hands-on, single-tool reviews of RevOps and GTM software
 
 ## Articles
 ${articleLines}
