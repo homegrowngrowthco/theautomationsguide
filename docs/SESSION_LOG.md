@@ -8,7 +8,16 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-09-24 (Session 93).
+Last updated 2026-09-24 (Session 94).
+
+## Session 94 (2026-09-24) — PR #302 merged: homepage Phase 3 + Reviews/comparisons fix
+
+- Reviewed PR #302 with Ian. The open judgment call from Session 93 (homepage's new "Reviews" section vs. `/reviews/`'s actual filter) was already resolved on the branch by a second commit (`adff5e8`, from a separate Claude session, pushed ~45 min after the Phase 3 commit) before this review started — not something this session authored. `/reviews/` had been filtering by the `comparison` tag and titled "Comparisons" (itself mislabeled going in: 0 overlap with the homepage's actual Review bucket); refiltered to `classifySection(p) === 'Review'` and retitled "Reviews". The comparison content it used to show now lives at the new `/guides/tool-vs-tool/` hub (`sections.ts`), which deliberately excludes `'Review'` from its own registry so there's no duplicate `/guides/reviews/`.
+- CI: "QA + auto-fix content PRs" read `skipped` on both commits — expected, that workflow only runs on `content/*` branches; this is a component/homepage branch. "PR gates (no build)" passed both commits; Session 93 already verified `build`/`qa:lint`/`qa:render`/`qa:overflow --all`/`qa:seo`/`qa:docs` locally at 0 hard.
+- Squash-merged as `4852248` (branches deleted, both local and remote).
+- **Gotcha, same class as #3:** a background-agent worktree at `.claude/worktrees/agent-af9cacc2c7af83a01` — inside the OneDrive-synced repo itself, not `C:\tmp` — was still checked out on the merged branch and blocked local branch deletion (`Permission denied`, OneDrive locking the metadata). `git worktree prune -v` cleared the registration (also cleared 4 other stale entries from past sessions: `tag-component-fixes`, `tag-mobile-overflow-fix`, `tag-scrub-client-mentions`, `tag-scrub-client-mentions1` — their checkout dirs were already gone, only `.git/worktrees/` metadata remained).
+- Verify: `gh pr view 302 --json state,mergedAt,mergeCommit` = MERGED / `4852248`.
+- Revert: `git revert 4852248` on master.
 
 ## Session 93 (2026-09-24) — Social-draft array-parsing bug fixed + 38 drafts regenerated; homepage Phase 3 (PR #302); PostHog toolbar explained
 
