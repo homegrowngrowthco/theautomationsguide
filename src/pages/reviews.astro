@@ -3,27 +3,30 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
 import ItemListSchema from '../components/ItemListSchema.astro';
 import { getCollection } from 'astro:content';
+import { classifySection } from '../lib/post-cards';
 
-// "Comparisons" = the head-to-head, buyer-intent "X vs Y" content (the
-// `comparison`-tagged posts), as opposed to the how-to "Playbooks" (/playbooks/)
-// and the per-tool directory (/tools/). High purchase intent, so it gets its own
-// landing page instead of being buried in the tool directory.
-const COMPARISON_TAGS = ['comparison'];
+// "Reviews" = single-tool, hands-on write-ups (classifySection() returns
+// 'Review' when a post's title contains "review"), as opposed to the
+// head-to-head "X vs Y" content, which lives at /guides/tool-vs-tool/.
+// This page used to filter by the `comparison` tag instead, which meant it
+// actually showed the tool-vs-tool set (0 overlap with the homepage's
+// "Reviews" teaser, which already used classifySection() correctly) - fixed
+// so both agree on the same posts. See docs/SESSION_LOG.md Session 94.
 
 const all = await getCollection('blog', ({ data }) => !data.draft);
 const posts = all
-  .filter((p) => p.data.tags.some((t) => COMPARISON_TAGS.includes(t.toLowerCase())))
+  .filter((p) => classifySection(p) === 'Review')
   .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
 ---
 
 <BaseLayout
-  title="Tool Comparisons & Head-to-Head Reviews"
-  description="Side-by-side comparisons of RevOps and GTM automation tools, Zapier vs Make vs n8n, Apollo vs Clay, and more, from operators who have run them in production."
+  title="Tool Reviews: Hands-On RevOps & GTM Software Takes"
+  description="Hands-on, single-tool reviews of RevOps and GTM automation software: what's good, what's missing, and whether it's worth the price."
 >
   <div class="container--wide">
     <div class="page-header">
-      <h1>Comparisons</h1>
-      <p>Head-to-head tool comparisons to help you pick the right stack, decided on real workflows, not vendor spec sheets.</p>
+      <h1>Reviews</h1>
+      <p>One tool at a time, used long enough to hit its limits, with the parts the vendor page leaves out.</p>
     </div>
 
     {posts.length > 0 ? (
@@ -32,9 +35,9 @@ const posts = all
       </div>
     ) : (
       <div style="text-align:center;padding:5rem 0;color:var(--text-muted);">
-        <p style="font-size:1.125rem;">Comparisons are on the way. <a href="/blog/">Browse all articles</a>.</p>
+        <p style="font-size:1.125rem;">Reviews are on the way. <a href="/blog/">Browse all articles</a>.</p>
       </div>
     )}
   </div>
-  <ItemListSchema name="Tool Comparisons" items={posts.map((p) => ({ url: `/blog/${p.slug}/`, name: p.data.title }))} />
+  <ItemListSchema name="Tool Reviews" items={posts.map((p) => ({ url: `/blog/${p.slug}/`, name: p.data.title }))} />
 </BaseLayout>

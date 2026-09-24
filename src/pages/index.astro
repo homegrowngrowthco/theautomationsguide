@@ -4,33 +4,83 @@ import EmailSignup from '../components/EmailSignup.astro';
 import PostCard from '../components/PostCard.astro';
 import { getCollection } from 'astro:content';
 import { tools } from '../data/tools';
-import { topicLabel } from '../lib/topic-label';
+import { audiences } from '../data/audiences';
+import { sections, getSectionPosts } from '../data/sections';
+import { classifySection } from '../lib/post-cards';
+import pricingIndexRaw from '../data/pricing-index.json';
 
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);
 const recentPosts = allPosts
   .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
   .slice(0, 3);
 
-// Topic tiles: most-used tags, with a post count, deep-linking into the blog filter.
-// Lowercase the keys so case-variant duplicates ("HubSpot"/"hubspot") merge and
-// the ?tag= link matches the blog filter (which also normalizes to lowercase).
-const tagCounts = new Map<string, number>();
-for (const p of allPosts) {
-  for (const t of p.data.tags) {
-    const k = t.toLowerCase();
-    tagCounts.set(k, (tagCounts.get(k) ?? 0) + 1);
-  }
-}
-// "guide" and "tools" are meta-tags describing the content type, not a topic —
-// drop them so the tile set is all real subject matter.
-const topicTiles = [...tagCounts.entries()]
-  .filter(([tag]) => tag !== 'guide' && tag !== 'tools')
-  .sort((a, b) => b[1] - a[1])
-  .slice(0, 8);
-
 // "Tools we cover" strip: dedupe by slug, stable order from the registry.
 // Only listed tools appear here; pipeline tools (listed:false) still get a hub page.
 const stripTools = tools.filter((t) => t.listed !== false);
+
+// Editorial sections by format (replaces the old machine-derived "Browse by
+// topic" tag tiles, per audit Phase 3). The 3 /guides/ hubs come from the
+// sections.ts registry, all keyed off the SAME classifySection() classifier
+// that drives the card generator's teal tab label. "Reviews" is built here
+// directly rather than added to sections.ts: src/pages/reviews.astro is
+// already the Review format's hub at /reviews/, so its "View all" points
+// there instead of a duplicate /guides/reviews/.
+const formatSections = await Promise.all(
+  sections.map(async (s) => ({
+    slug: s.slug,
+    heading: s.navLabel,
+    dek: s.dek,
+    href: `/guides/${s.slug}/`,
+    posts: (await getSectionPosts(s)).slice(0, 3),
+  })),
+);
+const reviewPosts = allPosts
+  .filter((p) => classifySection(p) === 'Review')
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
+  .slice(0, 3);
+const editorialSections = [
+  ...formatSections,
+  {
+    slug: 'reviews',
+    heading: 'Reviews',
+    dek: 'One tool, used long enough to hit its limits, with the parts the vendor page leaves out.',
+    href: '/reviews/',
+    posts: reviewPosts,
+  },
+];
+
+// Pricing-index band: every figure below is read from the committed dataset
+// (pricing/build-pricing-index.mjs -> src/data/pricing-index.json), never
+// hand-typed. Same field names/shape as src/pages/revops-automation-pricing.astro;
+// that page exports nothing importable (it's a route, not a module), so this
+// is a small parallel read of the same JSON rather than a duplicated scraper.
+type PricingRow = {
+  status: string;
+  hasFreeTier?: boolean | null;
+  currency?: string | null;
+  entryPaidPlan?: { monthlyBilledMonthly?: number | null; monthlyBilledAnnually?: number | null } | null;
+};
+const pricingIndex = pricingIndexRaw as unknown as { generatedAt: string; tools: PricingRow[] };
+const pricedTools = pricingIndex.tools.filter((r) => r.status === 'ok');
+const freeTierCount = pricedTools.filter((r) => r.hasFreeTier === true).length;
+const freeTierPct = Math.round((100 * freeTierCount) / pricedTools.length);
+const entryValues = pricedTools
+  .map((r) => r.entryPaidPlan?.monthlyBilledAnnually ?? r.entryPaidPlan?.monthlyBilledMonthly)
+  .filter((v): v is number => v != null)
+  .sort((a, b) => a - b);
+const medianEntry = entryValues.length
+  ? entryValues.length % 2 === 0
+    ? (entryValues[entryValues.length / 2 - 1] + entryValues[entryValues.length / 2]) / 2
+    : entryValues[(entryValues.length - 1) / 2]
+  : null;
+const fmtMoney = (n: number) => (Number.isInteger(n) ? `$${n}` : `$${n.toFixed(2)}`);
+
+const pricingStats = [
+  { number: String(pricedTools.length), label: 'Tools priced', description: "straight from the vendor's pricing page" },
+  { number: `${freeTierPct}%`, label: 'Have a free tier', description: `${freeTierCount} of ${pricedTools.length} priced tools` },
+  { number: medianEntry != null ? fmtMoney(medianEntry) : 'n/a', label: 'Median entry price', description: `across ${entryValues.length} tools with a published price` },
+  { number: 'CC BY 4.0', label: 'Licence', description: 'free to reuse, with attribution' },
+];
 ---
 
 <BaseLayout
@@ -175,29 +225,98 @@ const stripTools = tools.filter((t) => t.listed !== false);
     </div>
   </section>
 
-  <!-- Browse by topic -->
-  {topicTiles.length > 0 && (
-    <section class="section" style="border-top:1px solid var(--border);background:var(--bg-secondary);">
-      <div class="container--wide">
-        <p class="section-label">Find what you need</p>
-        <h2 class="section-heading">Browse by topic</h2>
-        <div class="topic-tiles">
-          {topicTiles.map(([tag, count]) => (
-            <a href={`/blog/?tag=${encodeURIComponent(tag)}`} class="topic-tile">
-              <span class="topic-tile-top">
-                <span class="topic-tile-name">{topicLabel(tag)}</span>
-                <span class="topic-tile-arrow" aria-hidden="true">&rarr;</span>
-              </span>
-              <span class="topic-tile-count">{count} article{count === 1 ? '' : 's'}</span>
-            </a>
-          ))}
+  <!-- Editorial sections by format -->
+  <section class="section section--divider">
+    <div class="container--wide">
+      {editorialSections.map((sec) => (
+        <div class="format-block">
+          <div class="format-block-head">
+            <div>
+              <h2 class="format-block-title">{sec.heading}</h2>
+              <p class="format-block-dek">{sec.dek}</p>
+            </div>
+            <a href={sec.href} class="format-block-viewall">View all &rarr;</a>
+          </div>
+          {sec.posts.length > 0 ? (
+            <div class="card-grid">
+              {sec.posts.map((post) => <PostCard post={post} />)}
+            </div>
+          ) : (
+            <p class="format-block-empty">More {sec.heading.toLowerCase()} on the way.</p>
+          )}
         </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Pricing-index band -->
+  <section class="section section--divider section--tinted">
+    <div class="container--wide">
+      <p class="section-label">The site's linkable asset</p>
+      <h2 class="section-heading">RevOps tool pricing, read from the vendor</h2>
+      <p class="format-block-dek">
+        {pricedTools.length} tools priced straight from their own pricing pages, published as a
+        dataset you can download and cite. Updated {pricingIndex.generatedAt}, rebuilt quarterly
+        (next ~2026-11-12).
+      </p>
+      <div class="stat-row" style={`--cols: ${pricingStats.length}`}>
+        {pricingStats.map((stat) => (
+          <div class="stat-card">
+            <div class="stat-card-number">{stat.number}</div>
+            <div class="stat-card-label">{stat.label}</div>
+            <div class="stat-card-description">{stat.description}</div>
+          </div>
+        ))}
       </div>
-    </section>
-  )}
+      <div class="mt-lg">
+        <a href="/revops-automation-pricing/" class="btn btn--ghost">View the full pricing index &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Start with your role -->
+  <section class="section section--divider">
+    <div class="container--wide">
+      <p class="section-label">Pick your lane</p>
+      <h2 class="section-heading">Start with your role</h2>
+      <ul class="role-list">
+        {audiences.map((a) => (
+          <li class="role-list-item">
+            <a href={`/teams/${a.slug}/`} class="role-list-link">
+              <span class="role-list-name">{a.navLabel}</span>
+              <span class="role-list-desc">{a.description}</span>
+              <span class="role-list-arrow" aria-hidden="true">&rarr;</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- From the author -->
+  <section class="section section--divider">
+    <div class="container--wide">
+      <div class="author-block">
+        <img
+          src="/images/ian-headshot.jpg"
+          alt="Ian Chamberland"
+          class="author-block-photo"
+          width="72"
+          height="88"
+          loading="lazy"
+        />
+        <p class="author-block-text">
+          I'm Ian Chamberland, and I write everything on this site myself, mostly from RevOps and
+          GTM stacks I have actually built or broken. Find me on
+          <a href="https://www.linkedin.com/in/ianchamberland/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          or read <a href="/about/">the full story</a>.
+        </p>
+      </div>
+    </div>
+  </section>
 
   <!-- Email Signup -->
-  <section id="newsletter" class="section" style="border-top:1px solid var(--border);scroll-margin-top:calc(var(--nav-h) + 1rem);">
+  <section id="newsletter" class="section section--divider section--anchor">
     <div class="container--wide">
       <EmailSignup />
     </div>

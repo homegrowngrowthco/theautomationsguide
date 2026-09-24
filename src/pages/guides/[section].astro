@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import ItemListSchema from '../../components/ItemListSchema.astro';
+import { sections, getSectionPosts, type Section } from '../../data/sections';
+
+export async function getStaticPaths() {
+  return sections.map((s) => ({ params: { section: s.slug }, props: { section: s } }));
+}
+
+interface Props {
+  section: Section;
+}
+
+const { section } = Astro.props;
+const posts = await getSectionPosts(section);
+---
+
+<BaseLayout title={section.title} description={section.description}>
+  <div class="container--wide">
+    <div class="page-header">
+      <p class="section-label">Guides by format</p>
+      <h1>{section.title}</h1>
+      <p>{section.description}</p>
+    </div>
+
+    <div class="prose guide-hub-intro">
+      {section.intro.map((para) => <p set:html={para} />)}
+    </div>
+
+    {posts.length > 0 ? (
+      <div class="card-grid">
+        {posts.map((post) => <PostCard post={post} />)}
+      </div>
+    ) : (
+      <div style="text-align:center;padding:5rem 0;color:var(--text-muted);">
+        <p style="font-size:1.125rem;">
+          New {section.navLabel.toLowerCase()} are on the way. <a href="/blog/">Browse all articles</a> in the meantime.
+        </p>
+      </div>
+    )}
+  </div>
+  <ItemListSchema name={section.title} items={posts.map((p) => ({ url: `/blog/${p.slug}/`, name: p.data.title }))} />
+</BaseLayout>

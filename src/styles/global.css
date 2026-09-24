@@ -627,88 +627,144 @@ main { flex: 1; }
   .logo-strip-track > .logo-strip-item[aria-hidden='true'] { display: none; }
 }
 
-/* ── Browse-by-topic tiles ─────────────────────── */
-.topic-tiles {
-  display: grid;
-  /* Fixed 4-column grid (4x2 for the current 8-topic set) rather than
-     auto-fill, which wrapped unevenly (6 tiles on one row, 2 orphaned on
-     the next) at desktop widths. */
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.1rem;
-  margin-top: 2rem;
-}
+/* ── Homepage section modifiers ────────────────────
+   DRY-up of former inline style= attributes on index.astro's <section>
+   elements (TODO L-10). Composable with the base .section class. */
+.section--divider { border-top: 1px solid var(--border); }
+.section--tinted { background: var(--bg-secondary); }
+.section--anchor { scroll-margin-top: calc(var(--nav-h) + 1rem); }
 
-@media (max-width: 860px) {
-  .topic-tiles { grid-template-columns: repeat(2, 1fr); }
-}
+/* ── Homepage: editorial sections by format ────────
+   Replaces the old machine-derived "Browse by topic" tag tiles. One
+   <section> wraps 3-4 format blocks (Migration guides / Tool vs tool /
+   Pricing breakdowns / Reviews) rather than repeating a full
+   eyebrow+H2+subtitle+grid template per format (that repetition was
+   itself one of the de-AI audit's tells). */
+.format-block + .format-block { margin-top: 3.5rem; }
 
-@media (max-width: 480px) {
-  .topic-tiles { grid-template-columns: 1fr; }
-}
-
-.topic-tile {
+.format-block-head {
   display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  /* Resting-state accent (same left-rule language as .key-takeaways /
-     .quick-answer elsewhere) so the tile reads as intentionally minimal
-     rather than an empty box — hover is a separate, additional cue, not
-     the only sign of life. */
-  border-left: 3px solid var(--accent-dim);
-  border-radius: var(--radius-lg);
-  padding: 1.35rem 1.5rem;
-  box-shadow: var(--shadow-sm);
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
-}
-
-.topic-tile:hover {
-  border-color: var(--accent-dim);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-  text-decoration: none;
-}
-
-.topic-tile:hover .topic-tile-arrow {
-  transform: translateX(3px);
-  color: var(--accent-text);
-}
-
-.topic-tile-top {
-  display: flex;
-  align-items: baseline;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
 }
 
-.topic-tile-name {
+.format-block-title {
+  font-family: var(--font-display, inherit);
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin: 0;
+}
+
+.format-block-dek {
+  color: var(--text-muted);
+  font-size: 0.98rem;
+  max-width: 60ch;
+  margin: 0.4rem 0 0;
+}
+
+.format-block-viewall {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent-text);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.format-block-empty {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ── Homepage: "Start with your role" ──────────────
+   Plain hairline-divider list, deliberately not a card grid or pill row
+   (see .topic-tile above for the pattern this is avoiding). */
+.role-list {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  border-top: 1px solid var(--border);
+}
+
+.role-list-item { border-bottom: 1px solid var(--border); }
+
+.role-list-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.role-list-link:hover { text-decoration: none; }
+.role-list-link:hover .role-list-name { color: var(--accent-text); }
+.role-list-link:hover .role-list-arrow { transform: translateX(3px); color: var(--accent-text); }
+
+.role-list-name {
   font-weight: 700;
   font-size: 1.05rem;
-  color: var(--text);
-  letter-spacing: -0.01em;
+  flex: 0 0 auto;
+  min-width: 11rem;
+  transition: color 0.2s;
 }
 
-.topic-tile-arrow {
+.role-list-desc {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  flex: 1;
+}
+
+.role-list-arrow {
   color: var(--accent-dim);
-  font-size: 1.1rem;
-  line-height: 1;
   flex-shrink: 0;
   transition: transform 0.2s, color 0.2s;
 }
 
-.topic-tile-count {
-  /* A pill instead of flat gray text — gives the tile a resting-state
-     touch of brand color and reads more like a clickable UI affordance
-     than a plain caption line. */
-  align-self: flex-start;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--accent-text);
-  background: var(--accent-glow);
-  padding: 0.3rem 0.65rem;
-  border-radius: 999px;
+@media (max-width: 640px) {
+  .role-list-link { flex-direction: column; align-items: flex-start; gap: 0.35rem; }
+  .role-list-name { min-width: 0; }
 }
+
+/* ── Homepage: "From the author" ───────────────────*/
+.author-block {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.author-block-photo {
+  width: 72px;
+  height: 88px;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.author-block-text {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text);
+  max-width: 62ch;
+}
+
+.author-block-text a {
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .author-block { flex-direction: column; align-items: flex-start; }
+}
+
+/* ── Guides hub pages (/guides/<section>/) ─────────*/
+.guide-hub-intro { margin: 0 0 2.5rem; }
 
 /* ── Buttons ───────────────────────────────────── */
 .btn {
