@@ -8,7 +8,15 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-09-24 (Session 94).
+Last updated 2026-09-25 (Session 95).
+
+## Session 95 (2026-09-25) — Beehiiv MCP checked: plan-gated; test-signup verified; cadence still unread
+
+- **Beehiiv MCP is visible now** (`mcp__claude_ai_beehiiv__*`). Reads work; writes do not: `save_post_template` and `learn_post_authoring` both return "not available on your current plan", so the plan is not paid and the 2 templates were NOT imported (README's HTML Snippet route is a Premium block too). Nothing was created. The publication's 2 existing templates are May-3 Beehiiv defaults. Ian must upgrade before that TODO can move.
+- **Test subscriber verified in Beehiiv:** active, `acquisition_source` = "embed: theautomationsguide.com / referral", so attribution reads the site correctly.
+- **No welcome email is expected:** `list_automations` = 0 for the publication. Not a delivery bug; TODO now asks whether to build one.
+- **Cadence round 2:** `gsc-search-analytics.py` ends 3 days back (data to 9/22), so no new full post-bump week exists yet. Weekly clicks 9/01-9/07 = 7, 9/08-9/14 = 20, 9/15-9/21 = 11; impressions 6,116 to 4,468 (-27%) with CTR near 0.25%. Not a clear dilution; re-pull ~10/02 for 9/22-9/28.
+- Verify: TODO.md diff (3 items rewritten), `npm run qa:docs` 0 hard. Revert: `git revert` the docs commit.
 
 ## Session 94 (2026-09-24) — PR #302 merged: homepage Phase 3 + Reviews/comparisons fix
 
