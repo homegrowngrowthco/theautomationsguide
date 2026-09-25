@@ -45,8 +45,9 @@ const entryDisplay = (r: Row) => {
 // index that quietly renders blanks as if they were zeroes is worse than no index.
 const filled = priced.filter((r) => r.entryPaidPlan?.monthlyBilledAnnually != null || r.entryPaidPlan?.monthlyBilledMonthly != null).length;
 
-const pageTitle = 'RevOps Automation Tool Pricing Index';
-const pageDesc = `Entry pricing, free tiers, and billing units for ${priced.length} RevOps and GTM automation tools, read from each vendor's own pricing page on ${data.generatedAt}. Every figure is cited.`;
+const totalVendors = rows.length;
+const pageTitle = `RevOps Tools Pricing Comparison: What ${priced.length} Tools Cost`;
+const pageDesc = `What RevOps and sales automation tools cost: entry price, free tier and billing unit for ${priced.length} of ${totalVendors} vendors, read from their own pricing pages on ${data.generatedAt}. Blanks, not guesses. CC BY 4.0.`;
 
 const datasetLd = {
   '@context': 'https://schema.org',
@@ -73,17 +74,18 @@ const datasetLd = {
   <section class="pi-hero">
     <div class="container--wide">
       <div class="hero-eyebrow">Open data &middot; Updated {data.generatedAt}</div>
-      <h1>RevOps automation tool pricing index</h1>
+      <h1>RevOps tools pricing comparison: what sales automation tools cost</h1>
       <p class="pi-lede">
-        What {priced.length} RevOps and GTM automation tools actually cost to start using, in one
-        table. Entry price, what the free tier gives you, and what you are billed per: seat,
-        flat, credits, or usage.
+        What RevOps and sales automation tools cost to start using, compared in one table: entry
+        price, what the free tier gives you, and what you are billed per (seat, flat, credits, or
+        usage). {priced.length} of {totalVendors} vendors are priced here, each read from its own
+        pricing page.
       </p>
       <p class="pi-sub">
         Every figure here was read from the vendor's own pricing page on {data.generatedAt}, and
         every row links to the exact page it came from. Where a vendor does not publish a number,
         the cell is blank on purpose. Nothing is estimated, and nothing is carried over from a
-        previous version of a vendor's pricing.
+        previous version of a vendor's pricing. The dataset is free to reuse under CC BY 4.0.
       </p>
       <div class="pi-actions">
         <a class="pi-btn" href="/data/revops-pricing-index.json" download>Download the raw JSON</a>

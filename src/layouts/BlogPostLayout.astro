@@ -5,6 +5,7 @@ import AuthorNote from '../components/AuthorNote.astro';
 import PostFaqs from '../components/post/PostFaqs.astro';
 import TableOfContents from '../components/post/TableOfContents.astro';
 import RelatedPosts from '../components/post/RelatedPosts.astro';
+import PricingIndexCallout from '../components/post/PricingIndexCallout.astro';
 import { tools, postMentionsTool } from '../data/tools';
 import { hasToc } from '../lib/post-toc';
 import type { CollectionEntry } from 'astro:content';
@@ -157,6 +158,8 @@ const faqSchema =
       <div class="prose">
         <slot />
       </div>
+
+      <PricingIndexCallout post={post} />
 
       {tags.length > 0 && (
         <div class="post-related-tags">
