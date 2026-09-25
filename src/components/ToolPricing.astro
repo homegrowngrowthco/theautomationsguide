@@ -1,0 +1,83 @@
+---
+// Compact per-tool pricing block for /tools/<slug>/ hubs. Renders only for rows
+// with status 'ok'. Uses only fields present in the index; null renders as
+// "not stated" or is omitted, never guessed. Plain markup, no schema.org claims.
+import { pricedRow, pricingReadDate, money } from '../lib/pricing-index';
+
+interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+const r = pricedRow(slug);
+const p = r?.entryPaidPlan;
+const annual = p ? money(p.monthlyBilledAnnually, r?.currency) : null;
+const monthly = p ? money(p.monthlyBilledMonthly, r?.currency) : null;
+const hasPrice = !!(annual || monthly);
+---
+
+{r && (
+  <section class="tool-pricing" aria-labelledby="tool-pricing-title">
+    <h2 id="tool-pricing-title" class="tool-pricing-title">Pricing (read {pricingReadDate})</h2>
+    <dl class="tool-pricing-list">
+      <div>
+        <dt>Entry paid plan</dt>
+        <dd>
+          {hasPrice ? (
+            <>
+              {p?.name ? `${p.name}: ` : ''}
+              {annual && <>{annual}/mo billed annually</>}
+              {annual && monthly && ', '}
+              {monthly && <>{monthly}/mo billed monthly</>}
+              {p?.unitIncluded && <> (includes {p.unitIncluded})</>}
+            </>
+          ) : 'not stated'}
+        </dd>
+      </div>
+      <div>
+        <dt>Free tier</dt>
+        <dd>
+          {r.hasFreeTier === true
+            ? `Yes${r.freeTierLimit ? `: ${r.freeTierLimit}` : ''}`
+            : r.hasFreeTier === false ? 'No' : 'not stated'}
+        </dd>
+      </div>
+      <div>
+        <dt>Billed per</dt>
+        <dd>{r.pricingUnit || 'not stated'}</dd>
+      </div>
+    </dl>
+    <p class="tool-pricing-links">
+      {r.sourceUrl && <><a href={r.sourceUrl} rel="nofollow noopener" target="_blank">Vendor pricing page</a> &middot; </>}
+      <a href="/revops-automation-pricing/">Compare against all tools in the pricing index</a>
+    </p>
+  </section>
+)}
+
+<style>
+  .tool-pricing {
+    margin: 0 0 2rem;
+    padding: 1rem 1.25rem;
+    max-width: 70ch;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    overflow-wrap: anywhere;
+  }
+  .tool-pricing-title {
+    font-size: 1.1rem;
+    margin: 0 0 0.6rem;
+  }
+  .tool-pricing-list { margin: 0; }
+  .tool-pricing-list > div {
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    gap: 0.5rem;
+    padding: 0.3rem 0;
+  }
+  .tool-pricing-list dt { color: var(--text-muted); font-size: 0.9rem; }
+  .tool-pricing-list dd { margin: 0; }
+  .tool-pricing-links { margin: 0.6rem 0 0; font-size: 0.9rem; }
+  @media (max-width: 480px) {
+    .tool-pricing-list > div { grid-template-columns: 1fr; gap: 0; }
+  }
+</style>

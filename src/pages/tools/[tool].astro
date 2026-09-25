@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { tools, postMentionsTool } from '../../data/tools';
+import ToolPricing from '../../components/ToolPricing.astro';
 
 export async function getStaticPaths() {
   const allPosts = await getCollection('blog', ({ data }) => !data.draft);
@@ -76,6 +77,8 @@ const softwareSchema = {
         ))}
       </div>
     )}
+
+    <ToolPricing slug={tool.slug} />
 
     <!-- Articles mentioning this tool -->
     <h2 class="section-heading" style="margin-bottom:1.5rem;">

@@ -1,0 +1,51 @@
+---
+// Small, quiet pointer from a post to the pricing index. Rendered by the post layout
+// so no post body is edited. Tool-aware only in the honest sense: it counts the tools
+// this post mentions that have a priced row (status 'ok'); it quotes no figures.
+import { tools, postMentionsTool } from '../../data/tools';
+import { pricedRow, pricingReadDate, pricingTotalVendors, pricingPricedCount } from '../../lib/pricing-index';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+const { post } = Astro.props;
+const priced = tools.filter((t) => postMentionsTool(t, post) && pricedRow(t.slug)).length;
+---
+
+<aside class="pricing-callout" aria-labelledby="pricing-callout-title">
+  <p id="pricing-callout-title" class="pricing-callout-title">Comparing what these tools cost?</p>
+  <p class="pricing-callout-text">
+    {priced > 0
+      ? `${priced === 1 ? '1 tool' : `${priced} tools`} mentioned here ${priced === 1 ? 'has' : 'have'} a row in our pricing index. `
+      : ''}
+    The <a href="/revops-automation-pricing/">RevOps tools pricing comparison</a> reads {pricingPricedCount} of
+    {pricingTotalVendors} vendors' own pricing pages, shows the date each was read, and leaves a cell
+    blank when the vendor does not publish the number (read {pricingReadDate}).
+  </p>
+</aside>
+
+<style>
+  .pricing-callout {
+    margin: 2rem 0;
+    padding: 1rem 1.25rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0.5rem;
+    overflow-wrap: anywhere;
+  }
+  .pricing-callout-title {
+    margin: 0 0 0.35rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .pricing-callout-text {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+  }
+  .pricing-callout-text a {
+    color: var(--accent-text);
+  }
+</style>
