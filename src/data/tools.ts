@@ -2706,7 +2706,7 @@ export const tools: Tool[] = [
     badge: 'Paid',
     ctaLabel: 'Try UpLead',
     ctaPrimary: true,
-    listed: false,
+    listed: true,
     aliases: ['UpLead', 'uplead.com'],
     blurb:
       'UpLead is a B2B contact database with a real-time verification guarantee: it checks emails at the point of export and refunds credits for bad data, its main pitch against cheaper, staler databases. Positioned as a budget-conscious alternative to ZoomInfo for teams that mainly need accurate contact data.',
@@ -2734,7 +2734,7 @@ export const tools: Tool[] = [
     badge: 'Paid',
     ctaLabel: 'Try Woodpecker',
     ctaPrimary: true,
-    listed: false,
+    listed: true,
     aliases: ['Woodpecker', 'Woodpecker.co', 'woodpecker.co'],
     blurb:
       'Woodpecker is a cold email tool built around per-prospect pricing (roughly $7 per 100 contacted) instead of per-seat or per-inbox pricing, which keeps it cheap for small teams and freelancers running lean outbound. Positioned squarely against Instantly and Smartlead for solo operators and small agencies rather than high-volume senders.',
@@ -2748,7 +2748,7 @@ export const tools: Tool[] = [
     badge: 'Paid',
     ctaLabel: 'Try SmartReach',
     ctaPrimary: true,
-    listed: false,
+    listed: true,
     aliases: ['SmartReach', 'SmartReach.io', 'smartreach.io'],
     blurb:
       'SmartReach is a multichannel sales engagement platform combining cold email, LinkedIn, and calling sequences with built-in deliverability tools, positioned as an affordable option for agencies managing outbound on behalf of multiple clients. It comes up in cold-email roundups as a budget-friendly option next to Instantly and Smartlead.',
