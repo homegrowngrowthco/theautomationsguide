@@ -55,3 +55,6 @@ analytics/posthog-insights.json
 
 # QA breadcrumb (unresolved tools list for the failure ping)
 qa-unresolved-tools.txt
+
+# Vendor-supplied partner brand kits (local reference only; licence to redistribute unknown)
+brand-kit/partners/
