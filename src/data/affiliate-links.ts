@@ -997,10 +997,10 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   },
   uplead: {
     name: 'UpLead',
-    url: '',
+    url: 'https://www.uplead.com?fp_ref=ian-6d671e',
     homepageFallback: 'https://www.uplead.com/',
-    status: 'pending',
-    notes: 'Real program confirmed 2026-09-16: affiliates.uplead.com, 20% recurring commission, $50 min payout via PayPal. Not yet applied.',
+    status: 'live',
+    notes: 'Approved 2026-09-25 (affiliates.uplead.com, 20% recurring commission, $50 min payout via PayPal).',
   },
   lead411: {
     name: 'Lead411',
@@ -1011,17 +1011,17 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   },
   woodpecker: {
     name: 'Woodpecker',
-    url: '',
+    url: 'https://woodpecker.co/?red=theautceb494',
     homepageFallback: 'https://woodpecker.co/',
-    status: 'pending',
-    notes: 'Real program confirmed 2026-09-16: woodpecker.co/partner-program/referral/, 20% recurring monthly commission. Not yet applied.',
+    status: 'live',
+    notes: 'Approved 2026-09-25 (woodpecker.co/partner-program/referral/, 20% recurring monthly commission).',
   },
   smartreach: {
     name: 'SmartReach',
-    url: '',
+    url: 'https://smartreach.io?fpr=tag',
     homepageFallback: 'https://smartreach.io/',
-    status: 'pending',
-    notes: 'Real program confirmed 2026-09-16: refer.smartreach.io, up to 40% recurring commission for 12 months. Not yet applied.',
+    status: 'live',
+    notes: 'Approved 2026-09-25 (refer.smartreach.io, up to 40% recurring commission for 12 months).',
   },
   kixie: {
     name: 'Kixie',
