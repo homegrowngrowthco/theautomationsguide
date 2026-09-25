@@ -16,7 +16,10 @@ Last updated 2026-09-25 (Session 95).
 - **Test subscriber verified in Beehiiv:** active, `acquisition_source` = "embed: theautomationsguide.com / referral", so attribution reads the site correctly.
 - **No welcome email is expected:** `list_automations` = 0 for the publication. Not a delivery bug; TODO now asks whether to build one.
 - **Cadence round 2:** `gsc-search-analytics.py` ends 3 days back (data to 9/22), so no new full post-bump week exists yet. Weekly clicks 9/01-9/07 = 7, 9/08-9/14 = 20, 9/15-9/21 = 11; impressions 6,116 to 4,468 (-27%) with CTR near 0.25%. Not a clear dilution; re-pull ~10/02 for 9/22-9/28.
-- Verify: TODO.md diff (3 items rewritten), `npm run qa:docs` 0 hard. Revert: `git revert` the docs commit.
+- **Pricing index diagnosis (Ian: "pricing isn't getting traction"):** the page had 226 GSC impressions/90d, 0 clicks, pos 7.8 on junk long-tail queries only; 7 pageviews/60d (site total 690 pageviews, 527 visitors); zero posts linked to it. Shipped PR #305 (`cf603e5`): post-layout callout, per-tool pricing rows on `/tools/<slug>/`, retitle to "RevOps Tools Pricing Comparison". Findings-led pitches in `pricing/PITCH-ANGLES-2026-09-25.md` (stats computed from the JSON, dated 8/12). Ian sends; nothing sent yet.
+- **Affiliates:** researched 33 verified programs (4 category agents, each checked on the vendor's own signup page); tracker is a private Artifact ("Affiliate desk", link in TODO). Ian approved SmartReach, Woodpecker, UpLead; PR #306 (`d31119f`) registered them live, `/go/` redirects confirmed on the live site. Woodpecker brand kit stored at `brand-kit/partners/woodpecker/`, gitignored on purpose (public repo, unknown redistribution terms).
+- **Gotchas:** APPLICATIONS.md standard answers were stale and would have claimed a live newsletter (none sent) to programs that spot-check traffic. PII pre-commit hook blocks role inboxes in docs too; point at the source file instead. `gsc-search-analytics.py` ends 3 days back, so a "full week" needs 10 days of lag.
+- Verify: `gh pr view 305/306` MERGED; `curl` of the three `/go/` pages shows the exact tracked URLs. Revert: `git revert` d31119f / cf603e5.
 
 ## Session 94 (2026-09-24) — PR #302 merged: homepage Phase 3 + Reviews/comparisons fix
 
