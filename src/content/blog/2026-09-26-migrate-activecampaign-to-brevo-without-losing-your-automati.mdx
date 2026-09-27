@@ -1,0 +1,199 @@
+---
+title: "Migrate ActiveCampaign to Brevo Without Losing Your Automations"
+description: "Step-by-step guide to migrating from ActiveCampaign to Brevo: export contacts, rebuild automations, preserve deliverability, and avoid the common gotchas."
+tldr: "You can migrate from ActiveCampaign to Brevo in a weekend if you export your contacts and segments first, rebuild automations natively in Brevo, and re-verify your sending domain before you flip the switch."
+pubDate: 2026-09-26
+tags: ["guide", "automation", "email-marketing"]
+faqs:
+  - question: "Can Brevo import ActiveCampaign automations directly?"
+    answer: "No. Brevo has no native ActiveCampaign importer for automation workflows. You must rebuild them manually using Brevo's Automation builder, which covers most common triggers and actions."
+  - question: "Does Brevo have contact tagging like ActiveCampaign?"
+    answer: "Brevo uses a combination of lists, segments, and custom attributes instead of tags. You can replicate AC tag logic with custom contact attributes and dynamic segment conditions."
+  - question: "Will my ActiveCampaign open and click history transfer to Brevo?"
+    answer: "No. Engagement history stays in ActiveCampaign. Export a CSV of engaged contacts before you cancel so you can build re-engagement segments in Brevo from day one."
+  - question: "How long does migrating from ActiveCampaign to Brevo take?"
+    answer: "A simple list with a few automations takes one to two days. A full migration with 10-plus automations, custom fields, and active sequences realistically takes one to two weeks."
+  - question: "Is Brevo cheaper than ActiveCampaign for small lists?"
+    answer: "Usually yes. Brevo's free tier allows up to 300 emails per day and unlimited contacts, while ActiveCampaign charges by contact count starting at 1,000 contacts."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The trigger is almost always pricing. You hit the next contact-count tier in ActiveCampaign and suddenly you are paying $229/month for a list that converts at the same rate it did when you were on the $49 plan. [Brevo](/go/brevo/) charges by email volume, not contact count, which flips the math entirely for teams sitting on large, segmented lists they do not email every week. The migration itself is not technically hard. It is unforgiving if you skip the prep. Blow your DNS setup, import unengaged contacts, or flip the switch before you rebuild your critical automations and you will crater your deliverability for months.
+
+<KeyTakeaways items={[
+  "Brevo has no automation importer. Every AC workflow gets rebuilt by hand, but the core triggers are all there.",
+  "You gain unlimited contacts and pay per email send. For lists above 10k with irregular cadences, the savings are real.",
+  "Engagement history does not transfer. Export a segmented CSV of your active openers before you cancel ActiveCampaign.",
+  "DNS re-verification is the single most skipped step. Do it before your first send or you inherit cold sender reputation.",
+]} />
+
+<StatRow stats={[
+  { number: "300/day", label: "Free tier sends", description: "Brevo's free plan supports unlimited contacts with 300 emails per day, no contact-count cap." },
+  { number: "~40%", label: "Typical savings", description: "Teams with 25k+ contacts and sub-weekly send cadence typically cut their ESP bill by 35-45% switching from AC." },
+  { number: "2 weeks", label: "Realistic migration window", description: "Full migration including automation rebuilds, DNS propagation, and a warm-up period before canceling AC." },
+]} />
+
+## Before you migrate
+
+Do not touch the Brevo account until this checklist is done inside ActiveCampaign. I have watched teams skip the export step, cancel their AC subscription, and then realize the engagement data they needed to build suppression lists was gone. That data does not come back.
+
+- **Export all contacts with custom fields.** Go to Contacts > Export and include every custom field column. Map these field names before import because Brevo will not auto-match them.
+- **Export by engagement segment.** Create three exports: opened in last 90 days, opened in 91-180 days, never opened. You will import these into separate Brevo lists so you can treat them differently on warm-up.
+- **Screenshot every automation.** There is no XML or JSON export from ActiveCampaign that Brevo reads. Screenshots are your rebuild spec. For complex automations, write out the trigger, condition, and action in plain text in a doc.
+- **List your active sequences.** Note which contacts are mid-sequence. Pause those sequences in AC before you migrate or they will keep firing from the old platform while you are standing up the new one.
+- **Verify your sending domain DNS.** You will need to add Brevo's SPF, DKIM, and DMARC records. Pull your current DNS config from your registrar before you start so you have a before/after reference.
+- **Record your current deliverability baseline.** Pull your last 90-day open rate, bounce rate, and spam complaint rate from ActiveCampaign reports. You need this to compare against your first 30 days on Brevo.
+
+<StepRow steps={[
+  {
+    title: "Create your Brevo account and verify your sending domain",
+    body: "Sign up at Brevo and navigate to Settings > Senders and IP > Domains. Add your sending domain and copy the three DNS records Brevo provides: SPF (TXT), DKIM (TXT), and DMARC (TXT). Add them at your DNS registrar. Propagation takes up to 48 hours. Do not send a single email from Brevo until all three show green in the Brevo dashboard. This is the step most teams skip and then spend two months wondering why their open rates dropped."
+  },
+  {
+    title: "Build your contact lists and custom attributes in Brevo first",
+    body: "Before importing a single contact, go to Contacts > Settings > Contact Attributes and recreate every custom field from ActiveCampaign. Brevo calls them 'contact attributes' and supports text, number, date, and boolean types. Create your lists (Engaged 90d, Engaged 180d, Unengaged, Suppressed) so the import process can slot contacts directly into the right bucket. Trying to reorganize after import is painful."
+  },
+  {
+    title: "Import contacts in engagement-tier batches",
+    body: "Import your 90-day openers first. Use Contacts > Import > CSV and map each column to the Brevo attribute you created. Set list assignment during import, not after. Import the 180-day openers next. Hold the never-opened segment in reserve until you have established sender reputation on Brevo. Importing cold contacts on day one is the fastest way to spike your bounce and complaint rates on a domain Brevo's infrastructure does not yet trust."
+  },
+  {
+    title: "Rebuild your automations in Brevo's Automation builder",
+    body: "Navigate to Automation > Create a workflow. Brevo supports the core triggers you used in ActiveCampaign: contact added to list, form submitted, email opened or clicked, date-based, and webhook. Work from your screenshots and rebuild one automation at a time. Test each with a seed contact before activating. The logic is comparable for single-path flows. Multi-branch conditional automations require more care: Brevo's 'If/Else' condition block exists but is less visual than AC's drag-and-drop branching. Give yourself extra time for any automation with three or more condition branches."
+  },
+  {
+    title: "Set up your transactional email and API integrations",
+    body: "If you use ActiveCampaign for transactional email, swap your SMTP credentials or API calls to Brevo's transactional API. Brevo's SMTP and API documentation (https://developers.brevo.com/docs/send-an-email) is solid. Update the API key in every integration point: your CMS, your checkout tool, your CRM sync. For teams using n8n or Zapier to connect ActiveCampaign to other tools, swap the AC node for the Brevo node and re-authenticate. Most [n8n](/tools/n8n/) Brevo nodes map 1:1 with the ActiveCampaign equivalents for basic contact and email operations."
+  },
+  {
+    title: "Run a parallel warm-up period, then cancel ActiveCampaign",
+    body: "Keep ActiveCampaign active for at least two weeks while Brevo runs live. Send your regular campaigns from Brevo to the engaged segment only. Monitor open rates, bounce rates, and spam complaints daily in Brevo's reports. Once Brevo's metrics match or beat your AC baseline, pause all AC automations, export a final contact sync to catch any new subscribers, and then cancel your ActiveCampaign subscription. Do not cancel before the parallel window closes."
+  },
+]} />
+
+## What breaks and what does not transfer
+
+The automation logic is the biggest rebuild effort. But three other things consistently catch teams off-guard, and I want to name them before you hit them at 11pm on a Sunday.
+
+**Tags become attributes and segments.** ActiveCampaign's tag system is flexible and often overloaded: teams use tags for behavior, lifecycle stage, product interest, and source attribution all at once. Brevo has no native tag object. The cleanest translation is to create a multi-value text attribute (or separate boolean attributes) for each tag category, then use Brevo's dynamic segments to replicate the filtering. It is more structured and actually cleaner long-term. The initial mapping takes time, though. Budget a full day for this if you have more than 20 distinct tags.
+
+**Deal pipelines do not migrate.** If you use ActiveCampaign's built-in CRM, there is no export-import path to Brevo. Brevo has no deal pipeline feature. Teams that relied on AC's CRM either need a separate tool (I would point you toward [Pipedrive](/tools/pipedrive/) for field sales or [Close](/tools/close/) for high-velocity inside sales) or accept that this layer lives elsewhere.
+
+**Lead scoring does not transfer.** AC's lead scoring is proprietary. You can approximate it in Brevo using automation-triggered attribute updates (add 10 to a "score" attribute on click, subtract 5 on no-open after 30 days), but there is no one-click port. For most teams migrating for cost reasons, this tradeoff is worth it. If lead scoring is central to your sales handoff process, stay on AC.
+
+<SideBySide>
+  <Fragment slot="left">
+    **Gotcha: ActiveCampaign's "Wait until condition" logic**
+
+    AC automations let you pause a contact in a wait step until a specific condition is met, like "wait until contact has tag X" or "wait until deal stage changes." Brevo's wait steps are time-based only. If your automations rely on conditional waits, you need to rethink the trigger architecture, often splitting one automation into two with a list-add as the handoff.
+  </Fragment>
+  <Fragment slot="right">
+    ```
+    AC conditional wait (no direct equivalent):
+    → Wait until: Contact Tag = "Qualified"
+
+    Brevo equivalent pattern:
+    Automation 1:
+      Trigger: Form submitted
+      Action: Add to list "Pending Qualification"
+      [ends here]
+
+    Automation 2:
+      Trigger: Contact added to list "Qualified"
+      Action: Send email sequence
+    ```
+  </Fragment>
+</SideBySide>
+
+## Verify it worked
+
+Before you cancel ActiveCampaign, run these four checks. All four. In order.
+
+1. **DNS health check.** In Brevo Settings > Domains, all three records (SPF, DKIM, DMARC) show verified. Cross-check with [MXToolbox](https://mxtoolbox.com/) for an independent read.
+2. **Test automation fires.** Add a seed contact to each rebuilt automation and confirm the correct emails send in the correct order with the correct delays. Check that conditional branches route correctly.
+3. **Deliverability baseline.** After your first two campaign sends on Brevo, your open rate should be within 5 percentage points of your AC baseline. If it drops more than that, pause and audit your list hygiene before sending further. Poor [cold email deliverability](/blog/2026-09-25-cold-email-deliverability-audit-fix-flagged-sequences/) signals early in a new ESP relationship compound fast.
+4. **Unsubscribe sync.** Confirm that unsubscribes captured in Brevo are reflected if you are still running AC in parallel. Import a fresh unsubscribe export from AC into Brevo's suppression list before you send campaign two.
+
+<ChooseIf title="Should you switch, or stay put?" tools={[
+  {
+    name: "Switch to Brevo",
+    conditions: [
+      "Your ActiveCampaign bill is driven by contact count, not send volume",
+      "You have a large list you email infrequently or to small segments",
+      "You do not rely on AC's built-in CRM or lead scoring features"
+    ],
+    pricing: "Free up to 300/day; Starter from $9/mo",
+    affiliateSlug: "brevo",
+    ctaLabel: "Try Brevo",
+    highlight: true
+  },
+  {
+    name: "Stay on ActiveCampaign",
+    conditions: [
+      "Your automations use conditional wait steps or deep branching logic",
+      "You actively use AC's built-in deal pipeline and contact scoring",
+      "Your list is under 5k and you send high-frequency campaigns"
+    ],
+    pricing: "Lite from $39/mo (1k contacts)",
+    affiliateSlug: "activecampaign",
+    ctaLabel: "Check ActiveCampaign"
+  },
+  {
+    name: "Consider GetResponse",
+    conditions: [
+      "You want a visual automation builder closer to AC's style",
+      "You need webinar or landing page features bundled in",
+      "You are coming from Automizy or a simpler tool and want more without the AC price jump"
+    ],
+    pricing: "Free tier available; Email from $19/mo",
+    affiliateSlug: "getresponse",
+    ctaLabel: "Try GetResponse"
+  },
+  {
+    name: "Consider Mailchimp",
+    conditions: [
+      "Your automations are simple (welcome series, abandoned cart)",
+      "You prioritize template design and ease of use over automation depth",
+      "You are a solo operator or small team with no dedicated RevOps support"
+    ],
+    pricing: "Free up to 500 contacts; Essentials from $13/mo",
+    affiliateSlug: "mailchimp",
+    ctaLabel: "Try Mailchimp"
+  }
+]} />
+
+<MyTake>
+The "Brevo is only for transactional email" reputation is stale. My testing over the past year puts Brevo's automation builder in genuinely capable territory for lifecycle marketing, and the contact-unlimited pricing model is a structural advantage that compounds as your list grows. Where Brevo still lags is anything CRM-adjacent. If your team lives in automation canvas views and relies on visual branching, you will find Brevo a step down in usability compared to ActiveCampaign, even when the underlying logic is equivalent. That gap is real. For most list-heavy, low-frequency senders, it is not a dealbreaker.
+</MyTake>
+
+## The migration is worth the weekend
+
+The actual work is not exciting: exports, DNS records, attribute mapping, automation screenshots. But the math on Brevo's pricing model is hard to argue with once your list crosses 15,000 to 20,000 contacts. Do the prep work cleanly, run the parallel period honestly, and you land on a platform that stops penalizing you for list size. If you are also evaluating tools for outbound sequences alongside your marketing automation, read the [reply.io vs. Lemlist comparison](/blog/2026-09-21-replyio-vs-lemlist-sequences-deliverability-in-2026/) separately. That is a different problem than what Brevo solves.
+
+<BottomLine
+  verdict="Brevo is the right move for contact-heavy lists where send frequency is moderate. The migration requires manual automation rebuilds but nothing that a RevOps operator cannot knock out in a focused sprint."
+  pick="Brevo"
+  affiliateSlug="brevo"
+  ctaLabel="Try Brevo"
+/>
+
+<Sources sources={[
+  { label: "Brevo: Sending domain authentication setup", url: "https://help.brevo.com/hc/en-us/articles/209577585-Authenticate-your-email-domain-with-Brevo" },
+  { label: "Brevo Developers: Send transactional email API", url: "https://developers.brevo.com/docs/send-an-email" },
+  { label: "ActiveCampaign: Contact export documentation", url: "https://help.activecampaign.com/hc/en-us/articles/221542507-How-to-export-contacts" },
+  { label: "MXToolbox: Email header and DNS analyzer", url: "https://mxtoolbox.com/" },
+]} />
