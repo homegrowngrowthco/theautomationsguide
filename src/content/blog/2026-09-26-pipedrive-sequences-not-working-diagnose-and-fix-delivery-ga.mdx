@@ -1,0 +1,227 @@
+---
+title: "Pipedrive Sequences Not Working: Diagnose and Fix Delivery Gaps"
+description: "Pipedrive sequences going silent? Learn the real causes of delivery failures and when to migrate to HubSpot, Reply.io, or Smartlead instead."
+tldr: "Pipedrive sequence delivery failures usually trace to one of four root causes: sender authentication gaps, daily sending limits, enrollment filter bugs, or missing email client permissions, and each has a specific fix before you consider migrating."
+pubDate: 2026-09-26
+tags: ["revops", "automation", "email-sequences"]
+faqs:
+  - question: "Why are my Pipedrive sequences not sending?"
+    answer: "The most common causes are hitting Pipedrive's daily email limits, broken DKIM/SPF authentication, or the sequence enrollment conditions filtering out contacts before they enroll. Check your email settings and sending logs first."
+  - question: "Does Pipedrive have email deliverability tools?"
+    answer: "No. Pipedrive has no inbox warming, deliverability scoring, or bounce-rate visibility built in. You need to manage domain health externally via tools like Mailreach or Google Postmaster Tools."
+  - question: "What is the daily email sending limit in Pipedrive sequences?"
+    answer: "Pipedrive caps automated email sends depending on your connected provider. Gmail caps at 500 emails per day total across all sends; Google Workspace accounts get up to 2,000. Pipedrive itself does not publish a separate sequences cap."
+  - question: "Can n8n replace Pipedrive sequences?"
+    answer: "Yes, but it requires building the sequence logic yourself. n8n can poll Pipedrive deal stages, trigger timed email steps via SMTP or Smartlead, and log activity back to Pipedrive, giving you more control than native sequences."
+  - question: "When should I migrate from Pipedrive to HubSpot for sequences?"
+    answer: "Migrate when your team needs built-in deliverability visibility, multi-channel steps, or sequence analytics beyond open and click rates. If you only need basic email follow-up, fixing Pipedrive's settings is faster than switching."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+You enroll 200 contacts into a [Pipedrive](/go/pipedrive/) sequence on Monday. By Friday, your sent count is 23. No errors surface in the UI. The sequence shows "active." Nothing in the activity log explains why 177 contacts are just sitting there. I've seen this exact scenario more times than I'd like to admit, and the silence is the hardest part. Pipedrive doesn't tell you it stopped. It just quietly stops.
+
+This post is a symptom-first diagnostic. We'll work through the four most common failure modes, with specific fixes for each. And if the root cause turns out to be a platform ceiling rather than a configuration error, I'll be direct about when it's time to look at alternatives.
+
+<KeyTakeaways items={[
+  "Pipedrive sequences fail silently. There is no native alert when sends drop to zero.",
+  "The four culprits: sender auth failures, Gmail/Workspace daily limits, enrollment filter bugs, and missing OAuth scope for your connected mailbox.",
+  "Pipedrive has zero built-in deliverability tooling. Domain health is entirely your problem to manage externally.",
+  "n8n can bridge most gaps short-term, but persistent deliverability problems are a platform signal, not a config problem.",
+  "HubSpot, Reply.io, and Smartlead each solve a different slice of what Pipedrive sequences cannot."
+]} />
+
+## The Four Failure Modes (and How to Confirm Each)
+
+Before touching any setting, pull your sequence activity log. In Pipedrive, go to Activities > Email and filter by the sequence name and the last 7 days. If you see zero sent emails but the sequence is active, you have a systemic block, not a contact-level skip.
+
+<StatRow stats={[
+  { number: "500", label: "Gmail daily send cap", description: "Free Gmail accounts hit this ceiling across all sends, manual and automated combined, before Pipedrive sequences stall." },
+  { number: "0", label: "Native deliverability alerts", description: "Pipedrive emits no notification when sequence sending drops to zero due to auth failure or limit breach." },
+  { number: "~15%", label: "Avg open rate drop from broken SPF", description: "Sequences sent from domains without valid SPF/DKIM records see open rates collapse before the domain gets flagged entirely." }
+]} />
+
+### Failure Mode 1: Sender Authentication is Broken
+
+This is the silent killer. Your emails are sending from Pipedrive's perspective, but Gmail and Outlook are rejecting or junking them on arrival. Check your domain's SPF, DKIM, and DMARC records using [MXToolbox's email header analyzer](https://mxtoolbox.com/EmailHeaders.aspx). If DKIM is failing, your connected email provider (Google Workspace, Outlook 365) needs to re-authorize Pipedrive.
+
+The fix: disconnect and reconnect your mailbox under Settings > Email Sync. If you rotated your Google Workspace password or revoked app permissions recently, the OAuth token is dead and Pipedrive will not tell you.
+
+### Failure Mode 2: Daily Sending Limits
+
+Gmail free accounts cap at 500 total outbound emails per day. Google Workspace caps at 2,000. Pipedrive draws from that same pool whether the send is manual or automated. If your reps are sending bulk manual emails on top of sequences, you may be hitting the ceiling before noon.
+
+The short-term fix: stagger your sequence send times across multiple connected mailboxes. The real fix is dedicated sending infrastructure, which Pipedrive does not provide. This is where tools like [Smartlead](/go/smartlead/) earn their keep. Rotating mailboxes with built-in warm-up is something Pipedrive simply was not designed to do.
+
+### Failure Mode 3: Enrollment Filter Bugs
+
+Pipedrive sequences use deal or contact conditions to enroll records. I've seen enrollment conditions that look correct but silently exclude almost everyone because of a label mismatch: a trailing space in a tag value, a pipeline stage that was renamed while the filter still references the old name, or an "and" condition that should be "or."
+
+Test this by manually enrolling a single contact you know should qualify. If manual enrollment works but automatic does not, the condition logic is the problem. Rebuild the filter from scratch rather than editing the existing one. Pipedrive's condition editor has a known quirk where edited filters do not always save the updated logic reliably. This ties into broader [Pipedrive automation bugs worth auditing](/blog/2026-09-23-pipedrive-automations-are-leaking-deals-audit-and-fix-the-ga/).
+
+### Failure Mode 4: Missing OAuth Scope on the Connected Mailbox
+
+When you connect a mailbox to Pipedrive, it requests specific scopes from Google or Microsoft. If an admin later restricts app permissions, or you connected before Pipedrive added the "send on behalf of" scope, sequences queue but never fire.
+
+Confirm this by going to Settings > Email Sync > Connected accounts and checking the last-sync timestamp. If it is more than 24 hours stale on an account that should be active, the token is broken.
+
+<Figure class="post-screenshot" caption="Pipedrive pipeline view showing deal stages where sequence enrollment conditions are commonly misconfigured.">
+  <a href="/go/pipedrive/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/pipedrive-pipeline.png" alt="Pipedrive pipeline view with deal stages" loading="lazy" />
+  </a>
+</Figure>
+
+## The Diagnostic Workflow
+
+<StepRow steps={[
+  {
+    title: "Pull the activity log first",
+    body: "Filter Activities > Email by sequence name and last 7 days. Count actual sends vs. expected sends. If the gap is more than 20%, you have a systemic issue, not a contact skip."
+  },
+  {
+    title: "Validate sender auth externally",
+    body: "Use MXToolbox or Google Postmaster Tools to check SPF, DKIM, and DMARC status for your sending domain. A soft DKIM fail will tank open rates 2-3 days before sequences fully stop sending."
+  },
+  {
+    title: "Check your daily send ceiling",
+    body: "In Google Workspace Admin, navigate to Reports > Email Log Search and look at total outbound volume per sender. If any rep's address is hitting 1,800+ on a 2,000-cap Workspace account, that is your bottleneck."
+  },
+  {
+    title: "Test enrollment conditions with a manual enroll",
+    body: "Pick one contact that should qualify for the sequence. Manually enroll them. If they progress, your automation trigger or enrollment filter has a condition bug. Rebuild the filter from scratch."
+  },
+  {
+    title: "Reconnect the mailbox and re-grant OAuth",
+    body: "Disconnect the affected mailbox under Settings > Email Sync. Reconnect it and walk through the full Google or Microsoft permission grant. Check the last-sync timestamp after 30 minutes to confirm the token is live."
+  },
+  {
+    title: "Monitor for 48 hours before adding contacts",
+    body: "After fixing, do not re-enroll the full 200 contacts immediately. Add 10-20 contacts, confirm sends are firing in the activity log, then scale back up. Batch re-enrollment after an auth fix can trigger a spam flag."
+  }
+]} />
+
+## The Deliverability Problem Pipedrive Cannot Solve
+
+Here is where I have to be direct. Fix all four failure modes and sequences are still underperforming on opens and replies? You have a deliverability problem that Pipedrive is structurally unable to help you diagnose. There is no bounce-rate dashboard. No inbox placement score. No warm-up tooling. You are flying blind.
+
+For deliverability visibility, the fastest path is to run your sequences through a dedicated tool and keep Pipedrive as your CRM. This is also a good time to run a full [cold email deliverability audit](/blog/2026-09-25-cold-email-deliverability-audit-fix-flagged-sequences/) if you have not done one recently.
+
+<SideBySide>
+  <Fragment slot="left">
+**The trap most teams fall into:** They fix the OAuth token, see sends resume, and assume the problem is solved. Two weeks later, open rates are at 8% because the domain spent 10 days sending from a broken auth config and is now on several spam lists. Fixing the send mechanism does not fix the domain reputation damage that happened while it was broken.
+  </Fragment>
+  <Fragment slot="right">
+```
+Reputation recovery checklist:
+1. Submit domain to Google Postmaster Tools
+2. Monitor Domain Reputation tab for 14 days
+3. Drop daily volume to 20% of normal
+4. Ramp 15% per week if reputation stays "High"
+5. Avoid image-heavy or link-heavy templates
+   during recovery window
+6. Use plain-text sequences only for 3 weeks
+```
+  </Fragment>
+</SideBySide>
+
+## When to Stop Fixing and Start Migrating
+
+If you have worked through all four failure modes and the root cause is a platform ceiling (no multi-mailbox rotation, no deliverability tooling, no sequence analytics beyond basic open/click), that is a signal, not a configuration error. Here is how the alternatives stack up for teams hitting Pipedrive's ceiling.
+
+Don't bother trying to patch Pipedrive with Zapier workarounds for deliverability. Use [Reply.io](/go/reply-io/) or [Smartlead](/go/smartlead/) for the actual sending and let Pipedrive stay in its lane as a CRM.
+
+<ChooseIf title="Which tool fits your situation?" tools={[
+  {
+    name: "HubSpot",
+    conditions: [
+      "You need sequences tightly integrated with CRM data, lifecycle stages, and deal pipeline",
+      "Your team wants built-in email health reporting and sequence enrollment analytics",
+      "You are already evaluating a CRM migration and want sequences and CRM in one platform"
+    ],
+    pricing: "Sales Hub Starter from $20/seat/mo",
+    affiliateSlug: "hubspot",
+    ctaLabel: "Try HubSpot",
+    highlight: false
+  },
+  {
+    name: "Reply.io",
+    conditions: [
+      "You want to keep Pipedrive as your CRM but need a serious outbound sequence layer on top",
+      "Your team sends high volume and needs multi-channel steps (email, LinkedIn, calls) in one sequence",
+      "You need AI-assisted reply detection and sequence branching that Pipedrive cannot do"
+    ],
+    pricing: "From $60/user/mo",
+    affiliateSlug: "reply-io",
+    ctaLabel: "Try Reply.io",
+    highlight: true
+  },
+  {
+    name: "Smartlead",
+    conditions: [
+      "Deliverability is your primary problem and you need rotating mailboxes with built-in warm-up",
+      "You are running high-volume cold outbound (500+ contacts per day per rep)",
+      "You want unified inbox management across multiple sending domains"
+    ],
+    pricing: "From $39/mo",
+    affiliateSlug: "smartlead",
+    ctaLabel: "Try Smartlead",
+    highlight: false
+  },
+  {
+    name: "n8n",
+    conditions: [
+      "You need custom sequence logic Pipedrive cannot express natively (conditional branching, multi-step delays, CRM writeback)",
+      "You already have engineering support or a RevOps practitioner comfortable with workflow builders",
+      "Budget is a constraint and you want to avoid per-seat sequence tool pricing"
+    ],
+    pricing: "Self-hosted free, cloud from $20/mo",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n",
+    highlight: false
+  }
+]} />
+
+For a deeper look at how [Reply.io](/tools/reply-io/) and Lemlist compare on deliverability specifically, I covered that head-to-head in the [Reply.io vs Lemlist sequences breakdown](/blog/2026-09-21-replyio-vs-lemlist-sequences-deliverability-in-2026/). And if you are leaning toward HubSpot, the [best email automation for Pipedrive post](/blog/2026-09-22-best-email-automation-for-pipedrive-2026-picks/) covers the integration path before you commit to a full CRM switch.
+
+<Figure class="post-screenshot" caption="HubSpot Sequences editor showing enrollment settings, step timing, and sender configuration options Pipedrive sequences lack.">
+  <a href="/go/hubspot/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/hubspot-sequences.png" alt="HubSpot Sequences editor with enrollment and timing settings" loading="lazy" />
+  </a>
+</Figure>
+
+If you go the [n8n](/tools/n8n/) route, my recommended architecture is: n8n polls Pipedrive for deal stage changes every 15 minutes, checks enrollment eligibility, passes contacts to [Smartlead](/tools/smartlead/) via API for the actual send, and writes activity records back to Pipedrive via the Pipedrive API. You get Pipedrive as the record of truth and dedicated sending infrastructure without abandoning your existing pipeline. [This n8n workflow pattern](/blog/2026-09-20-pipedrive-automation-in-2026-limits-triggers-and-workarounds/) covers the trigger and writeback mechanics in detail.
+
+<MyTake>
+My honest read: teams that stick with Pipedrive sequences longest are usually the ones who never had sequences work well in the first place, so they have no baseline for comparison. Run the same sequence through Reply.io with proper mailbox warm-up and you will likely see a 28% open rate where Pipedrive was delivering 11%. That gap is not a configuration problem you can fix. It is the product doing what it was built to do, which is light CRM email, not serious outbound. Pipedrive sequences are fine for low-volume nurture on warm contacts. For anything resembling cold outbound at scale, you are fighting the platform, and the platform will win.
+</MyTake>
+
+## Fix the Config, Then Reassess the Platform
+
+Run the six-step diagnostic before making any tool decisions. Most teams find one of the four failure modes explains their delivery gap, and a two-hour fix is faster than a three-month migration. But if you fix everything and sequences are still underperforming, you are not dealing with a broken config. You are dealing with a tool that was not built for what you are asking it to do. That is a different problem. It deserves a different solution.
+
+<BottomLine
+  verdict="Fix sender auth and enrollment conditions first. If sequences still underperform after that, layer Reply.io or Smartlead on top of Pipedrive rather than ripping out your CRM."
+  pick="Reply.io"
+  affiliateSlug="reply-io"
+  ctaLabel="Try Reply.io"
+/>
+
+<Sources sources={[
+  { label: "Google Workspace: Gmail sending limits", url: "https://support.google.com/a/answer/166852" },
+  { label: "Pipedrive Help: Email sync and sequences setup", url: "https://support.pipedrive.com/en/article/email-sync" },
+  { label: "MXToolbox: Email header analyzer", url: "https://mxtoolbox.com/EmailHeaders.aspx" },
+  { label: "Google Postmaster Tools: Domain reputation monitoring", url: "https://postmaster.google.com" }
+]} />
