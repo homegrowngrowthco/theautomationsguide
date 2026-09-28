@@ -1,0 +1,176 @@
+---
+title: "Migrate from GetResponse to Kit Without Losing Your Automations"
+description: "Step-by-step guide to moving contacts, sequences, and automations from GetResponse to Kit, including n8n, Make, and Zapier bridge options."
+tldr: "You can migrate from GetResponse to Kit in a weekend by exporting segmented contact CSVs, rebuilding key automations natively in Kit, and bridging any gaps with n8n or Make during the cutover window."
+pubDate: 2026-09-28
+tags: ["guide", "automation", "email-marketing"]
+faqs:
+  - question: "Can you export automations from GetResponse to Kit?"
+    answer: "No, GetResponse automation workflows cannot be exported in a portable format. You rebuild them in Kit using visual automations, and use n8n or Make to bridge the gap during cutover."
+  - question: "Does Kit support tagging and segmentation like GetResponse?"
+    answer: "Yes. Kit uses a tags-plus-segments model. GetResponse custom fields map to Kit custom fields, and list membership maps to Kit tags applied on import."
+  - question: "How long does a GetResponse to Kit migration take?"
+    answer: "A clean list under 50,000 contacts with fewer than ten automations typically takes one focused weekend. Larger lists or complex scoring rules add a week of QA."
+  - question: "Will my open and click history transfer from GetResponse to Kit?"
+    answer: "No. Historical engagement data does not transfer. Kit starts fresh on engagement scoring, so plan a re-engagement sequence in the first 30 days to rebuild behavioral signals."
+  - question: "What happens to my GetResponse forms and landing pages during migration?"
+    answer: "GetResponse forms must be rebuilt in Kit or replaced with a third-party form tool. Kit's native forms cover most use cases, but you will need to update embed codes on your site."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The trigger I see most often is pricing. [GetResponse](/go/getresponse/) bumps you to its Marketing Automation tier the moment you want conditional logic or lead scoring. For creator-focused teams or B2B operators running editorial-plus-nurture stacks, that price jump rarely pencils out. [Kit](/go/kit/) (formerly ConvertKit) solves the same problem with a flatter cost structure and a tagging model that maps cleanly to how most operators actually think about audience segmentation.
+
+The problem is that no official migration path exists between the two tools. So most teams either stay stuck on GetResponse out of inertia, or lose their automations in a hasty cutover. This guide closes that gap.
+
+<KeyTakeaways items={[
+  "GetResponse automation workflows cannot be exported; plan to rebuild them in Kit using visual automations",
+  "Contact export with tags takes under an hour; the automation rebuild is where the real time goes",
+  "Use n8n, Make, or Zapier as a live bridge during the cutover window so no leads fall through",
+  "Historical engagement data stays behind in GetResponse; budget 30 days for Kit to rebuild behavioral signals",
+]} />
+
+## Before you migrate
+
+Audit before you touch anything. I've seen teams export their full list, import it into Kit, and then realize half the segments were built on GetResponse custom field logic that does not survive the CSV flatten. Spend an hour here and save yourself a painful rollback.
+
+The prep checklist:
+
+- **Audit your automations.** List every active workflow in GetResponse: trigger, conditions, email sequence, and exit criteria. Screenshot or export as PDF. GetResponse has no native automation export, so this is your only record.
+- **Export contacts by segment.** Do not export one monolithic CSV. Export each GetResponse list or segment separately so you can apply distinct Kit tags on import. Include custom fields in the export.
+- **Pause cold or inactive sequences.** Any automation with fewer than 5% open rates in the last 60 days should be paused before migration. No point rebuilding sequences that are already dead.
+- **Document your DNS and sending domain.** Note your SPF, DKIM, and DMARC records. Kit uses its own sending infrastructure, and you will need to re-verify your domain. Allow 24-48 hours for propagation.
+- **Identify your form embed locations.** Audit every page or popup carrying a GetResponse form embed. These break on cutover day and need Kit replacements ready.
+- **Check your API integrations.** If anything hits the [GetResponse API](https://apireference.getresponse.com/) (Zapier zaps, a CRM sync, a Webflow form), flag it now. Those connections need rerouting to Kit's API before you flip the switch.
+
+<StepRow steps={[
+  {
+    title: "Export contacts from GetResponse by segment",
+    body: "In GetResponse, go to Contacts > search or filter by list or segment > Export. Choose CSV and include all custom fields. Repeat for each logical audience slice you want to preserve as a distinct Kit tag. Name each file descriptively (e.g., 'lead-magnet-openers-90d.csv') because the filename becomes your working label during import."
+  },
+  {
+    title: "Map GetResponse fields to Kit custom fields",
+    body: "Create your Kit custom fields before importing. GetResponse lets you carry arbitrary custom fields; Kit supports text, number, and date fields. Open your exported CSV headers and match each column to a Kit custom field you create at Account > Custom Fields. Anything that does not map cleanly (like dropdown fields) needs to be converted to a tag instead. For example, a 'plan_tier' dropdown becomes a tag like 'plan-pro' or 'plan-free' applied at import."
+  },
+  {
+    title: "Import contacts and apply tags in Kit",
+    body: "In Kit, go to Subscribers > Import. Upload each segment CSV separately. On the tag assignment screen, create a tag that matches the segment (e.g., 'gr-migration-trial-users'). Apply a migration-source tag like 'from-getresponse' across all imports for rollback auditing. Kit processes imports asynchronously; a 50,000-contact list takes roughly 20-30 minutes. Check the import log for bounce and duplicate flags before proceeding."
+  },
+  {
+    title: "Rebuild automations natively in Kit",
+    body: "Open each GetResponse automation from your audit doc and rebuild it in Kit using Visual Automations. Kit's trigger set is narrower than GetResponse's (no lead scoring out of the box), so scoring logic should be approximated with tag-based branching: tag 'engaged-30d' for anyone who clicked in the last 30 days and use that tag as a conditional branch. Rebuild your highest-volume automations first. For sequences longer than 5 emails, use Kit's Sequences editor rather than Visual Automations to keep logic readable."
+  },
+  {
+    title: "Bridge live traffic with n8n, Make, or Zapier during cutover",
+    body: "While your DNS re-verification is propagating and your forms are being swapped, you need a live bridge so new signups route correctly. In n8n or Make, create a workflow that watches your old GetResponse webhook (new subscriber trigger) and fires a Kit API call to create or tag the subscriber on the Kit side. This prevents any gap in list growth during the 24-48 hour cutover window. Disable the bridge after your forms are fully pointed at Kit and you confirm new subscribers are appearing."
+  },
+  {
+    title: "Verify domain authentication and warm the Kit sending IP",
+    body: "In Kit, go to Settings > Email > Custom Sending Domain. Add your domain and follow the DKIM and SPF record instructions. Verify in your DNS provider and allow up to 48 hours. Once verified, do not immediately blast your full list. Send to your most engaged segment first (openers in the last 30 days), then expand over 7-10 days. Kit's deliverability is strong, but a cold IP hammering a 100k list on day one will hurt your sender reputation."
+  }
+]} />
+
+## What breaks and how to fix it
+
+GetResponse-to-Kit migrations have three consistent failure points. The automation logic gap is the biggest. GetResponse supports lead scoring natively; Kit does not. If your nurture tracks branch based on a score threshold, you need to rebuild that branching using tag accumulation instead. It is not a perfect 1:1, but it works for the vast majority of B2B nurture use cases I have rebuilt.
+
+My strong recommendation: don't bother trying to approximate a numeric score in Kit with workarounds. Use tag-based engagement tiers ('engaged-30d', 'engaged-90d', 'unengaged') and branch on those. It's actually more transparent than a score nobody remembers calibrating.
+
+The second failure point is form embeds. GetResponse forms use proprietary JavaScript that stops working the moment you cancel or switch. You need Kit forms embedded and live before you turn off GetResponse, not after.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The gotcha: GetResponse conditional email logic uses "if field equals X" branching that Kit Visual Automations handles differently.** If your automation checks a custom field value mid-sequence (e.g., "if industry = SaaS, send email B"), you cannot replicate this with a simple tag. You need to pre-tag subscribers at import based on that field value, then use the tag as the branch condition in Kit. Teams that skip this step get flat, un-branched sequences and wonder why their conversion rates dropped.
+  </Fragment>
+  <Fragment slot="right">
+    ```
+    GetResponse logic:
+    Wait 3 days
+    IF custom_field "industry" = "SaaS"
+      → Send email B
+    ELSE
+      → Send email C
+
+    Kit equivalent:
+    [At import, tag subscribers:
+     "industry-saas" OR "industry-other"]
+
+    Wait 3 days
+    IF subscriber has tag "industry-saas"
+      → Send email B
+    ELSE
+      → Send email C
+    ```
+  </Fragment>
+</SideBySide>
+
+The third failure point is API integrations. If you have a [Zapier](/go/zapier/) zap, an [n8n](/go/n8n/) workflow, or a [Make](/go/make/) scenario that calls GetResponse directly, each one needs a parallel Kit version ready before cutover. I run both in parallel for 48 hours and compare subscriber counts to confirm parity before killing the GetResponse connection.
+
+## Verify it worked
+
+Before you cancel GetResponse, run these four checks:
+
+1. **Subscriber count parity.** Your Kit subscriber count (minus suppressions) should be within 2-3% of your GetResponse active contacts. A larger gap means a failed import batch.
+2. **Automation enrollment.** Manually trigger your top 3 automations with a test email address and confirm the correct emails fire in the correct order with the correct delays.
+3. **Form submit to Kit.** Submit each of your new Kit forms and confirm the subscriber appears in Kit with the correct tags applied within 60 seconds.
+4. **Domain authentication.** Use [MXToolbox SPF lookup](https://mxtoolbox.com/spf.aspx) to confirm your Kit SPF record is live. Send a test email to a Gmail address and check the "show original" headers for DKIM pass.
+
+If you want to go deeper on Kit's automation capabilities after the migration, the [Kit automation deep dive](/blog/2026-09-27-kit-automation-deep-dive-every-b2b-workflow-you-need/) covers every B2B workflow worth building. And if you have had deliverability problems on GetResponse that you are hoping Kit will magically fix, read the [cold email deliverability audit guide](/blog/2026-09-25-cold-email-deliverability-audit-fix-flagged-sequences/) first, because platform switches do not fix broken list hygiene.
+
+<ChooseIf title="Should you switch, or stay?" tools={[
+  {
+    name: "Kit",
+    conditions: [
+      "You run a creator-led or editorial-plus-nurture model and need clean tag-based segmentation",
+      "You want a flatter pricing curve as your list grows past 25,000 subscribers",
+      "Your automations are sequence-heavy but do not depend on native lead scoring"
+    ],
+    pricing: "Free to 10k; from $25/mo at 1k subscribers (Creator plan)",
+    affiliateSlug: "kit",
+    ctaLabel: "Try Kit",
+    highlight: true
+  },
+  {
+    name: "GetResponse",
+    conditions: [
+      "You rely heavily on GetResponse's native lead scoring or e-commerce integrations",
+      "Your team uses GetResponse's webinar or paid ads features and wants a single platform",
+      "You have complex automation logic built over years that would take more than a sprint to rebuild"
+    ],
+    pricing: "From $19/mo (Email) to $59/mo (Marketing Automation)",
+    affiliateSlug: "getresponse",
+    ctaLabel: "Stay on GetResponse"
+  }
+]} />
+
+<MyTake>
+Kit is not a feature-for-feature replacement for GetResponse, and framing it that way sets the wrong expectation. What Kit actually does well is make the subscriber relationship legible. You always know which tags a person carries and why they got them. GetResponse's automation canvas becomes genuinely unreadable past 10 nodes. I've rebuilt enough of those workflows to know that the opacity isn't a quirk, it's a structural problem with how the tool represents state. For operator-run newsletters and B2B nurture programs, Kit's legibility is worth more than closing the feature gap.
+</MyTake>
+
+## The migration is worth doing, but do it deliberately
+
+The GetResponse-to-Kit migration is one of the cleaner email platform switches you can make. Mostly because Kit's data model is simpler and forces you to clean up the accumulated cruft in your GetResponse account. The rebuild step feels like overhead at first. Every team I've watched do it, though, emerges with tighter automations than they started with.
+
+The key is treating the cutover window seriously. Run your [n8n](/tools/n8n/) or [Make](/tools/make/) bridge, verify domain auth before you blast, and give Kit's sending IP a proper warm-up period. According to [Kit's own deliverability documentation](https://help.kit.com/en/articles/3489494-how-to-set-up-a-custom-sending-domain), warming over 7-10 days is the standard recommendation for lists above 10,000 contacts. Do those three things and you will not lose a meaningful subscriber or a meaningful deliverability point in the switch.
+
+<BottomLine verdict="Kit is the right destination for most GetResponse migrants who want cleaner segmentation, predictable pricing, and a tagging model built for how modern operators think. The migration is a weekend of focused work, not a quarter-long project." pick="Kit" affiliateSlug="kit" ctaLabel="Try Kit" />
+
+<Sources sources={[
+  { label: "Kit Help: Import subscribers via CSV", url: "https://help.kit.com/en/articles/2502558-import-subscribers" },
+  { label: "GetResponse Help: Export contacts", url: "https://www.getresponse.com/help/how-to-export-contacts.html" },
+  { label: "Kit Help: Custom sending domain setup", url: "https://help.kit.com/en/articles/3489494-how-to-set-up-a-custom-sending-domain" },
+  { label: "MXToolbox: SPF record lookup", url: "https://mxtoolbox.com/spf.aspx" }
+]} />
