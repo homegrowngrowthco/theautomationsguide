@@ -1,0 +1,176 @@
+---
+title: "Kit Automation Deep Dive: Every B2B Workflow You Need"
+description: "The complete ConvertKit automation playbook for B2B operators: triggers, sequences, segmentation, and how Kit connects to HubSpot and n8n."
+tldr: "Kit automation covers subscriber tagging, conditional sequences, and purchase triggers natively, and plugs into HubSpot and n8n for full-stack B2B workflows without heavy lifting."
+pubDate: 2026-09-27
+tags: ["automation", "email", "revops"]
+faqs:
+  - question: "What is ConvertKit automation?"
+    answer: "ConvertKit (now Kit) automation lets you trigger email sequences, tag subscribers, and move contacts between segments based on behavior like form fills, link clicks, or purchases. It supports visual automations and rule-based sequences without code."
+  - question: "Can Kit connect to HubSpot?"
+    answer: "Yes. Kit connects to HubSpot natively via Zapier or directly through n8n webhooks, syncing tags and sequences bidirectionally so your CRM contact record stays current with email engagement."
+  - question: "Is Kit good for B2B email automation?"
+    answer: "Kit is solid for B2B content-led motion: newsletters, lead magnet delivery, and nurture sequences. For outbound sequences with CRM-native tracking, pair it with HubSpot or route data through n8n."
+  - question: "What triggers are available in Kit automation?"
+    answer: "Kit triggers include form subscriptions, tag additions and removals, link clicks, product purchases, course completions, and custom field changes. Webhook triggers unlock external system connections."
+  - question: "How does Kit compare to Beehiiv for automation?"
+    answer: "Kit has deeper conditional logic and tag-based segmentation. Beehiiv has a cleaner monetization layer and better native analytics for pure newsletter operators, but Kit wins on workflow depth for B2B nurture."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most B2B operators treat [Kit](/go/kit/) as a newsletter tool and stop there. That's leaving serious pipeline on the table. Kit's visual automation builder is genuinely capable: conditional branching, tag-based segmentation, webhook triggers, and a sequence engine that rivals tools costing three times as much. Wire it to [HubSpot](/go/hubspot/) via [n8n](/go/n8n/) webhooks and you get a full inbound nurture stack for under $200/month. I've rebuilt this setup from scratch twice and the automations below are the ones I'd keep running on day one.
+
+<PullQuote>Kit automation isn't a newsletter feature. It's a full inbound nurture engine once you wire it to your CRM and treat tags as intent signals, not just labels.</PullQuote>
+
+<StatRow stats={[
+  { number: "52%", label: "Higher open rates", description: "Segmented email campaigns drive 52% higher open rates than broadcast sends, per Mailchimp benchmark data" },
+  { number: "8x", label: "Revenue lift", description: "Triggered automations generate up to 8x the revenue of batch campaigns according to Epsilon research" },
+  { number: "$99/mo", label: "Kit Creator Pro entry", description: "The tier that unlocks advanced reporting, newsletter referrals, and subscriber scoring starts at $99/month for up to 5k subscribers" }
+]} />
+
+## The Foundation: How Kit Automation Actually Works
+
+Before building any specific workflow, you need a mental model of how Kit's engine fits together. Kit operates on three primitives: subscribers, tags, and sequences. An automation is a set of rules connecting triggers to actions on those three objects.
+
+A trigger fires when something happens: form subscribe, tag added, link clicked, purchase made, or inbound webhook. Actions include adding tags, removing tags, sending emails, subscribing to a sequence, moving to a visual automation, and adding delays. Conditions let you branch. "If subscriber has tag X, go left; otherwise go right." That's the whole engine. The power comes from stacking these cleanly.
+
+One thing I always clarify with operators new to Kit: sequences and automations are different objects. A sequence is an ordered series of emails with delays. An automation is the logic layer that decides who enters a sequence, when, and under what conditions. You build both, and the automation orchestrates the sequence. Don't conflate them or your debugging will become a nightmare.
+
+<StepRow steps={[
+  {
+    title: "Lead Magnet Delivery + Intent Tagging",
+    body: "Trigger: form subscription on any gated content form. Immediate action: send the asset email. Concurrent action: add tag 'lead-magnet-[topic]'. Then branch: if the subscriber clicks the CTA inside the delivery email within 72 hours, add tag 'high-intent'. Route high-intent subscribers into a 5-email nurture focused on your ICP pain point. Route everyone else into a slower 10-day educational sequence. This single automation handles delivery, segments by engagement, and starts warming the lead, all without touching it again."
+  },
+  {
+    title: "Newsletter Subscriber Onboarding",
+    body: "Trigger: tag added 'newsletter-subscriber'. Day 0: welcome email with your best three posts linked. Day 3: email asking one question ('What's the biggest challenge in your role right now?'). Route reply-clickers to a 'high-engagement' tag and into a product-aware sequence. Day 7: social proof email. Day 14: soft offer or demo CTA. The question email on day 3 is the most important step. Kit's click trigger on the reply link is your proxy for intent without needing actual reply parsing."
+  },
+  {
+    title: "CRM Sync via n8n Webhook",
+    body: "Trigger: Kit webhook fires when tag 'demo-requested' is added. n8n receives the payload (subscriber email, tags, custom fields). n8n looks up or creates the HubSpot contact, sets lifecycle stage to 'Marketing Qualified Lead', and creates a follow-up task on the contact owner. This closes the loop between email engagement and your CRM pipeline. Without this, your sales team has no visibility into what the lead consumed before raising their hand. In my view, this webhook is the single highest-value automation in the entire stack."
+  },
+  {
+    title: "Re-Engagement Before Churn",
+    body: "Trigger: Kit's subscriber activity filter (available in Creator Pro). Condition: no email open or click in 90 days. Action: enter 'win-back' sequence. Email 1: 'Still interested?' with a single CTA. Email 2 (7 days later): offer something new (a resource, a report, a free audit). Email 3 (7 days later): explicit opt-down or unsubscribe prompt. Anyone who clicks stays subscribed with a 're-engaged' tag. Anyone who ignores all three gets unsubscribed automatically. This keeps your deliverability clean without manual list hygiene. See our guide on [cold email deliverability audits](/blog/2026-09-25-cold-email-deliverability-audit-fix-flagged-sequences/) for the deliverability mechanics behind why this matters."
+  },
+  {
+    title: "Purchase or Trial Trigger to Onboarding Sequence",
+    body: "Trigger: Kit Commerce purchase webhook, or inbound webhook from Stripe via n8n. Action: add tag 'customer', remove tag 'trial', subscribe to onboarding sequence. The onboarding sequence should be purely educational: how to get value fast, not how to buy more. If you're on a SaaS trial model, wire the trial-start event from your app into Kit via webhook so the sequence fires the moment someone activates, not when they subscribe to your newsletter."
+  }
+]} />
+
+## Connecting Kit to the Rest of Your Stack
+
+The native Kit integrations (Stripe, Teachable, Thrivecart, Zapier) cover most direct triggers. Where Kit gets genuinely powerful for B2B is when you stop relying on native connectors and start treating Kit webhooks as event emitters into [n8n](/tools/n8n/) for multi-step logic.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The trap operators fall into:** They use Zapier to connect Kit to HubSpot with a single "new subscriber" trigger and call it done. That sends every cold newsletter subscriber straight into HubSpot as a contact, polluting the CRM with unqualified traffic and blowing through HubSpot contact tier limits fast. I watched this mistake cost a team an unplanned upgrade from HubSpot Starter to Pro mid-quarter. Don't use Zapier's "new subscriber" trigger for HubSpot sync. Use n8n with an intent tag filter instead.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // n8n webhook filter: only sync to HubSpot
+    // when specific intent tags are present
+    {
+      "filter": {
+        "tags_include_any": [
+          "demo-requested",
+          "high-intent",
+          "customer",
+          "trial-started"
+        ]
+      },
+      "hubspot_lifecycle": "marketingqualifiedlead",
+      "create_task": true,
+      "task_owner": "round-robin"
+    }
+    ```
+  </Fragment>
+</SideBySide>
+
+The n8n approach lets you add a filter step between Kit and HubSpot: only sync contacts who have crossed an intent threshold. You define that threshold via tags in Kit. This keeps HubSpot clean and makes your MQL definition operational rather than theoretical. For more on how n8n bridges email and CRM data, the [Apollo-to-HubSpot n8n workflow](/blog/2026-09-20-apollo-to-hubspot-with-n8n-auto-sync-contacts-and-trigger-se/) uses the same webhook pattern.
+
+<Figure class="post-screenshot" caption="n8n workflow canvas showing a Kit webhook trigger routing into a HubSpot contact upsert with an intent tag filter in between">
+  <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with webhook trigger, enrichment step, ICP branch, and Smartlead plus Slack output nodes" loading="lazy" />
+  </a>
+</Figure>
+
+## Kit vs. Beehiiv vs. HubSpot Sequences: Which Owns What
+
+This is the question I get most often from RevOps operators building a content-led inbound motion. The honest answer is they serve different jobs. Forcing one platform to do all three is how you end up with a brittle stack that nobody trusts.
+
+<IntentTable
+  title="Who Owns What in the Email Automation Stack"
+  caption="Map each job-to-be-done to the right tool rather than forcing one platform to do everything."
+  cols={[
+    { name: "Kit", affiliateSlug: "kit", ctaLabel: "Try Kit", highlight: true },
+    { name: "Beehiiv", affiliateSlug: "beehiiv", ctaLabel: "Try Beehiiv" },
+    { name: "HubSpot", affiliateSlug: "hubspot", ctaLabel: "Try HubSpot" }
+  ]}
+  rows={[
+    { label: "Best for", cells: ["Content-led nurture + tag segmentation", "Pure newsletter monetization + growth", "CRM-native sequences + deal tracking"] },
+    { label: "Automation depth", cells: ["Visual builder with conditional branches", "Basic automations, improving fast", "Powerful but expensive to unlock fully"] },
+    { label: "Segmentation model", cells: ["Tags + custom fields + subscriber score", "Segments by engagement tier", "Lists + active lists + smart content"] },
+    { label: "CRM integration", cells: ["Via webhook or n8n (no native CRM)", "Minimal, newsletter-first", "Native, CRM is the system of record"] },
+    { label: "Deliverability controls", cells: ["Good, send-time optimization in Pro", "Strong, built-in warm infrastructure", "Good with Sequences, weaker on broadcasts"] },
+    { label: "Pricing model", cells: ["Per subscriber", "Per subscriber", "Per contact + seat + tier"] }
+  ]}
+/>
+
+[Beehiiv](/tools/beehiiv/) wins if your primary motion is newsletter monetization: boosts, paid subscriptions, referral growth. The [Beehiiv automations guide](/blog/2026-09-24-beehiiv-automations-guide-every-workflow-for-2026/) covers where that tool actually earns its keep. [HubSpot](/tools/hubspot/) wins if you need sequences tied to deal stage and want everything in one CRM record. Kit wins if you're running a content-led B2B inbound motion where nurture complexity matters and you want costs that stay predictable as your list grows.
+
+My take: if you're debating between Kit and HubSpot Sequences for nurture, pick Kit and spend the savings on better copy. HubSpot Sequences is built for sales reps doing 1:1 outreach, not marketing automation. The tooling reflects that.
+
+## The B2B Kit Stack I'd Recommend
+
+After testing a few configurations, here's the setup that makes the most operational sense for a sub-100-person B2B SaaS company running a content-led motion:
+
+- [Kit](/tools/kit/) handles all inbound email: lead magnet delivery, newsletter, nurture sequences, re-engagement
+- n8n routes intent signals (tag additions) into HubSpot as lifecycle stage changes
+- HubSpot owns the CRM record, deal pipeline, and sales sequences post-MQL
+- [Beehiiv](/go/beehiiv/) gets considered only if the newsletter becomes a revenue center in its own right, not before
+
+The handoff point is the "demo-requested" or "high-intent" tag in Kit. Everything before that tag lives in Kit. Everything after it lives in HubSpot. n8n is the bridge. That's a clean, auditable boundary that any RevOps operator can maintain without a developer on call.
+
+According to [Kit's own benchmark data](https://kit.com/features/email-marketing), automations on their platform average 47% open rates versus 18% for broadcast emails. That tracks with what I've seen in practice. The gap closes when broadcast content is genuinely strong, but triggered automations almost always outperform because relevance and timing compound on each other.
+
+For the HubSpot side of this handoff, the [HubSpot chatbot inbound lead fix](/blog/2026-09-24-your-hubspot-chatbot-is-losing-inbound-leads-fix-it/) post covers how to make sure leads arriving from Kit don't fall through HubSpot's intake gaps.
+
+<MyTake>
+Most operators over-engineer the Kit automation map and under-engineer the HubSpot handoff. Three automations in Kit that fire reliably plus one clean webhook into HubSpot will outperform fifteen automations with no CRM sync every single time. The fanciest nurture sequence in the world is worthless if sales never sees the intent signal.
+</MyTake>
+
+## Build These Workflows Before Anything Else
+
+Kit's automation library is extensive, and the temptation is to keep building. Resist it. The five workflows above (lead magnet delivery, newsletter onboarding, CRM sync via n8n, re-engagement, and purchase trigger) cover 90% of the inbound value for a B2B SaaS company. [Kit's automation documentation](https://help.kit.com/en/articles/2502550-create-an-automation) is well-written and worth reading end to end before you start wiring conditions, because the order of operations matters when multiple automations can match the same subscriber event.
+
+Get those five running. Tag your intent thresholds cleanly. Wire the webhook into your CRM. Then spend your time improving the copy inside each sequence rather than adding new automations. A rewritten subject line on sequence email two will almost always move more than a sixth automation ever will.
+
+<BottomLine
+  verdict="Kit is the right email automation layer for B2B content-led inbound: capable conditional logic, clean tag segmentation, and webhook triggers that connect to any CRM via n8n. It is not a CRM replacement, but as the top of your nurture stack it earns its cost quickly."
+  pick="Kit"
+  affiliateSlug="kit"
+  ctaLabel="Try Kit"
+/>
+
+<Sources sources={[
+  { label: "Kit: Email Marketing Features and Benchmarks", url: "https://kit.com/features/email-marketing" },
+  { label: "Kit Help: Create an Automation", url: "https://help.kit.com/en/articles/2502550-create-an-automation" },
+  { label: "Epsilon Research: The Power of Me, Triggered Email Revenue", url: "https://www.epsilon.com/us/insights/resources/the-power-of-me" },
+  { label: "Mailchimp: Email Marketing Benchmarks by Industry", url: "https://mailchimp.com/resources/email-marketing-benchmarks/" }
+]} />
