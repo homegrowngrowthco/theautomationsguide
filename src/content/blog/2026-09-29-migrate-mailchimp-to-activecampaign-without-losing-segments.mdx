@@ -1,0 +1,206 @@
+---
+title: "Migrate Mailchimp to ActiveCampaign Without Losing Segments"
+description: "Step-by-step guide to migrating from Mailchimp to ActiveCampaign while preserving your segments, tags, and automation journeys. Covers Make and Brevo too."
+tldr: "Export your Mailchimp lists with all tags and custom fields first, then import into ActiveCampaign and rebuild automations using AC's visual journey builder before cutting over DNS and unsubscribing from Mailchimp."
+pubDate: 2026-09-29
+tags: ["guide", "automation", "email-marketing"]
+faqs:
+  - question: "Can you import Mailchimp segments directly into ActiveCampaign?"
+    answer: "Not directly. You export each Mailchimp segment as a separate CSV, then import each file into ActiveCampaign and apply matching tags or list assignments on import."
+  - question: "Do Mailchimp automations transfer to ActiveCampaign?"
+    answer: "No, automations must be rebuilt manually in ActiveCampaign's Automation builder. You can use the exported contact activity data to identify which contacts were mid-journey."
+  - question: "How long does a Mailchimp to ActiveCampaign migration take?"
+    answer: "A straightforward list migration takes a few hours. Rebuilding complex automations and verifying deliverability can add one to two weeks depending on your automation count."
+  - question: "Will my Mailchimp unsubscribes carry over to ActiveCampaign?"
+    answer: "Yes, if you export your full audience including unsubscribed contacts and import them as unsubscribed in ActiveCampaign. Skipping this step risks emailing people who already opted out."
+  - question: "Can Make automate the Mailchimp to ActiveCampaign migration?"
+    answer: "Make can sync contacts in real time during a transition window using Mailchimp and ActiveCampaign modules, but bulk historical data still needs a CSV import for reliability."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The trigger is almost always the same. You hit Mailchimp's 500-automation-step ceiling. Or you run a deliverability audit and discover your open rates have quietly collapsed by 40 percent. Or your team finally needs proper CRM-style contact scoring and Mailchimp just laughs at you. Whatever the specific moment, the decision to migrate to [ActiveCampaign](/go/activecampaign/) usually takes about ten minutes. The migration itself, done blind, costs you weeks of broken journeys, duplicated contacts, and segments that mean nothing in the new system. I've watched this go sideways enough times that I finally wrote down exactly how to do it right.
+
+<KeyTakeaways items={[
+  "Export every Mailchimp segment as a separate labeled CSV before you touch ActiveCampaign.",
+  "Unsubscribes and cleaned addresses must be imported explicitly or you risk compliance violations.",
+  "Automations do not transfer. Budget time to rebuild each journey from scratch in AC's visual builder.",
+  "Use Make to keep both platforms in sync during the transition window so no new subscribers fall through.",
+  "ActiveCampaign contact scoring and conditional content are the main reasons the switch pays off."
+]} />
+
+## Before you migrate
+
+This is where most teams underinvest, and it's why their segments look wrong six weeks later. Do not touch ActiveCampaign until you have a complete, audited export of your Mailchimp account. Full stop.
+
+Here is exactly what to pull before you do anything else:
+
+- **All Audiences, all statuses.** Export each audience separately from Mailchimp's Audience dashboard with the "All subscribers" filter set to include subscribed, unsubscribed, non-subscribed, and cleaned. Each export gives you a CSV with email, status, tags, and any merge fields you have set up.
+- **Segment definitions, documented.** Mailchimp segments are dynamic queries, not static lists. Screenshot or write out the filter logic for every segment you care about. You will rebuild these as ActiveCampaign segments or tag-based lists on the other side.
+- **Your automation map.** Go into Mailchimp's Automations, open each active journey, and screenshot the logic: trigger, wait steps, branch conditions, email sends. Export the email HTML too. This becomes your rebuild spec.
+- **Domain authentication records.** Note your existing SPF, DKIM, and DMARC records. ActiveCampaign will give you new DKIM CNAME records to add. Do not remove Mailchimp's records until after your ActiveCampaign deliverability is confirmed.
+- **Tag taxonomy.** Export your tag list and decide which tags map to ActiveCampaign tags versus which become custom fields or list membership. Mailchimp tags are flat. ActiveCampaign has tags, custom fields, AND lists. Collapsing all Mailchimp tags into AC tags works fine, but skipping this planning step causes chaos at import time.
+
+My strong recommendation here: spend half a day on the pre-export audit rather than half a week untangling a botched import. The audit is the unglamorous part that determines whether the whole migration holds.
+
+<StatRow stats={[
+  { number: "500+", label: "Automation steps", description: "Where Mailchimp's Standard plan caps out, the threshold that usually triggers this migration." },
+  { number: "2-3x", label: "Deliverability uplift", description: "Typical open rate recovery teams see after migrating to a platform with stronger authentication tooling and engagement-based sending." },
+  { number: "~2 weeks", label: "Full migration timeline", description: "Realistic timeline for a mid-size list with 5 to 10 active automations, including rebuild and deliverability warm-up." }
+]} />
+
+## The migration, step by step
+
+<StepRow steps={[
+  {
+    title: "Create your ActiveCampaign account and configure authentication",
+    body: "Sign up and immediately go to Settings > Advanced > Email Authentication. Add the two DKIM CNAME records ActiveCampaign provides to your DNS. Do this first because DNS propagation takes up to 48 hours and you want it live before you send a single email. Do not touch Mailchimp's authentication records yet."
+  },
+  {
+    title: "Import unsubscribes and cleaned addresses first",
+    body: "Before any subscribed contacts land in ActiveCampaign, import your unsubscribed and cleaned CSVs and mark them with the 'Unsubscribed' status. In ActiveCampaign's import wizard, choose 'Add to unsubscribe list' for these contacts. This is the step that protects you legally. Skipping it is the single most common migration compliance failure I see, and it is entirely avoidable."
+  },
+  {
+    title: "Import subscribed contacts segment by segment",
+    body: "Import each of your labeled CSVs into ActiveCampaign. During import, map Mailchimp's merge field columns to existing or new AC custom fields. Apply a source tag like 'migrated-from-mailchimp' plus any segment-specific tags during import. Do NOT import all segments into one undifferentiated pile. The per-segment import is what preserves your audience structure on the other side."
+  },
+  {
+    title: "Rebuild your automations in ActiveCampaign's visual builder",
+    body: "Open the Automations tab and rebuild each Mailchimp journey using your screenshots as specs. ActiveCampaign's conditional logic is significantly more capable: you get contact scoring triggers, site tracking events, and goal steps that Mailchimp does not have. For a straight rebuild, use tag-based entry triggers to match your Mailchimp audience entry conditions. For contacts who were mid-journey in Mailchimp, apply a mid-journey tag on import so you can enroll them at the correct step."
+  },
+  {
+    title: "Set up Make to sync new subscribers during the transition window",
+    body: "You will not cut over instantly. Use [Make](/go/make/) to run a real-time sync: Mailchimp 'New Subscriber' trigger module feeds an ActiveCampaign 'Create or Update Contact' module. This ensures anyone who joins your Mailchimp list via existing forms or integrations during the migration window lands in both systems. Run this sync for two to four weeks until every form, Zap, or third-party integration points at ActiveCampaign directly."
+  },
+  {
+    title: "Cut over forms, integrations, and DNS, then archive Mailchimp",
+    body: "Update every web form, landing page, and third-party integration to use ActiveCampaign's form embeds or API. Update DNS to remove Mailchimp's DKIM records only after you have confirmed ActiveCampaign deliverability with a test send through Mail-Tester or GlockApps. Run both accounts in parallel for 30 days, then downgrade Mailchimp to the free tier before canceling entirely."
+  }
+]} />
+
+## What breaks and what does not transfer
+
+Most teams are surprised that the contact data itself survives fine. The pain is structural and behavioral. Here is where the wheels come off if you are not prepared.
+
+<SideBySide>
+  <Fragment slot="left">
+    **What breaks or needs manual rebuild**
+
+    - Mailchimp's "Groups" have no direct AC equivalent. Groups become tags or custom field values depending on whether they are opt-in choices or segmentation metadata.
+    - Mailchimp's RSS-to-email campaign type does not exist in ActiveCampaign. Rebuild it as an RSS trigger automation.
+    - Engagement segments like "Opened in last 30 days" in Mailchimp rely on Mailchimp's own engagement data. ActiveCampaign starts tracking engagement from import day zero, so your existing engagement scores reset entirely.
+    - Any Mailchimp-specific integrations (Shopify's Mailchimp app, for example) need to be swapped for ActiveCampaign's native integrations or rebuilt via Make.
+  </Fragment>
+  <Fragment slot="right">
+    ```
+    Make scenario: transition sync
+
+    Trigger:
+      Mailchimp > Watch Subscribers
+      (Audience: All, Status: Subscribed)
+
+    Step 2:
+      ActiveCampaign > Create or Update Contact
+      Email: {{1.email}}
+      First Name: {{1.merge_fields.FNAME}}
+      Last Name: {{1.merge_fields.LNAME}}
+
+    Step 3:
+      ActiveCampaign > Add Tag to Contact
+      Tag: "mc-sync" + {{1.tags}}
+
+    Step 4:
+      ActiveCampaign > Add Contact to List
+      List: [Your migrated list ID]
+
+    Run interval: every 15 minutes
+    Filter: skip if email already
+      exists in AC with status = active
+    ```
+  </Fragment>
+</SideBySide>
+
+One thing worth flagging specifically: Mailchimp's "Predicted Demographics" and "Customer Lifetime Value" data do not export. That enrichment is proprietary to Mailchimp. If your segments rely on those fields, you will need to rebuild equivalent scoring in ActiveCampaign using behavioral triggers, or pull enrichment from an external tool like Clearbit or Apollo. The [migrate from ActiveCampaign to Brevo guide](/blog/2026-09-26-migrate-activecampaign-to-brevo-without-losing-your-automati/) covers the reverse of this problem and has a solid section on preserving behavioral scores that applies here too.
+
+## Verify it worked
+
+Do not declare victory until you have confirmed all four of these. I mean actually confirmed, not eyeballed.
+
+1. **Authentication check.** Send a test email to a [Mail-Tester](https://www.mail-tester.com/) address and confirm your score is 9/10 or higher. Anything below that is a DKIM or DMARC misconfiguration and needs to be fixed before you send to your real list.
+2. **Unsubscribe suppression confirmed.** Take five email addresses you know were unsubscribed in Mailchimp, search for them in ActiveCampaign, and verify their status shows as unsubscribed. Not just tagged. Actually unsubscribed.
+3. **Segment counts match.** Compare contact counts in your key ActiveCampaign segments against the Mailchimp segment counts you documented before export. A 2 to 5 percent variance is normal due to duplicates resolved on import. More than 10 percent means you have a mapping issue and need to trace it before you send anything.
+4. **Automation enrollment working.** Manually trigger a test contact through each rebuilt automation and confirm the steps fire correctly, including wait timers, conditional branches, and email sends.
+
+<ChooseIf title="Should you migrate now or wait?" tools={[
+  {
+    name: "Migrate to ActiveCampaign now",
+    conditions: [
+      "You have hit Mailchimp's automation complexity ceiling and need conditional branching, scoring, or site tracking.",
+      "Your deliverability has declined and you want a platform with stronger engagement-based sending controls.",
+      "You are building a proper revenue motion and need contact scoring tied to your CRM pipeline."
+    ],
+    pricing: "From $15/mo (Starter, 1K contacts)",
+    affiliateSlug: "activecampaign",
+    ctaLabel: "Try ActiveCampaign",
+    highlight: true
+  },
+  {
+    name: "Consider Brevo as an alternative",
+    conditions: [
+      "Your primary driver is cost and you do not need advanced CRM-style scoring.",
+      "You want a simpler migration with fewer feature gaps to bridge.",
+      "Transactional email volume is high and you want bundled SMTP without add-on costs."
+    ],
+    pricing: "Free up to 300 emails/day",
+    affiliateSlug: "brevo",
+    ctaLabel: "Try Brevo"
+  },
+  {
+    name: "Stay on Mailchimp",
+    conditions: [
+      "Your automation needs are simple: one or two welcome sequences with no branching.",
+      "Your list is under 500 contacts and you are not ready to invest migration time.",
+      "You rely heavily on Mailchimp's e-commerce integrations that have no direct AC equivalent yet."
+    ],
+    pricing: "Free up to 500 contacts",
+    affiliateSlug: "mailchimp",
+    ctaLabel: "Check Mailchimp"
+  }
+]} />
+
+<MyTake>
+Most teams go into this migration thinking their biggest risk is losing contacts. It is not. The real trap is that Mailchimp's proprietary engagement data, predicted demographics, customer lifetime value scores, quietly props up your best segments, and you only discover that two weeks post-cutover when your "engaged subscribers" segment comes up nearly empty in ActiveCampaign. Run both platforms through at least one full send cycle before you pull the plug. The contacts you think are engaged need time to prove it to a system that has never seen them before.
+</MyTake>
+
+## Give it the time it needs
+
+[ActiveCampaign](/tools/activecampaign/) is meaningfully better than Mailchimp for any team that needs automation depth, contact scoring, or sales CRM integration. The [ActiveCampaign documentation on importing contacts](https://help.activecampaign.com/hc/en-us/articles/207629386-How-to-import-contacts-to-your-account) is solid and covers the status mapping in detail. The [Mailchimp export documentation](https://mailchimp.com/help/view-export-options-for-your-mailchimp-data/) covers every export type you need. Read both before you start.
+
+The migration is straightforward if you respect the order of operations: unsubscribes first, segmented imports second, automation rebuilds third, Make sync running throughout, DNS cutover last. Using [Make](/tools/make/) as your transition bridge is what keeps new subscribers from falling into a gap while your forms and integrations catch up. For teams also evaluating simpler alternatives, the [GetResponse to Kit migration guide](/blog/2026-09-28-migrate-from-getresponse-to-kit-without-losing-your-automati/) covers comparable sequencing challenges on a different platform pair and is worth reading before you finalize your stack decision.
+
+<BottomLine
+  verdict="ActiveCampaign is the right destination if you need real automation depth and contact intelligence. Follow the export-first, unsubscribes-first order of operations and use Make to bridge the transition window."
+  pick="ActiveCampaign"
+  affiliateSlug="activecampaign"
+  ctaLabel="Try ActiveCampaign"
+/>
+
+<Sources sources={[
+  { label: "ActiveCampaign Help: How to import contacts", url: "https://help.activecampaign.com/hc/en-us/articles/207629386-How-to-import-contacts-to-your-account" },
+  { label: "Mailchimp Help: Export options for your Mailchimp data", url: "https://mailchimp.com/help/view-export-options-for-your-mailchimp-data/" },
+  { label: "ActiveCampaign Help: Set up email authentication (DKIM)", url: "https://help.activecampaign.com/hc/en-us/articles/206903370-Set-up-email-authentication-DKIM" },
+  { label: "Mail-Tester: Free email spam score tool", url: "https://www.mail-tester.com/" }
+]} />
