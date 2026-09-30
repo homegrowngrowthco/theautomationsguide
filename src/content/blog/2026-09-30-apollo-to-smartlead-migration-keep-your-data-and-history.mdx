@@ -1,0 +1,186 @@
+---
+title: "Apollo to Smartlead Migration: Keep Your Data and History"
+description: "Step-by-step guide to migrating from Apollo to Smartlead without losing contact data, sending history, or deliverability. Covers Clay, n8n, and Instantly too."
+tldr: "Export your Apollo contacts and sequences, warm your Smartlead inboxes first, then rebuild sequences and replicate suppression lists before sending a single cold email."
+pubDate: 2026-09-30
+tags: ["guide", "automation", "cold-email"]
+faqs:
+  - question: "Can I import Apollo contacts directly into Smartlead?"
+    answer: "Yes. Export contacts from Apollo as CSV, then import into a Smartlead campaign. Map the Apollo custom fields manually since field names rarely match."
+  - question: "Does Apollo export sending history?"
+    answer: "Apollo exports contact activity logs as CSV, but Smartlead has no native way to import that history. You store it in your CRM or a flat file for reference."
+  - question: "How long does inbox warming take before I can send in Smartlead?"
+    answer: "Smartlead recommends at least 14 days of warmup for a fresh domain. If you are moving warmed inboxes, the warmup period can be as short as 3 to 5 days."
+  - question: "Will my Apollo sequences transfer to Smartlead automatically?"
+    answer: "No. Apollo does not export sequences in a format Smartlead can import. You rebuild them manually or script the creation via Smartlead's API."
+  - question: "Can n8n automate the Apollo to Smartlead migration?"
+    answer: "Partially. n8n can pull contacts from Apollo's API, enrich via Clay, and POST them into Smartlead campaigns via API. Sequence copy-paste is still manual."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The trigger I see most often is a deliverability cliff. Teams run [Apollo](/go/apollo/) hard for six months, reply rates drift from 4% down to 1.5%, and someone finally checks the spam folder to find half the sequences never landed in inbox. At that point, switching sequencers feels urgent. The trap is rushing the export and recreating the same problems in a new tool. Done right, an Apollo to Smartlead migration takes about a week of prep and preserves everything that matters: your suppression list, your contact history, and your domain reputation.
+
+<KeyTakeaways items={[
+  "You gain Smartlead's native multi-inbox rotation and warmup, which Apollo does not offer at the same granularity.",
+  "You lose Apollo's built-in contact database on the sequencing side, so plan a Clay or Instantly enrichment layer if you relied on Apollo's intent data.",
+  "Sending history does not transfer natively. Export the CSV from Apollo activity logs and store it in your CRM before you cut over.",
+  "Budget 7 to 14 days: 3 days for exports and prep, 3 to 5 days for inbox warmup (or longer for fresh domains), then a staged send ramp."
+]} />
+
+## Before you migrate
+
+Do not touch the destination until the source is fully documented. I've watched teams delete Apollo campaigns the moment they signed up for [Smartlead](/go/smartlead/), then spend two weeks trying to reconstruct suppression lists from memory. Spend a half-day here. It saves a month of headaches.
+
+**Pull these artifacts from Apollo before anything else:**
+
+- All contact exports, segmented by campaign (Apollo lets you filter by sequence, then export to CSV per sequence, not as one giant file)
+- The "do not contact" list under Settings > Do Not Contact, exported as CSV
+- Activity logs for every contact you care about (Apollo activity is exportable at the contact level under People > export with activity columns checked)
+- Your sequence copy: subject lines, body text, wait days, and send conditions for every active and recently paused sequence
+- DNS records you authenticated in Apollo: SPF, DKIM, and DMARC entries, plus which inbox accounts were connected
+
+If you also ran campaigns in [Instantly](/go/instantly/) and are consolidating into Smartlead, [that migration has its own contact-data quirks](/blog/2026-09-27-migrate-apollo-to-instantly-without-losing-contact-data/) worth reviewing first.
+
+<StepRow steps={[
+  {
+    title: "Export and deduplicate contacts in Apollo",
+    body: "Filter People by each sequence, export per campaign as separate CSVs. In a spreadsheet, VLOOKUP against your do-not-contact list and remove bounced contacts flagged in Apollo activity logs. You want one clean master CSV per campaign segment, not one 50,000-row dump. This is also the moment to re-enrich stale records. If a contact is more than 90 days old, run it through Clay or a waterfall enrichment before importing to Smartlead."
+  },
+  {
+    title: "Set up and warm your inboxes in Smartlead before importing a single contact",
+    body: "Connect your sending inboxes under Smartlead's Email Accounts tab. Enable Smartlead's built-in warmup immediately. Do not skip this even if the inbox was previously connected in Apollo. Apollo's warmup data does not transfer, and Smartlead's warmup pool is separate. Per Smartlead's own documentation, fresh domains need a minimum of 14 days before cold sending. Inboxes migrated from another sender can reduce that to 5 to 7 days, but only if you ramp volume conservatively."
+  },
+  {
+    title: "Rebuild sequences manually in Smartlead",
+    body: "Apollo exports sequences as human-readable copy only. Create each sequence in Smartlead's campaign builder, paste your subject lines and body copy, and set step delays to match your Apollo cadence. One structural difference worth knowing: Smartlead separates campaign-level settings (sending window, max emails per day, inbox rotation) from step-level settings. Set the campaign throttle to 20 to 30 emails per day per inbox during your first week, then ramp. Tag each rebuilt sequence with the Apollo campaign name for traceability."
+  },
+  {
+    title: "Import contacts into Smartlead campaigns",
+    body: "In Smartlead, go to your campaign and use the Import Leads CSV flow. Map columns carefully. Apollo exports first name, last name, email, company, title, and any custom fields you defined. Smartlead's default fields use slightly different labels. Map explicitly. Do not rely on auto-mapping for custom columns. In my experience, it guesses wrong about 30% of the time. Import the do-not-contact list to Smartlead's global blocklist under Settings > Blocklist before you import any campaign contacts."
+  },
+  {
+    title: "Authenticate your sending domains in Smartlead",
+    body: "Under Email Accounts in Smartlead, verify SPF, DKIM, and DMARC for every connected domain. If you are using Google Workspace or Microsoft 365 inboxes, Smartlead walks you through the DNS records. Do not assume the authentication you had in Apollo carries over. Each platform registers its own DKIM selector. Confirm authentication is passing in Smartlead's interface before enabling campaigns. MXToolbox is a quick sanity check if you want third-party confirmation."
+  },
+  {
+    title: "Use n8n to automate ongoing contact sync if you are still running Apollo enrichment",
+    body: "If your workflow sources prospects from Apollo, enriches them in Clay, and then hands them to your sequencer, rebuild that pipe in n8n. Apollo API to Clay to Smartlead API is a straightforward three-node workflow. POST to Smartlead's /leads endpoint with campaign_id, email, and any custom field values. This replaces any Zap you had pushing Apollo exports to your old sequencer, and it runs continuously rather than as a one-time migration. Zapier chokes on Apollo's pagination above about 5,000 records. n8n handles it without drama."
+  }
+]} />
+
+<Figure class="post-screenshot" caption="Smartlead's leads view after a CSV import, showing mapped custom fields and lead status per campaign.">
+  <a href="/go/smartlead/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/smartlead-leads.png" alt="Smartlead leads view showing imported contacts with custom field columns and campaign assignment" loading="lazy" />
+  </a>
+</Figure>
+
+## What breaks and what does not transfer
+
+Most teams are surprised by three things.
+
+**Sending history is the biggest loss.** Apollo stores reply, click, open, and bounce events per contact. Smartlead has no import endpoint for historical engagement data. Your workaround: before you cut over, export Apollo's contact activity with the engagement columns and push that data into your CRM (HubSpot, Salesforce, Pipedrive, whatever you use). Tag contacts as "Apollo engaged" or "Apollo bounced" in the CRM. The history lives somewhere queryable even if Smartlead never sees it.
+
+**Merge fields use different syntax.** Apollo uses `{{first_name}}` style tokens. Smartlead uses `{{FIRST_NAME}}` (uppercase by default in most versions). Check every sequence step after rebuilding and normalize the field tokens, or your emails will render the raw placeholder instead of the personalization. If you want to catch broken merge fields before they go live, [Smartlead's deliverability diagnostics](/blog/2026-09-29-diagnose-cold-email-deliverability-gaps-with-smartlead/) surface rendering errors in test sends. I make this check a hard gate before any campaign goes live.
+
+<SideBySide>
+  <Fragment slot="left">
+    **Gotcha: Apollo's "remove replied" and "remove bounced" auto-suppression does not port over.** Apollo silently suppresses contacts who reply or hard-bounce. Smartlead has the same logic, but it only applies to activity that happens inside Smartlead. Any contacts who replied in Apollo are not suppressed in Smartlead unless you explicitly add them to the blocklist or mark them as unsubscribed before import.
+  </Fragment>
+  <Fragment slot="right">
+    **Fix: Pre-filter your export CSVs before import.**
+
+    ```bash
+    # In your Apollo export CSV,
+    # filter out any row where:
+    # - "Email Status" = "Bounced"
+    # - "Replied" = "Yes"
+    # - "Unsubscribed" = "Yes"
+    # Then add those emails to Smartlead blocklist
+    # via Settings > Blocklist > Upload CSV
+    # before importing campaign contacts.
+    ```
+  </Fragment>
+</SideBySide>
+
+The n8n canvas view is useful for confirming your API sync is running. The webhook trigger, enrichment node, ICP branch, and Smartlead push all show green checkmarks in the canvas once the workflow is active. Verify that before you declare the migration done.
+
+## Verify it worked
+
+Four concrete checks before you call the migration complete:
+
+1. **Blocklist integrity.** Send a test import of 5 known do-not-contact emails. Smartlead should reject them at the campaign level. If they pass through, your blocklist upload did not take correctly.
+2. **Authentication passing.** In Smartlead's Email Accounts view, every connected inbox should show a green checkmark on SPF, DKIM, and DMARC. Red means DNS propagation is incomplete.
+3. **Warmup running.** Check the warmup dashboard in Smartlead for each inbox. You should see warmup emails going out and receiving positive engagement signals. If warmup shows zero activity after 24 hours, the inbox is not properly connected.
+4. **Test campaign send.** Create a one-step campaign with a seed list of inboxes you control (use [mail-tester.com](https://www.mail-tester.com/) or your own test addresses across Gmail and Outlook). Confirm the email renders correctly, merge fields resolve, and the email hits inbox rather than spam.
+
+<ChooseIf title="Who should switch, and who should stay" tools={[
+  {
+    name: "Smartlead",
+    conditions: [
+      "You send from 5 or more inboxes and need native rotation and warmup in one tool.",
+      "Your reply rates have dropped below 2% and you suspect deliverability, not copy, is the problem.",
+      "You want API-first infrastructure and plan to push contacts from Clay or n8n rather than manually uploading."
+    ],
+    pricing: "From $39/mo",
+    affiliateSlug: "smartlead",
+    ctaLabel: "Try Smartlead",
+    highlight: true
+  },
+  {
+    name: "Apollo",
+    conditions: [
+      "You rely heavily on Apollo's built-in contact database and intent signals for prospecting, not just sequencing.",
+      "Your team does not have dedicated RevOps to manage inbox infrastructure separately.",
+      "You are on a single-domain setup sending under 200 emails per day."
+    ],
+    pricing: "From $49/mo",
+    affiliateSlug: "apollo",
+    ctaLabel: "Stay on Apollo"
+  },
+  {
+    name: "Instantly",
+    conditions: [
+      "You want Smartlead-level inbox rotation but prefer Instantly's simpler campaign UX.",
+      "Your sequences are short (3 steps or fewer) and you do not need advanced branching."
+    ],
+    pricing: "From $37/mo",
+    affiliateSlug: "instantly",
+    ctaLabel: "Try Instantly"
+  }
+]} />
+
+<MyTake>
+Most teams do not actually have a sequencer problem. They have a domain reputation problem that no tool switch will fix. Run a full deliverability audit with fresh test sends from MXToolbox and mail-tester.com before migrating anything. If your sending domains are already burned, you need new domains regardless of which sequencer you land on. Smartlead's warmup is genuinely better than Apollo's, but it cannot resurrect a domain Google has already flagged. Fix the infrastructure first. Migrate the contacts second.
+</MyTake>
+
+## One week is enough if you sequence the work correctly
+
+This migration is not technically hard. It is sequencing work: do the exports and blocklist prep before you touch Smartlead, warm inboxes before you import contacts, verify authentication before you hit send. The teams that have a painful time treat it as a same-day CSV import. If you need to enrich your contact list during the migration, [Clay](/tools/clay/) fits cleanly into this workflow before the Smartlead import step. And if you are running a multi-step automation to keep Apollo sourcing flowing into Smartlead campaigns, [n8n](/tools/n8n/) is the orchestration layer I'd use. It handles Apollo API pagination and rate limits far better than Zapier does at this volume.
+
+<BottomLine
+  verdict="Smartlead is the right destination for teams that have outgrown Apollo's sequencing infrastructure. The migration is a week of careful prep, not a technical project. Get your blocklists and inbox warmup right and the deliverability improvement will show up within the first two weeks of sending."
+  pick="Smartlead"
+  affiliateSlug="smartlead"
+  ctaLabel="Try Smartlead"
+/>
+
+<Sources sources={[
+  { label: "Smartlead docs: Email Warmup Setup", url: "https://help.smartlead.ai/en/articles/warmup-setup" },
+  { label: "Apollo.io docs: Exporting Contacts and Activity", url: "https://knowledge.apollo.io/hc/en-us/articles/export-contacts" },
+  { label: "G2: Smartlead vs Apollo reviews (2026)", url: "https://www.g2.com/compare/smartlead-vs-apollo-io" },
+  { label: "MXToolbox: Email Header Analyzer", url: "https://mxtoolbox.com/EmailHeaders.aspx" }
+]} />
