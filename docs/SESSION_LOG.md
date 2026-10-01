@@ -8,7 +8,17 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-01 (Session 97).
+Last updated 2026-10-01 (Session 98).
+
+## Session 98 (2026-10-01) — 9 PartnerStack programs live + listed; Ian's open items cleared
+
+- **Shipped: PR #323 squash-merged `73b04d8` (Ian approved).** Live + `listed:true`: AdCreative.ai, Leadfeeder, Constant Contact, Leadpages, plus Trainual, Descript, Flocksy, Diginius (previously skipped as off-niche) and new Signal House; Ian chose to list all after asking why not (`listed` only controls the homepage strip + `/tools/` grid; repo rule = list on approval). 10 deep links; 7 new hubs via auto-register (vendor blurbs rewritten); Flocksy has no logo (no icon passed transparency validation, wordmark fallback). Aircall `rejected` -> `pending`.
+- **Link curl audit:** every registered link carries `ps_partner_key` (Constant Contact: `cc=` code; final hop 403s curl). NOT registered: AdCreative `tag-free-credits` (vendor 404), Leadpages `tag-pricing` (lands on htmlpub.com), Signal House `tag-register` (= homepage). Leadfeeder: dealfront.com 301s to leadfeeder.com dropping the query with no first-party cookie, so attribution rests on PartnerStack's cookie (TODO).
+- **Found, not changed:** `/tools/` grid renders only the 9 `toolCategories`; listed tools in other categories (Sales Engagement 23, Advertising & Creative, Email & Marketing Automation, ...) appear only in the homepage marquee.
+- **Notion:** "Leadfeeder vs RB2B" Suggested -> Queued (High).
+- **Ian decisions:** pricing-index pitching DROPPED; brand-search nudge not started; no affiliate approvals beyond the 9; Beehiiv: no upgrade, templates TODO closed (free-plan route: duplicate the last post or paste `brand-kit/beehiiv/README.md` copy); HGC: 4 outreach TODOs closed (warm follow-ups, A-2, paid verification, 52 chains), Resend + Postmark DMARC kept.
+- **Parked checks not run:** every gate is 10/02 or later; carried in the rewritten next-session prompt.
+- Verify: preview + prod `/go/<slug>/` 200 with partner URL; `qa:lint`/`qa:logos` 0 hard; no overflow at 375/768/1280. Revert: `git revert 73b04d8`; Notion: flip "Leadfeeder vs RB2B" back to Suggested.
 
 ## Session 97 (2026-10-01) — Watchdog live and proven; TODO pass (Apollo success, MoltSets fixed, 7 topics queued)
 
