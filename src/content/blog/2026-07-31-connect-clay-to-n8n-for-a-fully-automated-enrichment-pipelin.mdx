@@ -41,7 +41,7 @@ The workflow I'm walking you through is the one I've deployed at Homegrown Growt
 
 No CSV exports. No manual imports. No three-day lag.
 
-The reason n8n wins as the glue layer here (instead of Make, which I covered in a separate post) is the HTTP Request node flexibility and the self-hosted option. When you're pushing 10,000 rows a week through enrichment and you want full control over execution logs, retry logic, and data residency, n8n's self-hosted tier is the only serious answer. [n8n's webhook documentation](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/) shows just how much control you get over payload parsing.
+The reason n8n wins as the glue layer here (instead of [Make](/go/make/), which I covered in a separate post) is the HTTP Request node flexibility and the self-hosted option. When you're pushing 10,000 rows a week through enrichment and you want full control over execution logs, retry logic, and data residency, n8n's self-hosted tier is the only serious answer. [n8n's webhook documentation](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/) shows just how much control you get over payload parsing.
 
 <StatRow stats={[
   { number: "~3 min", label: "Median enrichment lag", description: "Typical time from lead creation in Clay to contact appearing in HubSpot with this pipeline running" },

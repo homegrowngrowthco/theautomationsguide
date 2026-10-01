@@ -7,13 +7,13 @@ updatedDate: 2026-07-09
 tags: ["guide", "automation", "cold-email"]
 ---
 
-Most cold email guides hand you a tool recommendation and a vague "connect it with Zapier" wave of the hand. What they skip is the messy middle: what happens when [Clay](/tools/clay/) returns a null job title, when a lead's company size puts them in two different sequences, or when [Smartlead](/tools/smartlead/)'s API rejects a contact because the email field is formatted wrong. Those edge cases are where campaigns die. This post walks the exact Clay → [n8n](/tools/n8n/) → Smartlead workflow I'd build for a RevOps team sending 500-2,000 contacts per week, including the fallback conditions most tutorials quietly pretend don't exist.
+Most cold email guides hand you a tool recommendation and a vague "connect it with Zapier" wave of the hand. What they skip is the messy middle: what happens when [Clay](/tools/clay/) returns a null job title, when a lead's company size puts them in two different sequences, or when [Smartlead](/tools/smartlead/)'s API rejects a contact because the email field is formatted wrong. Those edge cases are where campaigns die. This post walks the exact [Clay](/go/clay/) → [n8n](/tools/n8n/) → [Smartlead](/go/smartlead/) workflow I'd build for a RevOps team sending 500-2,000 contacts per week, including the fallback conditions most tutorials quietly pretend don't exist.
 
 ## Step 1: Build and Enrich Your List in Clay
 
 Clay is the right tool for enrichment-heavy list building. Its waterfall enrichment, sequencing providers like [Apollo](/tools/apollo/), Clearbit, Hunter, and LinkedIn scrapers, stopping when it gets a hit, is genuinely hard to replicate elsewhere. The credit system gets expensive fast if you're sloppy, so structure your table before you run anything.
 
-Start with a raw CSV or connect a source directly: Clay pulls from LinkedIn Sales Navigator exports, Apollo lists, or webhook-triggered inputs from your CRM. Build your base columns first, company domain, LinkedIn URL, first name, last name, then layer enrichment on top.
+Start with a raw CSV or connect a source directly: Clay pulls from LinkedIn Sales Navigator exports, [Apollo](/go/apollo/) lists, or webhook-triggered inputs from your CRM. Build your base columns first, company domain, LinkedIn URL, first name, last name, then layer enrichment on top.
 
 The columns you actually need for Smartlead, and that most guides skip building properly:
 
@@ -54,7 +54,7 @@ Map your Clay enrichment fields to Smartlead's custom variables here. A `company
 
 Add error handling after every Smartlead API call. Use n8n's "Continue on Fail" option and route any non-200 response to a separate error log sheet. Smartlead will reject contacts if the campaign is paused, if you've hit your daily sending limit, or if the email domain is on their internal blocklist. You want visibility on all three. Silent failures are how campaigns go sideways without you noticing until open rates crater.
 
-One thing Smartlead does better than Instantly or Lemlist: campaign-level sending schedules are granular enough that you can run enterprise sequences Tuesday, Thursday only and SMB sequences Monday, Friday without managing separate inbox pools. Set this in campaign settings before you start pushing contacts. Changing schedules mid-campaign affects in-flight contacts unpredictably, I've seen it reset step timing on active sequences.
+One thing Smartlead does better than [Instantly](/go/instantly/) or [Lemlist](/go/lemlist/): campaign-level sending schedules are granular enough that you can run enterprise sequences Tuesday, Thursday only and SMB sequences Monday, Friday without managing separate inbox pools. Set this in campaign settings before you start pushing contacts. Changing schedules mid-campaign affects in-flight contacts unpredictably, I've seen it reset step timing on active sequences.
 
 ## Step 4: Handle Sequence Logic and Fallback Conditions
 

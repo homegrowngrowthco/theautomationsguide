@@ -168,7 +168,7 @@ If you are deciding between n8n and Make for this specific workflow, the decisio
 
 Before you put this in production, run through four checks. Make a test call from an Aircall number that is already a HubSpot contact and verify the Call Engagement appears on the timeline within 30 seconds. Tag the call "Interested" and confirm the contact enrolls in your target sequence. Check the HubSpot sequence dashboard, not just the contact record. Make a call from a number with no HubSpot contact and confirm a Slack alert fires instead of a silent failure. Finally, check the "Last Call Duration" and "Last Call Outcome" custom properties on the contact record to confirm they populated correctly.
 
-This workflow pairs naturally with the [Apollo to HubSpot sync pattern](/blog/2026-09-20-apollo-to-hubspot-with-n8n-auto-sync-contacts-and-trigger-se/) I covered previously. If you are enriching inbound leads via Apollo before they hit a call with a rep, you can chain these two workflows so the contact arrives on the call with full context already written to their record.
+This workflow pairs naturally with the [Apollo to HubSpot sync pattern](/blog/2026-09-20-apollo-to-hubspot-with-n8n-auto-sync-contacts-and-trigger-se/) I covered previously. If you are enriching inbound leads via [Apollo](/go/apollo/) before they hit a call with a rep, you can chain these two workflows so the contact arrives on the call with full context already written to their record.
 
 If your team is evaluating where Aircall fits in a broader outbound stack, [this breakdown of the best CRM setups for outbound teams](/blog/2026-09-21-best-crm-for-outbound-teams-2026-edition/) covers how dialer integrations factor into the decision between HubSpot and its alternatives.
 

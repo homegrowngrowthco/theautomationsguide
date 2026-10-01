@@ -54,7 +54,7 @@ Pipedrive's [automation builder](https://support.pipedrive.com/en/article/automa
 
 What it cannot do: detect a reply and stop the sequence. Rotate sending across multiple inboxes. Respect per-domain sending limits. Branch based on email engagement data. Send from a different sender than the CRM login. These are not edge cases. They are the baseline for deliverability-safe outbound in 2026. As I covered in the [Pipedrive automation limits deep dive](/blog/2026-09-20-pipedrive-automation-in-2026-limits-triggers-and-workarounds/), the ceiling is real and it does not move.
 
-The practical fix is to treat Pipedrive as your record of truth for deals and contacts, and route the actual email execution through a purpose-built layer. That layer is either an integration platform (Make, n8n), a broadcast/nurture tool (Kit), or a cold outbound sequencer (Smartlead, Instantly) connected via API. Usually it is two of those three working together.
+The practical fix is to treat Pipedrive as your record of truth for deals and contacts, and route the actual email execution through a purpose-built layer. That layer is either an integration platform (Make, n8n), a broadcast/nurture tool (Kit), or a cold outbound sequencer ([Smartlead](/go/smartlead/), [Instantly](/go/instantly/)) connected via API. Usually it is two of those three working together.
 
 <Figure class="post-screenshot" caption="Pipedrive pipeline view, where deal stage triggers kick off external automation workflows via Make or n8n">
   <a href="/go/pipedrive/" target="_blank" rel="noopener noreferrer sponsored">

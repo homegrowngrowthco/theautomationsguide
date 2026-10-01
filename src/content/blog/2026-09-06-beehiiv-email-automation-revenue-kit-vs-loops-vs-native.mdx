@@ -137,7 +137,7 @@ Here is the specific workflow architecture I've validated across newsletter oper
 
 <SideBySide>
   <Fragment slot="left">
-    **The gotcha:** Beehiiv's webhook retry logic is limited. If your Zapier or Make endpoint is down when a subscriber.upgraded event fires, you will miss that event entirely. Beehiiv does not queue failed webhooks for retry beyond a short window. I've personally watched teams lose premium upgrade automation triggers for hours during Zapier maintenance windows. Build the backup poll or you will feel this pain.
+    **The gotcha:** Beehiiv's webhook retry logic is limited. If your Zapier or [Make](/go/make/) endpoint is down when a subscriber.upgraded event fires, you will miss that event entirely. Beehiiv does not queue failed webhooks for retry beyond a short window. I've personally watched teams lose premium upgrade automation triggers for hours during Zapier maintenance windows. Build the backup poll or you will feel this pain.
   </Fragment>
   <Fragment slot="right">
     ```js

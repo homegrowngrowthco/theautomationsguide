@@ -114,7 +114,7 @@ The workflow we are building does five things: receive a form submission via web
 
 The reason I push teams toward this architecture over Fillout is that you can slot enrichment into step 3 before any routing decision is made. We have a detailed walkthrough of [connecting Clay to n8n for a fully automated enrichment pipeline](/blog/2026-07-23-automate-demo-scheduling-with-calcom-hubspot-and-n8n/) that pairs well with this workflow. The short version: add an HTTP Request node after normalization that calls your enrichment provider with the email or domain, then route on the enriched fields (employee count, industry, funding stage) instead of whatever the prospect typed into a form field.
 
-Routing on self-reported data is unreliable. People lie on forms, or they just guess. Routing on enriched firmographic data pulled from Clay or [Clearbit](https://clearbit.com/blog/company-data-api) is not. Those are different categories of signal.
+Routing on self-reported data is unreliable. People lie on forms, or they just guess. Routing on enriched firmographic data pulled from [Clay](/go/clay/) or [Clearbit](https://clearbit.com/blog/company-data-api) is not. Those are different categories of signal.
 
 For teams already using [HubSpot](/go/hubspot/) sequences, this means the right sequence fires automatically based on accurate company data, not a checkbox the prospect selected. I have seen sequence reply rates jump 15 to 20 percent simply because the routing was correct and the messaging matched the actual company profile. That is not a workflow improvement. That is a revenue improvement.
 
