@@ -1,0 +1,204 @@
+---
+title: "Mailchimp to Kit Migration: Keep Segments and Automations"
+description: "Step-by-step guide to migrating from Mailchimp to Kit without losing your segments, tags, or automation logic. Covers exports, gotchas, and verification."
+tldr: "You can migrate from Mailchimp to Kit in a weekend by exporting segmented CSVs, rebuilding automations as Kit visual sequences, and using n8n or Zapier to backfill custom field data."
+pubDate: 2026-10-01
+tags: ["guide", "automation", "email-marketing"]
+faqs:
+  - question: "Does Kit import Mailchimp automations automatically?"
+    answer: "No. Kit has no native Mailchimp automation importer. You rebuild them manually as visual sequences, but the logic maps cleanly if you document your Mailchimp journeys first."
+  - question: "Will my Mailchimp segments transfer to Kit?"
+    answer: "Not directly. You export each Mailchimp segment as a separate CSV and import them into Kit with a matching tag. Segments become tags and filters in Kit."
+  - question: "How long does a Mailchimp to Kit migration take?"
+    answer: "A straightforward list under 20k contacts with a few automations takes one to two days. Complex setups with merge fields and 10-plus journeys can take a full week."
+  - question: "What happens to Mailchimp merge fields in Kit?"
+    answer: "Mailchimp merge fields map to Kit custom fields. You create the custom fields in Kit first, then import CSVs with matching column headers, or use n8n to push data via the Kit API."
+  - question: "Can I run Mailchimp and Kit in parallel during migration?"
+    answer: "Yes, and I recommend it. Keep Mailchimp active until Kit sequences are tested and DNS records (SPF, DKIM) are verified to avoid gaps in delivery."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The moment that triggers a [Mailchimp](/go/mailchimp/) to [Kit](/go/kit/) migration is almost always the same. You open Mailchimp's pricing page after they bump your tier, do the math, and realize you are paying for a list tool when you actually need a creator-oriented automation platform. Or you try to build a sequence that branches on purchase behavior and hit Mailchimp's wall. Either way, the fear is not about leaving Mailchimp. It is about the three years of segments, tags, and automation logic sitting inside it.
+
+<KeyTakeaways items={[
+  "Kit has no native Mailchimp importer. Plan to export segments as CSVs and rebuild automations manually.",
+  "Mailchimp segments become Kit tags. One export per segment, one import per tag.",
+  "Merge fields map to Kit custom fields. Create them before importing or you will lose the data silently.",
+  "Run both platforms in parallel for at least one week before cutting DNS. Gaps in delivery are worse than a slow migration.",
+]} />
+
+<StatRow stats={[
+  { number: "2 days", label: "Typical migration window", description: "For a clean list under 20k contacts with fewer than five active automations" },
+  { number: "0", label: "Native automation importers", description: "Kit has no one-click Mailchimp migration. Every journey gets rebuilt by hand." },
+  { number: "3x", label: "Automation depth gain", description: "Kit's visual sequence builder handles conditional branches Mailchimp's classic automations cannot match" },
+]} />
+
+## Before you migrate
+
+Do not touch Kit until this checklist is done. Skipping prep is how you arrive at Kit with a flat CSV and no idea which contacts were in your welcome series.
+
+- **Audit your Mailchimp account.** List every active automation, its trigger, and its branch logic. Screenshot each journey. Mailchimp does not export automation logic in any usable format, so screenshots are your source of truth.
+- **Identify every segment.** Go to Audience > Segments and write down the segment name, the conditions, and the approximate contact count. You will export each one as a separate CSV.
+- **Map your merge fields.** Open Settings > Audience fields and note every custom merge field beyond `FNAME`, `LNAME`, and `EMAIL`. You will create matching custom fields in Kit before importing.
+- **Pause sequences that are mid-flight.** Any subscriber currently inside a Mailchimp automation journey should finish or be manually exited before you move them. Moving a contact mid-sequence creates duplicate touch problems.
+- **Verify your sending domain.** You will re-authenticate SPF and DKIM inside Kit. Pull your current DNS records from your registrar now so you have them ready.
+- **Grab your suppression list.** Export unsubscribes and bounces from Mailchimp. Kit calls them "cold subscribers." Suppress these on import to protect deliverability.
+
+<StepRow steps={[
+  {
+    title: "Export segmented CSVs from Mailchimp",
+    body: "In Mailchimp, go to Audience > Segments. Open each segment and click Export Segment. Select all fields, including merge fields. Name each file after the segment (for example, 'purchased-course.csv' or 'lead-magnet-cold.csv'). Also export your full audience once with all merge fields for your master import. Do not export just one flat file and try to re-segment in Kit. That approach loses the segment context entirely."
+  },
+  {
+    title: "Create custom fields and tags in Kit before importing",
+    body: "Log into Kit and go to Subscribers > Custom Fields. Create a field for every Mailchimp merge field you mapped earlier. Column headers in your CSV must match the field key exactly because Kit is case-sensitive here. Then go to Subscribers > Tags and pre-create tags matching each segment name. This two-minute step prevents Kit from silently ignoring columns it does not recognize."
+  },
+  {
+    title: "Import CSVs and assign tags on import",
+    body: "Go to Subscribers > Import. Upload each segmented CSV. On the mapping screen, match your CSV columns to Kit fields. In the tag assignment section at the bottom, add the tag that corresponds to this segment. Kit applies the tag to every subscriber in that CSV on import. Repeat for each segment file. Import your suppression list last with the 'mark as unsubscribed' option checked."
+  },
+  {
+    title: "Rebuild automations as Kit visual sequences",
+    body: "Open your automation screenshots and recreate each journey in Kit's visual sequence builder. Kit's approach differs from Mailchimp's: triggers are subscriber-centric (tag added, form submitted, purchase event) rather than list-centric. Rebuild the happy path first, then add conditional branches. For anything complex with Mailchimp's 'if/else' goals, use Kit's conditional steps with tag-based logic. The Kit automation deep dive we published covers every B2B pattern worth knowing for [building out your sequence logic](/blog/2026-09-27-kit-automation-deep-dive-every-b2b-workflow-you-need/)."
+  },
+  {
+    title: "Authenticate your sending domain in Kit",
+    body: "Go to Settings > Email > Custom Sending Domain. Add your domain and Kit will generate SPF, DKIM, and DMARC records. Add these to your DNS registrar. Propagation takes 24 to 48 hours. Until these records are verified, Kit sends from a shared domain and your deliverability will suffer. Do not send a broadcast until this step is green."
+  },
+  {
+    title: "Test sequences with internal addresses before going live",
+    body: "Add yourself and a teammate as test subscribers with each relevant tag. Trigger each sequence and confirm emails arrive, links resolve, and conditional branches fire correctly. Check that custom field merge values render correctly. Kit uses liquid syntax, so a first name field looks like `subscriber.first_name` in template fields. Once every sequence is verified, pause the Mailchimp equivalents and flip your opt-in forms to Kit."
+  },
+]} />
+
+## What breaks and what does not transfer
+
+Mailchimp and Kit have genuinely different data models. Some things port cleanly. Others need a workaround. I've mapped out the four problem areas that trip people up every time.
+
+<SideBySide>
+  <Fragment slot="left">
+    **What breaks**
+
+    - **Mailchimp groups.** Groups are not the same as segments. Kit has no groups concept. Map groups to tags manually, or collapse them into a custom field with a dropdown value.
+    - **RSS-to-email campaigns.** Mailchimp's RSS automation is drag-and-drop. Kit's equivalent requires a custom RSS feed connected via [n8n](/go/n8n/) or Zapier that fires a broadcast via API. Not hard, but not automatic.
+    - **Purchase event triggers from Mailchimp's e-commerce integrations.** If you used Mailchimp's WooCommerce or Shopify native connection to trigger automations on purchase, those integrations do not exist in Kit natively. You need a Zapier zap or an n8n workflow to push purchase events as tags into Kit.
+    - **A/B test data.** Historical split test results stay in Mailchimp. Kit starts fresh.
+  </Fragment>
+  <Fragment slot="right">
+    **n8n workflow: push Shopify purchase events to Kit as tags**
+
+    ```json
+    {
+      "trigger": "Shopify: Order Paid webhook",
+      "steps": [
+        {
+          "node": "HTTP Request",
+          "method": "GET",
+          "url": "https://api.kit.com/v4/subscribers",
+          "params": { "email_address": "{{ $json.email }}" }
+        },
+        {
+          "node": "HTTP Request",
+          "method": "POST",
+          "url": "https://api.kit.com/v4/tags/YOUR_TAG_ID/subscribers",
+          "body": {
+            "subscriber": {
+              "email_address": "{{ $json.email }}"
+            }
+          }
+        }
+      ]
+    }
+    ```
+
+    This pattern fires on every paid order, looks up the subscriber in Kit by email, and adds a product-purchase tag. The Kit sequence trigger watches for that tag. No native integration needed.
+  </Fragment>
+</SideBySide>
+
+In my testing, the groups-to-tags mapping is the step that takes the longest. Budget an extra hour if you have more than five Mailchimp groups with overlapping membership.
+
+## Verify it worked
+
+Before you cancel Mailchimp, run through these four checks. Skip them and you will discover the problem six weeks later when a subscriber complains they stopped getting your newsletter.
+
+1. **Subscriber count matches.** Pull total subscribers in Kit and compare against your Mailchimp export totals. A variance of more than 2 percent means a failed import row. Re-check that CSV for formatting errors.
+2. **Tags are populated correctly.** Pick three contacts you know were in a specific Mailchimp segment. Confirm they have the corresponding Kit tag. If they do not, the import mapping failed for that file.
+3. **Sequences fire on trigger.** Add a fresh test email address, submit it through your live opt-in form, and confirm the welcome sequence starts within five minutes. Check the sequence activity log in Kit to see each step fire.
+4. **Custom fields render in emails.** Open a sent test email from Kit and confirm the merge values populated. Empty fields almost always mean the CSV column header did not match the custom field key exactly.
+
+<ChooseIf title="Should you switch, or stay?" tools={[
+  {
+    name: "Kit",
+    conditions: [
+      "You sell digital products, courses, or newsletters and want purchase-driven segmentation",
+      "Your automation logic branches on subscriber behavior, not just send dates",
+      "You want a cleaner UI and are willing to rebuild journeys from scratch for a better long-term foundation"
+    ],
+    pricing: "Free to 10k subscribers, then from $25/mo",
+    affiliateSlug: "kit",
+    ctaLabel: "Try Kit free",
+    highlight: true
+  },
+  {
+    name: "ActiveCampaign",
+    conditions: [
+      "You need CRM-level deal pipelines alongside email sequences in one platform",
+      "Your sequences are deeply conditional with lead scoring logic baked in",
+      "You are migrating from Mailchimp but want to import automation logic more directly"
+    ],
+    pricing: "From $15/mo (Starter), $49/mo (Plus) for automation",
+    affiliateSlug: "activecampaign",
+    ctaLabel: "Try ActiveCampaign",
+    highlight: false
+  },
+  {
+    name: "Brevo",
+    conditions: [
+      "You want transactional email and marketing sequences in one platform at a lower price point",
+      "Your list is large but your automation complexity is low",
+      "You need SMS marketing alongside email"
+    ],
+    pricing: "Free to 300/day, Starter from $9/mo",
+    affiliateSlug: "brevo",
+    ctaLabel: "Try Brevo",
+    highlight: false
+  },
+]} />
+
+If you are evaluating the broader Mailchimp exit and want to compare how this migration stacks up against moving to [ActiveCampaign](/go/activecampaign/), there is a full rundown on [migrating Mailchimp to ActiveCampaign without losing segments](/blog/2026-09-29-migrate-mailchimp-to-activecampaign-without-losing-segments/). If you are coming from GetResponse rather than Mailchimp, the [GetResponse to Kit migration guide](/blog/2026-09-28-migrate-from-getresponse-to-kit-without-losing-your-automati/) covers the same steps with GetResponse-specific gotchas.
+
+<MyTake>
+Most Mailchimp users underestimate how much of their "automation" is actually just a drip sequence with no real branching. When they rebuild in Kit and are forced to confront what their journeys actually do, they realize Mailchimp's limitations were quietly shaping their strategy the whole time. The migration is not painful because Kit is hard. It is painful because you finally see what you should have built three years ago.
+</MyTake>
+
+## The migration is the easy part
+
+The hard part is deciding to do it. Once you have the CSVs exported, the custom fields mapped, and the sequences documented, the actual Kit setup takes less time than you expect. [Kit](/tools/kit/) is genuinely well-designed for creator and B2B content workflows, and the visual sequence builder makes Mailchimp's classic automation editor feel like it was designed in 2014 (because it was). Give yourself a week of parallel running, verify the four checks above, and then let Mailchimp's subscription lapse with confidence.
+
+<BottomLine
+  verdict="Kit is the right destination if you are leaving Mailchimp for better automation and creator-friendly commerce features. The migration requires manual work but the data model is cleaner on the other side."
+  pick="Kit"
+  affiliateSlug="kit"
+  ctaLabel="Try Kit free"
+/>
+
+<Sources sources={[
+  { label: "Kit: Custom fields documentation", url: "https://help.kit.com/en/articles/2502533-custom-fields" },
+  { label: "Kit: Importing subscribers guide", url: "https://help.kit.com/en/articles/2502546-import-subscribers" },
+  { label: "Mailchimp: Export your contacts", url: "https://mailchimp.com/help/view-export-contacts/" },
+  { label: "G2: Kit vs Mailchimp user reviews", url: "https://www.g2.com/compare/convertkit-vs-mailchimp" },
+]} />
