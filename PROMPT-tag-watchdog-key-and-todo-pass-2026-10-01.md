@@ -2,6 +2,11 @@
 
 Start this session inside `theautomationsguide/`. State which model you are running as before doing anything else.
 
+**Written to run SAME DAY, 2026-10-01 from about 11:15 ET.** Timing facts for today:
+- The engine's next scheduled run is **16:00 ET**. Make no engine edits between 15:50 and 16:15 ET. Afterwards, check that its execution succeeded (or was re-run by layer 2).
+- The watchdog's first scheduled run is **12:30 ET (16:30 UTC)**, but only if PR #319 is merged by then. Before the merge, do the secret (1c) and the acknowledgement change (1d), or that run will go red.
+- Things you can only check tomorrow are parked; see 1a and Part 2.
+
 ## Context (read, don't re-derive)
 
 On 2026-10-01 (Session 96, op #1179) a Notion API outage failed 3 scheduled n8n runs. In response, a 3-layer retry stack was built and is **already live in n8n**:
@@ -21,8 +26,8 @@ Run `git pull --ff-only` on master first. The OneDrive checkout was behind origi
 ### 1a. Preflight (Claude, read-only)
 - `gh pr view 319 --json state,mergeCommit`. If it's already merged, skip 1d.
 - Confirm the `n8n` MCP works now: call `mcp__n8n__n8n_list_workflows`. The dead key was swapped on 10/01, and a fresh session picks up the new one. If it still 401s, fingerprint the key without printing it: decode the JWT `exp` and probe `GET /api/v1/workflows?limit=1`. The swap script pattern is in Session 96.
-- `node --env-file=../growth-engine/.env n8n/watchdog.mjs --dry`. Expect "All scheduled runs accounted for", or a real finding worth reporting.
-- Check that the 10/02 7:30 Daily Briefing execution succeeded (the first live run with the stuck-Generating flag).
+- `node --env-file=../growth-engine/.env n8n/watchdog.mjs --dry`. **Today this is EXPECTED to report the 10/01 morning failures** (Topic Suggestor 7:30 = execution `22996`; after about 11:25 ET also Engine 8:00 = `23000` and Ian Queue Reminder 8:00 = `22998`). All three were recovered on 10/01 by fresh manual triggers (`23007`, `23006` opening PR #318, and `23008`), which are not linked as re-runs. Anything else it reports is a real finding.
+- PARKED to the next session (date gate 2026-10-02 07:45 ET): check that the Daily Briefing's first live run with the stuck-Generating flag succeeded. Don't trigger it by hand today: it would post a duplicate briefing to Slack.
 - Check whether any real failure has hit "Error Trigger — TAG" since 10/01 14:44Z, and how the re-run logic handled it. That would be the first production proof of layer 2.
 
 ### 1b. Ian creates one n8n API key (walk Ian through this; he does it, the key never enters chat)
@@ -47,9 +52,11 @@ Option B, browser: github.com/homegrowngrowthco/theautomationsguide > Settings >
 
 Claude then verifies with `gh secret list -R homegrowngrowthco/theautomationsguide`: `N8N_API_KEY` should be listed with today's date. That proves the name, not the value; 1d proves the value.
 
-### 1d. Merge PR #319 and prove the watchdog end to end
-- PR #319 carries only agent commits, so **Ian merges it** (or explicitly tells Claude to). Re-check CI is green first.
-- Claude triggers it with `gh workflow run n8n-watchdog.yml -R homegrowngrowthco/theautomationsguide`, then `gh run watch`. Expected: green, with the log line "All scheduled runs accounted for". From 10/02 00:30 ET onward, the 10/01 morning failures are outside its window.
+### 1d. Acknowledge today's hand-recovered failures, merge PR #319, prove the watchdog end to end
+- **Before merging, add an acknowledgement list to `n8n/watchdog.mjs`** on the PR branch (`ops/n8n-retry-layers`; its worktree is `C:\tmp\tag-n8n-retry`, so run `git pull` there first). Add a commented `ACKNOWLEDGED` map of execution id to reason, initially `22996`, `23000`, `22998` with "recovered by manual fresh trigger 2026-10-01 (23007 / 23006 / 23008)". `judge()` must treat an acknowledged root or failed execution as recovered. Add a selftest case: an acknowledged failure stays quiet, and an unacknowledged one still reports. Document in `n8n/README.md` ("Retry stack") that a hand-recovered incident is silenced by adding its id there. Rerun `node n8n/watchdog.mjs --selftest` and the live `--dry` (expect "All scheduled runs accounted for"), then push and wait for CI to go green.
+- The 16:00 ET engine run can't be judged until about 19:25 ET (3.4h grace), so a green run this afternoon says nothing about it. The 04:30 UTC run tonight covers it.
+- PR #319 carries only agent commits, so **Ian merges it** (or explicitly tells Claude to). Aim to merge before 12:30 ET, and only after 1c (the secret) and the acknowledgement change. Re-check CI is green first.
+- Claude triggers it with `gh workflow run n8n-watchdog.yml -R homegrowngrowthco/theautomationsguide`, then `gh run watch`. Expected: green, with the log line "All scheduled runs accounted for".
 - A red run with "BLIND" means the secret is missing. A red run with "rejected (HTTP 401)" means a bad paste: redo 1c. Any other finding is real, so report it.
 - The `qa-freshness.yml` `n8n-selftests` job should be green on master too.
 
@@ -76,7 +83,8 @@ Read `TODO.md` fresh. For every open item, decide which bucket it falls in, and 
 - **D. Possibly stale or closable.** Close only with evidence: a query or a file showing it's done.
 
 Hints from 10/01 (verify each one):
-- **Due now (A):** Apollo-cluster read round 2 (due ~10/01; rule: "apollo vs pipedrive" avg position < 20 is success, otherwise stop investing in the cluster). Cadence re-check round 3 (due ~10/02; `gsc-search-analytics.py` ends 3 days back, so the 9/22-9/28 week needs a run on 10/02 or later; judge on clicks AND impressions).
+- **Due now (A):** Apollo-cluster read round 2 (due 10/01, i.e. today; rule: "apollo vs pipedrive" avg position < 20 is success, otherwise stop investing in the cluster).
+- **Cadence re-check round 3 (due ~10/02):** today `gsc-search-analytics.py` ends on about 9/28, so the 9/22-9/28 week may just be in, but its last days are provisional GSC data. Run it. If the end date reaches 9/28, give a PROVISIONAL read (clicks AND impressions) and keep the TODO open for a confirming pull on or after 10/04. Otherwise PARK it.
 - **Checkable, may close (D):** `/tools/calendly/` indexation (run `gsc-index-status.py`; if it's indexed, delete the "Request Indexing" item). The 31-posts-without-`updatedDate` count (re-count; it drains passively). The second lead magnet is gated on about 100 subscribers (read the count from the Beehiiv MCP).
 - **Small code Claude could do (A, on a branch in `C:\tmp`):** audit low L-10, the inline-style DRY-up still left in `tools.astro:100` and the empty-state idiom across 4 hub pages.
 - **Ian decisions (B):** MoltSets post vs hub, the Google Indexing API branch, welcome-email automation, OG cards (Direction D), the 6 zero-mention hubs and the factors-ai/prospeo orphans (delete or keep), promoting the 16-tool Suggested batch (Claude can prepare a one-screen shortlist first).
@@ -98,5 +106,5 @@ Hints from 10/01 (verify each one):
 ## Wrap-up
 - TAG `docs/SESSION_LOG.md` Session 97 (20 lines or fewer), TODO.md updated (delete closed items, re-rank anything added), `npm run qa:docs` with 0 hard failures.
 - Root ops log: check `git log` for the latest op number first (it was #1179 on 10/01), then add 1 to 2 lines with a pointer.
-- Delete this prompt file (`git rm`) once Part 1 is done. If Part 1 can't finish, update this file in place rather than writing a second prompt.
+- Once Part 1 is done, don't delete this file. Rewrite it in place as the next session's single prompt, holding only what's still parked: the 10/02 Daily Briefing check, tonight's 04:30 UTC watchdog run (first one to judge the 16:00 ET engine run), the confirming cadence pull ≥10/04, and the alita key ≥10/22. Delete it (`git rm`) only when nothing is parked.
 - Final message: what's now live and proven, what Ian still owes, and what's parked (with dates).
