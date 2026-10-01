@@ -52,3 +52,27 @@ jobs:
 
       - name: Pricing extractor self-test
         run: node pricing/build-pricing-index.mjs --selftest
+
+  # The n8n retry stack decides when a failed run is re-run, when it alerts, and when the
+  # watchdog cries wolf. A regression there is silent until the next outage, so its decision
+  # logic is pinned by offline fixtures (node builtins only, no network, no API key).
+  n8n-selftests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Error-workflow re-run decisions
+        run: node n8n/build-error-retry.mjs --selftest
+
+      - name: Watchdog schedule + recovery judging
+        run: node n8n/watchdog.mjs --selftest
+
+      - name: Daily Briefing stuck-Generating flag
+        run: node n8n/update-briefing-stuck-generating.mjs --selftest

@@ -1,0 +1,37 @@
+# n8n watchdog: did every scheduled TAG workflow run succeed, or get recovered by the error
+# workflow's automatic re-runs? Born 2026-10-01, the day a Notion outage failed 3 scheduled runs
+# and a human had to notice. This is the layer that runs OUTSIDE n8n, so it still reports when
+# n8n, the error workflow, or its API key is what broke. Logic + window math: n8n/watchdog.mjs.
+#
+# Twice daily, timed to land after the error workflow's longest re-run back-off (~3.4h) for the
+# morning and afternoon runs, in both EDT and EST: 16:30 UTC = 12:30 EDT / 11:30 EST,
+# 04:30 UTC = 00:30 EDT / 23:30 EST.
+#
+# Requires repo secret N8N_API_KEY (an n8n API key for homegrowngrowth.app.n8n.cloud, created in
+# n8n Settings > n8n API). Until it exists the job FAILS LOUDLY - a skipped check must not read as
+# a passing one. Posts to Slack only when there is a problem; the job also fails, so GitHub's
+# failure email is a second channel if Slack is the thing that is down.
+
+name: n8n-watchdog
+
+on:
+  schedule:
+    - cron: '30 16 * * *'
+    - cron: '30 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Check scheduled n8n runs
+        env:
+          N8N_API_KEY: ${{ secrets.N8N_API_KEY }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node n8n/watchdog.mjs

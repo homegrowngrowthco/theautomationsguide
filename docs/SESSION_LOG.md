@@ -8,7 +8,17 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-09-25 (Session 95).
+Last updated 2026-10-01 (Session 96).
+
+## Session 96 (2026-10-01) — Notion outage failed 3 runs; n8n retry stack built and live
+
+- **Cause:** Notion's public API returned 500 "Cross-cell memcached access is not allowed" (their incident, posted 8:18 resolved 8:32 ET; ours started by 7:30). Failed: Topic Suggestor 7:30, Engine 8:00, Ian Queue Reminder 8:00. All 3 re-triggered by hand once Notion recovered (engine opened PR #318). Nothing on our side was broken.
+- **Shipped live (n8n), 3 layers + 1 guard:** (1) Retry On Fail x3/5s on 30 safe-to-repeat nodes across the 7 active TAG workflows (create calls excluded); (2) error workflow rebuilt 4 -> 23 nodes: temporary HTTP failures re-run from the failed node at 15m/45m/2h, "recovered" or "needs a human" in Slack; (3) `n8n-watchdog` GHA (16:30 + 04:30 UTC) checks every scheduled run succeeded or was recovered; (+) Daily Briefing flags topics stuck in Generating 3h+. Branch `ops/n8n-retry-layers` (PR carries scripts, JSON sync, GHA, docs).
+- **Proven before go-live** on throwaway probe/canary workflows (deleted): always-503 -> 3 re-runs then give-up alert; fail-then-recover with a 130s re-run -> 524 on the retry call, recovered via `retrySuccessId` at check 2; 404 -> immediate alert, no re-run. Offline selftests: error workflow 19, watchdog 14, briefing 4; run on every PR. Watchdog live dry run as of 12:30 ET today flags exactly the 3 failures (my manual re-runs were fresh triggers, so they do not count as recovery).
+- **Measured API facts the design depends on** are in n8n/README.md "Retry stack": inactive error workflows never fire; failed re-runs fire it again with `retryOf`; the retry endpoint blocks and Cloudflare cuts it at ~125s while the re-run continues; API PUT on an active workflow publishes it.
+- **Also:** the `n8n` MCP server key in `~/.claude.json` was a dead pre-8/31 key (401); swapped to the growth-engine/.env key (expires 2026-12-31), backup `~/.claude.json.bak-good-20261001`. `n8n-alita` MCP key expires **2026-10-29**. `blog-post-engine.json` settings now carry `errorWorkflow` so `deploy-engine.mjs` cannot detach it.
+- **Open:** `N8N_API_KEY` repo secret (TODO, @ian); first real Briefing with the new flag is 10/02 7:30.
+- Verify: `node --env-file=../growth-engine/.env n8n/watchdog.mjs --dry`; each updater re-run prints "already patched". Revert: `node n8n/live-patch.mjs --restore ~/.n8n-backups/<id>-<ts>.json --apply` (per workflow, backups from 14:18-14:44Z), or n8n UI version history.
 
 ## Session 95 (2026-09-25) — Beehiiv MCP checked: plan-gated; test-signup verified; cadence still unread
 

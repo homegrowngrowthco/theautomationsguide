@@ -1362,7 +1362,8 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "errorWorkflow": "FTIVt7L1ZXleNUf6"
   },
   "active": true,
   "meta": {
