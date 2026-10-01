@@ -1,0 +1,42 @@
+---
+// /guides/ index. Only /guides/<section>/ existed, so the bare /guides/ URL a reader
+// can type (or trim back to) was a 404 (conversion audit 2026-10-01, F10). Lists the
+// format hubs from src/data/sections.ts plus /reviews/, which is that format's hub.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { sections, getSectionPosts } from '../../data/sections';
+
+const hubs = await Promise.all(
+  sections.map(async (s) => ({ href: `/guides/${s.slug}/`, name: s.navLabel, desc: s.description, count: (await getSectionPosts(s)).length })),
+);
+---
+
+<BaseLayout
+  title="Guides by format"
+  description="Migration guides, head-to-head tool comparisons, pricing breakdowns, and single-tool reviews for RevOps and GTM teams."
+>
+  <div class="container--wide">
+    <div class="page-header">
+      <p class="section-label">Guides by format</p>
+      <h1>Guides</h1>
+      <p>Pick the kind of answer you need: how to move between tools, which tool wins, or what it really costs.</p>
+    </div>
+    <ul class="role-list">
+      {hubs.map((h) => (
+        <li class="role-list-item">
+          <a href={h.href} class="role-list-link">
+            <span class="role-list-name">{h.name}</span>
+            <span class="role-list-desc">{h.desc} ({h.count} articles)</span>
+            <span class="role-list-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        </li>
+      ))}
+      <li class="role-list-item">
+        <a href="/reviews/" class="role-list-link">
+          <span class="role-list-name">Reviews</span>
+          <span class="role-list-desc">Single-tool reviews: what a tool is good at, where it falls short, and who should buy it.</span>
+          <span class="role-list-arrow" aria-hidden="true">&rarr;</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</BaseLayout>

@@ -54,6 +54,9 @@ const EDGE_THRESHOLD_RATIO = 0.25;
 // card's own border (not the viewport) is a real layout defect regardless of
 // magnitude — a few px covers rounding/antialiasing only.
 const CARD_TOLERANCE = 4;
+// Page-level horizontal scroll: any document wider than the viewport by more than
+// subpixel rounding lets the reader drag the page sideways, which is the defect.
+const PAGE_SCROLL_TOLERANCE = 1;
 const CARD_SELECTOR = '.post-card, .step-card, .ci-card, .stat-card';
 
 const args = process.argv.slice(2);
@@ -113,7 +116,9 @@ function edgeDetectFor(threshold) {
         if (seen.has(el)) continue;
         seen.add(el);
         const txt = (el.textContent || '').trim();
-        if (!txt) continue;
+        // Replaced elements (images, video, iframes) carry no text but overflow just the same.
+        const media = /^(IMG|SVG|VIDEO|IFRAME|PICTURE|CANVAS)$/i.test(el.tagName);
+        if (!txt && !media) continue;
         const r = el.getBoundingClientRect();
         if (r.width === 0 || r.height === 0) continue;
         if (r.right > vw + t && !isExempt(el)) {
@@ -185,6 +190,14 @@ async function checkPage(page, port, urlPath, label) {
     const threshold = Math.round(vp.width * EDGE_THRESHOLD_RATIO);
     const edge = await page.evaluate(edgeDetectFor(threshold));
     const card = await page.evaluate(CARD_DETECT);
+    // Page-level check: the reader-visible symptom itself, a page that scrolls
+    // sideways. The element scan below missed it on ~76 posts (audit 2026-10-01 F6)
+    // because a 600px screenshot inside a link has no text and was skipped.
+    const page_ = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
+    if (page_.sw > page_.cw + PAGE_SCROLL_TOLERANCE) {
+      anyFail = true;
+      lines.push(`  [${vp.label} ${vp.width}px] page scrolls sideways: ${page_.sw}px wide in a ${page_.cw}px viewport`);
+    }
     if (edge.count > 0) {
       anyFail = true;
       lines.push(`  [${vp.label} ${vp.width}px] ${edge.count} element(s) overflow the ${edge.vw}px viewport:`);
