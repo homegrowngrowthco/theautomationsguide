@@ -4,7 +4,7 @@ Start this session inside `theautomationsguide/`. State which model you are runn
 
 **Written to run SAME DAY, 2026-10-01 from about 11:15 ET.** Timing facts for today:
 - The engine's next scheduled run is **16:00 ET**. Make no engine edits between 15:50 and 16:15 ET. Afterwards, check that its execution succeeded (or was re-run by layer 2).
-- The watchdog's first scheduled run is **12:30 ET (16:30 UTC)**, but only if PR #319 is merged by then. Before the merge, do the secret (1c) and the acknowledgement change (1d), or that run will go red.
+- The watchdog's first scheduled run is **12:30 ET (16:30 UTC)**, but only if PR #319 is merged by then. The secret is already set (1b/1c done). Before the merge, make the acknowledgement change (1d), or that run will go red. **Go straight to 1d after the 1a preflight**; leave the Part 2 TODO pass until after the merge.
 - Things you can only check tomorrow are parked; see 1a and Part 2.
 
 ## Context (read, don't re-derive)
@@ -30,32 +30,20 @@ Run `git pull --ff-only` on master first. The OneDrive checkout was behind origi
 - PARKED to the next session (date gate 2026-10-02 07:45 ET): check that the Daily Briefing's first live run with the stuck-Generating flag succeeded. Don't trigger it by hand today: it would post a duplicate briefing to Slack.
 - Check whether any real failure has hit "Error Trigger — TAG" since 10/01 14:44Z, and how the re-run logic handled it. That would be the first production proof of layer 2.
 
-### 1b. Ian creates one n8n API key (walk Ian through this; he does it, the key never enters chat)
-
-1. Open `https://homegrowngrowth.app.n8n.cloud`, then Settings (bottom-left) > **n8n API**.
-2. **Create an API key.** Label: `automation-github-watchdog`. Expiration: the longest option offered (or "No expiration" if it's there). If the form offers scopes, choose **full access**: scoped keys 403 on every endpoint on this instance (see memory `reference_n8n_api_key_scopes_403`).
-3. **Copy the key now.** n8n shows it only once. Keep it on the clipboard for 1c and 1e.
-4. Tell Claude the expiry date shown (just the date, not the key). Claude records it in the session log and the TODO.
-5. Do **not** delete any existing key this session. The growth-engine `.env`, the `n8n` MCP, and the "n8n API (self) — watchdog" credential each hold one.
-
-### 1c. Ian adds it to GitHub as a repo secret
-
-Option A, terminal (Ian's own PowerShell window, not Claude's):
-
-```
-gh secret set N8N_API_KEY -R homegrowngrowthco/theautomationsguide
-```
-
-It prompts "Paste your secret". Paste and press Enter. Nothing is echoed.
-
-Option B, browser: github.com/homegrowngrowthco/theautomationsguide > Settings > Secrets and variables > Actions > **New repository secret**. Name `N8N_API_KEY`, paste the value, then **Add secret**.
-
-Claude then verifies with `gh secret list -R homegrowngrowthco/theautomationsguide`: `N8N_API_KEY` should be listed with today's date. That proves the name, not the value; 1d proves the value.
+### 1b + 1c. DONE: Ian created the n8n API key and set the GitHub secret
+- **Done before this session started.** Ian created a new n8n API key and set the repo secret. `gh secret list` showed `N8N_API_KEY` updated **2026-10-01 15:22:35Z** (checked by the previous session). Re-run `gh secret list -R homegrowngrowthco/theautomationsguide` to confirm it's still there. Don't ask Ian to redo any of this.
+- That proves the name exists, not that the key works. **The value is first proven by the watchdog run in 1d.** That can't run before the merge, because GitHub only offers manual runs for workflows already on the default branch.
+- **Three unknowns. Ask Ian once, early, in a single AskUserQuestion:**
+  1. **The key's expiry date** (as shown in n8n Settings > n8n API; just the date, never the key). Record it in the session log and in a dated TODO line ("renew N8N_API_KEY repo secret before <date>").
+  2. **Full access or scoped?** If scoped, the watchdog needs `workflow:read` + `execution:list`. A scoped key may 403 on this instance (bug #26642, memory `reference_n8n_api_key_scopes_403`); 1d will show it.
+  3. **Did he also paste the key into the n8n credential "n8n API (self) — watchdog" (step 1e)?** Only valid if the key is full access or includes `execution:retry`.
+- Do **not** delete any existing n8n API key this session. The growth-engine `.env`, the `n8n` MCP, and the "n8n API (self) — watchdog" credential each hold one.
+- If 1d shows the key rejected (HTTP 401/403): Ian creates a new **full access** key (n8n Settings > n8n API > Create an API key, label `automation-github-watchdog`, longest expiry), then in his own PowerShell window runs `gh secret set N8N_API_KEY -R homegrowngrowthco/theautomationsguide` and pastes it at the prompt. Re-run the watchdog.
 
 ### 1d. Acknowledge today's hand-recovered failures, merge PR #319, prove the watchdog end to end
 - **Before merging, add an acknowledgement list to `n8n/watchdog.mjs`** on the PR branch (`ops/n8n-retry-layers`; its worktree is `C:\tmp\tag-n8n-retry`, so run `git pull` there first). Add a commented `ACKNOWLEDGED` map of execution id to reason, initially `22996`, `23000`, `22998` with "recovered by manual fresh trigger 2026-10-01 (23007 / 23006 / 23008)". `judge()` must treat an acknowledged root or failed execution as recovered. Add a selftest case: an acknowledged failure stays quiet, and an unacknowledged one still reports. Document in `n8n/README.md` ("Retry stack") that a hand-recovered incident is silenced by adding its id there. Rerun `node n8n/watchdog.mjs --selftest` and the live `--dry` (expect "All scheduled runs accounted for"), then push and wait for CI to go green.
 - The 16:00 ET engine run can't be judged until about 19:25 ET (3.4h grace), so a green run this afternoon says nothing about it. The 04:30 UTC run tonight covers it.
-- PR #319 carries only agent commits, so **Ian merges it** (or explicitly tells Claude to). Aim to merge before 12:30 ET, and only after 1c (the secret) and the acknowledgement change. Re-check CI is green first.
+- PR #319 carries only agent commits, so **Ian merges it** (or explicitly tells Claude to). The secret is already set, so the only gate is the acknowledgement change. Aim to merge before 12:30 ET (16:30 UTC) so the first scheduled run is useful. Merged later, just run it by hand. Re-check CI is green first.
 - Claude triggers it with `gh workflow run n8n-watchdog.yml -R homegrowngrowthco/theautomationsguide`, then `gh run watch`. Expected: green, with the log line "All scheduled runs accounted for".
 - A red run with "BLIND" means the secret is missing. A red run with "rejected (HTTP 401)" means a bad paste: redo 1c. Any other finding is real, so report it.
 - The `qa-freshness.yml` `n8n-selftests` job should be green on master too.
