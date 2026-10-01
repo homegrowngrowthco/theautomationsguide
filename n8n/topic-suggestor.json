@@ -112,6 +112,9 @@
       },
       "id": "tag00002-0000-0000-0000-000000000004",
       "name": "List Published Posts",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -154,6 +157,9 @@
       },
       "id": "tag00002-0000-0000-0000-000000000005",
       "name": "Get Calendar State",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -209,6 +215,9 @@
       },
       "id": "tag00002-0000-0000-0000-000000000007",
       "name": "Generate Suggestions",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -319,6 +328,9 @@
       },
       "id": "tag00002-0000-0000-0000-00000000000b",
       "name": "Slack Notify",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
