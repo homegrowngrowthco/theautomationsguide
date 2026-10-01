@@ -1,0 +1,55 @@
+---
+// Click attribution for /go/ affiliate redirects (conversion audit 2026-10-01, F1/R1).
+//
+// affiliate_click fires from the standalone /go/<slug>/ page, which can't see where the
+// reader came from: /go/ links carry rel="noreferrer" (so document.referrer is empty on
+// 61 of 65 clicks) and often open in a new tab. So the SOURCE page records itself here,
+// first-party, in localStorage (sessionStorage is not shared with a noopener new tab):
+//   tag_last_page  = { path, t }              on every page load
+//   tag_last_click = { path, component, slug, t }  when a /go/ link is clicked
+// /go/[tool].astro reads both and sends source_path / source_component with the event.
+// Paths and component names only: no ids, no personal data. Never blocks navigation.
+---
+
+<script is:inline>
+  (function () {
+    function save(key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+    }
+    save('tag_last_page', { path: location.pathname, t: Date.now() });
+
+    // Which CTA block a link sits in. Ordered: the first ancestor class that matches wins.
+    var COMPONENTS = [
+      ['bottom-line', 'bottom-line'],
+      ['chooseif', 'choose-if'],
+      ['tool-breakdown', 'tool-breakdown'],
+      ['intent-table', 'intent-table'],
+      ['comparison', 'comparison-table'],
+      ['pricing-callout', 'pricing-callout'],
+      ['key-takeaways', 'key-takeaways'],
+      ['tool-strip', 'tool-strip'],
+      ['tool-hub-actions', 'hub-cta'],
+      ['tool-card', 'tools-index-card'],
+      ['logo-strip', 'logo-strip'],
+    ];
+    function componentOf(el) {
+      for (var n = el; n && n !== document.body; n = n.parentElement) {
+        var cls = typeof n.className === 'string' ? n.className : '';
+        for (var i = 0; i < COMPONENTS.length; i++) {
+          if ((' ' + cls + ' ').indexOf(' ' + COMPONENTS[i][0]) !== -1) return COMPONENTS[i][1];
+        }
+        if (n.tagName === 'ARTICLE') return 'inline';
+      }
+      return 'other';
+    }
+    function onClick(e) {
+      var a = e.target && e.target.closest && e.target.closest('a[href*="/go/"]');
+      if (!a) return;
+      var m = (a.getAttribute('href') || '').match(/\/go\/([a-z0-9-]+)/);
+      save('tag_last_click', { path: location.pathname, component: componentOf(a), slug: m ? m[1] : null, t: Date.now() });
+    }
+    // Capture phase + auxclick so middle-click / new-tab opens are recorded too.
+    document.addEventListener('click', onClick, true);
+    document.addEventListener('auxclick', onClick, true);
+  })();
+</script>

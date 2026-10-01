@@ -155,14 +155,23 @@ const INSIGHTS = [
   },
   {
     name: 'Newsletter / form intent',
-    description: 'Daily pageviews that hit a #newsletter URL, alongside autocaptured form submits. On-site newsletter intent.',
-    // The form-submit series was the worst-hit of the six: FlyrAI's signup and
-    // onboarding forms are autocaptured into this same project, so "TAG newsletter
-    // intent" was largely counting a meal-planning app's signups.
+    description: 'Daily pageviews that hit a #newsletter URL. NOT signups: the Beehiiv form is a cross-origin iframe the site cannot see, so real signups are counted in Beehiiv (ANALYTICS.md, "Newsletter signups").',
+    // A "Form submits" series used to sit here. Host-scoped, it counted only the site
+    // SEARCH form (all 7 TAG submits in 90d to 2026-10-01 were form.nav-search /
+    // form.blog-search), so it read as newsletter intent while measuring searches.
+    // Before host scoping it was counting FlyrAI's signup forms. Removed.
     query: trends([
       onProdHost({ ...ev('$pageview', 'Newsletter pageviews', 'total'), properties: [{ key: '$current_url', value: 'newsletter', operator: 'icontains', type: 'event' }] }),
-      onProdHost({ ...ev('$autocapture', 'Form submits', 'total'), properties: [{ key: '$event_type', value: 'submit', operator: 'exact', type: 'event' }] }),
     ]),
+  },
+  {
+    name: 'Affiliate clicks by source block',
+    description: 'affiliate_click by the CTA block the reader clicked (bottom-line, tool-breakdown, inline, hub-cta, ...), from source_component. Populated from the 2026-10-01 click-attribution change; earlier clicks show as null. Filter out is_automated = true for the human funnel.',
+    query: trends(
+      // No host filter: affiliate_click is TAG-exclusive (see onProdHost note above).
+      [ev('affiliate_click', 'Affiliate clicks', 'total')],
+      { breakdownFilter: { breakdown: 'source_component', breakdown_type: 'event' } },
+    ),
   },
 ];
 

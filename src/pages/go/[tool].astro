@@ -95,6 +95,27 @@ if (!link || !destination) {
           var m = document.cookie.match(new RegExp('ph_' + PH_KEY + '_posthog=([^;]+)'));
           if (m) { try { did = JSON.parse(decodeURIComponent(m[1])).distinct_id; } catch (e) {} }
           if (!did) did = 'anon_' + Math.random().toString(36).slice(2) + '_' + Date.now();
+          // Source attribution (audit 2026-10-01, R1): the referring page recorded itself
+          // in localStorage (src/components/ClickSource.astro) because rel="noreferrer"
+          // blanks document.referrer here. A click record for THIS slug from the last
+          // 2 minutes names the page + CTA block; else the last page viewed (30 min).
+          var now = Date.now();
+          function read(key) { try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { return null; } }
+          var lastClick = read('tag_last_click');
+          var lastPage = read('tag_last_page');
+          var source = { path: null, component: null, via: 'none' };
+          if (lastClick && lastClick.slug === tool && now - lastClick.t < 120000) {
+            source = { path: lastClick.path, component: lastClick.component, via: 'click' };
+          } else if (lastPage && now - lastPage.t < 1800000 && lastPage.path.indexOf('/go/') !== 0) {
+            source = { path: lastPage.path, component: null, via: 'last_page' };
+          }
+          // One event per tool per 30s: repeat clicks / reloads double-counted before
+          // (the 10/01 audit found one bland-ai visit firing 3 events in 18s).
+          var lastBeacon = read('tag_last_beacon');
+          if (lastBeacon && lastBeacon.slug === tool && now - lastBeacon.t < 30000) { go(); return; }
+          try { localStorage.setItem('tag_last_beacon', JSON.stringify({ slug: tool, t: now })); } catch (e) {}
+          var ua = navigator.userAgent || '';
+          var deviceType = /iPad|Tablet/i.test(ua) ? 'Tablet' : /Mobi|Android|iPhone/i.test(ua) ? 'Mobile' : 'Desktop';
           // $host / $pathname must be sent EXPLICITLY. PostHog's SDK derives them from
           // the page, but this is a raw ingest POST, so anything not in `properties`
           // is simply absent — confirmed 2026-08-12: all 9 affiliate_click events in
@@ -112,6 +133,15 @@ if (!link || !destination) {
               destination_url: url,
               is_affiliate_url: isAffiliate,
               referrer: document.referrer || null,
+              source_path: source.path,
+              source_component: source.component,
+              source_via: source.via,
+              // No SDK here, so PostHog sees no browser data unless it is sent. The
+              // webdriver flag marks headless/automated browsers (QA runs, link checkers)
+              // so they can be filtered out of the funnel.
+              $raw_user_agent: ua,
+              $device_type: deviceType,
+              is_automated: navigator.webdriver === true,
               $current_url: window.location.href,
               $host: window.location.host,
               $pathname: window.location.pathname,
