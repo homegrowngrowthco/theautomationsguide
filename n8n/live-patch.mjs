@@ -68,9 +68,12 @@ export async function patchLive(id, mutate, { apply = false, label = '' } = {}) 
 
   await api('PUT', `/workflows/${id}`, putBody(next));
   const v = await api('GET', `/workflows/${id}`);
-  const ok = v.nodes.length === next.nodes.length && credFingerprint(v) === credFingerprint(live)
-    && v.active === live.active && (live.settings?.errorWorkflow || null) === (v.settings?.errorWorkflow || null);
-  console.log(`  verify: nodes ${v.nodes.length}/${next.nodes.length}, creds unchanged=${credFingerprint(v) === credFingerprint(live)}, active=${v.active}, errorWorkflow=${v.settings?.errorWorkflow || '-'} -> ${ok ? 'OK' : 'MISMATCH'}`);
+  // Compare against the INTENDED state (next), so a deliberate credential/errorWorkflow change
+  // passes while anything the API silently dropped or rebound still fails.
+  const credsOk = credFingerprint(v) === credFingerprint(next);
+  const ok = v.nodes.length === next.nodes.length && credsOk
+    && v.active === live.active && (next.settings?.errorWorkflow || null) === (v.settings?.errorWorkflow || null);
+  console.log(`  verify: nodes ${v.nodes.length}/${next.nodes.length}, creds as intended=${credsOk}, active=${v.active}, errorWorkflow=${v.settings?.errorWorkflow || '-'} -> ${ok ? 'OK' : 'MISMATCH'}`);
   if (!ok) throw new Error(`verify failed for ${id}; restore with: node n8n/live-patch.mjs --restore "${bak}" --apply`);
   return { live, verified: v, changed: true, backup: bak };
 }

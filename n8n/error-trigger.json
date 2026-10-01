@@ -3,72 +3,846 @@
   "nodes": [
     {
       "parameters": {},
-      "id": "tag00006-0000-0000-0000-000000000001",
+      "id": "tagerr00-0000-0000-0000-000000000001",
       "name": "Error Trigger",
       "type": "n8n-nodes-base.errorTrigger",
       "typeVersion": 1,
-      "position": [240, 300]
+      "position": [
+        0,
+        300
+      ]
     },
     {
       "parameters": {
-        "mode": "manual",
-        "duplicateItem": false,
         "assignments": {
           "assignments": [
-            { "id": "c1", "name": "slackWebhookUrl", "value": "REPLACE_WITH_SLACK_WEBHOOK_URL", "type": "string" }
+            {
+              "id": "c1",
+              "name": "slackWebhookUrl",
+              "value": "REPLACE_WITH_SLACK_WEBHOOK_URL",
+              "type": "string"
+            },
+            {
+              "id": "c2",
+              "name": "n8nBaseUrl",
+              "value": "https://homegrowngrowth.app.n8n.cloud",
+              "type": "string"
+            },
+            {
+              "id": "c3",
+              "name": "retryWorkflowIds",
+              "value": "sjZADhZGIuz9tZHK,vfEeiQg3TsPlD24J,coLm8goioffInJ2b,HbCayxHdzdYdfvfP,vooFcTsWtyOok7Ps,dxOpkHKeWnilrRmv,LKKVtHqiD6cyxBWc",
+              "type": "string"
+            },
+            {
+              "id": "c4",
+              "name": "waitsSeconds",
+              "value": "900,2700,7200",
+              "type": "string"
+            },
+            {
+              "id": "c5",
+              "name": "checksSeconds",
+              "value": "120,900",
+              "type": "string"
+            },
+            {
+              "id": "c6",
+              "name": "apiCredName",
+              "value": "n8n API (self) — watchdog",
+              "type": "string"
+            },
+            {
+              "id": "c7",
+              "name": "header",
+              "value": "🤖 *The Automations Guide*",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "tagerr00-0000-0000-0000-000000000002",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Config').first().json.n8nBaseUrl }}/api/v1/executions?workflowId={{ $('Error Trigger').first().json.workflow.id }}&limit=100",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "tagerr00-0000-0000-0000-000000000003",
+      "name": "Fetch Executions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_N8N_API_CREDENTIAL_ID",
+          "name": "n8n API (self) — watchdog"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Decide what to do with this failure: retry later, alert now, or skip.\nconst cfg = $('Config').first().json;\nconst p = $('Error Trigger').first().json;\nconst ex = p.execution || {};\nconst wf = p.workflow || {};\nconst err = ex.error || {};\nconst resp = $('Fetch Executions').first().json;\nconst list = resp && resp.statusCode === 200 && Array.isArray(resp.body?.data) ? resp.body.data : null;\n\nconst allow = String(cfg.retryWorkflowIds).split(',').map((s) => s.trim()).filter(Boolean);\nconst waits = String(cfg.waitsSeconds).split(',').map(Number);\nconst max = waits.length;\nconst code = String(err.httpCode ?? '').trim();\nconst TRANSIENT = /^(5\\d\\d|429|ECONNABORTED|ECONNRESET|ECONNREFUSED|ETIMEDOUT|ESOCKETTIMEDOUT|EAI_AGAIN|ENOTFOUND|EPIPE)$/;\n\n// Re-run number = hops up the retryOf chain.\nconst byId = new Map((list || []).map((e) => [String(e.id), e]));\nlet attempt = 0;\nlet cur = ex.retryOf ? String(ex.retryOf) : null;\nconst seen = new Set();\nwhile (cur && !seen.has(cur)) {\n  seen.add(cur);\n  attempt++;\n  const parent = byId.get(cur);\n  cur = parent && parent.retryOf ? String(parent.retryOf) : null;\n}\nconst alreadyRetried = (list || []).some((e) => String(e.retryOf) === String(ex.id));\n\nlet action = 'retry';\nlet reason = '';\nif (!allow.includes(String(wf.id))) { action = 'alert'; reason = 'this workflow is not on the auto-retry list'; }\nelse if (!['trigger', 'webhook', 'retry'].includes(ex.mode)) { action = 'alert'; reason = 'mode \"' + ex.mode + '\" is not auto-retried'; }\nelse if (!TRANSIENT.test(code)) { action = 'alert'; reason = code ? 'error ' + code + ' is not a temporary error' : 'not an HTTP error (code or config), so a re-run would fail the same way'; }\nelse if (!list) { action = 'alert'; reason = 'could not read execution history (HTTP ' + (resp?.statusCode ?? resp?.error?.message ?? '?') + '), so not re-running blind. Check the \"' + cfg.apiCredName + '\" credential'; }\nelse if (alreadyRetried) { action = 'skip'; reason = 'already re-run'; }\nelse if (attempt >= max) { action = 'alert'; reason = 'gave up after ' + max + ' automatic re-runs'; }\n\nconst BT = String.fromCharCode(96); // backtick, for Slack inline code\nconst fmt = (s) => (s >= 3600 ? (s / 3600) + ' h' : s >= 60 ? Math.round(s / 60) + ' min' : s + ' s');\nconst msg = String(err.message || err.description || '(no message)');\nconst detail = err.description && err.description !== err.message ? ' (' + String(err.description).slice(0, 200) + ')' : '';\nconst node = ex.lastNodeExecuted || '(unknown node)';\nconst link = ex.url ? '<' + ex.url + '|Open execution in n8n>' : 'Execution ID: ' + ex.id;\nconst waitSeconds = action === 'retry' ? waits[attempt] : 0;\n\nlet slackText;\nif (action === 'retry') {\n  slackText = cfg.header + '\\n🔁 *' + wf.name + '* failed at ' + BT + node + BT + ': ' + (code ? code + ' ' : '') + msg.slice(0, 200) + detail\n    + '\\nLooks temporary, so re-running from that step in ' + fmt(waitSeconds) + ' (re-run ' + (attempt + 1) + ' of ' + max + '). ' + link;\n} else {\n  const stack = String(err.stack || '').split('\\n').slice(0, 6).join('\\n');\n  const gaveUp = attempt >= max && TRANSIENT.test(code) && reason.startsWith('gave up');\n  const head = gaveUp\n    ? '🔴 *' + wf.name + ' is still failing after ' + max + ' automatic re-runs. Needs a human.*'\n    : '⚠️ *n8n workflow failure: ' + wf.name + '*';\n  slackText = cfg.header + '\\n' + head + '\\nNode that errored: ' + BT + node + BT + '\\nError: ' + msg + detail\n    + (gaveUp ? '' : '\\nNot auto-retried: ' + reason + '.') + '\\n' + link + (stack ? '\\n\\n' + BT.repeat(3) + stack + BT.repeat(3) : '');\n}\n\nreturn [{ json: { action, reason, attempt, max, waitSeconds, execId: String(ex.id), workflowId: String(wf.id), workflowName: wf.name, slackText } }];"
+      },
+      "id": "tagerr00-0000-0000-0000-000000000004",
+      "name": "Decide",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "retry",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
           ]
         },
         "options": {}
       },
-      "id": "tag00006-0000-0000-0000-000000000002",
-      "name": "Config",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [460, 300]
-    },
-    {
-      "parameters": {
-        "jsCode": "// The Error Trigger payload contains:\n//   - execution.id, execution.url\n//   - workflow.name, workflow.id\n//   - trigger.<details>\n//   - lastNodeExecuted (name of the node that errored)\n//   - executionMode (manual / trigger / etc)\n// Pull a Slack-friendly summary.\nconst payload = $input.first().json;\nconst config = $('Config').first().json;\n\nconst workflowName = payload?.workflow?.name || '(unknown workflow)';\nconst workflowId = payload?.workflow?.id || '';\nconst execId = payload?.execution?.id || '';\nconst execUrl = payload?.execution?.url || '';\nconst lastNode = payload?.execution?.lastNodeExecuted || '(unknown node)';\nconst errorMessage = payload?.execution?.error?.message || payload?.execution?.error?.description || '(no message)';\nconst errorStack = payload?.execution?.error?.stack || '';\n\n// Trim stack to first 6 lines so Slack stays scannable.\nconst stackPreview = errorStack.split('\\n').slice(0, 6).join('\\n');\n\nreturn [{ json: {\n  ...config,\n  workflowName,\n  workflowId,\n  execId,\n  execUrl,\n  lastNode,\n  errorMessage,\n  stackPreview,\n}}];"
-      },
-      "id": "tag00006-0000-0000-0000-000000000003",
-      "name": "Format",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [680, 300]
+      "id": "tagerr00-0000-0000-0000-000000000005",
+      "name": "Retry?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        300
+      ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $json.slackWebhookUrl }}",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            { "name": "content-type", "value": "application/json" }
-          ]
-        },
+        "url": "={{ $('Config').first().json.slackWebhookUrl }}",
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ text: `⚠️ *n8n workflow failure: ${$json.workflowName}*\\nNode that errored: \\`${$json.lastNode}\\`\\nError: ${$json.errorMessage}\\n${$json.execUrl ? `<${$json.execUrl}|Open execution in n8n>` : `Execution ID: ${$json.execId}`}\\n\\n\\`\\`\\`${$json.stackPreview}\\`\\`\\`` }) }}",
-        "options": { "timeout": 30000 }
+        "body": "={{ JSON.stringify({ text: $('Decide').first().json.slackText }) }}",
+        "options": {
+          "timeout": 30000
+        }
       },
-      "id": "tag00006-0000-0000-0000-000000000004",
+      "id": "tagerr00-0000-0000-0000-000000000006",
+      "name": "Slack Retrying",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        200
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "amount": "={{ $('Decide').first().json.waitSeconds }}",
+        "unit": "seconds"
+      },
+      "id": "tagerr00-0000-0000-0000-000000000007",
+      "name": "Back Off",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1320,
+        200
+      ],
+      "webhookId": "tag-err-back-off"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.n8nBaseUrl }}/api/v1/executions/{{ $('Decide').first().json.execId }}/retry",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{ \"loadWorkflow\": false }",
+        "options": {
+          "timeout": 100000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "tagerr00-0000-0000-0000-000000000008",
+      "name": "Retry Execution",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        200
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_N8N_API_CREDENTIAL_ID",
+          "name": "n8n API (self) — watchdog"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": "={{ Number(String($('Config').first().json.checksSeconds).split(',')[0]) }}",
+        "unit": "seconds"
+      },
+      "id": "tagerr00-0000-0000-0000-000000000009",
+      "name": "Check Delay 1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1760,
+        200
+      ],
+      "webhookId": "tag-err-check-delay-1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Config').first().json.n8nBaseUrl }}/api/v1/executions/{{ $('Decide').first().json.execId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "tagerr00-0000-0000-0000-000000000010",
+      "name": "Check Original 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        200
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_N8N_API_CREDENTIAL_ID",
+          "name": "n8n API (self) — watchdog"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Stage 1: did the re-run started by \"Retry Execution\" succeed?\n// Never trust the retry call's own response for the outcome: it blocks until the re-run ends and\n// Cloudflare cuts it at ~125s, while the re-run carries on. retrySuccessId on the original is the truth.\nconst cfg = $('Config').first().json;\nconst d = $('Decide').first().json;\nconst post = $('Retry Execution').first().json;\nconst orig = $json;\nconst recoveredId = orig.statusCode === 200 ? orig.body?.retrySuccessId : null;\nconst postCode = post.statusCode ?? null;\nconst postErr = post.error ? String(post.error.message || post.error) : '';\nlet outcome;\nif (recoveredId) outcome = 'recovered';\nelse if (postCode === 200 && ['error', 'crashed', 'canceled'].includes(post.body?.status)) outcome = 'failed-again'; // its own error event takes over\nelse if (1 === 1 && (postCode === 200 || postCode === 524 || /timeout|ECONNABORTED|ETIMEDOUT|ECONNRESET|socket hang up/i.test(postErr))) outcome = 'pending';\nelse if (1 === 1) outcome = 'not-started';\nelse outcome = 'unknown'; // stage 2 and still no success: either it failed (error event handles it) or it is still running\nlet slackText = '';\nif (outcome === 'recovered') {\n  slackText = cfg.header + '\\n✅ *' + d.workflowName + '* recovered: re-run ' + (d.attempt + 1) + ' succeeded. <' + cfg.n8nBaseUrl + '/workflow/' + d.workflowId + '/executions/' + recoveredId + '|Open execution>';\n} else if (outcome === 'not-started') {\n  slackText = cfg.header + '\\n🔴 *' + d.workflowName + '*: the automatic re-run did not start (' + (postCode ? 'HTTP ' + postCode : postErr || 'no response')\n    + '). Check the \"' + cfg.apiCredName + '\" credential, then re-run by hand. <' + cfg.n8nBaseUrl + '/workflow/' + d.workflowId + '/executions/' + d.execId + '|Open execution>';\n}\nreturn [{ json: { outcome, recoveredId, postCode, slackText } }];"
+      },
+      "id": "tagerr00-0000-0000-0000-000000000011",
+      "name": "Outcome 1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $json.outcome }}",
+              "rightValue": "recovered",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tagerr00-0000-0000-0000-000000000012",
+      "name": "Recovered 1?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2420,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.slackWebhookUrl }}",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ text: $json.slackText }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "tagerr00-0000-0000-0000-000000000013",
+      "name": "Slack Recovered 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2640,
+        40
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $json.outcome }}",
+              "rightValue": "pending",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tagerr00-0000-0000-0000-000000000014",
+      "name": "Pending?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2640,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "amount": "={{ Number(String($('Config').first().json.checksSeconds).split(',')[1]) }}",
+        "unit": "seconds"
+      },
+      "id": "tagerr00-0000-0000-0000-000000000015",
+      "name": "Check Delay 2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2860,
+        160
+      ],
+      "webhookId": "tag-err-check-delay-2"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Config').first().json.n8nBaseUrl }}/api/v1/executions/{{ $('Decide').first().json.execId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "tagerr00-0000-0000-0000-000000000016",
+      "name": "Check Original 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3080,
+        160
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_N8N_API_CREDENTIAL_ID",
+          "name": "n8n API (self) — watchdog"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Stage 2: did the re-run started by \"Retry Execution\" succeed?\n// Never trust the retry call's own response for the outcome: it blocks until the re-run ends and\n// Cloudflare cuts it at ~125s, while the re-run carries on. retrySuccessId on the original is the truth.\nconst cfg = $('Config').first().json;\nconst d = $('Decide').first().json;\nconst post = $('Retry Execution').first().json;\nconst orig = $json;\nconst recoveredId = orig.statusCode === 200 ? orig.body?.retrySuccessId : null;\nconst postCode = post.statusCode ?? null;\nconst postErr = post.error ? String(post.error.message || post.error) : '';\nlet outcome;\nif (recoveredId) outcome = 'recovered';\nelse if (postCode === 200 && ['error', 'crashed', 'canceled'].includes(post.body?.status)) outcome = 'failed-again'; // its own error event takes over\nelse if (2 === 1 && (postCode === 200 || postCode === 524 || /timeout|ECONNABORTED|ETIMEDOUT|ECONNRESET|socket hang up/i.test(postErr))) outcome = 'pending';\nelse if (2 === 1) outcome = 'not-started';\nelse outcome = 'unknown'; // stage 2 and still no success: either it failed (error event handles it) or it is still running\nlet slackText = '';\nif (outcome === 'recovered') {\n  slackText = cfg.header + '\\n✅ *' + d.workflowName + '* recovered: re-run ' + (d.attempt + 1) + ' succeeded. <' + cfg.n8nBaseUrl + '/workflow/' + d.workflowId + '/executions/' + recoveredId + '|Open execution>';\n} else if (outcome === 'not-started') {\n  slackText = cfg.header + '\\n🔴 *' + d.workflowName + '*: the automatic re-run did not start (' + (postCode ? 'HTTP ' + postCode : postErr || 'no response')\n    + '). Check the \"' + cfg.apiCredName + '\" credential, then re-run by hand. <' + cfg.n8nBaseUrl + '/workflow/' + d.workflowId + '/executions/' + d.execId + '|Open execution>';\n}\nreturn [{ json: { outcome, recoveredId, postCode, slackText } }];"
+      },
+      "id": "tagerr00-0000-0000-0000-000000000017",
+      "name": "Outcome 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3300,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $json.outcome }}",
+              "rightValue": "recovered",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tagerr00-0000-0000-0000-000000000018",
+      "name": "Recovered 2?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3520,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.slackWebhookUrl }}",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ text: $json.slackText }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "tagerr00-0000-0000-0000-000000000019",
+      "name": "Slack Recovered 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3740,
+        160
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $json.outcome }}",
+              "rightValue": "not-started",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tagerr00-0000-0000-0000-000000000020",
+      "name": "Not Started?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2860,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.slackWebhookUrl }}",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ text: $json.slackText }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "tagerr00-0000-0000-0000-000000000021",
+      "name": "Slack Not Started",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3080,
+        300
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $('Decide').first().json.action }}",
+              "rightValue": "alert",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "tagerr00-0000-0000-0000-000000000022",
+      "name": "Alert?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.slackWebhookUrl }}",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ text: $('Decide').first().json.slackText }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "tagerr00-0000-0000-0000-000000000023",
       "name": "Slack Alert",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [900, 300]
+      "position": [
+        1320,
+        420
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
     }
   ],
   "connections": {
-    "Error Trigger": { "main": [[{ "node": "Config", "type": "main", "index": 0 }]] },
-    "Config":        { "main": [[{ "node": "Format", "type": "main", "index": 0 }]] },
-    "Format":        { "main": [[{ "node": "Slack Alert", "type": "main", "index": 0 }]] }
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Fetch Executions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Executions": {
+      "main": [
+        [
+          {
+            "node": "Decide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decide": {
+      "main": [
+        [
+          {
+            "node": "Retry?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry?": {
+      "main": [
+        [
+          {
+            "node": "Slack Retrying",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Retrying": {
+      "main": [
+        [
+          {
+            "node": "Back Off",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Back Off": {
+      "main": [
+        [
+          {
+            "node": "Retry Execution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Execution": {
+      "main": [
+        [
+          {
+            "node": "Check Delay 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Delay 1": {
+      "main": [
+        [
+          {
+            "node": "Check Original 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Original 1": {
+      "main": [
+        [
+          {
+            "node": "Outcome 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Outcome 1": {
+      "main": [
+        [
+          {
+            "node": "Recovered 1?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recovered 1?": {
+      "main": [
+        [
+          {
+            "node": "Slack Recovered 1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pending?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pending?": {
+      "main": [
+        [
+          {
+            "node": "Check Delay 2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Not Started?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Delay 2": {
+      "main": [
+        [
+          {
+            "node": "Check Original 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Original 2": {
+      "main": [
+        [
+          {
+            "node": "Outcome 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Outcome 2": {
+      "main": [
+        [
+          {
+            "node": "Recovered 2?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recovered 2?": {
+      "main": [
+        [
+          {
+            "node": "Slack Recovered 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Not Started?": {
+      "main": [
+        [
+          {
+            "node": "Slack Not Started",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert?": {
+      "main": [
+        [
+          {
+            "node": "Slack Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
-  "settings": { "executionOrder": "v1" },
-  "staticData": null,
-  "meta": { "templateCredsSetupCompleted": false },
-  "pinData": {},
-  "versionId": "1",
-  "id": "tag00006",
-  "tags": []
+  "settings": {
+    "executionOrder": "v1"
+  }
 }
