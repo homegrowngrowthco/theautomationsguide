@@ -53,6 +53,25 @@ jobs:
       - name: Pricing extractor self-test
         run: node pricing/build-pricing-index.mjs --selftest
 
+  # R6 (conversion audit 2026-10-01): the live-mention linker rewrites published posts
+  # with --write and also powers a lint-content warning, so its masking rules (skip
+  # headings, code, links, component props, ambiguous brand words, CRLF) are pinned by
+  # offline fixtures. Node builtins only, no npm install, no network.
+  live-links-selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Live-mention linker self-test
+        run: node qa/link-live-mentions.mjs --selftest
+
   # The n8n retry stack decides when a failed run is re-run, when it alerts, and when the
   # watchdog cries wolf. A regression there is silent until the next outage, so its decision
   # logic is pinned by offline fixtures (node builtins only, no network, no API key).
