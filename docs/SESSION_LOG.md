@@ -8,7 +8,19 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-01 (Session 96).
+Last updated 2026-10-01 (Session 97).
+
+## Session 97 (2026-10-01) — Watchdog live and proven; TODO pass (Apollo success, MoltSets fixed, 7 topics queued)
+
+- **Retry stack finished.** Preflight: `n8n` MCP OK; dry run flagged exactly 22996/23000/22998. Added `ACKNOWLEDGED` map to `watchdog.mjs` (+3 selftests, 17/17; README "Silencing a hand-recovered incident"); live dry run -> "All scheduled runs accounted for". PR #319 squash-merged `5812090` (Ian approved). Manual run `36885639756` green on all 7 workflows: the `N8N_API_KEY` secret works. Key per Ian: **full access, no expiry**. Layer 2 had no real failure since 14:44Z, so still unproven in production.
+- **Step 1e not done:** the 10/01 key went only into the repo secret and n8n shows a key once, so credential "n8n API (self) — watchdog" keeps its old, unknown-expiry key (low TODO). `n8n-alita` key rotation parked to ≥10/22.
+- **Apollo round 2 = success:** "apollo vs pipedrive" avg pos **16.0** (28d to 9/28, 78 impr; post 12.5, `/tools/apollo/` 43.1). Closed. **Cadence round 3 PROVISIONAL:** 9/22-9/28 = 16 clk / 7,618 impr vs 11 / 4,671; confirm ≥10/04.
+- **Index sweep:** 280/295 indexed (94.9%); crawled-not-indexed legacy 7 -> 12; `/tools/calendly/` still Discovered-not-indexed. `updatedDate`-less posts 37 (29 are September engine posts, so the "drains passively" framing was wrong; TODO corrected).
+- **Shipped:** PR #320 `4d6e2de` (audit L-10 finished: `tools.astro` banded section -> `.section--divider .section--tinted`, `.empty-state` on 5 hubs; build/render/overflow clean). PR #321 `8b56a6f` (MoltSets post: editor's note + claims aligned to vendor pages re-read 10/01: closed beta, weekly record caps, 1k lifetime free tier, mobiles a paid token add-on; title kept; `updatedDate` stamped). Ian: editor's note AND update.
+- **Notion queue (Ian approved):** 7 early-coverage topics Suggested -> Queued; 3 retargeted to queries with demand (Lusha vs UpLead, RB2B vs Lead Forensics, Lead411 vs Lusha). The older Skipped twins were killed 8/12 only because the tools were unregistered; left Skipped to avoid dupes. 8 held (re-check ~11/01). Slip: one write hit Reevo (held) by wrong id, reverted to Suggested within seconds; end state verified by SQL.
+- **Ian decisions:** keep all 8 low-link hubs (2 TODOs closed); OG cards stay as-is; welcome email moot (all 3 Beehiiv subscribers are Ian's tests); enable Google Indexing API (Ian does GCP steps); PartnerStack Network APPROVED -> apply Pipedrive + Cognism.
+- **HGC (growth-engine S57, Ian approved):** WF10 `TEST Webhook` removed via live-patch. Then Ian: email outreach abandoned (Instantly unsubscribed), so WF3/4/5/6/12 + WF10 deactivated (backed up, verified; HGC active now = 07/08/09/11 only) and the layer-2 builder for 09 (selftest 34/34, dry-run clean) discarded unapplied. Detail in growth-engine `docs/SESSION_LOG.md` S57.
+- Verify: `gh pr view 319/320/321`; `node n8n/watchdog.mjs --selftest`. Revert: `git revert` 5812090 / 4d6e2de / 8b56a6f; WF10: `node n8n/live-patch.mjs --restore <backup above> --apply`; Notion: flip the 7 rows back to Suggested (titles in Notes).
 
 ## Session 96 (2026-10-01) — Notion outage failed 3 runs; n8n retry stack built and live
 
