@@ -1682,7 +1682,7 @@ export const tools: Tool[] = [
     logo: '/brand/tools/zerobounce.webp',
     aliases: ['ZeroBounce'],
     blurb:
-      'ZeroBounce is featured in a comparison on The Automations Guide.',
+      'ZeroBounce is an email verification service: it checks a list before you send and flags invalid, catch-all, and risky addresses, so cold email and newsletter bounce rates stay low and sending domains stay healthy.',
   },
   {
     slug: 'mailreach',
