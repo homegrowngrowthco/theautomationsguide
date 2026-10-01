@@ -39,6 +39,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseToolTaxonomy } from '../qa/registry.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..');
@@ -72,6 +73,11 @@ const dedash = (s) => (s || '').replace(/\s*[—–]\s*/g, ', ');
 const kebab = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
 // ---------- existing tools.ts registry (for idempotency + category reuse) ----------
+// The rendered /tools sections, the only category labels a new hub may use.
+function registryCategories() {
+  return parseToolTaxonomy(r('src', 'data', 'tools.ts')).categories || [];
+}
+
 function parseToolsTs() {
   const src = r('src', 'data', 'tools.ts');
   const region = src.slice(src.indexOf('export const tools'));
@@ -155,7 +161,7 @@ function buildPrompt(requested, categories) {
     'TOOLS TO WRITE (one hub page each):',
     toolLines,
     '',
-    'EXISTING CATEGORY LABELS (reuse the best-fitting one verbatim when it fits; only invent a new short label if none fits):',
+    'CATEGORY LABELS (copy the best-fitting one verbatim; never invent a new label, the /tools index only renders these):',
     categories.map((c) => `- ${c}`).join('\n'),
     '',
     'For EACH tool return an object with these fields:',
@@ -195,10 +201,11 @@ async function propose(requested, categories) {
 }
 
 // ---------- deterministic sanitize + validate ----------
-function sanitize(proposals, existingSlugs, existingNames) {
+function sanitize(proposals, existingSlugs, existingNames, allowedCategories = registryCategories()) {
   const kept = [];
   const dropped = [];
   const seen = new Set();
+  const allowed = new Set(allowedCategories);
   for (const p of proposals) {
     const name = dedash((p.name || '').trim());
     const slug = kebab(p.slug || name);
@@ -210,13 +217,16 @@ function sanitize(proposals, existingSlugs, existingNames) {
       .map((f) => ({ question: dedash((f.question || '').trim()), answer: dedash((f.answer || '').trim()) }))
       .filter((f) => f.question && f.answer);
     if (body.length < 2 || faqs.length < 3) { dropped.push({ name, reason: `thin content (body ${body.length}, faqs ${faqs.length})` }); continue; }
+    // A label outside toolCategories would never render on /tools (lint A3c fails it too).
+    const category = dedash((p.category || '').trim());
+    if (!allowed.has(category)) { dropped.push({ name, reason: `category "${category || '(none)'}" is not in toolCategories` }); continue; }
     let homepage = (p.homepage || '').trim();
     if (homepage && !/^https?:\/\//i.test(homepage)) homepage = 'https://' + homepage;
     seen.add(slug);
     const aliases = [...new Set([name, ...(Array.isArray(p.aliases) ? p.aliases : [])].map((a) => dedash((a || '').trim())).filter(Boolean))];
     kept.push({
       slug, name,
-      category: dedash((p.category || 'Uncategorized').trim()),
+      category,
       homepage,
       badge: dedash((p.badge || 'Paid').trim()),
       badgeFree: !!p.badgeFree,
@@ -376,7 +386,7 @@ async function main() {
   const existing = parseToolsTs();
   const existingSlugs = new Set(existing.map((t) => t.slug));
   const existingNames = new Set(existing.map((t) => norm(t.name)));
-  const categories = [...new Set(existing.map((t) => t.category).filter(Boolean))];
+  const categories = registryCategories();
 
   const pipeline = parsePipelineBacklog();
   let requested = resolveRequested(pipeline)

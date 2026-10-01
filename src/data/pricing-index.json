@@ -12,7 +12,7 @@
     {
       "slug": "11x",
       "name": "11x",
-      "category": "Sales Engagement",
+      "category": "AI Agents & AI SDRs",
       "status": "unreachable",
       "reason": "no pricing page responded",
       "triedUrls": [
@@ -26,7 +26,7 @@
     {
       "slug": "activecampaign",
       "name": "ActiveCampaign",
-      "category": "Sales Engagement",
+      "category": "Email Marketing & Newsletters",
       "status": "not-machine-readable",
       "sourceUrl": "https://www.activecampaign.com/pricing",
       "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
@@ -34,7 +34,7 @@
     {
       "slug": "activepieces",
       "name": "Activepieces",
-      "category": "Sales Engagement",
+      "category": "Workflow Automation",
       "status": "not-machine-readable",
       "sourceUrl": "https://activepieces.io/pricing",
       "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
@@ -42,7 +42,7 @@
     {
       "slug": "adcreative",
       "name": "AdCreative.ai",
-      "category": "Advertising & Creative",
+      "category": "SEO, Content & Creative",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.adcreative.ai/",
@@ -69,7 +69,7 @@
     {
       "slug": "aircall",
       "name": "Aircall",
-      "category": "Sales Engagement",
+      "category": "Calling & Conversation Intelligence",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://aircall.io/pricing/",
@@ -96,7 +96,7 @@
     {
       "slug": "aisdr",
       "name": "AiSDR",
-      "category": "AI Sales Agents",
+      "category": "AI Agents & AI SDRs",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://aisdr.com/pricing/",
@@ -123,7 +123,7 @@
     {
       "slug": "aloware",
       "name": "Aloware",
-      "category": "AI Voice & Dialers",
+      "category": "Calling & Conversation Intelligence",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://aloware.com/pricing",
@@ -150,7 +150,7 @@
     {
       "slug": "apollo",
       "name": "Apollo.io",
-      "category": "Outbound & Lead Generation",
+      "category": "Sales Engagement & Sequencing",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.apollo.io/pricing",
@@ -177,7 +177,7 @@
     {
       "slug": "artisan",
       "name": "Artisan",
-      "category": "Sales Engagement",
+      "category": "AI Agents & AI SDRs",
       "status": "not-machine-readable",
       "sourceUrl": "https://www.artisan.co/pricing",
       "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
@@ -212,7 +212,7 @@
     {
       "slug": "avoma",
       "name": "Avoma",
-      "category": "Meeting Intelligence",
+      "category": "Calling & Conversation Intelligence",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.avoma.com/pricing",
@@ -239,7 +239,7 @@
     {
       "slug": "bardeen",
       "name": "Bardeen",
-      "category": "Sales Engagement",
+      "category": "Workflow Automation",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.bardeen.ai/pricing",
@@ -266,7 +266,7 @@
     {
       "slug": "beehiiv",
       "name": "Beehiiv",
-      "category": "Newsletter Platform",
+      "category": "Email Marketing & Newsletters",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.beehiiv.com/pricing",
@@ -320,7 +320,7 @@
     {
       "slug": "bland-ai",
       "name": "Bland AI",
-      "category": "AI Voice & Dialers",
+      "category": "Calling & Conversation Intelligence",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.bland.ai/pricing",
@@ -347,7 +347,7 @@
     {
       "slug": "bouncer",
       "name": "Bouncer",
-      "category": "Sales Engagement",
+      "category": "Cold Email & Deliverability",
       "status": "not-machine-readable",
       "sourceUrl": "https://resolver.dnx.com/landers/bouncer.com/",
       "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
@@ -355,7 +355,7 @@
     {
       "slug": "brevo",
       "name": "Brevo",
-      "category": "Email & Marketing Automation",
+      "category": "Email Marketing & Newsletters",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.brevo.com/pricing/",
@@ -382,7 +382,7 @@
     {
       "slug": "cal-com",
       "name": "Cal.com",
-      "category": "Scheduling",
+      "category": "Scheduling & Productivity",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://cal.com/pricing",
@@ -409,7 +409,7 @@
     {
       "slug": "calendly",
       "name": "Calendly",
-      "category": "Sales Engagement",
+      "category": "Scheduling & Productivity",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://calendly.com/pricing",
@@ -436,7 +436,7 @@
     {
       "slug": "canva",
       "name": "Canva",
-      "category": "Advertising & Creative",
+      "category": "SEO, Content & Creative",
       "status": "blocked",
       "reason": "vendor refuses automated requests (HTTP 403/429 on every candidate URL)",
       "triedUrls": [
@@ -450,7 +450,7 @@
     {
       "slug": "chili-piper",
       "name": "Chili Piper",
-      "category": "Sales Engagement",
+      "category": "Scheduling & Productivity",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.chilipiper.com/pricing",
@@ -477,7 +477,7 @@
     {
       "slug": "circleback",
       "name": "Circleback",
-      "category": "Meeting Intelligence",
+      "category": "Calling & Conversation Intelligence",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://circleback.ai/pricing",
@@ -504,7 +504,7 @@
     {
       "slug": "clay",
       "name": "Clay",
-      "category": "Outbound & Lead Generation",
+      "category": "Lead Data & Enrichment",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.clay.com/pricing",
@@ -531,7 +531,7 @@
     {
       "slug": "clearscope",
       "name": "Clearscope",
-      "category": "SEO & Content",
+      "category": "SEO, Content & Creative",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.clearscope.io/pricing",
@@ -585,7 +585,7 @@
     {
       "slug": "cognism",
       "name": "Cognism",
-      "category": "Outbound & Lead Generation",
+      "category": "Lead Data & Enrichment",
       "status": "not-machine-readable",
       "sourceUrl": "https://www.cognism.com/pricing",
       "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
@@ -593,7 +593,7 @@
     {
       "slug": "creatify",
       "name": "Creatify",
-      "category": "Advertising & Creative",
+      "category": "SEO, Content & Creative",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://creatify.ai/pricing",
@@ -620,7 +620,7 @@
     {
       "slug": "customerio",
       "name": "Customer.io",
-      "category": "Sales Engagement",
+      "category": "Email Marketing & Newsletters",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://customer.io/pricing",
@@ -647,7 +647,7 @@
     {
       "slug": "factors-ai",
       "name": "Factors.ai",
-      "category": "Sales Engagement",
+      "category": "Website Visitor ID & Signals",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.factors.ai/pricing",
@@ -674,7 +674,7 @@
     {
       "slug": "fathom",
       "name": "Fathom",
-      "category": "Meeting Intelligence",
+      "category": "Calling & Conversation Intelligence",
       "status": "unreachable",
       "reason": "no pricing page responded",
       "triedUrls": [
@@ -688,7 +688,7 @@
     {
       "slug": "fillout",
       "name": "Fillout",
-      "category": "Scheduling",
+      "category": "Scheduling & Productivity",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.fillout.com/pricing",
@@ -715,7 +715,7 @@
     {
       "slug": "fireflies",
       "name": "Fireflies",
-      "category": "Sales Engagement",
+      "category": "Calling & Conversation Intelligence",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://fireflies.ai/pricing",
@@ -742,7 +742,7 @@
     {
       "slug": "folk",
       "name": "folk",
-      "category": "Sales Engagement",
+      "category": "CRM",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.folk.app/pricing",
@@ -769,7 +769,7 @@
     {
       "slug": "frase",
       "name": "Frase",
-      "category": "SEO & Content",
+      "category": "SEO, Content & Creative",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.frase.io/pricing",
@@ -820,7 +820,7 @@
     {
       "slug": "getaccept",
       "name": "GetAccept",
-      "category": "Outbound & Lead Generation",
+      "category": "Scheduling & Productivity",
       "status": "not-machine-readable",
       "sourceUrl": "https://www.getaccept.com/pricing",
       "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
@@ -828,7 +828,7 @@
     {
       "slug": "getresponse",
       "name": "GetResponse",
-      "category": "Email & Marketing Automation",
+      "category": "Email Marketing & Newsletters",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.getresponse.com/pricing/trial",
@@ -855,7 +855,7 @@
     {
       "slug": "gong",
       "name": "Gong",
-      "category": "Workflow Automation",
+      "category": "Calling & Conversation Intelligence",
       "status": "not-machine-readable",
       "sourceUrl": "https://www.gong.io/pricing",
       "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
@@ -863,7 +863,7 @@
     {
       "slug": "gumloop",
       "name": "Gumloop",
-      "category": "AI Agents",
+      "category": "AI Agents & AI SDRs",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.gumloop.com/pricing",
@@ -925,7 +925,7 @@
     {
       "slug": "justcall",
       "name": "JustCall",
-      "category": "Sales Engagement",
+      "category": "Calling & Conversation Intelligence",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://justcall.io/pricing/",
@@ -952,7 +952,7 @@
     {
       "slug": "kit",
       "name": "Kit",
-      "category": "Newsletter Platform",
+      "category": "Email Marketing & Newsletters",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://kit.com/pricing",
@@ -979,7 +979,7 @@
     {
       "slug": "krispcall",
       "name": "KrispCall",
-      "category": "AI Voice & Dialers",
+      "category": "Calling & Conversation Intelligence",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://krispcall.com/pricing/",
@@ -1006,7 +1006,7 @@
     {
       "slug": "laxis",
       "name": "Laxis",
-      "category": "Meeting Intelligence",
+      "category": "Calling & Conversation Intelligence",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.laxis.com/pricing/",
@@ -1060,7 +1060,7 @@
     {
       "slug": "lemlist",
       "name": "Lemlist",
-      "category": "Outbound & Lead Generation",
+      "category": "Sales Engagement & Sequencing",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.lemlist.com/pricing",
@@ -1087,7 +1087,7 @@
     {
       "slug": "lindy",
       "name": "Lindy",
-      "category": "AI Agents",
+      "category": "AI Agents & AI SDRs",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.lindy.ai/pricing",
@@ -1114,7 +1114,7 @@
     {
       "slug": "linkedin-sales-navigator",
       "name": "LinkedIn Sales Navigator",
-      "category": "Sales Engagement",
+      "category": "Lead Data & Enrichment",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://business.linkedin.com/sell/sales-navigator/compare-plans",
@@ -1143,7 +1143,7 @@
     {
       "slug": "loops",
       "name": "Loops",
-      "category": "Sales Engagement",
+      "category": "Email Marketing & Newsletters",
       "status": "not-machine-readable",
       "sourceUrl": "https://loops.so/pricing",
       "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
@@ -1165,7 +1165,7 @@
     {
       "slug": "mailchimp",
       "name": "Mailchimp",
-      "category": "Email & Marketing Automation",
+      "category": "Email Marketing & Newsletters",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://mailchimp.com/pricing/sms-marketing/",
@@ -1238,7 +1238,7 @@
     {
       "slug": "mailreach",
       "name": "MailReach",
-      "category": "Sales Engagement",
+      "category": "Cold Email & Deliverability",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.mailreach.co/pricing",
@@ -1294,7 +1294,7 @@
     {
       "slug": "moltsets",
       "name": "MoltSets",
-      "category": "Outbound & Lead Generation",
+      "category": "Lead Data & Enrichment",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://moltsets.com/pricing/",
@@ -1383,7 +1383,7 @@
     {
       "slug": "otter",
       "name": "Otter.ai",
-      "category": "Sales Engagement",
+      "category": "Calling & Conversation Intelligence",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://otter.ai/pricing",
@@ -1412,7 +1412,7 @@
     {
       "slug": "outreach",
       "name": "Outreach",
-      "category": "Workflow Automation",
+      "category": "Sales Engagement & Sequencing",
       "status": "not-machine-readable",
       "sourceUrl": "https://www.outreach.ai/pricing",
       "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
@@ -1444,7 +1444,7 @@
     {
       "slug": "pandadoc",
       "name": "PandaDoc",
-      "category": "Outbound & Lead Generation",
+      "category": "Scheduling & Productivity",
       "status": "blocked",
       "reason": "vendor refuses automated requests (HTTP 403/429 on every candidate URL)",
       "triedUrls": [
@@ -1472,7 +1472,7 @@
     {
       "slug": "profound",
       "name": "Profound",
-      "category": "SEO & Content",
+      "category": "SEO, Content & Creative",
       "status": "not-machine-readable",
       "sourceUrl": "https://profound.app/pricing",
       "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
@@ -1515,7 +1515,7 @@
     {
       "slug": "qwilr",
       "name": "Qwilr",
-      "category": "Outbound & Lead Generation",
+      "category": "Scheduling & Productivity",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://qwilr.com/pricing/",
@@ -1569,7 +1569,7 @@
     {
       "slug": "relevance-ai",
       "name": "Relevance AI",
-      "category": "AI Agents",
+      "category": "AI Agents & AI SDRs",
       "status": "not-machine-readable",
       "sourceUrl": "https://relevanceai.com/pricing",
       "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
@@ -1577,7 +1577,7 @@
     {
       "slug": "reply-io",
       "name": "Reply.io",
-      "category": "Sales Engagement",
+      "category": "Sales Engagement & Sequencing",
       "status": "blocked",
       "reason": "vendor refuses automated requests (HTTP 403/429 on every candidate URL)",
       "triedUrls": [
@@ -1591,7 +1591,7 @@
     {
       "slug": "salesflare",
       "name": "Salesflare",
-      "category": "Sales Engagement",
+      "category": "CRM",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://salesflare.com/pricing",
@@ -1618,7 +1618,7 @@
     {
       "slug": "salesforce",
       "name": "Salesforce",
-      "category": "Outbound & Lead Generation",
+      "category": "CRM",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.salesforce.com/agentforce/pricing/",
@@ -1672,7 +1672,7 @@
     {
       "slug": "salesloft",
       "name": "Salesloft",
-      "category": "Workflow Automation",
+      "category": "Sales Engagement & Sequencing",
       "status": "not-machine-readable",
       "sourceUrl": "https://www.salesloft.com/pricing",
       "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
@@ -1680,7 +1680,7 @@
     {
       "slug": "smartlead",
       "name": "Smartlead",
-      "category": "Outbound & Lead Generation",
+      "category": "Cold Email & Deliverability",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.smartlead.ai/pricing",
@@ -1707,7 +1707,7 @@
     {
       "slug": "storydoc",
       "name": "Storydoc",
-      "category": "Outbound & Lead Generation",
+      "category": "Scheduling & Productivity",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://www.storydoc.com/pricing",
@@ -1763,7 +1763,7 @@
     {
       "slug": "surfer",
       "name": "Surfer",
-      "category": "SEO & Content",
+      "category": "SEO, Content & Creative",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://surferseo.com/pricing/",
@@ -1790,7 +1790,7 @@
     {
       "slug": "synthflow",
       "name": "Synthflow",
-      "category": "AI Voice & Dialers",
+      "category": "Calling & Conversation Intelligence",
       "status": "not-machine-readable",
       "sourceUrl": "https://synthflow.ai/pricing",
       "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
@@ -1798,7 +1798,7 @@
     {
       "slug": "tally",
       "name": "Tally",
-      "category": "Scheduling",
+      "category": "Scheduling & Productivity",
       "status": "not-machine-readable",
       "sourceUrl": "https://tally.so/pricing",
       "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
@@ -1806,7 +1806,7 @@
     {
       "slug": "taplio",
       "name": "Taplio",
-      "category": "Sales Engagement",
+      "category": "SEO, Content & Creative",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://taplio.com/pricing",
@@ -1833,7 +1833,7 @@
     {
       "slug": "tl-dv",
       "name": "tl;dv",
-      "category": "Meeting Intelligence",
+      "category": "Calling & Conversation Intelligence",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://tldv.io/app/pricing/",
@@ -1887,7 +1887,7 @@
     {
       "slug": "vapi",
       "name": "Vapi",
-      "category": "AI Voice & Dialers",
+      "category": "Calling & Conversation Intelligence",
       "status": "ok",
       "extraction": "automated",
       "sourceUrl": "https://vapi.ai/pricing",
@@ -1941,7 +1941,7 @@
     {
       "slug": "warmforge",
       "name": "Warmforge",
-      "category": "Sales Engagement",
+      "category": "Cold Email & Deliverability",
       "status": "unreachable",
       "reason": "no pricing page responded",
       "triedUrls": [
@@ -2009,7 +2009,7 @@
     {
       "slug": "zerobounce",
       "name": "ZeroBounce",
-      "category": "Sales Engagement",
+      "category": "Cold Email & Deliverability",
       "status": "not-machine-readable",
       "sourceUrl": "https://www.zerobounce.net/pricing",
       "reason": "pricing page reachable but prices are not present in server-rendered text (client-side rendering or a paywall)"
@@ -2017,7 +2017,7 @@
     {
       "slug": "zoominfo",
       "name": "ZoomInfo",
-      "category": "Outbound & Lead Generation",
+      "category": "Lead Data & Enrichment",
       "status": "blocked",
       "reason": "vendor refuses automated requests (HTTP 403/429 on every candidate URL)",
       "triedUrls": [

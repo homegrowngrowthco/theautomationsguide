@@ -1,17 +1,18 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
-import { tools, toolCategories, categoryAnchor, postMentionsTool } from '../data/tools';
+import { tools, toolCategories, categorySubs, categoryAnchor, postMentionsTool } from '../data/tools';
 
-const categorySubs: Record<string, string> = {
-  'Workflow Automation': 'The middleware layer that connects your stack and runs your GTM playbooks.',
-  'CRM': 'The system of record at the center of your GTM motion.',
-  'Outbound & Lead Generation': 'Enrichment, contact data, and cold email tools that fill the top of your funnel.',
-  'Newsletter Platform': 'The tool we use to publish, and recommend to anyone serious about owned audience.',
-  'Website Visitor ID & Signals': 'De-anonymize site traffic and turn intent signals into outreach.',
-  'AI Agents': 'No-code platforms for building AI agents that do real GTM work.',
-  'Scheduling': 'Booking and scheduling tools that remove friction from the calendar.',
-};
+// Build-time guard: a tool whose category is not a rendered section would never
+// appear in the grid below (18 listed tools were silently dropped that way until
+// 2026-10-01). Fail the build instead. qa:lint (A3c) checks the same rule earlier.
+const uncategorized = tools.filter((t) => !toolCategories.includes(t.category));
+if (uncategorized.length) {
+  throw new Error(`tools.ts: category not in toolCategories for ${uncategorized.map((t) => `${t.slug} ("${t.category}")`).join(', ')}`);
+}
+const sections = toolCategories
+  .map((category) => ({ category, items: tools.filter((t) => t.category === category && t.listed !== false) }))
+  .filter((s) => s.items.length > 0);
 
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);
 const articleCount = (slug: string) => {
@@ -22,12 +23,12 @@ const articleCount = (slug: string) => {
 
 <BaseLayout
   title="Automation Tools for RevOps & GTM Teams"
-  description="The best automation, CRM, outbound, and newsletter tools for RevOps and GTM teams — tested and reviewed by an 8-year RevOps practitioner."
+  description="The best automation, CRM, outbound, and newsletter tools for RevOps and GTM teams, tested and reviewed by an 8-year RevOps practitioner."
 >
   <!-- Affiliate disclosure -->
   <div class="container--wide" style="padding-top:2rem;">
     <div class="affiliate-notice">
-      <strong>Affiliate Disclosure:</strong> Some links on this page are affiliate links. If you sign up or purchase through them, we earn a commission at no extra cost to you. We only list tools we'd genuinely recommend to a fellow RevOps practitioner — our editorial opinions are not influenced by affiliate relationships. <a href="/disclosure/">Read the full disclosure</a>.
+      <strong>Affiliate Disclosure:</strong> Some links on this page are affiliate links. If you sign up or purchase through them, we earn a commission at no extra cost to you. We only list tools we'd genuinely recommend to a fellow RevOps practitioner. Our editorial opinions are not influenced by affiliate relationships. <a href="/disclosure/">Read the full disclosure</a>.
     </div>
   </div>
 
@@ -49,7 +50,7 @@ const articleCount = (slug: string) => {
     </div>
   </section>
 
-  {toolCategories.map((category, i) => (
+  {sections.map(({ category, items }, i) => (
     <section class="section tools-cat-section" id={categoryAnchor(category)} style={i > 0 ? 'border-top:1px solid var(--border);' : undefined}>
       <div class="container--wide">
         <div class="tools-category">
@@ -57,7 +58,7 @@ const articleCount = (slug: string) => {
           {categorySubs[category] && <p class="tools-category-sub">{categorySubs[category]}</p>}
         </div>
         <div class="tool-grid">
-          {tools.filter((t) => t.category === category && t.listed !== false).map((tool) => {
+          {items.map((tool) => {
             const count = articleCount(tool.slug);
             return (
               <div class="tool-card">
