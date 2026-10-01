@@ -10,6 +10,31 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 Last updated 2026-10-01 (Session 98).
 
+## Session 99 (2026-10-01) — /tools/ taxonomy fixed + guarded; conversion audit; 6 PRs open
+
+- **/tools/ (PR #325):**
+  - 18 of 46 listed tools never rendered; all 123 were re-homed into 11 categories.
+  - Guarded by lint A3c (with `--selftest`), a build-time throw, and a CI job on every PR.
+  - auto-register and the LP builder can no longer write an unrendered category.
+  - Pricing-index labels relabelled (labels only, no figures).
+- **Audit:** [audits/AUDIT-CONVERSION-2026-10-01.md](../audits/AUDIT-CONVERSION-2026-10-01.md).
+  - 0 real subscribers; the site cannot see a signup.
+  - 61 of 65 affiliate clicks had no source page (`rel=noreferrer` on `/go/`).
+  - About 63 post pageviews a week means an A/B test needs 33-164 weeks, so changes are judged on pre-registered before/after rates.
+- **Ian picked R1-R7 and R9.**
+  - #326: click attribution (`source_path`, `source_component`, UA, `is_automated`, 30s dedupe). E2E-tested on the deploy preview.
+  - #329: mobile overflow 76→0 posts, plus the overflow gate that missed it (it skipped text-less images). Also share links, disclosure under the byline, Comparisons nav, `/guides/` index, hub meta descriptions, and a broken `/go/[n8n](...)` href.
+  - #330: "Tools compared:" line above the fold, stacked on #329.
+  - #327: 74 live-tool mentions linked through `/go/` (agent-built, spot-checked), stacked on #325.
+  - #328: 15 internal links into 6 top entry posts.
+  - R8 parked by Ian; Beehiiv steps drafted in NEWSLETTER.md for Ian to apply.
+- **Live write:** the PostHog dashboard has its "form intent" search-submit series removed and a new "Affiliate clicks by source block" insight. A dry run before and after showed exactly 1 update and 1 create. Revert: re-run master's `posthog-setup.mjs --update --apply`.
+- **Verify:** all 6 branches merge clean in the listed order (merge simulation); combined build OK, `qa:lint` 0 hard, overflow 0/165.
+- **Part 0 parked:** every gate is ≥10/02. The Leadfeeder post has no PR yet (the 4pm run made Nooks vs Orum, #324).
+- **Gotchas:**
+  - Playwright `route()` gives precedence to the most recent registration, so register the catch-all abort first.
+  - `astro preview` 404s slash-less `/go/x` links, which Netlify 301s.
+
 ## Session 98 (2026-10-01) — 9 PartnerStack programs live + listed; Ian's open items cleared
 
 - **Shipped: PR #323 squash-merged `73b04d8` (Ian approved).** Live + `listed:true`: AdCreative.ai, Leadfeeder, Constant Contact, Leadpages, plus Trainual, Descript, Flocksy, Diginius (previously skipped as off-niche) and new Signal House; Ian chose to list all after asking why not (`listed` only controls the homepage strip + `/tools/` grid; repo rule = list on approval). 10 deep links; 7 new hubs via auto-register (vendor blurbs rewritten); Flocksy has no logo (no icon passed transparency validation, wordmark fallback). Aircall `rejected` -> `pending`.
