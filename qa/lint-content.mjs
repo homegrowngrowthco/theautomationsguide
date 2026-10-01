@@ -261,7 +261,8 @@ let files = [];
 if (getArg('--post')) files = [getArg('--post')];
 else if (getArg('--slug')) files = [path.join(BLOG_DIR, getArg('--slug') + '.mdx')];
 else if (args.includes('--all')) files = readdirSync(BLOG_DIR).filter((f) => /\.mdx?$/.test(f)).map((f) => path.join(BLOG_DIR, f));
-else { console.error('Usage: --post <path> | --slug <slug> | --all [--fix]'); process.exit(2); }
+else if (args.includes('--registry-only')) files = []; // registry checks (A3/A3b/A3c) only, no posts
+else { console.error('Usage: --post <path> | --slug <slug> | --all | --registry-only [--fix] | --selftest'); process.exit(2); }
 
 let hardTotal = 0, warnTotal = 0;
 
