@@ -348,6 +348,8 @@ Facts measured on this instance, which the design depends on (do not "simplify" 
 - **Create calls are deliberately excluded from layer 1** (GitHub Create Branch / Commit File / Open PR, Notion page creates): a request that succeeded but timed out would be repeated into a duplicate.
 - An API `PUT` to an active workflow publishes it immediately (`activeVersionId` == `versionId` afterwards).
 
+**Silencing a hand-recovered incident.** A fresh manual trigger is not linked to the failed run as a re-run, so the watchdog keeps reporting the original failure. Add its execution id and a reason to the `ACKNOWLEDGED` map at the top of `watchdog.mjs` (via PR), and the watchdog treats it as recovered. Entries can be removed once older than about 16h (the judging window).
+
 The re-runs and the watchdog both call the n8n API. Layer 2 uses the n8n credential **"n8n API (self) — watchdog"** (shared with the HGC Pipeline Health Watchdog); layer 3 uses the `N8N_API_KEY` repo secret. If either key is rejected, the alert names it. All three scripts have offline `--selftest` fixtures, run on every PR by `qa-freshness.yml`. Live-patch backups land in `~/.n8n-backups/` (outside the repo: live exports carry webhook URLs); revert one with `node n8n/live-patch.mjs --restore <file> --apply`.
 
 ---

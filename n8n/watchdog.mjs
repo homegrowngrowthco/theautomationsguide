@@ -32,6 +32,14 @@ const ERROR_WF_ID = 'FTIVt7L1ZXleNUf6';
 const WATCHED = ['sjZADhZGIuz9tZHK', 'vfEeiQg3TsPlD24J', 'coLm8goioffInJ2b', 'HbCayxHdzdYdfvfP',
   'vooFcTsWtyOok7Ps', 'dxOpkHKeWnilrRmv', 'LKKVtHqiD6cyxBWc'];
 const HEADER = '🤖 *The Automations Guide*';
+// Failed executions a human already recovered by hand (e.g. a fresh manual trigger, which n8n
+// does not link as a re-run). Execution id -> reason. An acknowledged root or failed execution
+// counts as recovered. Entries can be removed once they are older than GRACE + SPAN (about 16.4h).
+export const ACKNOWLEDGED = {
+  22996: 'recovered by manual fresh trigger 2026-10-01 (23007)', // Topic Suggestor 7:30
+  23000: 'recovered by manual fresh trigger 2026-10-01 (23006, opened PR #318)', // Engine 8:00
+  22998: 'recovered by manual fresh trigger 2026-10-01 (23008)', // Ian Queue Reminder 8:00
+};
 
 // ---- cron (5 or 6 fields; *, n, a-b, a,b, */n, a-b/n) evaluated in an IANA timezone ----
 function fieldMatches(spec, value, min, max) {
@@ -75,15 +83,15 @@ export function cronsOf(wf) {
 
 // ---- judging ----
 const ok = (e) => e.status === 'success';
-function recovered(root, execs) {
-  if (ok(root) || root.retrySuccessId) return true;
+function recovered(root, execs, ack) {
+  if (ok(root) || root.retrySuccessId || Object.hasOwn(ack, String(root.id))) return true;
   const kids = (id) => execs.filter((e) => String(e.retryOf) === String(id));
   const stack = kids(root.id);
   while (stack.length) { const e = stack.pop(); if (ok(e)) return true; stack.push(...kids(e.id)); }
   return false;
 }
 // Returns problem strings for one workflow given its live definition and recent executions.
-export function judge(wf, execs, now, tz = wf.settings?.timezone || INSTANCE_TZ) {
+export function judge(wf, execs, now, tz = wf.settings?.timezone || INSTANCE_TZ, ack = ACKNOWLEDGED) {
   const problems = [];
   const from = now - GRACE_MS - SPAN_MS, to = now - GRACE_MS;
   const fmt = (ms) => new Date(ms).toLocaleString('en-US', { timeZone: tz, weekday: 'short', hour: 'numeric', minute: '2-digit' }) + ' ET';
@@ -96,14 +104,14 @@ export function judge(wf, execs, now, tz = wf.settings?.timezone || INSTANCE_TZ)
         .sort((a, b) => Math.abs(Date.parse(a.startedAt) - f) - Math.abs(Date.parse(b.startedAt) - f))[0];
       if (!root) { problems.push(`*${wf.name}*: the ${fmt(f)} run never happened.`); continue; }
       claimed.add(String(root.id));
-      if (!recovered(root, execs)) problems.push(`*${wf.name}*: the ${fmt(f)} run failed and no re-run succeeded (execution ${root.id}).`);
+      if (!recovered(root, execs, ack)) problems.push(`*${wf.name}*: the ${fmt(f)} run failed and no re-run succeeded (execution ${root.id}).`);
     }
   }
   for (const e of execs) {
     const t = Date.parse(e.startedAt);
     if (e.retryOf || claimed.has(String(e.id)) || t < from || t > to || ok(e)) continue;
     if (!['trigger', 'webhook'].includes(e.mode)) continue;
-    if (e.status === 'error' || e.status === 'crashed') { if (!recovered(e, execs)) problems.push(`*${wf.name}*: a ${e.mode} run at ${fmt(t)} failed and no re-run succeeded (execution ${e.id}).`); }
+    if (e.status === 'error' || e.status === 'crashed') { if (!recovered(e, execs, ack)) problems.push(`*${wf.name}*: a ${e.mode} run at ${fmt(t)} failed and no re-run succeeded (execution ${e.id}).`); }
   }
   return problems;
 }
@@ -193,6 +201,10 @@ function selftest() {
   const hook = { name: 'Publish Status', active: true, settings: {}, nodes: [] };
   t('webhook failure unrecovered -> 1 problem', judge(hook, [ex('5', '2026-10-01T15:00:00Z', 'error', { mode: 'webhook' })], now, tz).length === 1);
   t('webhook failure outside window -> quiet', judge(hook, [ex('5', '2026-10-01T23:00:00Z', 'error', { mode: 'webhook' })], now, tz).length === 0);
+  const ack = { 1: 'recovered by hand' };
+  t('acknowledged failed scheduled run -> quiet', judge(wf, [ex('1', morning, 'error'), ex('2', afternoon, 'success')], now, tz, ack).length === 0);
+  t('unacknowledged failed scheduled run still reports', judge(wf, [ex('1', morning, 'success'), ex('2', afternoon, 'error')], now, tz, ack).length === 1);
+  t('acknowledged webhook failure -> quiet', judge(hook, [ex('1', '2026-10-01T15:00:00Z', 'error', { mode: 'webhook' })], now, tz, ack).length === 0);
   let fail = 0;
   for (const [name, pass, info] of checks) { if (!pass) fail++; console.log(`${pass ? 'PASS' : 'FAIL'} ${name}${pass || !info ? '' : '  -> ' + info}`); }
   if (fail) process.exit(1);
