@@ -219,9 +219,12 @@ function aliasHit(aliases, hay) {
   });
 }
 
-function parsePublishedPosts(universe) {
+// asOf (YYYY-MM-DD, optional): only posts whose filename date is on or before it.
+// Undated legacy filenames predate every dated post, so they always count.
+function parsePublishedPosts(universe, asOf = null) {
   const dir = join(ROOT, 'src', 'content', 'blog');
-  const files = readdirSync(dir).filter((f) => f.endsWith('.mdx'));
+  const files = readdirSync(dir).filter((f) => f.endsWith('.mdx'))
+    .filter((f) => !asOf || !/^\d{4}-\d{2}-\d{2}-/.test(f) || f.slice(0, 10) <= asOf);
   const posts = [];
   for (const f of files) {
     const src = readFileSync(join(dir, f), 'utf8');
@@ -1015,9 +1018,20 @@ const ACCEPTED_JUDGMENT_LEAKS = new Set([
   'Your Pipedrive Sequences Are Silent',
 ]);
 
+// The fixtures encode the 2026-08-12 scrub, so the selftest must judge them against the
+// inputs of that day, not the live site. Against live inputs it rotted (weekly job red
+// 2026-09-13 to 09-27): posts published since then rightly blocked the CONTROLS, and tools
+// registered since then (uplead, lead-forensics) rightly un-fenced two scrubbed topics.
+const FIXTURE_AS_OF = '2026-08-12';
+// The 11 scrub anchors that had no affiliate-links.ts entry on FIXTURE_AS_OF (see the
+// parseAffiliateStatus comment); some are registered now.
+const UNREGISTERED_AS_OF_FIXTURE = ['savvycal', 'uplead', 'lead-forensics', 'dripify', 'sharpspring', 'iterable',
+  'zendesk-sell', 'insightly', 'freshsales', 'salesmate', 'airtable'];
+
 function selfTest() {
+  for (const slug of UNREGISTERED_AS_OF_FIXTURE) AFFILIATE_STATUS.delete(norm(slug)); // process exits after the test
   const universe = buildUniverse();
-  const covered = parsePublishedPosts(universe);
+  const covered = parsePublishedPosts(universe, FIXTURE_AS_OF);
   const resolve = makeResolver(universe);
   // Mimic the proposer: anchor on the first tool the title names, else a live-status
   // tool, so the anchor fence does not mask the fence actually under test.
