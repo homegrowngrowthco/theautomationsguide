@@ -634,6 +634,11 @@ main { flex: 1; }
 .section--tinted { background: var(--bg-secondary); }
 .section--anchor { scroll-margin-top: calc(var(--nav-h) + 1rem); }
 
+/* Empty-state message for hub pages with no posts yet (L-10; was an inline
+   style= repeated across blog, guides, playbooks, reviews, teams). */
+.empty-state { text-align: center; padding: 5rem 0; color: var(--text-muted); }
+.empty-state p { font-size: 1.125rem; }
+
 /* ── Homepage: editorial sections by format ────────
    Replaces the old machine-derived "Browse by topic" tag tiles. One
    <section> wraps 3-4 format blocks (Migration guides / Tool vs tool /

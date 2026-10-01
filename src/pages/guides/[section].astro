@@ -33,8 +33,8 @@ const posts = await getSectionPosts(section);
         {posts.map((post) => <PostCard post={post} />)}
       </div>
     ) : (
-      <div style="text-align:center;padding:5rem 0;color:var(--text-muted);">
-        <p style="font-size:1.125rem;">
+      <div class="empty-state">
+        <p>
           New {section.navLabel.toLowerCase()} are on the way. <a href="/blog/">Browse all articles</a> in the meantime.
         </p>
       </div>

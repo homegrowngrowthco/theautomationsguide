@@ -34,8 +34,8 @@ const posts = all
         {posts.map((post) => <PostCard post={post} />)}
       </div>
     ) : (
-      <div style="text-align:center;padding:5rem 0;color:var(--text-muted);">
-        <p style="font-size:1.125rem;">Reviews are on the way. <a href="/blog/">Browse all articles</a>.</p>
+      <div class="empty-state">
+        <p>Reviews are on the way. <a href="/blog/">Browse all articles</a>.</p>
       </div>
     )}
   </div>
