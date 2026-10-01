@@ -8,6 +8,7 @@ import RelatedPosts from '../components/post/RelatedPosts.astro';
 import PricingIndexCallout from '../components/post/PricingIndexCallout.astro';
 import { tools, postMentionsTool } from '../data/tools';
 import { hasToc } from '../lib/post-toc';
+import ToolStrip from '../components/post/ToolStrip.astro';
 import type { CollectionEntry } from 'astro:content';
 import type { MarkdownHeading } from 'astro';
 
@@ -147,6 +148,7 @@ const faqSchema =
         <p class="post-disclosure post-disclosure--top">
           Some links are affiliate links. <a href="/disclosure/">Disclosure</a>.
         </p>
+        <ToolStrip body={post.body} title={title} />
       </header>
 
       {(tldr || showToc) && (
