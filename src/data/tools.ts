@@ -1016,7 +1016,7 @@ export const tools: Tool[] = [
     badge: 'Free trial',
     ctaLabel: 'Try AdCreative.ai',
     ctaPrimary: true,
-    listed: false,
+    listed: true,
     aliases: ['AdCreative.ai', 'AdCreative'],
     blurb:
       'AdCreative.ai generates conversion-focused ad creative and copy in bulk, scoring variants so performance marketers can ship more tests faster.',
@@ -2664,7 +2664,7 @@ export const tools: Tool[] = [
     badge: 'Paid',
     ctaLabel: 'Try Leadfeeder',
     ctaPrimary: true,
-    listed: false,
+    listed: true,
     aliases: ['Leadfeeder', 'Dealfront', 'leadfeeder.com', 'dealfront.com'],
     blurb:
       'Leadfeeder (now part of Dealfront) identifies the companies visiting your website and scores them against your ICP, syncing straight into your CRM. One of the most established players in visitor ID, older and more integration-heavy than RB2B, and it comes up constantly in "RB2B alternatives" searches.',
@@ -2766,6 +2766,97 @@ export const tools: Tool[] = [
     aliases: ['Kixie'],
     blurb:
       'Kixie’s AI-powered sales platform offers advanced dialers, including PowerDialer and Click-to-Call, with AI-driven call routing, voicemail detection, and CRM integration to supercharge your sales team',
+  },
+  // --- PartnerStack approvals registered 2026-10-01 (listed per Ian; none has a post yet).
+  {
+    slug: 'leadpages',
+    name: 'Leadpages',
+    category: 'Email & Marketing Automation',
+    badge: 'Paid',
+    ctaLabel: 'Try Leadpages',
+    ctaPrimary: true,
+    listed: true,
+    logo: '/brand/tools/leadpages.png',
+    aliases: ['Leadpages'],
+    blurb:
+      'Leadpages is a landing page builder with built-in A/B testing and heatmaps, aimed at small teams that need conversion pages live without a developer.',
+  },
+  {
+    slug: 'constant-contact',
+    logo: '/brand/tools/constant-contact.png',
+    name: 'Constant Contact',
+    category: 'Email & Marketing Automation',
+    badge: 'Paid',
+    ctaLabel: 'Try Constant Contact',
+    ctaPrimary: true,
+    listed: true,
+    aliases: ['Constant Contact'],
+    blurb:
+      'Constant Contact is a long-running email marketing platform for small businesses, with templates, list management, and marketing automation in one account.',
+  },
+  {
+    slug: 'trainual',
+    name: 'Trainual',
+    category: 'Scheduling & Productivity',
+    badge: 'Paid',
+    ctaLabel: 'Try Trainual',
+    ctaPrimary: true,
+    listed: true,
+    logo: '/brand/tools/trainual.png',
+    aliases: ['Trainual'],
+    blurb:
+      'Trainual documents processes and delivers structured, repeatable training, so onboarding and SOPs for a growing team live in one place instead of scattered docs.',
+  },
+  {
+    slug: 'descript',
+    name: 'Descript',
+    category: 'Advertising & Creative',
+    badge: 'Free tier available',
+    ctaLabel: 'Try Descript',
+    ctaPrimary: true,
+    listed: true,
+    logo: '/brand/tools/descript.png',
+    aliases: ['Descript'],
+    blurb:
+      'Descript is a video and audio editor where you edit the transcript to edit the recording, which makes demo videos, webinars, and podcasts quick to cut.',
+  },
+  {
+    slug: 'flocksy',
+    name: 'Flocksy',
+    category: 'Advertising & Creative',
+    badge: 'Paid',
+    ctaLabel: 'Try Flocksy',
+    ctaPrimary: true,
+    listed: true,
+    aliases: ['Flocksy'],
+    blurb:
+      'Flocksy is a design team on a flat monthly rate: you buy creative hours for graphics, video, and illustration rather than hiring a designer.',
+  },
+  {
+    slug: 'diginius',
+    name: 'Diginius',
+    category: 'Advertising & Creative',
+    badge: 'Paid',
+    ctaLabel: 'Try Diginius',
+    ctaPrimary: true,
+    listed: true,
+    logo: '/brand/tools/diginius.png',
+    aliases: ['Diginius'],
+    blurb:
+      'Diginius is PPC management and reporting software for agencies and ecommerce teams, automating bid and campaign work across paid search accounts.',
+  },
+  {
+    slug: 'signal-house',
+    name: 'Signal House',
+    category: 'Sales Engagement',
+    badge: 'Paid',
+    ctaLabel: 'Try Signal House',
+    ctaPrimary: true,
+    listed: true,
+    logo: '/brand/tools/signal-house.png',
+    aliases: ['Signal House'],
+    blurb:
+      'Signal House is an SMS and MMS messaging provider with APIs built for CRM and marketing systems, for teams adding two-way texting to their outreach.',
   },
 ];
 
