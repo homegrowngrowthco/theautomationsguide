@@ -124,6 +124,9 @@
       },
       "id": "tag00001-0000-0000-0000-000000000004",
       "name": "Get Next Topic",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -179,6 +182,9 @@
       },
       "id": "tag00001-0000-0000-0000-000000000006",
       "name": "Mark Topic Generating",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -221,6 +227,9 @@
       },
       "id": "tag00001-0000-0000-0000-000000000007",
       "name": "Generate Draft",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -263,6 +272,9 @@
       },
       "id": "tag00001-0000-0000-0000-000000000008",
       "name": "Humanize",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -320,6 +332,9 @@
       },
       "id": "tag00001-0000-0000-0000-00000000000a",
       "name": "Check Idempotency MDX",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -364,6 +379,9 @@
       },
       "id": "tag00001-0000-0000-0000-00000000001a",
       "name": "Check Idempotency MD",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -415,6 +433,9 @@
       },
       "id": "tag00001-0000-0000-0000-00000000000c",
       "name": "Get Base SHA",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -621,6 +642,9 @@
       },
       "id": "tag00001-0000-0000-0000-000000000012",
       "name": "Mark Topic In Review",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -699,6 +723,9 @@
       },
       "id": "tag00001-0000-0000-0000-000000000017",
       "name": "Slack Notification",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -777,6 +804,9 @@
       },
       "id": "tag00001-0000-0000-0000-000000000020",
       "name": "Generate Social Outputs",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -859,6 +889,9 @@
       },
       "id": "tag00001-0000-0000-0000-0000000000fd",
       "name": "Slack Queue Empty",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -902,6 +935,9 @@
       },
       "id": "tag00001-0000-0000-0000-0000000000fc",
       "name": "Log Cost to Slack",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -948,6 +984,9 @@
       },
       "id": "fetch-tools-registry",
       "name": "Fetch Tools Registry",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -984,6 +1023,9 @@
       },
       "id": "fetch-blog-list",
       "name": "Fetch Blog List",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -1320,7 +1362,8 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "errorWorkflow": "FTIVt7L1ZXleNUf6"
   },
   "active": true,
   "meta": {
