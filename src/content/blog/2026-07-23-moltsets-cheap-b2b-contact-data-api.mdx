@@ -1,20 +1,21 @@
 ---
 title: "MoltSets: The $27 API That Undercuts ZoomInfo & Apollo"
-description: "MoltSets is a $27/mo B2B contact-data API that undercuts ZoomInfo, Apollo, and Clay on cost. Here is how the pricing math works and who it actually fits."
-tldr: "MoltSets is a $27/month, API-first B2B contact-data tool built for Clay and Claude. It trades dashboards and non-US data for a flat price that undercuts Apollo's per-seat credits and ZoomInfo's five-figure contracts. The catch: emails and search are unlimited but mobile numbers are metered, the data is US-only, and you have to verify match rates against your own list before trusting it."
+description: "MoltSets is a $27/mo B2B contact-data API, still in closed beta, that undercuts ZoomInfo, Apollo, and Clay on cost. How the pricing math works and who it fits."
+tldr: "MoltSets is a $27/month, API-first B2B contact-data tool built for Clay and Claude, still in closed beta (access is by enrollment form). It trades dashboards and non-US data for a flat price that undercuts Apollo's per-seat credits and ZoomInfo's five-figure contracts. The catch: 'unlimited' means no per-record price, not no limits (rate limits and weekly record caps apply), mobile numbers are a paid add-on, the data is US-only, and you have to verify match rates against your own list before trusting it."
 pubDate: 2026-07-23
+updatedDate: 2026-10-01
 tags: ["enrichment", "prospecting", "automation", "clay"]
 faqs:
   - question: "Is MoltSets cheaper than Apollo for contact data?"
-    answer: "For email and people search at volume, yes. MoltSets is a flat $27/month with unlimited core API calls inside its rate limits, while Apollo meters data by credit (a phone reveal costs 8 credits) and caps mobile credits per seat, with credits expiring monthly. Apollo still wins if you also want sequencing, a dialer, and a dashboard, because MoltSets is data-only."
+    answer: "For email and people search at volume, yes. MoltSets is a flat $27/month with no per-record price, limited instead by rate limits and weekly record caps under its Fair Use Policy, while Apollo meters data by credit (a phone reveal costs 8 credits) and caps mobile credits per seat, with credits expiring monthly. Apollo still wins if you also want sequencing, a dialer, and a dashboard, because MoltSets is data-only."
   - question: "How does MoltSets compare to ZoomInfo on price?"
     answer: "It is not close. ZoomInfo does not publish pricing and typically runs a five-figure annual contract with a three-seat minimum; Vendr's 2026 data puts the median at roughly $31,875 per year. MoltSets is $27 per month. They are not the same product (ZoomInfo bundles intent data, compliance tooling, and a full platform), but for raw US contact data via API the cost gap is enormous."
   - question: "What is the catch with MoltSets at $27 a month?"
-    answer: "Three things. The data is US-only. Mobile numbers are metered as external tokens (about 10 tokens each, 100 included on the $27 plan, so roughly ten mobiles a month before you top up or move to the $97 tier). And it is an API and MCP server with no dashboard, so a non-technical rep cannot just log in and click, you need Clay, n8n, Claude, or code to use it."
+    answer: "Four things. It is still in closed beta, so you enroll through a form rather than signing up on the spot. The data is US-only. Mobile numbers are not in the $27: they cost one phone token each, sold as an add-on (as of October 2026, $27/month buys 180 tokens on the Standard plan, about $0.15 per number). And it is an API and MCP server with no dashboard, so a non-technical rep cannot just log in and click, you need Clay, n8n, Claude, or code to use it."
   - question: "Does MoltSets work with Clay?"
     answer: "Yes. It is built for Clay and Claude, with a REST API and a native MCP server. Inside Clay you can call MoltSets as a data source, which is the main way it saves money: you pay $27 flat for the enrichment instead of burning Clay Data Credits on marketplace providers for every US email or company lookup."
   - question: "Is the MoltSets data any good?"
-    answer: "We have not independently benchmarked it yet, so treat the vendor claims (validated emails with a risk score, real-time carrier-verified mobiles, a 20-plus vendor waterfall) as claims, not proven numbers. The honest move is to use the free tier of 1,000 API calls to run your own ICP against your current provider and compare match rates before you switch a dollar of budget."
+    answer: "We have not independently benchmarked it yet, so treat the vendor claims (validated emails with a risk score, real-time carrier-verified mobiles, a 20-plus vendor waterfall) as claims, not proven numbers. The honest move is to use the free tier (1,000 lifetime records, once your beta enrollment is accepted) to run your own ICP against your current provider and compare match rates before you switch a dollar of budget."
 ---
 
 import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
@@ -24,22 +25,24 @@ import MyTake from '@/components/post/MyTake.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 import Sources from '@/components/post/Sources.astro';
 
+> **Editor's note (October 1, 2026):** This post has been updated against MoltSets' current pricing and FAQ. Two points deserve more weight than the original gave them. MoltSets is still in closed beta, with access by enrollment form rather than self-serve signup. And "unlimited" means no per-record price, not no limits: every plan is capped by rate limits and weekly record totals under a Fair Use Policy. Mobile numbers have also moved to a paid token add-on. The cost argument below still holds for US email enrichment; see the [MoltSets tool page](/tools/moltsets/) for the full caveats.
+
 Every RevOps team I have worked with eventually has the same uncomfortable meeting about contact data. Someone pulls up the [Apollo](/go/apollo) invoice, or worse the [ZoomInfo](/tools/zoominfo/) renewal, and asks why a list of names, emails, and phone numbers costs more than most of the rest of the stack combined. The answer is almost never "the data is that good." It is the pricing model.
 
-[MoltSets](/go/moltsets) is a direct swing at that pricing model. It is a $27 per month, API-first B2B contact-data service built for [Clay](/go/clay) and Claude, from Adam Robinson (the founder behind RB2B and Retention.com). The pitch is simple: flat price, unlimited core lookups inside a rate limit, no per-seat credit meter ticking every time you enrich a record.
+[MoltSets](/go/moltsets) is a direct swing at that pricing model. It is a $27 per month, API-first B2B contact-data service built for [Clay](/go/clay) and Claude, from Adam Robinson (the founder behind RB2B and Retention.com). The pitch is simple: flat price, no per-record charge (the limits are rate limits and weekly record caps instead), no per-seat credit meter ticking every time you enrich a record. It is still in closed beta, so getting in means filling out an enrollment form.
 
 Full disclosure before anything else: I have not run [MoltSets](/tools/moltsets/) across a live campaign yet, so this is a cost-model breakdown, not a data-accuracy review. I am not going to pretend otherwise. What I can do is show you exactly where the $27 model wins on cost, where the fine print bites, and how to test the data quality yourself before you move any budget.
 
 <KeyTakeaways items={[
-  "MoltSets charges a flat $27/month for unlimited email and people-search API calls (inside a rate limit), instead of the per-credit, per-seat model that makes Apollo and ZoomInfo expensive at volume.",
+  "MoltSets charges a flat $27/month with no per-record price for email and people search (rate limits and weekly record caps apply), instead of the per-credit, per-seat model that makes Apollo and ZoomInfo expensive at volume.",
   "The real savings show up when you call it from inside Clay, n8n, or Claude, replacing marketplace credits you would otherwise burn on every US lookup.",
-  "Mobile numbers are the exception: they are metered as external tokens (about 10 each), so 'unlimited' really means unlimited emails and search, not unlimited phones.",
+  "Mobile numbers are the exception: they cost one phone token each, sold as a separate add-on, so the flat price covers emails and search, not phones.",
   "The data is US-only and there is no dashboard, sequencer, or CRM. It is infrastructure, not a platform, and it is not for a non-technical rep.",
-  "Accuracy is unproven until you test it. Use the free 1,000-call tier to benchmark match rates against your current provider before switching."
+  "Access is still closed beta, by enrollment form. Accuracy is unproven until you test it: use the free tier (1,000 lifetime records) to benchmark match rates against your current provider before switching."
 ]} />
 
 <StatRow stats={[
-  { number: "$27/mo", label: "MoltSets Unlimited", description: "Flat rate, unlimited core API calls at 5,000 requests per 5-hour window. Free tier gives 1,000 calls to test first." },
+  { number: "$27/mo", label: "MoltSets Standard", description: "Flat rate, no per-record price, 5,000 requests per 5-hour window plus weekly record caps. Free tier gives 1,000 lifetime records to test first." },
   { number: "~$31,875", label: "Median ZoomInfo contract", description: "Per year, per Vendr's 2026 data. No public pricing, three-seat minimum, credits on top." },
   { number: "8 credits", label: "One Apollo phone reveal", description: "An email is 1 credit, a phone is 8, and credits expire monthly with no rollover. Mobile credits are capped per seat." },
   { number: "$185/mo", label: "Clay Launch plan", description: "For 2,500 Data Credits, which a real enrichment workflow can exhaust in 500 to 800 contacts." }
@@ -66,16 +69,17 @@ Here is the same job, US contact enrichment, priced across the four tools. Read 
       name: "MoltSets",
       tagline: "Flat-rate API for builders",
       pros: [
-        "Flat $27/mo, unlimited email and people-search calls inside the rate limit",
+        "Flat $27/mo, no per-record price for email and people search",
         "Native Clay + Claude/MCP integration, so it drops into existing workflows",
-        "Free tier (1,000 calls) to benchmark before you pay"
+        "Free tier (1,000 lifetime records) to benchmark before you pay"
       ],
       cons: [
-        "US-only data",
-        "Mobiles are metered (about 10 tokens each), not unlimited",
+        "Closed beta: access by enrollment form",
+        "US-only data; rate limits and weekly record caps apply",
+        "Mobiles are a paid token add-on, not included",
         "No dashboard or sequencer; you need Clay, n8n, Claude, or code to use it"
       ],
-      pricing: "Free tier; $27/mo Unlimited",
+      pricing: "Free tier; $27/mo Standard",
       affiliateSlug: "moltsets",
       ctaLabel: "Try MoltSets",
       highlight: true
@@ -136,11 +140,11 @@ Here is the same job, US contact enrichment, priced across the four tools. Read 
 
 ## The cost math that actually matters
 
-Say you need to enrich 3,000 US contacts a month with a verified business email. On MoltSets that is inside the flat $27, because email lookups are unlimited within the rate limit. On Apollo, 3,000 email reveals blow past the credit allotment on the lower plans and push you up a tier or into rationing. On Clay, 3,000 enrichments at multiple Data Credits each land you on Growth ($495/mo) or into top-ups at a 50% premium. On ZoomInfo you are in a contract conversation, not a pricing page.
+Say you need to enrich 3,000 US contacts a month with a verified business email. On MoltSets that should fit inside the flat $27, because email lookups carry no per-record price; check the weekly record cap for your tier before you count on it. On Apollo, 3,000 email reveals blow past the credit allotment on the lower plans and push you up a tier or into rationing. On Clay, 3,000 enrichments at multiple Data Credits each land you on Growth ($495/mo) or into top-ups at a 50% premium. On ZoomInfo you are in a contract conversation, not a pricing page.
 
 For that specific job, high-volume US email enrichment run through an API, the flat model is not a little cheaper. It is a different order of magnitude.
 
-Where the math tightens is mobile numbers. MoltSets meters carrier-verified mobiles as external tokens at about 10 tokens each, with 100 tokens on the $27 plan. That is roughly ten mobiles a month before you top up or move to the $97 Pro tier (500 tokens). Still cheaper per number than Apollo's 8-credits-and-a-cap, but be honest with yourself: "unlimited" here means unlimited emails and search, not unlimited phones. If your motion is phone-heavy, price the token consumption, do not assume it is free.
+Where the math tightens is mobile numbers. MoltSets charges one phone token per carrier-verified mobile, and as of October 2026 tokens are a separate add-on: $27/month buys 180 on the Standard plan (about $0.15 a number), and the $97 Professional add-on buys 646. So the real price of a phone-inclusive Standard setup is $54/month, not $27. That is still cheap per number next to Apollo's 8-credits-and-a-cap, but be honest with yourself: the flat price covers emails and search, not phones. If your motion is phone-heavy, price the tokens, do not assume they are included.
 
 ## Where the cheap price has strings attached
 
@@ -158,10 +162,10 @@ The interesting thing about MoltSets is not that it is cheap. Plenty of cheap da
 
 ## How to pressure-test it before you switch
 
-Do not migrate on faith. The free tier exists precisely so you can prove or kill this yourself in an afternoon.
+Do not migrate on faith. The free tier exists precisely so you can prove or kill this yourself in an afternoon, once your closed-beta enrollment is accepted.
 
 1. Pull 200 to 300 US contacts you already have verified emails or mobiles for, so you have a ground-truth answer key.
-2. Sign up for the free MoltSets tier (1,000 API calls) and run those same contacts through the email and, sparingly, the mobile endpoints.
+2. Enroll in the MoltSets beta, then use the free tier (1,000 lifetime records) to run those same contacts through the email endpoint. The free tier has no phone tokens, so test mobiles only if you are willing to buy the add-on.
 3. Score two things: coverage (what percent returned any result) and accuracy (what percent matched your known-good answer). Do it per segment, because averages hide the gaps.
 4. Compare the accuracy to your current provider at that provider's cost. If MoltSets matches within a few points at a fraction of the price, the decision makes itself.
 
