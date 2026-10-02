@@ -36,14 +36,12 @@ Claude does these; no input is needed. Do only those whose gate has passed, and 
    - `gh run list -R homegrowngrowthco/theautomationsguide --workflow n8n-watchdog.yml --limit 5 --json event,conclusion,createdAt,databaseId`.
    - In `gh run view <id> --log`, the `Window ...` line must say `previous run`, and its start must equal the previous run's start minus 3.4h.
    - `fallback 13h` with `GitHub API HTTP 403` means the `actions: read` permission did not take: fix it in `.github/workflows/n8n-watchdog.yml`.
-2. **PR #331 "Leadfeeder vs RB2B"** (QA re-ran on `b422450` at 10/02 19:21Z; Ian merges, auto-merge backstop ~10/04).
-   - Check `gh pr view 331 --json state`. Once merged, confirm `/go/leadfeeder/` and `/go/leadfeeder-web-visitors/` redirect on production, and that `/tools/leadfeeder-web-visitors/` 404s (the hub #332 stopped minting).
-3. **Topic stager, first real run in 3 weeks** (gate: after Sunday 2026-10-04 06:00Z, allow for lag). The scheduled run must be green and stage topics as Suggested; check the run summary.
-4. **Cadence re-check, round 3** (gate: on or after 2026-10-04).
+2. **Topic stager, first real run in 3 weeks** (gate: after Sunday 2026-10-04 06:00Z, allow for lag). The scheduled run must be green and stage topics as Suggested; check the run summary.
+3. **Cadence re-check, round 3** (gate: on or after 2026-10-04).
    - Run `C:\Users\Ian\.venvs\gsc\Scripts\python gsc-search-analytics.py 35`.
    - The provisional 9/22-9/28 read was 16 clicks / 7,618 impressions.
    - Confirm or revise, judging both clicks and impressions, then close or update the TODO line.
-5. **Indexing re-check** (gate: about 2026-10-08).
+4. **Indexing re-check** (gate: about 2026-10-08).
    - Run `gsc-index-status.py` for `/tools/calendly/`, the 9/06 Beehiiv post and the 10/01 Mailchimp-to-Kit post.
    - On the first post merged after 10/01, confirm that the "Google Indexing Submit" node in "Notion Publish Status — TAG" returned 200.
 

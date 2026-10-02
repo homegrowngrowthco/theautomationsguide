@@ -17,7 +17,7 @@ Last updated 2026-10-02 (Session 100).
   - **#333 `7609399`:** each window now starts where the previous completed run's ended (Actions API, `actions: read`), capped 36h, falls back to 13h; 3 old `ACKNOWLEDGED` ids pruned. Selftest 23/23 (incl. a gap regression); live `--dry` anchored to run 36996599290, all 7 workflows ok.
 - **Leadfeeder vs RB2B is PR #331:** links `/go/leadfeeder/` (not a raw URL). But it was the first post to link a deep-link variant, and auto-register minted a duplicate `/tools/leadfeeder-web-visitors/` hub.
   - **#332 `0fb7173`:** `deepLinkParent()` skips registered `<parent>-<suffix>` variants (33 of 34 affiliate keys without a tool; no real tool matches). `--selftest` 6/6; dry run on #331's post registers nothing; lint 0 hard.
-  - #331 `b422450`: master merged in, hub entry + SVG removed, anchor reworded (it called the product-page link "the specific connector").
+  - #331 `b422450`: master merged in, hub entry + SVG removed, anchor reworded (it called the product-page link "the specific connector"). QA green; merged 19:40Z (`6b80509`). Prod: post 200, both `/go/` links redirect, `/tools/leadfeeder-web-visitors/` 404.
 - Ian approved both merges (squash). Beehiiv steps: not done, planned 10/03-10/04.
 - **Revert:** `git revert 7609399` / `0fb7173`.
 - **Gotcha:** `cmd //c rmdir C:\\tmp\\$w\\node_modules` inside a bash `for` loop failed ("cannot find"), and `git worktree remove` still succeeded, leaving the junction behind (the target was untouched). Delete the junction with PowerShell `[IO.Directory]::Delete(path, $false)`.
