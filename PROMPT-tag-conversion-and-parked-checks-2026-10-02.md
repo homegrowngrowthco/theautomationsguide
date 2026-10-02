@@ -1,37 +1,29 @@
-# Next session (TAG): verify the Session 99 merges, then the parked checks
+# Next session (TAG): first attributed click, then the parked checks
 
 Start inside `theautomationsguide/`. Before anything else, state which model you are running as. Run `git pull --ff-only` on master first.
 
 `TODO.md` is the only source of truth for open tasks. This file is a 10/01 snapshot written after Session 99, so re-check every claim below with a query before acting on it.
 
 **Order:**
-1. Part A: post-merge checks. Only if Ian has merged.
+1. Part A: first attributed click.
 2. Part 0: parked checks whose gate has passed.
-3. Date-gated asks.
+3. Beehiiv follow-up: Ian planned the `NEWSLETTER.md` steps for the weekend of 10/03-10/04. Ask whether they are done; if so, re-screenshot the post signup at 375px and confirm the email field shows in full.
+4. Date-gated asks.
 
 ---
 
-## Part A. Session 99 PRs: merge state, then live verification
+## Part A. First real click with attribution (Claude, ~5 min)
 
-Six PRs were opened on 10/01, to be merged in this order: **#325 → #326 → #329 → #330 → #327 → #328**.
-- #330 is stacked on #329, and #327 on #325.
-- A 10/01 merge simulation of all six was clean, and the combined build passed with lint 0 hard and overflow 0/165.
-- Production merges are Ian's.
+All 6 Session 99 PRs (#325-#330) were merged on 10/01 and verified on production the same evening. That covered overflow, `/tools/` sections, nav, share links, the disclosure, hub meta, `rel=sponsored`, and a beacon end-to-end test with the ingest request intercepted. What could not be seen yet is a real visitor's click.
 
-1. Check every PR's state with `gh pr view <n> --json state,mergedAt,baseRefName`.
-   - If some are still open, re-run the merge simulation against current master. Use a detached worktree in `C:\tmp`, merge the branches in order, then build + `qa:lint` + `qa:overflow --all`.
-   - Resolve any new conflict on the PR branch and say so. Do not merge.
-2. **After #326 is live:** the first real `affiliate_click` events must carry `source_path`, `source_component`, `$device_type` and `is_automated`.
-   - Query PostHog 408442, newest 20 events.
-   - Treat `is_automated = true` as QA traffic.
-   - The dashboard side is already live: the "form intent" series was fixed and "Affiliate clicks by source block" created 10/01.
-3. **After #329 is live:** run `qa:overflow` on 5 random posts against production with a scratchpad Playwright script.
-   - Confirm `/guides/` returns 200.
-   - Confirm the Comparisons nav goes to `/guides/tool-vs-tool/`.
-   - Confirm `/blog/2026-06-03-the-1kmo-enterprise-revops-stack-decoded/` has `href="/go/n8n/"`.
-4. **After #330 and #327 are live:** spot-check 3 posts at 375px. The "Tools compared:" line should sit above the fold, and the inserted `/go/` links should have `rel` containing `sponsored`.
-5. **Metric reads** are dated in TODO.md and pre-registered in `audits/AUDIT-CONVERSION-2026-10-01.md` §3:
-   - about 2 weeks after #326 merges: `source_path` coverage;
+1. **Query PostHog 408442** for the newest 20 `affiliate_click` events after 2026-10-01 22:30Z.
+   - Each must carry `source_path`, `source_component`, `source_via`, `$device_type` and `is_automated`.
+   - Treat `is_automated = true` as QA or bot traffic and report how many there are.
+   - **If there are zero real clicks yet,** say so; do not trigger one.
+   - **If the properties are missing on real clicks,** that is a bug. Investigate `src/components/ClickSource.astro` and `src/pages/go/[tool].astro`.
+2. **Dashboard:** "Affiliate clicks by source block" (dashboard 1699394) should now show non-null blocks.
+3. **Metric reads** are dated in TODO.md and pre-registered in `audits/AUDIT-CONVERSION-2026-10-01.md` §3:
+   - about 2026-10-15: `source_path` coverage over 90%;
    - about 2026-11-26: the 8-week reads.
    - Do not read them early.
 

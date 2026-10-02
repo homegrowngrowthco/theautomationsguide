@@ -4,9 +4,9 @@ Tracked by todo-sync (see ../todo-sync/CONVENTION.md). **Open tasks only, most i
 
 ## TODO
 
-- [ ] **Merge the 6 Session 99 PRs in order: #325 → #326 → #329 → #330 → #327 → #328** (#330 is stacked on #329, #327 on #325; the merge simulation was clean). Then Claude checks that the first live `affiliate_click` carries `source_path`. @high @ian [PROMPT-tag-conversion-and-parked-checks-2026-10-02.md](PROMPT-tag-conversion-and-parked-checks-2026-10-02.md)
+- [ ] **Confirm the first REAL `affiliate_click` since 10/01 ~22:30Z carries `source_path` / `source_component`** (PostHog 408442, newest events, `is_automated != true`). All 6 S99 PRs are merged and production-verified; only the first real visitor click is left to see. @high [PROMPT-tag-conversion-and-parked-checks-2026-10-02.md](PROMPT-tag-conversion-and-parked-checks-2026-10-02.md)
 - [ ] **Read the conversion audit's pre-registered metrics.**
-  - **~2 weeks after #326 merges:** `source_path` on >90% of human clicks (baseline 6%).
+  - **~2026-10-15 (2 weeks after #326 merged 10/01):** `source_path` on >90% of human clicks (baseline 6%).
   - **~2026-11-26 (8 weeks):** real-affiliate clicks per 100 post pageviews by `source_component` (baseline 3.8/5.9), `/tools/*` hub CTR (close/pipedrive/hubspot 0 clicks on 3.6k impressions), real Beehiiv signups per week (0). @med [audits/AUDIT-CONVERSION-2026-10-01.md](audits/AUDIT-CONVERSION-2026-10-01.md)
 - [ ] **Beehiiv signup steps (Claude drafted, Ian applies):** stack the form's input and hide its title (the mobile field shows "Ente"), turn on the welcome email (copy drafted), join the free recommendations network. @med @ian [NEWSLETTER.md](NEWSLETTER.md)
 - [ ] **Audit R8, a reason to subscribe (parked by Ian 10/01):**

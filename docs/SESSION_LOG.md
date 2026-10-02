@@ -10,7 +10,7 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 Last updated 2026-10-01 (Session 98).
 
-## Session 99 (2026-10-01) — /tools/ taxonomy fixed + guarded; conversion audit; 6 PRs open
+## Session 99 (2026-10-01) — /tools/ taxonomy fixed + guarded; conversion audit; 6 PRs merged + live
 
 - **/tools/ (PR #325):**
   - 18 of 46 listed tools never rendered; all 123 were re-homed into 11 categories.
@@ -31,7 +31,19 @@ Last updated 2026-10-01 (Session 98).
 - **Live write:** the PostHog dashboard has its "form intent" search-submit series removed and a new "Affiliate clicks by source block" insight. A dry run before and after showed exactly 1 update and 1 create. Revert: re-run master's `posthog-setup.mjs --update --apply`.
 - **Verify:** all 6 branches merge clean in the listed order (merge simulation); combined build OK, `qa:lint` 0 hard, overflow 0/165.
 - **Part 0 parked:** every gate is ≥10/02. The Leadfeeder post has no PR yet (the 4pm run made Nooks vs Orum, #324).
+- **Merged (Ian approved, same evening), all squash:**
+  - #325 `a153ce8`, #326 `01a9de5`, #329 `893c609`, #330 `4237a49`, #327 `20226c6`, #328 `0e2ceda`.
+  - **Production-verified:**
+    - no overflow on 8 pages x 3 widths;
+    - `/tools/` 11 sections / 46 cards;
+    - nav, share links, top disclosure, n8n href and hub meta all correct;
+    - `rel=sponsored` on an inserted link;
+    - the beacon E2E on production records source page and block (ingest intercepted).
 - **Gotchas:**
+  - `gh pr merge --delete-branch` on a stacked PR's base CLOSES the stacked PR; it is not retargeted.
+    - Retarget first (`gh pr edit N --base master`).
+    - #327 was recovered by restoring the base ref via the API, reopening and retargeting.
+  - After a squash merge, a stacked branch conflicts on the shared hunks. Rebuild it as master plus its own commits (cherry-pick), then `--force-with-lease`.
   - Playwright `route()` gives precedence to the most recent registration, so register the catch-all abort first.
   - `astro preview` 404s slash-less `/go/x` links, which Netlify 301s.
 
