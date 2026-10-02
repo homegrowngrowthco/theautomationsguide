@@ -2881,19 +2881,6 @@ export const tools: Tool[] = [
     blurb:
       'Signal House is an SMS and MMS messaging provider with APIs built for CRM and marketing systems, for teams adding two-way texting to their outreach.',
   },
-  {
-    slug: 'leadfeeder-web-visitors',
-    name: 'Leadfeeder web visitors integration',
-    category: 'Website Visitor ID & Signals',
-    badge: 'Paid',
-    ctaLabel: 'Try Leadfeeder web visitors integration',
-    ctaPrimary: false,
-    listed: false,
-    logo: '/brand/tools/leadfeeder-web-visitors.svg',
-    aliases: ['Leadfeeder web visitors integration'],
-    blurb:
-      'Leadfeeder is website visitor identification software that reveals the B2B companies visiting your site, even if they never fill a form. Identify up to 45% of visitors. Free plan, no credit card.',
-  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
