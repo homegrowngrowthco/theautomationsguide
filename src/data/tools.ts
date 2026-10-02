@@ -42,18 +42,41 @@ export interface Tool {
   faqs?: { question: string; answer: string }[];
 }
 
-/** Render order for category sections on the /tools index. */
+/**
+ * Render order for category sections on the /tools index. EVERY tool's `category`
+ * must be one of these: the index only renders these sections, so a tool filed
+ * under anything else never appears on /tools (2026-10-01: 18 of 46 listed tools
+ * were orphaned that way). Enforced by `qa:lint` (lint-content.mjs, A3c) and by a
+ * build-time throw in src/pages/tools.astro.
+ */
 export const toolCategories = [
   'Workflow Automation',
   'CRM',
-  'Outbound & Lead Generation',
-  'Cold Email & Deliverability',
   'Lead Data & Enrichment',
-  'Newsletter Platform',
+  'Sales Engagement & Sequencing',
+  'Cold Email & Deliverability',
   'Website Visitor ID & Signals',
-  'AI Agents',
-  'Scheduling',
+  'Calling & Conversation Intelligence',
+  'AI Agents & AI SDRs',
+  'Email Marketing & Newsletters',
+  'SEO, Content & Creative',
+  'Scheduling & Productivity',
 ];
+
+/** One-line intro under each category heading on /tools. Every category needs one (lint A3c). */
+export const categorySubs: Record<string, string> = {
+  'Workflow Automation': 'The middleware layer that connects your stack and runs your GTM playbooks.',
+  'CRM': 'The system of record at the center of your GTM motion.',
+  'Lead Data & Enrichment': 'Contact databases, enrichment, and email finders that tell you who to reach and how.',
+  'Sales Engagement & Sequencing': 'Multichannel sequencers that run email, LinkedIn, and call steps from one cadence.',
+  'Cold Email & Deliverability': 'Sending infrastructure, warmup, and list verification for cold email that reaches the inbox.',
+  'Website Visitor ID & Signals': 'De-anonymize site traffic and turn intent signals into outreach.',
+  'Calling & Conversation Intelligence': 'Dialers, business phone and SMS, AI voice agents, and the notetakers that capture what was said.',
+  'AI Agents & AI SDRs': 'Agent builders and AI SDRs that take on real GTM work.',
+  'Email Marketing & Newsletters': 'Newsletters, lifecycle and marketing email, and the landing pages that grow a list.',
+  'SEO, Content & Creative': 'On-page SEO, AI search visibility, video, design, and ad creative.',
+  'Scheduling & Productivity': 'Booking, forms, proposals, and tools that give reps and founders time back.',
+};
 
 /**
  * Slug for a category's in-page anchor on the /tools index. Shared by the index
@@ -65,18 +88,18 @@ export const categoryAnchor = (category: string): string =>
 
 /**
  * Curated subset of categories surfaced in the header "Tools" dropdown as
- * jump-links into the /tools index. Order matters. Deliberately a subset of
- * `toolCategories`: the singleton categories (Enrichment, Visitor ID, Scheduling)
- * are reached via the dropdown's "Browse all tools" tail link rather than
- * cluttering the menu with one-tool rows.
+ * jump-links into the /tools index. Order matters. Must be a subset of
+ * `toolCategories` (lint A3c); the rest are reached via the dropdown's
+ * "Browse all tools" tail link so the menu stays short.
  */
 export const navToolCategories = [
   'Workflow Automation',
   'CRM',
-  'Outbound & Lead Generation',
+  'Lead Data & Enrichment',
+  'Sales Engagement & Sequencing',
   'Cold Email & Deliverability',
-  'Newsletter Platform',
-  'AI Agents',
+  'AI Agents & AI SDRs',
+  'Email Marketing & Newsletters',
 ];
 
 export const tools: Tool[] = [
@@ -203,7 +226,7 @@ export const tools: Tool[] = [
   {
     slug: 'clay',
     name: 'Clay',
-    category: 'Outbound & Lead Generation',
+    category: 'Lead Data & Enrichment',
     badge: 'Paid',
     blurb:
       "Clay combines a spreadsheet interface with 50+ enrichment data sources to help you build targeted, personalized outbound lists at scale. If your SDR team is manually researching accounts, Clay is the highest-leverage tool you're probably not using yet.",
@@ -232,7 +255,7 @@ export const tools: Tool[] = [
   {
     slug: 'apollo',
     name: 'Apollo.io',
-    category: 'Outbound & Lead Generation',
+    category: 'Sales Engagement & Sequencing',
     badge: 'Free tier available',
     badgeFree: true,
     blurb:
@@ -262,7 +285,7 @@ export const tools: Tool[] = [
   {
     slug: 'smartlead',
     name: 'Smartlead',
-    category: 'Outbound & Lead Generation',
+    category: 'Cold Email & Deliverability',
     badge: 'Paid',
     blurb:
       "Smartlead is the cold email infrastructure RevOps teams actually use at scale: unlimited inboxes, built-in warmup, and pricing that doesn't punish you for sending volume. The right tool when you've outgrown Apollo's sequencer or Lemlist's caps.",
@@ -291,7 +314,7 @@ export const tools: Tool[] = [
   {
     slug: 'lemlist',
     name: 'Lemlist',
-    category: 'Outbound & Lead Generation',
+    category: 'Sales Engagement & Sequencing',
     badge: 'Free trial',
     ctaLabel: 'Try Lemlist',
     ctaPrimary: false,
@@ -327,7 +350,7 @@ export const tools: Tool[] = [
   {
     slug: 'beehiiv',
     name: 'Beehiiv',
-    category: 'Newsletter Platform',
+    category: 'Email Marketing & Newsletters',
     badge: 'Free up to 2,500 subs',
     badgeFree: true,
     blurb:
@@ -357,7 +380,7 @@ export const tools: Tool[] = [
   {
     slug: 'kit',
     name: 'Kit',
-    category: 'Newsletter Platform',
+    category: 'Email Marketing & Newsletters',
     badge: 'Free up to 10,000 subs',
     badgeFree: true,
     blurb:
@@ -428,7 +451,7 @@ export const tools: Tool[] = [
     slug: 'aisdr',
     logo: '/brand/tools/aisdr.png',
     name: 'AiSDR',
-    category: 'AI Sales Agents',
+    category: 'AI Agents & AI SDRs',
     badge: 'Paid',
     ctaLabel: 'Try AiSDR',
     ctaPrimary: true,
@@ -537,7 +560,7 @@ export const tools: Tool[] = [
   {
     slug: 'relevance-ai',
     name: 'Relevance AI',
-    category: 'AI Agents',
+    category: 'AI Agents & AI SDRs',
     badge: 'Free tier available',
     badgeFree: true,
     ctaLabel: 'Try Relevance AI',
@@ -648,7 +671,7 @@ export const tools: Tool[] = [
     slug: 'synthflow',
     logo: '/brand/tools/synthflow.png',
     name: 'Synthflow',
-    category: 'AI Voice & Dialers',
+    category: 'Calling & Conversation Intelligence',
     badge: 'Paid',
     ctaLabel: 'Try Synthflow',
     ctaPrimary: true,
@@ -684,7 +707,7 @@ export const tools: Tool[] = [
     slug: 'surfer',
     logo: '/brand/tools/surfer.png',
     name: 'Surfer',
-    category: 'SEO & Content',
+    category: 'SEO, Content & Creative',
     badge: 'Paid',
     ctaLabel: 'Try Surfer',
     ctaPrimary: true,
@@ -719,7 +742,7 @@ export const tools: Tool[] = [
   {
     slug: 'cal-com',
     name: 'Cal.com',
-    category: 'Scheduling',
+    category: 'Scheduling & Productivity',
     badge: 'Free (open source)',
     badgeFree: true,
     ctaLabel: 'Try Cal.com',
@@ -757,7 +780,7 @@ export const tools: Tool[] = [
     slug: 'lindy',
     logo: '/brand/tools/lindy.png',
     name: 'Lindy',
-    category: 'AI Agents',
+    category: 'AI Agents & AI SDRs',
     badge: 'Free tier available',
     badgeFree: true,
     ctaLabel: 'Try Lindy',
@@ -793,7 +816,7 @@ export const tools: Tool[] = [
   {
     slug: 'reply-io',
     name: 'Reply.io',
-    category: 'Sales Engagement',
+    category: 'Sales Engagement & Sequencing',
     badge: 'Free trial',
     ctaLabel: 'Try Reply.io',
     ctaPrimary: true,
@@ -830,7 +853,7 @@ export const tools: Tool[] = [
     slug: 'krispcall',
     logo: '/brand/tools/krispcall.png',
     name: 'KrispCall',
-    category: 'AI Voice & Dialers',
+    category: 'Calling & Conversation Intelligence',
     badge: 'Paid',
     ctaLabel: 'Try KrispCall',
     ctaPrimary: true,
@@ -866,7 +889,7 @@ export const tools: Tool[] = [
     slug: 'laxis',
     logo: '/brand/tools/laxis.svg',
     name: 'Laxis',
-    category: 'Meeting Intelligence',
+    category: 'Calling & Conversation Intelligence',
     badge: 'Free tier available',
     badgeFree: true,
     ctaLabel: 'Try Laxis',
@@ -975,7 +998,7 @@ export const tools: Tool[] = [
     slug: 'getresponse',
     logo: '/brand/tools/getresponse.png',
     name: 'GetResponse',
-    category: 'Email & Marketing Automation',
+    category: 'Email Marketing & Newsletters',
     badge: 'Free tier available',
     badgeFree: true,
     ctaLabel: 'Try GetResponse',
@@ -1012,7 +1035,7 @@ export const tools: Tool[] = [
     slug: 'adcreative',
     logo: '/brand/tools/adcreative.png',
     name: 'AdCreative.ai',
-    category: 'Advertising & Creative',
+    category: 'SEO, Content & Creative',
     badge: 'Free trial',
     ctaLabel: 'Try AdCreative.ai',
     ctaPrimary: true,
@@ -1084,7 +1107,7 @@ export const tools: Tool[] = [
     slug: 'brevo',
     logo: '/brand/tools/brevo.png',
     name: 'Brevo',
-    category: 'Email & Marketing Automation',
+    category: 'Email Marketing & Newsletters',
     badge: 'Free tier available',
     badgeFree: true,
     ctaLabel: 'Try Brevo',
@@ -1249,7 +1272,7 @@ export const tools: Tool[] = [
     slug: "bland-ai",
     logo: '/brand/tools/bland-ai.png',
     name: "Bland AI",
-    category: "AI Voice & Dialers",
+    category: "Calling & Conversation Intelligence",
     badge: "Paid",
     ctaLabel: "Try Bland AI",
     ctaPrimary: true,
@@ -1439,7 +1462,7 @@ export const tools: Tool[] = [
     slug: "vapi",
     logo: '/brand/tools/vapi.png',
     name: "Vapi",
-    category: "AI Voice & Dialers",
+    category: "Calling & Conversation Intelligence",
     badge: "Free tier available",
     badgeFree: true,
     ctaLabel: "Try Vapi",
@@ -1471,7 +1494,7 @@ export const tools: Tool[] = [
     slug: "circleback",
     logo: '/brand/tools/circleback.png',
     name: "Circleback",
-    category: "Meeting Intelligence",
+    category: "Calling & Conversation Intelligence",
     badge: "Free tier available",
     badgeFree: true,
     ctaLabel: "Try Circleback",
@@ -1503,7 +1526,7 @@ export const tools: Tool[] = [
     slug: "fillout",
     logo: '/brand/tools/fillout.png',
     name: "Fillout",
-    category: "Scheduling",
+    category: "Scheduling & Productivity",
     badge: "Free tier available",
     badgeFree: true,
     ctaLabel: "Try Fillout",
@@ -1534,7 +1557,7 @@ export const tools: Tool[] = [
   {
     slug: 'justcall',
     name: 'JustCall',
-    category: 'Sales Engagement',
+    category: 'Calling & Conversation Intelligence',
     badge: 'Paid',
     ctaLabel: 'Try JustCall',
     ctaPrimary: false,
@@ -1547,7 +1570,7 @@ export const tools: Tool[] = [
   {
     slug: 'aircall',
     name: 'Aircall',
-    category: 'Sales Engagement',
+    category: 'Calling & Conversation Intelligence',
     badge: 'Paid',
     ctaLabel: 'Try Aircall',
     ctaPrimary: false,
@@ -1560,7 +1583,7 @@ export const tools: Tool[] = [
   {
     slug: 'fireflies',
     name: 'Fireflies',
-    category: 'Sales Engagement',
+    category: 'Calling & Conversation Intelligence',
     badge: 'Paid',
     ctaLabel: 'Try Fireflies',
     ctaPrimary: false,
@@ -1573,7 +1596,7 @@ export const tools: Tool[] = [
   {
     slug: 'otter',
     name: 'Otter.ai',
-    category: 'Sales Engagement',
+    category: 'Calling & Conversation Intelligence',
     badge: 'Paid',
     ctaLabel: 'Try Otter.ai',
     ctaPrimary: false,
@@ -1586,7 +1609,7 @@ export const tools: Tool[] = [
   {
     slug: 'taplio',
     name: 'Taplio',
-    category: 'Sales Engagement',
+    category: 'SEO, Content & Creative',
     badge: 'Paid',
     ctaLabel: 'Try Taplio',
     ctaPrimary: false,
@@ -1599,7 +1622,7 @@ export const tools: Tool[] = [
   {
     slug: 'loops',
     name: 'Loops',
-    category: 'Sales Engagement',
+    category: 'Email Marketing & Newsletters',
     badge: 'Paid',
     ctaLabel: 'Try Loops',
     ctaPrimary: false,
@@ -1612,7 +1635,7 @@ export const tools: Tool[] = [
   {
     slug: 'activecampaign',
     name: 'ActiveCampaign',
-    category: 'Sales Engagement',
+    category: 'Email Marketing & Newsletters',
     badge: 'Paid',
     ctaLabel: 'Try ActiveCampaign',
     ctaPrimary: true,
@@ -1625,7 +1648,7 @@ export const tools: Tool[] = [
   {
     slug: 'customerio',
     name: 'Customer.io',
-    category: 'Sales Engagement',
+    category: 'Email Marketing & Newsletters',
     badge: 'Paid',
     ctaLabel: 'Try Customer.io',
     ctaPrimary: false,
@@ -1638,7 +1661,7 @@ export const tools: Tool[] = [
   {
     slug: 'bouncer',
     name: 'Bouncer',
-    category: 'Sales Engagement',
+    category: 'Cold Email & Deliverability',
     badge: 'Paid',
     ctaLabel: 'Try Bouncer',
     ctaPrimary: false,
@@ -1651,7 +1674,7 @@ export const tools: Tool[] = [
   {
     slug: 'zerobounce',
     name: 'ZeroBounce',
-    category: 'Sales Engagement',
+    category: 'Cold Email & Deliverability',
     badge: 'Paid',
     ctaLabel: 'Try ZeroBounce',
     ctaPrimary: false,
@@ -1659,12 +1682,12 @@ export const tools: Tool[] = [
     logo: '/brand/tools/zerobounce.webp',
     aliases: ['ZeroBounce'],
     blurb:
-      'ZeroBounce is featured in a comparison on The Automations Guide.',
+      'ZeroBounce is an email verification service: it checks a list before you send and flags invalid, catch-all, and risky addresses, so cold email and newsletter bounce rates stay low and sending domains stay healthy.',
   },
   {
     slug: 'mailreach',
     name: 'MailReach',
-    category: 'Sales Engagement',
+    category: 'Cold Email & Deliverability',
     badge: 'Paid',
     ctaLabel: 'Try MailReach',
     ctaPrimary: false,
@@ -1677,7 +1700,7 @@ export const tools: Tool[] = [
   {
     slug: 'folk',
     name: 'folk',
-    category: 'Sales Engagement',
+    category: 'CRM',
     badge: 'Paid',
     ctaLabel: 'Try folk',
     ctaPrimary: false,
@@ -1690,7 +1713,7 @@ export const tools: Tool[] = [
   {
     slug: 'salesflare',
     name: 'Salesflare',
-    category: 'Sales Engagement',
+    category: 'CRM',
     badge: 'Paid',
     ctaLabel: 'Try Salesflare',
     ctaPrimary: false,
@@ -1703,7 +1726,7 @@ export const tools: Tool[] = [
   {
     slug: '11x',
     name: '11x',
-    category: 'Sales Engagement',
+    category: 'AI Agents & AI SDRs',
     badge: 'Paid',
     ctaLabel: 'Try 11x',
     ctaPrimary: false,
@@ -1716,7 +1739,7 @@ export const tools: Tool[] = [
   {
     slug: 'artisan',
     name: 'Artisan',
-    category: 'Sales Engagement',
+    category: 'AI Agents & AI SDRs',
     badge: 'Paid',
     ctaLabel: 'Try Artisan',
     ctaPrimary: false,
@@ -1729,7 +1752,7 @@ export const tools: Tool[] = [
   {
     slug: 'calendly',
     name: 'Calendly',
-    category: 'Scheduling',
+    category: 'Scheduling & Productivity',
     badge: 'Paid',
     ctaLabel: 'Try Calendly',
     ctaPrimary: false,
@@ -1761,7 +1784,7 @@ export const tools: Tool[] = [
   {
     slug: 'chili-piper',
     name: 'Chili Piper',
-    category: 'Sales Engagement',
+    category: 'Scheduling & Productivity',
     badge: 'Paid',
     ctaLabel: 'Try Chili Piper',
     ctaPrimary: false,
@@ -1774,7 +1797,7 @@ export const tools: Tool[] = [
   {
     slug: 'factors-ai',
     name: 'Factors.ai',
-    category: 'Sales Engagement',
+    category: 'Website Visitor ID & Signals',
     badge: 'Paid',
     ctaLabel: 'Try Factors.ai',
     ctaPrimary: false,
@@ -1788,7 +1811,7 @@ export const tools: Tool[] = [
     slug: 'activepieces',
     logo: '/brand/tools/activepieces.svg',
     name: 'Activepieces',
-    category: 'Sales Engagement',
+    category: 'Workflow Automation',
     badge: 'Paid',
     ctaLabel: 'Try Activepieces',
     ctaPrimary: false,
@@ -1800,7 +1823,7 @@ export const tools: Tool[] = [
   {
     slug: 'bardeen',
     name: 'Bardeen',
-    category: 'Sales Engagement',
+    category: 'Workflow Automation',
     badge: 'Paid',
     ctaLabel: 'Try Bardeen',
     ctaPrimary: false,
@@ -1813,7 +1836,7 @@ export const tools: Tool[] = [
   {
     slug: 'warmforge',
     name: 'Warmforge',
-    category: 'Sales Engagement',
+    category: 'Cold Email & Deliverability',
     badge: 'Paid',
     ctaLabel: 'Try Warmforge',
     ctaPrimary: false,
@@ -1825,7 +1848,7 @@ export const tools: Tool[] = [
   {
     slug: 'frase',
     name: 'Frase',
-    category: 'SEO & Content',
+    category: 'SEO, Content & Creative',
     badge: 'Paid',
     ctaLabel: 'Try Frase',
     ctaPrimary: false,
@@ -1838,7 +1861,7 @@ export const tools: Tool[] = [
   {
     slug: 'clearscope',
     name: 'Clearscope',
-    category: 'SEO & Content',
+    category: 'SEO, Content & Creative',
     badge: 'Paid',
     ctaLabel: 'Try Clearscope',
     ctaPrimary: false,
@@ -1851,7 +1874,7 @@ export const tools: Tool[] = [
   {
     slug: 'aloware',
     name: 'Aloware',
-    category: 'AI Voice & Dialers',
+    category: 'Calling & Conversation Intelligence',
     badge: 'Paid',
     ctaLabel: 'Try Aloware',
     ctaPrimary: false,
@@ -1864,7 +1887,7 @@ export const tools: Tool[] = [
   {
     slug: 'storydoc',
     name: 'Storydoc',
-    category: 'Outbound & Lead Generation',
+    category: 'Scheduling & Productivity',
     badge: 'Paid',
     ctaLabel: 'Try Storydoc',
     ctaPrimary: false,
@@ -1878,7 +1901,7 @@ export const tools: Tool[] = [
     slug: 'pandadoc',
     logo: '/brand/tools/pandadoc.svg',
     name: 'PandaDoc',
-    category: 'Outbound & Lead Generation',
+    category: 'Scheduling & Productivity',
     badge: 'Paid',
     ctaLabel: 'Try PandaDoc',
     ctaPrimary: false,
@@ -1890,7 +1913,7 @@ export const tools: Tool[] = [
   {
     slug: 'qwilr',
     name: 'Qwilr',
-    category: 'Outbound & Lead Generation',
+    category: 'Scheduling & Productivity',
     badge: 'Paid',
     ctaLabel: 'Try Qwilr',
     ctaPrimary: false,
@@ -1903,7 +1926,7 @@ export const tools: Tool[] = [
   {
     slug: 'getaccept',
     name: 'GetAccept',
-    category: 'Outbound & Lead Generation',
+    category: 'Scheduling & Productivity',
     badge: 'Paid',
     ctaLabel: 'Try GetAccept',
     ctaPrimary: false,
@@ -1916,7 +1939,7 @@ export const tools: Tool[] = [
   {
     slug: 'salesforce',
     name: 'Salesforce',
-    category: 'Outbound & Lead Generation',
+    category: 'CRM',
     badge: 'Paid',
     ctaLabel: 'Try Salesforce',
     ctaPrimary: false,
@@ -1930,7 +1953,7 @@ export const tools: Tool[] = [
     slug: 'profound',
     logo: '/brand/tools/profound.svg',
     name: 'Profound',
-    category: 'SEO & Content',
+    category: 'SEO, Content & Creative',
     badge: 'Paid',
     ctaLabel: 'Try Profound',
     ctaPrimary: false,
@@ -1942,7 +1965,7 @@ export const tools: Tool[] = [
   {
     slug: 'fathom',
     name: 'Fathom',
-    category: 'Meeting Intelligence',
+    category: 'Calling & Conversation Intelligence',
     badge: 'Paid',
     ctaLabel: 'Try Fathom',
     ctaPrimary: false,
@@ -1955,7 +1978,7 @@ export const tools: Tool[] = [
   {
     slug: 'avoma',
     name: 'Avoma',
-    category: 'Meeting Intelligence',
+    category: 'Calling & Conversation Intelligence',
     badge: 'Paid',
     ctaLabel: 'Try Avoma',
     ctaPrimary: false,
@@ -1969,7 +1992,7 @@ export const tools: Tool[] = [
     slug: 'tl-dv',
     logo: '/brand/tools/tl-dv.png',
     name: 'tl;dv',
-    category: 'Meeting Intelligence',
+    category: 'Calling & Conversation Intelligence',
     badge: 'Paid',
     ctaLabel: 'Try tl;dv',
     ctaPrimary: false,
@@ -1981,7 +2004,7 @@ export const tools: Tool[] = [
   {
     slug: 'tally',
     name: 'Tally',
-    category: 'Scheduling',
+    category: 'Scheduling & Productivity',
     badge: 'Paid',
     ctaLabel: 'Try Tally',
     ctaPrimary: false,
@@ -2007,7 +2030,7 @@ export const tools: Tool[] = [
   {
     slug: 'moltsets',
     name: 'MoltSets',
-    category: 'Outbound & Lead Generation',
+    category: 'Lead Data & Enrichment',
     badge: 'Paid',
     ctaLabel: 'Try MoltSets',
     ctaPrimary: false,
@@ -2039,7 +2062,7 @@ export const tools: Tool[] = [
   {
     slug: 'zoominfo',
     name: 'ZoomInfo',
-    category: 'Outbound & Lead Generation',
+    category: 'Lead Data & Enrichment',
     badge: 'Paid',
     ctaLabel: 'Try ZoomInfo',
     ctaPrimary: false,
@@ -2071,7 +2094,7 @@ export const tools: Tool[] = [
   {
     slug: 'cognism',
     name: 'Cognism',
-    category: 'Outbound & Lead Generation',
+    category: 'Lead Data & Enrichment',
     badge: 'Paid',
     ctaLabel: 'Try Cognism',
     ctaPrimary: false,
@@ -2084,7 +2107,7 @@ export const tools: Tool[] = [
   {
     slug: 'gumloop',
     name: 'Gumloop',
-    category: 'AI Agents',
+    category: 'AI Agents & AI SDRs',
     badge: 'Paid',
     ctaLabel: 'Try Gumloop',
     ctaPrimary: false,
@@ -2225,7 +2248,7 @@ export const tools: Tool[] = [
   {
     slug: 'canva',
     name: 'Canva',
-    category: 'Advertising & Creative',
+    category: 'SEO, Content & Creative',
     badge: 'Paid',
     ctaLabel: 'Try Canva',
     ctaPrimary: false,
@@ -2257,7 +2280,7 @@ export const tools: Tool[] = [
   {
     slug: 'creatify',
     name: 'Creatify',
-    category: 'Advertising & Creative',
+    category: 'SEO, Content & Creative',
     badge: 'Paid',
     ctaLabel: 'Try Creatify',
     ctaPrimary: false,
@@ -2270,7 +2293,7 @@ export const tools: Tool[] = [
   {
     slug: 'gong',
     name: 'Gong',
-    category: 'Workflow Automation',
+    category: 'Calling & Conversation Intelligence',
     badge: 'Paid',
     ctaLabel: 'Try Gong',
     ctaPrimary: false,
@@ -2283,7 +2306,7 @@ export const tools: Tool[] = [
   {
     slug: 'outreach',
     name: 'Outreach',
-    category: 'Workflow Automation',
+    category: 'Sales Engagement & Sequencing',
     badge: 'Paid',
     ctaLabel: 'Try Outreach',
     ctaPrimary: false,
@@ -2296,7 +2319,7 @@ export const tools: Tool[] = [
   {
     slug: 'salesloft',
     name: 'Salesloft',
-    category: 'Workflow Automation',
+    category: 'Sales Engagement & Sequencing',
     badge: 'Paid',
     ctaLabel: 'Try Salesloft',
     ctaPrimary: false,
@@ -2309,7 +2332,7 @@ export const tools: Tool[] = [
   {
     slug: 'linkedin-sales-navigator',
     name: 'LinkedIn Sales Navigator',
-    category: 'Sales Engagement',
+    category: 'Lead Data & Enrichment',
     badge: 'Paid',
     ctaLabel: 'Try LinkedIn Sales Navigator',
     ctaPrimary: false,
@@ -2322,7 +2345,7 @@ export const tools: Tool[] = [
   {
     slug: 'mailchimp',
     name: 'Mailchimp',
-    category: 'Email & Marketing Automation',
+    category: 'Email Marketing & Newsletters',
     badge: 'Paid',
     ctaLabel: 'Try Mailchimp',
     ctaPrimary: false,
@@ -2370,7 +2393,7 @@ export const tools: Tool[] = [
     slug: "watermelon",
     logo: '/brand/tools/watermelon.png',
     name: "Watermelon",
-    category: "AI Agents",
+    category: "AI Agents & AI SDRs",
     badge: "Free trial",
     ctaLabel: "Try Watermelon",
     ctaPrimary: true,
@@ -2403,7 +2426,7 @@ export const tools: Tool[] = [
     slug: "appy-ai",
     logo: '/brand/tools/appy-ai.png',
     name: "Appy.AI",
-    category: "AI Agents",
+    category: "AI Agents & AI SDRs",
     badge: "Free tier available",
     badgeFree: true,
     ctaLabel: "Try Appy.AI",
@@ -2466,7 +2489,7 @@ export const tools: Tool[] = [
     slug: "runable",
     logo: '/brand/tools/runable.png',
     name: "Runable",
-    category: "AI Agents",
+    category: "AI Agents & AI SDRs",
     badge: "Free tier available",
     badgeFree: true,
     ctaLabel: "Try Runable",
@@ -2534,7 +2557,7 @@ export const tools: Tool[] = [
     slug: 'nooks',
     logo: '/brand/tools/nooks.png',
     name: 'Nooks',
-    category: 'AI Voice & Dialers',
+    category: 'Calling & Conversation Intelligence',
     badge: 'Paid',
     ctaLabel: 'Try Nooks',
     ctaPrimary: true,
@@ -2548,7 +2571,7 @@ export const tools: Tool[] = [
     slug: 'orum',
     logo: '/brand/tools/orum.svg',
     name: 'Orum',
-    category: 'AI Voice & Dialers',
+    category: 'Calling & Conversation Intelligence',
     badge: 'Paid',
     ctaLabel: 'Try Orum',
     ctaPrimary: true,
@@ -2562,7 +2585,7 @@ export const tools: Tool[] = [
     slug: 'rox',
     logo: '/brand/tools/rox.png',
     name: 'Rox',
-    category: 'AI Sales Agents',
+    category: 'AI Agents & AI SDRs',
     badge: 'Enterprise',
     ctaLabel: 'Try Rox',
     ctaPrimary: true,
@@ -2576,7 +2599,7 @@ export const tools: Tool[] = [
     slug: 'regie-ai',
     logo: '/brand/tools/regie-ai.png',
     name: 'Regie.ai',
-    category: 'AI Sales Agents',
+    category: 'AI Agents & AI SDRs',
     badge: 'Paid',
     ctaLabel: 'Try Regie.ai',
     ctaPrimary: true,
@@ -2604,7 +2627,7 @@ export const tools: Tool[] = [
     slug: 'elentaria',
     logo: '/brand/tools/elentaria.png',
     name: 'Elentaria',
-    category: 'AI Sales Agents',
+    category: 'AI Agents & AI SDRs',
     badge: 'Paid',
     ctaLabel: 'Try Elentaria',
     ctaPrimary: true,
@@ -2744,7 +2767,7 @@ export const tools: Tool[] = [
     slug: 'smartreach',
     logo: '/brand/tools/smartreach.png',
     name: 'SmartReach',
-    category: 'Cold Email & Deliverability',
+    category: 'Sales Engagement & Sequencing',
     badge: 'Paid',
     ctaLabel: 'Try SmartReach',
     ctaPrimary: true,
@@ -2757,7 +2780,7 @@ export const tools: Tool[] = [
   {
     slug: 'kixie',
     name: 'Kixie',
-    category: 'Sales Engagement',
+    category: 'Calling & Conversation Intelligence',
     badge: 'Paid',
     ctaLabel: 'Try Kixie',
     ctaPrimary: false,
@@ -2771,7 +2794,7 @@ export const tools: Tool[] = [
   {
     slug: 'leadpages',
     name: 'Leadpages',
-    category: 'Email & Marketing Automation',
+    category: 'Email Marketing & Newsletters',
     badge: 'Paid',
     ctaLabel: 'Try Leadpages',
     ctaPrimary: true,
@@ -2785,7 +2808,7 @@ export const tools: Tool[] = [
     slug: 'constant-contact',
     logo: '/brand/tools/constant-contact.png',
     name: 'Constant Contact',
-    category: 'Email & Marketing Automation',
+    category: 'Email Marketing & Newsletters',
     badge: 'Paid',
     ctaLabel: 'Try Constant Contact',
     ctaPrimary: true,
@@ -2810,7 +2833,7 @@ export const tools: Tool[] = [
   {
     slug: 'descript',
     name: 'Descript',
-    category: 'Advertising & Creative',
+    category: 'SEO, Content & Creative',
     badge: 'Free tier available',
     ctaLabel: 'Try Descript',
     ctaPrimary: true,
@@ -2823,7 +2846,7 @@ export const tools: Tool[] = [
   {
     slug: 'flocksy',
     name: 'Flocksy',
-    category: 'Advertising & Creative',
+    category: 'SEO, Content & Creative',
     badge: 'Paid',
     ctaLabel: 'Try Flocksy',
     ctaPrimary: true,
@@ -2835,7 +2858,7 @@ export const tools: Tool[] = [
   {
     slug: 'diginius',
     name: 'Diginius',
-    category: 'Advertising & Creative',
+    category: 'SEO, Content & Creative',
     badge: 'Paid',
     ctaLabel: 'Try Diginius',
     ctaPrimary: true,
@@ -2848,7 +2871,7 @@ export const tools: Tool[] = [
   {
     slug: 'signal-house',
     name: 'Signal House',
-    category: 'Sales Engagement',
+    category: 'Calling & Conversation Intelligence',
     badge: 'Paid',
     ctaLabel: 'Try Signal House',
     ctaPrimary: true,

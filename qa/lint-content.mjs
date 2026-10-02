@@ -16,7 +16,7 @@
 
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
-import { loadLogoRegistry, loadAffiliateStatus, refdLogoSlugs } from './registry.mjs';
+import { loadLogoRegistry, loadAffiliateStatus, refdLogoSlugs, parseToolTaxonomy, taxonomyProblems, taxonomySelftest } from './registry.mjs';
 
 const BLOG_DIR = 'src/content/blog';
 const args = process.argv.slice(2);
@@ -255,11 +255,14 @@ function lintFile(file) {
 }
 
 // ---- target selection ----------------------------------------------------
+// --selftest: run the A3c taxonomy checker against frozen fixtures, then exit.
+if (args.includes('--selftest')) process.exit(taxonomySelftest() > 0 ? 1 : 0);
 let files = [];
 if (getArg('--post')) files = [getArg('--post')];
 else if (getArg('--slug')) files = [path.join(BLOG_DIR, getArg('--slug') + '.mdx')];
 else if (args.includes('--all')) files = readdirSync(BLOG_DIR).filter((f) => /\.mdx?$/.test(f)).map((f) => path.join(BLOG_DIR, f));
-else { console.error('Usage: --post <path> | --slug <slug> | --all [--fix]'); process.exit(2); }
+else if (args.includes('--registry-only')) files = []; // registry checks (A3/A3b/A3c) only, no posts
+else { console.error('Usage: --post <path> | --slug <slug> | --all | --registry-only [--fix] | --selftest'); process.exit(2); }
 
 let hardTotal = 0, warnTotal = 0;
 
@@ -285,8 +288,17 @@ for (const e of toolEntries) {
     }
   });
 }
+// A3c: every tool's category must be a rendered /tools section, the header
+// dropdown may only link to real sections, and each section needs its intro line.
+const taxonomy = taxonomyProblems(parseToolTaxonomy(readFileSync('src/data/tools.ts', 'utf-8')));
+registryHard.push(...taxonomy.hard);
+if (taxonomy.warn.length) {
+  console.log('\nsrc/data/tools.ts (category taxonomy)');
+  taxonomy.warn.forEach((w) => console.log(`  ! warn: ${w}`));
+  warnTotal += taxonomy.warn.length;
+}
 if (registryHard.length) {
-  console.log('\nsrc/data/tools.ts (logo registry)');
+  console.log('\nsrc/data/tools.ts (registry)');
   registryHard.forEach((h) => console.log(`  ✗ HARD: ${h}`));
   hardTotal += registryHard.length;
 }

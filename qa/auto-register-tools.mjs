@@ -27,6 +27,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
+import { parseToolTaxonomy } from './registry.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Za-z]:)/, '$1'), '..');
 const AFF_PATH = path.join(ROOT, 'src/data/affiliate-links.ts');
@@ -436,6 +437,27 @@ function addLogoToTool(src, slug, logoRel) {
   return src.replace(re, `$1${EOL}${m[2]}logo: '${logoRel}',`);
 }
 
+// Fallback when no compared tool is registered yet: infer the kind of tool from
+// the post title. Ordered most to least specific; the default is still a section
+// /tools renders, and lint A3c fails any category that is not one.
+const TITLE_CATEGORY = [
+  [/cold email|deliverab|warm ?up|inbox/i, 'Cold Email & Deliverability'],
+  [/\bcrm\b/i, 'CRM'],
+  [/dialer|calling|phone|voice|\bsms\b|notetaker|meeting|transcri|conversation/i, 'Calling & Conversation Intelligence'],
+  [/visitor|intent|signal|anonym/i, 'Website Visitor ID & Signals'],
+  [/enrich|contact data|email finder|b2b data|database/i, 'Lead Data & Enrichment'],
+  [/ai sdr|\bagents?\b/i, 'AI Agents & AI SDRs'],
+  [/newsletter|email marketing|landing page/i, 'Email Marketing & Newsletters'],
+  [/\bseo\b|content|creative|\bads?\b|video|design/i, 'SEO, Content & Creative'],
+  [/schedul|calendar|booking|\bforms?\b|proposal/i, 'Scheduling & Productivity'],
+  [/zapier|n8n|workflow|automation/i, 'Workflow Automation'],
+];
+const DEFAULT_CATEGORY = 'Sales Engagement & Sequencing';
+function categoryFromTitles(titles, valid) {
+  for (const [re, cat] of TITLE_CATEGORY) if (valid.has(cat) && titles.some((t) => re.test(t))) return cat;
+  return valid.has(DEFAULT_CATEGORY) ? DEFAULT_CATEGORY : [...valid][0];
+}
+
 function appendTool(src, { slug, name, category, blurb, ctaLabel, logoRel }) {
   const EOL = eolOf(src);
   const safeName = name.replace(/'/g, "\\'");
@@ -571,7 +593,11 @@ async function main() {
   // are the same KIND of tool. Inherit the category from whichever compared tool
   // is already registered; a flat 'Sales Engagement' default filed the SEO tools
   // Frase and Clearscope under sales on their /tools hubs.
-  const siblingCategory = [...wanted.keys()].map((s) => toolSlugs.get(s)?.category).find(Boolean) || 'Sales Engagement';
+  // Only a category /tools renders counts; otherwise infer from the post titles.
+  const validCategories = new Set(parseToolTaxonomy(toolsSrc).categories || []);
+  const postTitles = posts.filter(existsSync).map((p) => (readFileSync(p, 'utf8').match(/^title:\s*["']?(.+?)["']?\s*$/m) || [])[1] || '');
+  const siblingCategory = [...wanted.keys()].map((s) => toolSlugs.get(s)?.category).find((c) => c && validCategories.has(c))
+    || categoryFromTitles(postTitles, validCategories);
 
   const report = { registered: [], loggedLogos: [], skipped: [], unresolved: [] };
   let affDirty = false, toolsDirty = false;

@@ -76,3 +76,25 @@ jobs:
 
       - name: Daily Briefing stuck-Generating flag
         run: node n8n/update-briefing-stuck-generating.mjs --selftest
+
+  # /tools renders one section per toolCategories entry, so a tool filed under any other
+  # category silently disappears from the index (18 listed tools did, until 2026-10-01).
+  # tools.ts is edited by affiliate/registry PRs that qa-content-pr.yml never sees, so
+  # check the taxonomy here on every PR. Node builtins only (registry read as text).
+  tools-taxonomy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Taxonomy checker self-test
+        run: node qa/lint-content.mjs --selftest
+
+      - name: Registry integrity (logos, dashes, categories)
+        run: node qa/lint-content.mjs --registry-only
