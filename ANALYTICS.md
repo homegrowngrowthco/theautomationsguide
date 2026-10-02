@@ -119,10 +119,26 @@ GA4 (`G-RKWHJ95P3H`) is live as of the design-refresh deploy. The CSP in [public
 1. **Traffic overview** — pageviews and unique visitors by path, broken down by referrer and UTM source. Answers "who is coming and from where."
 2. **Affiliate funnel** — a funnel from `pageview` to `affiliate_click`, broken down by `tool_name`. Shows per-tool click-through and which posts drive the most affiliate intent.
 3. **Top content** — pageviews grouped by `/blog/<slug>` path, to see which posts earn attention.
-4. **Newsletter** — Beehiiv handles signup analytics; in PostHog, watch traffic to `/#newsletter` and autocaptured submits on the signup form for on-site intent.
+4. **Newsletter** — Beehiiv handles signup analytics; in PostHog, watch traffic to `/#newsletter`. The site cannot see a signup submit (see "Newsletter signups" below).
+5. **Affiliate clicks by source block** — `affiliate_click` broken down by `source_component` (see "Affiliate click attribution" below).
+
+## Newsletter signups (the KPI lives in Beehiiv, not PostHog)
+The signup form is a cross-origin Beehiiv iframe (`src/components/EmailSignup.astro`), so no on-site event can see a submit. Autocaptured `submit` events on this site are the **search** form, not the newsletter (audit 2026-10-01, F2). The signup KPI is therefore **real Beehiiv subscriptions per week**:
+- Read it from Beehiiv (MCP `list_subscriptions` for the TAG publication, or Audience in the UI), counting by `created` date.
+- Exclude the owner's own test addresses (3 as of 2026-10-01, so the real baseline is **0**).
+- Beehiiv records each subscription's `acquisition_source` (e.g. `embed / theautomationsguide.com / referral`), which is the source breakdown.
+- Beehiiv's "all time new subscribers" stat disagreed with its own list on 10/01 (1 vs 3). Count from the list.
+
+## Affiliate click attribution (2026-10-01)
+`affiliate_click` fires from the standalone `/go/<slug>/` page, where `document.referrer` is empty because every `/go/` link has `rel="noreferrer"`. Before this change, 61 of 65 clicks had no source. Now `src/components/ClickSource.astro` (on every page) records the page and, on click, the CTA block in first-party `localStorage`, and the `/go/` beacon sends:
+- `source_path`: the page the reader clicked from.
+- `source_component`: the block it was in. One of `bottom-line`, `choose-if`, `tool-breakdown`, `intent-table`, `comparison-table`, `pricing-callout`, `key-takeaways`, `tool-strip`, `hub-cta`, `tools-index-card`, `logo-strip`, `inline` (post prose) or `other`.
+- `source_via`: `click` (exact), `last_page` (last page viewed within 30 min), or `none`.
+- `$raw_user_agent` and `$device_type`, plus `is_automated` (`navigator.webdriver`). Filter `is_automated = true` out of the human funnel; headless QA runs set it.
+- A repeat event for the same tool within 30s is dropped.
 
 ### Building them — `analytics/posthog-setup.mjs`
-These are codified as a one-shot, idempotent setup script that creates the 4 above as **6 insights** pinned to a **TAG Overview** dashboard via the PostHog management API. See [analytics/README.md](analytics/README.md). To run the live create:
+These are codified as a one-shot, idempotent setup script that creates the 5 above as **7 insights** pinned to a **TAG Overview** dashboard via the PostHog management API. See [analytics/README.md](analytics/README.md). To run the live create:
 1. PostHog -> Settings -> Personal API keys -> create a key (`phx_...`) with insight + dashboard **write** scopes (the `phc_` key above is write-only ingest and can't drive the management API).
 2. Add `POSTHOG_PERSONAL_API_KEY=phx_...` to the repo-root `.env`.
 3. `node analytics/posthog-setup.mjs` (dry run, writes the definitions for review), then `node analytics/posthog-setup.mjs --apply`.
