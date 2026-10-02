@@ -23,6 +23,7 @@
 //   node qa/auto-register-tools.mjs --changed                   # git-changed posts vs origin/master
 //   node qa/auto-register-tools.mjs --post <p> --dry-run        # report only, no writes
 //   node qa/auto-register-tools.mjs --post <p> --url-hint slug=https://...  # skip TLD probe for slug
+//   node qa/auto-register-tools.mjs --selftest                  # offline deep-link-variant fixtures
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
@@ -161,6 +162,24 @@ function registryHomepages(src) {
     if (hp) map.set(m[1], hp);
   });
   return map;
+}
+
+// A deep-link variant (`leadfeeder-web-visitors`, `apollo-pricing`) is a second
+// /go/ destination for a tool that already has a hub, not a tool of its own. It is
+// already in affiliate-links.ts, so the only thing auto-register would "fix" is the
+// missing tools.ts entry, and that mints a duplicate /tools/<variant>/ hub. PR #331
+// (2026-10-02) was the first post to link a variant and got exactly that. Rule:
+// registered affiliate key + no tools.ts entry + a `<parent>-` prefix that is
+// itself both a tool and an affiliate key. On 10/02 that covered 33 of the 34 such
+// keys (substack has no parent) and no existing tool slug has a tool-prefix parent.
+export function deepLinkParent(slug, affKeys, toolSlugs) {
+  if (!affKeys.has(slug) || toolSlugs.has(slug)) return null;
+  const parts = slug.split('-');
+  for (let i = parts.length - 1; i > 0; i--) {
+    const parent = parts.slice(0, i).join('-');
+    if (toolSlugs.has(parent) && affKeys.has(parent)) return parent;
+  }
+  return null;
 }
 
 function existingToolSlugs(src) {
@@ -565,7 +584,25 @@ async function logoOnlyMode(slugs) {
   process.exit(0);
 }
 
+// Offline fixtures for deepLinkParent (no network, no file writes).
+function selftest() {
+  const aff = new Set(['leadfeeder', 'leadfeeder-web-visitors', 'reply-io', 'reply-io-pricing', 'substack', 'new-tool-pricing']);
+  const tools = new Map([['leadfeeder', {}], ['reply-io', {}], ['rb2b', {}]]);
+  const cases = [
+    ['variant of a registered tool -> parent', deepLinkParent('leadfeeder-web-visitors', aff, tools), 'leadfeeder'],
+    ['hyphenated parent (reply-io) -> parent', deepLinkParent('reply-io-pricing', aff, tools), 'reply-io'],
+    ['tool itself -> null', deepLinkParent('leadfeeder', aff, tools), null],
+    ['affiliate key, no parent tool -> null', deepLinkParent('substack', aff, tools), null],
+    ['prefix has no tool entry -> null', deepLinkParent('new-tool-pricing', aff, tools), null],
+    ['unregistered slug -> null (auto-register still handles it)', deepLinkParent('leadfeeder-new', aff, tools), null],
+  ];
+  let fail = 0;
+  for (const [name, got, want] of cases) { const pass = got === want; if (!pass) fail++; console.log(`${pass ? 'PASS' : 'FAIL'} ${name}${pass ? '' : `  -> got ${got}`}`); }
+  process.exit(fail ? 1 : 0);
+}
+
 async function main() {
+  if (args.includes('--selftest')) return selftest();
   const lIdx = args.indexOf('--logo-for');
   if (lIdx !== -1 && args[lIdx + 1]) {
     return logoOnlyMode(args[lIdx + 1].split(',').map((s) => s.trim()).filter(Boolean));
@@ -603,6 +640,8 @@ async function main() {
   let affDirty = false, toolsDirty = false;
 
   for (const [slug, name] of wanted) {
+    const parent = deepLinkParent(slug, affKeys, toolSlugs);
+    if (parent) { report.skipped.push(`${slug} (deep link of ${parent})`); continue; }
     const needAff = !affKeys.has(slug);
     const tool = toolSlugs.get(slug);
     const needLogo = !tool || !tool.hasLogo;
