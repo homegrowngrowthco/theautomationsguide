@@ -84,7 +84,7 @@ Cold outbound stacks have gotten complicated. A typical sequence today runs [Cla
 
 ## How to choose based on your Clay workflow reality
 
-This is a throughput and team question, not a features question. Both platforms can receive a Clay webhook, parse the JSON payload, and push a formatted record into [Smartlead](/go/smartlead), Instantly, or Outreach. The divergence shows up in three real scenarios: nightly bulk enrichment runs, real-time single-row triggers, and error recovery when Clay's enrichment columns return partial data.
+This is a throughput and team question, not a features question. Both platforms can receive a Clay webhook, parse the JSON payload, and push a formatted record into [Smartlead](/go/smartlead), [Instantly](/go/instantly/), or Outreach. The divergence shows up in three real scenarios: nightly bulk enrichment runs, real-time single-row triggers, and error recovery when Clay's enrichment columns return partial data.
 
 For most early-stage outbound programs (a single SDR, one Clay table, under 2,000 new rows per month) [Make](/tools/make/)'s visual builder genuinely reduces time-to-first-send. I've wired Make scenarios in under an hour that would have taken an afternoon in [n8n](/tools/n8n/) just from credential setup and workflow organization alone. That speed matters when the founder is personally doing outbound and has zero interest in managing infrastructure.
 

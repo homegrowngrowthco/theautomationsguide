@@ -17,6 +17,7 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { loadLogoRegistry, loadAffiliateStatus, refdLogoSlugs, parseToolTaxonomy, taxonomyProblems, taxonomySelftest } from './registry.mjs';
+import { loadLiveTools, planLinks } from './link-live-mentions.mjs';
 
 const BLOG_DIR = 'src/content/blog';
 const args = process.argv.slice(2);
@@ -51,6 +52,11 @@ const validPostSlugs = new Set(
 // integrity of the logo paths themselves.
 const { entries: toolEntries, logoByKey } = loadLogoRegistry();
 const affiliateStatus = loadAffiliateStatus();
+
+// R6 (conversion audit 2026-10-01, F4): live-program tools named in prose with no
+// /go/ link anywhere in the post. Same matcher as qa/link-live-mentions.mjs, so the
+// warning fires on exactly what `npm run qa:live-links -- --write` would link.
+const liveTools = loadLiveTools();
 
 // S-4 CTA floor (tutorial/workflow under-linking): single-word tool names that are
 // also common English words. We only count these as "mentioned" when the tool is
@@ -212,6 +218,13 @@ function lintFile(file) {
   const named = mentionedTools(body, referenced);
   if (named.size >= 2 && affSurface.size < 2) {
     warn.push(`names ${named.size} registered tools but exposes only ${affSurface.size} affiliate CTA(s) (/go/ + affiliateSlug) — S-4 CTA floor. Link the first mention of the primary tool(s) via /go/<slug>/ or add a <ChooseIf>/<BottomLine>.`);
+  }
+
+  // R6: a live-program tool mentioned in prose with no /go/ link for it (or any of its
+  // deep-link variants / component affiliateSlug CTAs). WARN, not hard: an unlinked
+  // mention costs a click, not a render, so it must never wedge the engine's auto-merge.
+  for (const l of planLinks(raw, liveTools).links) {
+    warn.push(`live-program tool "${l.name}" is mentioned in prose (line ${l.line}) but the post has no /go/${l.slug}/ link. Link its first prose mention as [${l.name}](/go/${l.slug}/), or run: node qa/link-live-mentions.mjs --post ${file} --write`);
   }
 
   // A3 — registry completeness: a tool compared in a logo-bearing component

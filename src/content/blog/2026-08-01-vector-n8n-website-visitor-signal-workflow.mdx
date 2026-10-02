@@ -163,7 +163,7 @@ This workflow is built on Vector, but I get asked constantly how it stacks up ag
 
 A workflow that runs clean in test and breaks in production is worse than no workflow. Reps start trusting the alerts, then stop, and you spend three weeks rebuilding credibility. Three things I always do before flipping a visitor intent workflow to live.
 
-First, set header-based auth on the n8n webhook. Add a secret in Vector's webhook config and validate it in an n8n Function node before any processing runs. Second, add an error branch on the Clay HTTP node that catches 4xx and 5xx responses and writes failures to a monitoring sheet. Third, cap Slack notifications at one alert per domain per 24-hour window using n8n's workflow static data as a simple in-memory store.
+First, set header-based auth on the n8n webhook. Add a secret in Vector's webhook config and validate it in an n8n Function node before any processing runs. Second, add an error branch on the [Clay](/go/clay/) HTTP node that catches 4xx and 5xx responses and writes failures to a monitoring sheet. Third, cap Slack notifications at one alert per domain per 24-hour window using n8n's workflow static data as a simple in-memory store.
 
 This is the same hygiene I apply to the [demo scheduling automation with Cal.com, HubSpot, and n8n](/blog/2026-07-23-automate-demo-scheduling-with-calcom-hubspot-and-n8n/) that I've documented elsewhere. Real-time workflows without rate limiting and error handling are time bombs. Simple as that.
 

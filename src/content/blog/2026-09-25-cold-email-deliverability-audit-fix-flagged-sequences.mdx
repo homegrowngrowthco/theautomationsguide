@@ -159,7 +159,7 @@ If you're running any meaningful outbound volume, email verification needs to be
   }
 ]} />
 
-Both tools integrate into a Clay or Apollo enrichment step if you want to run verification earlier in the data pipeline. I'd argue that's exactly where it belongs: verify before enrichment, not after, so you're not spending enrichment credits on contacts that will never receive the email. For more on how [Reply.io compares to Lemlist on the deliverability and sequencing side](/blog/2026-09-21-replyio-vs-lemlist-sequences-deliverability-in-2026/), that post covers sequencer-level differences if you're evaluating platforms beyond Instantly.
+Both tools integrate into a [Clay](/go/clay/) or [Apollo](/go/apollo/) enrichment step if you want to run verification earlier in the data pipeline. I'd argue that's exactly where it belongs: verify before enrichment, not after, so you're not spending enrichment credits on contacts that will never receive the email. For more on how [Reply.io compares to Lemlist on the deliverability and sequencing side](/blog/2026-09-21-replyio-vs-lemlist-sequences-deliverability-in-2026/), that post covers sequencer-level differences if you're evaluating platforms beyond Instantly.
 
 <MyTake>
 Most teams treat list hygiene as a remediation step they run after something breaks. That framing is the problem. ZeroBounce or Bouncer should be wired into your contact creation flow so verification runs automatically, before a record ever touches a sequence. If you're reaching for these tools reactively, the damage is already in progress. Build the gate upstream, in Clay or your CRM enrichment workflow, and you largely eliminate the bounce crisis scenario.

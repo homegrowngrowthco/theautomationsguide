@@ -33,7 +33,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-Most outbound teams are still working off static lists pulled weekly from Apollo or [ZoomInfo](/tools/zoominfo/), blasting sequences at leads who went cold days ago. The teams actually building pipeline right now do the opposite. They trigger outreach the moment a high-fit account lands on the pricing page, at exactly the moment that person is thinking about the problem you solve. That is signal-based outbound. And [Warmly](/go/warmly/) plus [Make](/go/make/) is one of the cleanest implementations I have seen hold up in production.
+Most outbound teams are still working off static lists pulled weekly from [Apollo](/go/apollo/) or [ZoomInfo](/tools/zoominfo/), blasting sequences at leads who went cold days ago. The teams actually building pipeline right now do the opposite. They trigger outreach the moment a high-fit account lands on the pricing page, at exactly the moment that person is thinking about the problem you solve. That is signal-based outbound. And [Warmly](/go/warmly/) plus [Make](/go/make/) is one of the cleanest implementations I have seen hold up in production.
 
 <PullQuote>Signal-based outbound is not about personalization at scale. It is about timing. The same message sent two minutes after a pricing-page visit converts at a materially different rate than the same message sent two weeks later.</PullQuote>
 
@@ -160,7 +160,7 @@ The workflow above writes to [HubSpot](/tools/hubspot/) sequences. Depending on 
 
 Once this is running, you get three things a manual or batch-based process cannot replicate. First, timing advantage: the average rep responds to a high-intent signal in [somewhere between 30 minutes and 2 hours according to InsideSales research](https://www.insidesales.com/), while this workflow responds in under 60 seconds. Second, data quality: because Clay runs enrichment at trigger time rather than at list-pull time, the contact data is current, not 30 days stale. Third, rep focus: instead of triaging a Warmly Slack channel full of alerts, reps see contacts already in their HubSpot sequences with full context on what page was visited and why the outreach fired.
 
-For teams thinking about [building a broader signal-based lead scoring system on top of HubSpot](/blog/2026-08-15-trigify-hubspot-lead-scoring-automation-2026-guide/), this workflow pairs naturally with Trigify or similar intent enrichment layers feeding the same score object.
+For teams thinking about [building a broader signal-based lead scoring system on top of HubSpot](/blog/2026-08-15-trigify-hubspot-lead-scoring-automation-2026-guide/), this workflow pairs naturally with [Trigify](/go/trigify/) or similar intent enrichment layers feeding the same score object.
 
 The one thing I would not skip is the deduplication filter. Without the `warmly_enrolled` property check, a prospect who visits your pricing page three times in a week gets enrolled three times. I have seen this happen in practice. It is the fastest way to get your domain flagged and your sales team embarrassed.
 

@@ -50,7 +50,7 @@ Most CRM comparisons are written for inbound teams. They care about lead scoring
 
 ## What outbound teams actually need from a CRM
 
-The job of a CRM in an outbound stack is not the same as in an inbound one. Inbound CRMs handle complex nurture logic, multi-touch attribution, and deal stage automation. Outbound CRMs need to do three things well: ingest contacts at speed (from Clay, Apollo, or your own scrapes), reflect accurate sequence status (active, replied, bounced, opted out), and give reps a clean pipeline view so they know where to focus manual touches.
+The job of a CRM in an outbound stack is not the same as in an inbound one. Inbound CRMs handle complex nurture logic, multi-touch attribution, and deal stage automation. Outbound CRMs need to do three things well: ingest contacts at speed (from Clay, [Apollo](/go/apollo/), or your own scrapes), reflect accurate sequence status (active, replied, bounced, opted out), and give reps a clean pipeline view so they know where to focus manual touches.
 
 The friction I see most often is not a missing feature inside the CRM. It is the lag between a contact being enriched in Clay and being visible in the CRM with the right sequence status attached. That is a data velocity problem, and different CRMs handle it very differently. I have rebuilt this part of the stack more than once, and the gap between a well-wired Attio webhook and a bottlenecked HubSpot API batch is not subtle.
 

@@ -140,7 +140,7 @@ Don't default to AiSDR just because it has the most native HubSpot wiring. The r
   }
 ]} />
 
-For the enrichment layer, [Clay](/tools/clay/) remains the best option I've found when contacts enter HubSpot thin. The waterfall approach (LinkedIn first, then a data provider fallback like Lusha or Fullenrich) means you are not paying premium rates for data you could get cheaper elsewhere. See the [Clay enrichment table walkthrough](/blog/2026-07-31-connect-clay-to-n8n-for-a-fully-automated-enrichment-pipelin/) for the exact column setup.
+For the enrichment layer, [Clay](/tools/clay/) remains the best option I've found when contacts enter HubSpot thin. The waterfall approach (LinkedIn first, then a data provider fallback like [Lusha](/go/lusha/) or Fullenrich) means you are not paying premium rates for data you could get cheaper elsewhere. See the [Clay enrichment table walkthrough](/blog/2026-07-31-connect-clay-to-n8n-for-a-fully-automated-enrichment-pipelin/) for the exact column setup.
 
 For automation glue, [n8n](/tools/n8n/) beats Zapier here. Full stop. The webhook routing logic in Step 5 has conditional branches that would burn Zapier task credits fast enough to sting at any real sending volume. n8n's self-hosted option also keeps your contact data off a third-party SaaS server, which matters if you work with enterprise clients who have data residency requirements.
 

@@ -165,12 +165,12 @@ This depends on where your team actually lives. I've run this workflow into both
   }
 ]} />
 
-If you are pushing into [HubSpot](/tools/hubspot/), the [Smartlead-to-HubSpot via n8n pattern](/blog/2026-08-08-smartlead-to-hubspot-via-n8n-sync-replies-and-book-meetings/) pairs well here. Once Apollo leads land in HubSpot, you can sync Smartlead reply data back using the same n8n canvas. For [Pipedrive](/tools/pipedrive/) users, the [Attio n8n enrichment workflow](/blog/2026-08-04-attio-n8n-crm-enrichment-workflow-2026-guide/) covers a similar push pattern if you ever want to evaluate alternatives.
+If you are pushing into [HubSpot](/tools/hubspot/), the [Smartlead-to-HubSpot via n8n pattern](/blog/2026-08-08-smartlead-to-hubspot-via-n8n-sync-replies-and-book-meetings/) pairs well here. Once Apollo leads land in HubSpot, you can sync [Smartlead](/go/smartlead/) reply data back using the same n8n canvas. For [Pipedrive](/tools/pipedrive/) users, the [Attio n8n enrichment workflow](/blog/2026-08-04-attio-n8n-crm-enrichment-workflow-2026-guide/) covers a similar push pattern if you ever want to evaluate alternatives.
 
 Worth flagging separately: if you are running [n8n](/tools/n8n/) self-hosted versus cloud, your execution limits and webhook reliability differ meaningfully. I covered that decision in the [n8n self-host vs cloud guide](/blog/2026-08-07-n8n-self-host-vs-cloud-in-2026-the-revops-decision-guide/), and it matters here because pagination loops on large Apollo searches can run for several minutes. Self-hosted wins on long-running executions.
 
 <MyTake>
-Most teams I talk to underuse Apollo's API filters and overpay for Clay enrichment they do not need. If your ICP is tight enough to filter down to under 500 records per pull, Apollo's native email and phone data is often sufficient. Skip the waterfall layer on day one. Run the Apollo-only version, measure where coverage actually falls short, then bolt on Fullenrich or Clay only when you can see exactly which fields are missing. Buying enrichment before you know your gap rate is just paying for peace of mind.
+Most teams I talk to underuse Apollo's API filters and overpay for [Clay](/go/clay/) enrichment they do not need. If your ICP is tight enough to filter down to under 500 records per pull, Apollo's native email and phone data is often sufficient. Skip the waterfall layer on day one. Run the Apollo-only version, measure where coverage actually falls short, then bolt on Fullenrich or Clay only when you can see exactly which fields are missing. Buying enrichment before you know your gap rate is just paying for peace of mind.
 </MyTake>
 
 ## Putting It Together

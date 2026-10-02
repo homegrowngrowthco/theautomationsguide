@@ -55,7 +55,7 @@ Most outbound teams are still running single-provider enrichment and wondering w
 
 ## What waterfall enrichment actually means in practice
 
-Single-provider lookups are fine when your list is clean and your ICP maps neatly to whatever database you're paying for. The problem is that no single database covers everyone. Apollo is deep on US SaaS, thin on EMEA. Hunter is strong on domains, weak on mobile. Lusha has solid mobile coverage for enterprise contacts but real gaps in SMB. When you run a list of 1,000 LinkedIn URLs through one vendor, you're leaving 30 to 40 percent of your contacts unenriched, and those contacts just disappear from your sequence.
+Single-provider lookups are fine when your list is clean and your ICP maps neatly to whatever database you're paying for. The problem is that no single database covers everyone. [Apollo](/go/apollo/) is deep on US SaaS, thin on EMEA. Hunter is strong on domains, weak on mobile. [Lusha](/go/lusha/) has solid mobile coverage for enterprise contacts but real gaps in SMB. When you run a list of 1,000 LinkedIn URLs through one vendor, you're leaving 30 to 40 percent of your contacts unenriched, and those contacts just disappear from your sequence.
 
 Waterfall enrichment fixes this by running a defined cascade. You set a priority order of providers. The tool queries provider one, and if it finds a verified email, it stops and charges you one credit. Miss, and it moves to provider two. You only pay on a hit. The result is a materially higher match rate at a cost per contact that's often lower than buying a premium single-source plan.
 
@@ -191,7 +191,7 @@ Most teams treat waterfall enrichment as a Clay feature rather than a standalone
 
 ## The real differentiator is verification, not database size
 
-Every vendor in this space will tell you they aggregate dozens of providers. What they won't tell you is how aggressively they verify before returning a result. A "found" email that bounces is worse than no email, full stop. It burns your sender reputation, and if you are warming domains through [Smartlead](/go/smartlead/) or Instantly, a bad enrichment batch can set you back weeks.
+Every vendor in this space will tell you they aggregate dozens of providers. What they won't tell you is how aggressively they verify before returning a result. A "found" email that bounces is worse than no email, full stop. It burns your sender reputation, and if you are warming domains through [Smartlead](/go/smartlead/) or [Instantly](/go/instantly/), a bad enrichment batch can set you back weeks.
 
 My strong recommendation: benchmark each tool on bounce rate, not just match rate, against a real sample of your ICP before scaling. Pull 200 contacts from your actual target list, run them through each tool, and send a small test sequence. FullEnrich has been the most consistent on verification in my testing across multiple accounts. BetterContact, Surfe, and LeadMagic all perform well, but I've seen more variance in their verification confidence on edge-case domains, particularly regional European companies and smaller professional services firms.
 

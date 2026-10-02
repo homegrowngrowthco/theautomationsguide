@@ -82,7 +82,7 @@ Beehiiv's native automation is genuinely useful for post-subscribe welcome seque
 
 The fix for Dead Zone 1 is Beehiiv webhooks. Under Settings, Beehiiv lets you push events (subscribe, unsubscribe, post click, custom subscription) to an external URL. Point that webhook at [n8n](/go/n8n/) and you get a real-time feed of every click event. From there you filter by URL, check the subscriber's existing tags, then either enroll them in a sales sequence, create a CRM contact, or fire a Slack alert to your sales rep.
 
-For Dead Zone 2, build the conditional logic outside Beehiiv entirely. Webhook fires on upgrade event, n8n checks which tier they purchased, routes them to the appropriate onboarding sequence in Kit or ActiveCampaign. More infrastructure than most newsletter operators want to run, sure. But if you are selling anything above $50 per month, it pays for itself in the first week.
+For Dead Zone 2, build the conditional logic outside Beehiiv entirely. Webhook fires on upgrade event, n8n checks which tier they purchased, routes them to the appropriate onboarding sequence in Kit or [ActiveCampaign](/go/activecampaign/). More infrastructure than most newsletter operators want to run, sure. But if you are selling anything above $50 per month, it pays for itself in the first week.
 
 If you want a detailed look at how Beehiiv's native automation builder works before adding external middleware, the [Beehiiv automations guide](/blog/2026-09-24-beehiiv-automations-guide-every-workflow-for-2026/) covers every trigger and action available inside the platform.
 

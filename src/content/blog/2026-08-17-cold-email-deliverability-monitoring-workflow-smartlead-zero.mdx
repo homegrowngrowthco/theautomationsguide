@@ -37,7 +37,7 @@ Deliverability used to be the thing you thought about after a campaign tanked. I
 
 ## Why this workflow exists, and what it actually prevents
 
-List quality degrades fast and silently. [ZeroBounce's research on email decay](https://www.zerobounce.net/email-decay-rate/) puts B2B address rot at roughly 2 to 3 percent per month. A 5,000-contact list from a Clay waterfall pull six months ago could be carrying 600 to 900 bad addresses before you send a single sequence. Hard bounces over 2 percent erode sender reputation. Above 3 percent, you are in Google's danger zone, and domain recovery takes 30 to 60 days of cold-turkey silence. That is real pipeline cost, not a theoretical risk.
+List quality degrades fast and silently. [ZeroBounce's research on email decay](https://www.zerobounce.net/email-decay-rate/) puts B2B address rot at roughly 2 to 3 percent per month. A 5,000-contact list from a [Clay](/go/clay/) waterfall pull six months ago could be carrying 600 to 900 bad addresses before you send a single sequence. Hard bounces over 2 percent erode sender reputation. Above 3 percent, you are in Google's danger zone, and domain recovery takes 30 to 60 days of cold-turkey silence. That is real pipeline cost, not a theoretical risk.
 
 This workflow puts a verification checkpoint between your lead source and your Smartlead campaign inbox. It uses [ZeroBounce](/go/zerobounce/) for SMTP-level verification and catch-all scoring, routes results through n8n or Zapier, and only passes "valid" and "catch-all-low-risk" addresses into Smartlead. Catch-alls get quarantined to a separate low-volume campaign on a different sending domain. Everything else gets suppressed and logged.
 

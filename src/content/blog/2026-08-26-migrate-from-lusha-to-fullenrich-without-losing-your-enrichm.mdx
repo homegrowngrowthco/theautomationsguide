@@ -33,7 +33,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-The trigger is almost always the same: your Lusha credits run out mid-month, you go to buy more, and the per-seat renewal math finally breaks you. Or you run a waterfall in [Clay](/go/clay/) and realize Lusha is sitting there as a single-source enrichment node while every other column is a multi-provider cascade. Either way, you are on a pricing page for Lusha alternatives, wondering how much work the switch actually is. In my experience, this migration is less work than you think, but only if you do the prep correctly.
+The trigger is almost always the same: your [Lusha](/go/lusha/) credits run out mid-month, you go to buy more, and the per-seat renewal math finally breaks you. Or you run a waterfall in [Clay](/go/clay/) and realize Lusha is sitting there as a single-source enrichment node while every other column is a multi-provider cascade. Either way, you are on a pricing page for Lusha alternatives, wondering how much work the switch actually is. In my experience, this migration is less work than you think, but only if you do the prep correctly.
 
 <KeyTakeaways items={[
   "Export your Lusha contact list and document your field mappings before you touch anything else.",
@@ -53,7 +53,7 @@ Here is the prep checklist:
 
 - **Export your enriched contact list from Lusha.** Go to Lusha's dashboard, filter by date range (last 90 days is enough), and export as CSV. This becomes your baseline for match rate comparison later.
 - **Document every field Lusha writes to in your CRM.** Common ones: `Email`, `Direct Phone`, `Mobile Phone`, `Job Title`, `Company Domain`. Some teams also have custom fields like `Lusha Confidence Score`. Note the exact CRM field API names.
-- **List every integration point.** Lusha CRM sync (HubSpot or Salesforce), any Clay columns calling the Lusha enrichment action, any Zapier or Make scenarios hitting the Lusha API, and any direct REST API calls in your own code.
+- **List every integration point.** Lusha CRM sync (HubSpot or Salesforce), any Clay columns calling the Lusha enrichment action, any Zapier or [Make](/go/make/) scenarios hitting the Lusha API, and any direct REST API calls in your own code.
 - **Pause or flag active sequences.** If you have sequences firing in [Outreach](/go/outreach/) or [Smartlead](/go/smartlead/) that rely on Lusha-enriched phone numbers, flag those contacts so you do not drop them during the cutover window.
 - **Note your current monthly credit burn.** Log in to Lusha, check usage for the last three months, and calculate your average monthly enrichment volume. You need this to size your FullEnrich plan correctly.
 
@@ -186,7 +186,7 @@ Once you are off Lusha, you have real options. [FullEnrich](/go/fullenrich/) is 
   }
 ]} />
 
-For teams that have already made the [Apollo to Clay](/blog/2026-08-24-migrate-from-apollo-to-clay-without-losing-your-sequences-or/) migration, this move is the natural next step. Replace Apollo's built-in enrichment and Lusha's single-source phone lookups with a proper waterfall that costs a fraction per record.
+For teams that have already made the [Apollo to Clay](/blog/2026-08-24-migrate-from-apollo-to-clay-without-losing-your-sequences-or/) migration, this move is the natural next step. Replace [Apollo](/go/apollo/)'s built-in enrichment and Lusha's single-source phone lookups with a proper waterfall that costs a fraction per record.
 
 <MyTake>
 Teams stay on Lusha too long for one reason: the Chrome extension is sticky and nobody wants to retrain SDRs mid-quarter. The data quality gap between Lusha and a properly configured FullEnrich waterfall is larger than most people expect until they actually run the side-by-side comparison. I have seen 20-30 percentage point lifts on records that Lusha returned empty. Switch sooner than feels comfortable. The retraining takes half a day. The credit savings start immediately.

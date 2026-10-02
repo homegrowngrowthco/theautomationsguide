@@ -33,13 +33,13 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-Most RevOps teams I talk to are still running enrichment as a manual task. Someone exports a CSV, uploads it to Apollo or Clay, downloads the result, and pastes it back into the CRM. If you have moved to [Attio](/go/attio/) as your CRM, you do not have to accept that. Attio's REST API is clean, its webhook automation triggers are reliable, and [n8n](/go/n8n/) can sit in the middle and orchestrate every enrichment provider you want without a line of Python. This guide walks through the exact workflow I use for teams that run Attio as their system of record and want enrichment that fires within 90 seconds of a record hitting the database.
+Most RevOps teams I talk to are still running enrichment as a manual task. Someone exports a CSV, uploads it to [Apollo](/go/apollo/) or Clay, downloads the result, and pastes it back into the CRM. If you have moved to [Attio](/go/attio/) as your CRM, you do not have to accept that. Attio's REST API is clean, its webhook automation triggers are reliable, and [n8n](/go/n8n/) can sit in the middle and orchestrate every enrichment provider you want without a line of Python. This guide walks through the exact workflow I use for teams that run Attio as their system of record and want enrichment that fires within 90 seconds of a record hitting the database.
 
 ## Why Attio Plus n8n Is Worth the Setup Time
 
 Attio is not HubSpot with a fresh coat of paint. Its data model is genuinely different. Records, lists, and attributes are first-class objects, and its API reflects that. When you create a Contact or a Company record, Attio fires a configurable automation that can POST a webhook payload with the full record JSON. That is your trigger. No polling loop, no Zapier in the middle, no third-party Attio connector to pay for.
 
-On the n8n side, the Webhook node receives that payload, and from there you have the full canvas to route, enrich, branch, and write back. I prefer n8n over Make for Attio workflows for one specific reason: self-hosting. Enrichment data never touches a third-party EU-violating server, and the HTTP Request node handles Attio's REST API with zero friction. Make's per-operation pricing also gets painful fast once you add confidence-score branching and Slack alerts to the flow.
+On the n8n side, the Webhook node receives that payload, and from there you have the full canvas to route, enrich, branch, and write back. I prefer n8n over [Make](/go/make/) for Attio workflows for one specific reason: self-hosting. Enrichment data never touches a third-party EU-violating server, and the HTTP Request node handles Attio's REST API with zero friction. Make's per-operation pricing also gets painful fast once you add confidence-score branching and Slack alerts to the flow.
 
 <StatRow stats={[
   { number: "90s", label: "Median enrichment lag", description: "Time from Attio record creation to enriched data written back, in a production n8n workflow with FullEnrich" },
