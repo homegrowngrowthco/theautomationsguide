@@ -1,0 +1,114 @@
+---
+// "Tools compared:" line under the post byline (conversion audit 2026-10-01, F3/R7).
+//
+// Readers land on comparison posts from search, but the first button-style CTA sat
+// 1,100-2,500px down on desktop and 2,200-5,600px down on mobile, while median
+// scroll depth is 43%. This puts the tools the post actually compares one tap away,
+// above the fold.
+//
+// Deliberately quiet and neutral (design audit 2026-08-29, tell #8 "box stacking"):
+// one unboxed line, no border, no pill, no badge; every compared tool gets the same
+// treatment whether or not it has a paying program. Tools come only from the post's
+// own ComparisonTable/ToolBreakdown/ChooseIf/IntentTable blocks (`affiliateSlug`), in
+// the order the post covers them; it renders only for a real comparison (2+ tools).
+import { tools } from '../../data/tools';
+import { affiliateLinks } from '../../data/affiliate-links';
+
+interface Props {
+  body: string;
+  title: string;
+}
+const { body, title } = Astro.props;
+
+// On an "X vs Y" headline, the tools it names come first, in headline order: a strip
+// listing two of the three tools in "Apollo vs Clay vs LinkedIn Sales Navigator" would
+// look selective. Only the START of each vs-segment is matched (longest name wins),
+// so title words like "Close more deals" or "Make it work" never pull in a tool.
+// A lead-in before a colon ("RB2B Alternatives: RB2B vs Warmly") is not a contender.
+const vsPart = (() => {
+  const i = title.search(/\svs\.?\s/i);
+  if (i < 0) return '';
+  const colon = title.lastIndexOf(':', i);
+  return colon >= 0 ? title.slice(colon + 1) : title;
+})();
+const segments = vsPart ? vsPart.split(/\s+vs\.?\s+/i).map((s) => s.trim()) : [];
+// "Otter" in a headline is the tool registered as "Otter.ai".
+const nameVariants = (n: string) => [n, n.replace(/\.(ai|io|com|app|so)$/i, '')];
+const titleTools: string[] = [];
+let unresolvedHeadlineTool = false;
+for (const seg of segments) {
+  const hit = tools
+    .flatMap((t) => [t.name, ...t.aliases].flatMap(nameVariants).map((n) => ({ slug: t.slug, n })))
+    .filter(({ n }) => seg.startsWith(n) && !/[A-Za-z0-9]/.test(seg.charAt(n.length)))
+    .sort((a, b) => b.n.length - a.n.length)[0];
+  if (hit && affiliateLinks[hit.slug]) { if (!titleTools.includes(hit.slug)) titleTools.push(hit.slug); }
+  else unresolvedHeadlineTool = true;
+}
+
+// affiliateSlug values inside the comparison components, first occurrence order.
+const blocks = body.match(/<(ComparisonTable|ToolBreakdown|ChooseIf|IntentTable)\b[\s\S]*?\/>/g) || [];
+const slugs: string[] = [...titleTools];
+for (const blk of blocks) {
+  for (const m of blk.matchAll(/affiliateSlug:\s*["']([a-z0-9-]+)["']/g)) {
+    if (!slugs.includes(m[1]) && affiliateLinks[m[1]]) slugs.push(m[1]);
+  }
+}
+
+// Deep-link variants (e.g. instantly-vip) keep their own /go/ slug but display the
+// parent tool's name + logo from the registry.
+const toolFor = (slug: string) =>
+  tools.find((t) => t.slug === slug) ||
+  tools.filter((t) => slug.startsWith(t.slug + '-')).sort((a, b) => b.slug.length - a.slug.length)[0];
+
+// One entry per tool, in first-seen order; a later deep-link slug for the same tool
+// (e.g. a component's apollo-signup after the headline's apollo) replaces the plain one.
+const items: { slug: string; key: string; name: string; logo?: string }[] = [];
+for (const slug of slugs) {
+  const tool = toolFor(slug);
+  const it = { slug, key: tool?.slug ?? slug, name: tool?.name ?? affiliateLinks[slug].name, logo: tool?.logo };
+  const prev = items.find((x) => x.key === it.key);
+  if (!prev) items.push(it);
+  else if (prev.slug === prev.key && it.slug !== it.key) prev.slug = it.slug;
+}
+items.splice(4);
+// A vs-headline naming a tool we can't show (e.g. Substack, no registry entry) gets no
+// strip at all rather than a partial one that silently drops a contender.
+const show = items.length >= 2 && !unresolvedHeadlineTool;
+---
+
+{show && (
+  <p class="tool-strip">
+    <span class="tool-strip-label">Tools compared:</span>
+    {items.map((it) => (
+      <a href={`/go/${it.slug}/`} class="tool-strip-link" target="_blank" rel="noopener noreferrer sponsored">
+        {it.logo && <img src={it.logo} alt="" width="16" height="16" loading="eager" decoding="async" />}
+        <span>{it.name}</span>
+      </a>
+    ))}
+  </p>
+)}
+
+<style>
+  .tool-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 1rem;
+    margin: 0.55rem 0 0;
+    font-size: 0.85rem;
+    color: var(--text-faint);
+  }
+  .tool-strip-label { color: var(--text-muted); }
+  .tool-strip-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--text);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--border);
+    text-underline-offset: 3px;
+  }
+  .tool-strip-link:hover { color: var(--accent-text); text-decoration-color: currentColor; }
+  .tool-strip-link img { width: 16px; height: 16px; object-fit: contain; }
+</style>
