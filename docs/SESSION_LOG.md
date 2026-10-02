@@ -8,7 +8,19 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-01 (Session 98).
+Last updated 2026-10-02 (Session 100).
+
+## Session 100 (2026-10-02) — First-click check (none yet); watchdog window anchored; auto-register stops minting variant hubs
+
+- **Part A, no real attributed click yet.** #326 actually merged 10/02 **01:21Z**, not ~22:30Z, so the 9 null-prop clicks at 22:46-23:18Z (9 tools in 30 min, no UA, so QA) predate it. The one post-deploy event (03:17Z, runable) is a cold Google-referred entry straight to `/go/` from PL: props present, `source_via=none` is correct, `is_automated=false`. Not a bug; dashboard 1699394 has nothing attributed to show yet.
+- **Parked checks:** Daily Briefing 10/02 11:30Z `success` (#23090). Watchdog 10/01 and 10/02 schedule runs green but **4h41m and 6h08m late**, so:
+  - **#333 `7609399`:** each window now starts where the previous completed run's ended (Actions API, `actions: read`), capped 36h, falls back to 13h; 3 old `ACKNOWLEDGED` ids pruned. Selftest 23/23 (incl. a gap regression); live `--dry` anchored to run 36996599290, all 7 workflows ok.
+- **Leadfeeder vs RB2B is PR #331:** links `/go/leadfeeder/` (not a raw URL). But it was the first post to link a deep-link variant, and auto-register minted a duplicate `/tools/leadfeeder-web-visitors/` hub.
+  - **#332 `0fb7173`:** `deepLinkParent()` skips registered `<parent>-<suffix>` variants (33 of 34 affiliate keys without a tool; no real tool matches). `--selftest` 6/6; dry run on #331's post registers nothing; lint 0 hard.
+  - #331 `b422450`: master merged in, hub entry + SVG removed, anchor reworded (it called the product-page link "the specific connector").
+- Ian approved both merges (squash). Beehiiv steps: not done, planned 10/03-10/04.
+- **Revert:** `git revert 7609399` / `0fb7173`.
+- **Gotcha:** `cmd //c rmdir C:\\tmp\\$w\\node_modules` inside a bash `for` loop failed ("cannot find"), and `git worktree remove` still succeeded, leaving the junction behind (the target was untouched). Delete the junction with PowerShell `[IO.Directory]::Delete(path, $false)`.
 
 ## Session 99 (2026-10-01) — /tools/ taxonomy fixed + guarded; conversion audit; 6 PRs merged + live
 

@@ -4,7 +4,8 @@ Tracked by todo-sync (see ../todo-sync/CONVENTION.md). **Open tasks only, most i
 
 ## TODO
 
-- [ ] **Confirm the first REAL `affiliate_click` since 10/01 ~22:30Z carries `source_path` / `source_component`** (PostHog 408442, newest events, `is_automated != true`). All 6 S99 PRs are merged and production-verified; only the first real visitor click is left to see. @high [PROMPT-tag-conversion-and-parked-checks-2026-10-02.md](PROMPT-tag-conversion-and-parked-checks-2026-10-02.md)
+- [ ] **Confirm the first REAL `affiliate_click` from a TAG page carries `source_path` / `source_component`.** Count from **10/02 01:21Z** (#326 merge), not 10/01 22:30Z. As of 10/02 19:00Z: 1 event since, a cold Google entry straight to `/go/runable/` (`source_via=none`, correct). @high [PROMPT-tag-conversion-and-parked-checks-2026-10-02.md](PROMPT-tag-conversion-and-parked-checks-2026-10-02.md)
+- [ ] **Confirm #333's watchdog window anchor on its first scheduled run:** the log's `Window ...` line must say `previous run`; `fallback 13h` with `GitHub API HTTP 403` means `actions: read` did not take. Also see #331 (Leadfeeder vs RB2B) merged, with no `/tools/leadfeeder-web-visitors/` hub. @med
 - [ ] **Read the conversion audit's pre-registered metrics.**
   - **~2026-10-15 (2 weeks after #326 merged 10/01):** `source_path` on >90% of human clicks (baseline 6%).
   - **~2026-11-26 (8 weeks):** real-affiliate clicks per 100 post pageviews by `source_component` (baseline 3.8/5.9), `/tools/*` hub CTR (close/pipedrive/hubspot 0 clicks on 3.6k impressions), real Beehiiv signups per week (0). @med [audits/AUDIT-CONVERSION-2026-10-01.md](audits/AUDIT-CONVERSION-2026-10-01.md)

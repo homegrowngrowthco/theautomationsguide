@@ -2,26 +2,27 @@
 
 Start inside `theautomationsguide/`. Before anything else, state which model you are running as. Run `git pull --ff-only` on master first.
 
-`TODO.md` is the only source of truth for open tasks. This file is a 10/01 snapshot written after Session 99, so re-check every claim below with a query before acting on it.
+`TODO.md` is the only source of truth for open tasks. This file is a 10/02 snapshot written after Session 100, so re-check every claim below with a query before acting on it.
 
 **Order:**
 1. Part A: first attributed click.
 2. Part 0: parked checks whose gate has passed.
-3. Beehiiv follow-up: Ian planned the `NEWSLETTER.md` steps for the weekend of 10/03-10/04. Ask whether they are done; if so, re-screenshot the post signup at 375px and confirm the email field shows in full.
+3. Beehiiv follow-up: Ian planned the `NEWSLETTER.md` steps for the weekend of 10/03-10/04 (not done as of 10/02). Ask whether they are done; if so, re-screenshot the post signup at 375px and confirm the email field shows in full.
 4. Date-gated asks.
 
 ---
 
 ## Part A. First real click with attribution (Claude, ~5 min)
 
-All 6 Session 99 PRs (#325-#330) were merged on 10/01 and verified on production the same evening. That covered overflow, `/tools/` sections, nav, share links, the disclosure, hub meta, `rel=sponsored`, and a beacon end-to-end test with the ingest request intercepted. What could not be seen yet is a real visitor's click.
+#326 merged **2026-10-02 01:21Z**. Count from there; events before it come from the old beacon and carry no source props. On 10/02 at 19:00Z there was 1 event since: a cold Google-referred entry straight to `/go/runable/` (`source_via=none`, correct for a cold entry). There has been no click from a TAG page yet.
 
-1. **Query PostHog 408442** for the newest 20 `affiliate_click` events after 2026-10-01 22:30Z.
+1. **Query PostHog 408442** for `affiliate_click` after 2026-10-02 01:21Z.
    - Each must carry `source_path`, `source_component`, `source_via`, `$device_type` and `is_automated`.
    - Treat `is_automated = true` as QA or bot traffic and report how many there are.
-   - **If there are zero real clicks yet,** say so; do not trigger one.
-   - **If the properties are missing on real clicks,** that is a bug. Investigate `src/components/ClickSource.astro` and `src/pages/go/[tool].astro`.
-2. **Dashboard:** "Affiliate clicks by source block" (dashboard 1699394) should now show non-null blocks.
+   - `source_via` values: `click` (a TAG link click within 2 min), `last_page` (a TAG page within 30 min) or `none` (a cold entry). Only `click`/`last_page` prove attribution.
+   - **If there are zero real clicks from a TAG page yet,** say so; do not trigger one.
+   - **If a click from a TAG page is missing the props** (`source_via=none` although `$referrer`/session show an on-site visit), that is a bug. Investigate `src/components/ClickSource.astro` and `src/pages/go/[tool].astro`.
+2. **Dashboard:** "Affiliate clicks by source block" (dashboard 1699394) should then show non-null blocks.
 3. **Metric reads** are dated in TODO.md and pre-registered in `audits/AUDIT-CONVERSION-2026-10-01.md` §3:
    - about 2026-10-15: `source_path` coverage over 90%;
    - about 2026-11-26: the 8-week reads.
@@ -31,26 +32,18 @@ All 6 Session 99 PRs (#325-#330) were merged on 10/01 and verified on production
 
 Claude does these; no input is needed. Do only those whose gate has passed, and say "parked" for the rest in the final message.
 
-1. **Daily Briefing, first live run with the stuck-Generating flag** (gate: 2026-10-02 07:45 ET).
-   - Use `mcp__n8n__n8n_executions` to list executions for `HbCayxHdzdYdfvfP`. The 11:30Z run must be `success`.
-   - Do not trigger it by hand; that would send a duplicate Slack briefing.
-2. **Watchdog scheduled runs and GitHub cron lag** (gate: 2026-10-02 morning).
-   - Run `gh run list -R homegrowngrowthco/theautomationsguide --workflow n8n-watchdog.yml --limit 5 --json event,conclusion,createdAt`.
-   - Expect the 10/01 16:30Z and 10/02 04:30Z `schedule` runs green.
-   - Measure the lag: `createdAt` minus the cron slot. It was 5-7h on 10/01.
-   - **If the lag is over about 1h or uneven,** change `n8n/watchdog.mjs`:
-     - anchor each window's start to the previous completed watchdog run's `run_started_at`, via the GitHub API with `GITHUB_TOKEN` and `permissions: actions: read`;
-     - cap at 36h, and fall back to 13h;
-     - add selftests;
-     - use its own branch and PR;
-     - while in that file, prune the three 10/01 ids from `ACKNOWLEDGED`.
-3. **"Leadfeeder vs RB2B" post** (queued 10/01, High). Still unpublished as of 10/01 20:00Z; that run produced Nooks vs Orum, #324. When its PR opens, confirm it links `/go/leadfeeder/` and not a raw URL. #327's new lint warning also flags unlinked live tools.
-4. **Topic stager, first real run in 3 weeks** (gate: after Sunday 2026-10-04 06:00Z, allow for lag). The scheduled run must be green and stage topics as Suggested; check the run summary.
-5. **Cadence re-check, round 3** (gate: on or after 2026-10-04).
+1. **Watchdog anchor, first scheduled run after #333** (gate: the run after 10/02 19:20Z; slots 16:30Z and 04:30Z fire hours late).
+   - `gh run list -R homegrowngrowthco/theautomationsguide --workflow n8n-watchdog.yml --limit 5 --json event,conclusion,createdAt,databaseId`.
+   - In `gh run view <id> --log`, the `Window ...` line must say `previous run`, and its start must equal the previous run's start minus 3.4h.
+   - `fallback 13h` with `GitHub API HTTP 403` means the `actions: read` permission did not take: fix it in `.github/workflows/n8n-watchdog.yml`.
+2. **PR #331 "Leadfeeder vs RB2B"** (QA re-ran on `b422450` at 10/02 19:21Z; Ian merges, auto-merge backstop ~10/04).
+   - Check `gh pr view 331 --json state`. Once merged, confirm `/go/leadfeeder/` and `/go/leadfeeder-web-visitors/` redirect on production, and that `/tools/leadfeeder-web-visitors/` 404s (the hub #332 stopped minting).
+3. **Topic stager, first real run in 3 weeks** (gate: after Sunday 2026-10-04 06:00Z, allow for lag). The scheduled run must be green and stage topics as Suggested; check the run summary.
+4. **Cadence re-check, round 3** (gate: on or after 2026-10-04).
    - Run `C:\Users\Ian\.venvs\gsc\Scripts\python gsc-search-analytics.py 35`.
    - The provisional 9/22-9/28 read was 16 clicks / 7,618 impressions.
    - Confirm or revise, judging both clicks and impressions, then close or update the TODO line.
-6. **Indexing re-check** (gate: about 2026-10-08).
+5. **Indexing re-check** (gate: about 2026-10-08).
    - Run `gsc-index-status.py` for `/tools/calendly/`, the 9/06 Beehiiv post and the 10/01 Mailchimp-to-Kit post.
    - On the first post merged after 10/01, confirm that the "Google Indexing Submit" node in "Notion Publish Status — TAG" returned 200.
 
@@ -72,7 +65,8 @@ Use AskUserQuestion, and only once the date has passed.
 
 ## Context (read, don't re-derive)
 
-- **Session 99** (`docs/SESSION_LOG.md`) fixed the `/tools/` taxonomy and wrote the conversion audit.
+- **Session 100** (`docs/SESSION_LOG.md`): Daily Briefing confirmed green; the watchdog window was anchored to the previous run (#333); auto-register now skips deep-link variants instead of minting a hub (#332).
+- **Session 99** fixed the `/tools/` taxonomy and wrote the conversion audit.
   - 0 real subscribers, and the site cannot see a signup.
   - Click source was unknowable before #326.
   - About 63 post pageviews a week means no A/B tests; judge changes by pre-registered before/after rates.
@@ -84,7 +78,7 @@ Use AskUserQuestion, and only once the date has passed.
 - Every question to Ian goes through AskUserQuestion. Commands he must run go in a chat code block, never only inside a question (he cannot copy from the dialog).
 - No secrets in chat, the transcript, or the public repo. Never read `.env.local`. Never `git add -A`.
 - **Live n8n writes:** go through `n8n/live-patch.mjs` (backup, verify, restore), dry run first. Ian approves any production write not listed here.
-- **Code changes:** branch + PR, worktree in `C:\tmp` (junction `node_modules`; `cmd //c rmdir` it before `git worktree remove`).
+- **Code changes:** branch + PR, worktree in `C:\tmp` (junction `node_modules`; remove the junction before `git worktree remove`, using PowerShell `[IO.Directory]::Delete(path, $false)` if `cmd //c rmdir` fails).
 - **Docs-only changes:** straight to master.
 
 ## Wrap-up
