@@ -4,7 +4,7 @@ Tracked by todo-sync (see ../todo-sync/CONVENTION.md). **Open tasks only, most i
 
 ## TODO
 
-- [ ] **Confirm the first REAL `affiliate_click` from a TAG page carries `source_path` / `source_component`.** Count from **10/02 01:21Z** (#326 merge), not 10/01 22:30Z. As of 10/02 19:00Z: 1 event since, a cold Google entry straight to `/go/runable/` (`source_via=none`, correct). @high [PROMPT-tag-conversion-and-parked-checks-2026-10-02.md](PROMPT-tag-conversion-and-parked-checks-2026-10-02.md)
+- [ ] **Confirm the first REAL `affiliate_click` from a TAG page carries `source_path` / `source_component`.** Count from **10/02 01:21Z** (#326 merge), not 10/01 22:30Z. As of 10/02 19:00Z: 1 event since, a cold Google entry straight to `/go/runable/` (`source_via=none`, correct). @high [PROMPT-tag-next-session-2026-10-02.md](PROMPT-tag-next-session-2026-10-02.md)
 - [ ] **Confirm #333's watchdog window anchor on its first scheduled run:** the log's `Window ...` line must say `previous run`; `fallback 13h` with `GitHub API HTTP 403` means `actions: read` did not take. @med
 - [ ] **Read the conversion audit's pre-registered metrics.**
   - **~2026-10-15 (2 weeks after #326 merged 10/01):** `source_path` on >90% of human clicks (baseline 6%).
