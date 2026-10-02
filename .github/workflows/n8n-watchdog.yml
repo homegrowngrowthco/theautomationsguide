@@ -5,7 +5,9 @@
 #
 # Twice daily, timed to land after the error workflow's longest re-run back-off (~3.4h) for the
 # morning and afternoon runs, in both EDT and EST: 16:30 UTC = 12:30 EDT / 11:30 EST,
-# 04:30 UTC = 00:30 EDT / 23:30 EST.
+# 04:30 UTC = 00:30 EDT / 23:30 EST. GitHub fires these hours late and unevenly (4.7h and 6.1h
+# on 10/01-10/02), so the script anchors each window to the previous completed run, read from
+# the Actions API with GITHUB_TOKEN (hence `actions: read`), instead of a fixed 13h.
 #
 # Requires repo secret N8N_API_KEY (an n8n API key for homegrowngrowth.app.n8n.cloud, created in
 # n8n Settings > n8n API). Until it exists the job FAILS LOUDLY - a skipped check must not read as
@@ -20,6 +22,10 @@ on:
     - cron: '30 4 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   watchdog:
     runs-on: ubuntu-latest
@@ -33,5 +39,6 @@ jobs:
         env:
           N8N_API_KEY: ${{ secrets.N8N_API_KEY }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: node n8n/watchdog.mjs
