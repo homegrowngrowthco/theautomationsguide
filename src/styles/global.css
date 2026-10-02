@@ -960,6 +960,11 @@ main { flex: 1; }
 .prose code, .prose pre {
   overflow-wrap: normal;
 }
+/* Inline code is different: it sits in a line of prose with no scroll container,
+   so a long API URL in backticks ran 40-85px off a 390px screen (audit 2026-10-01). */
+.prose :not(pre) > code {
+  overflow-wrap: anywhere;
+}
 
 .prose h1, .prose h2, .prose h3, .prose h4 {
   color: var(--text);
@@ -1035,6 +1040,15 @@ main { flex: 1; }
   margin-bottom: 1.5em;
   font-size: 0.9rem;
 }
+/* A plain markdown table has no scroll wrapper, so a 4-column one pushed the whole
+   page sideways on a phone. Below the tablet breakpoint the table scrolls inside
+   itself instead (desktop keeps the full-width table layout). */
+@media (max-width: 767px) {
+  .prose table {
+    display: block;
+    overflow-x: auto;
+  }
+}
 
 .prose th, .prose td {
   padding: 0.6rem 0.9rem;
@@ -1100,6 +1114,34 @@ main { flex: 1; }
 }
 .post-disclosure a { color: var(--text-muted); text-decoration: underline; }
 .post-disclosure a:hover { color: var(--accent-text); }
+.post-disclosure--top { margin-top: 0.6rem; }
+
+/* Share links at the end of a post: plain links, styled as quiet text. */
+.post-share {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.9rem;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-faint);
+}
+.post-share a,
+.post-share-copy {
+  color: var(--text-muted);
+  font-weight: 600;
+  text-decoration: none;
+}
+.post-share-copy {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.post-share a:hover,
+.post-share-copy:hover { color: var(--accent-text); text-decoration: underline; }
 
 /* ── About page ────────────────────────────────── */
 .about-hero {
@@ -1938,7 +1980,9 @@ main { flex: 1; }
   margin-top: 2.5rem;
 }
 .figure.post-screenshot .figure-body img {
-  max-width: 600px;
+  /* min() keeps the 600px cap without overriding max-width:100%: a bare 600px
+     made linked screenshots run off a 375px screen on ~76 posts (audit 2026-10-01 F6). */
+  max-width: min(600px, 100%);
 }
 
 .figure-caption {

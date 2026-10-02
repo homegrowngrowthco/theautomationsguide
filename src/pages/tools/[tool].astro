@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { tools, postMentionsTool } from '../../data/tools';
 import ToolPricing from '../../components/ToolPricing.astro';
+import { resolveDestination } from '../../data/affiliate-links';
 
 export async function getStaticPaths() {
   const allPosts = await getCollection('blog', ({ data }) => !data.draft);
@@ -15,7 +16,28 @@ export async function getStaticPaths() {
 }
 
 const { tool, posts } = Astro.props;
-const description = `Every article on The Automations Guide that covers ${tool.name}, plus where it fits in a RevOps and GTM stack.`;
+
+// Meta description: what the tool IS, from its own blurb, not one boilerplate line
+// for every hub (audit 2026-10-01 F7/R5: /tools/close/ had 1.7k impressions at
+// position 5 and 0 clicks on the template line). Clipped to a SERP-sized snippet at
+// a sentence or word boundary. Auto-register placeholder blurbs keep the old line.
+const clipDescription = (text: string, max = 158): string => {
+  const t = text.replace(/\s+/g, ' ').trim();
+  if (t.length <= max) return t;
+  const sentences = t.match(/[^.!?]+[.!?]+/g) || [];
+  let out = '';
+  for (const raw of sentences) { const s = raw.trim(); if ((out + s).length > max) break; out += s + ' '; }
+  if (out.trim().length >= 80) return out.trim();
+  const cut = t.slice(0, max - 1);
+  return cut.slice(0, cut.lastIndexOf(' ')).replace(/[,;:]$/, '') + '…';
+};
+const placeholderBlurb = /featured in a comparison on The Automations Guide|first and best source/i.test(tool.blurb) || tool.blurb.length < 60;
+const description = placeholderBlurb
+  ? `Every article on The Automations Guide that covers ${tool.name}, plus where it fits in a RevOps and GTM stack.`
+  : clipDescription(tool.blurb);
+// Disclose next to the CTA only when it really is an affiliate link (pending and
+// rejected programs send readers to the plain homepage).
+const ctaIsAffiliate = resolveDestination(tool.slug)?.isAffiliate === true;
 
 const faqSchema =
   tool.faqs && tool.faqs.length > 0
@@ -64,6 +86,11 @@ const softwareSchema = {
         </a>
         <span class={`tool-badge${tool.badgeFree ? ' tool-badge--free' : ''}`}>{tool.badge}</span>
       </div>
+      {ctaIsAffiliate && (
+        <p class="post-disclosure">
+          This is an affiliate link: we may earn a commission at no extra cost to you. <a href="/disclosure/">Disclosure</a>.
+        </p>
+      )}
     </div>
 
     {tool.bestFor && (

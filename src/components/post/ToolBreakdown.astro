@@ -193,12 +193,14 @@ const resolveLogo = (t: Tool) =>
   /* Two-column body: narrative left, highlight panel right (saves vertical space). */
   .tbd-cols {
     display: grid;
-    grid-template-columns: 1fr;
+    /* minmax(0, ...): a bare 1fr track can't shrink below its longest word, which
+       pushed this block ~15px past a 390px screen (audit 2026-10-01, F6). */
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.6rem 1.5rem;
     align-items: start;
   }
   @media (min-width: 640px) {
-    .tbd-cols { grid-template-columns: 1.6fr 1fr; }
+    .tbd-cols { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
   }
   .tbd-body {
     color: var(--text);

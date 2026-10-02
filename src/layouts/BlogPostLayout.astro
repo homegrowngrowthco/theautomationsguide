@@ -33,6 +33,7 @@ const displayAuthor = !author || author === 'The Automations Guide' ? 'Ian Chamb
 // Per-post OG image (build-time PNG at /og/<slug>.png). Used for og:image,
 // twitter:image, and the BlogPosting `image`.
 const ogImage = new URL(`/og/${post.slug}.png`, Astro.site).toString();
+const shareUrl = new URL(`/blog/${post.slug}/`, Astro.site).toString();
 
 // Tools this post compares, for JSON-LD about/mentions (entity-graph signal).
 const mentionedTools = tools
@@ -141,6 +142,11 @@ const faqSchema =
             </>
           )}
         </div>
+        {/* Same wording as the footer disclosure, placed before the first affiliate
+            link instead of ~5,500px below it (audit 2026-10-01, F12). */}
+        <p class="post-disclosure post-disclosure--top">
+          Some links are affiliate links. <a href="/disclosure/">Disclosure</a>.
+        </p>
       </header>
 
       {(tldr || showToc) && (
@@ -172,16 +178,30 @@ const faqSchema =
 
       <PostFaqs faqs={faqs} />
 
-      <EmailSignup />
+      <div id="newsletter" class="section--anchor">
+        <EmailSignup />
+      </div>
 
       <hr class="divider" />
 
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
         <a href="/blog/" class="btn btn--ghost">&larr; Back to Blog</a>
-        <p style="font-size:0.8rem;color:var(--text-faint)">
-          Enjoying this? Share it with your team.
+        {/* Plain share links: no third-party script, no CSP change (audit 2026-10-01, F9). */}
+        <p class="post-share">
+          <span>Share it with your team:</span>
+          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener">LinkedIn</a>
+          <a href={`mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(shareUrl)}`}>Email</a>
+          <button type="button" class="post-share-copy" data-url={shareUrl}>Copy link</button>
         </p>
       </div>
+      <script is:inline>
+        document.querySelectorAll('.post-share-copy').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var done = function () { b.textContent = 'Link copied'; setTimeout(function () { b.textContent = 'Copy link'; }, 2000); };
+            if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.url).then(done, function () {});
+          });
+        });
+      </script>
 
       <RelatedPosts posts={related} />
 

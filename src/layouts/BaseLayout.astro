@@ -237,7 +237,7 @@ const breadcrumbSchema = {
               </ul>
             </li>
             <li><a href="/playbooks/" aria-current={currentPath.startsWith('/playbooks') ? 'page' : undefined}>Playbooks</a></li>
-            <li><a href="/reviews/" aria-current={currentPath.startsWith('/reviews') ? 'page' : undefined}>Comparisons</a></li>
+            <li><a href="/guides/tool-vs-tool/" aria-current={currentPath.startsWith('/guides/tool-vs-tool') ? 'page' : undefined}>Comparisons</a></li>
             <li class="nav-dropdown" data-open="false">
               <button type="button" class="nav-dropdown-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="tools-menu" aria-current={currentPath.startsWith('/tools') ? 'page' : undefined}>
                 Tools
@@ -335,6 +335,15 @@ const breadcrumbSchema = {
           if (e.key === 'Escape') ctrls.forEach((c) => c.setOpen(false));
         });
       })();
+    </script>
+    <script is:inline>
+      // Header "Newsletter" button: on a page that has its own signup (posts), jump
+      // to it instead of leaving for the homepage's (audit 2026-10-01, F8). Runs
+      // after parse because the signup sits below this script in the DOM.
+      document.addEventListener('DOMContentLoaded', function () {
+        if (location.pathname === '/' || !document.getElementById('newsletter')) return;
+        document.querySelectorAll('a.nav-cta[href="/#newsletter"]').forEach(function (a) { a.setAttribute('href', '#newsletter'); });
+      });
     </script>
 
     <!-- Page content -->
