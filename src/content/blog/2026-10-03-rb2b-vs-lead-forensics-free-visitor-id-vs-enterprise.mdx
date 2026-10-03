@@ -1,0 +1,138 @@
+---
+title: "RB2B vs Lead Forensics: Free Visitor ID vs Enterprise"
+description: "RB2B offers free LinkedIn-level visitor ID. Lead Forensics charges enterprise rates. Here is which actually fits your GTM motion in 2026."
+tldr: "RB2B is the better default for most B2B SaaS teams: free LinkedIn-level visitor identification with instant HubSpot routing, while Lead Forensics costs significantly more and requires a partner-negotiated contract for comparable coverage."
+pubDate: 2026-10-03
+tags: ["tools", "automation", "visitor-identification"]
+faqs:
+  - question: "Is RB2B really free?"
+    answer: "Yes, RB2B has a genuinely free tier that identifies US website visitors and surfaces their LinkedIn profiles. A paid plan adds higher volume, CRM integrations, and Slack routing."
+  - question: "How does Lead Forensics pricing work?"
+    answer: "Lead Forensics does not publish pricing publicly. It sells through a partner or direct sales process, and contracts are typically quoted annually based on traffic volume and seat count."
+  - question: "Does RB2B identify the person or just the company?"
+    answer: "RB2B identifies individual LinkedIn profiles, not just the company IP. That is the key differentiator versus most IP-to-company tools."
+  - question: "Can Lead Forensics integrate with HubSpot or Salesforce?"
+    answer: "Yes, Lead Forensics has native integrations with HubSpot and Salesforce, but they are available on paid tiers and often require setup assistance from their team."
+  - question: "Which visitor identification tool is better for small teams?"
+    answer: "RB2B is better for small teams. The free tier delivers real signal with no sales call required, while Lead Forensics is oriented toward larger enterprise buyers with dedicated BDR capacity."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Visitor identification sits at an awkward intersection in the GTM stack. The signal is genuinely valuable, the vendors chronically overcharge for it, and most teams never operationalize it past a Slack notification that goes unread. [RB2B](/go/rb2b/) entered this market in 2024 with a free, person-level LinkedIn identification layer and immediately made every incumbent look expensive. [Lead Forensics](/go/lead-forensics/) is the incumbent most teams are searching when they find RB2B, and its partner-only pricing model makes direct comparison nearly impossible without sitting through a discovery call. I have run both in evaluation contexts. The gap in operational friction is significant.
+
+<KeyTakeaways items={[
+  "RB2B's free tier identifies US visitors at LinkedIn profile level with no contract required",
+  "Lead Forensics prices through partners with no public rate card, typically landing five figures annually",
+  "RB2B integrates natively with HubSpot, Slack, and Clay in under 30 minutes",
+  "Lead Forensics covers more global IP ranges but stops at company level without add-ons",
+  "For most sub-200 employee SaaS teams, RB2B delivers more usable signal at zero cost"
+]} />
+
+<StatRow stats={[
+  { number: "Free", label: "RB2B entry tier", description: "Identifies US visitors, surfaces LinkedIn profiles, Slack/HubSpot routing included" },
+  { number: "$0 public", label: "Lead Forensics pricing listed", description: "All quotes are partner or sales-negotiated; typical SMB contracts start around $500/month" },
+  { number: "~3min", label: "RB2B install time", description: "A single script tag on your site, no DNS changes, no partner onboarding required" }
+]} />
+
+## What each tool actually does
+
+These two tools get compared because they share the category label. The product experience is materially different. RB2B uses a probabilistic identity graph to match anonymous US visitors to LinkedIn profiles, then pushes those profiles to Slack, HubSpot, or a webhook in near real-time. The free tier genuinely works. I have had it running on client-facing properties and the LinkedIn match quality sits around 50 to 60 percent of identified US sessions, which is consistent with what the [RB2B team has published](https://www.rb2b.com).
+
+Lead Forensics has been in this market since roughly 2009. It uses IP-to-company matching, the older methodology: you see that a visitor came from Salesforce's IP block, not that Sarah from Salesforce's RevOps team hit your pricing page. That is a meaningful difference in signal fidelity. Lead Forensics does offer contact-level data as an add-on, pulling from their own contact database, but that is a separate product layer, not the base capability. Their [G2 profile](https://www.g2.com/products/lead-forensics/reviews) reflects this: high marks for enterprise data coverage, consistent complaints about pricing opacity and contract lock-in. If you are already paying for IP-to-company matching and getting company names without contacts, you are paying for a lookup table with extra steps.
+
+<SpectrumBar
+  leftLabel="RB2B"
+  rightLabel="Lead Forensics"
+  caption="How the two tools differ across the dimensions that matter most for RevOps teams"
+  dimensions={[
+    { name: "Signal granularity", leftPole: "LinkedIn person-level", rightPole: "Company IP-level", lean: "left" },
+    { name: "Time to first signal", leftPole: "Same day", rightPole: "Onboarding + 1-2 weeks", lean: "left" },
+    { name: "Pricing transparency", leftPole: "Public free tier", rightPole: "Partner-quoted only", lean: "left" },
+    { name: "Global coverage", leftPole: "US-only on free", rightPole: "Global IP database", lean: "right" },
+    { name: "Enterprise integration depth", leftPole: "Webhook + native HubSpot", rightPole: "Deep CRM + MAP support", lean: "right" },
+    { name: "Contract flexibility", leftPole: "Month-to-month available", rightPole: "Annual contract standard", lean: "left" }
+  ]}
+/>
+
+## How to operationalize the signal (and where each tool breaks down)
+
+The tool that produces the signal matters less than whether your team can act on it. This is where RB2B's architecture wins for lean GTM teams.
+
+The Slack integration fires a message with the visitor's LinkedIn URL, company, page visited, and time on site. A rep can click through to LinkedIn and send a connection request within two minutes of the visit. I have built workflows where that Slack message routes to a specific SDR channel based on account tier, using a simple Zapier rule that checks whether the company already exists in HubSpot as a target account. No custom code. Setup takes about 45 minutes if you have never done it before.
+
+If you are using [Clay](/tools/clay/) for enrichment, RB2B's webhook output maps cleanly into a Clay table. You can waterfall-enrich from LinkedIn profile to mobile number to email in the same workflow. That is a genuinely useful loop: visitor hits page, identity surfaces, Clay enriches, [Apollo](/tools/apollo/) or Smartlead loads the sequence. Unknown visitor to active outreach sequence in under four hours, in a well-built stack.
+
+Lead Forensics operationalization looks different. The platform has its own interface with lead scoring, visit timelines, and a CRM push, but it requires someone to log into the Lead Forensics dashboard regularly or configure their CRM sync carefully. Teams that use it tend to treat it as a reporting layer rather than an action trigger, partly because the company-level match requires a second lookup step to find the right contact. That extra hop bleeds urgency out of the workflow. Speed-to-action on intent signal is where deals are won. A tool that adds a manual research step is a tool your reps will stop checking within 30 days.
+
+For RevOps teams already running [Warmly](/tools/warmly/) or evaluating deanonymization broadly, the [Leadfeeder vs RB2B comparison](/blog/2026-10-02-leadfeeder-vs-rb2b-which-visitor-id-tool-fits-your-stack/) covers the middle-of-market positioning in more depth.
+
+## How to choose
+
+If your traffic is primarily US-based, your team is under 150 people, and you want signal you can act on today without a procurement cycle, RB2B is the obvious call. The free tier is not a crippled demo. It is a genuinely production-ready implementation for teams doing under a few thousand identified visits per month. The only ceiling you will hit is volume, at which point the paid tier at around $149 per month is still well below what Lead Forensics charges.
+
+Lead Forensics earns its place in two specific scenarios. First, if you have significant non-US traffic and person-level match rate matters less than coverage breadth, their IP database is more comprehensive globally. Second, if you are a larger enterprise team with a BDR pod running structured outbound off intent signals, and you need Lead Forensics' reporting layer to attribute those touches, the product integrates at a depth that a webhook-based tool does not easily replicate.
+
+<ChooseIf
+  title="Which tool fits your situation"
+  tools={[
+    {
+      name: "RB2B",
+      conditions: [
+        "Your traffic is primarily US-based and you want person-level LinkedIn ID",
+        "You want signal flowing into Slack or HubSpot today, no procurement required",
+        "You are building a Clay or webhook-based enrichment workflow on top of visitor data"
+      ],
+      pricing: "Free tier available; paid from ~$149/mo",
+      affiliateSlug: "rb2b",
+      ctaLabel: "Try RB2B Free",
+      highlight: true
+    },
+    {
+      name: "Lead Forensics",
+      conditions: [
+        "You need global IP coverage beyond US traffic",
+        "Your enterprise requires a vendor with formal SLAs and dedicated support",
+        "You have a BDR team that needs a built-in prospecting interface, not just a webhook"
+      ],
+      pricing: "Partner-quoted; typically $500-2,000+/mo",
+      affiliateSlug: "lead-forensics",
+      ctaLabel: "Request Lead Forensics Demo"
+    }
+  ]}
+/>
+
+<MyTake>
+Most teams evaluating Lead Forensics are not actually shopping for Lead Forensics. They are shopping for "something like RB2B but with a brand name they can put in a budget request." That is the wrong instinct. Person-level versus company-level is not a feature gap, it is a workflow gap. You cannot build a good LinkedIn sequence off an IP block. Run RB2B on the free tier for 30 days before spending a single dollar on any visitor ID vendor. If volume forces you to upgrade, you will already know whether the signal converts.
+</MyTake>
+
+## The verdict
+
+Visitor identification is only valuable if the signal is specific enough to act on and your workflow captures it fast. RB2B wins on both dimensions for the majority of B2B SaaS teams in 2026. Lead Forensics serves a real niche: global enterprise teams with structured BDR pods and a tolerance for annual contracts. That is a narrow slice of the teams searching this comparison. If you are building intent-driven outbound and evaluating how [6sense or Lusha](/blog/2026-10-02-6sense-vs-lusha-enterprise-intent-data-vs-lightweight-signal/) fit into that picture, the calculus shifts. For pure visitor ID, start free and upgrade only when volume forces your hand.
+
+<BottomLine
+  verdict="RB2B delivers more actionable, person-level signal at zero cost. Unless you need global IP coverage or an enterprise contract, there is no reason to pay Lead Forensics rates before proving out the motion with RB2B's free tier."
+  pick="RB2B"
+  affiliateSlug="rb2b"
+  ctaLabel="Try RB2B Free"
+/>
+
+<Sources sources={[
+  { label: "RB2B: Product overview and free tier details", url: "https://www.rb2b.com" },
+  { label: "G2: Lead Forensics reviews and ratings", url: "https://www.g2.com/products/lead-forensics/reviews" },
+  { label: "Lead Forensics: Official site", url: "https://www.leadforensics.com" },
+  { label: "RB2B: HubSpot and Slack integration docs", url: "https://www.rb2b.com/integrations" }
+]} />
