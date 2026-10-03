@@ -1,7 +1,7 @@
 ---
-// On-page table of contents. Paired with the TL;DR box (see BlogPostLayout.astro's
-// .post-intro/.post-intro--paired) when both exist, so it reads as a compact
-// sidebar-style card rather than a lone full-width strip. hasToc()/tocHeadings()
+// On-page table of contents: the sticky left rail of the post shell on wide
+// screens, a collapsed disclosure above the article below 1100px (BlogPostLayout,
+// design program 2026-10). hasToc()/tocHeadings()
 // live in src/lib/post-toc.ts so the layout can know ahead of render whether this
 // will show at all. Renders nothing for short posts (< 3 H2s).
 import { tocHeadings, hasToc, type TocHeading } from '../../lib/post-toc';
@@ -28,78 +28,56 @@ const show = hasToc(headings);
   </details>
 )}
 
+<script is:inline>
+  // Design program 2026-10: the ToC is a sticky rail on wide screens and a
+  // collapsed disclosure below 1100px (it sits above the article there, so an
+  // open list would push the content down). Runs as the element is parsed, before
+  // first paint, so it causes no layout shift. Then highlights the section in view.
+  (function () {
+    var toc = document.currentScript && document.currentScript.previousElementSibling;
+    if (!toc || !toc.classList.contains('post-toc')) return;
+    if (window.matchMedia('(max-width: 1100px)').matches) toc.removeAttribute('open');
+    if (!('IntersectionObserver' in window)) return;
+    var links = toc.querySelectorAll('a[href^="#"]');
+    var byId = {};
+    links.forEach(function (a) { byId[decodeURIComponent(a.getAttribute('href').slice(1))] = a; });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) { a.removeAttribute('aria-current'); });
+        var a = byId[e.target.id];
+        if (a) a.setAttribute('aria-current', 'true');
+      });
+    }, { rootMargin: '-15% 0px -70% 0px' });
+    Object.keys(byId).forEach(function (id) { var h = document.getElementById(id); if (h) io.observe(h); });
+  })();
+</script>
+
 <style>
-  .post-toc {
-    /* Standalone width cap (no TL;DR to pair with) — matches the grid column
-       width .post-intro--paired gives it when both are present, so the card
-       reads the same size either way instead of stretching full-width. */
-    max-width: 420px;
-    margin: 1.5rem 0 2rem;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 0.6rem;
-    padding: 0.85rem 1.25rem;
-  }
-  /* :global() on the ancestor is required, not stylistic: .post-intro--paired
-     is rendered by BlogPostLayout.astro, a different component. Astro appends
-     this component's own scope hash to every compound selector segment, so a
-     plain `.post-intro--paired .post-toc` here compiles to
-     `.post-intro--paired[data-astro-cid-…] .post-toc[data-astro-cid-…]` — the
-     ancestor never actually carries this component's hash, so that selector
-     silently never matches anything. This was true of the original rule too;
-     it just never fired, and every "paired" override below inherited that. */
-  :global(.post-intro--paired) .post-toc {
-    max-width: none;
-    /* Mobile-stacked (below the grid breakpoint in global.css): top gap from
-       the TL;DR box above it; .post-intro's own bottom margin handles the
-       space before the article body. */
-    margin: 1rem 0 0;
-  }
-  @media (min-width: 640px) {
-    :global(.post-intro--paired) .post-toc {
-      /* Grid gap only adds horizontal space between the two columns — it does
-         not collapse this box's own top margin, so without zeroing it here
-         the TOC card sits visibly lower than the TL;DR box beside it instead
-         of sharing its top edge. Padding-top is also bumped to match
-         .post-tldr's, so the "TL;DR" and "On this page" labels line up too. */
-      margin-top: 0;
-      padding-top: 1.1rem;
-    }
-  }
+  .post-toc { margin: 0; }
   .post-toc-summary {
-    font-family: var(--font-mono, monospace);
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-muted);
-    cursor: pointer;
-    list-style: none;
+    list-style: none; cursor: pointer;
+    font: 600 0.75rem/1 var(--font-sans); letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted);
+    padding: 0.25rem 0 0.75rem;
   }
   .post-toc-summary::-webkit-details-marker { display: none; }
-  .post-toc-summary::after {
-    content: "+";
-    float: right;
-    color: var(--accent);
-    font-weight: 700;
-  }
-  .post-toc[open] .post-toc-summary::after { content: "\2212"; }
-  /* Vertical list — one link per line. A narrow sidebar-style card reads better
-     as a stacked list than a wrapped horizontal strip. */
-  .post-toc-list {
-    margin: 0.6rem 0 0;
-    padding-left: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.45rem;
-  }
+  .post-toc-list { margin: 0; padding: 0; list-style: none; border-left: 1px solid var(--border); }
   .post-toc-list li { margin: 0; }
   .post-toc-list a {
-    color: var(--text);
-    text-decoration: none;
-    font-size: 0.9rem;
-    line-height: 1.4;
+    display: block; margin-left: -1px; padding: 0.4rem 0 0.4rem 0.85rem;
+    border-left: 2px solid transparent;
+    font: 400 0.88rem/1.4 var(--font-sans); color: var(--ink-600); text-decoration: none;
   }
-  .post-toc-list a:hover { color: var(--accent); text-decoration: underline; }
+  .post-toc-list a:hover { color: var(--ink-900); }
+  .post-toc-list a[aria-current] { border-left-color: var(--tag-teal-600); color: var(--ink-900); font-weight: 600; }
+  @media (min-width: 1101px) {
+    .post-toc-summary { pointer-events: none; }
+  }
+  @media (max-width: 1100px) {
+    .post-toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.85rem 1.1rem; margin: 0 0 1.5rem; }
+    .post-toc-summary { padding: 0.15rem 0; display: flex; justify-content: space-between; }
+    .post-toc-summary::after { content: '+'; color: var(--accent-text); font-size: 1rem; }
+    .post-toc[open] .post-toc-summary::after { content: '\2212'; }
+    .post-toc[open] .post-toc-summary { padding-bottom: 0.6rem; }
+  }
 </style>

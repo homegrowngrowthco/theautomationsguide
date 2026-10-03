@@ -25,7 +25,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     window.addEventListener('DOMContentLoaded', () => {
       if (window.__pagefindMissing || typeof PagefindUI === 'undefined') {
         document.getElementById('search').innerHTML =
-          '<p style="color:var(--text-muted);padding:1rem 0;">Search index isn\'t built in dev mode — run <code style="background:var(--bg-secondary);padding:0.2em 0.4em;border-radius:4px;">npm run build &amp;&amp; npm run preview</code> to test search locally. Search works on the deployed site.</p>';
+          '<p style="color:var(--text-muted);padding:1rem 0;">Search index isn\'t built in dev mode: run <code style="background:var(--bg-secondary);padding:0.2em 0.4em;border-radius:4px;">npm run build &amp;&amp; npm run preview</code> to test search locally. Search works on the deployed site.</p>';
         return;
       }
 

@@ -15,6 +15,11 @@ import '@fontsource/jetbrains-mono/latin-400.css';
 import '@fontsource/jetbrains-mono/latin-500.css';
 import '@fontsource/jetbrains-mono/latin-600.css';
 import '@fontsource/source-serif-4/latin-600.css';
+// Preload the two faces the first screen renders in (the serif headline in the
+// ink band, Inter body). Without it the band reflows on the font swap and moves
+// the tools panel that overlaps it (CLS 0.029 measured 2026-10-02).
+import serif600Url from '@fontsource/source-serif-4/files/source-serif-4-latin-600-normal.woff2?url';
+import inter400Url from '@fontsource/inter/files/inter-latin-400-normal.woff2?url';
 import Analytics from '../components/Analytics.astro';
 import ClickSource from '../components/ClickSource.astro';
 import { navToolCategories, categoryAnchor } from '../data/tools';
@@ -163,11 +168,13 @@ const breadcrumbSchema = {
     <meta name="robots" content={robotsContent} />
     <meta name="author" content={siteName} />
     <meta name="generator" content={Astro.generator} />
-    <meta name="theme-color" content="#fdfcf8" />
+    <meta name="theme-color" content="#161b22" />
     <link rel="canonical" href={canonicalURL} />
     <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
     <link rel="alternate" type="application/rss+xml" title={siteName} href="/rss.xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" as="font" type="font/woff2" href={serif600Url} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={inter400Url} crossorigin />
 
     <!-- Brand fonts (Brand Kit v2.2) are self-hosted via @fontsource — imported in
          this layout's frontmatter, bundled into the stylesheet, no 3rd-party request. -->

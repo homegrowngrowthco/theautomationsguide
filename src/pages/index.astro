@@ -1,69 +1,67 @@
 ---
+// Home (design program 2026-10, direction "Ink spec", docs/DESIGN-SYSTEM.md).
+// No hero image: the content is the hero. Ink frames the top; everything below
+// is cream/white. Every number on this page is computed from committed data.
 import BaseLayout from '../layouts/BaseLayout.astro';
 import EmailSignup from '../components/EmailSignup.astro';
 import PostCard from '../components/PostCard.astro';
+import Band from '../components/ui/Band.astro';
+import Container from '../components/ui/Container.astro';
+import Button from '../components/ui/Button.astro';
+import SectionHead from '../components/ui/SectionHead.astro';
+import Stat from '../components/ui/Stat.astro';
 import { getCollection } from 'astro:content';
-import { tools } from '../data/tools';
+import { tools, toolCategories, categoryAnchor } from '../data/tools';
 import { audiences } from '../data/audiences';
 import { sections, getSectionPosts } from '../data/sections';
 import { classifySection } from '../lib/post-cards';
+import { toolsCompared } from '../lib/tools-compared';
 import pricingIndexRaw from '../data/pricing-index.json';
 
-const allPosts = await getCollection('blog', ({ data }) => !data.draft);
-const recentPosts = allPosts
-  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
-  .slice(0, 3);
+const allPosts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime(),
+);
+const latest = allPosts.slice(0, 6);
+const fmtShort = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
 
-// "Tools we cover" strip: dedupe by slug, stable order from the registry.
-// Only listed tools appear here; pipeline tools (listed:false) still get a hub page.
-const stripTools = tools.filter((t) => t.listed !== false);
+// Hero panel: a real comparison, shown with its tools' entry prices from the
+// pricing index. A post with `featured: true` wins; otherwise the site's top
+// entry post by sessions (PostHog 408442, 90 days to 2026-10-01, conversion audit).
+const TOP_ENTRY_SLUG = '2026-05-06-apollo-vs-clay-vs-linkedin-sales-nav-best-for-outbound-2026';
+const heroPost =
+  allPosts.find((p) => (p.data as { featured?: boolean }).featured) ??
+  allPosts.find((p) => p.slug === TOP_ENTRY_SLUG) ??
+  allPosts[0];
+const heroTools = toolsCompared(heroPost.body, heroPost.data.title).slice(0, 4);
+const heroLabel = (heroPost.data as { featured?: boolean }).featured ? 'Featured comparison' : 'Most-read comparison';
 
-// Editorial sections by format (replaces the old machine-derived "Browse by
-// topic" tag tiles, per audit Phase 3). The 3 /guides/ hubs come from the
-// sections.ts registry, all keyed off the SAME classifySection() classifier
-// that drives the card generator's teal tab label. "Reviews" is built here
-// directly rather than added to sections.ts: src/pages/reviews.astro is
-// already the Review format's hub at /reviews/, so its "View all" points
-// there instead of a duplicate /guides/reviews/.
+// Editorial sections by format (audit Phase 3): Tool vs tool leads with cards;
+// the other formats are compact lists so the page stays one idea per section.
 const formatSections = await Promise.all(
   sections.map(async (s) => ({
     slug: s.slug,
     heading: s.navLabel,
-    dek: s.dek,
     href: `/guides/${s.slug}/`,
-    posts: (await getSectionPosts(s)).slice(0, 3),
+    posts: (await getSectionPosts(s)).slice(0, 4),
   })),
 );
-const reviewPosts = allPosts
-  .filter((p) => classifySection(p) === 'Review')
-  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
-  .slice(0, 3);
-const editorialSections = [
-  ...formatSections,
-  {
-    slug: 'reviews',
-    heading: 'Reviews',
-    dek: 'One tool, used long enough to hit its limits, with the parts the vendor page leaves out.',
-    href: '/reviews/',
-    posts: reviewPosts,
-  },
+const reviewPosts = allPosts.filter((p) => classifySection(p) === 'Review').slice(0, 4);
+const vsSection = formatSections.find((s) => s.slug === 'tool-vs-tool') ?? formatSections[0];
+const listSections = [
+  ...formatSections.filter((s) => s !== vsSection),
+  { slug: 'reviews', heading: 'Reviews', href: '/reviews/', posts: reviewPosts },
 ];
 
-// Pricing-index band: every figure below is read from the committed dataset
-// (pricing/build-pricing-index.mjs -> src/data/pricing-index.json), never
-// hand-typed. Same field names/shape as src/pages/revops-automation-pricing.astro;
-// that page exports nothing importable (it's a route, not a module), so this
-// is a small parallel read of the same JSON rather than a duplicated scraper.
+// Pricing-index band: read from the committed dataset, never hand-typed.
 type PricingRow = {
   status: string;
   hasFreeTier?: boolean | null;
-  currency?: string | null;
   entryPaidPlan?: { monthlyBilledMonthly?: number | null; monthlyBilledAnnually?: number | null } | null;
 };
-const pricingIndex = pricingIndexRaw as unknown as { generatedAt: string; tools: PricingRow[] };
+const pricingIndex = pricingIndexRaw as unknown as { generatedAt: string; counts: Record<string, number>; tools: PricingRow[] };
+const totalTracked = pricingIndex.tools.length;
 const pricedTools = pricingIndex.tools.filter((r) => r.status === 'ok');
 const freeTierCount = pricedTools.filter((r) => r.hasFreeTier === true).length;
-const freeTierPct = Math.round((100 * freeTierCount) / pricedTools.length);
 const entryValues = pricedTools
   .map((r) => r.entryPaidPlan?.monthlyBilledAnnually ?? r.entryPaidPlan?.monthlyBilledMonthly)
   .filter((v): v is number => v != null)
@@ -74,252 +72,217 @@ const medianEntry = entryValues.length
     : entryValues[(entryValues.length - 1) / 2]
   : null;
 const fmtMoney = (n: number) => (Number.isInteger(n) ? `$${n}` : `$${n.toFixed(2)}`);
-
+const readDate = new Date(`${pricingIndex.generatedAt}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 const pricingStats = [
-  { number: String(pricedTools.length), label: 'Tools priced', description: "straight from the vendor's pricing page" },
-  { number: `${freeTierPct}%`, label: 'Have a free tier', description: `${freeTierCount} of ${pricedTools.length} priced tools` },
-  { number: medianEntry != null ? fmtMoney(medianEntry) : 'n/a', label: 'Median entry price', description: `across ${entryValues.length} tools with a published price` },
-  { number: 'CC BY 4.0', label: 'Licence', description: 'free to reuse, with attribution' },
+  { value: String(pricedTools.length), label: `of ${totalTracked} tools priced from the vendor's own page` },
+  { value: String(freeTierCount), label: 'priced tools with a genuine free tier' },
+  { value: medianEntry != null ? fmtMoney(medianEntry) : 'n/a', label: `median entry price a month, across ${entryValues.length} tools` },
+  { value: 'CC BY', label: 'free to reuse with attribution' },
 ];
+
+// Tools by job: every /tools/ category with its listed-tool count.
+const listedTools = tools.filter((t) => t.listed !== false);
+const categories = toolCategories
+  .map((c) => ({ name: c, count: listedTools.filter((t) => t.category === c).length, href: `/tools/#${categoryAnchor(c)}` }))
+  .filter((c) => c.count > 0);
 ---
 
 <BaseLayout
   title="The Automations Guide"
-  description="The RevOps and GTM automation playbook: honest tool reviews, copy-paste workflows, and revenue operations strategy for go-to-market teams."
+  description="Independent comparisons, migration guides and an open pricing index for RevOps and GTM tools. Written by a practitioner; every price read from the vendor's own page and dated."
 >
-  <!-- Hero (split: copy + workflow visual) -->
-  <section class="hero hero--split">
-    <div class="container--wide">
-      <div class="hero-split">
-        <div class="hero-copy">
-          <div class="hero-eyebrow">RevOps &middot; GTM &middot; Automation</div>
-          <h1>The RevOps &amp; GTM automation playbook.</h1>
-          <p>
-            Honest tool reviews, copy-paste workflows, and revenue operations
-            strategy for go-to-market teams that want to scale output, not headcount.
+  <Band class="home-hero">
+    <Container size="wide">
+      <div class="home-hero-grid">
+        <div class="home-hero-copy">
+          <p class="home-eyebrow">RevOps and GTM tools, compared</p>
+          <h1>Know what a RevOps tool costs, and what it is for, before the sales call.</h1>
+          <p class="home-sub">
+            Comparisons, migration guides and an open pricing index for {totalTracked} tools, written by a
+            practitioner. Every price is read from the vendor's own page and dated.
           </p>
-          <div class="hero-actions">
-            <a href="/blog/" class="btn btn--primary">Read the Blog &rarr;</a>
-            <a href="/tools/" class="btn btn--ghost">Browse Tools</a>
+          <div class="home-actions">
+            <Button href="/guides/tool-vs-tool/" variant="onband">Browse comparisons</Button>
+            <Button href="/revops-automation-pricing/" variant="ghost-onband">Open the pricing index</Button>
           </div>
         </div>
-
-        <div class="hero-visual" aria-hidden="true">
-          <svg viewBox="0 0 440 360" role="presentation" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <marker id="hv-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                <path d="M0 0 L10 5 L0 10 z" fill="#cdc7b3"></path>
-              </marker>
-            </defs>
-            <!-- connectors: equal 82px gaps between rows, S-curves end at top-center of dest node -->
-            <g fill="none" stroke="#cdc7b3" stroke-width="2" marker-end="url(#hv-arrow)">
-              <path d="M150 46 C200 46 200 46 246 46"></path>
-              <path d="M325 72 C325 113 93 113 93 154"></path>
-              <path d="M150 180 C200 180 200 180 246 180"></path>
-              <path d="M325 206 C325 247 93 247 93 288"></path>
-              <path d="M150 314 C200 314 230 314 246 314"></path>
-            </g>
-            <!-- accent flow dots at midpoint of each horizontal connector -->
-            <g fill="#14a890">
-              <circle cx="200" cy="46" r="3.5"></circle>
-              <circle cx="200" cy="180" r="3.5"></circle>
-              <circle cx="200" cy="314" r="3.5"></circle>
-            </g>
-            <!-- nodes: tool logo (26x26 in rounded bg card, text to right) -->
-            <!-- Row 1: n8n Trigger → Clay Enrich -->
-            <g class="hv-node">
-              <rect x="36" y="20" width="114" height="52" rx="12" fill="#ffffff" stroke="#e5e1d4"></rect>
-              <rect x="48" y="31" width="28" height="28" rx="6" fill="#f4f1ec"></rect>
-              <image x="49" y="32" width="26" height="26" href="/brand/tools/n8n.svg" preserveAspectRatio="xMidYMid meet"></image>
-              <text x="84" y="42" text-anchor="start" font-size="12" font-weight="700" fill="#262b32">Trigger</text>
-              <text x="84" y="56" text-anchor="start" font-size="10" fill="#5e6671">n8n</text>
-            </g>
-            <g class="hv-node">
-              <rect x="246" y="20" width="158" height="52" rx="12" fill="#ffffff" stroke="#e5e1d4"></rect>
-              <rect x="258" y="31" width="28" height="28" rx="6" fill="#f4f1ec"></rect>
-              <image x="259" y="32" width="26" height="26" href="/brand/tools/clay.webp" preserveAspectRatio="xMidYMid meet"></image>
-              <text x="294" y="42" text-anchor="start" font-size="12" font-weight="700" fill="#262b32">Enrich</text>
-              <text x="294" y="56" text-anchor="start" font-size="10" fill="#5e6671">Clay</text>
-            </g>
-            <!-- Row 2: Apollo Qualify → HubSpot Sync to CRM -->
-            <g class="hv-node">
-              <rect x="36" y="154" width="114" height="52" rx="12" fill="#ffffff" stroke="#e5e1d4"></rect>
-              <rect x="48" y="165" width="28" height="28" rx="6" fill="#f4f1ec"></rect>
-              <image x="49" y="166" width="26" height="26" href="/brand/tools/apollo.svg" preserveAspectRatio="xMidYMid meet"></image>
-              <text x="84" y="176" text-anchor="start" font-size="12" font-weight="700" fill="#262b32">Qualify</text>
-              <text x="84" y="190" text-anchor="start" font-size="10" fill="#5e6671">Apollo</text>
-            </g>
-            <g class="hv-node">
-              <rect x="246" y="154" width="158" height="52" rx="12" fill="#14a890" stroke="#14a890"></rect>
-              <rect x="258" y="165" width="28" height="28" rx="6" fill="rgba(255,255,255,0.9)"></rect>
-              <image x="259" y="166" width="26" height="26" href="/brand/tools/hubspot.svg" preserveAspectRatio="xMidYMid meet"></image>
-              <text x="294" y="176" text-anchor="start" font-size="12" font-weight="700" fill="#ffffff">Sync to CRM</text>
-              <text x="294" y="190" text-anchor="start" font-size="10" fill="#e6fbf6">HubSpot</text>
-            </g>
-            <!-- Row 3: Instantly Sequence → Pipedrive Pipeline -->
-            <g class="hv-node">
-              <rect x="36" y="288" width="114" height="52" rx="12" fill="#ffffff" stroke="#e5e1d4"></rect>
-              <rect x="48" y="299" width="28" height="28" rx="6" fill="#f4f1ec"></rect>
-              <image x="49" y="300" width="26" height="26" href="/brand/tools/instantly.webp" preserveAspectRatio="xMidYMid meet"></image>
-              <text x="84" y="310" text-anchor="start" font-size="12" font-weight="700" fill="#262b32">Sequence</text>
-              <text x="84" y="324" text-anchor="start" font-size="10" fill="#5e6671">Instantly</text>
-            </g>
-            <g class="hv-node">
-              <rect x="246" y="288" width="158" height="52" rx="12" fill="#ffffff" stroke="#e5e1d4"></rect>
-              <rect x="258" y="299" width="28" height="28" rx="6" fill="#f4f1ec"></rect>
-              <image x="259" y="300" width="26" height="26" href="/brand/tools/pipedrive.svg" preserveAspectRatio="xMidYMid meet"></image>
-              <text x="294" y="310" text-anchor="start" font-size="12" font-weight="700" fill="#262b32">Pipeline</text>
-              <text x="294" y="324" text-anchor="start" font-size="10" fill="#5e6671">Pipedrive</text>
-            </g>
-          </svg>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Tools we cover (logo strip): a single-row auto-scrolling marquee. The track
-       renders stripTools TWICE back to back and animates translateX(-50%), which
-       moves exactly one copy's width and loops seamlessly into the second (identical)
-       copy. The second copy is aria-hidden + untabbable so screen readers and
-       keyboard nav only ever see one real set of links. Speed is set in JS below
-       from stripTools.length so the pace stays constant as tools are added. -->
-  <section class="logo-strip-section">
-    <div class="container--wide">
-      <p class="logo-strip-label">Tools we cover</p>
-    </div>
-    <div class="logo-strip">
-      <div class="logo-strip-track" style={`--marquee-duration:${Math.max(20, stripTools.length * 1.8)}s`}>
-        {stripTools.map((tool) => (
-          <a href={`/tools/${tool.slug}/`} class="logo-strip-item">
-            {tool.logo && <img src={tool.logo} alt="" loading="lazy" decoding="async" />}
-            <span class="logo-strip-name">{tool.name}</span>
+        {heroTools.length > 0 && (
+          <a class="home-panel" href={`/blog/${heroPost.slug}/`}>
+            <span class="home-panel-head">
+              <span><strong>{heroLabel}</strong></span>
+              <span>prices read {readDate}</span>
+            </span>
+            <span class="home-panel-title">{heroPost.data.title}</span>
+            <span class="home-panel-rows">
+              {heroTools.map((t) => (
+                <span class="home-panel-row">
+                  <span class="home-panel-tool">
+                    <span class="home-panel-logo">{t.logo && <img src={t.logo} alt="" width="20" height="20" decoding="async" />}</span>
+                    {t.name}
+                  </span>
+                  <span class="home-panel-price">{t.price ? `${t.price.amount}/mo` : 'not indexed'}</span>
+                  <span class="home-panel-tag">{t.tagline ?? ''}</span>
+                </span>
+              ))}
+            </span>
+            <span class="home-panel-cta">Read the comparison <span aria-hidden="true">&rarr;</span></span>
           </a>
-        ))}
-        {stripTools.map((tool) => (
-          <a href={`/tools/${tool.slug}/`} class="logo-strip-item" aria-hidden="true" tabindex="-1">
-            {tool.logo && <img src={tool.logo} alt="" loading="lazy" decoding="async" />}
-            <span class="logo-strip-name">{tool.name}</span>
-          </a>
-        ))}
+        )}
       </div>
-    </div>
-  </section>
+    </Container>
+  </Band>
 
-  <!-- Latest Posts -->
-  <section class="section">
-    <div class="container--wide">
-      <p class="section-label">Latest from the blog</p>
-      <h2 class="section-heading">Recent Articles</h2>
-
-      {recentPosts.length > 0 ? (
-        <div class="card-grid">
-          {recentPosts.map((post) => <PostCard post={post} />)}
-        </div>
-      ) : (
-        <p style="color:var(--text-muted)">No posts yet, check back soon.</p>
-      )}
-
-      <div class="mt-lg">
-        <a href="/blog/" class="btn btn--ghost">View all articles &rarr;</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Editorial sections by format -->
-  <section class="section section--divider">
-    <div class="container--wide">
-      {editorialSections.map((sec) => (
-        <div class="format-block">
-          <div class="format-block-head">
-            <div>
-              <h2 class="format-block-title">{sec.heading}</h2>
-              <p class="format-block-dek">{sec.dek}</p>
-            </div>
-            <a href={sec.href} class="format-block-viewall">View all &rarr;</a>
-          </div>
-          {sec.posts.length > 0 ? (
-            <div class="card-grid">
-              {sec.posts.map((post) => <PostCard post={post} />)}
-            </div>
-          ) : (
-            <p class="format-block-empty">More {sec.heading.toLowerCase()} on the way.</p>
-          )}
-        </div>
-      ))}
-    </div>
-  </section>
-
-  <!-- Pricing-index band -->
-  <section class="section section--divider section--tinted">
-    <div class="container--wide">
-      <p class="section-label">The site's linkable asset</p>
-      <h2 class="section-heading">RevOps tool pricing, read from the vendor</h2>
-      <p class="format-block-dek">
-        {pricedTools.length} tools priced straight from their own pricing pages, published as a
-        dataset you can download and cite. Updated {pricingIndex.generatedAt}, rebuilt quarterly
-        (next ~2026-11-12).
-      </p>
-      <div class="stat-row" style={`--cols: ${pricingStats.length}`}>
-        {pricingStats.map((stat) => (
-          <div class="stat-card">
-            <div class="stat-card-number">{stat.number}</div>
-            <div class="stat-card-label">{stat.label}</div>
-            <div class="stat-card-description">{stat.description}</div>
-          </div>
-        ))}
-      </div>
-      <div class="mt-lg">
-        <a href="/revops-automation-pricing/" class="btn btn--ghost">View the full pricing index &rarr;</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Start with your role -->
-  <section class="section section--divider">
-    <div class="container--wide">
-      <p class="section-label">Pick your lane</p>
-      <h2 class="section-heading">Start with your role</h2>
-      <ul class="role-list">
-        {audiences.map((a) => (
-          <li class="role-list-item">
-            <a href={`/teams/${a.slug}/`} class="role-list-link">
-              <span class="role-list-name">{a.navLabel}</span>
-              <span class="role-list-desc">{a.description}</span>
-              <span class="role-list-arrow" aria-hidden="true">&rarr;</span>
+  <Container size="wide">
+    <section class="home-sect" aria-labelledby="latest">
+      <SectionHead id="latest" title="Latest guides" href="/blog/" linkText={`All ${allPosts.length} guides`} />
+      <ol class="home-latest">
+        {latest.map((p) => (
+          <li>
+            <a href={`/blog/${p.slug}/`}>
+              <time datetime={p.data.pubDate.toISOString()}>{fmtShort(p.data.pubDate)}</time>
+              <span class="home-latest-kind">{classifySection(p)}</span>
+              <span class="home-latest-title">{p.data.title}</span>
             </a>
           </li>
         ))}
-      </ul>
-    </div>
-  </section>
+      </ol>
+    </section>
 
-  <!-- From the author -->
-  <section class="section section--divider">
-    <div class="container--wide">
-      <div class="author-block">
-        <img
-          src="/images/ian-headshot.jpg"
-          alt="Ian Chamberland"
-          class="author-block-photo"
-          width="72"
-          height="88"
-          loading="lazy"
-        />
-        <p class="author-block-text">
-          I'm Ian Chamberland, and I write everything on this site myself, mostly from RevOps and
-          GTM stacks I have actually built or broken. Find me on
-          <a href="https://www.linkedin.com/in/ianchamberland/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-          or read <a href="/about/">the full story</a>.
-        </p>
+    <section class="home-sect" aria-labelledby="vs">
+      <SectionHead id="vs" title={vsSection.heading} href={vsSection.href} linkText="All comparisons" />
+      <div class="card-grid">
+        {vsSection.posts.slice(0, 3).map((post) => <PostCard post={post} />)}
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Email Signup -->
-  <section id="newsletter" class="section section--divider section--anchor">
-    <div class="container--wide">
+    <section class="home-sect home-formats" aria-label="More formats">
+      {listSections.map((sec) => (
+        <div class="home-format">
+          <h2><a href={sec.href}>{sec.heading}</a></h2>
+          <ul>
+            {sec.posts.map((p) => <li><a href={`/blog/${p.slug}/`}>{p.data.title}</a></li>)}
+          </ul>
+          <a class="home-format-all" href={sec.href}>View all <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      ))}
+    </section>
+
+    <section class="home-index" aria-labelledby="pricing-index">
+      <div class="home-index-copy">
+        <p class="home-eyebrow">Open data, rebuilt quarterly</p>
+        <h2 id="pricing-index">The RevOps pricing index</h2>
+        <p>
+          Entry price, free tier and billing unit for {totalTracked} tools, each read from the vendor's own
+          pricing page on {readDate}. Where a vendor does not publish a number, the cell stays empty.
+        </p>
+        <Button href="/revops-automation-pricing/" variant="onband">Open the index</Button>
+      </div>
+      <dl class="home-index-stats">
+        {pricingStats.map((s) => <Stat value={s.value} label={s.label} tone="deep" />)}
+      </dl>
+    </section>
+
+    <section class="home-sect" aria-labelledby="by-job">
+      <SectionHead id="by-job" title="Tools by job" href="/tools/" linkText="All tools" />
+      <ul class="home-cats">
+        {categories.map((c) => (
+          <li><a href={c.href}><span>{c.name}</span><small>{c.count}</small></a></li>
+        ))}
+      </ul>
+      <p class="home-roles">
+        Or start with your role:
+        {audiences.map((a, i) => (<>{i > 0 && <span aria-hidden="true"> &middot; </span>}<a href={`/teams/${a.slug}/`}>{a.navLabel}</a></>))}
+      </p>
+    </section>
+
+    <section class="home-author" aria-label="About the author">
+      <img src="/images/ian-avatar.jpg" alt="Ian Chamberland" width="72" height="72" loading="lazy" />
+      <p>
+        <strong>Ian Chamberland</strong> writes everything on this site, mostly from RevOps and GTM stacks he has
+        built or broken as founder of Homegrown Growth Co, a fractional RevOps practice. Every affiliate program is
+        <a href="/disclosure/">disclosed by name</a>, and a tool with no program says so.
+        <a href="/about/">More about Ian</a>.
+      </p>
+    </section>
+
+    <section id="newsletter" class="home-sect section--anchor">
       <EmailSignup />
-    </div>
-  </section>
-
+    </section>
+  </Container>
 </BaseLayout>
+
+<style>
+  :global(.home-hero) { padding: 3.5rem 0 4rem; }
+  .home-hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 3.5rem; align-items: center; }
+  .home-eyebrow { margin: 0 0 0.9rem; font: 600 0.8rem/1 var(--font-sans); letter-spacing: 0.07em; text-transform: uppercase; color: var(--band-accent); }
+  :global(.home-hero) h1 { margin: 0 0 1rem; color: #fff; font: 600 clamp(2.1rem, 3.8vw, var(--step-6))/1.1 var(--font-serif); letter-spacing: -0.02em; }
+  .home-sub { margin: 0 0 1.6rem; max-width: 560px; font: 400 var(--step-1)/1.6 var(--font-sans); color: var(--band-muted); }
+  .home-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+
+  .home-panel { display: block; min-width: 0; background: var(--bg-card); color: var(--text); border-radius: var(--radius-md); box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35); overflow: hidden; text-decoration: none; }
+  .home-panel:hover { text-decoration: none; }
+  .home-panel-head { display: flex; justify-content: space-between; gap: 1rem; padding: 0.75rem 1.1rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border); font: 400 0.8rem/1.3 var(--font-sans); color: var(--text-muted); }
+  .home-panel-head strong { color: var(--ink-900); font-weight: 600; }
+  .home-panel-title { display: block; padding: 0.9rem 1.1rem 0.4rem; font: 600 var(--step-2)/1.3 var(--font-serif); color: var(--ink-900); }
+  .home-panel-rows { display: block; padding: 0 1.1rem; }
+  .home-panel-row { display: grid; grid-template-columns: minmax(0, 1.2fr) auto minmax(0, 1.4fr); gap: 0.25rem 1rem; align-items: center; padding: 0.7rem 0; border-bottom: 1px solid var(--border); font: 400 0.88rem/1.35 var(--font-sans); }
+  .home-panel-tool { display: flex; align-items: center; gap: 0.55rem; font-weight: 600; color: var(--ink-900); min-width: 0; }
+  .home-panel-logo { width: 28px; height: 28px; flex: none; border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; background: #fff; }
+  .home-panel-logo img { width: 18px; height: 18px; object-fit: contain; }
+  .home-panel-price { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink-900); text-align: right; }
+  .home-panel-tag { color: var(--text-muted); font-size: 0.82rem; }
+  .home-panel-cta { display: block; padding: 0.85rem 1.1rem; font: 600 0.9rem var(--font-sans); color: var(--accent-text); }
+
+  .home-sect { padding: 3rem 0 0.5rem; }
+  .home-latest { list-style: none; margin: 0; padding: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+  .home-latest li + li { border-top: 1px solid var(--border); }
+  .home-latest a { display: grid; grid-template-columns: 4.5rem 9.5rem minmax(0, 1fr); gap: 1rem; align-items: baseline; padding: 0.85rem 1.1rem; text-decoration: none; }
+  .home-latest a:hover { background: var(--bg); text-decoration: none; }
+  .home-latest time { font: 400 0.82rem var(--font-mono); color: var(--text-muted); }
+  .home-latest-kind { font: 600 0.72rem/1.2 var(--font-sans); letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .home-latest-title { font: 600 1rem/1.35 var(--font-sans); color: var(--ink-900); }
+
+  .home-formats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+  .home-format { min-width: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.2rem 1.25rem; display: flex; flex-direction: column; }
+  .home-format h2 { margin: 0 0 0.6rem; font: 600 var(--step-2)/1.25 var(--font-serif); }
+  .home-format h2 a { color: var(--ink-900); text-decoration: none; }
+  .home-format ul { list-style: none; margin: 0 0 0.9rem; padding: 0; }
+  .home-format li { padding: 0.5rem 0; border-top: 1px solid var(--border); }
+  .home-format li a { font: 500 0.92rem/1.4 var(--font-sans); color: var(--ink-800); text-decoration: none; }
+  .home-format li a:hover { color: var(--accent-text); text-decoration: underline; }
+  .home-format-all { margin-top: auto; font: 600 0.88rem var(--font-sans); }
+
+  .home-index { margin: 3.5rem 0 0.5rem; padding: 2.5rem; border-radius: var(--radius-xl); background: var(--deep); color: #fff; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 2.5rem; align-items: center; }
+  .home-index h2 { margin: 0 0 0.6rem; color: #fff; font: 600 var(--step-5)/1.15 var(--font-serif); letter-spacing: -0.015em; }
+  .home-index-copy p:not(.home-eyebrow) { margin: 0 0 1.4rem; font: 400 1rem/1.6 var(--font-sans); color: var(--deep-muted); }
+  .home-index-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; margin: 0; }
+
+  .home-cats { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem; }
+  .home-cats a { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; min-height: 52px; padding: 0.7rem 0.9rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); text-decoration: none; color: var(--ink-900); font: 500 0.9rem/1.3 var(--font-sans); }
+  .home-cats a:hover { border-color: var(--ink-300); text-decoration: none; }
+  .home-cats small { flex: none; font: 600 0.78rem var(--font-sans); font-variant-numeric: tabular-nums; color: var(--text-muted); background: var(--bg-secondary); border-radius: 4px; padding: 0.2rem 0.45rem; }
+  .home-roles { margin: 1rem 0 0; font: 400 0.92rem/1.6 var(--font-sans); color: var(--text-muted); }
+
+  .home-author { display: flex; gap: 1.1rem; align-items: center; margin-top: 3rem; padding: 1.5rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .home-author img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; flex: none; }
+  .home-author p { margin: 0; max-width: 820px; font: 400 1rem/1.6 var(--font-sans); color: var(--ink-700); }
+  .home-author strong { color: var(--ink-900); }
+  .home-author a { text-decoration: underline; text-underline-offset: 2px; }
+
+  #newsletter { padding-bottom: 4rem; }
+
+  @media (max-width: 1023px) {
+    .home-hero-grid, .home-index { grid-template-columns: minmax(0, 1fr); }
+    .home-cats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .home-formats { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 720px) {
+    :global(.home-hero) { padding: 2.25rem 0 2.5rem; }
+    .home-panel-row { grid-template-columns: minmax(0, 1fr) auto; }
+    .home-panel-tag { grid-column: 1 / -1; }
+    .home-latest a { grid-template-columns: minmax(0, 1fr); gap: 0.2rem; }
+    .home-index { padding: 1.75rem 1.1rem; }
+    .home-cats { grid-template-columns: minmax(0, 1fr); }
+    .home-author { align-items: flex-start; }
+  }
+</style>
