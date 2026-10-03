@@ -13,7 +13,8 @@ RevOps/GTM automation blog at **theautomationsguide.com**. Affiliate-monetized (
 | Posts | `src/content/blog/*.mdx` | MDX + component library in `src/components/post/` |
 | Tool registry | `src/data/tools.ts` | `/tools/<slug>` hubs; `listed:false` = indexable but off homepage/grid |
 | Affiliate registry | `src/data/affiliate-links.ts` | **Source of truth for every `/go/<slug>` redirect + program status.** Missing entry = 404 = hard lint fail |
-| QA gates | `qa/` | `lint-content` `render-acceptance` `mobile-overflow` `lint-logos` `seo-scan` `auto-register-tools` + Vision review/fixer. npm: `qa:lint` `qa:render` `qa:overflow` `qa:logos` `qa:seo` `qa:docs` |
+| QA gates | `qa/` | `lint-content` `render-acceptance` `mobile-overflow` `lint-logos` `seo-scan` `auto-register-tools` + Vision review/fixer. npm: `qa:lint` `qa:render` `qa:overflow` `qa:logos` `qa:seo` `qa:docs`, plus `qa:shots` (11 routes x 3 widths) and `qa:lighthouse` (median of 3; perf 95+, a11y 100, SEO 100, CLS 0) after `npm run build` |
+| Design system | `src/styles/global.css` (2026-10 token block), `src/components/ui/` | "Ink spec": ink is the frame, reading surfaces stay light. Rules + inventory: [docs/DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md). Astro 4.16, no Tailwind, latin-only Fontsource fonts |
 | Topic/LP builders | `backlog/` | `build-backlog.mjs` (weekly GHA, stages Notion `Suggested`; `--status` = queue census), `build-tool-lp.mjs` |
 | Pricing index | `pricing/` | `build-pricing-index.mjs` -> `src/data/pricing-index.json` + `public/data/`, rendered at `/revops-automation-pricing/`. The linkable asset. **Never guesses**: a figure absent from the fetched page is `null` with a reason. `--selftest` (13 fixtures, offline) gates every run |
 | Engine + deployers | `n8n/` | `blog-post-engine.json` + idempotent `update-engine-*.mjs` updaters; deploy via `deploy-engine.mjs --apply` (needs `N8N_API_URL`+`N8N_API_KEY` in env; source: `node --env-file=../growth-engine/.env`) |
@@ -56,7 +57,11 @@ RevOps/GTM automation blog at **theautomationsguide.com**. Affiliate-monetized (
 9. **HubSpot-style enum/label traps don't apply here, but Excel-mangled IDs and quote-sensitive regex parsers do:** registry parsers must be quote-agnostic and CRLF-aware (recurring bug class).
 10. **`/audit-seo` slash command** only loads when the session starts inside `theautomationsguide/`; output goes to `audits/`.
 
-## Current strategic state (2026-10-01)
+## Current strategic state (2026-10-02)
+
+**The site was redesigned on 10/02 (Session 101, #335 + #336, production-verified).** Direction "Ink spec" chosen by Ian from four artboards: ink nav, title band and footer frame cream reading surfaces. The post template now opens with a tools panel (the compared tools' dated pricing-index prices and `/go/` buttons) above the fold, a sticky ToC rail and a 70ch column; ComparisonTable shows the index price where the index has one. Lighthouse mobile is 95 to 97 with a11y 100 and CLS 0 on home, posts, /tools/ and the pricing index. The `tool-strip` root class is unchanged, so the 10/15 and 11/26 attribution reads stay comparable (split them at the deploy). About, disclosure, tool hubs and the listing pages have the new chrome but not their own rebuild yet (TODO). See [docs/DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md).
+
+## Prior strategic state (2026-10-01)
 
 **10/01: n8n failures now retry themselves.** A Notion API outage failed 3 scheduled runs (recovered by hand, PR #318); the response was a 3-layer retry stack, proven on canaries and live (Session 96, [n8n/README.md](n8n/README.md) "Retry stack"). The watchdog is live and proven (Session 97). **Ian dropped pitching the pricing index on 10/01 (Session 98)**, so the remaining authority levers are LinkedIn cadence + the brand-search nudge; zero independent referring domains is still the constraint. Same day: 9 PartnerStack programs went live + listed (PR #323).
 

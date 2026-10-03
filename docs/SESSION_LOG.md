@@ -8,7 +8,20 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-02 (Session 100).
+Last updated 2026-10-02 (Session 101).
+
+## Session 101 (2026-10-02): UI quality program: teardown, "Ink spec" design system, post/home/tools/pricing rebuilt; #335 + #336 merged and production-verified (Opus 5.5)
+
+- **Part A:** still 1 `affiliate_click` since #326 (the 03:17Z cold runable entry); no click from a TAG page yet. **Part B:** all parked (watchdog has not run since 10:38Z; stager and cadence gate 10/04; indexing ~10/08).
+- **C0 teardown:** 13 references + TAG at 1440/390 (`audits/teardown-shots.mjs`), [audits/DESIGN-TEARDOWN-2026-10.md](../audits/DESIGN-TEARDOWN-2026-10.md). Found: post body ran ~150 chars a line; pick rows clipped prices at 390 (nowrap).
+- **Direction:** canvas "TAG Directions" (https://claude.ai/artifact/U8DemgXckd2JUBCMWuZxax), A/B/C then Ian's D = C's ink color + B's formatting, kit hues kept, ink only as the frame. System: [docs/DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) + artifact https://claude.ai/artifact/2EZGa5JQpLnCdR9StsVDxD.
+- **#335 `dc904f9`:** tokens (augment, no renames), `src/components/ui/`, latin-only fonts (inline CSS 95 to 39 KB/page), `qa:shots` + `qa:lighthouse` (median of 3). No Tailwind, no Astro upgrade (fontaine already gives metric fallbacks).
+- **#336 `108e307`:** ink nav/footer; post = ink title band + tools panel (index prices with read date, "Try" only for live programs, pick only when the post's ComparisonTable says so; root class still `tool-strip`) + sticky ToC rail + 70ch column; ComparisonTable shows the index price when the index has it (36 of 55 rows; Ian chose this over two prices on one page); home, /tools/, pricing rebuilt; AA fix in 11 components; 2.9 KB avatar; font preloads.
+- **Gates:** Lighthouse mobile median home 95 / post 97 / tools 97 / pricing 97 (baseline 93/95/94/85), a11y 100 and CLS 0 on all four (baseline a11y 92 to 96); qa:shots 33/33; qa:overflow 0/168 (caught a 876px solo-post regression qa:shots missed); lint/render/logos/seo/docs 0 hard; visible dashes 0.
+- **Prod verified:** 10 routes x 390/1440 200, no overflow/console errors; search OK; a /go/ click from the live panel carries `source_component=tool-strip`, `source_via=click` (request captured and aborted).
+- **Also:** RevOps Stack Audit Notion template exists (6/02); its unsourced "15 to 30 percent" claim replaced. #337 opened: #334 linked `/go/marketo/` (404 in prod).
+- **Revert:** `git revert 108e307` then `dc904f9`.
+- **Gotchas:** Astro scoped styles never match a child component's root (use `:global(.x)` for a class passed to `Band`); a grid item with `margin: 0 auto` stops stretching (add `width: 100%`); one local Lighthouse run swings ±4, gate on the median; Lighthouse 13 renamed the LCP audits (`lcp-breakdown-insight`).
 
 ## Session 100 (2026-10-02) — First-click check (none yet); watchdog window anchored; auto-register stops minting variant hubs
 
