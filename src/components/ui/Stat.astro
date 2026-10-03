@@ -1,0 +1,22 @@
+---
+// One honest number. Our own figures only; `source` says where it comes from.
+// Render inside a <dl>.
+interface Props { value: string; label: string; source?: string; tone?: 'light' | 'deep' }
+const { value, label, source, tone = 'light' } = Astro.props;
+---
+<div class={`ui-stat ui-stat--${tone}`}>
+  <dt>{value}</dt>
+  <dd>{label}{source && <span class="ui-stat-src">{source}</span>}</dd>
+</div>
+<style>
+  .ui-stat { padding: 1.1rem 1.15rem; border-radius: var(--radius-md); min-width: 0; }
+  .ui-stat dt { font: 700 var(--step-5)/1 var(--font-sans); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .ui-stat dd { margin: 0.4rem 0 0; font: 400 0.85rem/1.4 var(--font-sans); }
+  .ui-stat-src { display: block; margin-top: 0.2rem; font-size: 0.75rem; opacity: 0.85; }
+  .ui-stat--light { background: #fff; border: 1px solid var(--border); }
+  .ui-stat--light dt { color: var(--ink-900); }
+  .ui-stat--light dd { color: var(--text-muted); }
+  .ui-stat--deep { background: rgba(255, 255, 255, 0.07); }
+  .ui-stat--deep dt { color: #fff; }
+  .ui-stat--deep dd { color: var(--deep-muted); }
+</style>

@@ -1,0 +1,15 @@
+---
+// White card on cream. `href` makes the whole card a link.
+interface Props { href?: string; pad?: 'sm' | 'md' | 'lg'; class?: string }
+const { href, pad = 'md', class: cls = '' } = Astro.props;
+const c = `ui-card ui-card--${pad} ${cls}`;
+---
+{href ? <a href={href} class={`${c} ui-card--link`}><slot /></a> : <div class={c}><slot /></div>}
+<style>
+  .ui-card { display: block; min-width: 0; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); color: inherit; }
+  .ui-card--sm { padding: 0.9rem 1rem; }
+  .ui-card--md { padding: 1.25rem; }
+  .ui-card--lg { padding: 1.75rem; }
+  .ui-card--link { text-decoration: none; transition: border-color 150ms; }
+  .ui-card--link:hover { border-color: var(--ink-300); text-decoration: none; }
+</style>

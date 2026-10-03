@@ -1,0 +1,17 @@
+---
+// The ink frame: the title band on posts, the hero on home. Ink is a frame,
+// never a reading surface (docs/DESIGN-SYSTEM.md). `lift` leaves room for a
+// card that overlaps the band's bottom edge (the post's tools panel).
+interface Props { lift?: boolean; class?: string }
+const { lift = false, class: cls = '' } = Astro.props;
+---
+<section class={`ui-band${lift ? ' ui-band--lift' : ''} ${cls}`}><slot /></section>
+<style>
+  .ui-band { background: var(--band); color: var(--band-text); padding: 2rem 0 2.75rem; }
+  .ui-band--lift { padding-bottom: 9rem; }
+  .ui-band :global(a:not(.ui-btn)) { color: var(--band-accent); }
+  @media (max-width: 720px) {
+    .ui-band { padding: 1.5rem 0 2rem; }
+    .ui-band--lift { padding-bottom: 8rem; }
+  }
+</style>

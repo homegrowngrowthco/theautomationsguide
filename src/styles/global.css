@@ -71,6 +71,34 @@
   --font:          var(--font-sans);
   --font-mono:     'JetBrains Mono', 'JetBrains Mono fallback', 'SF Mono', 'Fira Code', monospace;
   --nav-h:         72px;
+
+  /* ── Design system 2026-10 ("Ink spec", docs/DESIGN-SYSTEM.md) ──
+     Augments the kit; nothing above is renamed. Ink is the frame (nav, title
+     band, footer, home hero); every reading surface stays cream or white. */
+  --cream-3:       #eeeae0;                         /* table header, quiet fills */
+  --band:          var(--ink-800);                  /* the one dark frame color */
+  --band-text:     #ffffff;
+  --band-muted:    var(--ink-200);                  /* 12.6:1 on band */
+  --band-faint:    var(--ink-300);                  /* 9.1:1 on band */
+  --band-line:     rgba(255, 255, 255, 0.12);
+  --band-accent:   var(--tag-teal-300);             /* links/eyebrows on ink, 9.5:1 */
+  --deep:          var(--tag-teal-900);             /* pricing-index band */
+  --deep-muted:    var(--tag-teal-100);
+  /* Type scale, 1.25 ratio from 16px. Body copy in posts is --step-1 (17.6px). */
+  --step--1:       0.8rem;     /* 12.8 */
+  --step-0:        1rem;       /* 16   */
+  --step-1:        1.1rem;     /* 17.6 */
+  --step-2:        1.25rem;    /* 20   */
+  --step-3:        1.5625rem;  /* 25   */
+  --step-4:        1.953rem;   /* 31.25 */
+  --step-5:        2.441rem;   /* 39   */
+  --step-6:        3.052rem;   /* 48.8 */
+  --measure:       70ch;                            /* running text in posts */
+  --radius-sm:     6px;
+  --radius-md:     10px;
+  --radius-xl:     14px;
+  --shadow-lift:   0 16px 40px rgba(13, 17, 23, 0.16);
+  --max-w-shell:   1200px;                          /* post shell: rail + column */
 }
 
 /* ── Reset ─────────────────────────────────────── */

@@ -1,0 +1,22 @@
+---
+// Wrapper for any data table: scrolls inside itself (never the page), first
+// column sticky so the row label stays visible at 390, tabular numerals.
+// The class is data-table (not "table", which utility frameworks own).
+interface Props { caption?: string; minWidth?: number; class?: string }
+const { caption, minWidth = 640, class: cls = '' } = Astro.props;
+---
+<div class={`data-table-wrap ${cls}`} style={`--dt-min:${minWidth}px`} role="region" aria-label={caption ?? 'Data table'} tabindex="0">
+  <slot />
+</div>
+<style>
+  .data-table-wrap { overflow-x: auto; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); margin: 0.5rem 0 0.75rem; }
+  .data-table-wrap:focus-visible { outline: 2px solid var(--tag-teal-500); outline-offset: 2px; }
+  .data-table-wrap :global(table) { width: 100%; min-width: var(--dt-min); border-collapse: collapse; font: 400 0.9rem/1.45 var(--font-sans); font-variant-numeric: tabular-nums; margin: 0; }
+  .data-table-wrap :global(th),
+  .data-table-wrap :global(td) { padding: 0.8rem 1rem; text-align: left; vertical-align: top; border: 0; border-bottom: 1px solid var(--border); }
+  .data-table-wrap :global(thead th) { background: var(--cream-3); color: var(--ink-900); font: 600 0.85rem/1.3 var(--font-sans); text-transform: none; letter-spacing: 0; }
+  .data-table-wrap :global(tbody tr:last-child > *) { border-bottom: 0; }
+  .data-table-wrap :global(tr > :first-child) { position: sticky; left: 0; z-index: 1; background: #fff; }
+  .data-table-wrap :global(thead tr > :first-child) { background: var(--cream-3); }
+  .data-table-wrap :global(tbody th) { color: var(--text-muted); font: 500 0.82rem/1.4 var(--font-sans); }
+</style>

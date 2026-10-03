@@ -17,6 +17,8 @@
     "qa:freshness": "node qa/lint-freshness.mjs",
     "qa:live-links": "node qa/link-live-mentions.mjs",
     "qa:screenshots": "node qa/qa-screenshots.mjs",
+    "qa:shots": "node qa/qa-shots.mjs",
+    "qa:lighthouse": "node qa/qa-lighthouse.mjs",
     "qa:review": "node qa/qa-claude-review.mjs",
     "qa": "npm run qa:screenshots && npm run qa:review",
     "qa:pricing": "node pricing/build-pricing-index.mjs --selftest"
@@ -36,6 +38,7 @@
     "astro-og-canvas": "^0.7.0",
     "dotenv": "^17.4.2",
     "fontaine": "^0.8.0",
+    "lighthouse": "^13.5.0",
     "linkedom": "^0.18.12",
     "pagefind": "^1.5.2",
     "playwright": "^1.59.1",

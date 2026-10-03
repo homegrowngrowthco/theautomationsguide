@@ -1,0 +1,14 @@
+---
+// The only place page gutters are set. `size`: shell (1200, post rail + column),
+// wide (1280, listing pages), narrow (760, articles without a rail).
+interface Props { size?: 'shell' | 'wide' | 'narrow'; class?: string }
+const { size = 'shell', class: cls = '' } = Astro.props;
+---
+<div class={`ui-wrap ui-wrap--${size} ${cls}`}><slot /></div>
+<style>
+  .ui-wrap { margin: 0 auto; padding: 0 2rem; }
+  .ui-wrap--shell { max-width: var(--max-w-shell); }
+  .ui-wrap--wide { max-width: var(--max-w-wide); }
+  .ui-wrap--narrow { max-width: var(--max-w); }
+  @media (max-width: 720px) { .ui-wrap { padding: 0 1rem; } }
+</style>

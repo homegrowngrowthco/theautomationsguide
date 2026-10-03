@@ -1,0 +1,22 @@
+---
+// Native <details>: works without JS, keyboard and screen-reader friendly.
+interface Props { items: { q: string; a: string }[]; openFirst?: boolean }
+const { items, openFirst = false } = Astro.props;
+---
+<div class="ui-acc">
+  {items.map((it, i) => (
+    <details open={openFirst && i === 0}>
+      <summary>{it.q}</summary>
+      <p>{it.a}</p>
+    </details>
+  ))}
+</div>
+<style>
+  .ui-acc { border-top: 1px solid var(--border); }
+  .ui-acc details { border-bottom: 1px solid var(--border); }
+  .ui-acc summary { cursor: pointer; list-style: none; padding: 1rem 2rem 1rem 0; position: relative; font: 600 1rem/1.4 var(--font-sans); color: var(--ink-900); }
+  .ui-acc summary::-webkit-details-marker { display: none; }
+  .ui-acc summary::after { content: '+'; position: absolute; right: 0.25rem; top: 0.9rem; font-weight: 400; font-size: 1.25rem; color: var(--text-muted); }
+  .ui-acc details[open] summary::after { content: '\2212'; }
+  .ui-acc p { margin: 0 0 1rem; font: 400 0.98rem/1.65 var(--font-sans); color: var(--ink-700); }
+</style>
