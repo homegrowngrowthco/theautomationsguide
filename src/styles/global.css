@@ -797,7 +797,7 @@ main { flex: 1; }
 }
 
 /* ── Guides hub pages (/guides/<section>/) ─────────*/
-.guide-hub-intro { margin: 0 0 2.5rem; }
+.guide-hub-intro { margin: 0 0 2.5rem; max-width: var(--measure); }
 
 /* ── Buttons ───────────────────────────────────── */
 .btn {
@@ -2111,3 +2111,24 @@ main { flex: 1; }
 .prose table { font-variant-numeric: tabular-nums; background: var(--bg-card); }
 .prose th { background: var(--cream-3); color: var(--ink-900); text-transform: none; letter-spacing: 0; font-size: 0.85rem; }
 .my-take-eyebrow { color: #8a5a0c; } /* AA amber on white (5.6:1); the kit amber read 2:1 */
+
+/* ── 2026-10 article pages (About, disclosure): the post's reading rules without its rail ── */
+.page-article { padding: 2.5rem 0 4rem; }
+.page-article .prose { font-size: var(--step-1); line-height: 1.7; max-width: var(--measure); }
+.page-article .prose h2 { font: 600 var(--step-4)/1.2 var(--font-serif); letter-spacing: -0.015em; color: var(--ink-900); margin: 2.2em 0 0.6em; }
+.page-article .prose h2:first-child { margin-top: 0; }
+.page-article .prose h3 { font: 600 var(--step-2)/1.3 var(--font-sans); color: var(--ink-900); margin: 1.8em 0 0.5em; }
+.page-article .prose a { text-decoration-thickness: 1px; }
+/* Listing pages under a PageHead band (blog index, guides, teams, playbooks, reviews, tool hubs). */
+.listing-main { padding-top: 2.5rem; padding-bottom: 4rem; }
+/* Hub tiles (/guides/, /teams/): a name, a count, one line, one link. */
+.hub-tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 1rem; }
+.hub-tiles li { min-width: 0; }
+.hub-tiles a { display: flex; flex-direction: column; gap: 0.5rem; height: 100%; padding: 1.2rem 1.25rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); color: inherit; text-decoration: none; transition: border-color 150ms; }
+.hub-tiles a:hover { border-color: var(--ink-300); text-decoration: none; }
+.hub-tile-top { display: flex; justify-content: space-between; align-items: baseline; gap: 0.75rem; }
+.hub-tile-name { font: 600 var(--step-2)/1.25 var(--font-serif); color: var(--ink-900); }
+.hub-tile-top small { flex: none; font: 600 0.78rem var(--font-sans); font-variant-numeric: tabular-nums; color: var(--text-muted); background: var(--bg-secondary); border-radius: 4px; padding: 0.2rem 0.45rem; }
+.hub-tile-desc { font: 400 0.95rem/1.5 var(--font-sans); color: var(--ink-700); }
+.hub-tile-go { margin-top: auto; padding-top: 0.25rem; font: 600 0.9rem var(--font-sans); color: var(--accent-text); }
+@media (prefers-reduced-motion: reduce) { .hub-tiles a { transition: none; } }

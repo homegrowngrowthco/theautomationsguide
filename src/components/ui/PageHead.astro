@@ -1,0 +1,43 @@
+---
+// The ink title band for every page that is not a post or home: About,
+// disclosure, tool hubs and the listing pages (docs/DESIGN-SYSTEM.md). Eyebrow,
+// one H1, one short lede; the default slot sits under the lede (actions, chips,
+// search), the `media` slot sits left of the text (a tool's logo tile).
+import Band from './Band.astro';
+import Container from './Container.astro';
+
+interface Props {
+  title: string;
+  eyebrow?: string;
+  lede?: string;
+  size?: 'shell' | 'wide' | 'narrow';
+  class?: string;
+}
+const { title, eyebrow, lede, size = 'wide', class: cls = '' } = Astro.props;
+const hasMedia = Astro.slots.has('media');
+---
+<Band class={`ui-phead ${cls}`}>
+  <Container size={size}>
+    <div class={hasMedia ? 'ui-phead-grid' : undefined}>
+      {hasMedia && <div class="ui-phead-media"><slot name="media" /></div>}
+      <div class="ui-phead-text">
+        {eyebrow && <p class="ui-phead-eyebrow">{eyebrow}</p>}
+        <h1>{title}</h1>
+        {lede && <p class="ui-phead-lede">{lede}</p>}
+        <slot />
+      </div>
+    </div>
+  </Container>
+</Band>
+<style>
+  :global(.ui-phead) { padding: 2.75rem 0 2.5rem; }
+  .ui-phead-grid { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+  .ui-phead-text { min-width: 0; }
+  .ui-phead-eyebrow { margin: 0 0 0.9rem; font: 600 0.8rem/1.3 var(--font-sans); letter-spacing: 0.07em; text-transform: uppercase; color: var(--band-accent); }
+  h1 { margin: 0 0 0.9rem; color: var(--band-text); font: 600 clamp(2rem, 4vw, var(--step-6))/1.1 var(--font-serif); letter-spacing: -0.02em; overflow-wrap: anywhere; }
+  .ui-phead-lede { margin: 0; max-width: 72ch; font: 400 var(--step-1)/1.6 var(--font-sans); color: var(--band-muted); }
+  @media (max-width: 720px) {
+    :global(.ui-phead) { padding: 2rem 0 1.75rem; }
+    .ui-phead-grid { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+  }
+</style>

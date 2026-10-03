@@ -1,7 +1,15 @@
 ---
+// Affiliate disclosure (design program 2026-10): ink title band, then a 70ch
+// article column. The program list is generated from src/data/affiliate-links.ts
+// (status 'live', deep-link variants folded into their program), never hand-typed.
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/ui/PageHead.astro';
+import Container from '../components/ui/Container.astro';
+import { liveAffiliatePrograms } from '../lib/affiliate-programs';
 
 const lastUpdated = '2026-06-04';
+const programs = liveAffiliatePrograms();
+const builtOn = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 ---
 
 <BaseLayout
@@ -9,10 +17,9 @@ const lastUpdated = '2026-06-04';
   description="How The Automations Guide uses affiliate links and how we keep recommendations honest."
   noindex={true}
 >
-  <article class="container" style="max-width:760px;padding-top:3rem;padding-bottom:5rem;">
-    <h1>Affiliate Disclosure</h1>
-    <p style="color:var(--text-muted);">Last updated: {lastUpdated}</p>
-
+  <PageHead eyebrow={`Policy last updated ${lastUpdated}`} title="Affiliate Disclosure" size="narrow" />
+  <div class="page-article"><Container size="narrow">
+  <article class="prose">
     <h2>The short version</h2>
     <div class="quick-answer">
       <strong>Quick answer:</strong> Some links on this site are affiliate links. If you click
@@ -23,11 +30,17 @@ const lastUpdated = '2026-06-04';
 
     <h2>What this means in practice</h2>
     <p>
-      The Automations Guide participates in affiliate programs from companies including Make,
-      Apollo, Clay, Beehiiv, Smartlead, and Kit, among others, and we apply to more over time.
-      When you click a link to one of these tools and sign up for a paid plan, we may receive a
-      commission from that company.
+      The Automations Guide participates in the {programs.length} affiliate programs listed below, and we
+      apply to more over time. When you click a link to one of these tools and sign up for a paid plan, we
+      may receive a commission from that company.
     </p>
+    <section class="disc-programs" aria-labelledby="disc-programs-title">
+      <h3 id="disc-programs-title">Every live affiliate program</h3>
+      <p class="disc-programs-note">{programs.length} programs as of {builtOn}, generated from the site's link registry. A tool not listed here pays us nothing.</p>
+      <ul>
+        {programs.map((p) => <li>{p.name}</li>)}
+      </ul>
+    </section>
     <p>
       That commission does not change your price. The tool costs the same whether you find it
       via this site, Google, or a friend's recommendation.
@@ -92,4 +105,13 @@ const lastUpdated = '2026-06-04';
       We'll always tell you the truth.
     </p>
   </article>
+  </Container></div>
 </BaseLayout>
+
+<style>
+  .disc-programs { margin: 0 0 2rem; padding: 1.1rem 1.25rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); }
+  .disc-programs h3 { margin: 0 0 0.3rem; }
+  .disc-programs-note { margin: 0 0 0.9rem; font-size: 0.9rem; line-height: 1.5; color: var(--text-muted); }
+  .disc-programs ul { list-style: none; margin: 0; padding: 0; columns: 3 11rem; column-gap: 1.5rem; }
+  .disc-programs li { margin: 0; padding: 0.3rem 0; break-inside: avoid; font: 500 0.95rem/1.35 var(--font-sans); color: var(--ink-800); border-top: 1px solid var(--border); }
+</style>

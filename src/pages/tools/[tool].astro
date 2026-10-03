@@ -3,7 +3,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { tools, postMentionsTool } from '../../data/tools';
 import ToolPricing from '../../components/ToolPricing.astro';
+import PostCard from '../../components/PostCard.astro';
+import PageHead from '../../components/ui/PageHead.astro';
+import Container from '../../components/ui/Container.astro';
+import Button from '../../components/ui/Button.astro';
+import Stat from '../../components/ui/Stat.astro';
 import { resolveDestination } from '../../data/affiliate-links';
+import { pricedRow, pricingReadDate, money } from '../../lib/pricing-index';
 
 export async function getStaticPaths() {
   const allPosts = await getCollection('blog', ({ data }) => !data.draft);
@@ -39,6 +45,23 @@ const description = placeholderBlurb
 // rejected programs send readers to the plain homepage).
 const ctaIsAffiliate = resolveDestination(tool.slug)?.isAffiliate === true;
 
+// The /go/ button is the hub's one action, so it is the primary whenever the
+// program is live; `ctaPrimary` (a /tools/ grid emphasis flag) decides otherwise.
+// Band stat (design program 2026-10): the entry price from the pricing index with
+// its read date, only when the index has one. No row, no stat; never a guess.
+const priced = pricedRow(tool.slug);
+const entry = priced?.entryPaidPlan;
+const entryAnnual = money(entry?.monthlyBilledAnnually, priced?.currency);
+const entryMonthly = money(entry?.monthlyBilledMonthly, priced?.currency);
+const readOn = new Date(`${pricingReadDate}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+const priceStat = entryAnnual || entryMonthly
+  ? {
+      value: `${entryAnnual ?? entryMonthly}/mo`,
+      label: `entry paid plan${entry?.name ? ` (${entry.name})` : ''}, billed ${entryAnnual ? 'annually' : 'monthly'}`,
+      source: `Vendor pricing page, read ${readOn}`,
+    }
+  : null;
+
 const faqSchema =
   tool.faqs && tool.faqs.length > 0
     ? {
@@ -69,29 +92,36 @@ const softwareSchema = {
 ---
 
 <BaseLayout title={`${tool.name}: guides, reviews & alternatives`} description={description}>
-  <div class="container--wide">
-    <!-- Tool hero -->
-    <div class="page-header">
-      <div class="hero-eyebrow">{tool.category}</div>
-      <h1>{tool.name}</h1>
-      <p>{tool.blurb}</p>
+  <PageHead eyebrow={tool.category} title={tool.name} lede={tool.blurb} class="hub-band">
+    <span slot="media" class="hub-logo">
+      {tool.logo ? <img src={tool.logo} alt={`${tool.name} logo`} width="56" height="56" decoding="async" /> : <span>{tool.name.slice(0, 1)}</span>}
+    </span>
+    <div class="hub-row">
       <div class="tool-hub-actions">
-        <a
+        <Button
           href={`/go/${tool.slug}/`}
-          class={`btn ${tool.ctaPrimary ? 'btn--primary' : 'btn--ghost'}`}
+          variant={tool.ctaPrimary || ctaIsAffiliate ? 'onband' : 'ghost-onband'}
           target="_blank"
           rel="noopener noreferrer sponsored"
         >
-          {tool.ctaLabel} &rarr;
-        </a>
-        <span class={`tool-badge${tool.badgeFree ? ' tool-badge--free' : ''}`}>{tool.badge}</span>
+          {tool.ctaLabel} <span aria-hidden="true">&rarr;</span>
+        </Button>
+        <span class="hub-badge">{tool.badge}</span>
       </div>
-      {ctaIsAffiliate && (
-        <p class="post-disclosure">
-          This is an affiliate link: we may earn a commission at no extra cost to you. <a href="/disclosure/">Disclosure</a>.
-        </p>
+      {priceStat && (
+        <dl class="hub-stat">
+          <Stat value={priceStat.value} label={priceStat.label} source={priceStat.source} tone="deep" />
+        </dl>
       )}
     </div>
+    {ctaIsAffiliate && (
+      <p class="hub-disclosure">
+        This is an affiliate link: we may earn a commission at no extra cost to you. <a href="/disclosure/">Disclosure</a>.
+      </p>
+    )}
+  </PageHead>
+
+  <div class="listing-main"><Container size="wide">
 
     {tool.bestFor && (
       <p class="tool-hub-bestfor"><strong>Best for:</strong> {tool.bestFor}</p>
@@ -108,7 +138,7 @@ const softwareSchema = {
     <ToolPricing slug={tool.slug} />
 
     <!-- Articles mentioning this tool -->
-    <h2 class="section-heading" style="margin-bottom:1.5rem;">
+    <h2 class="hub-h2">
       {posts.length > 0
         ? `${posts.length} article${posts.length === 1 ? '' : 's'} mentioning ${tool.name}`
         : `Articles mentioning ${tool.name}`}
@@ -116,30 +146,7 @@ const softwareSchema = {
 
     {posts.length > 0 ? (
       <div class="card-grid">
-        {posts.map((post) => (
-          <a href={`/blog/${post.slug}/`} class="post-card">
-            {post.data.tags.length > 0 && (
-              <div class="post-card-tags">
-                {post.data.tags.slice(0, 3).map((t) => (
-                  <span class="tag">{t}</span>
-                ))}
-              </div>
-            )}
-            <h2>{post.data.title}</h2>
-            <p>{post.data.description}</p>
-            <div class="post-card-meta">
-              <span>
-                {post.data.pubDate.toLocaleDateString('en-US', {
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
-              </span>
-              <span class="post-meta-sep">·</span>
-              <span>{post.data.author}</span>
-            </div>
-          </a>
-        ))}
+        {posts.map((post) => <PostCard post={post} />)}
       </div>
     ) : (
       <p style="color:var(--text-muted);font-size:1.0625rem;">
@@ -150,7 +157,7 @@ const softwareSchema = {
 
     {tool.faqs && tool.faqs.length > 0 && (
       <section class="tool-hub-faqs">
-        <h2 class="section-heading">Frequently asked questions</h2>
+        <h2 class="hub-h2">Frequently asked questions</h2>
         {tool.faqs.map((f) => (
           <div class="tool-hub-faq">
             <h3>{f.question}</h3>
@@ -160,44 +167,57 @@ const softwareSchema = {
       </section>
     )}
 
-    <p class="mt-lg"><a href="/tools/">&larr; All tools</a></p>
-  </div>
+    <p class="hub-back"><a href="/tools/">&larr; All tools</a></p>
+  </Container></div>
 
   <script type="application/ld+json" set:html={JSON.stringify(softwareSchema)} />
   {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
 </BaseLayout>
 
 <style>
-  .tool-hub-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
-    flex-wrap: wrap;
-    margin-top: 1.5rem;
-  }
+  /* ── Band (2026-10, docs/DESIGN-SYSTEM.md) ── */
+  .hub-logo { display: flex; align-items: center; justify-content: center; width: 84px; height: 84px; background: #fff; border-radius: var(--radius-md); }
+  .hub-logo img { width: 56px; height: 56px; object-fit: contain; }
+  .hub-logo span { font: 600 var(--step-5)/1 var(--font-serif); color: var(--ink-900); }
+  .hub-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 2rem; margin-top: 1.5rem; }
+  .tool-hub-actions { display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap; min-width: 0; }
+  .hub-badge { display: inline-block; padding: 0.3rem 0.55rem; border: 1px solid var(--band-line); border-radius: 4px; font: 600 0.75rem/1.2 var(--font-sans); letter-spacing: 0.02em; color: var(--band-muted); }
+  .hub-stat { margin: 0; min-width: 0; max-width: 22rem; }
+  .hub-disclosure { margin: 1rem 0 0; font: 400 0.85rem/1.5 var(--font-sans); color: var(--band-faint); }
+  .hub-disclosure a { text-decoration: underline; text-underline-offset: 2px; }
+
+  /* ── Reading surface ── */
+  .hub-h2 { margin: 2.5rem 0 1.25rem; font: 600 var(--step-4)/1.2 var(--font-serif); letter-spacing: -0.015em; color: var(--ink-900); }
+  .hub-back { margin: 3rem 0 0; font: 600 0.95rem var(--font-sans); }
   .tool-hub-bestfor {
-    max-width: 70ch;
+    max-width: var(--measure);
     margin: 0 0 1.75rem;
-    padding: 0.85rem 1.1rem;
-    border-left: 3px solid var(--accent);
-    background: var(--accent-glow);
-    border-radius: 0 var(--r-md, 8px) var(--r-md, 8px) 0;
-    color: var(--text);
-    font-size: 1.0625rem;
+    padding: 1rem 1.2rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--tag-teal-700);
+    border-radius: var(--radius-md);
+    color: var(--ink-800);
+    font: 400 var(--step-1)/1.6 var(--font-sans);
   }
   .tool-hub-body {
-    max-width: 70ch;
-    margin-bottom: 3rem;
+    max-width: var(--measure);
+    margin-bottom: 2.5rem;
   }
   .tool-hub-body p {
-    color: var(--text);
-    font-size: 1.0625rem;
+    color: var(--ink-700);
+    font-size: var(--step-1);
     line-height: 1.7;
     margin-bottom: 1.1rem;
   }
   .tool-hub-faqs {
-    max-width: 70ch;
-    margin-top: 3.5rem;
+    max-width: var(--measure);
+    margin-top: 3rem;
+  }
+  @media (max-width: 720px) {
+    .hub-logo { width: 64px; height: 64px; }
+    .hub-logo img { width: 44px; height: 44px; }
+    .hub-stat { max-width: none; width: 100%; }
   }
   .tool-hub-faq {
     margin-bottom: 1.5rem;
