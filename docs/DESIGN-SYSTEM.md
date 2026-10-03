@@ -1,6 +1,6 @@
 # Design system: "Ink spec" (2026-10)
 
-Direction D, chosen by Ian on 2026-10-02 from four artboards (Design canvas "TAG Directions", https://claude.ai/artifact/U8DemgXckd2JUBCMWuZxax): C's color (ink as the frame) with B's formatting (docs-style rail, three-column tools panel, method grid, latest-guides table). The teardown behind it is [audits/DESIGN-TEARDOWN-2026-10.md](../audits/DESIGN-TEARDOWN-2026-10.md). The repo is the source of truth; the canvas and the Design System artifact are re-synced from it, never the other way round.
+Direction D, chosen by Ian on 2026-10-02 from four artboards (Design canvas "TAG Directions", https://claude.ai/artifact/U8DemgXckd2JUBCMWuZxax): C's color (ink as the frame) with B's formatting (docs-style rail, three-column tools panel, method grid, latest-guides table). The teardown behind it is [audits/DESIGN-TEARDOWN-2026-10.md](../audits/DESIGN-TEARDOWN-2026-10.md). The repo is the source of truth; the canvas and the Design System artifact "The Automations Guide" (https://claude.ai/artifact/2EZGa5JQpLnCdR9StsVDxD) are re-synced from it, never the other way round.
 
 ## The one rule
 
