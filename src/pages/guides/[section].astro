@@ -2,6 +2,8 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostCard from '../../components/PostCard.astro';
 import ItemListSchema from '../../components/ItemListSchema.astro';
+import PageHead from '../../components/ui/PageHead.astro';
+import Container from '../../components/ui/Container.astro';
 import { sections, getSectionPosts, type Section } from '../../data/sections';
 
 export async function getStaticPaths() {
@@ -17,12 +19,8 @@ const posts = await getSectionPosts(section);
 ---
 
 <BaseLayout title={section.title} description={section.description}>
-  <div class="container--wide">
-    <div class="page-header">
-      <p class="section-label">Guides by format</p>
-      <h1>{section.title}</h1>
-      <p>{section.description}</p>
-    </div>
+  <PageHead eyebrow={`Guides by format · ${posts.length} articles`} title={section.title} lede={section.description} />
+  <div class="listing-main"><Container size="wide">
 
     <div class="prose guide-hub-intro">
       {section.intro.map((para) => <p set:html={para} />)}
@@ -39,6 +37,6 @@ const posts = await getSectionPosts(section);
         </p>
       </div>
     )}
-  </div>
+  </Container></div>
   <ItemListSchema name={section.title} items={posts.map((p) => ({ url: `/blog/${p.slug}/`, name: p.data.title }))} />
 </BaseLayout>

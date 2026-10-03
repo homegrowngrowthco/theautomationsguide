@@ -1,116 +1,124 @@
 ---
+// About (design program 2026-10): ink title band, then a 70ch article column on
+// cream (docs/DESIGN-SYSTEM.md). The author card leads the column.
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/ui/PageHead.astro';
+import Container from '../components/ui/Container.astro';
 ---
 
 <BaseLayout
   title="About"
   description="The Automations Guide is published by Homegrown Growth Co, a fractional RevOps consultancy founded by Ian Chamberland, with 8 years of revenue operations experience."
 >
-  <div class="container--wide">
-    <div class="about-hero">
-      <div class="about-hero-inner">
-        <div class="about-hero-copy">
-          <p class="section-label">About this site</p>
-          <h1>RevOps and automation, from operators who've shipped it.</h1>
-          <p class="about-hero-lede">
-            The Automations Guide is published by <a href="https://homegrowngrowth.co" target="_blank" rel="noopener noreferrer" style="color: var(--accent-text);">Homegrown Growth Co</a>,
-            a fractional RevOps consultancy founded by Ian Chamberland. Eight years inside high-growth
-            GTM teams, from data analyst to Head of Global Revenue Operations, building the systems
-            and automations that make revenue predictable.
-          </p>
-        </div>
-        <aside class="about-hero-photo">
-          <img
-            src="/images/ian-headshot.jpg"
-            alt="Ian Chamberland, founder of Homegrown Growth Co."
-            width="180"
-            height="219"
-            loading="eager"
-          />
-          <p class="about-hero-name">Ian Chamberland</p>
-          <p class="about-hero-role">Founder, Homegrown Growth Co</p>
-          <a class="about-hero-linkedin" href="https://www.linkedin.com/in/ianchamberland/" target="_blank" rel="noopener noreferrer">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-            </svg>
-            Connect on LinkedIn
-          </a>
-        </aside>
+  <PageHead
+    eyebrow="About this site"
+    title="RevOps and automation, from operators who've shipped it."
+    size="narrow"
+  >
+    <p class="about-lede">
+      The Automations Guide is published by <a href="https://homegrowngrowth.co" target="_blank" rel="noopener noreferrer">Homegrown Growth Co</a>,
+      a fractional RevOps consultancy founded by Ian Chamberland. Eight years inside high-growth
+      GTM teams, from data analyst to Head of Global Revenue Operations, building the systems
+      and automations that make revenue predictable.
+    </p>
+  </PageHead>
+
+  <div class="page-article"><Container size="narrow">
+    <aside class="about-author" aria-label="About the author">
+      <img src="/images/ian-headshot.jpg" alt="Ian Chamberland, founder of Homegrown Growth Co." width="180" height="219" decoding="async" />
+      <div>
+        <p class="about-author-name">Ian Chamberland</p>
+        <p class="about-author-role">Founder, Homegrown Growth Co</p>
+        <a class="about-author-linkedin" href="https://www.linkedin.com/in/ianchamberland/" target="_blank" rel="noopener noreferrer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+          </svg>
+          Connect on LinkedIn
+        </a>
       </div>
-    </div>
+    </aside>
 
-    <div class="about-content">
-      <div class="prose">
-        <h2>Why this site exists</h2>
-        <p>
-          Most automation content online is written by people who have never had to maintain a
-          workflow in production, deal with a Zapier task limit at 11pm before a campaign goes
-          live, or explain to a VP of Sales why their lead routing broke.
-        </p>
-        <p>
-          This site exists to be the resource we wish existed when we were figuring out which
-          tools to buy, which workflows to build first, and which vendor claims to ignore.
-          Everything here comes from direct experience inside real RevOps teams, not from
-          reading documentation or regurgitating feature lists.
-        </p>
+    <div class="prose">
+      <h2>Why this site exists</h2>
+      <p>
+        Most automation content online is written by people who have never had to maintain a
+        workflow in production, deal with a Zapier task limit at 11pm before a campaign goes
+        live, or explain to a VP of Sales why their lead routing broke.
+      </p>
+      <p>
+        This site exists to be the resource we wish existed when we were figuring out which
+        tools to buy, which workflows to build first, and which vendor claims to ignore.
+        Everything here comes from direct experience inside real RevOps teams, not from
+        reading documentation or regurgitating feature lists.
+      </p>
 
-        <h2>About Homegrown Growth Co</h2>
-        <p>
-          HGC was founded because the same pattern kept repeating: growing businesses stuck
-          with overpriced agencies, junior admins, or no ops support at all. Real RevOps work
-          requires senior judgment <em>and</em> the willingness to build the thing. Most
-          providers do one or the other.
-        </p>
-        <p>
-          We work directly with founders, executives, and GTM leaders who want a senior thought
-          partner who'll also implement the change and prove the ROI. The Automations Guide is
-          the public extension of that work, the playbooks, comparisons, and tactics we use in
-          client engagements, written down and shared.
-        </p>
-        <p>
-          If you're evaluating fractional RevOps support for your team, you can
-          <a href="https://homegrowngrowth.co" target="_blank" rel="noopener noreferrer">see what HGC offers here</a>.
-        </p>
+      <h2>About Homegrown Growth Co</h2>
+      <p>
+        HGC was founded because the same pattern kept repeating: growing businesses stuck
+        with overpriced agencies, junior admins, or no ops support at all. Real RevOps work
+        requires senior judgment <em>and</em> the willingness to build the thing. Most
+        providers do one or the other.
+      </p>
+      <p>
+        We work directly with founders, executives, and GTM leaders who want a senior thought
+        partner who'll also implement the change and prove the ROI. The Automations Guide is
+        the public extension of that work, the playbooks, comparisons, and tactics we use in
+        client engagements, written down and shared.
+      </p>
+      <p>
+        If you're evaluating fractional RevOps support for your team, you can
+        <a href="https://homegrowngrowth.co" target="_blank" rel="noopener noreferrer">see what HGC offers here</a>.
+      </p>
 
-        <h2>What this site covers</h2>
-        <p>
-          The Automations Guide focuses on the automation layer underneath modern revenue
-          operations: the middleware, the CRM workflows, the data plumbing that makes GTM
-          motions run (or not run) smoothly.
-        </p>
+      <h2>What this site covers</h2>
+      <p>
+        The Automations Guide focuses on the automation layer underneath modern revenue
+        operations: the middleware, the CRM workflows, the data plumbing that makes GTM
+        motions run (or not run) smoothly.
+      </p>
 
-        <h3>Specifically:</h3>
-        <ul>
-          <li>Automation platform comparisons: Zapier, Make, n8n, and where each actually breaks</li>
-          <li>HubSpot and Salesforce workflow automation, including the edge cases the docs skip</li>
-          <li>Sales-to-CS handoff automation and the handoff failure modes we've personally shipped</li>
-          <li>Lead routing, scoring, and enrichment with Clay, Apollo, and HubSpot</li>
-          <li>RevOps tech stack decisions: what to buy, what to skip, what order to build</li>
-          <li>AI-assisted automation in GTM contexts: what's actually useful vs. hype</li>
-        </ul>
+      <h3>Specifically:</h3>
+      <ul>
+        <li>Automation platform comparisons: Zapier, Make, n8n, and where each actually breaks</li>
+        <li>HubSpot and Salesforce workflow automation, including the edge cases the docs skip</li>
+        <li>Sales-to-CS handoff automation and the handoff failure modes we've personally shipped</li>
+        <li>Lead routing, scoring, and enrichment with Clay, Apollo, and HubSpot</li>
+        <li>RevOps tech stack decisions: what to buy, what to skip, what order to build</li>
+        <li>AI-assisted automation in GTM contexts: what's actually useful vs. hype</li>
+      </ul>
 
-        <h2>How we approach recommendations</h2>
-        <p>
-          We only write about tools we've actually used in a real environment. That means we've
-          paid for them, hit their limits, submitted support tickets, and migrated off them when
-          something better came along. The write-ups here reflect that: when a tool is genuinely
-          good, when it's overpriced for what it does, and when we'd recommend starting with the
-          free tier indefinitely.
-        </p>
-        <p>
-          We don't rank tools by commission size. If a tool has a better affiliate rate but is
-          the wrong call for most RevOps teams, we won't push it. Some of the tools we recommend
-          most frequently have no affiliate program at all. See our
-          <a href="/disclosure/">Affiliate Disclosure</a> for the full picture.
-        </p>
+      <h2>How we approach recommendations</h2>
+      <p>
+        We only write about tools we've actually used in a real environment. That means we've
+        paid for them, hit their limits, submitted support tickets, and migrated off them when
+        something better came along. The write-ups here reflect that: when a tool is genuinely
+        good, when it's overpriced for what it does, and when we'd recommend starting with the
+        free tier indefinitely.
+      </p>
+      <p>
+        We don't rank tools by commission size. If a tool has a better affiliate rate but is
+        the wrong call for most RevOps teams, we won't push it. Some of the tools we recommend
+        most frequently have no affiliate program at all. See our
+        <a href="/disclosure/">Affiliate Disclosure</a> for the full picture.
+      </p>
 
-        <h2>Get in touch</h2>
-        <p>
-          Questions, topic suggestions, or want to talk about your RevOps stack?
+      <h2>Get in touch</h2>
+      <p>
+        Questions, topic suggestions, or want to talk about your RevOps stack?
           Reach Ian Chamberland at <a href="mailto:ian@theautomationsguide.com">ian@theautomationsguide.com</a>.
-          You can also connect with him on <a href="https://www.linkedin.com/in/ianchamberland/" target="_blank" rel="noopener noreferrer">LinkedIn</a>.
-        </p>
-      </div>
+        You can also connect with him on <a href="https://www.linkedin.com/in/ianchamberland/" target="_blank" rel="noopener noreferrer">LinkedIn</a>.
+      </p>
     </div>
-  </div>
+  </Container></div>
 </BaseLayout>
+
+<style>
+  .about-lede { margin: 0; max-width: 72ch; font: 400 var(--step-1)/1.6 var(--font-sans); color: var(--band-muted); }
+  .about-lede a { text-decoration: underline; text-underline-offset: 2px; }
+  .about-author { display: flex; gap: 1.1rem; align-items: center; max-width: var(--measure); margin: 0 0 2.5rem; padding: 1.1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); }
+  .about-author img { width: 84px; height: 84px; flex: none; border-radius: 50%; object-fit: cover; object-position: center 20%; }
+  .about-author div { min-width: 0; }
+  .about-author-name { margin: 0; font: 600 var(--step-2)/1.25 var(--font-serif); color: var(--ink-900); }
+  .about-author-role { margin: 0.2rem 0 0.5rem; font: 400 0.95rem/1.45 var(--font-sans); color: var(--text-muted); }
+  .about-author-linkedin { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 32px; font: 600 0.9rem var(--font-sans); color: var(--accent-text); }
+</style>
