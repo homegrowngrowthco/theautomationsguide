@@ -52,7 +52,7 @@ Bad email data is a deliverability tax. Every bounced message chips at your send
 
 Email verification is not a binary feature. Both tools claim to verify, but the *when* and *how* matters enormously for deliverability.
 
-UpLead runs [real-time email verification](https://www.uplead.com/data-accuracy/) at the moment you export or pull a contact. The SMTP handshake happens against the mail server right then, not when the record was indexed six months ago. This is why their 95% guarantee is credible and not just marketing copy. If you have ever pulled a 5,000-record list from a database that batch-verifies on crawl and then watched your bounce rate hit 8%, you understand exactly why timing matters.
+[UpLead](/tools/uplead/) runs [real-time email verification](https://www.uplead.com/data-accuracy/) at the moment you export or pull a contact. The SMTP handshake happens against the mail server right then, not when the record was indexed six months ago. This is why their 95% guarantee is credible and not just marketing copy. If you have ever pulled a 5,000-record list from a database that batch-verifies on crawl and then watched your bounce rate hit 8%, you understand exactly why timing matters.
 
 [Lusha](https://www.lusha.com/data-quality/) verifies at index time and refreshes records on a rolling schedule. For contacts at large, stable enterprises where the email format is predictable (think `firstname.lastname@company.com`), the accuracy holds up fine. Where it degrades is with SMBs, recent job changers, and contacts at companies with non-standard email formats. In my testing, Lusha's phone data is fresher and more accurate than its email data. That tells you where the product's investment has actually gone.
 
