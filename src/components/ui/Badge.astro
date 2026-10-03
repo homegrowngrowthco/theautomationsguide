@@ -1,0 +1,12 @@
+---
+// Small label. `pick` only where the post itself names a pick; never invented.
+interface Props { tone?: 'pick' | 'quiet' | 'live'; class?: string }
+const { tone = 'quiet', class: cls = '' } = Astro.props;
+---
+<span class={`ui-badge ui-badge--${tone} ${cls}`}><slot /></span>
+<style>
+  .ui-badge { display: inline-block; align-self: flex-start; padding: 0.3rem 0.5rem; border-radius: 4px; font: 600 0.72rem/1 var(--font-sans); letter-spacing: 0.01em; }
+  .ui-badge--pick { background: var(--tag-teal-700); color: #fff; }
+  .ui-badge--quiet { background: var(--ink-100); color: var(--ink-700); }
+  .ui-badge--live { background: var(--tag-teal-50); color: var(--tag-teal-800); }
+</style>

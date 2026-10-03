@@ -1,0 +1,17 @@
+---
+// Boxed aside inside a reading column. `pick` carries a verdict; `info` is
+// neutral. Light grounds only (ink is a frame, not a reading surface).
+interface Props { tone?: 'info' | 'pick'; title?: string; class?: string }
+const { tone = 'info', title, class: cls = '' } = Astro.props;
+---
+<aside class={`ui-callout ui-callout--${tone} ${cls}`}>
+  {title && <p class="ui-callout-title">{title}</p>}
+  <slot />
+</aside>
+<style>
+  .ui-callout { border-radius: var(--radius-md); padding: 1.15rem 1.3rem; margin: 1.75rem 0; font: 400 0.95rem/1.6 var(--font-sans); }
+  .ui-callout--info { background: var(--bg-secondary); border: 1px solid var(--border); color: var(--ink-700); }
+  .ui-callout--pick { background: var(--tag-teal-50); border: 1px solid var(--tag-teal-100); color: var(--ink-700); }
+  .ui-callout-title { margin: 0 0 0.35rem; font: 600 1rem/1.3 var(--font-sans); color: var(--ink-900); }
+  .ui-callout :global(p:last-child) { margin-bottom: 0; }
+</style>

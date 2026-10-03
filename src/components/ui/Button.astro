@@ -1,0 +1,37 @@
+---
+// One primary action per screen. `primary` (teal) is that action; `quiet` is
+// every other button; `onband` is the primary on ink. Renders <a> with href,
+// else <button>. Labels wrap (never nowrap: a long label must not widen a
+// phone grid track). Extra attributes (rel, target, data-*) pass through.
+interface Props {
+  href?: string;
+  variant?: 'primary' | 'quiet' | 'onband' | 'ghost-onband';
+  block?: boolean;
+  class?: string;
+  [k: string]: unknown;
+}
+const { href, variant = 'primary', block = false, class: cls = '', ...rest } = Astro.props;
+const c = `ui-btn ui-btn--${variant}${block ? ' ui-btn--block' : ''} ${cls}`;
+---
+{href ? <a href={href} class={c} {...rest}><slot /></a> : <button type="button" class={c} {...rest}><slot /></button>}
+<style>
+  .ui-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    min-height: 44px; padding: 0.6rem 1.1rem; border-radius: var(--radius-sm);
+    border: 1px solid transparent; font: 600 0.95rem/1.25 var(--font-sans);
+    text-align: center; text-decoration: none; cursor: pointer;
+    transition: background-color 150ms, border-color 150ms, color 150ms;
+  }
+  .ui-btn:hover { text-decoration: none; }
+  .ui-btn--block { display: flex; width: 100%; }
+  .ui-btn--primary { background: var(--tag-teal-700); color: #fff; }
+  .ui-btn--primary:hover { background: var(--tag-teal-800); color: #fff; }
+  .ui-btn--quiet { background: #fff; color: var(--ink-800); border-color: var(--border-strong); }
+  .ui-btn--quiet:hover { border-color: var(--ink-500); color: var(--ink-900); }
+  .ui-btn--onband { background: var(--band-accent); color: var(--ink-900); }
+  .ui-btn--onband:hover { background: #fff; color: var(--ink-900); }
+  .ui-btn--ghost-onband { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.35); }
+  .ui-btn--ghost-onband:hover { border-color: #fff; color: #fff; }
+  .ui-btn:focus-visible { outline: 2px solid var(--tag-teal-500); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { .ui-btn { transition: none; } }
+</style>

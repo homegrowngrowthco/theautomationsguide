@@ -1,0 +1,63 @@
+# Design system: "Ink spec" (2026-10)
+
+Direction D, chosen by Ian on 2026-10-02 from four artboards (Design canvas "TAG Directions", https://claude.ai/artifact/U8DemgXckd2JUBCMWuZxax): C's color (ink as the frame) with B's formatting (docs-style rail, three-column tools panel, method grid, latest-guides table). The teardown behind it is [audits/DESIGN-TEARDOWN-2026-10.md](../audits/DESIGN-TEARDOWN-2026-10.md). The repo is the source of truth; the canvas and the Design System artifact are re-synced from it, never the other way round.
+
+## The one rule
+
+**Ink is a frame, never a reading surface.** The nav, the post title band (with the tools panel lifting out of it), the footer, the home hero and the pricing-index band are dark. Everything a reader reads for more than ten seconds (body, tables, ToC, callouts, signup) sits on cream or white. If a new component wants a dark ground, it is chrome or it is wrong.
+
+## Stack
+
+Astro 4.16, no Tailwind (2026-10 decision: TAG's 2,000 lines of semantic CSS style 166 engine-written MDX posts; a utility framework's preflight and class ownership would put every post at risk). Tokens are CSS custom properties in `src/styles/global.css`; new components use scoped Astro styles with a `ui-` class prefix so they never collide with `.btn`, `.tag`, `.section`. Fonts are self-hosted via Fontsource, **latin subset only**, with fontaine's metric-matched fallbacks (CLS-safe). The Astro 6 upgrade stays a separate deferred item.
+
+## Tokens (`src/styles/global.css`, `:root`)
+
+Brand Kit v2.2 hues are unchanged. The 2026-10 block augments them; nothing is renamed.
+
+| Token | Value | Use |
+|---|---|---|
+| `--bg` / `--bg-secondary` / `--cream-3` | #fdfcf8 / #f6f4ec / #eeeae0 | page ground / panels / table headers |
+| `--bg-card` | #ffffff | cards, the tools panel, tables |
+| `--border` / `--border-strong` | #e5e1d4 / #cdc7b3 | hairlines / control borders |
+| `--ink-*` (50 to 950) | kit | text: `--ink-900` headings, `--ink-700` body, `--text-muted` meta |
+| `--band` | `--ink-800` #161b22 | the dark frame |
+| `--band-text` / `--band-muted` / `--band-faint` | #fff / ink-200 / ink-300 | text on the band (12.6:1, 9.1:1) |
+| `--band-accent` | teal-300 #45d6b9 | links, eyebrows and the primary button on ink (9.5:1; ink text on it 10.4:1) |
+| `--deep` / `--deep-muted` | teal-900 / teal-100 | the pricing-index band |
+| `--accent-text` | teal-700 #0a6d5e | links and the primary button on light (6.1:1) |
+| `--accent` | teal-500 | decoration only, never text |
+
+Type: Source Serif 4 (600) for headings, Inter (400 to 700) for everything else, JetBrains Mono only for code and small dates. Scale `--step--1` to `--step-6` (1.25 ratio from 16 px). Post body 17.6 px (`--step-1`), line height 1.7, measure `--measure` (70ch). Every number in a table or price uses `font-variant-numeric: tabular-nums`.
+
+Shape: radii `--radius-sm` 6 (buttons), `--radius` 8, `--radius-md` 10 (cards, tables, callouts), `--radius-xl` 14 (bands inside a page). Shadow `--shadow-lift` only on the tools panel and the home hero panel. Containers: `--max-w-shell` 1200 (post rail + column), `--max-w-wide` 1280, `--max-w` 760.
+
+## UI kit (`src/components/ui/`)
+
+| Component | Props | Notes |
+|---|---|---|
+| `Container` | `size` shell / wide / narrow | the only place gutters are set (32 px, 16 px under 720) |
+| `Band` | `lift` | the ink frame; `lift` leaves room for an overlapping card |
+| `Button` | `href`, `variant` primary / quiet / onband / ghost-onband, `block` | one primary per screen; labels wrap, never `nowrap` |
+| `Badge` | `tone` pick / quiet / live | `pick` only where the post itself names a pick |
+| `Card` | `href`, `pad` | white on cream, hairline border |
+| `Stat` | `value`, `label`, `source`, `tone` light / deep | our own numbers only, inside a `<dl>` |
+| `Callout` | `tone` info / pick, `title` | light grounds only |
+| `Accordion` | `items` {q, a}, `openFirst` | native `<details>` |
+| `DataTable` | `caption`, `minWidth` | scrolls inside itself; sticky first column; class `data-table-wrap` |
+| `SectionHead` | `title`, `href`, `linkText` | serif section title plus a right-aligned link |
+
+The post component contract in `src/components/post/` (the engine writes to it twice a day) and `ComparisonTable` / `ToolPricing` / `EmailSignup` / `AuthorNote` keep their props; only their presentation changes. Root class names that `ClickSource.astro` matches (`tool-strip`, `comparison`, `bottom-line`, `chooseif`, `tool-breakdown`, `intent-table`, `pricing-callout`, `key-takeaways`, `tool-card`, `tool-hub-actions`, `logo-strip`) must not change, or `source_component` breaks the pre-registered before/after reads.
+
+## Rules that keep it honest
+
+No star ratings, review counts, "trusted by" logos, testimonials, subscriber counts or invented picks. Prices shown in templates come from the pricing index with its verified date; a tool without a live program says so instead of showing a buy button. No em or en dashes anywhere (lint-enforced).
+
+## Gates
+
+`npm run build`, then `npm run qa:shots` (11 routes x 390 / 768 / 1440: 0 overflow, 0 clipped text inside components, 0 console errors; `ROOT_FONT=20` for the large-text check) and `npm run qa:lighthouse` (mobile: Performance 95+, Accessibility 100, SEO 100, CLS 0 on home, a post, `/tools/` and the pricing index). Look at the screenshots before asking anyone to review. Then the existing gates: `qa:lint`, `qa:render`, `qa:overflow`, `qa:logos`, `qa:seo`, `qa:docs`.
+
+## Changing it
+
+1. Change the token in `global.css`; components read tokens, never literals.
+2. Run the gates above and look at the screenshots.
+3. Update this file, then re-sync the Design System artifact.

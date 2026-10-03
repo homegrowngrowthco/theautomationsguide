@@ -1,0 +1,15 @@
+---
+// Section title with an optional "see all" link on the right.
+interface Props { title: string; href?: string; linkText?: string; as?: 'h2' | 'h3'; id?: string }
+const { title, href, linkText = 'See all', as: Tag = 'h2', id } = Astro.props;
+---
+<div class="ui-shead">
+  <Tag id={id}>{title}</Tag>
+  {href && <a href={href}>{linkText} <span aria-hidden="true">&rarr;</span></a>}
+</div>
+<style>
+  .ui-shead { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-bottom: 1.1rem; }
+  .ui-shead :is(h2, h3) { margin: 0; font: 600 var(--step-4)/1.2 var(--font-serif); letter-spacing: -0.015em; color: var(--ink-900); }
+  .ui-shead a { font: 600 0.9rem var(--font-sans); white-space: nowrap; }
+  @media (max-width: 720px) { .ui-shead :is(h2, h3) { font-size: var(--step-3); } }
+</style>
