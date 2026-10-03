@@ -126,197 +126,88 @@ const toolList = (tools && tools.length ? tools : items) ?? [];
 </section>
 
 <style>
-  .comparison-table {
-    margin: 2.5rem 0;
-  }
+  /* 2026-10 ("Ink spec"): white cards with hairlines, AA text colors, no nowrap
+     (a nowrap price line was clipped inside the row at 390, teardown 10/02).
+     Root class stays `comparison...`: ClickSource reports comparison-table. */
+  .comparison-table { margin: 2.5rem 0; }
   .comparison-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: 1.25rem;
-    color: var(--text);
+    font: 600 var(--step-2)/1.3 var(--font-sans);
+    margin: 0 0 1rem;
+    color: var(--ink-900);
   }
-  .comparison-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  /* On wider screens, force one row at the actual tool count
-     (set via --cols inline style on .comparison-grid). */
+  .comparison-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
   @media (min-width: 640px) {
     .comparison-grid { grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); }
   }
   .comparison-card {
-    position: relative;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
+    position: relative; min-width: 0;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);
+    padding: 1.4rem 1.25rem 1.25rem; display: flex; flex-direction: column;
   }
-  .comparison-card--highlight {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 1px var(--accent);
-  }
+  .comparison-card--highlight { border: 2px solid var(--tag-teal-600); padding: calc(1.4rem - 1px) calc(1.25rem - 1px) calc(1.25rem - 1px); }
   .comparison-badge {
-    position: absolute;
-    top: -0.625rem;
-    right: 1rem;
-    background: var(--accent);
-    color: var(--bg);
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 0.25rem 0.625rem;
-    border-radius: 999px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    position: absolute; top: -0.7rem; left: 1rem;
+    background: var(--tag-teal-700); color: #fff;
+    font: 600 0.72rem/1 var(--font-sans); padding: 0.35rem 0.55rem; border-radius: 4px;
   }
-  .comparison-name {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin: 0 0 0.375rem 0;
-    color: var(--text);
-  }
-  .comparison-tagline {
-    color: var(--text-muted);
-    font-size: 0.9375rem;
-    margin: 0 0 1rem 0;
-  }
+  .comparison-name { font: 600 var(--step-2)/1.25 var(--font-sans); margin: 0 0 0.35rem; color: var(--ink-900); }
+  .comparison-tagline { color: var(--ink-600); font-size: 0.92rem; line-height: 1.45; margin: 0 0 0.9rem; }
   .comparison-pricing {
-    font-size: 0.875rem;
-    color: var(--text-muted);
-    margin: 0 0 1rem 0;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem; color: var(--ink-700); font-variant-numeric: tabular-nums;
+    margin: 0 0 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border);
   }
-  .comparison-section {
-    margin-bottom: 1rem;
-  }
+  .comparison-section { margin-bottom: 1rem; }
   .comparison-section-label {
-    display: block;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-    margin-bottom: 0.375rem;
+    display: block; font: 600 0.72rem/1 var(--font-sans); text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--text-muted); margin-bottom: 0.45rem;
   }
-  .comparison-list {
-    margin: 0;
-    padding-left: 1.125rem;
-    font-size: 0.9375rem;
-    color: var(--text);
-  }
-  .comparison-list li {
-    margin-bottom: 0.25rem;
-  }
-  .comparison-list--pros li::marker { color: var(--accent); }
-  .comparison-list--cons li::marker { color: #f87171; }
-  /* Actions row: pinned to the bottom of every card with an identical top
-     divider, so all columns line up and read the same regardless of how many
-     pros/cons each lists or whether it's the highlighted "Top pick". */
-  .comparison-actions {
-    margin-top: auto;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border);
-  }
+  .comparison-list { margin: 0; padding-left: 1.125rem; font-size: 0.92rem; line-height: 1.5; color: var(--ink-700); }
+  .comparison-list li { margin-bottom: 0.3rem; }
+  .comparison-list--pros li::marker { color: var(--tag-teal-600); }
+  .comparison-list--cons li::marker { color: #c2410c; }
+  /* Actions pinned to the bottom of every card so the buttons line up. */
+  .comparison-actions { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border); }
   .comparison-cta {
-    display: block;
-    text-align: center;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9375rem;
-    padding: 0.7rem 1rem;
-    border-radius: 0.5rem;
-    transition: opacity 0.15s, background 0.15s;
+    display: flex; align-items: center; justify-content: center; min-height: 44px;
+    text-align: center; text-decoration: none; font: 600 0.92rem/1.25 var(--font-sans);
+    padding: 0.6rem 1rem; border-radius: var(--radius-sm);
+    transition: background-color 150ms, border-color 150ms;
   }
-  /* Non-highlighted columns: outlined ghost button (uniform with each other). */
-  .comparison-cta--ghost {
-    color: var(--accent);
-    background: transparent;
-    border: 1px solid var(--accent-dim);
-  }
-  .comparison-cta--ghost:hover { background: var(--accent-glow); }
-  /* The "Top pick" keeps a filled teal button so it still stands out. */
-  .comparison-cta--primary {
-    background: var(--accent);
-    color: var(--accent-contrast, var(--bg));
-    border: 1px solid var(--accent);
-  }
-  .comparison-cta--primary:hover { opacity: 0.9; }
+  .comparison-cta--ghost { color: var(--ink-800); background: #fff; border: 1px solid var(--border-strong); }
+  .comparison-cta--ghost:hover { border-color: var(--ink-500); color: var(--ink-900); text-decoration: none; }
+  .comparison-cta--primary { background: var(--tag-teal-700); color: #fff; border: 1px solid var(--tag-teal-700); }
+  .comparison-cta--primary:hover { background: var(--tag-teal-800); border-color: var(--tag-teal-800); color: #fff; text-decoration: none; }
 
   /* ── Compact variant: slim at-a-glance rows (no pros/cons) ── */
   .comparison-compact {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid var(--border);
-    border-radius: 0.75rem;
-    overflow: hidden;
+    display: flex; flex-direction: column;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden;
   }
   .ccompact-row {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.25rem;
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.25rem;
+    padding: 1rem 1.15rem; border-top: 1px solid var(--border);
   }
   .ccompact-row:first-child { border-top: none; }
-  .ccompact-row--highlight {
-    background: var(--accent-glow);
-    box-shadow: inset 3px 0 0 var(--accent);
-  }
-  .ccompact-main {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-  .ccompact-name {
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--text);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
+  .ccompact-row--highlight { background: var(--tag-teal-50); }
+  .ccompact-main { display: flex; flex-direction: column; gap: 0.2rem; flex: 1 1 260px; min-width: 0; }
+  .ccompact-name { font: 600 1rem/1.3 var(--font-sans); color: var(--ink-900); display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
   .ccompact-pick {
-    font-family: var(--font-mono, monospace);
-    font-size: 0.6rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--accent-contrast, #fff);
-    background: var(--accent);
-    padding: 0.1rem 0.45rem;
-    border-radius: 999px;
+    font: 600 0.68rem/1 var(--font-sans); letter-spacing: 0.02em;
+    color: #fff; background: var(--tag-teal-700); padding: 0.3rem 0.45rem; border-radius: 4px;
   }
-  .ccompact-tagline {
-    color: var(--text-muted);
-    font-size: 0.875rem;
-    line-height: 1.4;
-  }
-  .ccompact-price {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    white-space: nowrap;
-    flex: 0 0 auto;
-  }
+  .ccompact-tagline { color: var(--ink-600); font-size: 0.88rem; line-height: 1.4; }
+  .ccompact-price { flex: 1 1 200px; min-width: 0; font-size: 0.86rem; line-height: 1.45; color: var(--ink-700); font-variant-numeric: tabular-nums; }
   .ccompact-cta {
-    flex: 0 0 auto;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: var(--accent);
-    border: 1px solid var(--accent-dim);
-    border-radius: 0.5rem;
-    padding: 0.45rem 0.85rem;
-    white-space: nowrap;
-    transition: background 0.15s;
+    flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
+    text-decoration: none; font: 600 0.88rem/1.2 var(--font-sans); text-align: center;
+    color: var(--ink-800); background: #fff; border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+    padding: 0.5rem 0.9rem; transition: border-color 150ms;
   }
-  .ccompact-cta:hover { background: var(--accent-glow); }
+  .ccompact-cta:hover { border-color: var(--ink-500); color: var(--ink-900); text-decoration: none; }
+  .ccompact-row--highlight .ccompact-cta { background: var(--tag-teal-700); border-color: var(--tag-teal-700); color: #fff; }
+  .ccompact-row--highlight .ccompact-cta:hover { background: var(--tag-teal-800); border-color: var(--tag-teal-800); }
   @media (max-width: 600px) {
-    .ccompact-row { flex-wrap: wrap; gap: 0.5rem 1rem; }
-    .ccompact-main { flex: 1 1 100%; }
-    .ccompact-cta { margin-left: auto; }
+    .ccompact-cta { flex: 1 1 100%; }
   }
+  @media (prefers-reduced-motion: reduce) { .comparison-cta, .ccompact-cta { transition: none; } }
 </style>

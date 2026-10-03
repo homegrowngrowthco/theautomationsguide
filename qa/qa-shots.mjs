@@ -65,6 +65,13 @@ for (const r of routes) {
     await page.goto(base + r, { waitUntil: 'networkidle' });
     if (ROOT_FONT) await page.addStyleTag({ content: `html{font-size:${ROOT_FONT}px !important}` });
     await page.evaluate(async () => { for (let y = 0; y < document.documentElement.scrollHeight; y += 700) { window.scrollTo(0, y); await new Promise((res) => setTimeout(res, 30)); } window.scrollTo(0, 0); });
+    // Lazy images must finish decoding or the capture shows empty frames (a real
+    // screenshot on the ActiveCampaign post captured blank on 10/02).
+    await page.evaluate(() => document.querySelectorAll('img[loading="lazy"]').forEach((i) => { i.loading = 'eager'; }));
+    await page.evaluate(() => Promise.race([
+      Promise.all([...document.images].map((i) => (i.complete ? 0 : new Promise((res) => { i.onload = i.onerror = res; })))),
+      new Promise((res) => setTimeout(res, 5000)),
+    ]));
     await page.waitForTimeout(300);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     // Clipped text inside a component is invisible to the page-overflow check (the

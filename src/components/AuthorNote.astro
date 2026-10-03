@@ -8,11 +8,11 @@
 
 <aside class="tag-author" aria-label="About the author">
   <img
-    src="/hgc-logo.png"
-    alt="Homegrown Growth Co"
+    src="/images/ian-avatar.jpg"
+    alt="Ian Chamberland"
     class="tag-author-logo"
-    width="48"
-    height="48"
+    width="56"
+    height="56"
     loading="lazy"
   />
   <div class="tag-author-body">
@@ -40,14 +40,15 @@
     align-items: flex-start;
     margin: 2.5rem 0 0;
     padding: 1.25rem 1.25rem;
-    background: var(--bg-secondary);
+    background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 0.5rem;
   }
   .tag-author-logo {
-    height: 3rem;
-    width: 3rem;
-    object-fit: contain;
+    height: 3.5rem;
+    width: 3.5rem;
+    border-radius: 50%;
+    object-fit: cover;
     flex-shrink: 0;
     margin-top: 0.125rem;
   }
@@ -67,7 +68,7 @@
     color: var(--text-muted);
     text-decoration: none;
   }
-  .tag-author-role a:hover { color: var(--accent); }
+  .tag-author-role a:hover { color: var(--accent-text); }
   .tag-author-bio {
     margin: 0 0 0.5rem;
     font-size: 0.875rem;
@@ -79,7 +80,7 @@
     font-size: 0.8125rem;
   }
   .tag-author-links a {
-    color: var(--accent);
+    color: var(--accent-text);
     text-decoration: none;
     font-weight: 600;
   }

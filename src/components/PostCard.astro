@@ -17,6 +17,7 @@ const date = post.data.pubDate.toLocaleDateString('en-US', {
   month: 'long',
   day: 'numeric',
   year: 'numeric',
+  timeZone: 'UTC',
 });
 ---
 
@@ -47,7 +48,7 @@ const date = post.data.pubDate.toLocaleDateString('en-US', {
       <span class="post-meta-sep">&middot;</span>
       <span class="post-card-byline">
         {author === 'Ian Chamberland' && (
-          <img src="/images/ian-headshot.jpg" alt="" class="post-avatar" width="20" height="20" />
+          <img src="/images/ian-avatar.jpg" alt="" class="post-avatar" width="20" height="20" loading="lazy" decoding="async" />
         )}
         {author}
       </span>

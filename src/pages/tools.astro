@@ -1,5 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Band from '../components/ui/Band.astro';
+import Container from '../components/ui/Container.astro';
 import { getCollection } from 'astro:content';
 import { tools, toolCategories, categorySubs, categoryAnchor, postMentionsTool } from '../data/tools';
 
@@ -25,30 +27,28 @@ const articleCount = (slug: string) => {
   title="Automation Tools for RevOps & GTM Teams"
   description="The best automation, CRM, outbound, and newsletter tools for RevOps and GTM teams, tested and reviewed by an 8-year RevOps practitioner."
 >
-  <!-- Affiliate disclosure -->
-  <div class="container--wide" style="padding-top:2rem;">
-    <div class="affiliate-notice">
-      <strong>Affiliate Disclosure:</strong> Some links on this page are affiliate links. If you sign up or purchase through them, we earn a commission at no extra cost to you. We only list tools we'd genuinely recommend to a fellow RevOps practitioner. Our editorial opinions are not influenced by affiliate relationships. <a href="/disclosure/">Read the full disclosure</a>.
-    </div>
+  <!-- Hero: the ink frame (design program 2026-10) -->
+  <Band class="tools-band">
+    <Container size="wide">
+      <p class="tools-eyebrow">{sections.reduce((n, s) => n + s.items.length, 0)} tools in {sections.length} categories</p>
+      <h1>The RevOps automation stack, by job</h1>
+      <p class="tools-lede">
+        Curated picks across workflow automation, CRM, outbound and newsletters, with where each tool
+        fits and when to use it. Comparing on cost? The <a href="/revops-automation-pricing/">RevOps pricing index</a>
+        lists entry price, free tier and billing unit for every tool here, each read from the vendor's own
+        pricing page and dated.
+      </p>
+      <nav class="tools-jump" aria-label="Jump to a category">
+        {sections.map(({ category }) => <a href={`#${categoryAnchor(category)}`}>{category}</a>)}
+      </nav>
+    </Container>
+  </Band>
+  <div class="container--wide">
+    <p class="tools-disclosure">
+      Some links on this page are affiliate links. If you buy through them we may earn a commission at no cost
+      to you; it never changes what we list. <a href="/disclosure/">Every program, by name</a>.
+    </p>
   </div>
-
-  <!-- Hero -->
-  <section class="tools-hero">
-    <div class="container--wide">
-      <div class="hero-eyebrow">Tools &middot; Reviews &middot; Recommendations</div>
-      <h1>The RevOps automation stack, tested and reviewed</h1>
-      <p>
-        Curated picks across workflow automation, CRM, outbound, and newsletter, with honest
-        takes on where each tool fits and when to use it. Every tool here has been used in a
-        real GTM stack.
-      </p>
-      <p class="tools-hero-aside">
-        Comparing on cost? The <a href="/revops-automation-pricing/">RevOps pricing index</a> lists
-        entry price, free tier, and billing unit for every tool here, each read from the vendor's
-        own pricing page and dated.
-      </p>
-    </div>
-  </section>
 
   {sections.map(({ category, items }, i) => (
     <section class="section tools-cat-section" id={categoryAnchor(category)} style={i > 0 ? 'border-top:1px solid var(--border);' : undefined}>
@@ -125,7 +125,7 @@ const articleCount = (slug: string) => {
      doesn't cover the category heading. */
   .tools-cat-section { scroll-margin-top: calc(var(--nav-h) + 0.5rem); }
   .tool-card h3 a { color: inherit; text-decoration: none; }
-  .tool-card h3 a:hover { color: var(--accent); }
+  .tool-card h3 a:hover { color: var(--accent-text); }
   /* Whole card is a single click target for the tool's hub page. The title
      link's ::after stretches over the entire (position:relative) card, so a
      click anywhere on the card navigates to /tools/<slug> without nesting
@@ -137,7 +137,7 @@ const articleCount = (slug: string) => {
     inset: 0;
     border-radius: var(--radius-lg);
   }
-  .tool-card:hover h3 a { color: var(--accent); }
+  .tool-card:hover h3 a { color: var(--accent-text); }
   .tool-card-actions {
     display: flex;
     flex-direction: column;
@@ -163,7 +163,7 @@ const articleCount = (slug: string) => {
     color: var(--text-muted);
     white-space: nowrap;
   }
-  .tool-articles-link:hover { color: var(--accent); text-decoration: none; }
+  .tool-articles-link:hover { color: var(--accent-text); text-decoration: none; }
   /* A-Z index of every tool guide (internal-link path to all hubs). */
   .tool-index {
     list-style: none;
@@ -178,15 +178,29 @@ const articleCount = (slug: string) => {
     text-decoration: none;
     font-size: 0.95rem;
   }
-  .tool-index a:hover { color: var(--accent); text-decoration: underline; }
+  .tool-index a:hover { color: var(--accent-text); text-decoration: underline; }
 
-  /* Sits under the hero copy, deliberately quieter than it: a pointer to the data
-     asset, not a competing headline. */
-  .tools-hero-aside {
-    margin-top: 1rem;
-    font-size: 0.95rem;
-    color: var(--text-muted, #5b6472);
-    border-left: 3px solid var(--accent, #14a890);
-    padding-left: 0.85rem;
+  /* ── 2026-10 ("Ink spec") ── */
+  :global(.tools-band) { padding: 2.75rem 0 2.5rem; }
+  .tools-eyebrow { margin: 0 0 0.9rem; font: 600 0.8rem/1 var(--font-sans); letter-spacing: 0.07em; text-transform: uppercase; color: var(--band-accent); }
+  :global(.tools-band) h1 { margin: 0 0 0.9rem; color: #fff; font: 600 clamp(2rem, 4vw, var(--step-6))/1.1 var(--font-serif); letter-spacing: -0.02em; }
+  .tools-lede { margin: 0 0 1.5rem; max-width: 72ch; font: 400 var(--step-1)/1.6 var(--font-sans); color: var(--band-muted); }
+  .tools-lede a { text-decoration: underline; text-underline-offset: 2px; }
+  .tools-jump { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  /* Phones: one row that scrolls inside itself instead of a screen of chips. */
+  @media (max-width: 720px) {
+    .tools-jump { flex-wrap: nowrap; overflow-x: auto; margin: 0 -1rem; padding: 0 1rem 0.25rem; scrollbar-width: none; }
+    .tools-jump a { flex: none; }
   }
+  .tools-jump a { display: inline-flex; align-items: center; min-height: 36px; padding: 0.35rem 0.75rem; border: 1px solid var(--band-line); border-radius: var(--radius-sm); font: 500 0.85rem var(--font-sans); color: var(--band-muted) !important; text-decoration: none; }
+  .tools-jump a:hover { border-color: rgba(255, 255, 255, 0.4); color: #fff !important; }
+  .tools-disclosure { margin: 1rem 0 0; font: 400 0.85rem/1.5 var(--font-sans); color: var(--text-muted); }
+  .tools-disclosure a { color: var(--accent-text); text-decoration: underline; text-underline-offset: 2px; }
+  .tools-category-heading { font: 600 var(--step-4)/1.2 var(--font-serif) !important; letter-spacing: -0.015em; color: var(--ink-900); }
+  .tool-card { background: var(--bg-card); border-color: var(--border); border-radius: var(--radius-md); min-width: 0; }
+  .tool-card:hover { border-color: var(--ink-300); }
+  .tool-card-title-link::after { border-radius: var(--radius-md); }
+  /* Consistent cards: the blurb holds three lines; the full text is on the hub. */
+  .tool-card > p { display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .tool-articles-link { color: var(--ink-600); }
 </style>

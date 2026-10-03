@@ -48,20 +48,21 @@ const slugify = (s: string) =>
     border-top: 1px solid var(--border);
   }
   .post-faqs-title {
-    font-size: 1.4rem;
-    margin: 0 0 1.25rem;
-    color: var(--text);
+    font: 600 var(--step-4)/1.2 var(--font-serif);
+    letter-spacing: -0.015em;
+    margin: 0 0 0.75rem;
+    color: var(--ink-900);
   }
+  /* 2026-10: a hairline list, not a stack of boxes (design audit tell 8). */
   .post-faqs-list {
     display: flex;
     flex-direction: column;
-    gap: 1.1rem;
+    border-top: 1px solid var(--border);
+    max-width: var(--measure);
   }
   .post-faq {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 0.6rem;
-    padding: 1rem 1.25rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--border);
   }
   .post-faq-q {
     font-size: 1.02rem;

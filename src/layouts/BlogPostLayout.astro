@@ -9,6 +9,10 @@ import PricingIndexCallout from '../components/post/PricingIndexCallout.astro';
 import { tools, postMentionsTool } from '../data/tools';
 import { hasToc } from '../lib/post-toc';
 import ToolStrip from '../components/post/ToolStrip.astro';
+import Band from '../components/ui/Band.astro';
+import Container from '../components/ui/Container.astro';
+import { toolsCompared } from '../lib/tools-compared';
+import { classifySection } from '../lib/post-cards';
 import type { CollectionEntry } from 'astro:content';
 import type { MarkdownHeading } from 'astro';
 
@@ -25,6 +29,12 @@ const { title, description, tldr, pubDate, updatedDate, author, tags, faqs } = p
 // (see .post-intro--paired in global.css); either renders alone, full-width,
 // when only one is present.
 const showToc = hasToc(headings);
+
+// Design program 2026-10: the tools panel lifts out of the ink title band only on
+// posts that compare 2+ tools (src/lib/tools-compared.ts); other posts get a plain
+// band. The kicker is the editorial section, not raw tags (design audit tell 7).
+const hasPanel = toolsCompared(post.body, title).length > 0;
+const kicker = classifySection(post);
 
 // Byline person. Posts without an explicit author fall back to the org name
 // ("The Automations Guide"); show the human (Ian Chamberland) there instead, so
@@ -53,12 +63,14 @@ const formattedPubDate = pubDate.toLocaleDateString('en-US', {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
+  timeZone: 'UTC', // frontmatter dates are UTC midnight; a local-TZ build showed the day before
 });
 
 const formattedUpdatedDate = updatedDate?.toLocaleDateString('en-US', {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
+  timeZone: 'UTC',
 });
 
 const postUrl = new URL(`/blog/${post.slug}/`, Astro.site).toString();
@@ -116,102 +128,179 @@ const faqSchema =
     {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
   </Fragment>
 
-  <div class="container--wide">
-    <article>
-      <header class="post-header">
-        {tags.length > 0 && (
-          <div class="post-card-tags">
-            {tags.map((tag) => <span class="tag">{tag}</span>)}
+  <article class="post">
+    <Band lift={hasPanel} class="post-band">
+      <Container size="shell">
+        <header class="post-header">
+          <p class="post-kicker">
+            <a href="/blog/">Guides</a><span aria-hidden="true"> / </span>{kicker}
+          </p>
+          <h1>{title}</h1>
+          <p class="post-dek">{description}</p>
+          <div class="post-meta">
+            <span class="post-byline">
+              {displayAuthor === 'Ian Chamberland' && (
+                <img src="/images/ian-avatar.jpg" alt="" class="post-avatar" width="36" height="36" />
+              )}
+              <span>
+                <a href="/about/" rel="author" class="post-byline-author">{displayAuthor}</a>
+                {displayAuthor === 'Ian Chamberland' && <span class="post-byline-cred">Founder of Homegrown Growth Co, a fractional RevOps practice</span>}
+              </span>
+            </span>
+            <span class="post-meta-dates">
+              {updatedDate ? (
+                <span>Updated <time datetime={updatedDate.toISOString()}>{formattedUpdatedDate}</time></span>
+              ) : (
+                <time datetime={pubDate.toISOString()}>{formattedPubDate}</time>
+              )}
+              <span class="post-meta-sep" aria-hidden="true">&middot;</span>
+              <span>{readTime} min read</span>
+              {updatedDate && (
+                <>
+                  <span class="post-meta-sep" aria-hidden="true">&middot;</span>
+                  <span>First published <time datetime={pubDate.toISOString()}>{formattedPubDate}</time></span>
+                </>
+              )}
+            </span>
           </div>
-        )}
-        <h1>{title}</h1>
-        <div class="post-meta">
-          <span class="post-byline">
-            {displayAuthor === 'Ian Chamberland' && (
-              <img src="/images/ian-headshot.jpg" alt="" class="post-avatar" width="24" height="24" />
-            )}
-            By <a href="/about/" rel="author" class="post-byline-author">{displayAuthor}</a>
-          </span>
-          <span class="post-meta-sep">&middot;</span>
-          <time datetime={pubDate.toISOString()}>{formattedPubDate}</time>
-          <span class="post-meta-sep">&middot;</span>
-          <span>{readTime} min read</span>
-          {updatedDate && (
-            <>
-              <span class="post-meta-sep">&middot;</span>
-              <span>Updated {formattedUpdatedDate}</span>
-            </>
-          )}
-        </div>
-        {/* Same wording as the footer disclosure, placed before the first affiliate
-            link instead of ~5,500px below it (audit 2026-10-01, F12). */}
-        <p class="post-disclosure post-disclosure--top">
-          Some links are affiliate links. <a href="/disclosure/">Disclosure</a>.
-        </p>
-        <ToolStrip body={post.body} title={title} />
-      </header>
+        </header>
+      </Container>
+    </Band>
 
-      {(tldr || showToc) && (
-        <div class={`post-intro${tldr && showToc ? ' post-intro--paired' : ''}`}>
+    <Container size="shell">
+      {hasPanel && (
+        <div class="post-lift">
+          <ToolStrip body={post.body} title={title} />
+        </div>
+      )}
+      {/* Before the first affiliate link (audit 2026-10-01, F12). */}
+      <p class="post-disclosure post-disclosure--top">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+        <span>Some links on this page are affiliate links. If you buy through them we may earn a commission at no cost to you; it never changes a verdict. <a href="/disclosure/">How we make money</a></span>
+      </p>
+
+      <div class={`post-shell${showToc ? '' : ' post-shell--solo'}`}>
+        {showToc && (
+          <aside class="post-rail" aria-label="On this page">
+            <TableOfContents headings={headings} />
+          </aside>
+        )}
+
+        <div class="post-main">
           {tldr && (
             <div class="post-tldr">
-              <p class="post-tldr-label">TL;DR</p>
+              <p class="post-tldr-label">The short answer</p>
               <p class="post-tldr-text">{tldr}</p>
             </div>
           )}
-          <TableOfContents headings={headings} />
-        </div>
-      )}
 
-      <div class="prose">
-        <slot />
-      </div>
-
-      <PricingIndexCallout post={post} />
-
-      {tags.length > 0 && (
-        <div class="post-related-tags">
-          <p class="post-related-tags-label">Filed under:</p>
-          <div class="post-card-tags">
-            {tags.map((tag) => <span class="tag">{tag}</span>)}
+          <div class="prose">
+            <slot />
           </div>
+
+          <PricingIndexCallout post={post} />
+
+          <PostFaqs faqs={faqs} />
+
+          <div class="post-share-row">
+            <p class="post-share">
+              <span>Share it with your team:</span>
+              <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener">LinkedIn</a>
+              <a href={`mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(shareUrl)}`}>Email</a>
+              <button type="button" class="post-share-copy" data-url={shareUrl}>Copy link</button>
+            </p>
+          </div>
+          <script is:inline>
+            document.querySelectorAll('.post-share-copy').forEach(function (b) {
+              b.addEventListener('click', function () {
+                var done = function () { b.textContent = 'Link copied'; setTimeout(function () { b.textContent = 'Copy link'; }, 2000); };
+                if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.url).then(done, function () {});
+              });
+            });
+          </script>
+
+          <AuthorNote />
+
+          <div id="newsletter" class="section--anchor">
+            <EmailSignup />
+          </div>
+
+          <RelatedPosts posts={related} />
         </div>
-      )}
-
-      <PostFaqs faqs={faqs} />
-
-      <div id="newsletter" class="section--anchor">
-        <EmailSignup />
       </div>
-
-      <hr class="divider" />
-
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
-        <a href="/blog/" class="btn btn--ghost">&larr; Back to Blog</a>
-        {/* Plain share links: no third-party script, no CSP change (audit 2026-10-01, F9). */}
-        <p class="post-share">
-          <span>Share it with your team:</span>
-          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener">LinkedIn</a>
-          <a href={`mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(shareUrl)}`}>Email</a>
-          <button type="button" class="post-share-copy" data-url={shareUrl}>Copy link</button>
-        </p>
-      </div>
-      <script is:inline>
-        document.querySelectorAll('.post-share-copy').forEach(function (b) {
-          b.addEventListener('click', function () {
-            var done = function () { b.textContent = 'Link copied'; setTimeout(function () { b.textContent = 'Copy link'; }, 2000); };
-            if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.url).then(done, function () {});
-          });
-        });
-      </script>
-
-      <RelatedPosts posts={related} />
-
-      <AuthorNote />
-
-      <p class="post-disclosure">
-        Some links are affiliate links. <a href="/disclosure/">Disclosure</a>.
-      </p>
-    </article>
-  </div>
+    </Container>
+  </article>
 </BaseLayout>
+
+<style>
+  /* ── Title band (ink frame) ── */
+  .post-header { padding: 0; border: 0; margin: 0; max-width: 900px; }
+  .post-kicker { margin: 0 0 0.9rem; font: 500 0.85rem/1.3 var(--font-sans); color: var(--band-faint); }
+  .post-kicker a { color: var(--band-faint); text-decoration: underline; text-decoration-color: var(--ink-500); text-underline-offset: 3px; }
+  .post-kicker a:hover { color: #fff; text-decoration: underline; }
+  .post-header h1 {
+    margin: 0 0 0.75rem; color: #fff;
+    font: 600 clamp(2rem, 4.2vw, var(--step-6))/1.1 var(--font-serif); letter-spacing: -0.02em;
+  }
+  .post-dek { margin: 0 0 1.25rem; max-width: 760px; font: 400 var(--step-2)/1.5 var(--font-sans); color: var(--band-muted); }
+  .post-meta {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1.5rem;
+    padding: 0.9rem 0; border-top: 1px solid var(--band-line); border-bottom: 1px solid var(--band-line);
+    font: 400 0.9rem/1.4 var(--font-sans); color: var(--band-faint);
+  }
+  .post-byline { display: inline-flex; align-items: center; gap: 0.7rem; }
+  .post-byline .post-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--band-line); }
+  .post-byline-author { display: block; color: #fff !important; font-weight: 600; text-decoration: none; }
+  .post-byline-author:hover { text-decoration: underline; }
+  .post-byline-cred { display: block; font-size: 0.85rem; color: var(--band-faint); }
+  .post-meta-dates { display: inline-flex; flex-wrap: wrap; gap: 0.25rem 0.6rem; }
+  .post-meta-sep { color: var(--ink-500); }
+
+  /* ── Tools panel lifts out of the band ── */
+  .post-lift { margin-top: -7.25rem; position: relative; }
+  .post-disclosure--top {
+    display: flex; gap: 0.5rem; align-items: flex-start; margin: 1rem 0 0;
+    font: 400 0.85rem/1.5 var(--font-sans); color: var(--text-muted);
+  }
+  .post-disclosure--top svg { flex: none; margin-top: 0.15rem; color: var(--ink-400); }
+  .post-disclosure--top a { color: var(--accent-text); text-decoration: underline; text-underline-offset: 2px; }
+
+  /* ── Shell: ToC rail + reading column ── */
+  .post-shell { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 3.5rem; padding: 2.25rem 0 4rem; }
+  .post-shell--solo { grid-template-columns: minmax(0, 1fr); }
+  .post-rail { position: sticky; top: calc(var(--nav-h) + 1rem); align-self: start; max-height: calc(100vh - var(--nav-h) - 2rem); overflow-y: auto; }
+  .post-main { min-width: 0; max-width: 860px; }
+  .post-shell--solo .post-main { margin: 0 auto; width: 100%; } /* auto margins stop a grid item stretching; width keeps it fluid */
+
+  /* Running text holds a 70ch measure; tables and components may use the column. */
+  .post-main :global(.prose) { font-size: var(--step-1); line-height: 1.7; }
+  .post-main :global(.prose > p),
+  .post-main :global(.prose > ul),
+  .post-main :global(.prose > ol),
+  .post-main :global(.prose > blockquote),
+  .post-main :global(.prose > h2),
+  .post-main :global(.prose > h3),
+  .post-main :global(.prose > h4) { max-width: var(--measure); }
+  .post-main :global(.prose h2) { font: 600 var(--step-4)/1.2 var(--font-serif); letter-spacing: -0.015em; color: var(--ink-900); margin: 2.4em 0 0.6em; scroll-margin-top: calc(var(--nav-h) + 1rem); }
+  .post-main :global(.prose h3) { font: 600 var(--step-2)/1.3 var(--font-sans); color: var(--ink-900); margin: 1.8em 0 0.5em; }
+  .post-main :global(.prose a) { text-decoration-thickness: 1px; }
+
+  .post-tldr {
+    max-width: var(--measure); margin: 0 0 2rem; padding: 1.15rem 1.3rem;
+    background: var(--bg-card); border: 1px solid var(--border); border-left: 0; border-radius: var(--radius-md);
+  }
+  .post-tldr-label { margin: 0 0 0.4rem; font: 600 0.78rem/1 var(--font-sans); letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
+  .post-tldr-text { margin: 0; font: 500 var(--step-1)/1.6 var(--font-sans); color: var(--ink-900); }
+
+  .post-share-row { margin: 2.5rem 0 0; padding-top: 1.25rem; border-top: 1px solid var(--border); }
+
+  @media (max-width: 1100px) {
+    .post-shell { grid-template-columns: minmax(0, 1fr); gap: 0; padding-top: 1.5rem; }
+    .post-rail { position: static; max-height: none; overflow: visible; }
+  }
+  @media (max-width: 720px) {
+    .post-dek { font-size: var(--step-1); }
+    .post-lift { margin-top: -6.5rem; }
+    .post-meta { gap: 0.5rem 1rem; }
+  }
+</style>
