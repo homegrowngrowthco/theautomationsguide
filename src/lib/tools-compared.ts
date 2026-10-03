@@ -66,6 +66,29 @@ function priceFor(key: string): ComparedTool['price'] {
   return undefined;
 }
 
+/**
+ * The pricing-index price for one row of a post's ComparisonTable (Ian, 2026-10-02:
+ * the table shows the dated index price instead of the post's prose price when the
+ * index has one, so a page never shows two different prices for the same plan).
+ * Resolves by affiliateSlug (variants collapse to their parent tool), else by an
+ * exact, case-insensitive registry name or alias. undefined = keep the post's text.
+ */
+export function indexPriceFor(name: string, affiliateSlug?: string): ComparedTool['price'] {
+  let key: string | undefined;
+  if (affiliateSlug) key = toolFor(affiliateSlug)?.slug ?? affiliateSlug;
+  if (!key) {
+    const n = name.trim().toLowerCase();
+    key = tools.find((t) => [t.name, ...t.aliases].flatMap(nameVariants).some((v) => v.toLowerCase() === n))?.slug;
+    // "LinkedIn Sales Nav" for "LinkedIn Sales Navigator": a row name that is a
+    // word-prefix of exactly ONE registry name (at least 8 characters) resolves.
+    if (!key && n.length >= 8) {
+      const hits = tools.filter((t) => [t.name, ...t.aliases].some((v) => v.toLowerCase().startsWith(n) && v.length > n.length));
+      if (hits.length === 1) key = hits[0].slug;
+    }
+  }
+  return key ? priceFor(key) : undefined;
+}
+
 export function toolsCompared(body: string, title: string): ComparedTool[] {
   // On an "X vs Y" headline, the tools it names come first, in headline order. Only
   // the START of each vs-segment is matched (longest name wins), so title words like

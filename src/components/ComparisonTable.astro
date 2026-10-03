@@ -21,6 +21,9 @@
 //     ]}
 //   />
 
+import { indexPriceFor } from '../lib/tools-compared';
+import { pricingReadDate } from '../lib/pricing-index';
+
 interface Tool {
   name: string;
   tagline: string;
@@ -46,6 +49,15 @@ interface Props {
 
 const { title, tools, items, compact = false } = Astro.props;
 const toolList = (tools && tools.length ? tools : items) ?? [];
+
+// The dated pricing-index price replaces the post's prose price when the index has
+// one (Ian, 2026-10-02), so the tools panel and this table never disagree.
+const readDate = new Date(`${pricingReadDate}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+const priceText = (tool: Tool): { text?: string; read?: string } => {
+  const p = indexPriceFor(tool.name, tool.affiliateSlug);
+  if (!p) return { text: tool.pricing };
+  return { text: `${p.plan ? `${p.plan}: ` : ''}${p.amount}/mo, ${p.note}`, read: `Pricing index, read ${readDate}` };
+};
 ---
 
 <section class:list={['comparison-table', compact && 'comparison-table--compact']}>
@@ -61,7 +73,12 @@ const toolList = (tools && tools.length ? tools : items) ?? [];
             </span>
             <span class="ccompact-tagline">{tool.tagline}</span>
           </div>
-          {tool.pricing && <span class="ccompact-price">{tool.pricing}</span>}
+          {priceText(tool).text && (
+            <span class="ccompact-price">
+              {priceText(tool).text}
+              {priceText(tool).read && <span class="cprice-read">{priceText(tool).read}</span>}
+            </span>
+          )}
           {tool.affiliateSlug && (
             <a
               href={`/go/${tool.affiliateSlug}/`}
@@ -83,8 +100,11 @@ const toolList = (tools && tools.length ? tools : items) ?? [];
         <h4 class="comparison-name">{tool.name}</h4>
         <p class="comparison-tagline">{tool.tagline}</p>
 
-        {tool.pricing && (
-          <p class="comparison-pricing"><strong>Pricing:</strong> {tool.pricing}</p>
+        {priceText(tool).text && (
+          <p class="comparison-pricing">
+            <strong>Pricing:</strong> {priceText(tool).text}
+            {priceText(tool).read && <span class="cprice-read">{priceText(tool).read}</span>}
+          </p>
         )}
 
         <div class="comparison-section">
@@ -209,5 +229,6 @@ const toolList = (tools && tools.length ? tools : items) ?? [];
   @media (max-width: 600px) {
     .ccompact-cta { flex: 1 1 100%; }
   }
+  .cprice-read { display: block; margin-top: 0.15rem; font-size: 0.75rem; color: var(--text-muted); }
   @media (prefers-reduced-motion: reduce) { .comparison-cta, .ccompact-cta { transition: none; } }
 </style>
