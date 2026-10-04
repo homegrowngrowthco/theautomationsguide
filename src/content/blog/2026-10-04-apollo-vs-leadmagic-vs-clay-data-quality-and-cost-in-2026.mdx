@@ -54,7 +54,7 @@ Most teams frame this as a database comparison. That framing is wrong and it lea
 
 [Apollo](/go/apollo/) is a prospecting database with built-in sequences. [Clay](/go/clay/) is an enrichment and workflow automation layer that happens to include some data. [LeadMagic](/go/leadmagic/) is a verification-first API with waterfall logic built in. These are three different products with partial overlap, not three versions of the same thing.
 
-When my team ran internal benchmarks last quarter on a 15,000-contact sample pulled from the same ICP segment, Apollo returned valid emails on roughly 68% of records (after bounce checking against [Smartlead's](/go/smartlead/) verification). Clay waterfall through four providers (Apollo, Prospeo, Findymail, Hunter) hit 79% coverage. LeadMagic's waterfall hit 76% coverage but at a lower per-result cost, because you only pay when a valid result comes back.
+When my team ran internal benchmarks last quarter on a 15,000-contact sample pulled from the same ICP segment, Apollo returned valid emails on roughly 68% of records (after bounce checking against [Smartlead's](/go/smartlead/) verification). Clay waterfall through four providers (Apollo, Prospeo, [Findymail](/tools/findymail/), Hunter) hit 79% coverage. LeadMagic's waterfall hit 76% coverage but at a lower per-result cost, because you only pay when a valid result comes back.
 
 That 8 to 11 point coverage delta matters a lot if you're doing high-volume outbound. It matters less if you're running a targeted ABM motion where you're manually reviewing every account anyway.
 
