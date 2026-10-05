@@ -1,15 +1,15 @@
 # Next session (TAG): close the merge-on-green proof, read the fixed-prompt posts, parked checks
 
-Start inside `theautomationsguide/`. State which model you are running as. Run `git pull --ff-only` on `master`, then `git worktree prune -v` (OneDrive locks `.git/worktrees/tag-*` metadata; "Permission denied" on prune is harmless when `git worktree list` is clean). `TODO.md` is the only source of truth for open tasks; this file was last rewritten after Session 105 (2026-10-05: merge-on-green shipped in #349/#351/#352, ruleset requires `qa` + `pr-gates`, repo `allow_auto_merge=true`), so re-check every claim with a query or against the repo before acting.
+Start inside `theautomationsguide/`. State which model you are running as. Run `git pull --ff-only` on `master`, then `git worktree prune -v` (OneDrive locks `.git/worktrees/tag-*` metadata; "Permission denied" on prune is harmless when `git worktree list` is clean). `TODO.md` is the only source of truth for open tasks; this file was last rewritten after Session 106 (2026-10-05 22:30Z; S105 shipped merge-on-green in #349/#351/#352/#354, ruleset requires `qa` + `pr-gates`, repo `allow_auto_merge=true`; S106 found every item below still date-gated and measured the mono-font perf gap), so re-check every claim with a query or against the repo before acting.
 
 **No manual merges (Ian, 2026-10-05).** Content PRs merge themselves (`auto-merge-content.yml`). Every PR Claude opens gets `gh pr merge --auto --squash <branch>` right after `gh pr create`. Claude's gh user is a ruleset bypass actor: never run a plain `gh pr merge` on a PR whose checks are pending, never `--admin`.
 
-Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESSION_LOG.md` (Sessions 105 and 104).
+Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESSION_LOG.md` (Sessions 106 and 105). If the session starts before 2026-10-06 ~12:30Z, nothing below is actionable yet: say so and stop rather than re-running S106's checks.
 
 ## NEEDS FROM IAN (AskUserQuestion, at the point where each is needed)
 
 1. **Beehiiv steps:** Ian said "not yet" on 10/05. Ask again only if he raises it or after 10/08; if done, screenshot the signup at 375 px on a post.
-2. **Beehiiv `attribution.js` (global in `BaseLayout.astro`):** deferring it would clear best-practices 77 but changes which page Beehiiv credits a subscribe to. Ask only if Ian raises perf or the Beehiiv steps.
+2. **Beehiiv `attribution.js` (global in `BaseLayout.astro`):** deferring it would clear best-practices 77 but changes which page Beehiiv credits a subscribe to. Ask only if Ian raises perf or the Beehiiv steps. Same trigger for the **mono labels** (S106): below-fold JetBrains Mono labels in DecisionTree / BottomLine and 4 other post components cost about 2 Lighthouse points (FCP +300 ms simulated, fonts are `swap`) on 154/173 posts; options are sans labels or leave it. Post-contract change, so his call.
 3. **`/blog/` pagination (low, only if time):** bring Ian two mocks with screenshots before building.
 4. **R8 (parked by Ian 10/05):** only if he raises it.
 5. **Date-gated, only once the date has passed:** N4 on or after 2026-10-22, N5 about 2026-10-24 (Part D).
@@ -27,12 +27,11 @@ Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESS
 ## Part B. Parked checks (Claude only)
 
 1. **Indexing re-check (on or after 2026-10-08):** `gsc-index-status.py` for `/tools/calendly/`, the 9/06 Beehiiv post and the 10/01 Mailchimp-to-Kit post; if calendly still is not indexed, stop chasing it.
-2. **First real attributed click:** PostHog 408442, `affiliate_click` after 2026-10-02 01:21Z, host-scoped. At 10/05 18:45Z: 5 events, none real (all `source_via=none`). Only `source_via` `click` or `last_page` with `is_automated=false` counts.
-3. **~2026-10-15 metric:** `source_path` on >90% of human clicks (baseline 6%), split at the redesign deploy 10/02 ~21:55Z. Read it only on or after 10/15.
+2. **First real attributed click:** PostHog 408442, `affiliate_click` after 2026-10-02 01:21Z, host-scoped. At 10/05 22:15Z: 26 events, none real. Only `source_via` `click` or `last_page` with `is_automated=false` counts, and only when it has a session, a browser and a TAG pageview; a crawler burst (21 tools in 10 min, 10/05 21:49Z) set `last_page` from 404 probes like `/affiliate` (no trailing slash).
+3. **~2026-10-15 metric:** `source_path` on >90% of human clicks (baseline 6%), split at the redesign deploy 10/02 ~21:55Z. Drop crawler bursts first. Read it only on or after 10/15.
 
 ## Part C. Lows if time allows
 
-- SideBySide only reads `offsetHeight` at 768 px and up, so the Gong post's mobile perf gap has another cause; measure before editing a post-contract component.
 - Merge-on-green follow-ups in TODO: auto re-run of runs GitHub cancelled with no runner (only if it recurs); the `[qa-fix-N]` re-run path is unexercised.
 
 ## Part D. Date-gated asks for Ian (only once the date has passed)
