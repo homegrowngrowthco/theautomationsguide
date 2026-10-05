@@ -8,7 +8,20 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-02 (Session 101).
+Last updated 2026-10-05 (Session 102).
+
+## Session 102 (2026-10-03 to 10-05): merge gate on master, remaining redesign pages shipped (#339), honest-copy PR #344 for Ian (Opus 5.5)
+
+- **Part 0:** `npm install` + `qa:lighthouse` run in the main checkout (95/97/98/95). 21 stale worktree entries removed (gitdir targets gone).
+- **#334 gap:** the gate worked (`HARD: /go/marketo`); the PR was merged by hand 18 s after the red run, and `master` had no protection. Ian approved a ruleset (24417620): `qa` required, admin bypass. Proven on #339: a skipped `qa` passes, merge needed no `--admin`. CLAUDE.md gotcha 10.
+- **A:** no real attributed click yet (2 events since 10/02 01:21Z: cold runable, automated frase). **B:** watchdog anchor confirmed on 2 runs (window start = anchor minus 3.4 h, no fallback); stager green 10/04 11:30Z, 7/7 Suggested; cadence round 3 settled at 16 / 7,618 (unchanged). Indexing re-check still ~10/08.
+- **R8 parked by Ian.** The Notion API cannot publish to web. Template copy fixed: "93 tools" priced became "65 of the 93".
+- **#339 `ad23fbb`:** `ui/PageHead`; About + disclosure as 70ch articles; disclosure lists all 44 live programs, generated (`src/lib/affiliate-programs.ts`, 33 deep-link variants folded); tool hubs with logo tile, index price stat + read date, primary `/go/` when the program is live (`tool-hub-actions` kept); listings on band + card grid / count tiles; `qa:shots` +8 routes.
+- **Gates:** Lighthouse home 98 / post 97 / tools 97 / pricing 96, hub 97, About 99, a11y 100, CLS 0; shots 57/57; lint/render/overflow/logos/seo/docs 0 hard. `/blog/` is 84 on master too (TODO).
+- **Prod verified:** 11 routes x 390/1440 200, 0 overflow, 0 console errors; live hub `/go/` click carries `hub-cta` / `click` (ingest captured and aborted).
+- **#344 open for Ian:** template copy claimed hands-on testing of every tool; replaced with what is done. Found: engine posts still write "I have tested" (9/20, 9/21), so the prompt needs the Session 90 treatment (TODO @high).
+- **Revert:** `git revert ad23fbb`; ruleset: CLAUDE.md gotcha 10.
+- **Gotchas:** `Container`'s scoped padding outranks a global class on it (put spacing on a wrapper); legacy `.container--wide` and `Container` gutters differ by 8 px; the PII hook flags a re-indented public email line (restore the original indent, never bypass).
 
 ## Session 101 (2026-10-02): UI quality program: teardown, "Ink spec" design system, post/home/tools/pricing rebuilt; #335 + #336 merged and production-verified (Opus 5.5)
 

@@ -1,42 +1,36 @@
-# Next session (TAG): deps + lint gap first, then parked checks, R8, and the redesign's remaining pages
+# Next session (TAG): engine testing-claims fix, #344 sign-off, parked checks
 
-Start inside `theautomationsguide/`. State which model you are running as. Run `git pull --ff-only` on `master`. `TODO.md` is the only source of truth for open tasks; this file was last rewritten after Session 101 (2026-10-02; the redesign and #337 are merged, #338 published after it), so re-check every claim with a query or against the repo before acting.
+Start inside `theautomationsguide/`. State which model you are running as. Run `git pull --ff-only` on `master`. `TODO.md` is the only source of truth for open tasks; this file was last rewritten after Session 102 (2026-10-05: ruleset on master, #339 merged and production-verified, #344 open for Ian), so re-check every claim with a query or against the repo before acting.
 
-Read first: `CLAUDE.md`, `TODO.md`, the top of `docs/SESSION_LOG.md` (Sessions 100 and 101), `docs/DESIGN-SYSTEM.md` (the rules every new page follows), `audits/DESIGN-TEARDOWN-2026-10.md`.
+Read first: `CLAUDE.md` (gotcha 10 is new: `master` requires `qa`), `TODO.md`, the top of `docs/SESSION_LOG.md` (Session 102), `docs/DESIGN-SYSTEM.md` (page patterns section is new).
 
 ## NEEDS FROM IAN (AskUserQuestion, at the point where each is needed)
 
-1. **RevOps Stack Audit template: publish it together, at the start of Part C.** It exists in Notion ("RevOps Stack Audit Template", page `373783cc-c845-8143-ae74-d6a01f03666f`, 6/02; Claude fixed its unsourced claim 10/02). Ian does the publish in the Notion UI (Share > Publish > Publish to web, turn on "Allow duplicate as template", copy the link); ask him for the link with AskUserQuestion, then verify it loads logged-out (curl 200 and the title in the HTML) before wiring R8 (Part C3). If he prefers, Claude can first re-read the page via the Notion MCP and propose any copy fixes.
-2. **Beehiiv steps done?** (planned for 10/03 to 10/04: stack the input, hide the title, welcome email, recommendations). If done, screenshot the signup at 375 px on a post and confirm the email field shows in full inside the new `EmailSignup` block.
-3. **Date-gated, only once the date has passed:** N4 on or after 2026-10-22 (Alita n8n MCP key, dies 2026-10-29) and N5 about 2026-10-24 (GEO citation re-run). Both are spelled out in Part D.
+1. **PR #344 (honest methodology copy):** approve, edit or reject. He should check two first-person lines ("Some of these tools I have run in production"; "Ian has spent eight years running RevOps stacks, so some of the tools covered here he has used in production"). Merge only on his word; it is not a content PR, so `qa` reports skipped and the ruleset passes it.
+2. **Existing posts with invented testing claims:** after Part A ships the prompt fix, ask whether to scrub the existing posts (the Session 90 pattern) or leave them. Bring a count first.
+3. **R8 (parked by Ian 10/05):** only if he raises it. The Notion API cannot publish to web; he publishes the RevOps Stack Audit template himself and sends the link.
+4. **Beehiiv steps:** not done as of 10/05. Ask once; if done, screenshot the signup at 375 px on a post.
+5. **Date-gated, only once the date has passed:** N4 on or after 2026-10-22, N5 about 2026-10-24 (Part D).
 
-## Part 0. Housekeeping (Claude, first 10 minutes)
+## Part A. Stop the engine inventing hands-on testing (the bulk of the session)
 
-1. **Install the new dependency in the main checkout** (Ian asked Claude to run it): `npm install` inside `theautomationsguide/` (adds `lighthouse` from #335's lockfile; `node_modules` lives outside git). Then `npm run build && npm run qa:lighthouse` once to confirm the gate runs there; it takes about 4 minutes.
-2. **Why did #334 merge with `qa:lint` 1 hard?** It shipped `[Marketo](/go/marketo/)` (404 in prod, fixed by #337 `28498db`). Read the qa run on #334's pre-push sha (`gh run list --workflow qa-content-pr.yml`, gotcha 5 in CLAUDE.md), the auto-merge threshold, and whether lint's "slug not in affiliate-links.ts" is a hard failure in CI. Fix the gap on a branch + PR if it is in `.github/workflows/` or `qa/`; it must block a dead `/go/` link before merge. Also run `npm run qa:lint` on master now (#338 merged 10/03 after the fix).
-3. **Worktrees:** `git worktree prune -v`; about 20 stale `.git/worktrees/*` entries are OneDrive-locked (clear attributes, remove only git-confirmed-stale dirs).
+Engine posts still write first-person testing claims with no testing behind them: "I have tested it on three different HubSpot portals" (2026-09-20 Apollo to HubSpot post), "after hands-on testing" (2026-09-21 best CRM post), "most operator-friendly I have tested" (AI SDR post). Session 90 fixed the same class for client anecdotes (PR #283, the prompt rule plus a scrub). Do the same:
 
-## Part A. First real attributed click (read-only, about 5 minutes)
-
-Query PostHog 408442 for `affiliate_click` after 2026-10-02 01:21Z, host-scoped to `theautomationsguide.com`, with `source_path`, `source_component`, `source_via`, `$device_type`, `is_automated`. As of 10/02 20:05Z: 1 event, the cold `/go/runable/` entry. Only `source_via` `click` or `last_page` proves attribution; `is_automated=true` is QA or bot traffic. The redesign deployed about 21:55Z on 10/02: report clicks before and after it separately, and expect `tool-strip` (the new tools panel) to start appearing. A TAG-page click with `source_via=none` is a bug: check `src/components/ClickSource.astro` and `src/pages/go/[tool].astro`. Do not read the 10/15 or 11/26 metrics early.
+1. **Size it over the whole population first:** grep every post for first-person testing claims (`I have tested`, `I tested`, `I've tested`, `hands-on testing`, `in my testing`, `we tested`), count by month, and list which arrived after the 9/16 prompt fix. Read the definition of what the engine prompt now forbids before writing a new rule.
+2. **Fix the generator** with an idempotent `n8n/update-engine-*.mjs` updater (dry run, `deploy-engine.mjs --apply`, GET-verify live, keep `n8n/blog-post-engine.json` in sync). Prefer a deterministic sanitizer or lint rule over prompt text alone (CLAUDE.md gotcha 1). Watch the n8n expression tokenizer (gotcha 2).
+3. Then ask Ian (need 2) before touching existing posts.
 
 ## Part B. Parked checks (Claude only)
 
-1. **Watchdog anchor (#333):** first scheduled run after 10/02 19:20Z. `gh run list -R homegrowngrowthco/theautomationsguide --workflow n8n-watchdog.yml --limit 5 --json event,conclusion,createdAt,databaseId`; the `Window ...` log line must say `previous run`, starting at the previous run's start minus 3.4 h. `fallback 13h` plus `GitHub API HTTP 403` means `actions: read` did not take.
-2. **Topic stager** (after Sunday 2026-10-04 06:00Z, allow for lag): green, topics staged as Suggested.
-3. **Cadence re-check round 3** (on or after 2026-10-04): `C:\Users\Ian\.venvs\gsc\Scripts\python gsc-search-analytics.py 35`; provisional 9/22 to 9/28 was 16 clicks on 7,618 impressions. Confirm or revise; close or update the TODO line.
-4. **Indexing re-check** (about 2026-10-08): `gsc-index-status.py` for `/tools/calendly/`, the 9/06 Beehiiv post and the 10/01 Mailchimp-to-Kit post; confirm the "Google Indexing Submit" node returned 200 on the first post merged after 10/01.
+1. **Indexing re-check (about 2026-10-08):** `gsc-index-status.py` for `/tools/calendly/`, the 9/06 Beehiiv post and the 10/01 Mailchimp-to-Kit post; if calendly still is not indexed, stop chasing it.
+2. **First real attributed click:** PostHog 408442, `affiliate_click` after 2026-10-02 01:21Z, host-scoped. As of 10/05 13:00Z: 2 events, neither real (cold runable `source_via=none`; frase `is_automated=true`). Only `source_via` `click` or `last_page` with `is_automated=false` counts. Do not read the 10/15 or 11/26 metrics early.
+3. **~2026-10-15 metric:** `source_path` on >90% of human clicks (baseline 6%), split at the redesign deploy 10/02 ~21:55Z. Read it only on or after 10/15.
 
-## Part C. R8, then finish the redesign (the bulk of the session)
+## Part C. Lows if time allows
 
-Everything follows `docs/DESIGN-SYSTEM.md`: ink only as the frame (nav, title band, footer), every reading surface cream or white, `ui/` components, no Tailwind, no dashes, no invented proof. Code changes go in a `C:\tmp` worktree on a branch and a PR; junction `node_modules`; remove the junction with PowerShell `[IO.Directory]::Delete(path, $false)` before `git worktree remove`.
-
-0. **R8 first, with the template link from ask 1:** `EmailSignup` offers the RevOps Stack Audit (copy drafted in `NEWSLETTER.md`; one sentence on what it is, the Notion link delivered by the Beehiiv welcome email, which Ian turns on), plus one mid-post ask after the first comparison table on comparison posts, not a popup. Keep the Beehiiv form id. Pre-register the read: real signups per week, baseline 0, read at the 11/26 metrics.
-1. **About and disclosure:** article layout in the system (title band with `Band`, 70ch column). The disclosure page lists every live affiliate program by name, generated from `src/data/affiliate-links.ts` (status `live`), never hand-typed.
-2. **Tool hubs `/tools/<slug>/`:** title band with the logo tile, a pricing stat from the index with its read date (`ToolPricing`), the hub's posts as cards, one primary action. The CTA root class stays `tool-hub-actions` (ClickSource reports `hub-cta`).
-3. **Listing pages:** blog index, `/guides/<section>/`, `/teams/<slug>/`, `/playbooks/`, `/reviews/`: band header plus the latest-guides table or card grid from home.
-4. **Gates before Ian sees anything:** add the new routes to `qa/qa-shots.mjs` `DEFAULT_ROUTES`; `npm run build && npm run qa:shots && npm run qa:lighthouse` (median of 3; home is at 95 with no margin), then `qa:lint`, `qa:render`, `qa:overflow`, `qa:logos`, `qa:seo`, `qa:docs`. Look at every screenshot first. Prove a `/go/` click on the preview still carries `source_component` (capture and abort the ingest request, as Session 101 did).
-5. **Lows if time allows:** defer `SideBySide`'s load-time `offsetHeight` read without adding CLS; check what Lighthouse best-practices (77 everywhere) flags.
+- `/blog/` Lighthouse mobile perf 84 (LCP 3.98 s) on master; not the lazy first card image. Find the LCP element (save the Lighthouse JSON), then fix.
+- SideBySide: it only reads `offsetHeight` at 768 px and up, so the Gong post's mobile perf gap has another cause; measure before editing a post-contract component.
+- Lighthouse best-practices is 77 everywhere: check what it flags.
 
 ## Part D. Date-gated asks for Ian (only once the date has passed)
 
@@ -46,11 +40,12 @@ Everything follows `docs/DESIGN-SYSTEM.md`: ink only as the frame (nav, title ba
 ## Rules
 
 - Every question to Ian goes through AskUserQuestion; attach screenshots when asking him to choose. Commands he must run go in a chat code block.
-- No secrets in chat, the transcript or the public repo. Never read `.env.local`. Never `git add -A`. Commit trailers name the model actually running (Session 101 ran as Opus 5.5; check the system prompt, do not copy an old trailer).
-- Live n8n writes go through `n8n/live-patch.mjs` (backup, verify, restore), dry run first. Do not touch the engine, `n8n/` JSON, `backlog/`, `pricing/` scripts or `alita/` (except N4's `~/.claude.json`).
+- No secrets in chat, the transcript or the public repo. Never read `.env.local`. Never `git add -A`. Never bypass the PII hook (restore a moved line's original form instead). Commit trailers name the model actually running.
+- Never merge a PR with a red `qa` check, and never use `gh pr merge --admin` or the UI bypass on one (CLAUDE.md gotcha 10).
+- Live n8n writes go through `n8n/live-patch.mjs` or the engine updaters (backup, verify, restore), dry run first. Do not touch `backlog/`, `pricing/` scripts or `alita/` (except N4's `~/.claude.json`).
 - The post component contract in `src/components/post/`, `src/data/tools.ts`, `src/data/affiliate-links.ts`, every `/go/` redirect, `ClickSource` and its root class names, `Analytics.astro`, the CSP and `_headers`, `trailingSlash: 'always'`, the sitemap and JSON-LD stay as they are.
-- Do not name a component class `table` or `container`; keep buttons wrapping; give grid children `min-w-0`; use `:global(.x)` for a class passed to a child component's root; set `MSYS_NO_PATHCONV=1` when passing `/route/` arguments in Git Bash.
+- Code changes go in a `C:\tmp` worktree on a branch and a PR; junction `node_modules`; remove the junction with PowerShell `[IO.Directory]::Delete(path, $false)` before `git worktree remove`. File edits use the Edit tool or a `.mjs` script with a dry run, never `node -e` or `python -c`.
 
 ## Wrap-up
 
-Session log entry (20 lines or fewer), `TODO.md` updated, `npm run qa:docs` 0 hard. Root ops log: check `git log` for the latest op number first (another instance logs there; #1191 and #1192 were taken the same evening). Rewrite this file in place with whatever is still open; `git rm` it only when nothing is.
+Session log entry (20 lines or fewer), `TODO.md` updated, `npm run qa:docs` 0 hard. Root ops log: check `git log` for the latest op number first (another instance logs there). Rewrite this file in place with whatever is still open; `git rm` it only when nothing is.
