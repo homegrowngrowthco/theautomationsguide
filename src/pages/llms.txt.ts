@@ -25,14 +25,15 @@ export const GET: APIRoute = async () => {
 - [Migration guides](https://theautomationsguide.com/guides/migrations/): Guides for switching RevOps tools without losing data
 - [Tool vs tool](https://theautomationsguide.com/guides/tool-vs-tool/): Head-to-head RevOps tool comparisons
 - [Pricing breakdowns](https://theautomationsguide.com/guides/pricing/): What RevOps tools actually cost
-- [Reviews](https://theautomationsguide.com/reviews/): Hands-on, single-tool reviews of RevOps and GTM software
+- [Reviews](https://theautomationsguide.com/reviews/): Single-tool reviews of RevOps and GTM software
 
 ## Articles
 ${articleLines}
 
 ## About
-The Automations Guide is an independent publication. Articles are based on
-hands-on testing. Some links are affiliate links, disclosed on each page.
+The Automations Guide is an independent publication. Articles are researched
+from vendor documentation and pricing pages; prices come from the site's dated
+pricing index. Some links are affiliate links, disclosed on each page.
 `;
 
   return new Response(body, {
