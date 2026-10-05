@@ -1,8 +1,8 @@
-# Next session (TAG): verify the hands-on fix held, parked checks, date-gated asks
+# Next session (TAG): verify the claim fixes held, parked checks, date-gated asks
 
-Start inside `theautomationsguide/`. State which model you are running as. Run `git pull --ff-only` on `master`, then `git worktree prune -v` (OneDrive locked `.git/worktrees/tag-*` metadata after Session 103's removals). `TODO.md` is the only source of truth for open tasks; this file was last rewritten after Session 103 (2026-10-05: engine hands-on fix #345 deployed, 73-post scrub #346, #344 merged), so re-check every claim with a query or against the repo before acting.
+Start inside `theautomationsguide/`. State which model you are running as. Run `git pull --ff-only` on `master`, then `git worktree prune -v` (OneDrive locks `.git/worktrees/tag-*` metadata; "Permission denied" on prune is harmless when `git worktree list` is clean). `TODO.md` is the only source of truth for open tasks; this file was last rewritten after Session 104 (2026-10-05: observed-results engine rule #347 deployed 16:21Z, 98-post scrub #348, #340 fixed in-branch), so re-check every claim with a query or against the repo before acting.
 
-Read first: `CLAUDE.md` (gotcha 11 is new: example phrases in an engine prompt get copied verbatim), `TODO.md`, the top of `docs/SESSION_LOG.md` (Session 103).
+Read first: `CLAUDE.md` (gotcha 11 now covers both the testing and the "I've seen" rounds), `TODO.md`, the top of `docs/SESSION_LOG.md` (Sessions 104 and 103).
 
 ## NEEDS FROM IAN (AskUserQuestion, at the point where each is needed)
 
@@ -11,21 +11,21 @@ Read first: `CLAUDE.md` (gotcha 11 is new: example phrases in an engine prompt g
 3. **R8 (parked by Ian 10/05):** only if he raises it. The Notion API cannot publish to web.
 4. **Date-gated, only once the date has passed:** N4 on or after 2026-10-22, N5 about 2026-10-24 (Part D).
 
-## Part A. Confirm the hands-on fix held (first)
+## Part A. Confirm the claim fixes held (first)
 
-1. **First engine posts on the fixed prompt** (deployed 10/05 15:22Z): the 10/05 20:00Z and 10/06 12:00Z runs and any later ones. For each content PR: `node qa/lint-content.mjs --post <file>` must show no `first-person testing claim` (it is HARD on posts dated 10/05+, so a hit means `qa` went red) and read any `first-person usage claim` WARNs. If usage claims keep appearing, propose making `HANDS_ON_USE` HARD (lint change in a PR).
-2. **#340, #342, #343** were fixed in-branch on 10/05 and green; confirm each merged (auto-merge backstop) and that the live posts carry the fixed sentences.
+1. **First engine posts on both fixed prompts** (#345 deployed 10/05 15:22Z, #347 at 16:21Z): the 10/05 20:00Z and 10/06 12:00Z runs and any later ones. For each content PR: `node qa/lint-content.mjs --post <file>` must show no `first-person testing claim` (HARD on posts dated 10/05+, so a hit means `qa` went red). Read any `first-person usage claim` and `observation with a figure` WARNs. If either keeps appearing, propose making it HARD (lint change in a PR).
+2. **#340, #342, #343** are green with 0 claim warnings; auto-merge runs at the 14:00Z cron once a PR is 2 days old from creation (#340 on 10/06, #342 and #343 on 10/07). Confirm each merged and its live post returns 200.
 3. If the engine run failed or a red `qa` stalled a PR, recover with **Retry** on the execution (never a fresh trigger), per `n8n/README.md` "Retry stack".
 
 ## Part B. Parked checks (Claude only)
 
 1. **Indexing re-check (on or after 2026-10-08):** `gsc-index-status.py` for `/tools/calendly/`, the 9/06 Beehiiv post and the 10/01 Mailchimp-to-Kit post; if calendly still is not indexed, stop chasing it.
-2. **First real attributed click:** PostHog 408442, `affiliate_click` after 2026-10-02 01:21Z, host-scoped. As of 10/05 15:30Z: 5 events, none real (all cold `/go/` entries with `source_via=none`; one automated; three tools in two minutes on 10/05, crawler-like). Only `source_via` `click` or `last_page` with `is_automated=false` counts. Do not read the 10/15 or 11/26 metrics early.
+2. **First real attributed click:** PostHog 408442, `affiliate_click` after 2026-10-02 01:21Z, host-scoped. As of 10/05 15:30Z (not re-read in S104): 5 events, none real (all cold `/go/` entries with `source_via=none`; one automated; three tools in two minutes on 10/05, crawler-like). Only `source_via` `click` or `last_page` with `is_automated=false` counts. Do not read the 10/15 or 11/26 metrics early.
 3. **~2026-10-15 metric:** `source_path` on >90% of human clicks (baseline 6%), split at the redesign deploy 10/02 ~21:55Z. Read it only on or after 10/15.
 
 ## Part C. Lows if time allows
 
-- Content `qa` checks only the first changed post (`head -1` in `qa-content-pr.yml`); looping lint/render over every changed post is a small CI change if multi-post PRs recur.
+- Content `qa` checks only the first changed post (`head -1` in `qa-content-pr.yml`); #346 and #348 were multi-post PRs gated locally. Looping lint/render over every changed post is a small CI change.
 - Best-practices 77 everywhere = Beehiiv `attribution.js` third-party cookie; loading the embed on interaction would clear it (not a gate; check the signup still works on mobile).
 - SideBySide: it only reads `offsetHeight` at 768 px and up, so the Gong post's mobile perf gap has another cause; measure before editing a post-contract component.
 
@@ -39,7 +39,7 @@ Read first: `CLAUDE.md` (gotcha 11 is new: example phrases in an engine prompt g
 - Every question to Ian goes through AskUserQuestion; attach screenshots when asking him to choose. Commands he must run go in a chat code block.
 - No secrets in chat, the transcript or the public repo. Never read `.env.local`. Never `git add -A`. Never bypass the PII hook (a placeholder email in an edited line goes to `@example.com`; otherwise restore the line's original form). Commit trailers name the model actually running.
 - Never merge a PR with a red `qa` check, and never use `gh pr merge --admin` or the UI bypass on one (CLAUDE.md gotcha 10).
-- Live n8n writes need Ian's explicit OK (the classifier blocks `deploy-engine.mjs --apply` without it), go through `n8n/live-patch.mjs` or the engine updaters, dry run first, with a saved GET of the live workflow as the revert path. Do not touch `backlog/`, `pricing/` scripts or `alita/` (except N4's `~/.claude.json`).
+- Live n8n writes need Ian's explicit OK (the classifier blocks `deploy-engine.mjs --apply` without it), go through `n8n/live-patch.mjs` or the engine updaters, dry run first, with a saved GET of the live workflow as the revert path (the deployer's dry run does not diff prompt text; diff node parameters yourself). Do not touch `backlog/`, `pricing/` scripts or `alita/` (except N4's `~/.claude.json`).
 - The post component contract in `src/components/post/`, `src/data/tools.ts`, `src/data/affiliate-links.ts`, every `/go/` redirect, `ClickSource` and its root class names, `Analytics.astro`, the CSP and `_headers`, `trailingSlash: 'always'`, the sitemap and JSON-LD stay as they are.
 - Code changes go in a `C:\tmp` worktree on a branch and a PR; junction `node_modules`; remove the junction with PowerShell `[IO.Directory]::Delete(path, $false)` before `git worktree remove`. File edits use the Edit tool or a `.mjs` script with a dry run, never `node -e` or `python -c`. In Git Bash, pass route arguments with `MSYS_NO_PATHCONV=1`.
 

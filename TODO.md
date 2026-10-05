@@ -5,7 +5,7 @@ Tracked by todo-sync (see ../todo-sync/CONVENTION.md). **Open tasks only, most i
 ## TODO
 
 - [ ] **Confirm the first REAL `affiliate_click` from a TAG page carries `source_path` / `source_component`.** Count from **10/02 01:21Z** (#326 merge). As of 10/05 15:30Z: 5 events, none real (cold `/go/` entries, `source_via=none`; one automated; 3 tools in 2 min on 10/05, crawler-like). Attribution proven in production on 10/05 for `hub-cta` and `tool-strip`. @high [PROMPT-tag-next-session-2026-10-02.md](PROMPT-tag-next-session-2026-10-02.md)
-- [ ] **Confirm the first engine posts on the fixed prompt carry no hands-on claims** (deployed 10/05 15:22Z, #345): the 10/05 20:00Z and 10/06 12:00Z runs. `qa:lint` HARD-fails testing claims on posts dated 10/05+; usage claims ("I've run X") only WARN, so read those PRs' warnings. If usage claims keep appearing, make `HANDS_ON_USE` HARD too. @high [docs/SESSION_LOG.md](docs/SESSION_LOG.md) S103
+- [ ] **Confirm the first engine posts on the fixed prompt carry no invented claims** (#345 15:22Z + #347 observed-results rule 16:21Z, 10/05): the 10/05 20:00Z and 10/06 12:00Z runs. Testing claims HARD-fail on posts dated 10/05+; usage claims and "observation with a figure" only WARN, so read those PRs' warnings. If either keeps appearing, make it HARD. @high [docs/SESSION_LOG.md](docs/SESSION_LOG.md) S103-S104
 - [ ] **Read the conversion audit's pre-registered metrics.**
   - **~2026-10-15 (2 weeks after #326 merged 10/01):** `source_path` on >90% of human clicks (baseline 6%).
   - **~2026-11-26 (8 weeks):** real-affiliate clicks per 100 post pageviews by `source_component` (baseline 3.8/5.9), `/tools/*` hub CTR (close/pipedrive/hubspot 0 clicks on 3.6k impressions), real Beehiiv signups per week (0).

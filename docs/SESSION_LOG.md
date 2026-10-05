@@ -8,7 +8,17 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-05 (Session 103).
+Last updated 2026-10-05 (Session 104).
+
+## Session 104 (2026-10-05): engine stops modelling "I've seen" (#347), 98-post observed-results scrub (#348), #340 fixed in-branch (Opus 5.5)
+
+- **Started 40 min after S103**, so Part A's engine runs (10/05 20:00Z, 10/06 12:00Z), indexing (10/08), metrics (10/15) and N4/N5 were all still date-gated. #340/#342/#343: green, 0 hands-on warnings; auto-merge counts from PR creation at the 14:00Z cron (#340 on 10/06, #342/#343 on 10/07).
+- **New class found via a #340 line:** "I've seen / watched / helped / worked with / built" in 150/169 posts (about 90% every month); 137 sentences hung an invented figure on one ("cut CRM data entry 40 percent", "a $400 domain and three weeks of warm-up"). Root cause: #345 kept "I've seen teams get this wrong when..." and "I've seen this fail when..." as the SAFE phrases (gotcha 11 again). Ian: fix the engine, scrub figure-carrying ones only; plain observations stay.
+- **#347 `5ae80db`:** `n8n/update-engine-observation-claims.mjs` (3 exact anchors, idempotent, tokenizer check) drops the examples, adds OBSERVED RESULTS rule (Generate Draft) + verify (Humanize). `qa/lint-content.mjs` `observation with a figure` WARN, 9 frozen fixtures. Repo had 0 drift from live; deployed 16:21Z on Ian's OK, GET-verified 0 param diffs, rule present, old phrase gone.
+- **#348 `4523c02`:** 138 find/replace edits in 98 posts (4 parallel agents, exact-match validator rejecting dashes, backticks, testing phrases and surviving observation+figure; full word-diff reviewed), plus 2 invented StatRow cards dropped (Gong "3-6 months", n8n "85%") and 1 `.md` post by hand. Several Homegrown Growth Co. engagement claims went with them. `[skip-freshness]`. Lint 137 to 0; build OK; render 169/0 hard. **Prod: 98/98 200, 0 observation+figure sentences live.**
+- **#340 `02b8027` (Ian's OK):** invented Smartlead warm-up anecdote rewritten, Smartlead linked via `/go/`; lint 0 warnings, qa green. #343's "multiple clients" warn is a false positive (describes the reader's agency).
+- **Revert:** `git revert 4523c02` / `5ae80db`, then `node --env-file=../growth-engine/.env n8n/deploy-engine.mjs --apply` from master. Pre-change live GET kept in the session scratchpad only.
+- **Gotchas:** the deployer's dry run does not diff prompt text, so GET live and diff node parameters before an engine change; a stale local branch from an old worktree blocks `worktree add -b <same name>` (use a new local name, push `HEAD:<branch>`); prod text checks must split on block tags or adjacent elements merge into false hits.
 
 ## Session 103 (2026-10-05): engine stops inventing hands-on testing (#345), 73-post scrub (#346), #344 merged (Opus 5.5)
 
