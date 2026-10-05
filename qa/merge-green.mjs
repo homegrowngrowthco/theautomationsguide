@@ -66,6 +66,9 @@ export function evaluate({ pr, reviews = [], checkRuns = [], statuses = [], requ
 
   if (pr.mergeable_state === 'dirty') blocked.push('merge conflict with master');
   else if (pr.mergeable === null || pr.mergeable_state === 'unknown') wait.push('GitHub is still computing mergeability');
+  // GitHub's own verdict wins: the ruleset reads only checks in suites tied to the
+  // PR, so a check from a dispatched run can look green here yet not count (#353).
+  else if (pr.mergeable_state === 'blocked') wait.push('GitHub reports the PR blocked (a required check is missing from its rollup)');
 
   if (blocked.length) return { state: 'blocked', reasons: blocked };
   if (wait.length) return { state: 'wait', reasons: wait };
@@ -220,6 +223,7 @@ function selftest() {
     ['draft blocks', { pr: pr({ draft: true }), checkRuns: green }, 'blocked'],
     ['conflict blocks', { pr: pr({ mergeable: false, mergeable_state: 'dirty' }), checkRuns: green }, 'blocked'],
     ['mergeability unknown waits', { pr: pr({ mergeable: null, mergeable_state: 'unknown' }), checkRuns: green }, 'wait'],
+    ['GitHub-blocked waits even when checks look green (#353)', { pr: pr({ mergeable_state: 'blocked' }), checkRuns: green }, 'wait'],
     ['closed PR blocks', { pr: pr({ state: 'closed' }), checkRuns: green }, 'blocked'],
   ];
   let fail = 0;
