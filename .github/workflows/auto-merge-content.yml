@@ -25,7 +25,8 @@ name: Merge green content PRs
 
 on:
   workflow_run:
-    workflows: ['QA + auto-fix content PRs', 'PR gates']
+    # Names are glob patterns here: never put + * ? [ ] ! in a watched workflow's name.
+    workflows: ['QA and auto-fix content PRs', 'PR gates']
     types: [completed]
   schedule:
     - cron: '0 14 * * *'
