@@ -8,7 +8,19 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-05 (Session 104).
+Last updated 2026-10-05 (Session 105).
+
+## Session 105 (2026-10-05): merge-on-green for every PR, no manual merges (Opus 5.5)
+
+- **#349 `4ae512d`:** `auto-merge-content.yml` rewritten as merge-on-green (`workflow_run` on qa / PR-gates completion, squash with `sha` pinned, polls 12 min; daily sweep + Slack kept as backstop); logic + 20 fixtures in `qa/merge-green.mjs`. PR gates gained `build` (npm ci, build, `qa:lint --all`), the merge-green selftest and a `pr-gates` roll-up. qa job: on a pass, publishes its `qa` verdict onto the `[auto-register]` commit it pushed and dispatches PR gates there (GITHUB_TOKEN pushes create no checks); manual/declined Vision outcomes now go RED (they ended green before, hidden by the 2-day wait).
+- **Settings:** ruleset 24417620 now requires `qa` + `pr-gates` (before: `qa` only, skipped on code PRs = passing); repo `allow_auto_merge=true`.
+- **#351 `f18f40b`:** `qa:render` on every post in pr-gates (closes the first-changed-post-only gap). Merged itself 7 s after pr-gates went green via `--auto`: code-PR proof.
+- **#352:** `workflow_run.workflows` reads names as globs, so "QA + auto-fix content PRs" never matched (#350's qa completion fired no merger run). Renamed "QA and auto-fix content PRs".
+- **Red proof #350:** throwaway `content/` PR with an em dash; merger logged `blocked (qa/build/pr-gates failure)`, stayed open; closed, branch deleted.
+- **Green content proof #353 (20:00Z engine post):** first qa run + 3 selftests cancelled by GitHub's Actions incident (19:12Z, runners never assigned); re-run passed, verdict published on bot commit `31ac0cb3`, PR gates dispatched there, qa completion triggered the merger. Merge, deploy, Notion still pending at log time (Actions in major outage).
+- **Part A:** #353 post lints 0 hard, 0 claim warnings, 0 claim phrases. #340/#342/#343 live 200 with the fixed sentences. PostHog: still 5 `affiliate_click`, none real.
+- **Revert:** revert #349/#351/#352; `gh api -X PATCH repos/homegrowngrowthco/theautomationsguide -F allow_auto_merge=false`; PUT ruleset with `qa` only.
+- **Gotchas:** Claude's gh user is a ruleset bypass actor, so always `gh pr merge --auto --squash`, never a plain merge on a pending PR. An Actions incident cancels queued jobs (no runner) and reads as red; recover with `gh run rerun` / `--failed`.
 
 ## Session 104 (2026-10-05): engine stops modelling "I've seen" (#347), 98-post observed-results scrub (#348), #340 fixed in-branch (Opus 5.5)
 
