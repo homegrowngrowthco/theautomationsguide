@@ -7,7 +7,7 @@ import Container from '../components/ui/Container.astro';
 import { getCollection } from 'astro:content';
 import { classifySection } from '../lib/post-cards';
 
-// "Reviews" = single-tool, hands-on write-ups (classifySection() returns
+// "Reviews" = single-tool write-ups (classifySection() returns
 // 'Review' when a post's title contains "review"), as opposed to the
 // head-to-head "X vs Y" content, which lives at /guides/tool-vs-tool/.
 // This page used to filter by the `comparison` tag instead, which meant it
@@ -22,13 +22,13 @@ const posts = all
 ---
 
 <BaseLayout
-  title="Tool Reviews: Hands-On RevOps & GTM Software Takes"
-  description="Hands-on, single-tool reviews of RevOps and GTM automation software: what's good, what's missing, and whether it's worth the price."
+  title="Tool Reviews: RevOps & GTM Software, One Tool at a Time"
+  description="Single-tool reviews of RevOps and GTM automation software: what's good, what's missing, and what it costs, with the price read from the vendor's own page."
 >
   <PageHead
     eyebrow={`Reviews · ${posts.length} articles`}
     title="Reviews"
-    lede="One tool at a time, used long enough to hit its limits, with the parts the vendor page leaves out."
+    lede="One tool at a time: what it is good at, where it falls short, and what it costs, with the parts the vendor page leaves out."
   />
   <div class="listing-main"><Container size="wide">
 

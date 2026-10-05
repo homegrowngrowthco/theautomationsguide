@@ -44,12 +44,12 @@ export const sections: Section[] = [
     navLabel: 'Tool vs tool',
     title: 'Tool vs Tool: Head-to-Head RevOps Comparisons',
     description:
-      'Direct comparisons of CRMs, sequencers, enrichment tools, and email platforms, decided by what they actually do differently in production, not by feature checklist.',
-    dek: 'Two or three tools, the same job, tested side by side instead of read off a spec sheet.',
+      'Direct comparisons of CRMs, sequencers, enrichment tools, and email platforms, decided by what they actually do differently, not by feature checklist.',
+    dek: 'Two or three tools, the same job, compared on where they actually diverge, with prices read from each vendor\'s own page.',
     intro: [
-      'Every comparison here follows the same rule: I only write "X vs Y" when I have used both tools enough to know where they actually diverge, not just where their pricing pages differ. That is why the same few tools show up across multiple comparisons: Apollo, HubSpot, Pipedrive, Attio, ActiveCampaign. Most RevOps stacks are choosing between the same handful of options, and the honest answer is usually "it depends on your team size and data model," not a universal winner.',
+      'Every comparison here puts two or three tools that do the same job side by side and asks where they actually diverge, not just where their pricing pages differ. The same few tools show up across multiple comparisons (Apollo, HubSpot, Pipedrive, Attio, ActiveCampaign) because most RevOps stacks choose between the same handful of options, and the honest answer is usually "it depends on your team size and data model," not a universal winner.',
       "I weigh the same things in every comparison: what breaks at scale, what the free trial actually lets you test, what support looks like when something goes wrong before a campaign goes live, and what it costs once you are past the entry tier. Feature parity gets a mention, but it rarely decides the call.",
-      'If two tools you are choosing between are not covered yet, that is likely because I have not run both in production long enough to have an honest opinion, and I would rather say nothing than guess.',
+      'Some of these tools I have run in production; many I have not, and I do not claim to have tested every pair. The prices in each comparison\'s tools panel come from the <a href="/revops-automation-pricing/">RevOps pricing index</a>, read from each vendor\'s own pricing page on a stated date.',
     ],
   },
   {

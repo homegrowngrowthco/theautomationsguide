@@ -31,8 +31,9 @@ export const GET: APIRoute = async () => {
 ${articleLines}
 
 ## About
-The Automations Guide is an independent publication. Articles are based on
-hands-on testing. Some links are affiliate links, disclosed on each page.
+The Automations Guide is an independent publication. Articles are researched
+from vendor documentation and pricing pages; prices come from the site's dated
+pricing index. Some links are affiliate links, disclosed on each page.
 `;
 
   return new Response(body, {
