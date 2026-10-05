@@ -2,6 +2,8 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostCard from '../../components/PostCard.astro';
 import ItemListSchema from '../../components/ItemListSchema.astro';
+import PageHead from '../../components/ui/PageHead.astro';
+import Container from '../../components/ui/Container.astro';
 import { audiences, getAudiencePosts, type Audience } from '../../data/audiences';
 
 export async function getStaticPaths() {
@@ -18,12 +20,8 @@ const teamWord = audience.navLabel.replace(/^For /, '');
 ---
 
 <BaseLayout title={audience.title} description={audience.description}>
-  <div class="container--wide">
-    <div class="page-header">
-      <p class="section-label">For {teamWord} teams</p>
-      <h1>{audience.title}</h1>
-      <p>{audience.description}</p>
-    </div>
+  <PageHead eyebrow={`For ${teamWord} teams · ${posts.length} articles`} title={audience.title} lede={audience.description} />
+  <div class="listing-main"><Container size="wide">
 
     {posts.length > 0 ? (
       <div class="card-grid">
@@ -36,6 +34,6 @@ const teamWord = audience.navLabel.replace(/^For /, '');
         </p>
       </div>
     )}
-  </div>
+  </Container></div>
   <ItemListSchema name={audience.title} items={posts.map((p) => ({ url: `/blog/${p.slug}/`, name: p.data.title }))} />
 </BaseLayout>

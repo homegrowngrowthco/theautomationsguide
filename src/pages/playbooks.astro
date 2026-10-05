@@ -2,6 +2,8 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
 import ItemListSchema from '../components/ItemListSchema.astro';
+import PageHead from '../components/ui/PageHead.astro';
+import Container from '../components/ui/Container.astro';
 import { getCollection } from 'astro:content';
 
 // "Playbooks" = the step-by-step / how-to content (guides, tutorials, workflows),
@@ -19,11 +21,12 @@ const posts = all
   title="RevOps & GTM Automation Playbooks"
   description="Step-by-step automation playbooks and workflow guides for RevOps and GTM teams, from operators who have shipped them."
 >
-  <div class="container--wide">
-    <div class="page-header">
-      <h1>Playbooks</h1>
-      <p>Step-by-step automation playbooks and workflow guides you can ship this week, not vendor theory.</p>
-    </div>
+  <PageHead
+    eyebrow={`Playbooks · ${posts.length} articles`}
+    title="Playbooks"
+    lede="Step-by-step automation playbooks and workflow guides you can ship this week, not vendor theory."
+  />
+  <div class="listing-main"><Container size="wide">
 
     {posts.length > 0 ? (
       <div class="card-grid">
@@ -34,6 +37,6 @@ const posts = all
         <p>Playbooks are on the way. <a href="/blog/">Browse all articles</a>.</p>
       </div>
     )}
-  </div>
+  </Container></div>
   <ItemListSchema name="RevOps & GTM Automation Playbooks" items={posts.map((p) => ({ url: `/blog/${p.slug}/`, name: p.data.title }))} />
 </BaseLayout>

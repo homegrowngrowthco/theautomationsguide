@@ -13,11 +13,12 @@ const p = r?.entryPaidPlan;
 const annual = p ? money(p.monthlyBilledAnnually, r?.currency) : null;
 const monthly = p ? money(p.monthlyBilledMonthly, r?.currency) : null;
 const hasPrice = !!(annual || monthly);
+const readOn = new Date(`${pricingReadDate}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 ---
 
 {r && (
   <section class="tool-pricing" aria-labelledby="tool-pricing-title">
-    <h2 id="tool-pricing-title" class="tool-pricing-title">Pricing (read {pricingReadDate})</h2>
+    <h2 id="tool-pricing-title" class="tool-pricing-title">Pricing (read {readOn})</h2>
     <dl class="tool-pricing-list">
       <div>
         <dt>Entry paid plan</dt>
@@ -56,17 +57,19 @@ const hasPrice = !!(annual || monthly);
 <style>
   .tool-pricing {
     margin: 0 0 2rem;
-    padding: 1rem 1.25rem;
-    max-width: 70ch;
-    background: var(--bg-secondary);
+    padding: 1.1rem 1.25rem;
+    max-width: var(--measure);
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 0.5rem;
+    border-radius: var(--radius-md);
     overflow-wrap: anywhere;
   }
   .tool-pricing-title {
-    font-size: 1.1rem;
+    font: 600 var(--step-2)/1.3 var(--font-serif);
+    color: var(--ink-900);
     margin: 0 0 0.6rem;
   }
+  .tool-pricing-list dd { font-variant-numeric: tabular-nums; }
   .tool-pricing-list { margin: 0; }
   .tool-pricing-list > div {
     display: grid;
