@@ -52,7 +52,7 @@ Instantly became the default cold email tool for lean outbound teams around 2022
 
 ## Where Instantly actually breaks down
 
-Instantly's architecture is built for the solo operator or small agency running 10 to 30 domains. The warmup network works well at that scale. What I've seen fall apart at teams running outbound at serious volume (think 100K emails per month across 60+ sender accounts) comes down to two things: warmup pool saturation and inbox rotation logic.
+Instantly's architecture is built for the solo operator or small agency running 10 to 30 domains. The warmup network works well at that scale. What tends to fall apart for teams running outbound at serious volume (think 100K emails per month across 60+ sender accounts) comes down to two things: warmup pool saturation and inbox rotation logic.
 
 When too many senders in the same network warm up against each other, ESPs start pattern-matching the traffic. Google and Microsoft have both tightened their heuristics for inter-account warm traffic since 2024, and a smaller pool means the same sending pairs appear more often. [Google's Email Sender Guidelines update](https://support.google.com/mail/answer/81126) from early 2024 made this worse for any tool relying on a closed warmup loop. Instantly hasn't meaningfully disclosed how it's addressed this. That should give volume senders pause.
 
@@ -118,7 +118,7 @@ The cleanest signal is what's actually breaking for you right now. If Instantly 
 
 If you're losing deals because prospects are flagging your outreach as generic (a problem no volume tool solves, by the way), [Lemlist's](/go/lemlist) personalization layer is where I'd put the budget. The per-user pricing stings but the conversion math often works out if your ACV is above $10K and you're reaching mid-market or enterprise buyers who receive 50 cold emails a day.
 
-For teams running a real SDR motion with a CRM, managed handoffs, and call steps, [Reply.io](/tools/reply-io/) is the only tool here built for that workflow. Trying to bolt those features onto [Smartlead](/tools/smartlead/) or [Lemlist](/tools/lemlist/) via Zapier is a maintenance burden I've watched teams regret within 90 days.
+For teams running a real SDR motion with a CRM, managed handoffs, and call steps, [Reply.io](/tools/reply-io/) is the only tool here built for that workflow. Trying to bolt those features onto [Smartlead](/tools/smartlead/) or [Lemlist](/tools/lemlist/) via Zapier is a maintenance burden teams tend to regret quickly.
 
 <DecisionTree
   caption="Start here to pick your Instantly alternative"

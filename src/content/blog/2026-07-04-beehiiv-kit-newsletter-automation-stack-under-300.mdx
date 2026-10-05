@@ -90,7 +90,7 @@ The architecture is straightforward. Beehiiv is the subscriber front door and mo
   <Fragment slot="left">
     **The gotcha: Beehiiv deduplication**
 
-    Beehiiv and Kit both store subscribers by email, but Beehiiv is case-sensitive on some webhook payloads. I have seen n8n create duplicate Kit subscribers because `Jane@example.com` and `jane@example.com` were treated as two different records. Build a lowercase normalization step into every n8n node that handles email values before hitting the Kit API. One line of JavaScript in an n8n Function node prevents hours of list cleanup later.
+    Beehiiv and Kit both store subscribers by email, but Beehiiv is case-sensitive on some webhook payloads. A common failure is n8n creating duplicate Kit subscribers because Jane@example.com and jane@example.com were treated as two different records. Build a lowercase normalization step into every n8n node that handles email values before hitting the Kit API. One line of JavaScript in an n8n Function node prevents hours of list cleanup later.
   </Fragment>
   <Fragment slot="right">
     ```javascript

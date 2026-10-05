@@ -162,7 +162,7 @@ Every team I have consulted for over-engineers the enrichment layer and under-en
 
 ## Ship It, Then Tune It
 
-This workflow takes about four hours to build from scratch. Thirty minutes on the Attio automation, 90 minutes on the n8n canvas including testing, 30 minutes tuning the enrichment provider configuration, and 60 minutes on the write-back validation logic. After that, it runs without intervention. I have seen this workflow run for eight months with zero maintenance beyond rotating API keys once.
+This workflow takes about four hours to build from scratch. Thirty minutes on the Attio automation, 90 minutes on the n8n canvas including testing, 30 minutes tuning the enrichment provider configuration, and 60 minutes on the write-back validation logic. After that, it runs without intervention. Once it is stable, maintenance should be limited to rotating API keys and the occasional provider change.
 
 The next layer worth adding, once this is stable, is a scoring node after enrichment. Pull the enriched firmographics, run them against your ICP definition in an n8n Function node, write an `icp_score` attribute back to Attio, and trigger a different Attio automation for high-score records that notifies the AE. That is the full signal-to-action loop, entirely code-light once the enrichment plumbing is in place. For teams also tracking website visitor signals into their CRM, the [Vector n8n visitor signal workflow](/blog/2026-08-01-vector-n8n-website-visitor-signal-workflow/) uses the same Attio write-back pattern and slots cleanly into this architecture.
 

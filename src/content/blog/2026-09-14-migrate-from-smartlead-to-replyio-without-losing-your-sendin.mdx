@@ -111,7 +111,7 @@ The gotchas in this migration are predictable once you know where to look. Here 
   <Fragment slot="left">
     **Gotcha: Reply.io's DKIM selector conflicts with Smartlead's**
 
-    If you remove Smartlead's DKIM selector from DNS before Smartlead campaigns finish sending, any queued emails will fail DKIM verification and either bounce or land in spam. Teams in a hurry delete the old selector on day one of the migration. I have seen this tank an entire domain's reputation in 48 hours. It is not recoverable quickly.
+    If you remove Smartlead's DKIM selector from DNS before Smartlead campaigns finish sending, any queued emails will fail DKIM verification and either bounce or land in spam. Teams in a hurry delete the old selector on day one of the migration. This can tank an entire domain's reputation fast. It is not recoverable quickly.
   </Fragment>
   <Fragment slot="right">
     **Fix: run dual DKIM selectors through the overlap window**

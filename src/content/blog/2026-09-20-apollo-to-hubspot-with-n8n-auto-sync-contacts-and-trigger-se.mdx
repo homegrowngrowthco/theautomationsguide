@@ -93,7 +93,7 @@ Before you start, get three things ready: an [Apollo](/tools/apollo/) API key (S
   <Fragment slot="left">
     **The rate limit trap:** Apollo's free plan caps at 50 requests per hour. If your cron runs every 5 minutes and returns 25 contacts per call, you hit 300 contacts per hour. Fine on paid Apollo plans. A wall of 429s on free. Also watch HubSpot's batch upsert limit: 100 records per call, 10 calls per second.
 
-    I have watched workflows silently swallow 429 errors and stop enrolling contacts entirely because error handling was set to "continue" instead of "retry with backoff." You will not notice until your SDR asks why nobody got sequenced this week.
+    A common failure is a workflow that silently swallows 429 errors and stops enrolling contacts entirely because error handling was set to "continue" instead of "retry with backoff." You will not notice until your SDR asks why nobody got sequenced this week.
 
     The fix: add a Wait node between batches and set HubSpot HTTP nodes to retry on 429 with a 5-second delay. Always log the HubSpot response body to a Set node so you can inspect it in the execution log.
   </Fragment>
@@ -192,7 +192,7 @@ Also worth checking: if sequence leakage is your underlying problem, the [sales 
 The [HubSpot Sequences API docs](https://developers.hubspot.com/docs/reference/api/crm/engagement/sequences) and [Apollo REST API reference](https://apolloio.github.io/apollo-api-docs/) are your primary references here. Both are well-maintained and the enrollment endpoint behavior is documented accurately as of mid-2026.
 
 <MyTake>
-Sync everything bidirectionally from day one and you will regret it. I have seen HubSpot properties get overwritten with blank values because Apollo won the field conflict and nobody caught it for six weeks. Build one-way, Apollo to HubSpot, until your field mapping is stable and your sequence enrollment logic is proven. Earn bidirectional sync. Do not start with it.
+Sync everything bidirectionally from day one and you will regret it. HubSpot properties can get overwritten with blank values when Apollo wins a field conflict, and nobody notices for weeks. Build one-way, Apollo to HubSpot, until your field mapping is stable and your sequence enrollment logic is proven. Earn bidirectional sync. Do not start with it.
 </MyTake>
 
 ## What You End Up With

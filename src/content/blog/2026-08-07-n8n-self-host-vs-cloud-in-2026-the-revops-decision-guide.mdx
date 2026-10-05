@@ -33,7 +33,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-Every RevOps team I talk to in 2026 is running [n8n](/go/n8n/) workflows for something mission-critical: lead routing, CRM enrichment, webhook processing from [Clay](/go/clay/) or [Apollo](/go/apollo/), AI agent orchestration. The question is no longer "should we use n8n" but "where do we run it?" The self-host vs cloud decision looks like a simple cost trade-off on the surface, but I've watched teams make expensive mistakes in both directions. This guide gives you the honest numbers and the actual decision framework.
+Every RevOps team I talk to in 2026 is running [n8n](/go/n8n/) workflows for something mission-critical: lead routing, CRM enrichment, webhook processing from [Clay](/go/clay/) or [Apollo](/go/apollo/), AI agent orchestration. The question is no longer "should we use n8n" but "where do we run it?" The self-host vs cloud decision looks like a simple cost trade-off on the surface, but teams make expensive mistakes in both directions. This guide gives you the honest numbers and the actual decision framework.
 
 <KeyTakeaways items={[
   "n8n Cloud Starter is $20/month; self-hosting a production-grade instance realistically costs $40-80/month in infra alone before DevOps time",
@@ -138,15 +138,15 @@ Second: what is the [current and projected cost per rep across your full stack](
 
 Third: do you have data residency requirements? EU-based teams with GDPR obligations or US healthcare-adjacent companies often cannot send workflow payloads through a vendor's cloud. Self-host is not optional in those cases. It is the compliance decision. According to the [n8n docs on self-hosting](https://docs.n8n.io/hosting/), you can run n8n completely air-gapped with outbound telemetry disabled.
 
-Fourth: how often are you shipping new workflows? Cloud removes the "update the n8n version before adding this new node" friction entirely. When a team is iterating weekly on new GTM automations, that friction compounds fast. I have seen teams stall for two or three days because a weekend upgrade broke their queue workers and they were afraid to roll back.
+Fourth: how often are you shipping new workflows? Cloud removes the "update the n8n version before adding this new node" friction entirely. When a team is iterating weekly on new GTM automations, that friction compounds fast. A common failure is a weekend upgrade that breaks the queue workers and stalls the team for days because nobody wants to roll back.
 
 <MyTake>
-Most RevOps teams that choose self-hosting do it for the wrong reason: they think it is cheaper. It is almost never cheaper unless you already have free DevOps capacity sitting idle. The teams I have seen run self-host well are the ones with a platform engineer who would be standing up infrastructure anyway, and n8n just becomes one more service in the stack. Everyone else is subsidizing the ego of running their own server with their own time, and they usually figure that out around the third unplanned Saturday incident.
+Most RevOps teams that choose self-hosting do it for the wrong reason: they think it is cheaper. It is almost never cheaper unless you already have free DevOps capacity sitting idle. The teams that run self-host well are the ones with a platform engineer who would be standing up infrastructure anyway, and n8n just becomes one more service in the stack. Everyone else is subsidizing the ego of running their own server with their own time, and they usually figure that out around the third unplanned Saturday incident.
 </MyTake>
 
 ## The Maintenance Burden Nobody Talks About
 
-The hidden cost of self-hosting is not the server bill. It is compounding upgrade debt. n8n ships [frequent releases](https://github.com/n8n-io/n8n/releases), and running more than two major versions behind means community nodes start breaking, new AI agent nodes are unavailable, and you cannot reproduce issues against the current docs. I have seen self-hosted instances running n8n 0.214 when the team was actively trying to implement features from the 1.x documentation. That is a painful place to be.
+The hidden cost of self-hosting is not the server bill. It is compounding upgrade debt. n8n ships [frequent releases](https://github.com/n8n-io/n8n/releases), and running more than two major versions behind means community nodes start breaking, new AI agent nodes are unavailable, and you cannot reproduce issues against the current docs. A common version of this is a self-hosted instance stuck on an old 0.x release while the team tries to implement features from the 1.x documentation. That is a painful place to be.
 
 The upgrade path for a properly configured self-hosted instance (Docker Compose or Kubernetes, external Postgres, Redis in queue mode) is not a `docker pull` and restart. You need to test against existing workflows, check for breaking changes in the changelog, and have a rollback plan. Teams that skip this end up with a brittle instance they are afraid to touch. And then they stop touching it. And then it falls further behind.
 

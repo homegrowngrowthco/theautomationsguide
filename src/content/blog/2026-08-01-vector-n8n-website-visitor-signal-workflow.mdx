@@ -92,7 +92,7 @@ The workflow has four logical stages: capture the Vector signal, enrich the acco
 
 <SideBySide>
   <Fragment slot="left">
-    **The trap:** Vector's webhook fires on every score change, including downward movements when a visitor's session score decays. If you don't filter for score direction, your workflow triggers on cold events and spams reps with stale alerts. I've seen this burn a client's Slack channel credibility in 48 hours flat. Also watch for the same domain triggering multiple times in one session. Add a deduplication node (n8n's built-in Deduplicate Items node works fine) keyed on domain plus a 4-hour window.
+    **The trap:** Vector's webhook fires on every score change, including downward movements when a visitor's session score decays. If you don't filter for score direction, your workflow triggers on cold events and spams reps with stale alerts. This can burn a Slack channel's credibility within days. Also watch for the same domain triggering multiple times in one session. Add a deduplication node (n8n's built-in Deduplicate Items node works fine) keyed on domain plus a 4-hour window.
   </Fragment>
   <Fragment slot="right">
     ```json

@@ -25,7 +25,7 @@ The columns you actually need for Smartlead, and that most guides skip building 
 
 For `enrichment_status`, use a Clay formula like `=IF(OR(ISBLANK(email), ISBLANK(first_name)), "incomplete", "ready")`. This column becomes your first routing signal in n8n. Without it, you're passing dirty data downstream and debugging Smartlead bounces instead of campaign performance.
 
-Clay's AI columns can hallucinate job titles and company descriptions, this is underreported and more common than Clay's marketing suggests. If you're using AI-generated personalization fields, add a second formula column that checks character count and flags anything under 20 characters as suspect. Then run a manual spot-check on 5% of rows before exporting. That 5% check has caught bad data in every single list I've built at scale.
+Clay's AI columns can hallucinate job titles and company descriptions, this is underreported and more common than Clay's marketing suggests. If you're using AI-generated personalization fields, add a second formula column that checks character count and flags anything under 20 characters as suspect. Then run a manual spot-check on 5% of rows before exporting. A spot-check that small is cheap insurance against bad data reaching a live sequence.
 
 ## Step 2: Export from Clay and Trigger n8n
 

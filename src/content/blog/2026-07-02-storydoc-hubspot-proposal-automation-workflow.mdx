@@ -41,7 +41,7 @@ Storydoc changes the output format. [HubSpot](/go/hubspot) anchors the record. [
 
 The goal: a rep moves a deal to "Proposal" stage in [HubSpot](/tools/hubspot/) and, within 90 seconds, a fully personalized Storydoc story exists. The prospect's name, company, use case, and pricing are pulled directly from deal properties. A share link lands on the deal record. A follow-up enrollment fires only when the prospect actually opens the deck, not on a three-day timer.
 
-Storydoc is worth calling out specifically because it tracks engagement at the section level. You can see that a viewer spent 4 minutes on the ROI slide and skipped the team slide entirely. That signal is ten times more actionable than a generic "proposal opened" ping from PandaDoc, and I'd push back on anyone who says otherwise. [Storydoc's own benchmark data](https://www.storydoc.com) shows interactive presentations close at higher rates than static PDFs. I've seen that hold directionally true across the B2B SaaS teams I work with at Homegrown Growth Co. The [HubSpot Research Sales Trends report](https://www.hubspot.com/sales-trends) consistently flags follow-up timing as a top close-rate driver, which is exactly what this automation addresses.
+Storydoc is worth calling out specifically because it tracks engagement at the section level. You can see that a viewer spent 4 minutes on the ROI slide and skipped the team slide entirely. That signal is ten times more actionable than a generic "proposal opened" ping from PandaDoc, and I'd push back on anyone who says otherwise. [Storydoc's own benchmark data](https://www.storydoc.com) shows interactive presentations close at higher rates than static PDFs. The [HubSpot Research Sales Trends report](https://www.hubspot.com/sales-trends) consistently flags follow-up timing as a top close-rate driver, which is exactly what this automation addresses.
 
 <StatRow stats={[
   { number: "45 min", label: "Avg manual proposal time", description: "Typical time a rep spends building and sending a one-off proposal without automation" },
@@ -80,7 +80,7 @@ Before you build: you need a Storydoc account with API access (Business plan or 
   <Fragment slot="left">
     **Common trap: the deal has no associated contact or company at stage change.**
 
-    Make will fail silently or produce a proposal with blank fields if the deal was created without associations. I've seen this break roughly 20% of proposals in a fresh deployment. Add a Make router before the Storydoc API call and check that Associated Company Name is not empty. If it is empty, route to a Slack notification that alerts the deal owner to fix the record. Never let a blank proposal reach a prospect.
+    Make will fail silently or produce a proposal with blank fields if the deal was created without associations. This can break a meaningful share of proposals in a fresh deployment. Add a Make router before the Storydoc API call and check that Associated Company Name is not empty. If it is empty, route to a Slack notification that alerts the deal owner to fix the record. Never let a blank proposal reach a prospect.
   </Fragment>
   <Fragment slot="right">
     ```json
