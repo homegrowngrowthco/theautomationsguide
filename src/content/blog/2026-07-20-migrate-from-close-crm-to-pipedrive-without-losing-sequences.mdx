@@ -99,7 +99,7 @@ The second thing that breaks is activity history. Call logs from Close export wi
   <Fragment slot="left">
     **Gotcha: Close Lead IDs do not survive import**
 
-    Close exports use an internal Lead ID as the primary key. Pipedrive generates its own IDs on import. If you try a second import pass to fix something, you cannot match on ID. You end up with duplicates. I have seen teams end up with 3x their actual record count because they re-imported without deduplicating first. The fix is cheap to run before you start. It is expensive to unwind after.
+    Close exports use an internal Lead ID as the primary key. Pipedrive generates its own IDs on import. If you try a second import pass to fix something, you cannot match on ID. You end up with duplicates. Teams that re-import without deduplicating first end up with inflated record counts. The fix is cheap to run before you start. It is expensive to unwind after.
   </Fragment>
   <Fragment slot="right">
     ```python
@@ -164,7 +164,7 @@ According to [Pipedrive's import documentation](https://support.pipedrive.com/en
 ]} />
 
 <MyTake>
-Most teams going through this migration think the hard part is the data move. It is not. The hard part is that a meaningful chunk of their sales process lives inside Close's sequence builder, not in the CRM fields at all. When you land in Pipedrive, you are forced to decide: rebuild cadences in Pipedrive's Workflow Automation, bolt on [Lemlist](/go/lemlist/) or [Smartlead](/go/smartlead/), or admit you were over-engineering the cadences and simplify. That decision should happen before migration day. Every team I have worked with who punted on it ended up with reps having nowhere to enroll leads for two weeks post-cutover.
+Most teams going through this migration think the hard part is the data move. It is not. The hard part is that a meaningful chunk of their sales process lives inside Close's sequence builder, not in the CRM fields at all. When you land in Pipedrive, you are forced to decide: rebuild cadences in Pipedrive's Workflow Automation, bolt on [Lemlist](/go/lemlist/) or [Smartlead](/go/smartlead/), or admit you were over-engineering the cadences and simplify. That decision should happen before migration day. Teams that punt on it tend to end up with reps having nowhere to enroll leads after cutover.
 </MyTake>
 
 ## The migration is the easy part

@@ -45,7 +45,7 @@ The pattern in HubSpot workflow libraries is remarkably consistent: the team is 
 
 ## The Specific Ways HubSpot Workflows Break
 
-Let me be concrete. These are not hypothetical edge cases. I've seen each of these in production at companies paying $50k to $120k per year for HubSpot.
+Let me be concrete. These are not hypothetical edge cases. Each of these is a common pattern in production HubSpot portals, including expensive ones.
 
 **Re-enrollment filters silently exclude your best leads.** When you build a workflow and forget to enable re-enrollment, contacts who previously met the trigger never enter again, even when their situation changes. But the more insidious version is when you DO enable re-enrollment and then add a filter like "Contact is in the list 'Active Customers'." If that list membership changes after enrollment (which it does, constantly), HubSpot mid-flight checks can boot a contact before they hit your critical action. No error message. The contact just disappears from the workflow history.
 

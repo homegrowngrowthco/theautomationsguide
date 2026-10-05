@@ -152,7 +152,7 @@ Once the core Fillout to HubSpot and Monday.com pipeline is live, a few extensio
 According to [Fillout's integration documentation](https://www.fillout.com/help/hubspot), the HubSpot connector supports creating both contacts and deals in a single submission, so you are not limited to contact sync. And per [Monday.com's API v2 reference](https://developer.monday.com/api-reference/reference/items), item creation supports up to 10 MB of column data per request, meaning rich form payloads with file uploads are not a concern.
 
 <MyTake>
-Skip Zapier for this workflow. I have watched teams default to it out of habit, pay per task, and then balk when a 200-submission-per-month form runs $50/month in Zaps. n8n self-hosted handles this same workflow for essentially zero marginal cost once the instance is running. Yes, you have to solve the Monday column_values JSON-stringify issue yourself once. That is a 10-minute fix you will never touch again. Paying Zapier a task tax indefinitely to abstract that away is a bad trade.
+Skip Zapier for this workflow. Teams default to it out of habit, pay per task, and then balk when even a modest-volume form racks up a monthly Zap bill. n8n self-hosted handles this same workflow for essentially zero marginal cost once the instance is running. Yes, you have to solve the Monday column_values JSON-stringify issue yourself once. That is a 10-minute fix you will never touch again. Paying Zapier a task tax indefinitely to abstract that away is a bad trade.
 </MyTake>
 
 ## Ship it and stop copy-pasting

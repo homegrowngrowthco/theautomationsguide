@@ -84,7 +84,7 @@ The workflow has four nodes. A Schedule Trigger, an HTTP Request node calling In
 
 ## The Timestamp Problem (and How to Solve It)
 
-The trickiest part of the whole workflow is the `since_timestamp` parameter. Miscalculate it and you either miss replies or flood Pipedrive with duplicates from re-fetched history. I've watched this exact issue take down an otherwise solid build at a client who had been happily running 800 sequences a month.
+The trickiest part of the whole workflow is the `since_timestamp` parameter. Miscalculate it and you either miss replies or flood Pipedrive with duplicates from re-fetched history. This exact issue can take down an otherwise solid build, even for a team that has been running sequences happily for months.
 
 <SideBySide>
   <Fragment slot="left">
@@ -167,7 +167,7 @@ The campaign name mapping is the one most people skip, and it's the most operati
 ]} />
 
 <MyTake>
-Pipeline leakage at the cold-email-to-CRM handoff is almost always bigger than teams think, and almost never where they are looking. I've seen companies spend $3,000 a month on Instantly sending capacity and then lose 30% of positive replies to a broken manual process. The four-node n8n workflow above takes about two hours to build. That is a better ROI than any copy optimization or subject line test I've ever seen at that spend level.
+Pipeline leakage at the cold-email-to-CRM handoff is almost always bigger than teams think, and almost never where they are looking. Say a company spends heavily on Instantly sending capacity and then loses a large share of positive replies to a broken manual process. The four-node n8n workflow above takes about two hours to build. That is a better ROI than most copy optimizations or subject line tests at that spend level.
 </MyTake>
 
 ## One Integration Recipe, Compounding Returns

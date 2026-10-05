@@ -82,7 +82,7 @@ The workflow we are building does five things: receive a form submission via web
   <Fragment slot="left">
     **The gotcha: HubSpot workflow timing vs. webhook timing**
 
-    If you trigger the n8n webhook from a HubSpot workflow (rather than directly from your form), HubSpot's workflow engine can add a 1 to 5 minute delay before firing the webhook action. I have seen this cause duplicate contacts because the n8n upsert runs after a rep has already manually created the contact. To prevent this, add a short delay step in n8n and check for an existing contact by email before upserting. Better yet, fire the webhook directly from your form using a hidden redirect or a frontend fetch call so n8n receives the payload the moment the form submits.
+    If you trigger the n8n webhook from a HubSpot workflow (rather than directly from your form), HubSpot's workflow engine can add a 1 to 5 minute delay before firing the webhook action. This can cause duplicate contacts because the n8n upsert runs after a rep has already manually created the contact. To prevent this, add a short delay step in n8n and check for an existing contact by email before upserting. Better yet, fire the webhook directly from your form using a hidden redirect or a frontend fetch call so n8n receives the payload the moment the form submits.
   </Fragment>
   <Fragment slot="right">
     ```json
@@ -116,7 +116,7 @@ The reason I push teams toward this architecture over Fillout is that you can sl
 
 Routing on self-reported data is unreliable. People lie on forms, or they just guess. Routing on enriched firmographic data pulled from [Clay](/go/clay/) or [Clearbit](https://clearbit.com/blog/company-data-api) is not. Those are different categories of signal.
 
-For teams already using [HubSpot](/go/hubspot/) sequences, this means the right sequence fires automatically based on accurate company data, not a checkbox the prospect selected. I have seen sequence reply rates jump 15 to 20 percent simply because the routing was correct and the messaging matched the actual company profile. That is not a workflow improvement. That is a revenue improvement.
+For teams already using [HubSpot](/go/hubspot/) sequences, this means the right sequence fires automatically based on accurate company data, not a checkbox the prospect selected. Reply rates tend to improve simply because the routing was correct and the messaging matched the actual company profile. That is not a workflow improvement. That is a revenue improvement.
 
 <MyTake>
 Most teams I audit are routing on form fields the prospect filled out themselves, which means they are routing on guesses. Rebuilding this in n8n is not primarily about saving $40 a month on Fillout. It is about the moment you realize you can route on verified firmographic data instead. Self-reported company size is noise. Clay-enriched employee count is signal. Fillout never gave you that option, and no form builder ever will.

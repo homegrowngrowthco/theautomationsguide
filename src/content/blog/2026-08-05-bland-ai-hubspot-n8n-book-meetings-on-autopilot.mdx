@@ -175,7 +175,7 @@ Most teams I work with over-engineer the AI prompt and under-engineer the post-c
 
 ## This workflow is worth building once
 
-The Bland AI plus HubSpot plus n8n stack is one of those automations that pays back its build time in the first week. I've seen [n8n](/tools/n8n/) workflows like this cut inbound follow-up time from hours to under two minutes, which is the window that actually moves connect rates. The [Bland AI](/tools/bland-ai/) prompt will need iteration, but the infrastructure you build here is reusable across any outbound or inbound motion you add later. Build it cleanly, embed the contact ID in metadata from day one, and let the [HubSpot](/tools/hubspot/) contact record become the source of truth for every call outcome.
+The Bland AI plus HubSpot plus n8n stack is one of those automations that pays back its build time in the first week. [n8n](/tools/n8n/) workflows like this can cut inbound follow-up time from hours to minutes, which is the window that actually moves connect rates. The [Bland AI](/tools/bland-ai/) prompt will need iteration, but the infrastructure you build here is reusable across any outbound or inbound motion you add later. Build it cleanly, embed the contact ID in metadata from day one, and let the [HubSpot](/tools/hubspot/) contact record become the source of truth for every call outcome.
 
 <BottomLine
   verdict="n8n is the right middleware for this integration: it handles async webhooks, retry logic, and multi-branch outcomes that Zapier cannot match at volume. Bland AI's per-minute pricing makes the unit economics work even for SMB teams. Build this stack once and it runs indefinitely."

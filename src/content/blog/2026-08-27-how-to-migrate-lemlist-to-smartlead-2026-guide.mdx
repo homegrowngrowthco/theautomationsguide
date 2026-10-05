@@ -72,7 +72,7 @@ Here is the pre-migration checklist:
   },
   {
     title: "Enable Smartlead's warm-up on every new inbox",
-    body: "Before rebuilding campaigns, turn on warm-up for every inbox you just connected. Set the daily warm-up volume to start at 5 and ramp by 5 per day. Smartlead's warm-up network exchanges emails with real inboxes, not a closed loop, which matters for reputation signals. Do not skip this step even for domains that are only weeks old. I have seen teams burn freshly registered domains in 72 hours by blasting 200 emails per day immediately after setup."
+    body: "Before rebuilding campaigns, turn on warm-up for every inbox you just connected. Set the daily warm-up volume to start at 5 and ramp by 5 per day. Smartlead's warm-up network exchanges emails with real inboxes, not a closed loop, which matters for reputation signals. Do not skip this step even for domains that are only weeks old. Blasting a high daily volume immediately after setup is a fast way to burn a freshly registered domain."
   },
   {
     title: "Rebuild your sequences in Smartlead campaigns",
@@ -109,7 +109,7 @@ Lemlist's video personalization feature (the dynamic intro video thumbnails) als
 <SideBySide>
   <Fragment slot="left">
     **The gotcha: domain reputation does not travel with you.**
-    Teams assume that because a domain "works," they can re-authenticate it in Smartlead and continue at full volume. That assumption is wrong. The domain's sending history follows it. If you burned a domain through bad list hygiene or high spam complaints in Lemlist, re-authenticating it in Smartlead inherits that reputation. You cannot wash a domain by switching ESPs. I have seen this mistake cost teams 30 days of ramp time they did not budget for.
+    Teams assume that because a domain "works," they can re-authenticate it in Smartlead and continue at full volume. That assumption is wrong. The domain's sending history follows it. If you burned a domain through bad list hygiene or high spam complaints in Lemlist, re-authenticating it in Smartlead inherits that reputation. You cannot wash a domain by switching ESPs. This mistake can cost extra ramp time that nobody budgeted for.
   </Fragment>
   <Fragment slot="right">
     ```

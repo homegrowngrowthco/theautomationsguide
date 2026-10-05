@@ -57,7 +57,7 @@ Here is every tool in the stack priced for exactly 10 reps, using publicly liste
   {
     name: "Apollo.io",
     tagline: "Prospecting database with built-in sequencing",
-    body: "At 10 reps, Apollo Professional at $99 per seat per month (billed annually) is the realistic tier. Basic at $49 per seat disables key sequence triggers and AI-assisted email personalization that most teams need after the first 30 days. Ten seats at Professional land at $990 per month, or $99 per rep. The real gotcha is export credit consumption: each rep burning 500 contacts per month will exhaust the shared credit pool on Basic inside two weeks. I've seen teams assume they're locked into a fixed cost, then absorb a $400 forced upgrade mid-quarter.",
+    body: "At 10 reps, Apollo Professional at $99 per seat per month (billed annually) is the realistic tier. Basic at $49 per seat disables key sequence triggers and AI-assisted email personalization that most teams need after the first 30 days. Ten seats at Professional land at $990 per month, or $99 per rep. The real gotcha is export credit consumption: each rep burning 500 contacts per month will exhaust the shared credit pool on Basic inside two weeks. A common failure is assuming the cost is fixed, then absorbing a forced upgrade mid-quarter.",
     highlights: [
       "Sequences, dialer, and database in one seat license",
       "Export credits are shared across the org, not per seat",
@@ -223,7 +223,7 @@ One number finance teams rarely see on the initial proposal: CRM implementation 
 
 Three things reliably blow up RevOps budgets at 10 reps that do not show up in initial proposals.
 
-**Clay credit overages.** The [Clay pricing page](https://www.clay.com/pricing) shows plan credit allowances, but it does not show what happens when your first big list-building campaign fires. I have watched teams burn an entire month's credit allotment in four days during a product launch push. Set a hard credit cap in Clay's settings and build an n8n alert that fires to Slack when you hit 80% of monthly credits. Build this before you need it, not after.
+**Clay credit overages.** The [Clay pricing page](https://www.clay.com/pricing) shows plan credit allowances, but it does not show what happens when your first big list-building campaign fires. A big list-building push around a product launch can burn through a month's credit allotment in days. Set a hard credit cap in Clay's settings and build an n8n alert that fires to Slack when you hit 80% of monthly credits. Build this before you need it, not after.
 
 **Apollo credit exhaustion on shared plans.** According to [Apollo's documentation on export credits](https://knowledge.apollo.io/hc/en-us/articles/4415598752013-Apollo-Credits-Overview), export credits are pooled at the org level. One rep doing deep list pulls can starve the rest of the team. The fix is per-user credit limits in Apollo's admin settings, which most teams never configure.
 
@@ -232,7 +232,7 @@ Three things reliably blow up RevOps budgets at 10 reps that do not show up in i
 For teams managing the n8n side of this stack, the [HubSpot to n8n lead routing workflow](/blog/2026-08-02-hubspot-n8n-lead-routing-without-fillout-full-guide/) is worth reading before you start building. It covers how to avoid unnecessary HubSpot workflow triggers that push you toward higher tier requirements.
 
 <MyTake>
-Framing this as "cost per rep" is actually the wrong lens, and I say that having built this exact budget model many times over. The number that matters is cost per pipeline dollar. I've worked with teams spending $340 per rep per month who generate $8M in pipeline and teams spending $150 per rep who generate $1.2M. The expensive stack often looks cheap once you run it against pipeline output. Present both numbers to finance and you win the approval conversation in one meeting instead of three.
+Framing this as "cost per rep" is actually the wrong lens, and I say that having built this exact budget model many times over. The number that matters is cost per pipeline dollar. Picture one team spending $340 per rep per month that generates $8M in pipeline next to a team spending $150 per rep that generates $1.2M (illustrative figures). The expensive stack often looks cheap once you run it against pipeline output. Present both numbers to finance and you win the approval conversation in one meeting instead of three.
 </MyTake>
 
 ## What to take to your next budget review

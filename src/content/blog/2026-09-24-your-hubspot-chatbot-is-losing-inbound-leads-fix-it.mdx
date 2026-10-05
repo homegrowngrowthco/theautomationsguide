@@ -87,7 +87,7 @@ The architecture is simpler than it sounds. [Warmly](/go/warmly/) sits on your s
   <Fragment slot="left">
     **The trap: HubSpot deduplication conflicts**
 
-    If you create contacts in HubSpot via API without a verified email, you will end up with ghost records that break your merge logic later. Warmly often resolves to domain only; RB2B resolves to a LinkedIn URL that may or may not match an existing email in your CRM. I've seen this produce three duplicate records for the same buyer because each signal created a new contact. Always search before you create.
+    If you create contacts in HubSpot via API without a verified email, you will end up with ghost records that break your merge logic later. Warmly often resolves to domain only; RB2B resolves to a LinkedIn URL that may or may not match an existing email in your CRM. This can produce duplicate records for the same buyer because each signal creates a new contact. Always search before you create.
   </Fragment>
   <Fragment slot="right">
     ```javascript

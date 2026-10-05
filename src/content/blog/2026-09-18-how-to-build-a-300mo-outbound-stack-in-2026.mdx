@@ -71,7 +71,7 @@ The workflow covers four phases: pull and enrich leads from Apollo, push them in
   },
   {
     title: "Step 3: Enroll contacts into Smartlead sequences",
-    body: "Use n8n's HTTP Request node to call the Smartlead API and add each passing contact to the correct campaign. Smartlead organizes outbound into Campaigns, and you should have at least two: one for cold first touch, one for warm follow-up after a reply or click. Pass the contact's first name and company name as merge variables in your API payload (reference them as `{{firstName}}` and `{{company}}` in your Smartlead template body). Smartlead handles inbox rotation and sending windows automatically. The one thing to configure manually: set a daily sending cap of 30 to 40 emails per mailbox and make sure warmup is active on every inbox before your first send. I have watched teams skip warmup and burn three domains in a single week."
+    body: "Use n8n's HTTP Request node to call the Smartlead API and add each passing contact to the correct campaign. Smartlead organizes outbound into Campaigns, and you should have at least two: one for cold first touch, one for warm follow-up after a reply or click. Pass the contact's first name and company name as merge variables in your API payload (reference them as `{{firstName}}` and `{{company}}` in your Smartlead template body). Smartlead handles inbox rotation and sending windows automatically. The one thing to configure manually: set a daily sending cap of 30 to 40 emails per mailbox and make sure warmup is active on every inbox before your first send. Teams that skip warmup can burn through fresh domains quickly."
   },
   {
     title: "Step 4: Log replies and meetings to Pipedrive",
@@ -85,7 +85,7 @@ The workflow covers four phases: pull and enrich leads from Apollo, push them in
 
 <SideBySide>
   <Fragment slot="left">
-    **The biggest trap: sending before your inboxes are warm.** Smartlead's built-in warmup is real and it works, but it needs 14 days minimum before you send cold volume. I have seen teams spin up fresh domains, skip the warmup window, and hit spam rates above 8% on day one. Google's [postmaster tools](https://postmaster.google.com) will show you the damage in real time. Set a calendar reminder. Do not send before day 14.
+    **The biggest trap: sending before your inboxes are warm.** Smartlead's built-in warmup is real and it works, but it needs 14 days minimum before you send cold volume. A common failure is spinning up fresh domains, skipping the warmup window, and hitting high spam rates on day one. Google's [postmaster tools](https://postmaster.google.com) will show you the damage in real time. Set a calendar reminder. Do not send before day 14.
   </Fragment>
   <Fragment slot="right">
     ```json

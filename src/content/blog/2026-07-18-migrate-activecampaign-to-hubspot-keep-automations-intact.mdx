@@ -106,7 +106,7 @@ This is where migrations quietly fail. The export looks complete, the import suc
   <Fragment slot="left">
     **The gotcha: tag-based segments silently become empty lists**
 
-    ActiveCampaign tags have no direct equivalent in HubSpot. If you import contacts and their tags only live in ActiveCampaign's internal tag system (not exported as a column), HubSpot has nothing to build a list from. I have seen teams import 25,000 contacts and then discover their 14 behavioral segments are completely empty because the tag column was not included in the export. ActiveCampaign's "Lead Score" field compounds this problem: it is a computed value and does not export as a static number HubSpot can use. You have to rebuild the scoring logic in HubSpot's native lead scoring tool from scratch.
+    ActiveCampaign tags have no direct equivalent in HubSpot. If you import contacts and their tags only live in ActiveCampaign's internal tag system (not exported as a column), HubSpot has nothing to build a list from. A common failure is importing the full contact list and then discovering the behavioral segments are completely empty because the tag column was not included in the export. ActiveCampaign's "Lead Score" field compounds this problem: it is a computed value and does not export as a static number HubSpot can use. You have to rebuild the scoring logic in HubSpot's native lead scoring tool from scratch.
 
     Campaign send history, open rates, and click data also do not transfer. HubSpot starts your engagement baseline at zero on day one. Do not trigger re-engagement workflows immediately. Your deliverability will take a hit before HubSpot's system has any engagement signals to work with.
   </Fragment>
@@ -207,7 +207,7 @@ Not everyone should. The migration carries real time costs, and HubSpot's pricin
 ]} />
 
 <MyTake>
-Most teams that migrate from ActiveCampaign to HubSpot do it for CRM unification, not because [HubSpot's email automation](/blog/2026-09-01-activecampaign-vs-hubspot-vs-brevo-which-owns-your-workflows/) is actually better. It is often not. ActiveCampaign's visual automation builder is more intuitive for marketers who are not RevOps-trained, and I have watched several teams regret the switch inside six months because their marketing team lost the ability to self-serve workflows without filing a ticket. If your marketing team owns email without dedicated RevOps support, factor that learning curve cost into your decision before you commit.
+Most teams that migrate from ActiveCampaign to HubSpot do it for CRM unification, not because [HubSpot's email automation](/blog/2026-09-01-activecampaign-vs-hubspot-vs-brevo-which-owns-your-workflows/) is actually better. It is often not. ActiveCampaign's visual automation builder is more intuitive for marketers who are not RevOps-trained, and some teams come to regret the switch because their marketing team lost the ability to self-serve workflows without filing a ticket. If your marketing team owns email without dedicated RevOps support, factor that learning curve cost into your decision before you commit.
 </MyTake>
 
 ## One more thing on timing

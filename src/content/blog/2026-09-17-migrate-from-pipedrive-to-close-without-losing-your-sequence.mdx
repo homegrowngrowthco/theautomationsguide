@@ -101,7 +101,7 @@ Most of the pain in a Pipedrive migration lands in three places: sequence steps,
   <Fragment slot="left">
     **The gotcha: duplicate contacts on re-import**
 
-    If you run a test import and then a full import without clearing the test data, Close will create duplicates. Close deduplicates on email address only during CSV import. If a contact record has no email (common for ops-sourced Pipedrive contacts), it will always create a new record. I have seen teams end up with 40% duplicate inflation this way. Run your test import into a sandbox org, or delete test records explicitly before the real run.
+    If you run a test import and then a full import without clearing the test data, Close will create duplicates. Close deduplicates on email address only during CSV import. If a contact record has no email (common for ops-sourced Pipedrive contacts), it will always create a new record. Teams can end up with badly inflated duplicate counts this way. Run your test import into a sandbox org, or delete test records explicitly before the real run.
   </Fragment>
   <Fragment slot="right">
     ```bash

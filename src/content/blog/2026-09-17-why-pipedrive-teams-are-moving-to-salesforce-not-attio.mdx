@@ -47,7 +47,7 @@ The RevOps conversation about what comes after [Pipedrive](/go/pipedrive/) has b
 
 It is almost never the pipeline view. Pipedrive's kanban is genuinely good and most reps love it. The breaking point is reporting. When a VP of Sales wants weighted forecast by segment, rep, and close quarter simultaneously, Pipedrive Insights hits its ceiling fast.
 
-I've watched this exact moment happen: a quarterly board prep session where the RevOps lead is copy-pasting from three different Pipedrive exports into a Google Sheet at 11pm the night before. That is the trigger.
+Picture this moment: a quarterly board prep session where the RevOps lead is copy-pasting from three different Pipedrive exports into a Google Sheet at 11pm the night before. That is the trigger.
 
 The second trigger is enforcement. Pipedrive has required fields, but no conditional logic. You cannot say "if Stage = Proposal Sent, then POC End Date is required." Salesforce Flows handle this natively. When a team closes $3M ARR with sloppy stage hygiene, it does not feel urgent. At $10M ARR with a board expecting forecast accuracy within 10%, it becomes a quarterly embarrassment. According to the [Salesforce State of Sales report](https://www.salesforce.com/resources/research-reports/state-of-sales/), only 28% of sales leaders say their forecast accuracy is strong, and CRM data quality is the most-cited root cause.
 
@@ -144,7 +144,7 @@ The other thing that silently breaks: activity history. Pipedrive logs calls, em
 
 ## Verify the Migration Worked
 
-Before you call the migration done, run these four checks explicitly. I've seen teams skip this and spend weeks debugging issues that would have been caught in 20 minutes.
+Before you call the migration done, run these four checks explicitly. Teams that skip this tend to spend days debugging issues a quick check would have caught.
 
 - **Opportunity count matches:** Total open deal count in Salesforce should equal Pipedrive minus any deals you intentionally excluded (spam, duplicates).
 - **Stage distribution looks right:** If 40% of your Pipedrive deals were in "Proposal Sent," roughly the same proportion should appear in the mapped Salesforce stage. A skewed distribution means field mapping or import errors.
@@ -189,12 +189,12 @@ Before you call the migration done, run these four checks explicitly. I've seen 
 ]} />
 
 <MyTake>
-The "Salesforce is too complex for a 30-person team" take is mostly coming from people who tried to run Salesforce without an automation wrapper and ended up paying a certified admin to do things that n8n handles in a single webhook. The real complexity cost is not Salesforce itself. It is the assumption that Salesforce-native tooling has to do everything. It does not. Route your ops orchestration through n8n, let Salesforce own the data model and reporting, and a RevOps generalist can manage the whole thing part-time. I've built this architecture from scratch and the admin burden after the first 60 days is genuinely manageable.
+The "Salesforce is too complex for a 30-person team" take is mostly coming from people who tried to run Salesforce without an automation wrapper and ended up paying a certified admin to do things that n8n handles in a single webhook. The real complexity cost is not Salesforce itself. It is the assumption that Salesforce-native tooling has to do everything. It does not. Route your ops orchestration through n8n, let Salesforce own the data model and reporting, and a RevOps generalist can manage the whole thing part-time. Once the initial build settles, the admin burden is genuinely manageable.
 </MyTake>
 
 ## The Bottom Line on This Migration
 
-The [Pipedrive](/tools/pipedrive/) to [Salesforce](/tools/salesforce/) path is not for every team. Under 25 reps with a lean stack? Attio or HubSpot will get you further faster with less friction. But if you are at the inflection point where forecast accuracy is a board-level conversation and stage hygiene is costing you credibility with leadership, the Salesforce plus [n8n](/tools/n8n/) wrapper architecture is the most durable thing I've seen built at this scale. The migration is four to eight weeks of focused work. The reporting and enforcement capabilities on the other side are not replicable in Pipedrive at any price. The [G2 Salesforce CRM category data](https://www.g2.com/categories/crm) consistently shows Salesforce leading on reporting and customization for mid-market teams, even as it lags on ease of use. That trade-off is exactly what this migration is betting on.
+The [Pipedrive](/tools/pipedrive/) to [Salesforce](/tools/salesforce/) path is not for every team. Under 25 reps with a lean stack? Attio or HubSpot will get you further faster with less friction. But if you are at the inflection point where forecast accuracy is a board-level conversation and stage hygiene is costing you credibility with leadership, the Salesforce plus [n8n](/tools/n8n/) wrapper architecture is the most durable setup I would recommend at this scale. The migration is four to eight weeks of focused work. The reporting and enforcement capabilities on the other side are not replicable in Pipedrive at any price. The [G2 Salesforce CRM category data](https://www.g2.com/categories/crm) consistently shows Salesforce leading on reporting and customization for mid-market teams, even as it lags on ease of use. That trade-off is exactly what this migration is betting on.
 
 <BottomLine
   verdict="For Pipedrive teams hitting reporting and enforcement ceilings at 25 to 80 reps, Salesforce wrapped in n8n is the most scalable path forward. The setup investment is real but the operational leverage compounds quickly."

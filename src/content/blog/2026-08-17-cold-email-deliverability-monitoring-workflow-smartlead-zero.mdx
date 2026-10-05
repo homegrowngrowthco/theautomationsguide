@@ -33,7 +33,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-Deliverability used to be the thing you thought about after a campaign tanked. In 2026, after Google and Yahoo hardened bulk-sender thresholds and spam-trap networks got smarter, it is the thing you engineer before you send the first email. I have watched teams blow through pristine domains in under six weeks because they skipped list verification on a vendor-supplied lead file. The fix is not complicated. But it has to be systematic: a pre-send verification gate wired directly into your [Smartlead](/go/smartlead/) campaign creation flow, not a quarterly list-scrub you remember when reply rates crater.
+Deliverability used to be the thing you thought about after a campaign tanked. In 2026, after Google and Yahoo hardened bulk-sender thresholds and spam-trap networks got smarter, it is the thing you engineer before you send the first email. A common failure is blowing through pristine domains within weeks because list verification was skipped on a vendor-supplied lead file. The fix is not complicated. But it has to be systematic: a pre-send verification gate wired directly into your [Smartlead](/go/smartlead/) campaign creation flow, not a quarterly list-scrub you remember when reply rates crater.
 
 ## Why this workflow exists, and what it actually prevents
 
@@ -82,7 +82,7 @@ The most common failure mode is treating "unknown" addresses as safe to send. Ze
 
 <SideBySide>
   <Fragment slot="left">
-    **The trap:** Routing "unknown" status contacts into your primary campaign because they did not come back as "invalid." A list with 15 percent unknowns will likely produce a 4 to 6 percent bounce rate, enough to crater a fresh domain inside two campaigns. I have seen this exact mistake take out a $400 domain and three weeks of warm-up work. The cost savings from sending to unknowns are illusory.
+    **The trap:** Routing "unknown" status contacts into your primary campaign because they did not come back as "invalid." A list with 15 percent unknowns will likely produce a 4 to 6 percent bounce rate, enough to crater a fresh domain inside two campaigns. This exact mistake can take out a domain and weeks of warm-up work. The cost savings from sending to unknowns are illusory.
   </Fragment>
   <Fragment slot="right">
     ```js

@@ -69,7 +69,7 @@ Here are the five layers I work through, in order, every time a sequence underpe
   },
   {
     title: "Inspect DMARC, DKIM, and SPF alignment",
-    body: "Use MXToolbox or Google Admin Toolbox to verify all three records are correctly aligned for every sending domain. Misaligned DMARC is a silent deliverability killer. Emails still send; they just land in spam. I have seen sequences showing a 95% open rate in Smartlead's tracker but a 6% real open rate because tracking pixels were loading from spam folder previews."
+    body: "Use MXToolbox or Google Admin Toolbox to verify all three records are correctly aligned for every sending domain. Misaligned DMARC is a silent deliverability killer. Emails still send; they just land in spam. A sequence can show a very high open rate in Smartlead's tracker while the real open rate is far lower, because tracking pixels load from spam folder previews."
   },
   {
     title: "Validate that your Mailforge inboxes are genuinely warmed before sequencing",
@@ -91,7 +91,7 @@ The mistake I see most often when teams compare sales engagement platforms for c
 
 <SideBySide>
   <Fragment slot="left">
-**The trap:** Provisioning 20 Mailforge inboxes, connecting them to Smartlead, and launching sequences on day one. Fresh inboxes with zero warmup sending at full volume look exactly like a spam operation to Google's filters, because functionally they are. I have watched this obliterate an entire sending domain in under two weeks.
+**The trap:** Provisioning 20 Mailforge inboxes, connecting them to Smartlead, and launching sequences on day one. Fresh inboxes with zero warmup sending at full volume look exactly like a spam operation to Google's filters, because functionally they are. This can obliterate an entire sending domain within weeks.
   </Fragment>
   <Fragment slot="right">
 ```

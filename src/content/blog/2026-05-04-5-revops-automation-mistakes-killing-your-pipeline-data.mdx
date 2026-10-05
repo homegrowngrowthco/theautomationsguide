@@ -68,7 +68,7 @@ Here's what happens. A five-step Zap hits an error at step 3. Zapier retries ste
 
 Move complex, stateful workflows off Zapier and onto **n8n** or **Make**. n8n has explicit error branches, you wire a failure path the same way you wire a success path, and you can POST to a Slack channel or write a failure record to a Google Sheet when something breaks. Make's scenario execution logs are more granular than Zapier's, and you can configure incomplete execution handling at the scenario level.
 
-If you're staying on Zapier for simpler workflows, which is fine, it's a good tool for simple things, add a final step to every Zap that writes a completion timestamp and status to a logging sheet. Then run a daily check against expected volume. If 200 leads should have been enriched and you see 140 timestamps, you have a gap to investigate. This takes 20 minutes to set up and has caught real problems in every org I've seen run it.
+If you're staying on Zapier for simpler workflows, which is fine, it's a good tool for simple things, add a final step to every Zap that writes a completion timestamp and status to a logging sheet. Then run a daily check against expected volume. If 200 leads should have been enriched and you see 140 timestamps, you have a gap to investigate. This takes about 20 minutes to set up and tends to catch real problems early.
 
 ## Mistake 4: Single-provider enrichment creating false confidence
 

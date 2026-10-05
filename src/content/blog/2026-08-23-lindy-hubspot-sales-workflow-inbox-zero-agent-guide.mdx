@@ -160,7 +160,7 @@ A second gotcha: HubSpot's sequence enrollment API requires the contact to have 
 This workflow pairs well with [signal-based outbound](/blog/2026-08-16-warmly-make-signal-based-outbound-workflow-guide/) if you want to close the loop between inbound intent and outbound triggers. And if you're enriching contacts as part of the triage step, the [Clay enrichment waterfall approach](/blog/2026-08-22-linkedin-outbound-loop-clay-lemlist-hubspot/) is worth layering in before the HubSpot upsert.
 
 <MyTake>
-Most teams over-engineer this. I've watched operators spend two weeks building a Relevance AI agent with seven tool calls when a Lindy agent with a clear classification prompt and two HubSpot actions would have shipped in a day and handled 90% of the volume. The research-heavy agent is impressive in demos. It is slower in practice, harder to debug, and more likely to drift. Build the simple version first. Measure where it breaks. Add complexity only where the data tells you to.
+Most teams over-engineer this. Operators often spend weeks building a Relevance AI agent with many tool calls when a Lindy agent with a clear classification prompt and two HubSpot actions would ship in days and handle most of the volume. The research-heavy agent is impressive in demos. It is slower in practice, harder to debug, and more likely to drift. Build the simple version first. Measure where it breaks. Add complexity only where the data tells you to.
 </MyTake>
 
 ## Ship It, Then Tune It
