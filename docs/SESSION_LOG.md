@@ -8,7 +8,20 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-05 (Session 102).
+Last updated 2026-10-05 (Session 103).
+
+## Session 103 (2026-10-05): engine stops inventing hands-on testing (#345), 73-post scrub (#346), #344 merged (Opus 5.5)
+
+- **Root cause was the prompt itself:** Generate Draft modelled "In my testing...", the 9/16 client-mentions fix offered "in my testing..." as the SAFE alternative, Humanize injected it to meet the first-person quota, and MyTake specs asked for claims "from running this in production". Posts with a testing claim: 13/134 (10%) before 9/17, 13/34 (38%) after.
+- **#345 `359f48b`:** `n8n/update-engine-hands-on-claims.mjs` (13 exact anchors, `--dry`, tokenizer check) swaps every example for opinion framing and adds HANDS-ON CLAIMS rule + verify; numbers only from cited sources. Repo JSON had 0 drift from live. Deployed 15:22Z on Ian's approval (classifier blocked it until he said yes), GET-verified: rule present, old phrases gone, 0 diff.
+- **Lint backstop (`qa/lint-content.mjs`):** `HANDS_ON_TEST` HARD on posts dated 2026-10-05+, WARN before; `HANDS_ON_USE` ("I've run/used/deployed X") WARN. Scans frontmatter too (FAQ answers carried it). 22 frozen fixtures in `--selftest`. No sanitizer rewrite: stripping "In my testing, " would launder an invented figure into an unattributed fact.
+- **Open PRs #340/#342/#343 fixed in-branch** (Ian's call; #340 was green and hours from auto-merge). PII hook blocked the #340 commit because the edited paragraph held a placeholder email-format example; moved it to the `example.com` domain (the hook's own fix), never bypassed.
+- **#346 `76f12e6`, archive scrub (Ian: both classes):** 117 edits in 73 posts via 4 parallel agents writing find/replace JSON, applied through an exact-match validator after a full diff review. Invented measurements deleted (two StatRow cards dropped), anecdotes made hypothetical, 2 "Hands-on review" meta descriptions. `[skip-freshness]`: a claim scrub is not a review. Lint testing warns 35 to 0; build OK; render 169/0 hard. **Prod: 169/169 live posts carry zero testing phrases.**
+- **#344 `113722c`:** merged with Ian's two first-person "used in production" lines cut, plus 2 disclosure phrasings implying partial use and llms.txt "Hands-on" reviews. Prod-verified on 4 surfaces.
+- **Part B:** still no real attributed click (3 new 10/05 14:52Z cold `/go/` hits, crawler-like). Indexing (10/08), 10/15 metric, N4/N5 still date-gated. Beehiiv steps: not done (asked).
+- **Part C:** `/blog/` perf 83 = 169 cards rendered (2,585 elements); eager LCP image made LCP worse, `content-visibility` cut TBT 370 to 120 ms but added CLS 0.008, so nothing shipped; pagination is the fix (TODO). Best-practices 77 = Beehiiv `attribution.js` third-party cookie.
+- **Revert:** `git revert 76f12e6` / `113722c` / `359f48b` then `node --env-file=../growth-engine/.env n8n/deploy-engine.mjs --apply` from master.
+- **Gotchas:** content `qa` checks only the first changed post (`head -1`), so multi-post PRs need local `qa:lint`/`qa:render`; Git Bash rewrites a `/blog/` CLI arg into a Windows path (`MSYS_NO_PATHCONV=1`); OneDrive locks `.git/worktrees/*` metadata after `worktree remove` (prune next session).
 
 ## Session 102 (2026-10-03 to 10-05): merge gate on master, remaining redesign pages shipped (#339), honest-copy PR #344 for Ian (Opus 5.5)
 

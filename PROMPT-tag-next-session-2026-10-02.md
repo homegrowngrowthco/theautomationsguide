@@ -1,36 +1,33 @@
-# Next session (TAG): engine testing-claims fix, #344 sign-off, parked checks
+# Next session (TAG): verify the hands-on fix held, parked checks, date-gated asks
 
-Start inside `theautomationsguide/`. State which model you are running as. Run `git pull --ff-only` on `master`. `TODO.md` is the only source of truth for open tasks; this file was last rewritten after Session 102 (2026-10-05: ruleset on master, #339 merged and production-verified, #344 open for Ian), so re-check every claim with a query or against the repo before acting.
+Start inside `theautomationsguide/`. State which model you are running as. Run `git pull --ff-only` on `master`, then `git worktree prune -v` (OneDrive locked `.git/worktrees/tag-*` metadata after Session 103's removals). `TODO.md` is the only source of truth for open tasks; this file was last rewritten after Session 103 (2026-10-05: engine hands-on fix #345 deployed, 73-post scrub #346, #344 merged), so re-check every claim with a query or against the repo before acting.
 
-Read first: `CLAUDE.md` (gotcha 10 is new: `master` requires `qa`), `TODO.md`, the top of `docs/SESSION_LOG.md` (Session 102), `docs/DESIGN-SYSTEM.md` (page patterns section is new).
+Read first: `CLAUDE.md` (gotcha 11 is new: example phrases in an engine prompt get copied verbatim), `TODO.md`, the top of `docs/SESSION_LOG.md` (Session 103).
 
 ## NEEDS FROM IAN (AskUserQuestion, at the point where each is needed)
 
-1. **PR #344 (honest methodology copy):** approve, edit or reject. He should check two first-person lines ("Some of these tools I have run in production"; "Ian has spent eight years running RevOps stacks, so some of the tools covered here he has used in production"). Merge only on his word; it is not a content PR, so `qa` reports skipped and the ruleset passes it.
-2. **Existing posts with invented testing claims:** after Part A ships the prompt fix, ask whether to scrub the existing posts (the Session 90 pattern) or leave them. Bring a count first.
-3. **R8 (parked by Ian 10/05):** only if he raises it. The Notion API cannot publish to web; he publishes the RevOps Stack Audit template himself and sends the link.
-4. **Beehiiv steps:** not done as of 10/05. Ask once; if done, screenshot the signup at 375 px on a post.
-5. **Date-gated, only once the date has passed:** N4 on or after 2026-10-22, N5 about 2026-10-24 (Part D).
+1. **Beehiiv steps:** Ian said "not yet" on 10/05. Ask again only if he raises it or after 10/08; if done, screenshot the signup at 375 px on a post.
+2. **`/blog/` pagination (low, only if time):** perf 83 is 169 rendered cards (S103 measured; quick fixes failed). Pagination or "load more" changes the listing and the client-side topic filter, so bring Ian two mocks with screenshots before building.
+3. **R8 (parked by Ian 10/05):** only if he raises it. The Notion API cannot publish to web.
+4. **Date-gated, only once the date has passed:** N4 on or after 2026-10-22, N5 about 2026-10-24 (Part D).
 
-## Part A. Stop the engine inventing hands-on testing (the bulk of the session)
+## Part A. Confirm the hands-on fix held (first)
 
-Engine posts still write first-person testing claims with no testing behind them: "I have tested it on three different HubSpot portals" (2026-09-20 Apollo to HubSpot post), "after hands-on testing" (2026-09-21 best CRM post), "most operator-friendly I have tested" (AI SDR post). Session 90 fixed the same class for client anecdotes (PR #283, the prompt rule plus a scrub). Do the same:
-
-1. **Size it over the whole population first:** grep every post for first-person testing claims (`I have tested`, `I tested`, `I've tested`, `hands-on testing`, `in my testing`, `we tested`), count by month, and list which arrived after the 9/16 prompt fix. Read the definition of what the engine prompt now forbids before writing a new rule.
-2. **Fix the generator** with an idempotent `n8n/update-engine-*.mjs` updater (dry run, `deploy-engine.mjs --apply`, GET-verify live, keep `n8n/blog-post-engine.json` in sync). Prefer a deterministic sanitizer or lint rule over prompt text alone (CLAUDE.md gotcha 1). Watch the n8n expression tokenizer (gotcha 2).
-3. Then ask Ian (need 2) before touching existing posts.
+1. **First engine posts on the fixed prompt** (deployed 10/05 15:22Z): the 10/05 20:00Z and 10/06 12:00Z runs and any later ones. For each content PR: `node qa/lint-content.mjs --post <file>` must show no `first-person testing claim` (it is HARD on posts dated 10/05+, so a hit means `qa` went red) and read any `first-person usage claim` WARNs. If usage claims keep appearing, propose making `HANDS_ON_USE` HARD (lint change in a PR).
+2. **#340, #342, #343** were fixed in-branch on 10/05 and green; confirm each merged (auto-merge backstop) and that the live posts carry the fixed sentences.
+3. If the engine run failed or a red `qa` stalled a PR, recover with **Retry** on the execution (never a fresh trigger), per `n8n/README.md` "Retry stack".
 
 ## Part B. Parked checks (Claude only)
 
-1. **Indexing re-check (about 2026-10-08):** `gsc-index-status.py` for `/tools/calendly/`, the 9/06 Beehiiv post and the 10/01 Mailchimp-to-Kit post; if calendly still is not indexed, stop chasing it.
-2. **First real attributed click:** PostHog 408442, `affiliate_click` after 2026-10-02 01:21Z, host-scoped. As of 10/05 13:00Z: 2 events, neither real (cold runable `source_via=none`; frase `is_automated=true`). Only `source_via` `click` or `last_page` with `is_automated=false` counts. Do not read the 10/15 or 11/26 metrics early.
+1. **Indexing re-check (on or after 2026-10-08):** `gsc-index-status.py` for `/tools/calendly/`, the 9/06 Beehiiv post and the 10/01 Mailchimp-to-Kit post; if calendly still is not indexed, stop chasing it.
+2. **First real attributed click:** PostHog 408442, `affiliate_click` after 2026-10-02 01:21Z, host-scoped. As of 10/05 15:30Z: 5 events, none real (all cold `/go/` entries with `source_via=none`; one automated; three tools in two minutes on 10/05, crawler-like). Only `source_via` `click` or `last_page` with `is_automated=false` counts. Do not read the 10/15 or 11/26 metrics early.
 3. **~2026-10-15 metric:** `source_path` on >90% of human clicks (baseline 6%), split at the redesign deploy 10/02 ~21:55Z. Read it only on or after 10/15.
 
 ## Part C. Lows if time allows
 
-- `/blog/` Lighthouse mobile perf 84 (LCP 3.98 s) on master; not the lazy first card image. Find the LCP element (save the Lighthouse JSON), then fix.
+- Content `qa` checks only the first changed post (`head -1` in `qa-content-pr.yml`); looping lint/render over every changed post is a small CI change if multi-post PRs recur.
+- Best-practices 77 everywhere = Beehiiv `attribution.js` third-party cookie; loading the embed on interaction would clear it (not a gate; check the signup still works on mobile).
 - SideBySide: it only reads `offsetHeight` at 768 px and up, so the Gong post's mobile perf gap has another cause; measure before editing a post-contract component.
-- Lighthouse best-practices is 77 everywhere: check what it flags.
 
 ## Part D. Date-gated asks for Ian (only once the date has passed)
 
@@ -40,11 +37,11 @@ Engine posts still write first-person testing claims with no testing behind them
 ## Rules
 
 - Every question to Ian goes through AskUserQuestion; attach screenshots when asking him to choose. Commands he must run go in a chat code block.
-- No secrets in chat, the transcript or the public repo. Never read `.env.local`. Never `git add -A`. Never bypass the PII hook (restore a moved line's original form instead). Commit trailers name the model actually running.
+- No secrets in chat, the transcript or the public repo. Never read `.env.local`. Never `git add -A`. Never bypass the PII hook (a placeholder email in an edited line goes to `@example.com`; otherwise restore the line's original form). Commit trailers name the model actually running.
 - Never merge a PR with a red `qa` check, and never use `gh pr merge --admin` or the UI bypass on one (CLAUDE.md gotcha 10).
-- Live n8n writes go through `n8n/live-patch.mjs` or the engine updaters (backup, verify, restore), dry run first. Do not touch `backlog/`, `pricing/` scripts or `alita/` (except N4's `~/.claude.json`).
+- Live n8n writes need Ian's explicit OK (the classifier blocks `deploy-engine.mjs --apply` without it), go through `n8n/live-patch.mjs` or the engine updaters, dry run first, with a saved GET of the live workflow as the revert path. Do not touch `backlog/`, `pricing/` scripts or `alita/` (except N4's `~/.claude.json`).
 - The post component contract in `src/components/post/`, `src/data/tools.ts`, `src/data/affiliate-links.ts`, every `/go/` redirect, `ClickSource` and its root class names, `Analytics.astro`, the CSP and `_headers`, `trailingSlash: 'always'`, the sitemap and JSON-LD stay as they are.
-- Code changes go in a `C:\tmp` worktree on a branch and a PR; junction `node_modules`; remove the junction with PowerShell `[IO.Directory]::Delete(path, $false)` before `git worktree remove`. File edits use the Edit tool or a `.mjs` script with a dry run, never `node -e` or `python -c`.
+- Code changes go in a `C:\tmp` worktree on a branch and a PR; junction `node_modules`; remove the junction with PowerShell `[IO.Directory]::Delete(path, $false)` before `git worktree remove`. File edits use the Edit tool or a `.mjs` script with a dry run, never `node -e` or `python -c`. In Git Bash, pass route arguments with `MSYS_NO_PATHCONV=1`.
 
 ## Wrap-up
 

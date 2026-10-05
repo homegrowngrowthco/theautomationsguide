@@ -56,7 +56,8 @@ RevOps/GTM automation blog at **theautomationsguide.com**. Affiliate-monetized (
 8. **Strict CSP:** Pagefind/WASM needs `'wasm-unsafe-eval'`; new third-party endpoints need `_headers` updates; test search on deploy previews, not local preview.
 9. **HubSpot-style enum/label traps don't apply here, but Excel-mangled IDs and quote-sensitive regex parsers do:** registry parsers must be quote-agnostic and CRLF-aware (recurring bug class).
 10. **`master` requires the `qa` check (ruleset 24417620, 2026-10-05).** #334 merged by hand 18 s after a red qa run (dead `/go/marketo/`); there was no branch protection. Non-content PRs report `qa` as skipped, which passes. Admins can bypass, so a red merge needs `gh pr merge --admin` or the UI bypass box: never use either on a red content PR. Revert: `gh api -X DELETE repos/homegrowngrowthco/theautomationsguide/rulesets/24417620`.
-11. **`/audit-seo` slash command** only loads when the session starts inside `theautomationsguide/`; output goes to `audits/`.
+11. **Example phrases in an engine prompt get copied verbatim.** The voice examples "In my testing..." (and S90's fix offering it as the safe alternative to client anecdotes) produced invented hands-on claims in 38% of posts (S103, #345 + #346 scrub). Never model a first-person testing, usage or measurement claim in a prompt; `qa:lint` HARD-fails testing claims on posts dated 2026-10-05+.
+12. **`/audit-seo` slash command** only loads when the session starts inside `theautomationsguide/`; output goes to `audits/`.
 
 ## Current strategic state (2026-10-02)
 
