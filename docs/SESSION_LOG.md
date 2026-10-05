@@ -8,7 +8,15 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-05 (Session 105).
+Last updated 2026-10-05 (Session 106).
+
+## Session 106 (2026-10-05): parked checks re-read, mono-font perf gap measured, docs (Opus 5.5)
+
+- **Started 22:10Z, 15 min after S105 closed**, so Part 0 (next bot-pushed engine PR), Part A (10/06 12:00Z run), indexing (10/08), the 10/15 metric and N4/N5 were all still date-gated. 0 open PRs at start.
+- **B2, PostHog 408442:** 26 `affiliate_click` since 10/02 01:21Z, none real. A 21:49-21:59Z burst hit 21 tools in 10 min, each with a fresh distinct id, no session, no browser and no TAG pageview. Two carry `source_via=last_page` from 404 probes (`/affiliate`, `/ai-agents/sales-agent`, no trailing slash). The 10/15 read must drop these before computing the >90% share (TODO updated).
+- **Part C, Gong post mobile perf:** Lighthouse median apollo-vs-clay 97, gong-vs-outreach 95, gong-alternatives 94. The gap is first paint (FCP 2.26 s vs 1.8 s), not script (TBT 0). Gong-alternatives loads JetBrains Mono 400 + 600 (43 KB, VeryHigh) for the decision-tree labels at ~6,500 px and the Bottom line label; the baseline post has no mono text. A throwaway dist copy with those two labels in sans scored 96, FCP 1.95 s. Fonts are `swap`, so this is mostly Lighthouse's simulation. 154/173 posts use a mono-labelled component: a post-contract design call, not shipped.
+- **Docs:** CLAUDE.md's "docs-only changes commit direct to master" line corrected to the S105 PR rule.
+- **Revert:** `git revert` this docs PR.
 
 ## Session 105 (2026-10-05): merge-on-green for every PR, no manual merges (Opus 5.5)
 

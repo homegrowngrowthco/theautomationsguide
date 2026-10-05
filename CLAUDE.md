@@ -35,7 +35,7 @@ RevOps/GTM automation blog at **theautomationsguide.com**. Affiliate-monetized (
 
 - **TODO.md holds open tasks only.** Delete an item when it closes (its detail lives in the session log). Re-rank on add. `npm run qa:docs` fails on any `[x]` left in TODO.md and on CLAUDE.md >400 lines.
 - **Session log:** one entry per session in [docs/SESSION_LOG.md](docs/SESSION_LOG.md), newest first, target ≤20 lines (shipped / PRs+SHAs / verify one-liner / revert / gotchas). Root ops-log gets 1-2 lines + a pointer here.
-- **Docs-only changes commit direct to master** — no PR, no worktree.
+- **Docs-only changes go through a PR too** (since S105): a `C:\tmp` worktree, then `gh pr merge --auto --squash`. `master` requires `qa` + `pr-gates`, so a direct push only lands via the admin bypass.
 - **Audits** go in `audits/AUDIT-<TYPE>-<date>.md`; remediation items go to TODO.md; do not maintain resolution state inside the audit file beyond a header note.
 - Do not re-create: AFFILIATE_PROGRAMS.md (merged into [AFFILIATE_PIPELINE.md](AFFILIATE_PIPELINE.md)), CONTENT_CALENDAR.md (queue is in Notion), GSC-TIER2-CHECKLIST.md (done).
 
