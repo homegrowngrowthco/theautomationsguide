@@ -4,6 +4,7 @@ Tracked by todo-sync (see ../todo-sync/CONVENTION.md). **Open tasks only, most i
 
 ## TODO
 
+- [ ] **Make every PR merge itself when green (Ian, 10/05: no more manual merges).** Content PRs merge on `qa` success (today: daily cron, 2-day wait); other PRs via repo `allow_auto_merge` (off) + `--auto`, with a real required check for code PRs. Prove a green one merges, deploys and flips Notion, and a red one does not. @high [PROMPT-tag-next-session-2026-10-02.md](PROMPT-tag-next-session-2026-10-02.md) Part 0
 - [ ] **Confirm the first REAL `affiliate_click` from a TAG page carries `source_path` / `source_component`.** Count from **10/02 01:21Z** (#326 merge). As of 10/05 15:30Z: 5 events, none real (cold `/go/` entries, `source_via=none`; one automated; 3 tools in 2 min on 10/05, crawler-like). Attribution proven in production on 10/05 for `hub-cta` and `tool-strip`. @high [PROMPT-tag-next-session-2026-10-02.md](PROMPT-tag-next-session-2026-10-02.md)
 - [ ] **Confirm the first engine posts on the fixed prompt carry no invented claims** (#345 15:22Z + #347 observed-results rule 16:21Z, 10/05): the 10/05 20:00Z and 10/06 12:00Z runs. Testing claims HARD-fail on posts dated 10/05+; usage claims and "observation with a figure" only WARN, so read those PRs' warnings. If either keeps appearing, make it HARD. @high [docs/SESSION_LOG.md](docs/SESSION_LOG.md) S103-S104
 - [ ] **Read the conversion audit's pre-registered metrics.**
