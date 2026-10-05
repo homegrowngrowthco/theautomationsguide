@@ -126,6 +126,48 @@ const EN_EM_DASH = /[–—]/;
 // "client accounts", where singular "client" modifies a different head noun, don't match.
 const CLIENT_SCALE = /\b(?:dozens?(?:\s+of)?|half\s+a\s+dozen|scores\s+of|hundreds\s+of|countless|numerous|several|multiple|many)\s+(?:[a-z0-9-]+\s+){0,2}clients\b/i;
 
+// Invented hands-on testing (Session 103, 2026-10-05): the engine prompts modelled
+// "In my testing..." as the personal-voice phrase, so posts claimed tests nobody ran
+// ("I have tested it on three different HubSpot portals"). update-engine-hands-on-claims.mjs
+// fixed the prompts; this is the backstop. HANDS_ON_TEST (unambiguous testing claims) is
+// HARD on posts dated HANDS_ON_CUTOFF or later and WARN on the archive, which Ian has not
+// yet decided to scrub. HANDS_ON_USE ("I've run / used / deployed X") is WARN only: some
+// first-person usage is true ("I ran RevOps at a 40-person SaaS company").
+const HANDS_ON_CUTOFF = '2026-10-05';
+const HANDS_ON_TEST = /\b(?:I|we)(?:'ve|’ve|'m|’m|\s+have|\s+am|\s+are)?(?:\s+been)?\s+(?:test(?:ed|ing)|benchmarked)\b|\b(?:in|from|during|after)\s+(?:my|our)\s+(?:own\s+)?(?:hands-on\s+)?test(?:ing|s)\b|\bmy\s+(?:own\s+)?testing\b|\bhands-on\s+test(?:ing|s|ed)?\b/gi;
+const HANDS_ON_USE = /\b(?:I|we)(?:(?:'ve|’ve|\s+have)\s+run|(?:'ve|’ve|\s+have)?\s+(?:ran|used(?!\s+to\b)|deployed|set\s+up|migrated|piloted|trial(?:l)?ed|tried|rolled\s+out|implemented))\b|(?:^|[.!?]\s+)After testing\b/gim;
+
+// Frozen fixtures for the two patterns above (run by --selftest).
+function handsOnSelftest() {
+  const cases = [
+    [HANDS_ON_TEST, 'In my testing, bounce rates average 4 to 6%.', true],
+    [HANDS_ON_TEST, 'I have tested it on three different HubSpot portals.', true],
+    [HANDS_ON_TEST, "I've been testing Fireflies against Fathom.", true],
+    [HANDS_ON_TEST, 'We tested both platforms extensively.', true],
+    [HANDS_ON_TEST, 'Here is what I know after hands-on testing.', true],
+    [HANDS_ON_TEST, 'My testing over the past year puts Brevo ahead.', true],
+    [HANDS_ON_TEST, 'the most complete single-tool answer I have tested.', true],
+    [HANDS_ON_TEST, 'Test the webhook on a staging list first.', false],
+    [HANDS_ON_TEST, "I'd test a small list before scaling.", false],
+    [HANDS_ON_TEST, 'Run an A/B test on subject lines.', false],
+    [HANDS_ON_TEST, 'The vendor says it was tested on 10,000 records.', false],
+    [HANDS_ON_USE, "I've run this migration for B2B SaaS teams.", true],
+    [HANDS_ON_USE, 'I ran a 2,000-record list through both tools.', true],
+    [HANDS_ON_USE, "I've used it as a first-pass enrichment step.", true],
+    [HANDS_ON_USE, 'After testing a few configurations, here is the setup.', true],
+    [HANDS_ON_USE, 'I used to think sequences mattered most.', false],
+    [HANDS_ON_USE, "I'd run this check before every send.", false],
+    [HANDS_ON_USE, 'Before I run a list through any verifier, I dedupe it.', false],
+  ];
+  let fail = 0;
+  for (const [rx, text, want] of cases) {
+    const got = new RegExp(rx.source, rx.flags.replace('g', '')).test(text);
+    if (got !== want) { fail++; console.error(`hands-on selftest FAIL: ${rx === HANDS_ON_TEST ? 'TEST' : 'USE'} "${text}" expected ${want}`); }
+  }
+  console.log(`hands-on selftest: ${cases.length - fail}/${cases.length} pass`);
+  return fail;
+}
+
 // The squish bug (PR #51) is a MULTI-COLUMN grid/flex wrapper around components.
 // width:100% / overflow / single-column 1fr are harmless full-width wrappers — don't flag those.
 function inlineLayoutHits(body) {
@@ -207,6 +249,18 @@ function lintFile(file) {
     warn.push(`client-scale claim ("${phrase}") implies a large client roster. Reword to at most one modest reference ("a client I worked with") or drop it, per the 2026-09-16 client-mentions scrub.`);
   }
 
+  // Invented hands-on testing (Session 103). Frontmatter included: FAQ answers carried it too.
+  const pub = (fm.match(/^pubDate:\s*['"]?(\d{4}-\d{2}-\d{2})/m) || [])[1] || '';
+  const testHits = new Set([...`${fm}\n${body}`.matchAll(HANDS_ON_TEST)].map((m) => m[0]));
+  for (const phrase of testHits) {
+    const msg = `first-person testing claim ("${phrase}"): the engine tests nothing. Attribute the point to a cited source or the vendor docs, or restate it as opinion ("my read is"), and drop any figure presented as a personal measurement.`;
+    (pub >= HANDS_ON_CUTOFF ? hard : warn).push(msg);
+  }
+  const useHits = new Set([...`${fm}\n${body}`.matchAll(HANDS_ON_USE)].map((m) => m[0].replace(/^[.!?]\s+/, '').trim()));
+  for (const phrase of useHits) {
+    warn.push(`first-person usage claim ("${phrase}"): keep it only if Ian actually did this; otherwise attribute or restate as opinion.`);
+  }
+
   // S-4 CTA floor: a post that names >=2 registered tools but exposes <2 affiliate
   // CTAs (/go/ links + component affiliateSlug props) is under-monetized — the class
   // the 2026-07-02 GEO tutorial hit (zero /go/ links). WARN, not hard: comparison
@@ -268,8 +322,8 @@ function lintFile(file) {
 }
 
 // ---- target selection ----------------------------------------------------
-// --selftest: run the A3c taxonomy checker against frozen fixtures, then exit.
-if (args.includes('--selftest')) process.exit(taxonomySelftest() > 0 ? 1 : 0);
+// --selftest: run the A3c taxonomy checker and the hands-on patterns against frozen fixtures, then exit.
+if (args.includes('--selftest')) process.exit(taxonomySelftest() + handsOnSelftest() > 0 ? 1 : 0);
 let files = [];
 if (getArg('--post')) files = [getArg('--post')];
 else if (getArg('--slug')) files = [path.join(BLOG_DIR, getArg('--slug') + '.mdx')];
