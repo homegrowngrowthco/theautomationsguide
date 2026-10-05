@@ -32,12 +32,12 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-The cold outbound market got hooked on volume. Cheap infrastructure, unlimited warmup pools, and inbox rotation made it easy to send ten thousand emails a week from a $40/month tool. [Instantly](https://instantly.ai) built a dominant position on exactly that promise. But I've watched that playbook age poorly at every mid-market team I've brought it into, and in 2026, the RevOps teams I respect most have quietly swapped it out for [Lemlist](/go/lemlist). Not because [Lemlist](/tools/lemlist/) sends more, but because it connects better, personalizes deeper, and doesn't blow up your domain reputation six months after you celebrate a good quarter.
+The cold outbound market got hooked on volume. Cheap infrastructure, unlimited warmup pools, and inbox rotation made it easy to send ten thousand emails a week from a $40/month tool. [Instantly](https://instantly.ai) built a dominant position on exactly that promise. But that playbook ages poorly at mid-market scale, and in 2026, the RevOps teams I respect most have quietly swapped it out for [Lemlist](/go/lemlist). Not because [Lemlist](/tools/lemlist/) sends more, but because it connects better, personalizes deeper, and doesn't blow up your domain reputation six months after you celebrate a good quarter.
 
 <KeyTakeaways items={[
   "Lemlist's native HubSpot and Salesforce sync eliminates the Zapier tax most Instantly stacks quietly accumulate",
   "Compliance controls (GDPR unsubscribe, opt-out sync) are table stakes in 2026 and Instantly still treats them as afterthoughts",
-  "Image and video personalization in Lemlist consistently lifts reply rates 20-40% over plain-text sequences in the campaigns I've run",
+  "Image and video personalization in Lemlist outperforms plain-text sequences on reply rate, per Lemlist's own send data",
   "Instantly's inbox rotation model creates deliverability debt that tends to surface at the worst possible time",
   "Mid-market teams spending $37/mo on Instantly often spend another $80-120/mo on Clay, Zapier, and middleware just to get CRM parity"
 ]} />
@@ -45,7 +45,7 @@ The cold outbound market got hooked on volume. Cheap infrastructure, unlimited w
 <StatRow stats={[
   { number: "3.4x", label: "Reply rate lift", description: "Personalized images and video in cold email outperform plain-text sequences by 2-4x, per Lemlist's own send data across 37,000+ campaigns" },
   { number: "68%", label: "B2B buyers ignore batch blasts", description: "Salesforce State of Sales 2024 found 68% of buyers immediately delete emails that feel mass-produced, up from 56% in 2022" },
-  { number: "$110", label: "Hidden middleware cost", description: "The average Instantly-first stack I audit adds $90-130/month in Zapier, Clay, or Make glue to achieve what Lemlist ships natively" }
+  { number: "$110", label: "Hidden middleware cost", description: "An Instantly-first stack usually needs paid Zapier, Clay, or Make glue to achieve what Lemlist ships natively" }
 ]} />
 
 ## The real comparison: philosophy, not features

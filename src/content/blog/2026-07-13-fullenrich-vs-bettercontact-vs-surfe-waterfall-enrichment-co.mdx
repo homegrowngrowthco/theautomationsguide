@@ -59,7 +59,7 @@ Single-provider lookups are fine when your list is clean and your ICP maps neatl
 
 Waterfall enrichment fixes this by running a defined cascade. You set a priority order of providers. The tool queries provider one, and if it finds a verified email, it stops and charges you one credit. Miss, and it moves to provider two. You only pay on a hit. The result is a materially higher match rate at a cost per contact that's often lower than buying a premium single-source plan.
 
-I've watched this play out firsthand. A 400-person target list I ran through [FullEnrich](/tools/fullenrich/) came back with verified emails for 91 percent of contacts after the cascade touched four different providers. Apollo alone returned 63 percent on the same list. That delta is not a rounding error. It's the difference between a working sequence and a broken one.
+This is the core case for a cascade tool like [FullEnrich](/tools/fullenrich/): when one provider misses, the next one in the chain often hits, so verified coverage climbs well past what any single database returns. That delta is not a rounding error. It's the difference between a working sequence and a broken one.
 
 This is also why tools like [Clay](/tools/clay/) have made enrichment waterfalls a core selling point, as the screenshot below shows. But Clay charges for the orchestration layer on top of enrichment credits, which is exactly where dedicated waterfall tools start to look attractive.
 
@@ -73,7 +73,7 @@ This is also why tools like [Clay](/tools/clay/) have made enrichment waterfalls
   {
     name: "FullEnrich",
     tagline: "Deepest provider waterfall with a real API",
-    body: "FullEnrich is the most technically capable tool in this group. It sequences lookups across 15-plus providers including Apollo, Hunter, Datagma, Dropcontact, Enrow, and several others, with a configurable priority order and a clean REST API. I reach for it any time the team is technical enough to wire enrichment into their own workflows, whether that's an n8n automation, a Zapier sequence, or a custom outbound engine. The UI is functional but sparse. This is a builder tool, not a point-and-click product. Hit rates on LinkedIn URL inputs routinely clear 85 to 90 percent in my testing. Pricing charges only on verified, deliverable results, so wasted spend stays low.",
+    body: "FullEnrich is the most technically capable tool in this group. It sequences lookups across 15-plus providers including Apollo, Hunter, Datagma, Dropcontact, Enrow, and several others, with a configurable priority order and a clean REST API. It suits any team technical enough to wire enrichment into their own workflows, whether that's an n8n automation, a Zapier sequence, or a custom outbound engine. The UI is functional but sparse. This is a builder tool, not a point-and-click product. Pricing charges only on verified, deliverable results, so wasted spend stays low.",
     highlights: [
       "15+ underlying providers in the cascade",
       "REST API with webhook support for custom workflows",
@@ -121,7 +121,7 @@ This is also why tools like [Clay](/tools/clay/) have made enrichment waterfalls
   {
     name: "LeadMagic",
     tagline: "Cheapest pay-per-result email and mobile lookup",
-    body: "LeadMagic is the most stripped-down option, and deliberately so. Upload a CSV of LinkedIn URLs or company domains, run the lookup, pay only for verified results at roughly five cents per email. No monthly seat fee. No elaborate dashboard. No native CRM integration worth mentioning. The provider waterfall is shallower than FullEnrich or BetterContact, but for teams doing occasional list enrichment without a dedicated RevOps operator to manage a more complex setup, the simplicity is the point. I've used it with early-stage teams who needed to validate a 200-person pilot list before committing to a full outbound motion. It does that job cleanly.",
+    body: "LeadMagic is the most stripped-down option, and deliberately so. Upload a CSV of LinkedIn URLs or company domains, run the lookup, pay only for verified results at roughly five cents per email. No monthly seat fee. No elaborate dashboard. No native CRM integration worth mentioning. The provider waterfall is shallower than FullEnrich or BetterContact, but for teams doing occasional list enrichment without a dedicated RevOps operator to manage a more complex setup, the simplicity is the point. It fits early-stage teams that need to validate a small pilot list before committing to a full outbound motion, and that is the job it is built for.",
     highlights: [
       "No monthly fee, pay per verified result only",
       "Lowest per-email cost in this comparison",
@@ -193,7 +193,7 @@ Most teams treat waterfall enrichment as a Clay feature rather than a standalone
 
 Every vendor in this space will tell you they aggregate dozens of providers. What they won't tell you is how aggressively they verify before returning a result. A "found" email that bounces is worse than no email, full stop. It burns your sender reputation, and if you are warming domains through [Smartlead](/go/smartlead/) or [Instantly](/go/instantly/), a bad enrichment batch can set you back weeks.
 
-My strong recommendation: benchmark each tool on bounce rate, not just match rate, against a real sample of your ICP before scaling. Pull 200 contacts from your actual target list, run them through each tool, and send a small test sequence. FullEnrich has been the most consistent on verification in my testing across multiple accounts. BetterContact, Surfe, and LeadMagic all perform well, but I've seen more variance in their verification confidence on edge-case domains, particularly regional European companies and smaller professional services firms.
+My strong recommendation: benchmark each tool on bounce rate, not just match rate, against a real sample of your ICP before scaling. Pull 200 contacts from your actual target list, run them through each tool, and send a small test sequence. My read is that FullEnrich is the safest default on verification, since it charges only on verified, deliverable results. BetterContact, Surfe, and LeadMagic are all credible options, but check their verification confidence closely on edge-case domains, particularly regional European companies and smaller professional services firms.
 
 The other thing worth knowing: [Clay's enrichment waterfall documentation](https://docs.clay.com/enrichment/waterfall) walks through how to set confidence thresholds per provider column. Most teams ignore this and accept whatever comes back. Setting a minimum confidence score of 85+ before accepting a result and falling to the next provider meaningfully improves deliverability without much coverage loss. Build that logic in from day one.
 

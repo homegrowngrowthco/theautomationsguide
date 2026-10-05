@@ -44,7 +44,7 @@ Most teams treating Apollo as a source of truth and HubSpot as their system of r
 
 ## Why the Native Integration Falls Short
 
-[Apollo](/go/apollo/)'s built-in HubSpot connector syncs contacts bidirectionally, but I have tested it on three different HubSpot portals and hit the same ceiling every time. Field mapping is limited to Apollo's default contact fields. There is no conditional logic (push only if `lead_stage = "qualified"`). And the deduplication behavior is genuinely opaque. Records merge inconsistently, and you get zero visibility into what changed when.
+[Apollo](/go/apollo/)'s built-in HubSpot connector syncs contacts bidirectionally, but it hits a ceiling quickly. Field mapping is limited to Apollo's default contact fields. There is no conditional logic (push only if `lead_stage = "qualified"`). And the deduplication behavior is genuinely opaque. Records merge inconsistently, and you get zero visibility into what changed when.
 
 [n8n](/go/n8n/) fixes this because you own every node. You decide which Apollo fields map to which HubSpot properties, write the conditional branches yourself, and log every upsert result to a Slack channel or a Google Sheet for audit purposes. The setup takes about 90 minutes the first time. After that, it runs on its own.
 
@@ -132,7 +132,7 @@ Before you start, get three things ready: an [Apollo](/tools/apollo/) API key (S
 
 If you are pulling raw Apollo exports or your Apollo data is thin on mobile numbers and LinkedIn URLs, slot [Clay](/go/clay/) between the Apollo poll and the HubSpot upsert. The pattern is straightforward: Apollo identifies the contact, Clay runs the enrichment waterfall (Clearbit, Prospeo, Datagma, whatever you have wired), and then Clay webhooks the enriched record to n8n's Webhook Trigger node instead of n8n polling Apollo directly.
 
-In my testing, this pattern cuts the number of HubSpot contacts with blank `phone` and `linkedin_url` properties by more than half. That matters when sequence steps include LinkedIn tasks and your SDRs are working from HubSpot.
+The goal of this pattern is fewer HubSpot contacts with blank `phone` and `linkedin_url` properties. That matters when sequence steps include LinkedIn tasks and your SDRs are working from HubSpot.
 
 You can see what Clay's enrichment table looks like before data hits the wire in our [coverage of HubSpot proposal automation](/blog/2026-09-15-pandadoc-hubspot-proposal-automation-without-custom-code/), which uses a similar pre-send enrichment model.
 

@@ -44,7 +44,7 @@ Most CRM comparisons are written for inbound teams. They care about lead scoring
 
 <StatRow stats={[
   { number: "68%", label: "of outbound teams use a separate sequencing tool", description: "G2 research shows most teams split CRM and sequencing across two products, making sync quality the real differentiator" },
-  { number: "3x", label: "faster contact creation in Attio vs HubSpot via API", description: "In my testing, Attio's API responds and creates records roughly 3x faster than HubSpot's CRM API under equivalent load" },
+  { number: "0", label: "native sequence steps in Attio", description: "Attio has no built-in sequencing, so every send runs through Smartlead, Instantly, or Lemlist and the CRM sync carries the load" },
   { number: "$90/seat", label: "HubSpot Sales Hub Pro minimum for Sequences", description: "You need Sales Hub Professional at $90 per seat per month to unlock HubSpot Sequences; inbox rotation sits above that tier" }
 ]} />
 
@@ -64,7 +64,7 @@ The friction I see most often is not a missing feature inside the CRM. It is the
   {
     name: "Attio",
     tagline: "API-first CRM built for high-velocity contact ops",
-    body: "Attio is the most developer-friendly CRM in this group, and that is not an accident. It was designed from the ground up to be the data layer in a composable GTM stack. Clay pushes enriched contacts into Attio via webhook in under two seconds in my testing. You can build custom objects, attribute sets, and list views that map exactly to your outbound workflow without fighting a pre-built data model. The tradeoff is that Attio has zero native sequence capability. You are committing to Smartlead, Instantly, or Lemlist for all sequence execution, and you need to wire the status sync yourself (or use Zapier or Make). For teams that have already made that architectural decision, Attio is close to perfect as the CRM layer.",
+    body: "Attio is the most developer-friendly CRM in this group, and that is not an accident. It was designed from the ground up to be the data layer in a composable GTM stack. Clay can push enriched contacts straight into Attio via webhook. You can build custom objects, attribute sets, and list views that map exactly to your outbound workflow without fighting a pre-built data model. The tradeoff is that Attio has zero native sequence capability. You are committing to Smartlead, Instantly, or Lemlist for all sequence execution, and you need to wire the status sync yourself (or use Zapier or Make). For teams that have already made that architectural decision, Attio is close to perfect as the CRM layer.",
     highlights: [
       "Sub-two-second contact creation via API, fastest of the three",
       "Custom objects and attribute sets with no code required",
@@ -158,11 +158,11 @@ I would push teams to answer one question first: do you want to own your outboun
 
 ## Integration depth with Smartlead, Lemlist, and Clay
 
-This is where the real differentiation lives, and where most comparison posts skip the specifics. Here is what I actually know about each integration after hands-on testing.
+This is where the real differentiation lives, and where most comparison posts skip the specifics. Here is how each integration actually works.
 
 [Smartlead](/go/smartlead/) has native integrations with both HubSpot and Pipedrive. The HubSpot integration is bidirectional: sequence events (email sent, opened, replied, bounced) write back to the contact timeline in HubSpot, and you can trigger Smartlead enrollment from a HubSpot workflow. The Pipedrive integration is event-based but shallower. Smartlead can update a custom field or create an activity in Pipedrive, but it does not write to the native timeline in the same way. For Attio, Smartlead uses webhooks that you configure manually. It takes about 30 minutes to set up but gives you full control over what gets written and where.
 
-[Lemlist](/go/lemlist/) follows a similar pattern. Its HubSpot sync is the most polished, with a native connector that handles campaign enrollment, reply detection, and lead status updates. The Pipedrive connector exists and works for basic status sync. Attio requires webhooks, same as Smartlead. One thing I noticed in testing: Lemlist's [Clay](/go/clay/) integration routes through Clay's CRM push feature, not a direct Lemlist-to-CRM connector. That means your Clay table is the orchestration point, and the CRM receives enriched contacts with campaign-ready attributes pre-attached.
+[Lemlist](/go/lemlist/) follows a similar pattern. Its HubSpot sync is the most polished, with a native connector that handles campaign enrollment, reply detection, and lead status updates. The Pipedrive connector exists and works for basic status sync. Attio requires webhooks, same as Smartlead. One thing worth knowing: Lemlist's [Clay](/go/clay/) integration routes through Clay's CRM push feature, not a direct Lemlist-to-CRM connector. That means your Clay table is the orchestration point, and the CRM receives enriched contacts with campaign-ready attributes pre-attached.
 
 For [HubSpot's](/tools/hubspot/) Sequences specifically, the comparison to Smartlead and Lemlist is nuanced. HubSpot Sequences is solid for 1:1 personalized outbound and has gotten meaningfully better with inbox rotation. But it does not have the deliverability infrastructure (warm-up, inbox health scoring, sending volume controls) that Smartlead was built around. Teams doing high-volume cold outbound should still route through Smartlead and treat HubSpot as the CRM sync destination, not the sequence engine. Don't pay $90 per seat for HubSpot Sequences and then run Smartlead on top of it. Pick one. If you are on [Pipedrive](/tools/pipedrive/) and considering a move to a more integrated option, the post on [why Pipedrive teams are moving to Salesforce (not Attio)](/blog/2026-09-17-why-pipedrive-teams-are-moving-to-salesforce-not-attio/) is worth reading before you decide.
 

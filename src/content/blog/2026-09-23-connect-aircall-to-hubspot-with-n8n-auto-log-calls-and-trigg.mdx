@@ -178,7 +178,7 @@ The native Aircall connector gives you a false sense of security. Call data is "
 
 ## Putting It Together
 
-This n8n workflow takes about three focused hours if you have your HubSpot credentials and Aircall API key ready. In my testing, the end-to-end call-to-sequence-enrollment fires in under 30 seconds from call end. The payoff is a call-to-follow-up loop that runs without rep input: every qualified call automatically logs, custom properties get written for reporting, and warm leads enter a sequence before your rep has closed their laptop.
+This n8n workflow takes about three focused hours if you have your HubSpot credentials and Aircall API key ready. The payoff is a call-to-follow-up loop that runs without rep input: every qualified call automatically logs, custom properties get written for reporting, and warm leads enter a sequence before your rep has closed their laptop.
 
 The pre-enrollment guard is the piece most tutorials skip, and it is the piece that determines whether this workflow is reliable or just occasionally works. Build that guard first. Test it on real calls. Then layer in the Slack fallbacks so nothing drops silently. A workflow that fails loudly is fixable. One that fails quietly costs you pipeline.
 

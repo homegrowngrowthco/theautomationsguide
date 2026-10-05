@@ -33,7 +33,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-I have run [Lemlist](/go/lemlist/) on outbound programs for B2B SaaS teams over the past two years. The honest answer: it sits in a weird middle position in the 2026 market. Better than most tools at creative personalization and multichannel sequencing. More expensive than the pure-volume senders. And occasionally frustrating in ways that matter at scale. If you are evaluating it right now, this review covers what actually works, what does not, and exactly when I would recommend Smartlead, Instantly, or Reply.io instead.
+Here is my honest take on [Lemlist](/go/lemlist/): it sits in a weird middle position in the 2026 market. Better than most tools at creative personalization and multichannel sequencing. More expensive than the pure-volume senders. And occasionally frustrating in ways that matter at scale. If you are evaluating it right now, this review covers what actually works, what does not, and exactly when I would recommend Smartlead, Instantly, or Reply.io instead.
 
 <KeyTakeaways items={[
   "Lemlist's image and video personalization is still best in class for adding visual hooks to cold email at scale.",
@@ -55,7 +55,7 @@ The core value proposition has not changed. Lemlist lets you build sequences tha
 
 You can drop a dynamically generated image into an email (think: a screenshot of the prospect's website with a sticky note overlay, generated on send) without touching a line of code. I have seen reply rates lift 4 to 6 percentage points on sequences that use even basic image personalization versus plain text. That is meaningful at the top of funnel, and most tools in this category simply cannot match it.
 
-The lemwarm deliverability network is baked into every plan now, not sold separately. That matters. Inbox placement is the unglamorous variable that kills otherwise solid sequences. I have run deliverability tests on fresh lemlist-connected mailboxes, and landing consistently above 90 percent in primary inbox on [Google Postmaster Tools](https://postmaster.google.com/) requires less manual intervention than it did on older infrastructure. Skip the third-party warmup tools entirely here.
+The lemwarm deliverability network is baked into every plan now, not sold separately. That matters. Inbox placement is the unglamorous variable that kills otherwise solid sequences. Once you start sending, watch your domain reputation and spam rate in [Google Postmaster Tools](https://postmaster.google.com/). Skip the third-party warmup tools entirely here.
 
 The [Clay](/go/clay/) integration deserves a specific callout. If your workflow involves enriching a prospect in Clay (pulling job change signals, tech stack data, LinkedIn snippets) and then triggering a sequence, lemlist handles that handoff cleanly via its native integration. This is the playbook my team defaults to now. We have a full breakdown of that loop in [the LinkedIn outbound loop guide for Clay, lemlist, and HubSpot](/blog/2026-08-22-linkedin-outbound-loop-clay-lemlist-hubspot/).
 
@@ -139,7 +139,7 @@ Teams that complain about lemlist's price are almost always using it as a plain 
 
 Lemlist earns its place for teams that need a true multichannel outbound tool with strong personalization depth and a clean path to enrichment-first workflows via [Clay](/tools/clay/) and similar tools. It is not the cheapest option. It is not the right tool for pure infrastructure scale plays.
 
-For a five-to-fifteen person outbound team running considered, personalized sequences across email and LinkedIn, it remains the most complete single-tool answer I have tested. [Reply.io](/tools/reply-io/) is the closest competitor for teams that want deeper AI-driven reply handling. [Smartlead](/tools/smartlead/) wins on volume economics. Know what you are optimizing for and the decision becomes straightforward.
+For a five-to-fifteen person outbound team running considered, personalized sequences across email and LinkedIn, it remains, in my view, the most complete single-tool answer in this category. [Reply.io](/tools/reply-io/) is the closest competitor for teams that want deeper AI-driven reply handling. [Smartlead](/tools/smartlead/) wins on volume economics. Know what you are optimizing for and the decision becomes straightforward.
 
 <BottomLine
   verdict="Lemlist is the right pick for B2B outbound teams that need multichannel sequencing and visual personalization in one tool. For pure email volume at scale, Smartlead or Instantly will cost less and perform just as well."

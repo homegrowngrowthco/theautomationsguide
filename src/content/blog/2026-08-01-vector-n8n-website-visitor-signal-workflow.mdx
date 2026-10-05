@@ -168,7 +168,7 @@ First, set header-based auth on the n8n webhook. Add a secret in Vector's webhoo
 This is the same hygiene I apply to the [demo scheduling automation with Cal.com, HubSpot, and n8n](/blog/2026-07-23-automate-demo-scheduling-with-calcom-hubspot-and-n8n/) that I've documented elsewhere. Real-time workflows without rate limiting and error handling are time bombs. Simple as that.
 
 <MyTake>
-Vector is the first intent tool I've used where the automation primitive feels like it was designed by someone who actually builds workflows. That `direction` field in the payload (up vs. down score movement) saves two nodes worth of stateful logic in n8n. Every other tool I've tested makes you derive that yourself by storing the previous score. I'd take Vector over Warmly for any team that has a RevOps person willing to maintain an n8n instance, full stop.
+Vector's automation primitive feels like it was designed by someone who actually builds workflows. That `direction` field in the payload (up vs. down score movement) saves two nodes worth of stateful logic in n8n. Without that field, you would derive it yourself by storing the previous score. I'd take Vector over Warmly for any team that has a RevOps person willing to maintain an n8n instance, full stop.
 </MyTake>
 
 ## The workflow is the moat

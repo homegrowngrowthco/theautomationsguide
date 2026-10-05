@@ -37,7 +37,7 @@ Most outbound follow-up breakdowns I've seen at mid-market B2B SaaS companies ha
 
 ## What This Workflow Actually Does
 
-Three nodes deep. That is the whole pattern: capture an event from your cold email tool, enrich the sender's company with [Clay](/go/clay), then write a deal or contact note to [HubSpot](/go/hubspot) or [Pipedrive](/go/pipedrive). The whole thing runs in under four seconds per event in production. I've deployed this stack on outbound programs running 2,000 to 8,000 touches per month, and it eliminates the black hole where replied or bounced contacts vanish from the CRM pipeline entirely.
+Three nodes deep. That is the whole pattern: capture an event from your cold email tool, enrich the sender's company with [Clay](/go/clay), then write a deal or contact note to [HubSpot](/go/hubspot) or [Pipedrive](/go/pipedrive). It suits outbound programs running 2,000 to 8,000 touches per month, and it eliminates the black hole where replied or bounced contacts vanish from the CRM pipeline entirely.
 
 Before wiring a single node, make sure three things are in place: API keys for your sequencer ([Smartlead](/go/smartlead) or [Instantly](/go/instantly/)), a Clay table configured with the enrichment waterfall you want (I run Clearbit first, then LinkedIn, then [Apollo](/go/apollo) as the final fallback), and a [HubSpot](/tools/hubspot/) or [Pipedrive](/tools/pipedrive/) sandbox to test writes against. The [n8n docs on HTTP Request nodes](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/) are genuinely good. Skim them before you start.
 

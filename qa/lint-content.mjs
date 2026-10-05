@@ -134,7 +134,7 @@ const CLIENT_SCALE = /\b(?:dozens?(?:\s+of)?|half\s+a\s+dozen|scores\s+of|hundre
 // yet decided to scrub. HANDS_ON_USE ("I've run / used / deployed X") is WARN only: some
 // first-person usage is true ("I ran RevOps at a 40-person SaaS company").
 const HANDS_ON_CUTOFF = '2026-10-05';
-const HANDS_ON_TEST = /\b(?:I|we)(?:'ve|’ve|'m|’m|\s+have|\s+am|\s+are)?(?:\s+been)?\s+(?:test(?:ed|ing)|benchmarked)\b|\b(?:in|from|during|after)\s+(?:my|our)\s+(?:own\s+)?(?:hands-on\s+)?test(?:ing|s)\b|\bmy\s+(?:own\s+)?testing\b|\bhands-on\s+test(?:ing|s|ed)?\b/gi;
+const HANDS_ON_TEST = /\b(?:I|we)(?:'ve|’ve|'m|’m|\s+have|\s+am|\s+are)?(?:\s+been)?\s+(?:test(?:ed|ing)|benchmarked)\b|\b(?:in|from|during|after)\s+(?:my|our)\s+(?:own\s+)?(?:hands-on\s+)?test(?:ing|s)\b|\bmy\s+(?:own\s+)?testing\b|\bhands-on\s+(?:\S+\s+){0,2}?(?:test(?:ing|s|ed)?|reviews?|comparisons?|evaluations?)\b/gi;
 const HANDS_ON_USE = /\b(?:I|we)(?:(?:'ve|’ve|\s+have)\s+run|(?:'ve|’ve|\s+have)?\s+(?:ran|used(?!\s+to\b)|deployed|set\s+up|migrated|piloted|trial(?:l)?ed|tried|rolled\s+out|implemented))\b|(?:^|[.!?]\s+)After testing\b/gim;
 
 // Frozen fixtures for the two patterns above (run by --selftest).
@@ -151,6 +151,10 @@ function handsOnSelftest() {
     [HANDS_ON_TEST, "I'd test a small list before scaling.", false],
     [HANDS_ON_TEST, 'Run an A/B test on subject lines.', false],
     [HANDS_ON_TEST, 'The vendor says it was tested on 10,000 records.', false],
+    [HANDS_ON_TEST, 'Hands-on Vapi review for RevOps teams in 2026.', true],
+    [HANDS_ON_TEST, 'Hands-on review of Profound, the GEO platform.', true],
+    [HANDS_ON_TEST, 'A hands-on RevOps playbook for Warmly and Make.', false],
+    [HANDS_ON_TEST, 'The actual hands-on time is four to six hours.', false],
     [HANDS_ON_USE, "I've run this migration for B2B SaaS teams.", true],
     [HANDS_ON_USE, 'I ran a 2,000-record list through both tools.', true],
     [HANDS_ON_USE, "I've used it as a first-pass enrichment step.", true],
