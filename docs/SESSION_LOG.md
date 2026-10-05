@@ -2,7 +2,7 @@
 
 Append-only session history, newest first. Moved here from CLAUDE.md on 2026-07-17 (docs cleanup) so the auto-injected CLAUDE.md stays lean.
 
-**Convention going forward:** one entry per session, target 20 lines or fewer: what shipped / PRs + SHAs / one-line verification / revert path / new gotchas. Detail beyond that belongs in the PR description. Commit docs-only changes direct to master (no PR, no worktree needed).
+**Convention going forward:** one entry per session, target 20 lines or fewer: what shipped / PRs + SHAs / one-line verification / revert path / new gotchas. Detail beyond that belongs in the PR description. Since S105 docs-only changes also go through a PR with `gh pr merge --auto --squash` (master requires `qa` + `pr-gates`; a direct push only lands via the admin bypass).
 
 Entries below Session 65 use the older long-form format and include the pre-cleanup project docs (site structure, engine v3 pipeline, 90-day plan, placeholders) at the bottom for historical reference. Do not treat those bottom sections as current.
 
@@ -17,9 +17,9 @@ Last updated 2026-10-05 (Session 105).
 - **#351 `f18f40b`:** `qa:render` on every post in pr-gates (closes the first-changed-post-only gap). Merged itself 7 s after pr-gates went green via `--auto`: code-PR proof.
 - **#352:** `workflow_run.workflows` reads names as globs, so "QA + auto-fix content PRs" never matched (#350's qa completion fired no merger run). Renamed "QA and auto-fix content PRs".
 - **Red proof #350:** throwaway `content/` PR with an em dash; merger logged `blocked (qa/build/pr-gates failure)`, stayed open; closed, branch deleted.
-- **Green content proof #353 (20:00Z engine post):** first qa run + 3 selftests cancelled by GitHub's Actions incident (19:12Z, runners never assigned); re-run passed, verdict published on bot commit `31ac0cb3`, PR gates dispatched there, qa completion triggered the merger. Merge, deploy, Notion still pending at log time (Actions in major outage).
+- **Green content proof #353 (20:00Z engine post):** first qa run + 3 selftests cancelled by GitHub's Actions incident (19:12Z, runners never assigned); re-run passed, verdict published on bot commit `31ac0cb3`, PR gates dispatched there. Still BLOCKED: a `workflow_dispatch` check suite is not tied to the PR, so the ruleset ignored the dispatched `pr-gates` (the merger saw raw check runs, thought green, the merge API refused, the sweep Slacked it). **#354** publishes a dispatched `pr-gates` via `checks.create` and makes the merger wait on `mergeable_state=blocked`. After `gh pr update-branch 353`, #353 merged by `github-actions` 21:54:58Z (`3d1175e`), live 200 at 21:55:40Z, Slack "Notion topic marked Published" 21:55Z.
 - **Part A:** #353 post lints 0 hard, 0 claim warnings, 0 claim phrases. #340/#342/#343 live 200 with the fixed sentences. PostHog: still 5 `affiliate_click`, none real.
-- **Revert:** revert #349/#351/#352; `gh api -X PATCH repos/homegrowngrowthco/theautomationsguide -F allow_auto_merge=false`; PUT ruleset with `qa` only.
+- **Revert:** revert #349/#351/#352/#354; `gh api -X PATCH repos/homegrowngrowthco/theautomationsguide -F allow_auto_merge=false`; PUT ruleset with `qa` only.
 - **Gotchas:** Claude's gh user is a ruleset bypass actor, so always `gh pr merge --auto --squash`, never a plain merge on a pending PR. An Actions incident cancels queued jobs (no runner) and reads as red; recover with `gh run rerun` / `--failed`.
 
 ## Session 104 (2026-10-05): engine stops modelling "I've seen" (#347), 98-post observed-results scrub (#348), #340 fixed in-branch (Opus 5.5)
