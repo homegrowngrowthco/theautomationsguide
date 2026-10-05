@@ -49,7 +49,7 @@ export const sections: Section[] = [
     intro: [
       'Every comparison here puts two or three tools that do the same job side by side and asks where they actually diverge, not just where their pricing pages differ. The same few tools show up across multiple comparisons (Apollo, HubSpot, Pipedrive, Attio, ActiveCampaign) because most RevOps stacks choose between the same handful of options, and the honest answer is usually "it depends on your team size and data model," not a universal winner.',
       "I weigh the same things in every comparison: what breaks at scale, what the free trial actually lets you test, what support looks like when something goes wrong before a campaign goes live, and what it costs once you are past the entry tier. Feature parity gets a mention, but it rarely decides the call.",
-      'Some of these tools I have run in production; many I have not, and I do not claim to have tested every pair. The prices in each comparison\'s tools panel come from the <a href="/revops-automation-pricing/">RevOps pricing index</a>, read from each vendor\'s own pricing page on a stated date.',
+      'These comparisons are researched from vendor documentation, not hands-on tests. The prices in each comparison\'s tools panel come from the <a href="/revops-automation-pricing/">RevOps pricing index</a>, read from each vendor\'s own pricing page on a stated date.',
     ],
   },
   {
