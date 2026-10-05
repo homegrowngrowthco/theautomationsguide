@@ -1,4 +1,7 @@
-name: QA + auto-fix content PRs
+name: QA and auto-fix content PRs
+# (No "+" in this name: workflow_run's `workflows:` filter reads names as glob
+# patterns, so "QA + auto-fix" never matched and qa completions did not trigger
+# the merger in auto-merge-content.yml. Keep the two names in sync.)
 
 # QA pipeline for engine-generated content PRs.
 #
