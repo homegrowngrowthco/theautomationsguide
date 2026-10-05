@@ -354,20 +354,18 @@ The re-runs and the watchdog both call the n8n API. Layer 2 uses the n8n credent
 
 ---
 
-## Workflow 7: Auto-merge stale content PRs (GitHub Actions, not n8n)
+## Workflow 7: Merge green content PRs (GitHub Actions, not n8n)
 
-Lives at [`.github/workflows/auto-merge-content.yml`](../.github/workflows/auto-merge-content.yml). Runs daily at 14:00 UTC. Auto-merges any `content:`-prefixed PR that's been open 14+ days, with all checks passing and no `CHANGES_REQUESTED` review.
+Lives at [`.github/workflows/auto-merge-content.yml`](../.github/workflows/auto-merge-content.yml), logic and fixtures in [`qa/merge-green.mjs`](../qa/merge-green.mjs). Since Session 105 (2026-10-05) there are no manual merges and no 2-day wait:
 
-### Setup (one-time)
-
-1. **Add `SLACK_WEBHOOK_URL` repo secret.** GitHub → repo Settings → Secrets and variables → Actions → *New repository secret* → name `SLACK_WEBHOOK_URL`, value the same Slack incoming webhook URL used by the n8n workflows. Without this, the action still merges; it just won't notify.
-2. **First run:** GitHub → Actions tab → *Auto-merge stale content PRs* → *Run workflow* button. Confirms it works against your current PR list.
+- **Instant path:** whenever a `qa` run or a PR-gates run completes on a `content/` branch, the open content PR there is squash-merged as soon as `qa` and `pr-gates` are both success on its current head sha, no other check is red, the Netlify preview is not red, and it has no `CHANGES_REQUESTED` review or `no-auto-merge` label. It waits up to ~12 min for checks still running. A merge by `github-actions[bot]` still deploys (Netlify app) and still fires this file's Notion Publish Status webhook.
+- **Daily backstop (14:00 UTC):** merges any green content PR the instant path missed and Slack-alerts any that are red, or still unmerged after 2 h, with the reason.
+- **Red never merges.** QA outcomes that need a human (2-fix limit, fixer declined) turn `qa` red. Fix the post in-branch (a push re-runs QA) or close the PR.
 
 ### Adjusting
 
 | Want to | Change |
 |---|---|
-| Tighter or looser staleness window | Change `default: '14'` in the `workflow_dispatch.inputs.stale_days` block, or trigger manually with a custom value |
-| Run at a different time | Change `cron: '0 14 * * *'` (currently 14:00 UTC daily) |
-| Skip auto-merge entirely on a PR | Apply a `CHANGES_REQUESTED` review on the PR — the action will skip it |
-| Stop the GHA temporarily | Comment out the `schedule:` block and rely on manual `workflow_dispatch` only |
+| Hold one PR | Add the `no-auto-merge` label (or a `CHANGES_REQUESTED` review); remove it, then *Run workflow* to merge |
+| Run the sweep now | Actions → *Merge green content PRs* → *Run workflow* |
+| Stop all automatic merging | Disable the workflow in the Actions tab (`gh workflow disable auto-merge-content.yml`); revert path for the whole change is reverting its PR and `gh api -X PATCH repos/homegrowngrowthco/theautomationsguide -F allow_auto_merge=false` |
