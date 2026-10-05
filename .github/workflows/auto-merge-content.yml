@@ -1,181 +1,69 @@
-name: Auto-merge stale content PRs
+name: Merge green content PRs
 
-# Daily check at 14:00 UTC (10am ET / 9am ET in DST). Auto-merges any
-# `content:`-prefixed PR opened by the n8n engine that's been sitting open
-# for 2+ days, has a SUCCESSFUL qa check on its head sha, and has no review
-# requesting changes. PRs past the threshold that CAN'T merge (failed checks,
-# qa never completed, changes requested, Netlify red) are reported to Slack
-# instead of skipped silently — PR #88 sat failing for 20 days with no ping.
-# Manual runs allowed via workflow_dispatch.
+# Merge-on-green (Session 105; Ian 2026-10-05: no manual merges). Logic and
+# fixtures live in qa/merge-green.mjs.
+#
+# 1. INSTANT PATH (workflow_run): whenever a qa run or a PR-gates run completes,
+#    find the open content PR on that branch and squash-merge it as soon as EVERY
+#    required check (qa + pr-gates, ruleset 24417620) is success on its CURRENT
+#    head sha, no other check is red, the Netlify preview is not red, there is no
+#    CHANGES_REQUESTED review and no `no-auto-merge` label. It polls up to ~12 min
+#    for checks still running (the PR gates on a bot-pushed head are dispatched
+#    at the end of the qa job). The merge pins `sha`, so a commit landing mid-way
+#    fails the merge rather than shipping an unchecked head.
+# 2. DAILY BACKSTOP (14:00 UTC, or Run workflow): sweeps every open content PR,
+#    merges any green one the instant path missed, and Slack-alerts the red or
+#    stalled ones (PR #88 sat failing for 20 days with no ping).
+#
+# Never merges red; never bypasses (github-actions[bot] is not a bypass actor).
+# Non-content PRs merge via GitHub native auto-merge (`gh pr merge --auto`).
+# A bot merge still deploys (Netlify app) and still fires the Notion Publish
+# Status repo webhook; neither depends on who merged.
+#
+# workflow_run always runs this file from master, so changes here only take
+# effect once merged.
 
 on:
+  workflow_run:
+    workflows: ['QA + auto-fix content PRs', 'PR gates']
+    types: [completed]
   schedule:
     - cron: '0 14 * * *'
   workflow_dispatch:
-    inputs:
-      stale_days:
-        description: 'Days to consider a content PR stale (default 2)'
-        required: false
-        default: '2'
 
 permissions:
-  pull-requests: write
+  actions: write
+  checks: read
   contents: write
+  pull-requests: write
+  statuses: read
+
+concurrency:
+  group: merge-green-${{ github.event.workflow_run.head_branch || 'sweep' }}
+  cancel-in-progress: false
 
 jobs:
-  auto-merge:
+  merge-green:
+    # Only branches that can carry a content PR; the sweep covers everything.
+    if: github.event_name != 'workflow_run' || startsWith(github.event.workflow_run.head_branch, 'content/')
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - name: Find and merge stale content PRs
+      - name: Checkout master (merge logic only; no PR code runs here)
+        uses: actions/checkout@v6
+        with:
+          sparse-checkout: qa/merge-green.mjs
+          sparse-checkout-cone-mode: false
+
+      - name: Merge green content PRs
         uses: actions/github-script@v8
         env:
-          STALE_DAYS: ${{ github.event.inputs.stale_days || '2' }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
           script: |
-            const STALE_DAYS = parseInt(process.env.STALE_DAYS, 10);
-            const STALE_MS = STALE_DAYS * 24 * 60 * 60 * 1000;
-            const now = Date.now();
-
-            const { data: prs } = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              base: 'master',
-              per_page: 50,
-            });
-
-            const merged = [];
-            const stuck = []; // past threshold but not mergeable — these get a Slack ping
-            const skipped = []; // not eligible (not content, too young) — log only
-
-            for (const pr of prs) {
-              if (!pr.title.startsWith('content:') || !pr.head.ref.startsWith('content/')) {
-                skipped.push({ pr: pr.number, title: pr.title, reasons: ['not a content PR'] });
-                continue;
-              }
-              const ageMs = now - new Date(pr.created_at).getTime();
-              const ageDays = Math.round(ageMs / (24 * 3600 * 1000));
-              if (ageMs < STALE_MS) {
-                skipped.push({ pr: pr.number, title: pr.title, reasons: [`only ${ageDays} days old`] });
-                continue;
-              }
-
-              const blockers = [];
-
-              // Block on any CHANGES_REQUESTED review
-              const reviews = await github.rest.pulls.listReviews({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pr.number,
-              });
-              if (reviews.data.some((r) => r.state === 'CHANGES_REQUESTED')) {
-                blockers.push('has CHANGES_REQUESTED review');
-              }
-
-              const checks = await github.rest.checks.listForRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: pr.head.sha,
-              });
-
-              // Block on any failed check run
-              const failed = checks.data.check_runs.filter(
-                (c) => c.conclusion === 'failure' || c.conclusion === 'cancelled' || c.conclusion === 'timed_out',
-              );
-              if (failed.length > 0) {
-                blockers.push(`failed checks: ${failed.map((f) => f.name).join(', ')}`);
-              }
-
-              // Require a SUCCESSFUL qa run, tolerating trailing bot commits. When the
-              // qa job's auto-register (or qa-fix) step pushes to the branch with
-              // GITHUB_TOKEN, the passing qa check stays on the pre-push sha and the
-              // new head only gets an action_required run stub — but the passing run's
-              // gates DID test the pushed tree (the push happens inside that job before
-              // the gates). Walk back over those bot commits to the sha the qa verdict
-              // actually lives on; anything else unexplained on head blocks the merge.
-              const { data: prCommits } = await github.rest.pulls.listCommits({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pr.number,
-                per_page: 100,
-              });
-              let qaShaIdx = prCommits.length - 1;
-              while (
-                qaShaIdx > 0 &&
-                prCommits[qaShaIdx].author && prCommits[qaShaIdx].author.login === 'github-actions[bot]' &&
-                /^\[(auto-register|qa-fix-\d+)\]/.test(prCommits[qaShaIdx].commit.message)
-              ) {
-                qaShaIdx--;
-              }
-              const qaSha = prCommits[qaShaIdx].sha;
-              const qaChecks = qaSha === pr.head.sha
-                ? checks
-                : await github.rest.checks.listForRef({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    ref: qaSha,
-                  });
-              const qa = qaChecks.data.check_runs.find((c) => c.name === 'qa');
-              if (!qa) {
-                blockers.push('no qa check found (run likely awaiting workflow approval in the Actions tab)');
-              } else if (qa.conclusion !== 'success') {
-                blockers.push(`qa check is ${qa.conclusion || qa.status}`);
-              }
-
-              // Block on Netlify deploy preview not success
-              const statuses = await github.rest.repos.listCommitStatusesForRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: pr.head.sha,
-              });
-              const netlify = statuses.data.find((s) => s.context === 'netlify/theautomationsguide/deploy-preview');
-              if (netlify && netlify.state !== 'success') {
-                blockers.push(`Netlify deploy preview state: ${netlify.state}`);
-              }
-
-              if (blockers.length > 0) {
-                stuck.push({ pr: pr.number, title: pr.title, url: pr.html_url, ageDays, reasons: blockers });
-                continue;
-              }
-
-              // Merge (a failure here — e.g. merge conflict — is reported, not thrown)
-              core.info(`Auto-merging PR #${pr.number}: ${pr.title}`);
-              try {
-                await github.rest.pulls.merge({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: pr.number,
-                  merge_method: 'merge',
-                  commit_title: `Auto-merge after ${STALE_DAYS}d: ${pr.title}`,
-                });
-                merged.push({ pr: pr.number, title: pr.title, url: pr.html_url });
-              } catch (err) {
-                stuck.push({ pr: pr.number, title: pr.title, url: pr.html_url, ageDays, reasons: [`merge failed: ${err.message}`] });
-              }
-            }
-
-            // Slack notify (skip if no webhook secret configured)
-            if (process.env.SLACK_WEBHOOK_URL && (merged.length > 0 || stuck.length > 0)) {
-              const parts = [];
-              if (merged.length > 0) {
-                const lines = merged.map((m) => `• <${m.url}|#${m.pr}> — ${m.title}`).join('\n');
-                parts.push(`🤖 *Auto-merged ${merged.length} stale content PR(s)* (${STALE_DAYS}d threshold)\n${lines}`);
-              }
-              if (stuck.length > 0) {
-                const lines = stuck
-                  .map((s) => `• <${s.url}|#${s.pr}> (${s.ageDays}d old) — ${s.title}\n    ↳ ${s.reasons.join('; ')}`)
-                  .join('\n');
-                parts.push(`🚨 *${stuck.length} content PR(s) past the ${STALE_DAYS}d threshold are STUCK and need you:*\n${lines}`);
-              }
-              await fetch(process.env.SLACK_WEBHOOK_URL, {
-                method: 'POST',
-                headers: { 'content-type': 'application/json' },
-                body: JSON.stringify({ text: parts.join('\n\n') }),
-              });
-            }
-
-            core.info(`Merged: ${merged.length}, Stuck: ${stuck.length}, Skipped: ${skipped.length}`);
-            for (const list of [stuck, skipped]) {
-              for (const s of list) core.info(`  PR #${s.pr}: ${s.reasons.join('; ')}`);
+            const m = await import(`${process.env.GITHUB_WORKSPACE}/qa/merge-green.mjs`);
+            if (context.eventName === 'workflow_run') {
+              await m.runForBranch({ github, context, core, branch: context.payload.workflow_run.head_branch });
+            } else {
+              await m.sweep({ github, context, core });
             }

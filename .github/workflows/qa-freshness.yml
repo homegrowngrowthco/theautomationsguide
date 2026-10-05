@@ -1,5 +1,15 @@
-name: PR gates (no build)
+name: PR gates
 
+# Every PR runs these jobs; the `pr-gates` job at the bottom rolls them up into
+# ONE check that ruleset 24417620 requires (with `qa`). Before Session 105 the
+# only required check was `qa`, which is skipped on non-content PRs and a skip
+# passes, so a code PR could merge with nothing checked. Now a code PR merges
+# itself (GitHub auto-merge) only when pr-gates is green.
+#
+# workflow_dispatch: the content qa job dispatches this on its branch after it
+# pushes an [auto-register] commit with GITHUB_TOKEN (which never re-triggers
+# pull_request), so the bot-pushed head gets its own pr-gates verdict.
+#
 # Growth audit S-3: a substantive edit to an already-published post must bump its
 # `updatedDate`, or the freshness signal decays as the corpus grows.
 #
@@ -9,11 +19,14 @@ name: PR gates (no build)
 # actually decay the signal arrive on human/agent branches that the content QA
 # workflow never sees.
 #
-# Cheap by design: node + git only, no npm install, no build, no browser.
+# The selftest jobs are cheap by design (node + git only, no npm install). Only
+# the `build` job installs deps: it compiles the site and lints every post, the
+# floor a code PR has to clear before it can merge itself.
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 jobs:
   freshness:
@@ -117,3 +130,66 @@ jobs:
 
       - name: Registry integrity (logos, dashes, categories)
         run: node qa/lint-content.mjs --registry-only
+
+  # The floor for a code PR that is about to merge itself: the real MDX/Astro
+  # compiler plus the content lint over every post (a component or registry edit
+  # can break posts the PR never touched). Content PRs run this too; it repeats
+  # part of the qa job but keeps pr-gates meaning the same thing on every PR.
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        run: npm run build
+
+      - name: Lint every post (HARD rules)
+        run: npm run qa:lint
+
+  # Merge-on-green decision logic (qa/merge-green.mjs) is pinned by offline
+  # fixtures: it decides what ships to production without a human. Node builtins only.
+  merge-green-selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Merge-on-green decisions
+        run: node qa/merge-green.mjs --selftest
+
+  # The ONE check ruleset 24417620 requires from this workflow. Green only when
+  # every job above succeeded; a failed, cancelled or skipped gate turns it red.
+  # When adding a job above, add it to `needs` here or it gates nothing.
+  pr-gates:
+    if: always()
+    needs: [freshness, pricing-selftest, live-links-selftest, n8n-selftests, tools-taxonomy, build, merge-green-selftest]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Every gate passed
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          BAD=$(echo "$RESULTS" | jq -r '[to_entries[] | select(.value.result != "success") | "\(.key)=\(.value.result)"] | join(", ")')
+          if [ -n "$BAD" ]; then
+            echo "::error::pr-gates red: $BAD"
+            exit 1
+          fi

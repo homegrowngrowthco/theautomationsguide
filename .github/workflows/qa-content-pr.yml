@@ -17,9 +17,13 @@ name: QA + auto-fix content PRs
 #   6. If shouldFix=true AND < 2 prior fixes: ask Claude to rewrite the .mdx
 #      (qa/qa-pr-fix.mjs, scoped to MDX spacing/ordering). The fix must BUILD and
 #      pass render-acceptance before it is pushed — a bad fix fails the job
-#      instead of landing. Commit + push with `[qa-fix-N]` → re-run.
-#   7. If shouldFix=true AND 2 prior fixes: PR comment + Slack, manual review.
-#   8. If shouldFix=false: green QA-pass comment.
+#      instead of landing. Commit + push with `[qa-fix-N]`; the merger
+#      (auto-merge-content.yml) re-runs this job on the fixed head.
+#   7. If shouldFix=true AND 2 prior fixes (or the fixer declined): PR comment +
+#      Slack, and the job goes RED so merge-on-green cannot ship it.
+#   8. If shouldFix=false: green QA-pass comment. If this run pushed a bot commit,
+#      its verdict is published as a `qa` check on that commit and the PR gates
+#      are dispatched there; auto-merge-content.yml merges once both are green.
 #   9. On ANY step failure (a gate, build, local preview/screenshots, fixer
 #      crash): the failure() steps at the end post a manual-review comment +
 #      Slack so a defect never dies silently (the PR #65 gap).
@@ -45,6 +49,10 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      # checks + actions: publish the verdict onto a bot-pushed head and dispatch
+      # the PR gates there (see "Publish the verdict" below).
+      checks: write
+      actions: write
     timeout-minutes: 15
 
     steps:
@@ -303,6 +311,7 @@ jobs:
         id: verify-fix
         if: steps.decide.outputs.branch == 'fix'
         run: |
+          node qa/lint-content.mjs --post "${{ steps.slug.outputs.post }}"
           npm run build
           node qa/render-acceptance.mjs --post "${{ steps.slug.outputs.post }}"
           node qa/mobile-overflow.mjs --slug "${{ steps.slug.outputs.slug }}"
@@ -425,7 +434,7 @@ jobs:
               `These are typically component-internal layout/density/width judgments (the fixer can only edit post MDX, not component CSS) or Vision false-positives:`,
               ...review.issues.map(i => `- \`${i.severity}\` (${i.viewport}): ${i.description}`),
               ``,
-              `**Next:** eyeball the deploy preview. If it reads fine on mobile + desktop, this is a false positive — merge as-is. If a component genuinely needs work, fix the component (not the post).`,
+              `**Next:** this run is marked red so the PR cannot merge itself. Eyeball the deploy preview: if a component genuinely needs work, fix the component (not the post); a new push to this branch re-runs QA. If it is a Vision false positive, re-run this job; otherwise close the PR. Never bypass the red check.`,
             ];
             await github.rest.issues.createComment({
               owner: context.repo.owner,
@@ -478,8 +487,65 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.payload.pull_request.number,
-              body: `✅ **QA pass** ${attemptInfo}\n\n_${review.summary}_\n\nReady for human review on the deploy preview.`,
+              body: `✅ **QA pass** ${attemptInfo}\n\n_${review.summary}_\n\nThis PR merges itself once every required check (qa + pr-gates) is green on its head. Add the \`no-auto-merge\` label to hold it.`,
             });
+
+      # GITHUB_TOKEN pushes (the [auto-register] commit above) never trigger
+      # workflows, so the PR's new head carries NO qa check and NO PR-gates checks,
+      # and the ruleset (which reads the head sha) would block it forever (gotcha 5).
+      # Every gate in this run ran on that pushed tree (the push happens before the
+      # gates), so on a pass, record this run's verdict on the commit it tested and
+      # dispatch the PR gates there (workflow_dispatch is the one event GITHUB_TOKEN
+      # may trigger). Only on `pass`: a [qa-fix-N] head was never re-reviewed, so it
+      # gets no verdict here; the merger re-runs this job on it instead.
+      - name: Publish the verdict to the bot-pushed head
+        if: success() && steps.decide.outputs.branch == 'pass' && steps.is-head.outputs.current == 'true' && steps.local-head.outputs.sha != github.event.pull_request.head.sha
+        uses: actions/github-script@v8
+        env:
+          LOCAL_HEAD: ${{ steps.local-head.outputs.sha }}
+        with:
+          script: |
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'qa',
+              head_sha: process.env.LOCAL_HEAD,
+              status: 'completed',
+              conclusion: 'success',
+              details_url: runUrl,
+              output: {
+                title: 'QA pass (verdict of the run that pushed this commit)',
+                summary: `Run ${context.runId} pushed this commit with GITHUB_TOKEN and then ran every gate (lint, logos, build, render, overflow, Vision) on this exact tree: ${runUrl}`,
+              },
+            });
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'qa-freshness.yml',
+              ref: '${{ github.event.pull_request.head.ref }}',
+            });
+            core.notice(`qa verdict published on ${process.env.LOCAL_HEAD.slice(0, 8)}; PR gates dispatched on the branch.`);
+
+      # Merge-on-green means a green qa ships the post with no human look, so the
+      # two Vision outcomes that need a human (2-fix limit reached, or the fixer
+      # declined) must turn the check RED. Before Session 105 they ended green and
+      # relied on a person reading the comment before merging.
+      - name: Block the merge (needs a human)
+        id: needs-human
+        if: steps.decide.outputs.branch == 'manual' || (steps.decide.outputs.branch == 'fix' && steps.commit.outputs.pushed == 'false')
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          BRANCH: ${{ steps.decide.outputs.branch }}
+          CURRENT: ${{ steps.is-head.outputs.current }}
+        run: |
+          if [ "$BRANCH" = "fix" ] && [ "$CURRENT" = "true" ] && [ -n "$SLACK_WEBHOOK_URL" ]; then
+            curl -sS -X POST -H 'content-type: application/json' "$SLACK_WEBHOOK_URL" \
+              -d "{\"text\":\"🤖 *The Automations Guide*\n🧐 *Content PR blocked: QA flagged issues the auto-fixer can't fix in MDX*\nPR: $PR_URL\nIt will not merge itself until fixed or re-run green.\"}"
+          fi
+          echo "::error::QA needs a human ($BRANCH): see the PR comment. Marked red so merge-on-green does not ship it."
+          exit 1
 
       # FAILURE RECURRENCE LEDGER. The two steps below run ONLY on failure() and are
       # both continue-on-error, so they cannot break a passing run or turn a red
@@ -506,6 +572,7 @@ jobs:
           elif [ "${{ steps.review.outcome }}" = "failure" ]; then SIG="vision-review"
           elif [ "${{ steps.apply-fix.outcome }}" = "failure" ]; then SIG="vision-fix"
           elif [ "${{ steps.verify-fix.outcome }}" = "failure" ]; then SIG="vision-fix"
+          elif [ "${{ steps.needs-human.outcome }}" = "failure" ]; then SIG="vision-manual"
           fi
           echo "signature=$SIG" >> "$GITHUB_OUTPUT"
           echo "Failure signature: $SIG"
@@ -527,7 +594,7 @@ jobs:
       # ping (the exact gap on PR #65). These two steps run on failure() so a real
       # defect or infra problem always reaches Ian for manual review.
       - name: Comment on PR — QA failed (manual review)
-        if: failure() && steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true' && steps.is-head.outputs.current == 'true'
+        if: failure() && steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true' && steps.is-head.outputs.current == 'true' && steps.needs-human.outcome != 'failure'
         uses: actions/github-script@v8
         env:
           RECURRENCE_COUNT: ${{ steps.ledger.outputs.recurrence_count }}
@@ -592,7 +659,7 @@ jobs:
             });
 
       - name: Slack — QA failed (manual review)
-        if: failure() && steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true' && steps.is-head.outputs.current == 'true' && env.SLACK_WEBHOOK_URL != ''
+        if: failure() && steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true' && steps.is-head.outputs.current == 'true' && steps.needs-human.outcome != 'failure' && env.SLACK_WEBHOOK_URL != ''
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           PR_URL: ${{ github.event.pull_request.html_url }}
