@@ -16,8 +16,8 @@ Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESS
 
 ## Part 0. Close the merge-on-green proof
 
-1. **#353 (10/05 20:00Z engine post, SmartReach vs Smartlead)** was stalled by GitHub's Actions incident (19:12Z onward, runners never assigned, queued jobs cancelled). At S105 close: `qa` green on bot head `31ac0cb3` (published verdict), PR gates dispatched there and waiting for a runner. If it merged: confirm the merge was by `github-actions[bot]`, Netlify deployed it, the live post returns 200, Notion shows Published and Slack posted. If it is still open and green, run the merger (`gh workflow run auto-merge-content.yml`) rather than merging by hand; if a check is `cancelled` with an empty `runner_name`, `gh run rerun <id> --failed`.
-2. If #353 merged with no help, the next engine PR still needs one clean look (merge within minutes of green, no intervention). Then delete the TODO item.
+1. **#353 is done** (merged by `github-actions` 21:54:58Z, live 200, Notion Published, Slack posted), but only after `gh pr update-branch`: the dispatched `pr-gates` on its bot-pushed head did not count for the PR (fixed in #354).
+2. **The next engine PR whose qa pushes an `[auto-register]` commit** is the real test of #354: it should merge within minutes of green with no help, and its head should carry a `pr-gates` check titled "PR gates pass (dispatched run)". If it sticks, `gh workflow run auto-merge-content.yml`; if a check is `cancelled` with an empty `runner_name`, `gh run rerun <id> --failed`. Never merge by hand. Then delete the TODO item.
 
 ## Part A. Fixed-prompt posts
 
@@ -44,6 +44,7 @@ Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESS
 
 - Every question to Ian goes through AskUserQuestion; attach screenshots when asking him to choose. Commands he must run go in a chat code block.
 - No secrets in chat, the transcript or the public repo. Never read `.env.local`. Never `git add -A`. Never bypass the PII hook. Commit trailers name the model actually running.
+- Docs-only changes go through a PR with `--auto` too: master requires `qa` + `pr-gates`, so a direct push only lands via the admin bypass.
 - End the session with 0 open PRs unless one is red and named in the wrap-up. Never merge red, never `--admin` or the UI bypass (CLAUDE.md gotcha 10).
 - Watch long CI waits with a Monitor that emits on state changes (Ian, 10/05: check frequently; an idle session past the cache window re-caches everything).
 - Live n8n writes need Ian's explicit OK, go through `n8n/live-patch.mjs` or the engine updaters, dry run first, with a saved GET of the live workflow as the revert path. Do not touch `backlog/`, `pricing/` scripts or `alita/` (except N4's `~/.claude.json`).
