@@ -157,6 +157,12 @@ jobs:
       - name: Lint every post (HARD rules)
         run: npm run qa:lint
 
+      # Content qa only render-checks the FIRST changed post (one-post engine PRs);
+      # multi-post scrub PRs (#346, #348) were gated locally. Checking every built
+      # post here closes that gap for any PR. linkedom only, no browser.
+      - name: Render-acceptance on every post
+        run: npm run qa:render
+
   # Merge-on-green decision logic (qa/merge-green.mjs) is pinned by offline
   # fixtures: it decides what ships to production without a human. Node builtins only.
   merge-green-selftest:
