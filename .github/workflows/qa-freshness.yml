@@ -188,6 +188,8 @@ jobs:
     needs: [freshness, pricing-selftest, live-links-selftest, n8n-selftests, tools-taxonomy, build, merge-green-selftest]
     runs-on: ubuntu-latest
     timeout-minutes: 2
+    permissions:
+      checks: write
     steps:
       - name: Every gate passed
         env:
@@ -199,3 +201,25 @@ jobs:
             echo "::error::pr-gates red: $BAD"
             exit 1
           fi
+
+      # A workflow_dispatch run's check suite is NOT associated with the pull
+      # request, so the ruleset ignores its checks: on #353 (S105) this job was
+      # green on the bot-pushed head yet the PR stayed BLOCKED. A check created
+      # through the API lands in the PR's own suite (the published qa verdict
+      # did), so on a dispatched run that passed, publish pr-gates that way too.
+      - name: Publish pr-gates where the PR rollup sees it (dispatched runs)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'pr-gates',
+              head_sha: context.sha,
+              status: 'completed',
+              conclusion: 'success',
+              details_url: runUrl,
+              output: { title: 'PR gates pass (dispatched run)', summary: `Every gate passed on this commit in ${runUrl}` },
+            });
