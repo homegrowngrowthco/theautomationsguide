@@ -158,7 +158,7 @@ The [HubSpot](/go/hubspot/) switch makes sense in exactly one scenario. When you
 
 If you have run the audit and confirmed n8n or Make is the right layer, prioritize these two workflows before anything else. They address the highest-frequency leak points.
 
-**Stale deal detection.** Scheduled trigger every four hours, pull open deals, filter by last activity date greater than 14 days, branch on stage, create a call activity and Slack-notify the owner. In my testing, this single workflow recovers more pipeline value than any other automation you can bolt onto [Pipedrive](/tools/pipedrive/). Build it first.
+**Stale deal detection.** Scheduled trigger every four hours, pull open deals, filter by last activity date greater than 14 days, branch on stage, create a call activity and Slack-notify the owner. My read is that this single workflow recovers more pipeline value than any other automation you can bolt onto [Pipedrive](/tools/pipedrive/). Build it first.
 
 **Email engagement bridge.** If your sequences run through [Smartlead](/go/smartlead/) or [Lemlist](/go/lemlist/), use their webhooks to fire into n8n or Make when a reply or no-reply event fires. The workflow then updates the Pipedrive deal stage and creates the appropriate next activity. This closes the gap between your outbound tool and your CRM that every Pipedrive team running external sequences has. The [best email automation for Pipedrive post](/blog/2026-09-22-best-email-automation-for-pipedrive-2026-picks/) covers the webhook setup for both tools.
 

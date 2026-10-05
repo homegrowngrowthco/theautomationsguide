@@ -10,7 +10,7 @@ faqs:
   - question: "Does Fireflies integrate with HubSpot and Salesforce?"
     answer: "Yes. Fireflies syncs call transcripts, AI summaries, and action items to both HubSpot and Salesforce natively. CRM sync is available on the Business plan and above."
   - question: "How accurate is Fireflies transcription?"
-    answer: "In my testing, Fireflies accuracy sits around 90 to 93 percent on clear audio, which is solid but not best-in-class. Heavy accents or low-quality audio drop it closer to 85 percent."
+    answer: "Accuracy depends heavily on audio quality. Clear audio produces solid transcripts, while heavy accents or low-quality audio noticeably degrade them. Use the free plan to validate transcription quality on your own call types before paying."
   - question: "What is the difference between Fireflies and Fathom?"
     answer: "Fathom is simpler and free for core use, optimized for individual AEs. Fireflies has deeper CRM automation, team-wide search, and broader platform support making it better for RevOps-managed deployments."
   - question: "Can Fireflies record Google Meet, Zoom, and Teams calls?"
@@ -32,7 +32,7 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-Every RevOps team I talk to is running some version of the same experiment: drop a notetaker bot into calls, hope it syncs to the CRM, and quietly abandon it three months later because the data is messy or nobody actually reads the summaries. [Fireflies](/go/fireflies/) keeps coming up in those conversations, almost always inside a comparison post rather than getting a proper standalone review. That gap is worth closing. I've been testing Fireflies against [Fathom](/go/fathom/), [tl;dv](/go/tl-dv/), [Laxis](/go/laxis/), and [Otter.ai](/go/otter/) for the past quarter across real discovery calls, customer success check-ins, and internal syncs. Here is what I actually found.
+Every RevOps team I talk to is running some version of the same experiment: drop a notetaker bot into calls, hope it syncs to the CRM, and quietly abandon it three months later because the data is messy or nobody actually reads the summaries. [Fireflies](/go/fireflies/) keeps coming up in those conversations, almost always inside a comparison post rather than getting a proper standalone review. That gap is worth closing. This review weighs Fireflies against [Fathom](/go/fathom/), [tl;dv](/go/tl-dv/), [Laxis](/go/laxis/), and [Otter.ai](/go/otter/) for discovery calls, customer success check-ins, and internal syncs. Here is how it stacks up.
 
 <KeyTakeaways items={[
   "Fireflies is the strongest choice when your priority is CRM automation depth and team-wide call search, not individual AE note-taking.",
@@ -49,14 +49,13 @@ Every RevOps team I talk to is running some version of the same experiment: drop
 The AI summary quality is genuinely good. Fireflies breaks summaries into sections like "Overview," "Action Items," "Questions Asked," and "Topics," which maps cleanly onto how a deal review or QBR actually works. I've seen other tools produce a wall of bullet points that no AE will ever read. Fireflies' structured output gets opened.
 
 <StatRow stats={[
-  { number: "90-93%", label: "Transcription accuracy", description: "On clear audio in my testing, dropping to ~85% with heavy accents or background noise" },
   { number: "$19/seat/mo", label: "Real entry price for CRM sync", description: "Business tier billed annually; the $10 Pro plan does NOT include native CRM push" },
   { number: "3 platforms", label: "Where most teams leak value", description: "Zoom, Meet, and Teams all supported natively, but the bot must be invited or auto-join configured correctly" }
 ]} />
 
 The search functionality is legitimately underrated. Fireflies indexes every transcript your team generates and lets anyone query across all of them. Searching "pricing objection" and pulling every mention from the last 90 days of calls is the kind of capability that [Gong](/go/gong/) charges enterprise money for. Fireflies does a version of it at a fraction of the price.
 
-Where it falls short: the AI topic detection misfires on technical calls. In my testing, a product demo had Fireflies flagging half the feature walkthrough as "pricing discussion" because the word "cost" appeared in a feature description. That's a noise problem in the topic tagging layer, not the transcript itself. It's fixable with custom topic configuration, but you have to know to go looking for it.
+Where it falls short: the AI topic detection misfires on technical calls. A product demo that mentions the word "cost" in a feature description, for example, can end up with the walkthrough tagged as "pricing discussion." That's a noise problem in the topic tagging layer, not the transcript itself. It's fixable with custom topic configuration, but you have to know to go looking for it.
 
 The CRM sync to [HubSpot](/tools/hubspot/) and Salesforce works, but it requires intentional setup. Out of the box, Fireflies creates a note on the associated contact and logs the call. If you want it to update deal stages, populate custom properties, or trigger workflows, you're writing your own automation on top, probably in [Zapier](/go/zapier/) or [n8n](/tools/n8n/). That's not a knock. It's just the honest expectation to set going in.
 
@@ -134,7 +133,7 @@ I'm intentionally leaving [Otter.ai](/go/otter/) off the full breakdown. Otter i
 
 The real decision variable is not features. It's who owns the deployment. If individual AEs choose and manage their own tool, Fathom wins every time because the zero-config free tier removes all friction. If RevOps is deploying this centrally and the goal is getting structured call data into the CRM without relying on rep discipline, Fireflies is the right call. The $19/seat Business tier is real money. It's still cheaper than a half-time RevOps hire cleaning up missed call logs manually.
 
-Teams running active sales coaching programs should layer tl;dv on top of whichever CRM-sync tool they deploy, rather than forcing one tool to do both jobs well. And if your team is doing high-volume outbound with [Apollo](/tools/apollo/) or [Pipedrive](/tools/pipedrive/) as the CRM, test Laxis before assuming Fireflies is the default. In my testing, Laxis got a 5-person SDR team to full CRM field coverage in under a week of onboarding, faster than any Fireflies rollout I've run.
+Teams running active sales coaching programs should layer tl;dv on top of whichever CRM-sync tool they deploy, rather than forcing one tool to do both jobs well. And if your team is doing high-volume outbound with [Apollo](/tools/apollo/) or [Pipedrive](/tools/pipedrive/) as the CRM, test Laxis before assuming Fireflies is the default. My read is that Laxis is the faster path to full CRM field coverage for a small SDR team.
 
 The [HubSpot automation reliability issue](/blog/2026-09-09-hubspot-automations-costing-you-deals-and-you-dont-know-it/) is worth flagging here too. Even with Fireflies syncing call data correctly, downstream HubSpot workflows can silently fail. Audit both ends of the pipe. According to [HubSpot's own workflow documentation](https://knowledge.hubspot.com/workflows/create-workflows), enrollment triggers based on call properties require specific property mappings that most teams never configure. That's on you, not Fireflies.
 

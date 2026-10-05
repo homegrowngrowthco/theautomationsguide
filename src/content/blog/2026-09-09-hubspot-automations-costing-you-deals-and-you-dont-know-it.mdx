@@ -33,12 +33,12 @@ import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
 import Sources from '@/components/post/Sources.astro';
 import BottomLine from '@/components/post/BottomLine.astro';
 
-I've audited HubSpot workflow libraries at over a dozen B2B SaaS companies in the last two years. Same thing happens every time: the team is confident their automations are running. They are not, not fully. Contacts fall out of enrollment mid-sequence, branches fire on stale property values, and re-engagement workflows quietly exclude the contacts who need them most. Nobody notices because HubSpot does not send you an alert that says "hey, forty leads skipped your MQL handoff this week." The revenue just does not close.
+The pattern in HubSpot workflow libraries is remarkably consistent: the team is confident their automations are running. They are not, not fully. Contacts fall out of enrollment mid-sequence, branches fire on stale property values, and re-engagement workflows quietly exclude the contacts who need them most. Nobody notices because HubSpot does not send you an alert that says "hey, forty leads skipped your MQL handoff this week." The revenue just does not close.
 
 <PullQuote>The most expensive line item in most HubSpot contracts is not the seat cost. It is the deals your broken workflows never touched.</PullQuote>
 
 <StatRow stats={[
-  { number: "42%", label: "Avg unenrollment rate", description: "Median share of contacts that unenroll before completing a 5-step nurture workflow, based on audits I have run on HubSpot Professional and Enterprise accounts." },
+  { number: "10%", label: "Unenrollment leak threshold", description: "If more than 10 percent of contacts unenroll before the final step of a revenue-critical workflow, treat it as an active revenue leak." },
   { number: "$0", label: "Cost of the alert", description: "HubSpot charges nothing to tell you a workflow failed. It also tells you nothing. You have to go looking." },
   { number: "3x", label: "Logic depth limit", description: "HubSpot branch actions support up to three nested if/then branches before the UX becomes unmaintainable and error rates climb sharply." }
 ]} />
@@ -61,7 +61,7 @@ Let me be concrete. These are not hypothetical edge cases. I've seen each of the
   </a>
 </Figure>
 
-**The audit nobody runs.** According to [HubSpot's own documentation on workflow enrollment history](https://knowledge.hubspot.com/workflows/view-workflow-enrollment-history), you can filter enrollment history by "unenrolled" status. Fewer than one in five teams I talk to has done that filter on their top five revenue-critical workflows in the last 90 days. Do it now. If more than 10 percent of contacts unenrolled before the final step, you have an active revenue leak.
+**The audit nobody runs.** According to [HubSpot's own documentation on workflow enrollment history](https://knowledge.hubspot.com/workflows/view-workflow-enrollment-history), you can filter enrollment history by "unenrolled" status. Few teams have run that filter on their top five revenue-critical workflows in the last 90 days. Do it now. If more than 10 percent of contacts unenrolled before the final step, you have an active revenue leak.
 
 ## Why HubSpot Keeps Selling You More Workflows as the Fix
 
