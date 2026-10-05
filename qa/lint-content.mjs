@@ -172,6 +172,38 @@ function handsOnSelftest() {
   return fail;
 }
 
+// Invented observed results (Session 104, 2026-10-05): the hands-on fix still modelled
+// "I've seen teams get this wrong when...", and 105 archive sentences hung an invented
+// figure on such an observation ("I've watched teams cut data entry by 40 percent").
+// update-engine-observation-claims.mjs fixed the prompt. A plain observation stays
+// allowed (Ian's call); only an observation sentence that also carries a figure warns.
+const OBSERVATION = /\b(?:I|we)(?:'ve|’ve|\s+have)\s+(?:seen|watched|witnessed|helped|worked\s+with|built)\b/i;
+const FIGURE = /\d|\bpercent\b|\b(?:one|two|three|four|five|six|seven|eight|nine|ten|twelve|a\s+dozen|dozens\s+of|hundreds\s+of|thousands\s+of)\s+(?:\S+\s+)?(?:hours?|days?|weeks?|months?|quarters?|years?|reps?|domains?|teams?|clients?|records|contacts|leads|accounts|campaigns|percent)\b/i;
+function observationFigureHits(text) {
+  return text.split(/(?<=[.!?])\s+|\n+/).filter((s) => OBSERVATION.test(s) && FIGURE.test(s)).map((s) => s.trim());
+}
+
+function observationSelftest() {
+  const cases = [
+    ["I've watched teams cut CRM data entry time by 40 percent after rolling Surfe out.", true],
+    ['I have seen this exact mistake take out a $400 domain and three weeks of warm-up.', true],
+    ['I have seen teams burn through three months of Smartlead warm-up work.', true],
+    ["A client I've worked with replaced their provider after seeing a 30% lift.", true],
+    ["I've seen teams get this wrong when they skip dedupe.", false],
+    ["I've seen it happen more times than I can count.", false],
+    ["I've built this workflow repeatedly at Homegrown Growth Co.", false],
+    ['Teams that skip dedupe often lose 20% of the list.', false],
+    ["I'd expect a 10-rep team to spend $500 a month.", false],
+  ];
+  let fail = 0;
+  for (const [text, want] of cases) {
+    const got = observationFigureHits(text).length > 0;
+    if (got !== want) { fail++; console.error(`observation selftest FAIL: "${text}" expected ${want}`); }
+  }
+  console.log(`observation selftest: ${cases.length - fail}/${cases.length} pass`);
+  return fail;
+}
+
 // The squish bug (PR #51) is a MULTI-COLUMN grid/flex wrapper around components.
 // width:100% / overflow / single-column 1fr are harmless full-width wrappers — don't flag those.
 function inlineLayoutHits(body) {
@@ -264,6 +296,9 @@ function lintFile(file) {
   for (const phrase of useHits) {
     warn.push(`first-person usage claim ("${phrase}"): keep it only if Ian actually did this; otherwise attribute or restate as opinion.`);
   }
+  for (const s of new Set(observationFigureHits(`${fm}\n${body}`))) {
+    warn.push(`observation with a figure ("${s.slice(0, 110)}"): state it as a general pattern without the number, or cite the source for the figure.`);
+  }
 
   // S-4 CTA floor: a post that names >=2 registered tools but exposes <2 affiliate
   // CTAs (/go/ links + component affiliateSlug props) is under-monetized — the class
@@ -327,7 +362,7 @@ function lintFile(file) {
 
 // ---- target selection ----------------------------------------------------
 // --selftest: run the A3c taxonomy checker and the hands-on patterns against frozen fixtures, then exit.
-if (args.includes('--selftest')) process.exit(taxonomySelftest() + handsOnSelftest() > 0 ? 1 : 0);
+if (args.includes('--selftest')) process.exit(taxonomySelftest() + handsOnSelftest() + observationSelftest() > 0 ? 1 : 0);
 let files = [];
 if (getArg('--post')) files = [getArg('--post')];
 else if (getArg('--slug')) files = [path.join(BLOG_DIR, getArg('--slug') + '.mdx')];
