@@ -8,7 +8,15 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-05 (Session 106).
+Last updated 2026-10-06 (Session 107).
+
+## Session 107 (2026-10-06): 10/06 post read clean, a second crawler burst, no real click yet (Opus 5.5)
+
+- **Started 15:35Z.** 0 open PRs. **#357** (10/06 12:00Z engine post, Kit vs Beehiiv vs Brevo) was opened 12:02:30Z and merged by `github-actions` 12:04:09Z, 7 s after qa went green, live 200. It carried no `[auto-register]` commit, so the #354 bot-push path is still unproven (TODO kept).
+- **Part A:** `qa:lint --post` 0 hard, 0 warnings. The only first-person sentences are two opinions ("I'd argue", "I'd push"). Next to read: the 10/06 20:00Z run.
+- **B2, PostHog 408442 (via the PostHog connector, project confirmed):** 58 `affiliate_click` since 10/05 22:15Z, none real. Another burst ran 10/06 10:28 to 11:05Z: 51 tools, a fresh `anon_` id each, `last_page` taken from 404 probes with no trailing slash. One near-miss: a UUID visitor (Linux Chrome, US, `$direct`) with `source_via=last_page` and `source_path` set to the 10/05 Woodpecker post. It was rejected because every pageview lasted about 1 s, each `/go/instantly/` was a direct load (not `click`) 9 min after one, and the pattern repeated 5 h later. That reads as a scheduled headless browser. None of this repo's workflows ran at those times. The attribution plumbing did record the right page.
+- **Not yet due:** indexing (10/08), the 10/15 metric, N4 (10/22), N5 (10/24). No Ian asks were triggered.
+- **Revert:** `git revert` this docs PR.
 
 ## Session 106 (2026-10-05): parked checks re-read, mono-font perf gap measured, docs (Opus 5.5)
 
