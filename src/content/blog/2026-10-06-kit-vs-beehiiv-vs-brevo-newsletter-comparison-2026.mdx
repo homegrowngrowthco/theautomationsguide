@@ -1,0 +1,170 @@
+---
+title: "Kit vs Beehiiv vs Brevo: Newsletter Comparison 2026"
+description: "Kit, Beehiiv, and Brevo compared for RevOps teams launching outbound newsletters or converting free subscribers in 2026. Which wins for your stack?"
+tldr: "Beehiiv wins for monetization-focused newsletter growth, Kit wins for automation depth and CRM-like segmentation, and Brevo wins for budget-conscious teams that need transactional email plus newsletter in one platform."
+pubDate: 2026-10-06
+tags: ["comparison", "automation", "email-marketing"]
+faqs:
+  - question: "Is Brevo good for newsletters?"
+    answer: "Brevo handles newsletters well at its price point, with solid automation and list segmentation. It lacks native monetization features like paid subscriptions, which Beehiiv and Kit both offer."
+  - question: "Kit vs Beehiiv: which is better for B2B newsletters?"
+    answer: "Kit is stronger for B2B because of its tag-based segmentation, conditional logic automations, and native integrations with tools like ConvertKit Commerce and Zapier. Beehiiv is built more for media-style audience growth."
+  - question: "Does Brevo integrate with HubSpot or Salesforce?"
+    answer: "Yes, Brevo offers native HubSpot and Salesforce sync via its CRM integrations, which makes it unusually capable for RevOps teams that need newsletter data flowing back into the pipeline."
+  - question: "Can Beehiiv replace an ESP for outbound sequences?"
+    answer: "No. Beehiiv is a newsletter-first platform, not a cold outbound tool. It handles broadcast and drip well, but lacks the deliverability controls and suppression logic that outbound sequences need."
+  - question: "What is the cheapest newsletter platform for a small GTM team?"
+    answer: "Brevo is the cheapest at scale because it prices by email volume, not subscriber count. For teams with large but low-frequency lists, it routinely undercuts both Kit and Beehiiv."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most RevOps teams picking a newsletter platform in 2026 are staring down one of two very different problems. Either they want an audience engine that converts subscribers to revenue, or they need to bolt a newsletter layer onto an existing CRM and outbound stack without blowing the budget. [Kit](/go/kit/), [Beehiiv](/go/beehiiv/), and [Brevo](/go/brevo/) each solve one of those problems cleanly. Each also fails hard when used for the wrong one. This post breaks down exactly where each tool wins, where it breaks, and which stack profile maps to which platform.
+
+<KeyTakeaways items={[
+  "Beehiiv is the strongest pure newsletter growth platform, with native paid subscriptions, boosts, and referral mechanics built in.",
+  "Kit has the deepest automation and segmentation for B2B nurture, making it the closest thing to a CRM-lite ESP in this tier.",
+  "Brevo prices by email sends, not subscriber count, which makes it dramatically cheaper for large, infrequently-mailed lists.",
+  "Brevo is the only tool in this set with a native HubSpot and Salesforce two-way sync, a real differentiator for RevOps stacks.",
+  "None of these tools replace a cold outbound sequencer. They are for opted-in audiences only."
+]} />
+
+<StatRow stats={[
+  { number: "$9/mo", label: "Brevo Starter entry price", description: "For up to 5,000 emails/month, unlimited contacts. Kit and Beehiiv both charge by subscriber count at comparable tiers." },
+  { number: "35%+", label: "Beehiiv average open rates reported", description: "Per Beehiiv's own benchmark data, newsletters on their platform outperform industry averages, partly due to their deliverability infrastructure." },
+  { number: "135+", label: "Kit native integrations", description: "Per Kit's integration directory, including Shopify, Teachable, Stripe, and Zapier, giving it the widest ecosystem of the three for product-led and creator-led GTM teams." }
+]} />
+
+## The full breakdown
+
+<ToolBreakdown title="Kit vs Beehiiv vs Brevo" tools={[
+  {
+    name: "Kit",
+    tagline: "CRM-lite ESP with deep automation for B2B nurture",
+    body: "Kit (formerly ConvertKit) has repositioned hard toward the creator economy, but its underlying automation engine is genuinely RevOps-friendly. Tag-based segmentation, visual automation builders with conditional branches, and a clean subscriber activity log make it the most CRM-like of the three. If you are running a newsletter that feeds into a sales funnel, Kit's ability to tag subscribers based on link clicks, form fills, or purchase history and then trigger sequences accordingly is genuinely useful. The commerce layer (selling digital products or paid subscriptions natively) is a bonus for teams monetizing content. Where Kit lags is on the media-growth side: no native referral program, no boost network, and the analytics dashboard is basic compared to Beehiiv.",
+    highlights: [
+      "Visual automation builder with conditional logic and tagging",
+      "Native commerce for paid newsletters and digital products",
+      "135+ integrations including Zapier, Stripe, and Teachable",
+      "Subscriber scoring and activity-based segmentation",
+      "Clean deliverability reputation for cold-to-warm conversion flows"
+    ],
+    pricing: "Free up to 10K subs; Creator from $25/mo",
+    affiliateSlug: "kit",
+    ctaLabel: "Try Kit",
+    highlight: false
+  },
+  {
+    name: "Beehiiv",
+    tagline: "Newsletter growth engine with built-in monetization",
+    body: "Beehiiv was built by the team that grew Morning Brew, and it shows. The platform is purpose-built for newsletter operators who want to grow fast and monetize without duct-taping third-party tools together. The Boosts network (pay to be recommended by other newsletters) and native referral programs are unique in this tier. Paid subscriptions via Stripe are first-class, not an afterthought. The analytics suite, including per-post engagement, subscriber source attribution, and cohort retention, is the best of the three by a wide margin. The tradeoff is automation depth: Beehiiv's automation is solid for broadcast and drip, but it does not have Kit's conditional logic granularity, and it has essentially zero CRM integration story for teams running HubSpot or Salesforce.",
+    highlights: [
+      "Boosts network for paid newsletter cross-promotion",
+      "Native referral program with milestone rewards",
+      "Best-in-class analytics including cohort retention and source attribution",
+      "Native paid subscriptions with Stripe, no plugins needed",
+      "Custom web builder for newsletter landing pages"
+    ],
+    pricing: "Launch free; Scale from $39/mo; Max from $99/mo",
+    affiliateSlug: "beehiiv",
+    ctaLabel: "Try Beehiiv",
+    highlight: true
+  },
+  {
+    name: "Brevo",
+    tagline: "Volume-priced ESP with native CRM and two-way sync",
+    body: "Brevo (formerly Sendinblue) is the most underrated tool in this comparison. I'd argue it is the default wrong answer teams give when asked to pick cheaply, and then the right answer once they actually run the numbers. Pricing by send volume rather than subscriber count means a 50,000-contact list you mail twice a month costs a fraction of what Kit or Beehiiv charge. The automation builder is solid for trigger-based sequences, and the native CRM (lightweight but real) means smaller teams can skip a separate CRM for newsletter-to-pipeline workflows. The HubSpot and Salesforce integrations are two-way syncs, not just Zapier webhooks, which matters when you need subscriber engagement data flowing back into deal records. The weakness is growth tooling: no referral network, no boost marketplace, and the media/newsletter design experience is noticeably more utilitarian than Beehiiv.",
+    highlights: [
+      "Priced per email send, not subscriber count",
+      "Native two-way sync with HubSpot and Salesforce",
+      "Built-in transactional email on the same platform as newsletters",
+      "SMS, WhatsApp, and email in one platform",
+      "Landing pages, forms, and lightweight CRM included"
+    ],
+    pricing: "Free 300 emails/day; Starter from $9/mo",
+    affiliateSlug: "brevo",
+    ctaLabel: "Try Brevo",
+    highlight: false
+  }
+]} />
+
+<Figure class="post-screenshot" caption="Beehiiv's subscriber growth and engagement dashboard, showing open rates, click rates, and subscriber source attribution side by side.">
+  <a href="/go/beehiiv/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/beehiiv-dashboard.png" alt="Beehiiv dashboard showing subscriber growth chart, open rate, click rate, and source attribution metrics" loading="lazy" />
+  </a>
+</Figure>
+
+## How to choose
+
+The honest question here is not about features. It is about what your newsletter is actually supposed to do.
+
+If the goal is audience monetization, a subscription revenue line, or rapid organic growth through cross-promotion, Beehiiv is the clear choice. The Boosts network alone is a growth lever that neither Kit nor Brevo can match. The analytics depth also makes it straightforward to prove newsletter ROI to a board or an investor. For teams that have run into [conversion problems with Beehiiv's default setup](/blog/2026-09-30-beehiiv-not-converting-revenue-3-fixes-that-work/), the platform tooling is there. It usually just needs configuration.
+
+Kit is the right call when your newsletter is a pipeline feeder, not a standalone business. The automation flexibility lets you build genuinely sophisticated nurture logic: tag a subscriber who clicks a pricing link, drop them into a shorter cadence, suppress them from the next broadcast once they book a demo. That kind of workflow requires conditional branching and action-based triggers. Brevo's automation handles that more rigidly, and Beehiiv barely touches it.
+
+Brevo wins on the budget-plus-CRM-sync angle. If you are running a list of 40,000 contacts but only sending twice a month, and you need that engagement data inside [HubSpot](/tools/hubspot/) or [Salesforce](/tools/salesforce/) without building a custom Zapier chain, Brevo's native integrations and volume pricing make it the cheapest capable option in this tier. Teams that recently [migrated from Mailchimp to Kit](/blog/2026-10-01-mailchimp-to-kit-migration-keep-segments-and-automations/) and then found the CRM sync lacking are exactly the profile Brevo fits.
+
+<ChooseIf tools={[
+  {
+    name: "Beehiiv",
+    affiliateSlug: "beehiiv",
+    ctaLabel: "Try Beehiiv",
+    conditions: [
+      "Your newsletter is the product, not a channel feeding something else",
+      "You want paid subscriptions, referral programs, or cross-promotion via Boosts",
+      "Analytics depth matters: cohort retention and source attribution out of the box"
+    ]
+  },
+  {
+    name: "Kit",
+    affiliateSlug: "kit",
+    ctaLabel: "Try Kit",
+    conditions: [
+      "Your newsletter feeds a sales funnel and you need conditional automation logic",
+      "You want tag-based segmentation that mirrors lead scoring behavior",
+      "You sell digital products or paid content alongside the newsletter"
+    ]
+  },
+  {
+    name: "Brevo",
+    affiliateSlug: "brevo",
+    ctaLabel: "Try Brevo",
+    conditions: [
+      "You have a large list but low send frequency and want to pay by volume, not contact count",
+      "You need a real two-way sync with HubSpot or Salesforce, not a Zapier workaround",
+      "You want transactional and marketing email on a single platform"
+    ]
+  }
+]} />
+
+<MyTake>
+Kit gets slotted as the "creator" tool and dismissed by B2B RevOps teams who should actually be running it. The tag-based subscriber model maps almost one-to-one to how a modern lead scoring system works. It is also significantly cheaper than adding a dedicated nurture layer to your HubSpot instance. Brevo, meanwhile, gets written off as "the cheap Mailchimp." That framing is wrong. Its Salesforce sync is a genuine native integration, not a webhook hack, and its volume-based pricing is the correct answer for a surprisingly large slice of mid-market GTM teams mailing large lists at low frequency.
+</MyTake>
+
+## The practical bottom line
+
+All three tools are competent ESPs. The differentiators are the growth mechanics (Beehiiv), the automation depth and ecosystem integrations ([Kit](/tools/kit/)), and the pricing model plus CRM sync ([Brevo](/tools/brevo/)). Pick the one that matches what your newsletter is supposed to generate. Audience monetization points to Beehiiv. Pipeline nurture points to Kit. Budget-plus-CRM-sync points to Brevo.
+
+Getting this wrong and rebuilding six months later is the most common and most avoidable failure in GTM newsletter strategy. I'd push every team to answer one question before signing up for anything: is this newsletter a revenue line or a pipeline channel? The answer tells you which platform to pick.
+
+<BottomLine verdict="Beehiiv is the strongest newsletter growth platform if monetization and audience expansion are the goal. Kit wins for B2B nurture automation and funnel integration. Brevo is the smart budget pick for large lists with CRM sync requirements." pick="Beehiiv" affiliateSlug="beehiiv" ctaLabel="Try Beehiiv" />
+
+<Sources sources={[
+  { label: "Beehiiv: Newsletter benchmark data and open rate averages", url: "https://www.beehiiv.com/blog/email-open-rates" },
+  { label: "Kit: Integration directory and pricing documentation", url: "https://kit.com/integrations" },
+  { label: "Brevo: Pricing page and email volume tiers", url: "https://www.brevo.com/pricing/" },
+  { label: "G2: Brevo vs Mailchimp user reviews 2026", url: "https://www.g2.com/compare/brevo-vs-mailchimp" }
+]} />
