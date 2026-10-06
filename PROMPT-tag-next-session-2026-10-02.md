@@ -1,10 +1,10 @@
 # Next session (TAG): close the merge-on-green proof, read the fixed-prompt posts, parked checks
 
-Start inside `theautomationsguide/`. State which model you are running as. Run `git pull --ff-only` on `master`, then `git worktree prune -v` (OneDrive locks `.git/worktrees/tag-*` metadata; "Permission denied" on prune is harmless when `git worktree list` is clean). `TODO.md` is the only source of truth for open tasks; this file was last rewritten after Session 106 (2026-10-05 22:30Z; S105 shipped merge-on-green in #349/#351/#352/#354, ruleset requires `qa` + `pr-gates`, repo `allow_auto_merge=true`; S106 found every item below still date-gated and measured the mono-font perf gap), so re-check every claim with a query or against the repo before acting.
+Start inside `theautomationsguide/`. State which model you are running as. Run `git pull --ff-only` on `master`, then `git worktree prune -v` (OneDrive locks `.git/worktrees/tag-*` metadata; "Permission denied" on prune is harmless when `git worktree list` is clean). `TODO.md` is the only source of truth for open tasks; this file was last rewritten after Session 107 (2026-10-06 ~16:00Z; S105 shipped merge-on-green in #349/#351/#352/#354, ruleset requires `qa` + `pr-gates`, repo `allow_auto_merge=true`; S107 read the 10/06 12:00Z post (#357) clean and found no real attributed click), so re-check every claim with a query or against the repo before acting.
 
 **No manual merges (Ian, 2026-10-05).** Content PRs merge themselves (`auto-merge-content.yml`). Every PR Claude opens gets `gh pr merge --auto --squash <branch>` right after `gh pr create`. Claude's gh user is a ruleset bypass actor: never run a plain `gh pr merge` on a PR whose checks are pending, never `--admin`.
 
-Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESSION_LOG.md` (Sessions 106 and 105). If the session starts before 2026-10-06 ~12:30Z, nothing below is actionable yet: say so and stop rather than re-running S106's checks.
+Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESSION_LOG.md` (Sessions 106 and 105). If the session starts before 2026-10-06 ~20:30Z, nothing below is actionable yet: say so and stop rather than re-running S107's checks.
 
 ## NEEDS FROM IAN (AskUserQuestion, at the point where each is needed)
 
@@ -17,17 +17,17 @@ Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESS
 ## Part 0. Close the merge-on-green proof
 
 1. **#353 is done** (merged by `github-actions` 21:54:58Z, live 200, Notion Published, Slack posted), but only after `gh pr update-branch`: the dispatched `pr-gates` on its bot-pushed head did not count for the PR (fixed in #354).
-2. **The next engine PR whose qa pushes an `[auto-register]` commit** is the real test of #354: it should merge within minutes of green with no help, and its head should carry a `pr-gates` check titled "PR gates pass (dispatched run)". If it sticks, `gh workflow run auto-merge-content.yml`; if a check is `cancelled` with an empty `runner_name`, `gh run rerun <id> --failed`. Never merge by hand. Then delete the TODO item.
+2. **The next engine PR whose qa pushes an `[auto-register]` commit** is the real test of #354 (#357 on 10/06 had no bot commit, so it does not count): it should merge within minutes of green with no help, and its head should carry a `pr-gates` check titled "PR gates pass (dispatched run)". If it sticks, `gh workflow run auto-merge-content.yml`; if a check is `cancelled` with an empty `runner_name`, `gh run rerun <id> --failed`. Never merge by hand. Then delete the TODO item.
 
 ## Part A. Fixed-prompt posts
 
-1. **The 10/06 12:00Z run and later** (#345 + #347 prompts; #353 was clean): `node qa/lint-content.mjs --post <file>` must show no `first-person testing claim`; read any `first-person usage claim` and `observation with a figure` WARNs. If either keeps appearing, propose making it HARD (lint change in a PR, `--auto`).
+1. **The 10/06 20:00Z run and later** (#345 + #347 prompts; #353 and #357 were clean): `node qa/lint-content.mjs --post <file>` must show no `first-person testing claim`; read any `first-person usage claim` and `observation with a figure` WARNs. If either keeps appearing, propose making it HARD (lint change in a PR, `--auto`).
 2. If an engine run failed or a red `qa` stalled a PR, recover with **Retry** on the execution (never a fresh trigger), per `n8n/README.md` "Retry stack". A red content PR is fixed in-branch (a push re-runs QA) or closed.
 
 ## Part B. Parked checks (Claude only)
 
 1. **Indexing re-check (on or after 2026-10-08):** `gsc-index-status.py` for `/tools/calendly/`, the 9/06 Beehiiv post and the 10/01 Mailchimp-to-Kit post; if calendly still is not indexed, stop chasing it.
-2. **First real attributed click:** PostHog 408442, `affiliate_click` after 2026-10-02 01:21Z, host-scoped. At 10/05 22:15Z: 26 events, none real. Only `source_via` `click` or `last_page` with `is_automated=false` counts, and only when it has a session, a browser and a TAG pageview; a crawler burst (21 tools in 10 min, 10/05 21:49Z) set `last_page` from 404 probes like `/affiliate` (no trailing slash).
+2. **First real attributed click:** PostHog 408442, `affiliate_click` after 2026-10-02 01:21Z, host-scoped. At 10/06 15:40Z: 84 events, none real (query with the PostHog connector's `execute-sql`; confirm `project-get` returns 408442). Only `source_via` `click` or `last_page` with `is_automated=false` counts, and only when it has a session, a browser and a TAG pageview; a crawler burst (21 tools in 10 min, 10/05 21:49Z) set `last_page` from 404 probes like `/affiliate` (no trailing slash), and another hit 51 tools on 10/06 10:28-11:05Z. Also reject S107's pattern: a Linux Chrome UUID visitor whose `last_page` `/go/instantly/` loads came minutes after 1 s pageviews (a headless browser, not a click).
 3. **~2026-10-15 metric:** `source_path` on >90% of human clicks (baseline 6%), split at the redesign deploy 10/02 ~21:55Z. Drop crawler bursts first. Read it only on or after 10/15.
 
 ## Part C. Lows if time allows
