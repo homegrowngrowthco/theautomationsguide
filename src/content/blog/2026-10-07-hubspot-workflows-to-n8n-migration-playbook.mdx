@@ -1,0 +1,186 @@
+---
+title: "HubSpot Workflows to n8n Migration Playbook"
+description: "Step-by-step guide for RevOps teams moving automation off HubSpot Workflows onto n8n when costs spike and workflow limits bite. 900-1200 words."
+tldr: "Migrating from HubSpot Workflows to n8n takes two to four weeks for most mid-market teams and cuts per-automation costs significantly, but you lose the native CRM event triggers and must rebuild them via webhooks or API polling."
+pubDate: 2026-10-07
+tags: ["guide", "automation", "revops"]
+faqs:
+  - question: "Can n8n replace HubSpot Workflows completely?"
+    answer: "n8n can replicate most HubSpot Workflow logic including branching, delays, and multi-tool actions, but it does not have native CRM objects. You still need HubSpot or another CRM for contact and deal data; n8n just orchestrates the automation."
+  - question: "How long does a HubSpot to n8n migration take?"
+    answer: "Most mid-market teams with 20 to 50 active workflows complete a phased migration in two to four weeks, running both systems in parallel before cutting over."
+  - question: "Does n8n have a HubSpot integration?"
+    answer: "Yes, n8n ships a native HubSpot node that covers contacts, deals, companies, and form submissions. You can trigger workflows on HubSpot webhook events without any custom code."
+  - question: "What HubSpot Workflow features do not migrate cleanly to n8n?"
+    answer: "Enrollment criteria tied to HubSpot list membership, native sequence enrollment, and in-app A/B testing on workflows do not have a direct n8n equivalent and need workarounds."
+  - question: "Is n8n cheaper than HubSpot Operations Hub for automation?"
+    answer: "For teams on HubSpot Operations Hub Professional or Enterprise, n8n self-hosted is dramatically cheaper. n8n Cloud starts around $20 per month flat; Operations Hub Pro runs $800 per month as of 2026."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The trigger is almost always the same. Your RevOps lead opens the HubSpot renewal quote, sees the Operations Hub Professional line item at $800 per month, and starts asking whether you actually need it. Then someone counts the active workflows, notices half of them are just reformatting fields and updating lifecycle stages, and the question shifts from "can we afford this" to "why are we paying HubSpot to run glorified if-then logic." That is the moment teams start looking at [n8n](/go/n8n/). This playbook is for that moment specifically, not a generic intro to workflow automation.
+
+<KeyTakeaways items={[
+  "n8n Cloud starts at roughly $20/month flat versus $800/month for HubSpot Operations Hub Pro",
+  "You keep HubSpot as your CRM and system of record; n8n replaces only the automation layer",
+  "Native HubSpot webhook support in n8n means most triggers rebuild in under an hour each",
+  "Plan for two to four weeks of parallel running before you cut over on high-volume workflows",
+  "Enrollment criteria tied to HubSpot list membership is the messiest thing to re-architect"
+]} />
+
+## Before You Migrate
+
+The single biggest migration failure I see is teams that export nothing, rebuild nothing in writing, and then wonder why their lead routing broke three months later when someone edits a workflow from memory. Do the boring part first.
+
+Before you touch [n8n](/go/n8n/), complete this checklist:
+
+- **Export your full workflow inventory.** In HubSpot, go to Automation > Workflows, set the view to All, and export the CSV. Note enrollment trigger type, object type (contact, deal, company), monthly enrollment volume, and whether it touches sequences or email sends.
+- **Flag CRM-native dependencies.** Any workflow that enrolls contacts into a HubSpot Sequence or sends a HubSpot marketing email cannot be fully replaced by n8n. Those actions live inside HubSpot and require HubSpot API calls from n8n, which means you need a Private App with the right scopes.
+- **Create a HubSpot Private App.** Go to Settings > Integrations > Private Apps and generate a token with `crm.objects.contacts.write`, `crm.objects.deals.write`, and `automation` scopes. Store this in n8n's credential vault, not in a workflow node directly.
+- **Pause your lowest-risk workflows first.** Pick three to five workflows with low enrollment volume and no revenue-critical path (think: field formatting, internal Slack notifications, data hygiene). These are your migration sandbox.
+- **Document branch logic in plain language.** For each workflow, write out the if-then tree in a Google Doc or Notion page before you rebuild. This surfaces logic you forgot existed and creates a QA reference.
+
+<StepRow steps={[
+  {
+    title: "Map triggers to n8n equivalents",
+    body: "HubSpot Workflow triggers come in three flavors: property change, form submission, and list membership. Property change and form submission both have direct HubSpot webhook equivalents in n8n (use the HubSpot Trigger node and select the relevant subscription type). List membership is the exception: n8n cannot subscribe to HubSpot list changes natively, so you will poll the HubSpot Contacts API on a schedule using a Cron trigger and filter for list ID membership in a downstream IF node."
+  },
+  {
+    title: "Rebuild branch logic as IF and Switch nodes",
+    body: "HubSpot's visual branch builder maps cleanly onto n8n's IF node for binary splits and Switch node for multi-path logic. Recreate each branch condition using the same property values from your HubSpot export. If a HubSpot workflow uses 'is known' or 'is unknown' conditions, translate those to n8n's 'is not empty' and 'is empty' string checks against the HubSpot contact property value returned by the HTTP Request or HubSpot node."
+  },
+  {
+    title: "Wire up HubSpot API calls for CRM writes",
+    body: "Every workflow action that updates a HubSpot contact, deal, or company property needs a HubSpot node (or HTTP Request node for anything the native node does not cover) authenticated via your Private App token. Use the 'Update Contact' action with the record ID passed from the trigger payload. For deal stage changes, use the Deals > Update operation. Test each node against a sandbox contact before wiring to production data."
+  },
+  {
+    title: "Rebuild delays as Wait nodes",
+    body: "HubSpot's time delays map to n8n's Wait node. A 'wait 3 days' step becomes a Wait node set to 72 hours. Per the n8n docs, the Wait node persists execution state correctly for up to 365 days on Cloud. If you are self-hosting, confirm your database and worker configuration supports long-running executions before migrating anything with delays longer than a few hours."
+  },
+  {
+    title: "Run in parallel for two weeks minimum",
+    body: "Do not turn off HubSpot workflows the day you activate n8n equivalents. Run both for at least two weeks on a subset of records. In HubSpot, clone the original workflow and add an enrollment filter that excludes your test contacts. Enroll only a controlled set through n8n. Compare outcomes: did the contact property update? Did the Slack notification fire? Did the sequence get enrolled? Spot-check 20 to 30 records per workflow before cutting over."
+  },
+  {
+    title: "Cut over and deactivate HubSpot workflows",
+    body: "Once parallel validation passes, flip enrollment in HubSpot to Off on the original workflow, set n8n to receive all production triggers, and monitor the n8n execution log for errors over the next 48 hours. Keep the HubSpot workflows in a Paused state (not deleted) for 30 days as a rollback option."
+  }
+]} />
+
+<Figure class="post-screenshot" caption="n8n's workflow canvas showing a webhook trigger, enrichment step, ICP branch, and downstream Smartlead plus Slack actions. This is the basic shape most HubSpot Workflow replacements take.">
+  <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with webhook trigger, conditional branch, and multi-tool output nodes" loading="lazy" />
+  </a>
+</Figure>
+
+## What Breaks and What Does Not Transfer
+
+Most of the logic migrates cleanly. The gotchas cluster around a few specific HubSpot-native features that have no direct n8n equivalent.
+
+**What transfers well:** property-based triggers, time delays, multi-branch logic, internal notifications (Slack, email via SMTP), field updates, webhook calls to third-party tools, and data formatting. I'd argue n8n's Code node is vastly more capable than HubSpot's Calculate property action for anything beyond basic math.
+
+**What breaks or needs a workaround:** HubSpot Sequence enrollment (n8n can call the Sequences API to enroll a contact, but the sequence itself still lives in HubSpot), list-based enrollment triggers (polling workaround below), and HubSpot's native A/B workflow testing (no equivalent; handle randomization logic in a Code node instead).
+
+The messiest scenario is workflows that both write to HubSpot and enroll into sequences. Those require n8n to make two sequential API calls. Per the [HubSpot API docs on sequence enrollment](https://developers.hubspot.com/docs/api/crm/sequences), sequence enrollment requires the contact to be assigned to a user with a Sales Hub seat. If your sequences rely on unassigned contacts, that will surface as an error in n8n's execution log immediately.
+
+<SideBySide>
+  <Fragment slot="left">
+    **Gotcha: HubSpot list membership triggers**
+
+    HubSpot Workflows can fire when a contact joins or leaves a list. n8n has no native subscription to list membership change events. If you try to replicate this with a HubSpot Trigger webhook, you will not find a list membership event type available.
+
+    Teams that skip this discovery step rebuild the workflow, go live, and notice it never fires. The enrollment volume stays at zero and nobody knows why for days.
+  </Fragment>
+  <Fragment slot="right">
+    ```javascript
+    // Workaround: Cron trigger polling a HubSpot list
+    // In n8n, add a Schedule Trigger node (every 15 min)
+    // Then an HTTP Request node:
+
+    GET https://api.hubapi.com/contacts/v1/lists/{{listId}}/contacts/all
+    Headers:
+      Authorization: Bearer {{$credentials.hubspotPrivateApp.accessToken}}
+
+    // Downstream: IF node checks
+    // "last_processed_at" property vs current timestamp
+    // to avoid re-processing contacts already actioned
+    // Store processed IDs in n8n's static data or a
+    // lightweight Airtable/Notion table as a state store
+    ```
+  </Fragment>
+</SideBySide>
+
+## Verify It Worked
+
+Before declaring the migration done, run through these concrete checks on each workflow:
+
+1. **Execution log shows zero errors for 48 hours** on production traffic. In n8n, go to Executions and filter by workflow name and status "Error." Any red rows need investigation before you delete the HubSpot original.
+2. **Contact properties updated correctly.** Pull 10 to 20 recently enrolled contacts in HubSpot and confirm the expected properties were written by n8n (check the property history tab for the "Source" field, which will show "API" instead of "Workflows," confirming n8n did the write).
+3. **Downstream tools received data.** If the workflow sends data to [Clay](/go/clay/), [Smartlead](/go/smartlead/), or Slack, spot-check those destinations. A webhook that returns a 200 in n8n but silently drops the payload on the receiving end is a real failure mode.
+4. **Delay-based steps resume correctly.** Enroll a test contact that will hit a Wait node, confirm the execution pauses, and verify it resumes and completes the remaining steps after the delay period.
+
+<ChooseIf title="Should you migrate now or stay on HubSpot Workflows?" items={[
+  {
+    name: "Migrate to n8n",
+    conditions: [
+      "You are on Operations Hub Professional or Enterprise and automation is a meaningful line in the budget",
+      "You need to connect HubSpot to tools HubSpot does not have native nodes for (Clay, custom internal APIs, Postgres, etc.)",
+      "Your workflows are getting complex enough that HubSpot's visual builder feels limiting (nested branches, code-level logic)"
+    ],
+    pricing: "From ~$20/month (Cloud) or self-hosted",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n",
+    highlight: true
+  },
+  {
+    name: "Stay on HubSpot Workflows",
+    conditions: [
+      "Your automation stays almost entirely within HubSpot objects (contacts, deals, emails, sequences) with no external tool logic",
+      "Your team is not technical and the visual builder is genuinely the right tool for the operators running it",
+      "You are on Starter or Professional where the Workflows limit has not become a real constraint yet"
+    ],
+    pricing: "Bundled with Operations Hub tiers",
+    affiliateSlug: "hubspot",
+    ctaLabel: "See HubSpot plans"
+  }
+]} />
+
+<MyTake>
+Framing this as "replacing HubSpot Workflows with n8n" is subtly wrong, and it sets teams up for a harder migration than necessary. n8n replaces the automation engine. HubSpot stays as the system of record. Teams that try to migrate off HubSpot entirely at the same time as they migrate off HubSpot Workflows are running two migrations at once, and one of them usually fails. Separate the decisions. Finish the automation layer migration first, then revisit the CRM question six months later with clean data on what you actually use.
+</MyTake>
+
+## The Part No One Talks About: Ongoing Maintenance
+
+The migration is not the hard part. Running n8n in production is. [n8n](/tools/n8n/) has no built-in alerting on execution failures by default on self-hosted plans. A broken workflow can silently fail for days unless you wire up error monitoring. My read is that this is the single most dangerous gap for teams coming from HubSpot, where failure notifications are on by default. Set up an Error Workflow in n8n (Settings > Error Workflow) that posts to Slack with the workflow name and error message. Do this before you go live, not after something breaks.
+
+For teams also evaluating how automation layering fits into a broader outbound stack, the [comparison of Apollo vs LeadMagic vs Clay for data quality](/blog/2026-10-04-apollo-vs-leadmagic-vs-clay-data-quality-and-cost-in-2026/) is worth reading alongside this, since n8n often becomes the glue connecting those enrichment tools back to [HubSpot](/tools/hubspot/).
+
+The cost argument is real and the math is not subtle. [HubSpot's Operations Hub pricing page](https://www.hubspot.com/pricing/operations) shows Professional at $800/month billed annually as of 2026. [n8n Cloud's Starter plan](https://docs.n8n.io/hosting/) covers most mid-market workflow volumes at a fraction of that, and the self-hosted option is free for unlimited workflows if your team can manage the infrastructure.
+
+<BottomLine
+  verdict="For mid-market RevOps teams hitting the cost ceiling on HubSpot Operations Hub, migrating the automation layer to n8n is the right call. Keep HubSpot as your CRM, rebuild triggers via webhooks and the HubSpot API, and run parallel for two weeks before cutting over."
+  pick="n8n"
+  affiliateSlug="n8n"
+  ctaLabel="Try n8n"
+/>
+
+<Sources sources={[
+  { label: "HubSpot: Operations Hub pricing page", url: "https://www.hubspot.com/pricing/operations" },
+  { label: "HubSpot Developers: Sequences API reference", url: "https://developers.hubspot.com/docs/api/crm/sequences" },
+  { label: "n8n Docs: Self-hosting n8n", url: "https://docs.n8n.io/hosting/" },
+  { label: "n8n Docs: HubSpot node reference", url: "https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.hubspot/" }
+]} />
