@@ -7,7 +7,8 @@ Twitter threads and video scripts are generated in parallel and saved to a Notio
 The full system is three workflows that compose:
 
 ```
-                         Topic Suggestor (Mon + Thu 7:30am)
+              Topic backlog builder (GitHub Actions, Sun + Wed 06:00 UTC)
+              scored on GSC signals; the n8n Topic Suggestor is retired (10/08)
                                     │
                                     ▼
                          Notion: topics with Status = Suggested
@@ -32,7 +33,8 @@ The full system is three workflows that compose:
 | File | Purpose |
 |---|---|
 | `blog-post-engine.json` | The main workflow — generates a post, opens a PR, queues social drafts. **v5 (2026-05-13)**: adds PERSONAL VOICE + EXTERNAL CITATIONS + NO EM/EN DASHES prompt rules in Generate Draft, parallel verify passes in Humanize, and a deterministic `sanitizeMdx()` in Parse Draft that converts camelCase SVG attrs → kebab-case and strips em/en dashes regardless of LLM output. **v4 (2026-05-07)**: outputs MDX with components, per-post-type templates, dual `.md`/`.mdx` idempotency. |
-| `topic-suggestor.json` | Runs Mon/Thu — Claude suggests 5 new topics based on coverage gaps, writes them as `Suggested` for batch approval. Since 10/08 it skips titles already in the calendar and a failed create never re-runs into duplicates (`update-suggestor-idempotent-create.mjs`) |
+| `topic-suggestor.json` | **RETIRED 2026-10-08** (archive; the live workflow `vfEeiQg3TsPlD24J` is deactivated by `retire-suggestor.mjs`, revert with `--reactivate --apply`). It ran Mon/Thu, saw 1 of 177 posts and 100 of ~460 calendar rows, had no performance input, and produced the 10/08 duplicates. Topic discovery is `backlog/build-backlog.mjs` on GitHub Actions, scored on GSC signals. |
+| `retire-suggestor.mjs` | Deactivates (or `--reactivate`s) the Topic Suggestor in place with a live backup in `~/.n8n-backups/`; dry run by default |
 | `daily-briefing.json` | Runs daily 7:30am — single Slack message summarizing what needs your attention (open PRs, topics to approve, drafts to post) |
 | `posthog-monitor.json` | **(2026-05-07)** Daily 9am ET — checks PostHog for $pageview events in the last 24h. Slack-alerts if zero (tracking broke or site is dead). |
 | `notion-publish-status.json` | **(2026-05-07, extended 2026-05-22)** GitHub webhook → fires when a `content/`-branch PR merges to master, finds the matching Notion topic by `PR URL`, sets `Status = Published`, posts a Slack notification, **submits the post URL to IndexNow (Bing/Yandex/DuckDuckGo) and the Google Indexing API** (Google branch is opt-in via service-account JSON in the Config node — see Workflow 5 setup). |
@@ -170,11 +172,15 @@ At 5 posts/week: ~$2/month in API costs. n8n Cloud is the bigger fixed cost.
 
 ---
 
-## Topic Suggestor setup
+## Topic Suggestor setup (RETIRED 2026-10-08; kept for the archive)
+
+The workflow is deactivated and off the watchdog's list. Topic discovery now runs in
+`backlog/build-backlog.mjs` (see [backlog/README.md](../backlog/README.md), "Signals and
+score"). The review flow below still describes how Suggested rows become Queued.
 
 Same Anthropic / GitHub / Notion credentials as the blog engine — no new credentials needed.
 
-### One-time
+### One-time (historical)
 
 1. **Add `Suggested` status to Content Calendar in Notion** (the script that originally created the DB has been updated, but your DB already exists — add the option manually):
    - Open Content Calendar in Notion → click the `Status` column header → `Edit property`
@@ -187,7 +193,7 @@ Same Anthropic / GitHub / Notion credentials as the blog engine — no new crede
 
 ### How review works
 
-After it runs, you'll get a Slack ping listing the 5 suggestions. In Notion, filter Content Calendar by `Status = Suggested`. For each row:
+After a builder run, the Slack ping says how many topics were staged. In Notion, filter Content Calendar by `Status = Suggested` (Priority is the score tertile and Notes carries the score breakdown; `node backlog/build-backlog.mjs --rank-suggested` prints the whole pool ranked, with fence flags). For each row:
 - **Like it →** change Status to `Queued`. The Blog Post Engine picks it up next run, ordered by Priority.
 - **Don't like it →** change Status to `Skipped`. It stays in the DB so the suggestor doesn't re-suggest it next time.
 - **Want to tweak →** edit the Topic / Notes / Target Keyword fields, then flip to `Queued`.
@@ -319,7 +325,7 @@ n8n native Error Trigger that fires when any workflow listing this one as its "E
 1. **Import workflow.** n8n → Workflows → Import from File → `error-trigger.json`.
 2. **Edit Config node:** set `slackWebhookUrl`.
 3. **Activate** the workflow.
-4. **Attach to existing workflows.** For each workflow you want covered (Blog Post Engine, Topic Suggestor, Daily Briefing, PostHog Monitor, Notion Publish Status):
+4. **Attach to existing workflows.** For each workflow you want covered (Blog Post Engine, Daily Briefing, PostHog Monitor, Notion Publish Status; the retired Topic Suggestor keeps its attachment but never fires):
    - Open the workflow → *Workflow Settings* (top right) → *Error workflow* dropdown → select **Error Trigger — TAG**
    - Save
 5. **Test:** force a failure in any wired workflow (e.g. temporarily break the Anthropic API key in Blog Post Engine and run it manually). Confirm a Slack alert lands.

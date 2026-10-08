@@ -8,7 +8,18 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-08 (Session 109).
+Last updated 2026-10-08 (Session 110).
+
+## Session 110 (2026-10-08): topic generation scored on GSC signals, Topic Suggestor retired (Fable 5.1, op #1242)
+
+- **Started 16:27Z.** 0 open PRs; Notion 12 Queued / 36 Suggested (pick not due); PostHog 0 `affiliate_click` since 14:15Z; nothing else date-due.
+- **Measured first (GSC window to 10/05, page level, `intentOf()` classes):** 60 clicks / 28.1k impressions 28 d (104 / 65.0k 90 d). Age-adjusted impressions per post (60+ days old): comparison 251, alternatives 171, migration 148, other 115; pricing too young to judge (10 of 11 shipped after 8/12). The builder's "at least N migrations" quota was contradicted. Page+query join: the beehiiv-vs-substack post's 949 "near-win" impressions were 119 real (rank-tracker operator strings); `/tools/close/` 3,633 are the branded query "close crm". PostHog: best tool 3 human affiliate clicks / 90 d, so clicks cannot rank. Local project-scoped PostHog key does reach the query endpoint (200), left out of CI by design.
+- **Ian's decisions (AskUserQuestion):** v1 score without clicks and no PostHog in CI; retire the Suggestor; Priority = score tertile with the breakdown in Notes; metric (a) pick share from the top 12, (b) 8-week GSC cohort read ~12/10 (TODO).
+- **Shipped (this PR):** `backlog/signals.mjs` (clusters, near-wins split hub vs post, age-adjusted format prior, score 0..100, tiers, 32 fixtures run inside `--selftest`); builder: four GSC pulls, prompt carries clusters + near-win siblings + zero-coverage live programs + the measured format table (quotas removed), `--mine-only` prints every input, `--rank-suggested` scores the live Suggested pool with fence flags, Notes carries `Score N = ...`; `topic-backlog.yml` Sun + Wed, 15 a run. Scoring bugs caught on live data before shipping: single-tool "general" clusters lumped 40 Pipedrive queries (now token-matched); overlap compared raw vs normalized keyword (self-match read 0.56); near-wins matched on tag tools (now title tools).
+- **Live dry run:** 15 proposed, 11 kept; top MoltSets Pricing 84, Nutshell pipeline guide 82, Motion review 59 (zero-coverage live program). Ranked Suggested: top 42, 11 of 36 carry a fence flag.
+- **Suggestor retired 16:51Z (Ian's OK):** `n8n/retire-suggestor.mjs --apply`, active=false verified, 13/13 nodes; id removed from the watchdog's WATCHED list (selftest green); README rows and CLAUDE.md updated. Still listing the id, harmlessly: `build-error-retry.mjs` RETRY_IDS, `update-retry-on-fail.mjs`, `error-trigger.json`.
+- **Revert:** `node --env-file=../growth-engine/.env n8n/retire-suggestor.mjs --reactivate --apply` (backup `~/.n8n-backups/vfEeiQg3TsPlD24J-2026-10-08T16-51-22-460Z.json`); `git revert` this PR (restores the Sunday-only cron and the unscored prompt).
+- **Gotchas:** GSC page-level "near-wins" need the page+query join with operator strings dropped, or branded and rank-tracker impressions pass as demand; an ESM `import()` of a Windows absolute path needs `pathToFileURL`; Node 24 prints a libuv assertion at exit after `fetch` on Windows (harmless, exit 0).
 
 ## Session 109 (2026-10-08): next-session prompt reviewed against the live state and rewritten (Fable 5.1, op #1241)
 

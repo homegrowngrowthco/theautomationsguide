@@ -17,22 +17,36 @@
 //      category, with first-mover stars).
 //   2. Load existing coverage (the dedup corpus): every published src/content/blog
 //      post (title + tags -> tool set) + the 16 CONTENT_CALENDAR.md staged rows.
-//   3. ONE Claude call proposes N ranked net-new topics, each anchored on a
-//      universe tool, told what is already covered so it avoids overlap.
+//   2c. Measure the site (Session 110, 2026-10-08; see backlog/signals.mjs): GSC
+//      unserved query CLUSTERS, near-win posts and hubs (position 5..15), the
+//      age-adjusted impressions-per-post table by format, live programs with no post.
+//   3. ONE Claude call proposes N net-new topics, each anchored on a universe tool,
+//      told what is already covered AND the measured signals above.
 //   4. A DETERMINISTIC dedup guard (one shared normalize helper) hard-drops exact
 //      collisions and flags partial overlaps. The LLM is not trusted to dedup.
-//   5. Sanitize (no em/en dashes) + sort + write backlog-batch.{json,md}.
+//   4b. A DETERMINISTIC score (0..100) ranks what survives: demand + near-win +
+//      monetisation + format prior - overlap. Tertiles become Priority High/Medium/
+//      Low and the breakdown lands in Notes, so the weekly Queued pick reads a ranked
+//      shortlist. Clicks never enter the score (volume rule in signals.mjs).
+//   5. Sanitize (no em/en dashes) + write backlog-batch.{json,md}.
 //
 // USAGE (run from the project root so dotenv finds ./.env with ANTHROPIC_API_KEY):
 //   node backlog/build-backlog.mjs            # default 25 topics
 //   node backlog/build-backlog.mjs --count=40 # more
 //   node backlog/build-backlog.mjs --model=claude-opus-4-8  # override model
+//   node backlog/build-backlog.mjs --mine-only       # print every signal input, no Claude, no writes
+//   node backlog/build-backlog.mjs --rank-suggested  # score the live Suggested rows (NOTION_TOKEN), no writes
+//   GSC: set GSC_TOKEN_JSON or GSC_TOKEN_FILE (locally: GSC_TOKEN_FILE=~/.gsc/token.json).
 
 import 'dotenv/config';
 import Anthropic from '@anthropic-ai/sdk';
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  tokenSet, tokenCoverage, jaccard, intentOf, isComparison, fetchGscRows, clusterQueries, unservedClusters,
+  nearWins, formatPrior, scoreTopic, assignTiers, selfTestSignals,
+} from './signals.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..');
@@ -43,6 +57,9 @@ const MODEL = (process.argv.find((a) => a.startsWith('--model=')) || '').split('
 // --mine-only: load the corpus, run GSC query mining, print unserved demand, exit.
 // (No Anthropic call â€” a free debugging/inspection mode for the mining layer.)
 const MINE_ONLY = process.argv.includes('--mine-only');
+// --rank-suggested: score every live Suggested row with the same signals and print the
+// ranked shortlist (no Claude, no writes). This is what the weekly Queued pick reads.
+const RANK_SUGGESTED = process.argv.includes('--rank-suggested');
 
 // --stage writes the kept topics to the live Notion Content Calendar as
 // Status:Suggested (the publishing engine only fires on Status:Queued, so staged
@@ -73,7 +90,7 @@ if (STATUS) {
 
 // --selftest never calls Claude: it replays a fixed fixture through the local
 // dedup/fence logic, so it must run key-free (that is what makes it CI-able).
-if (!process.env.ANTHROPIC_API_KEY && !MINE_ONLY && !SELFTEST) {
+if (!process.env.ANTHROPIC_API_KEY && !MINE_ONLY && !SELFTEST && !RANK_SUGGESTED && !AUDIT_QUEUE) {
   console.error('ANTHROPIC_API_KEY not set. Add it to .env (project root) or your environment.');
   process.exit(1);
 }
@@ -234,7 +251,11 @@ function parsePublishedPosts(universe, asOf = null) {
     const tagsRaw = (block.match(/tags:\s*\[([^\]]*)\]/) || [])[1] || '';
     const hay = `${title} ${tagsRaw} ${f}`;
     const toolset = universe.filter((t) => aliasHit(t.aliases, hay)).map((t) => t.slug);
-    posts.push({ source: 'published', title: title.trim(), keyword: norm(title), toolset: [...new Set(toolset)].sort() });
+    // path + pubDate join the post to its GSC page row (signals.mjs near-wins + format prior).
+    const pubDate = (block.match(/^pubDate:\s*['"]?(\d{4}-\d{2}-\d{2})/m) || [])[1] || (f.match(/^(\d{4}-\d{2}-\d{2})-/) || [])[1] || null;
+    posts.push({ source: 'published', title: title.trim(), keyword: norm(title), toolset: [...new Set(toolset)].sort(),
+      titleToolset: [...new Set(universe.filter((t) => aliasHit(t.aliases, title)).map((t) => t.slug))].sort(),
+      path: `/blog/${f.replace(/\.mdx$/, '')}/`, pubDate });
   }
   return posts;
 }
@@ -297,7 +318,8 @@ async function fetchNotionCalendar(universe) {
       const kw = (props['Target Keyword']?.rich_text || []).map((t) => t.plain_text).join('');
       const hay = `${title} ${kw}`;
       const toolset = universe.filter((t) => aliasHit(t.aliases, hay)).map((t) => t.slug);
-      rows.push({ source: 'notion', title: title.trim(), keyword: norm(kw) || norm(title), toolset: [...new Set(toolset)].sort() });
+      rows.push({ source: 'notion', title: title.trim(), keyword: norm(kw) || norm(title), toolset: [...new Set(toolset)].sort(),
+        status: props.Status?.select?.name || '', priority: props.Priority?.select?.name || '', targetKeyword: kw.trim() });
     }
     cursor = res.json.has_more ? res.json.next_cursor : undefined;
   } while (cursor);
@@ -416,7 +438,10 @@ async function stageToNotion(kept) {
   let created = 0;
   const failed = [];
   for (const t of kept) {
-    const note = [t.rationale, t.needsLP ? '[needs LP]' : '', t.alsoCovers.length ? `Also covers: ${t.alsoCovers.join(', ')}` : '']
+    // Score first so the Notion Notes column reads as a shortlist line; Priority is the
+    // score tertile (assignTiers), which the engine's Queued sort already honours.
+    const note = [t.score !== undefined ? `Score ${t.score} = ${t.breakdown}. ${t.sanity}.` : '', t.rationale,
+      t.needsLP ? '[needs LP]' : '', t.alsoCovers.length ? `Also covers: ${t.alsoCovers.join(', ')}` : '']
       .filter(Boolean).join(' ').slice(0, 1900);
     const body = {
       parent: { database_id: NOTION_DB },
@@ -435,24 +460,15 @@ async function stageToNotion(kept) {
   return { created, failed };
 }
 
-// ---------- 2c. OBSERVED SEARCH DEMAND (GSC query mining) ----------
-// Pull last-28d queries the site already earns impressions for, drop rank-tracker
-// junk, and keep the ones no published/staged topic serves. These become priority
-// topic candidates: real demand beats registry permutations.
+// ---------- 2c. PERFORMANCE SIGNALS (GSC) ----------
+// Four Search Console pulls feed the prompt and the score: 28d queries (unserved demand
+// clusters), 28d pages + page/query (near-wins with REAL query attribution, split hub vs
+// post), 90d pages (age-adjusted format prior). Text helpers (tokenSet, intentOf, ...)
+// live in signals.mjs so the dedup guard and the score share ONE definition.
 // Auth: GSC_TOKEN_JSON (contents of an OAuth token.json with client_id/client_secret/
 // refresh_token, webmasters.readonly scope) or GSC_TOKEN_FILE (path to it). Skips
 // gracefully when neither is set so local runs without GSC still work.
 const GSC_SITE = process.env.GSC_SITE || 'sc-domain:theautomationsguide.com';
-const STOPWORDS = new Set(['the', 'a', 'an', 'for', 'of', 'in', 'on', 'to', 'vs', 'versus', 'and', 'or', 'best', 'top', 'with', 'is', 'are', 'what', 'which', 'how', 'why', 'when', 'you', 'your', 'my', 'it', 'that', '2024', '2025', '2026', '2027', 'tool', 'tools', 'software']);
-const tokenSet = (s) => new Set(
-  (s || '').toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').split(/[\s-]+/).filter((w) => w.length > 1 && !STOPWORDS.has(w))
-);
-function tokenCoverage(qTokens, cTokens) {
-  if (!qTokens.size) return 1;
-  let hit = 0;
-  for (const w of qTokens) if (cTokens.has(w)) hit++;
-  return hit / qTokens.size;
-}
 
 async function gscAccessToken() {
   const raw = process.env.GSC_TOKEN_JSON || (process.env.GSC_TOKEN_FILE ? readFileSync(process.env.GSC_TOKEN_FILE, 'utf8') : '');
@@ -470,52 +486,89 @@ async function gscAccessToken() {
   return (await res.json()).access_token;
 }
 
-async function mineGscDemand(covered) {
+// Live programs no published post names (title/tags/filename alias match). The
+// monetisation bonus and a prompt hint: one post on these earns from day one.
+function zeroCoverageLive(universe, posts) {
+  const named = new Set(posts.flatMap((p) => p.toolset));
+  return universe.filter((t) => t.hasLP && affiliateStatusOf(t) === 'live' && !named.has(t.slug)).map((t) => t.name);
+}
+
+const EMPTY_SIGNALS = (universe, posts) => ({
+  clusters: [], nearWinPosts: [], nearWinHubs: [], prior: null, priorOf: () => 5,
+  zeroCoverage: zeroCoverageLive(universe, posts), clicksByTool: new Map(), window: null,
+});
+
+async function mineSignals(universe, covered, posts) {
   const access = await gscAccessToken();
-  if (!access) { console.log('(GSC mining skipped: set GSC_TOKEN_JSON or GSC_TOKEN_FILE to enable)'); return []; }
-  const end = new Date().toISOString().slice(0, 10);
-  const start = new Date(Date.now() - 28 * 864e5).toISOString().slice(0, 10);
-  const res = await fetch(
-    `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(GSC_SITE)}/searchAnalytics/query`,
-    {
-      method: 'POST',
-      headers: { authorization: `Bearer ${access}`, 'content-type': 'application/json' },
-      body: JSON.stringify({ startDate: start, endDate: end, dimensions: ['query'], rowLimit: 1000 }),
-    }
-  );
-  if (!res.ok) throw new Error(`GSC searchAnalytics failed (${res.status}): ${(await res.text()).slice(0, 200)}`);
-  const rows = (await res.json()).rows || [];
-  // Human queries only: no rank-tracker operator strings, no URLs/phone numbers, some volume.
-  const human = rows.filter((r) => {
-    const q = r.keys[0] || '';
-    if (r.impressions < 3) return false;
-    if (q.length > 80 || q.includes('"') || q.includes('site:') || /https?:\/\//.test(q)) return false;
-    if (/^[\d\s()+-]+$/.test(q)) return false;
-    return true;
-  });
-  const coveredTokens = covered.map((c) => tokenSet(`${c.title} ${c.keyword}`));
-  const unserved = [];
-  for (const r of human) {
-    const qt = tokenSet(r.keys[0]);
-    if (qt.size < 2) continue; // single-token queries are brand/navigation noise
-    const best = Math.max(0, ...coveredTokens.map((ct) => tokenCoverage(qt, ct)));
-    if (best < 0.6) unserved.push({ query: r.keys[0], impressions: r.impressions, position: Math.round(r.position) });
+  if (!access) { console.log('(GSC signals skipped: set GSC_TOKEN_JSON or GSC_TOKEN_FILE to enable)'); return EMPTY_SIGNALS(universe, posts); }
+  const [q28, p28, pq28, p90] = await Promise.all([
+    fetchGscRows(access, GSC_SITE, { days: 28, dimensions: ['query'] }),
+    fetchGscRows(access, GSC_SITE, { days: 28, dimensions: ['page'] }),
+    fetchGscRows(access, GSC_SITE, { days: 28, dimensions: ['page', 'query'] }),
+    fetchGscRows(access, GSC_SITE, { days: 90, dimensions: ['page'] }),
+  ]);
+  const clusters = unservedClusters(clusterQueries(q28.rows, universe, aliasHit), covered);
+  const nw = nearWins(p28.rows, pq28.rows, posts);
+  const prior = formatPrior(p90.rows, posts, { asOf: p90.end });
+  // Clicks: sanity line only (never scored). Summed per tool over the posts naming it.
+  const clicksByTool = new Map();
+  const byPath = new Map(posts.map((p) => [p.path, p]));
+  for (const row of p28.rows) {
+    const p = byPath.get(row.keys[0].replace(/^https?:\/\/[^/]+/, ''));
+    if (!p) continue;
+    for (const s of p.toolset) clicksByTool.set(s, (clicksByTool.get(s) || 0) + (row.clicks || 0));
   }
-  unserved.sort((a, b) => b.impressions - a.impressions);
-  return unserved.slice(0, 40);
+  return {
+    clusters, nearWinPosts: nw.posts, nearWinHubs: nw.hubs, prior, priorOf: prior.priorOf,
+    zeroCoverage: zeroCoverageLive(universe, posts), clicksByTool,
+    window: { start28: p28.start, end: p28.end, start90: p90.start, queries: q28.rows.length, pages: p28.rows.length },
+  };
+}
+
+function printSignals(s) {
+  const w = s.window;
+  console.log(`\n=== SIGNAL INPUTS ${w ? `(GSC ${w.start28}..${w.end}, 90d from ${w.start90}; ${w.queries} queries, ${w.pages} pages)` : '(no GSC creds: empty)'} ===`);
+  console.log(`\nUNSERVED DEMAND CLUSTERS: ${s.clusters.length} (impressions / best pos / queries / tools / top query)`);
+  for (const c of s.clusters.slice(0, 40)) console.log(`  ${String(c.impressions).padStart(5)}  pos ${String(c.bestPosition).padStart(5)}  ${String(c.queries.length).padStart(2)}q  ${(c.tools.join('+') || '-').padEnd(22).slice(0, 22)}  ${c.top}`);
+  console.log(`\nNEAR-WIN POSTS (pos 5-15, 100+ attributed impressions/28d): ${s.nearWinPosts.length}`);
+  for (const p of s.nearWinPosts.slice(0, 20)) console.log(`  ${String(p.attributed).padStart(5)} attr  pos ${p.position}  ${p.title.slice(0, 60)}  ["${p.topQuery}"]`);
+  console.log(`\nHUB FIXES (near-win /tools/ hubs; content work on the hub, never a sibling post): ${s.nearWinHubs.length}`);
+  for (const h of s.nearWinHubs.slice(0, 15)) console.log(`  ${String(h.attributed).padStart(5)} attr  pos ${h.position}  ${h.path}  ["${h.topQuery}"]`);
+  if (s.prior) {
+    console.log(`\nFORMAT PRIOR (90d impressions per post, posts published on or before ${s.prior.cutoff}):`);
+    for (const g of s.prior.table) console.log(`  ${g.format.padEnd(13)} ${String(g.posts).padStart(3)} posts  ${String(Math.round(g.imprPerPost)).padStart(5)} impr/post  ${String(g.clicks).padStart(3)} clicks  prior ${g.prior}`);
+  }
+  console.log(`\nLIVE PROGRAMS WITH NO POST: ${s.zeroCoverage.length}${s.zeroCoverage.length ? '  ' + s.zeroCoverage.join(', ') : ''}`);
 }
 
 // ---------- 3. PROPOSE via Claude (single batched call) ----------
-function buildPrompt(universe, covered, count, demand) {
+function buildPrompt(universe, covered, count, signals) {
   const toolLines = universe
     .map((t) => `- ${t.name} [${t.category}]${t.firstMover ? ' (first-mover)' : ''}${t.hasLP ? ' (has LP)' : ''}`)
     .join('\n');
   const coveredLines = covered.map((c) => `- ${c.title} (${c.source})`).join('\n');
-  const demandLines = demand.length
+  const demandLines = signals.clusters.length
     ? [
         '',
-        'OBSERVED SEARCH DEMAND (Google already shows this site for these queries but no dedicated post serves them - topics that directly serve one of these OUTRANK every other consideration; note the served query in the rationale):',
-        ...demand.map((d) => `- "${d.query}" (${d.impressions} impressions/28d, avg position ${d.position})`),
+        'OBSERVED SEARCH DEMAND (28d GSC: queries Google already shows this site for that no published or staged topic serves, grouped by the tools they name. Topics that directly serve one of these OUTRANK every other consideration; name the served query in the rationale):',
+        ...signals.clusters.slice(0, 40).map((c) => `- "${c.top}" (${c.impressions} impressions/28d across ${c.queries.length} ${c.queries.length === 1 ? 'query' : 'queries'}, best position ${c.bestPosition}${c.tools.length ? `, tools: ${c.tools.join(', ')}` : ''})`),
+      ]
+    : [];
+  const nearWinLines = signals.nearWinPosts.length
+    ? [
+        '',
+        'NEAR-WIN SIBLINGS (published posts at position 5 to 15 with real query impressions; a NET-NEW post on the same anchor tool that links to one of these inherits its standing, so prefer anchors that appear here):',
+        ...signals.nearWinPosts.slice(0, 20).map((p) => `- ${p.title} (${p.attributed} impressions/28d, position ${p.position}, top query "${p.topQuery}")`),
+      ]
+    : [];
+  const zeroLines = signals.zeroCoverage.length
+    ? ['', 'LIVE AFFILIATE PROGRAMS WITH NO POST YET (each earns from day one; one strong topic per tool is worth more than a fourth post on a crowded one): ' + signals.zeroCoverage.join(', ')]
+    : [];
+  const formatLines = signals.prior
+    ? [
+        '',
+        'MEASURED FORMAT PERFORMANCE (GSC impressions per post over 90 days, posts at least 60 days old; a prior, not a quota):',
+        ...signals.prior.table.map((g) => `- ${g.format}: ${g.imprPerPost.toFixed(0)} impressions per post over ${g.posts} posts`),
       ]
     : [];
   // NOTE: no backtick characters in this prompt (it lives inside a template literal).
@@ -529,16 +582,13 @@ function buildPrompt(universe, covered, count, demand) {
     'ALREADY COVERED (published or staged) - do NOT propose anything that overlaps these in tool set or search intent:',
     coveredLines,
     ...demandLines,
+    ...nearWinLines,
+    ...zeroLines,
+    ...formatLines,
     '',
-    `TASK: propose the ${count} highest-leverage NET-NEW topics. Favor: observed-demand queries above (highest priority), thin-competition first-mover categories (AI SDR agents, AI voice, visitor ID, AI agent builders, GEO/AI-search), tools that tie back to the site core (n8n, Make, HubSpot, Apollo, Clay), and decisions with real buyer search demand.`,
+    `TASK: propose the ${count} highest-leverage NET-NEW topics. Favor, in this order: observed-demand clusters above, near-win siblings, live programs with no post, thin-competition first-mover categories (AI SDR agents, AI voice, visitor ID, AI agent builders, GEO/AI-search), tools that tie back to the site core (n8n, Make, HubSpot, Apollo, Clay).`,
     '',
-    `FORMAT MIX (rough quotas out of ${count}; the site over-indexes on plain comparisons and its best-ranking post is a migration guide):`,
-    `- at most ${Math.ceil(count / 4)} plain "X vs Y (vs Z)" comparisons`,
-    `- at least ${Math.ceil(count / 5)} migration guides ("Migrate from X to Y without losing Z", "Switching from X")`,
-    `- at least ${Math.ceil(count / 5)} pricing/cost breakdowns ("X pricing explained", "What a Y stack actually costs")`,
-    '- some integration recipes ("Connect X to Y for <outcome>") and problem-first posts keyed on a symptom ("Your <system> does <bad thing>, here is the fix") rather than a tool name',
-    '- single-tool reviews ("X review: the honest take") where the observed demand shows "<tool> review" queries',
-    '- "X alternatives" only where no alternatives post exists for that tool yet',
+    'FORMATS: no quotas. Pick the format the demand asks for: a "<tool> pricing" cluster wants a pricing post, "<a> vs <b>" wants a comparison, "<tool> review" wants a review, "migrate" or "switch" wants a migration guide ("Migrate from X to Y without losing Z"), an integration query wants a recipe ("Connect X to Y for <outcome>"). Where the demand is silent, lean on the measured format performance above. Never propose "X alternatives" or "X competitors" posts (hard-fenced).',
     '',
     'HARD FENCE (a proposal that breaks this is discarded): NEVER set anchorTool to a no-affiliate incumbent this young domain cannot rank for: Gong, Outreach, Salesloft, ZoomInfo, Salesforce, Gainsight, Marketo, Seismic, Clari, 6sense, Chorus, Drift, Highspot. You MAY name them as a comparison foil or as the "from" side of a migration ("Migrate off Outreach to X"), but the anchorTool must be a tool with an affiliate landing page or a realistic affiliate path. Prefer anchors marked (has LP).',
     '',
@@ -548,9 +598,9 @@ function buildPrompt(universe, covered, count, demand) {
   ].join('\n');
 }
 
-async function propose(universe, covered, count, demand) {
+async function propose(universe, covered, count, signals) {
   const client = new Anthropic();
-  const prompt = buildPrompt(universe, covered, count, demand);
+  const prompt = buildPrompt(universe, covered, count, signals);
   let res;
   try {
     res = await client.messages.create({
@@ -590,18 +640,10 @@ function makeResolver(universe) {
   };
 }
 
-// Classify a title/keyword into a search-intent class. Single-anchor intents
+// intentOf() (search-intent class; imported from signals.mjs): single-anchor intents
 // (alternatives, pricing, migration) should exist at most ONCE per anchor tool â€”
 // this is the gate that would have stopped the two "Instantly alternatives" posts
 // shipped 8 days apart (2026-06-02 + 2026-06-10, consolidated in PR #158).
-function intentOf(text) {
-  const s = (text || '').toLowerCase();
-  if (/\bmigrat|switch(ing)?\s+(from|to|off)\b/.test(s)) return 'migration';
-  if (/\bpricing\b|\bprice\b|\bcosts?\b/.test(s)) return 'pricing';
-  if (/\balternativ/.test(s)) return 'alternatives';
-  if (/\breview\b/.test(s)) return 'review';
-  return null;
-}
 // Tools named in the TITLE text itself (not the whole-post toolset â€” an
 // alternatives post mentions many tools in the body, but is "about" the one in
 // its title).
@@ -617,12 +659,6 @@ function intentKeys(universe, title, keyword) {
   if (intent === 'migration' && slugs.length >= 2) return [`migration::${[...slugs].sort().join('+')}`];
   return slugs.map((slug) => `${intent}::${slug}`);
 }
-function jaccard(a, b) {
-  let hit = 0;
-  for (const w of a) if (b.has(w)) hit++;
-  const union = a.size + b.size - hit;
-  return union ? hit / union : 0;
-}
 
 // Comparison posts compete PAIR-wise: "A vs B vs C" and "B vs A vs D" both own the
 // "a vs b" query space. The 7/13+7/16 waterfall-enrichment twins slipped past every
@@ -631,7 +667,7 @@ function jaccard(a, b) {
 // vs-Lusha "European outbound" legitimately coexists with Lusha-vs-Apollo-vs-
 // ZoomInfo "B2B contact data") â€” it collides only when the non-tool FRAMING tokens
 // also overlap (jaccard >= 0.5), i.e. same pair sold under the same category angle.
-const isComparison = (text) => /\bvs\.?(\s|$)|\bversus\b/i.test(text || '');
+// (isComparison is imported from signals.mjs.)
 function comparisonEntry(universe, title, keyword) {
   const text = `${title} ${keyword || ''}`;
   if (!isComparison(text)) return null;
@@ -813,9 +849,14 @@ function dedup(proposals, universe, covered) {
     kept.push({
       topic,
       anchorTool: anchor.name,
+      anchorSlug: anchor.slug,
+      anchorStatus: affiliateStatusOf(anchor) || 'none',
+      toolset: [...new Set(toolSlugs)].sort(),
       alsoCovers: (p.alsoCovers || []).map(dedash),
       targetKeyword: dedash(p.targetKeyword || ''),
       tag: ['comparison', 'tools', 'automation', 'revops', 'guide'].includes(p.tag) ? p.tag : 'comparison',
+      // The model's own call, kept for the record; scoreBatch() sets the Priority that ships.
+      llmPriority: ['High', 'Medium', 'Low'].includes(p.priority) ? p.priority : 'Medium',
       priority: ['High', 'Medium', 'Low'].includes(p.priority) ? p.priority : 'Medium',
       firstMover: !!p.firstMover || anchor.firstMover,
       needsLP: anchor.hasLP ? false : true,
@@ -823,10 +864,22 @@ function dedup(proposals, universe, covered) {
       overlapWarning: overlapWith.length ? `shares a tool with: ${[...new Set(overlapWith)].slice(0, 3).join('; ')}` : '',
     });
   }
+  return { kept, dropped };
+}
 
-  const rank = { High: 0, Medium: 1, Low: 2 };
-  kept.sort((a, b) => (rank[a.priority] - rank[b.priority]) || (Number(b.firstMover) - Number(a.firstMover)));
-  return { kept: interleaveByAnchorTool(kept), dropped };
+// ---------- 4b. SCORE + TIER (deterministic; see signals.mjs for the formula) ----------
+// Replaces the pre-S110 ordering (the model's High/Medium/Low, then first-mover).
+// Tertiles of the batch become Priority, then same-tool twins are interleaved within
+// each band so the engine never publishes them on consecutive days.
+function scoreBatch(items, signals, covered, posts) {
+  const coveredTokens = covered.map((c) => ({ title: c.title, toks: tokenSet(`${c.title} ${c.keyword || ''}`) }));
+  const hasPosts = new Set(posts.flatMap((p) => p.toolset));
+  const ctx = { clusters: signals.clusters, nearWinPosts: signals.nearWinPosts, priorOf: signals.priorOf, coveredTokens, clicksByTool: signals.clicksByTool };
+  const scored = items.map((t) => {
+    const s = scoreTopic({ ...t, keyword: t.keyword || norm(t.targetKeyword || '') || norm(t.topic), anchorHasPosts: hasPosts.has(t.anchorSlug) }, ctx);
+    return { ...t, score: s.score, breakdown: s.breakdown, sanity: s.sanity };
+  });
+  return interleaveByAnchorTool(assignTiers(scored));
 }
 
 // stageToNotion() below writes `kept` to Notion in array order, and the engine's
@@ -864,15 +917,19 @@ function writeOutputs(kept, dropped, meta) {
     `# Topic backlog batch (${kept.length} topics)`,
     '',
     `Generated by build-backlog.mjs. Model: ${meta.model}. Universe: ${meta.universe} tools. Dedup corpus: ${meta.covered} covered topics. Dropped as duplicate/invalid: ${dropped.length}.`,
+    meta.signals ? `Signals: GSC ${meta.signals.start28}..${meta.signals.end} (${meta.signals.clusters} unserved demand clusters, ${meta.signals.nearWinPosts} near-win posts, ${meta.signals.nearWinHubs} hub fixes, ${meta.signals.zeroCoverage} live programs with no post). Priority = score tertile; clicks never enter the score.` : 'Signals: none (no GSC creds), so every topic scored on monetisation and format only.',
     '',
     'Eyeball this, then (Phase 2) the n8n workflow stages the approved rows in Notion as Suggested. Nothing here is queued or published automatically.',
     '',
-    '| # | Priority | Topic | Anchor (LP?) | Also covers | Target keyword | Tag | First-mover | Note |',
-    '|---|---|---|---|---|---|---|---|---|',
+    '| # | Score | Priority | Topic | Anchor (LP?) | Also covers | Target keyword | Tag | Score breakdown | Note |',
+    '|---|---|---|---|---|---|---|---|---|---|',
     ...kept.map((t, i) =>
-      `| ${i + 1} | ${t.priority} | ${t.topic} | ${t.anchorTool}${t.needsLP ? ' (needs LP)' : ''} | ${t.alsoCovers.join(', ')} | ${t.targetKeyword} | ${t.tag} | ${t.firstMover ? 'yes' : ''} | ${t.rationale}${t.overlapWarning ? ` [${t.overlapWarning}]` : ''} |`
+      `| ${i + 1} | ${t.score ?? ''} | ${t.priority} | ${t.topic} | ${t.anchorTool}${t.needsLP ? ' (needs LP)' : ''} | ${t.alsoCovers.join(', ')} | ${t.targetKeyword} | ${t.tag} | ${t.breakdown || ''}${t.sanity ? `; ${t.sanity}` : ''} | ${t.rationale}${t.overlapWarning ? ` [${t.overlapWarning}]` : ''} |`
     ),
     '',
+    meta.hubFixes?.length ? '## Hub fixes (near-win /tools/ hubs: content work on the hub page, not a sibling post)' : '',
+    ...(meta.hubFixes || []).map((h) => `- ${h.path}: ${h.attributed} attributed impressions/28d at position ${h.position}, top query "${h.topQuery}"`),
+    meta.hubFixes?.length ? '' : '',
     dropped.length ? '## Dropped (not silently truncated)' : '',
     ...dropped.map((d) => `- ${d.topic} - ${d.reason}`),
   ].join('\n');
@@ -896,26 +953,51 @@ async function main() {
   // token is present, query the LIVE calendar (covers queued/generating/published
   // too); otherwise fall back to the committed CONTENT_CALENDAR.md snapshot.
   const calendar = NOTION_TOKEN ? await fetchNotionCalendar(universe) : parseCalendarRows(universe);
-  const covered = [...parsePublishedPosts(universe), ...calendar];
+  const posts = parsePublishedPosts(universe);
+  const covered = [...posts, ...calendar];
 
   console.log(`Universe: ${universe.length} tools (${universe.filter((t) => t.hasLP).length} with LP, ${universe.filter((t) => t.firstMover).length} first-mover).`);
-  console.log(`Dedup corpus: ${covered.length} covered topics (${covered.filter((c) => c.source === 'published').length} published, ${calendar.length} calendar via ${NOTION_TOKEN ? 'live Notion' : 'local snapshot'}).`);
+  console.log(`Dedup corpus: ${covered.length} covered topics (${posts.length} published, ${calendar.length} calendar via ${NOTION_TOKEN ? 'live Notion' : 'local snapshot'}).`);
 
-  const demand = await mineGscDemand(covered);
-  if (demand.length) console.log(`Observed demand: ${demand.length} unserved queries from GSC (top: "${demand[0].query}" ${demand[0].impressions} impr).`);
-  if (MINE_ONLY) {
-    console.log('\n--mine-only: unserved GSC queries (impressions / avg position):');
-    for (const d of demand) console.log(`  ${String(d.impressions).padStart(4)}  pos ${String(d.position).padStart(3)}  ${d.query}`);
-    if (!demand.length) console.log('  (none â€” either GSC creds missing or every query is served)');
+  const signals = await mineSignals(universe, covered, posts);
+  if (signals.window) console.log(`Signals: ${signals.clusters.length} unserved demand clusters (top: "${signals.clusters[0]?.top}" ${signals.clusters[0]?.impressions} impr), ${signals.nearWinPosts.length} near-win posts, ${signals.nearWinHubs.length} hub fixes, ${signals.zeroCoverage.length} live programs with no post.`);
+  if (MINE_ONLY) { printSignals(signals); return; }
+
+  if (RANK_SUGGESTED) {
+    if (!NOTION_TOKEN) { console.error('--rank-suggested requires NOTION_TOKEN (it scores the live Suggested rows).'); process.exit(1); }
+    // Score the live Suggested pool exactly as a fresh batch would be scored, so the
+    // weekly Queued pick reads one ranked list. Read-only.
+    const items = calendar.filter((c) => c.status === 'Suggested').map((c) => {
+      const named = titleTools(universe, c.title).map((s) => universe.find((t) => t.slug === s)).filter(Boolean);
+      const anchor = named.find((t) => !isNoAnchor(t)) || named[0] || null;
+      // Fences are advisory here (the audit-queue rule: only dedup collisions auto-Skip),
+      // but a pick should see them: an alternatives title or a dead anchor cannot ship.
+      const flags = [];
+      if (!anchor) flags.push('CTA fence: no universe tool in the title');
+      else if (noAnchorReason(anchor)) flags.push(`fence: ${noAnchorReason(anchor)}`);
+      if (isAlternativesFraming(c.title)) flags.push('format fence: alternatives');
+      return { topic: c.title, targetKeyword: c.targetKeyword, keyword: c.keyword, toolset: c.toolset, anchorTool: anchor?.name || '(no tool in title)',
+        anchorSlug: anchor?.slug || null, anchorStatus: anchor ? (affiliateStatusOf(anchor) || 'none') : 'none', priorityNow: c.priority || '-', flags };
+    });
+    const ranked = scoreBatch(items, signals, covered, posts).sort((a, b) => b.score - a.score);
+    console.log(`\n=== RANKED SUGGESTED (${ranked.length} rows; score / tier / current Priority / topic) ===`);
+    ranked.forEach((t, i) => console.log(`${String(i + 1).padStart(3)}. ${String(t.score).padStart(3)}  ${t.priority.padEnd(6)} (now ${t.priorityNow.padEnd(6)})  ${t.topic.slice(0, 70)}${t.flags.length ? `  [${t.flags.join('; ')}]` : ''}\n       ${t.breakdown}; ${t.sanity}`));
     return;
   }
   console.log(`Proposing ${COUNT} topics via ${MODEL}...`);
 
-  const proposals = await propose(universe, covered, COUNT, demand);
-  const { kept, dropped } = dedup(proposals, universe, covered);
+  const proposals = await propose(universe, covered, COUNT, signals);
+  const { kept: raw, dropped } = dedup(proposals, universe, covered);
+  const kept = scoreBatch(raw, signals, covered, posts);
 
-  writeOutputs(kept, dropped, { model: MODEL, universe: universe.length, covered: covered.length, proposed: proposals.length, staged: STAGE });
+  writeOutputs(kept, dropped, {
+    model: MODEL, universe: universe.length, covered: covered.length, proposed: proposals.length, staged: STAGE,
+    signals: signals.window ? { ...signals.window, clusters: signals.clusters.length, nearWinPosts: signals.nearWinPosts.length, nearWinHubs: signals.nearWinHubs.length, zeroCoverage: signals.zeroCoverage.length } : null,
+    hubFixes: signals.nearWinHubs.slice(0, 15),
+  });
   console.log(`\nProposed ${proposals.length} -> kept ${kept.length}, dropped ${dropped.length} as duplicate/invalid.`);
+  console.log('Ranked (score / tier / topic):');
+  [...kept].sort((a, b) => b.score - a.score).forEach((t, i) => console.log(`  ${String(i + 1).padStart(2)}. ${String(t.score).padStart(3)}  ${t.priority.padEnd(6)}  ${t.topic.slice(0, 72)}`));
   console.log(`Wrote backlog/backlog-batch.json and backlog/backlog-batch.md`);
   if (dropped.length) console.log('Dropped:', dropped.map((d) => `${d.topic} (${d.reason})`).join(' | '));
 
@@ -1029,6 +1111,13 @@ const UNREGISTERED_AS_OF_FIXTURE = ['savvycal', 'uplead', 'lead-forensics', 'dri
   'zendesk-sell', 'insightly', 'freshsales', 'salesmate', 'airtable'];
 
 function selfTest() {
+  // Signal fixtures first (clustering, near-wins, format prior, score, tiers): pure and
+  // synthetic, so a regression here never hides behind the live-corpus dedup fixtures.
+  const sig = selfTestSignals();
+  console.log(`SIGNALS fixture: ${sig.lines.length} checks, ${sig.fails.length} failed.`);
+  for (const l of sig.lines) console.log(l);
+  console.log('');
+
   for (const slug of UNREGISTERED_AS_OF_FIXTURE) AFFILIATE_STATUS.delete(norm(slug)); // process exits after the test
   const universe = buildUniverse();
   const covered = parsePublishedPosts(universe, FIXTURE_AS_OF);
@@ -1078,8 +1167,8 @@ function selfTest() {
   console.log(`\nCONTROLS: ${CONTROLS.length} topics, ${good.kept.length} survived, ${blocked.length} over-blocked.`);
   if (blocked.length) { console.log('OVER-BLOCKED (should have survived):'); blocked.forEach((d) => console.log(`  - ${d.topic}\n      -> ${d.reason}`)); }
 
-  const pass = unexpected.length === 0 && nowCaught.length === 0 && blocked.length === 0;
-  console.log(`\n${bad.dropped.length}/${SCRUBBED_2026_08_12.length} caught deterministically; ${ACCEPTED_JUDGMENT_LEAKS.size} left to human review.`);
+  const pass = sig.pass && unexpected.length === 0 && nowCaught.length === 0 && blocked.length === 0;
+  console.log(`\n${bad.dropped.length}/${SCRUBBED_2026_08_12.length} caught deterministically; ${ACCEPTED_JUDGMENT_LEAKS.size} left to human review. Signals: ${sig.pass ? 'PASS' : 'FAIL (' + sig.fails.join(', ') + ')'}.`);
   console.log(`selftest: ${pass ? 'PASS' : 'FAIL'}`);
   process.exit(pass ? 0 : 1);
 }
