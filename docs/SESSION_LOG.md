@@ -8,7 +8,19 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-06 (Session 107).
+Last updated 2026-10-08 (Session 108).
+
+## Session 108 (2026-10-08): queue ran dry and refilled, Topic Suggestor made retry-safe, Slack copy fixed (Opus 5.5)
+
+- **Started 14:01Z, op #1239.** 0 open PRs. Today's 12:00Z engine run "succeeded" in 3 s: `Get Next Topic` returned 0 Queued, so it posted the queue-empty Slack and stopped (no PR). Notion: 0 Queued / 63 Suggested.
+- **Queue (Ian's call, AskUserQuestion):** `build-backlog.mjs --audit-queue` dry run flagged 15 collisions; `--prune-apply` Skipped them; 12 topics set to Queued (GSC-demand rows, 3 migrations, a sub-$300 stack, 2 HubSpot recipes; no more Apollo/Clay/Instantly permutations or alternatives posts). Verified 12 Queued / 36 Suggested / 233 Skipped. Runway ends ~10/14 12:00Z (TODO). No local `NOTION_TOKEN`: the S59 shim (`NOTION_TOKEN ||= NOTION_API_KEY`, `node --env-file=../todo-sync/.env <shim> --audit-queue`) still works.
+- **Topic Suggestor duplicates (root cause):** 11:30Z run hit a Notion 429 on create 4 of 5; retry-stack layer 2 re-ran the node with all 5 items at 11:45Z, so 3 topics were created twice. Fix (Ian's OK), `n8n/update-suggestor-idempotent-create.mjs` via `live-patch.mjs`: exact-title lookup + drop before create, create `onError: continueRegularOutput` (a failed run can no longer be re-run into duplicates), 1 write/s, Slack counts real pages. Live 13/13 nodes, creds + active verified; deployed code tested offline against the 10/08 failure shape, plus a read-only Notion query (1 hit existing / 0 absent). Rule added to `n8n/README.md` "Retry stack". Found, not fixed (TODO): its context reads 100 of ~460 calendar rows and 0 `.mdx` posts.
+- **Engine Slack copy (Ian's OK):** "Review on the preview, then merge" now says the PR merges itself once qa + pr-gates pass. `update-engine-slack-merge-copy.mjs`, live 32/32 verified, repo JSON synced. PR body line left (TODO).
+- **Part 0:** #359 / #361 / #362 merged themselves in under 2 min, none with an `[auto-register]` commit, so the #354 path is still unproven.
+- **Part A, closed:** #359, #361, #362 lint 0 claim warnings; every first-person line is an opinion ("I'd argue", "My read is"). Five clean posts in a row on the fixed prompt, so no HARD rule needed. #362 has one unlinked live-program mention (Clay, `link-live-mentions.mjs`), not fixed.
+- **B2:** 7 `affiliate_click` since S107, none real. One near-miss rejected: a new Windows Chrome visitor loaded `/go/getaccept/` 5 s after a homepage view, `source_via=last_page`; the homepage has no `/go/` links and GetAccept is `pending`.
+- **B1 indexing (closed):** URL Inspection: the 10/01 Mailchimp-to-Kit post is indexed; `/tools/calendly/` and the 9/06 Beehiiv post read "URL is unknown to Google" (both 200, both in the sitemap; calendly was "Discovered" on 10/01). Per the plan, calendly is no longer chased. The full `gsc-index-status.py` sweep stalled with no output after 18 min (stdout buffered to a file) and was stopped; a 3-URL scratch script reusing its auth helpers answered in seconds.
+- **Revert:** `node n8n/live-patch.mjs --restore ~/.n8n-backups/vfEeiQg3TsPlD24J-2026-10-08T14-13-27-771Z.json --apply` (Suggestor), `...sjZADhZGIuz9tZHK-2026-10-08T14-13-29-087Z.json` (engine); queue: set the 12 back to Suggested, the 15 back from Skipped (titles in the audit output); `git revert` this PR.
 
 ## Session 107 (2026-10-06): 10/06 post read clean, a second crawler burst, no real click yet (Opus 5.5)
 

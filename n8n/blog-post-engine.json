@@ -716,7 +716,7 @@
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ text: `:newspaper: *New post PR opened — ready for review*\\n\\n*Title:* ${$('Carry PR Info').first().json.title}\\n*Topic:* ${$('Carry PR Info').first().json.blogTopic}\\n*PR:* ${$('Carry PR Info').first().json.prUrl}\\n\\n_Netlify will comment the deploy preview URL on the PR within ~2 min. Review on the preview, then merge to publish to ${$('Carry PR Info').first().json.siteBaseUrl}._\\n\\n_LinkedIn post + Twitter thread are queued for review in Notion._` }) }}",
+        "body": "={{ JSON.stringify({ text: `:newspaper: *New post PR opened — ready for review*\\n\\n*Title:* ${$('Carry PR Info').first().json.title}\\n*Topic:* ${$('Carry PR Info').first().json.blogTopic}\\n*PR:* ${$('Carry PR Info').first().json.prUrl}\\n\\n_It merges itself once the qa and pr-gates checks pass, then goes live on ${$('Carry PR Info').first().json.siteBaseUrl} about 2 min later. A failing check holds it open for a fix._\\n\\n_LinkedIn post + Twitter thread are queued for review in Notion._` }) }}",
         "options": {
           "timeout": 30000
         }
