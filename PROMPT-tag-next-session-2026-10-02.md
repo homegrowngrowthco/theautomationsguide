@@ -1,12 +1,18 @@
 # Next session (TAG): first scored builder run, the ~10/14 pick from the shortlist, merge-on-green proof, parked checks
 
-(File name is historical; it is rewritten in place each session. Content last rewritten 2026-10-08 ~17:10Z at the end of Session 110, op #1242.)
+(File name is historical; it is rewritten in place each session. Content last rewritten 2026-10-08 ~17:20Z at the end of Session 111, op #1243. S111 changed nothing in the S110 state below; it shipped #367, #368 and the engine PR-body copy, see "What Session 111 changed".)
 
 Start inside `theautomationsguide/`. State which model you are running as. Run `git pull --ff-only` on `master`, then `git worktree prune -v`. Linked worktrees other sessions own (`C:/tmp/tag-logo-audit`, `C:/tmp/tag-n8n-retry`) are never removed; "Permission denied" on prune of a stale `.git/worktrees/tag-*` entry is harmless. `TODO.md` is the only source of truth for open tasks; re-check every claim here with a query or against the repo before acting.
 
 **No manual merges (Ian, 2026-10-05).** Content PRs merge themselves (`auto-merge-content.yml`). Every PR Claude opens gets `gh pr merge --auto --squash <branch>` right after `gh pr create`. Claude's gh user is a ruleset bypass actor: never run a plain `gh pr merge` on a PR whose checks are pending, never `--admin`.
 
-Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESSION_LOG.md` (Sessions 110 and 108), `backlog/README.md` ("Signals and score"), `n8n/README.md` ("Retry stack").
+Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESSION_LOG.md` (Sessions 111, 110 and 108), `backlog/README.md` ("Signals and score"), `n8n/README.md` ("Retry stack").
+
+## What Session 111 changed (verify, do not re-derive)
+
+- **#367:** the Brevo alternatives post's Clay mention now links `/go/clay/` (`[skip-freshness]`, mechanical link).
+- **#368:** `Tool` has an optional `seo` field (`title`, `name`, `descriptionTail`); set only for Close. `/tools/close/` now has title "Close CRM pricing, reviews & alternatives" and a price-led meta description read from the pricing index. Its "close crm" demand was 87% Germany desktop from 9/25 (rank-tracker pattern); real US 447 impressions / 28 d at 8.4. Any hub fix: split GSC by country first.
+- **Engine PR body (live 17:12Z, `n8n/update-engine-pr-body-merge-copy.mjs`):** content PRs from the 10/08 20:00Z run on should say "This PR merges itself once the qa and pr-gates checks pass". Check the first one (`gh pr view <n> --json body`). Revert: `node n8n/live-patch.mjs --restore ~/.n8n-backups/sjZADhZGIuz9tZHK-2026-10-08T17-11-59-060Z.json --apply`.
 
 ## What Session 110 changed (verify, do not re-derive)
 
@@ -17,7 +23,7 @@ Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESS
 
 ## NEEDS FROM IAN (AskUserQuestion, at the point where each is needed)
 
-1. **Next Queued batch (due before ~2026-10-14 12:00Z):** count Queued first (Notion SQL on `collection://3536c795-1a40-4ddf-a210-05a117df3848`; 10/08 16:00Z: 12 Queued / 36 Suggested). If 4 or fewer remain, run `--rank-suggested` and bring Ian a pick of about 12 **from the ranked shortlist** (fence-flagged rows cannot ship through the builder, say so), then record metric (a): how many of his picks were in the top 12. Never promote without his answer. This pick is the revamp's first live acceptance test.
+1. **Next Queued batch (due before ~2026-10-14 12:00Z):** count Queued first (Notion SQL on `collection://3536c795-1a40-4ddf-a210-05a117df3848`; 10/08 17:00Z: 12 Queued / 36 Suggested, 2 publish a day). If 4 or fewer remain, run `--rank-suggested` and bring Ian a pick of about 12 **from the ranked shortlist** (fence-flagged rows cannot ship through the builder, say so), then record metric (a): how many of his picks were in the top 12. Never promote without his answer. This pick is the revamp's first live acceptance test.
 2. **Beehiiv steps:** Ian said "not yet" on 10/05. Ask once in a session on or after 10/09; if done, screenshot the signup at 375 px on a post. The `attribution.js` + mono-label perf items (S105/S106) only if he raises perf or the Beehiiv steps.
 3. **Alternatives fence (low):** the 10/08 table rates the format second (171 impressions per post, 8 posts); the 8/04 fence still hard-drops the title form. Ask only if a top-scored Suggested row is an alternatives title he wants.
 4. **`/blog/` pagination (low, only if time):** two mocks with screenshots before building. **R8:** only if he raises it.
@@ -25,7 +31,7 @@ Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESS
 
 ## Part 0. Close the merge-on-green proof
 
-1. **The next engine PR whose qa pushes an `[auto-register]` commit** is the real test of #354 (#357/#359/#361/#362 had none). It should merge within minutes of green with no help, and its head should carry a `pr-gates` check titled "PR gates pass (dispatched run)". If it sticks, `gh workflow run auto-merge-content.yml`; if a check is `cancelled` with an empty `runner_name`, `gh run rerun <id> --failed`. Never merge by hand. Then delete the TODO item.
+1. **The next engine PR whose qa pushes an `[auto-register]` commit** is the real test of #354 (#357/#359/#361/#362 had none; check every engine PR since 10/08 20:00Z with `gh pr view <n> --json commits`). It should merge within minutes of green with no help, and its head should carry a `pr-gates` check titled "PR gates pass (dispatched run)". If it sticks, `gh workflow run auto-merge-content.yml`; if a check is `cancelled` with an empty `runner_name`, `gh run rerun <id> --failed`. Never merge by hand. Then delete the TODO item.
 
 ## Part A. Builder and engine proof (Claude only)
 
@@ -34,14 +40,13 @@ Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESS
 
 ## Part B. Parked checks (Claude only)
 
-1. **First real attributed click:** PostHog 408442, `affiliate_click` after 2026-10-08 16:30Z, host-scoped (S110: 0 since 14:15Z). Query with the PostHog connector's `execute-sql`; confirm `project-get` returns 408442. Only `source_via` `click` or `last_page` with `is_automated=false` counts, and only with a session, a browser and a TAG pageview **on a page that actually links that tool**. Rejected so far: crawler bursts (404 probes without a trailing slash) and direct `/go/` loads seconds after a short pageview (S107 Instantly, S108 GetAccept).
+1. **First real attributed click:** PostHog 408442, `affiliate_click` after 2026-10-08 17:00Z, host-scoped (S111: 0 since 14:15Z). Query with the PostHog connector's `execute-sql`; confirm `project-get` returns 408442. Only `source_via` `click` or `last_page` with `is_automated=false` counts, and only with a session, a browser and a TAG pageview **on a page that actually links that tool**. Rejected so far: crawler bursts (404 probes without a trailing slash) and direct `/go/` loads seconds after a short pageview (S107 Instantly, S108 GetAccept).
 2. **~2026-10-15 metric:** `source_path` on >90% of human clicks (baseline 6%), split at the redesign deploy 10/02 ~21:55Z. Drop crawler bursts first. Read it only on or after 10/15.
 
 ## Part C. Lows if time allows
 
-- **Hub fixes** (TODO): `/tools/close/` 3,633 attributed impressions / 28 d at 5.7 on "close crm", 0 clicks; `/tools/appy-ai/`; `/tools/moltsets/`. Hub content work (title, intro, price stat), never a sibling post. Bring Ian a before/after proposal with screenshots if he wants it.
+- **Hub fixes** (TODO): `/tools/appy-ai/`, `/tools/moltsets/`. Split their GSC impressions by country and date first (the Close read was a German rank tracker). If the demand is real, offer Ian the same `seo` title/meta change as #368; title and meta are not visible on the page, so show before/after strings, not screenshots.
 - Merge-on-green follow-ups in TODO: auto re-run of runs GitHub cancelled with no runner (only if it recurs); the `[qa-fix-N]` re-run path is unexercised.
-- #362 (Brevo alternatives) has one unlinked live-program mention (Clay): `node qa/link-live-mentions.mjs --post <file> --write` in a PR, if the freshness gate allows it without inventing a review date.
 - Three scripts still list the retired Suggestor id harmlessly (`build-error-retry.mjs` RETRY_IDS, `update-retry-on-fail.mjs`, `error-trigger.json`); drop it the next time one of them is regenerated for another reason.
 
 ## Part D. Date-gated asks for Ian (only once the date has passed)

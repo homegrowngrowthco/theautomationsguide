@@ -8,7 +8,16 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-08 (Session 110).
+Last updated 2026-10-08 (Session 111).
+
+## Session 111 (2026-10-08): Clay link, Close hub title and meta, engine PR-body copy (Opus 5.5, op #1243)
+
+- **Started 17:01Z**, minutes after S110. 0 open PRs; Notion 12 Queued / 36 Suggested (pick not due); PostHog 408442 0 `affiliate_click` since 14:15Z; engine runs 10/07 12:00Z, 20:00Z and 10/08 12:00Z success. Builder run (10/11), the 10/15 metric, Beehiiv (10/09+), N4/N5 all date-gated.
+- **#367** (`024db01`): `link-live-mentions.mjs --write` linked #362's one unlinked Clay mention; `[skip-freshness]` (the gate's documented case for a mechanical link), so no review date was invented. Merged itself on green.
+- **Close hub (Ian's OK).** GSC page+query, 28 d to 10/05: 3,571 of 3,675 impressions are "close crm", and **3,116 of those are Germany desktop**, from 0 before 9/25 to 1,198 on 9/28: a rank-tracker pattern, not readers. Real US demand 447 at position 8.4. Ian chose to ship anyway. **#368** (`7efb9cb`): optional `seo` field on `Tool` (title, name, descriptionTail), set only for Close; the description's price sentence reads the pricing index at build time. Full build vs `origin/master`: only `dist/tools/close/index.html` differs. Production: title "Close CRM pricing, reviews & alternatives" (65 chars with the brand suffix, so BaseLayout's 62-char rule drops it), description "Close CRM starts at $9 per user/mo billed annually (Solo) and tops out at $139 (Scale)...".
+- **Engine PR body (Ian's OK):** `n8n/update-engine-pr-body-merge-copy.mjs`. "Review on the preview URL, then merge to publish" now says the PR merges itself once qa and pr-gates pass. Live at 17:12Z, before any run (next 20:00Z), verify 32/32, creds, active, errorWorkflow OK; a live re-run is a no-op; repo JSON synced (this PR).
+- **Revert:** `node n8n/live-patch.mjs --restore ~/.n8n-backups/sjZADhZGIuz9tZHK-2026-10-08T17-11-59-060Z.json --apply` (engine); `git revert` #368, #367 or this PR.
+- **Gotcha:** a hub "near-win" can be one country's rank tracker. Split by country before calling GSC impressions demand.
 
 ## Session 110 (2026-10-08): topic generation scored on GSC signals, Topic Suggestor retired (Fable 5.1, op #1242)
 

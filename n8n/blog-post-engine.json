@@ -580,7 +580,7 @@
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ title: `content: ${$('Carry Base SHA').first().json.title}`, head: $('Carry Base SHA').first().json.branchName, base: $('Carry Base SHA').first().json.githubBaseBranch, body: `Auto-generated post from the n8n content engine.\\n\\n**Topic:** ${$('Carry Base SHA').first().json.blogTopic}\\n**Slug:** ${$('Carry Base SHA').first().json.slug}\\n**Pub date:** ${$('Carry Base SHA').first().json.pubDate}\\n\\nNetlify will post the deploy preview URL as a comment below. Review on the preview URL, then merge to publish.` }) }}",
+        "body": "={{ JSON.stringify({ title: `content: ${$('Carry Base SHA').first().json.title}`, head: $('Carry Base SHA').first().json.branchName, base: $('Carry Base SHA').first().json.githubBaseBranch, body: `Auto-generated post from the n8n content engine.\\n\\n**Topic:** ${$('Carry Base SHA').first().json.blogTopic}\\n**Slug:** ${$('Carry Base SHA').first().json.slug}\\n**Pub date:** ${$('Carry Base SHA').first().json.pubDate}\\n\\nNetlify will post the deploy preview URL as a comment below. This PR merges itself once the qa and pr-gates checks pass; a failing check holds it open for a fix.` }) }}",
         "options": {
           "timeout": 30000
         }
