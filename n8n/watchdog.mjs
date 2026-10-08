@@ -36,7 +36,9 @@ const GRACE_MS = 3.4 * 3600e3;
 const SPAN_MS = 13 * 3600e3;
 const MAX_SPAN_MS = 36 * 3600e3;
 const ERROR_WF_ID = 'FTIVt7L1ZXleNUf6';
-const WATCHED = ['sjZADhZGIuz9tZHK', 'vfEeiQg3TsPlD24J', 'coLm8goioffInJ2b', 'HbCayxHdzdYdfvfP',
+// Topic Suggestor (vfEeiQg3TsPlD24J) left this list on 2026-10-08: retired, deactivated
+// (n8n/retire-suggestor.mjs). A watched-but-inactive workflow would alert every window.
+const WATCHED = ['sjZADhZGIuz9tZHK', 'coLm8goioffInJ2b', 'HbCayxHdzdYdfvfP',
   'vooFcTsWtyOok7Ps', 'dxOpkHKeWnilrRmv', 'LKKVtHqiD6cyxBWc'];
 const HEADER = '🤖 *The Automations Guide*';
 // Failed executions a human already recovered by hand (e.g. a fresh manual trigger, which n8n
