@@ -40,6 +40,15 @@ export interface Tool {
   body?: string[];
   /** Hub-page FAQs. Also emitted as FAQPage structured data. */
   faqs?: { question: string; answer: string }[];
+  /**
+   * Optional SERP overrides for the hub's <title> and meta description (2026-10-08,
+   * /tools/close/: the template title lacked the "CRM" the query carries). `title`
+   * replaces "<name>: guides, reviews & alternatives". `descriptionTail` turns on a
+   * price-led description: "<name> starts at <entry> ... tops out at <top>." read from
+   * the pricing index at build time, then the tail. No priced index row = the
+   * blurb-derived description stays. Unset = the hub renders as before.
+   */
+  seo?: { title?: string; name?: string; descriptionTail?: string };
 }
 
 /**
@@ -932,6 +941,11 @@ export const tools: Tool[] = [
     ctaPrimary: true,
     listed: true,
     aliases: ['Close CRM', 'Close.com'],
+    seo: {
+      title: 'Close CRM pricing, reviews & alternatives',
+      name: 'Close CRM',
+      descriptionTail: 'Built-in calling, SMS and sequences for SMB inside sales teams.',
+    },
     blurb:
       'Close is a sales-first CRM with built-in calling, SMS, and email sequencing, designed for SMB teams that want to sell from one screen instead of bolting tools onto a generic CRM.',
     bestFor:

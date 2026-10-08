@@ -62,6 +62,23 @@ const priceStat = entryAnnual || entryMonthly
     }
   : null;
 
+// Optional SERP overrides (tool.seo, see tools.ts). The price-led description reads
+// the same index row as the band stat and compares like with like: the top plan is
+// quoted only on the entry plan's billing basis. No priced row = blurb description.
+const pageTitle = tool.seo?.title ?? `${tool.name}: guides, reviews & alternatives`;
+const billing = entryAnnual ? 'monthlyBilledAnnually' : 'monthlyBilledMonthly';
+const topPlan = priced?.highestPublishedPlan;
+const topPrice = money(topPlan?.[billing], priced?.currency);
+const perUnit = priced?.pricingUnit === 'per seat' ? ' per user' : '';
+const priceSentence = entryAnnual || entryMonthly
+  ? `${tool.seo?.name ?? tool.name} starts at ${entryAnnual ?? entryMonthly}${perUnit}/mo billed ${entryAnnual ? 'annually' : 'monthly'}` +
+    `${entry?.name ? ` (${entry.name})` : ''}` +
+    `${topPrice && topPrice !== (entryAnnual ?? entryMonthly) ? ` and tops out at ${topPrice}${topPlan?.name ? ` (${topPlan.name})` : ''}` : ''}.`
+  : null;
+const metaDescription = tool.seo?.descriptionTail && priceSentence
+  ? clipDescription(`${priceSentence} ${tool.seo.descriptionTail}`)
+  : description;
+
 const faqSchema =
   tool.faqs && tool.faqs.length > 0
     ? {
@@ -91,7 +108,7 @@ const softwareSchema = {
 };
 ---
 
-<BaseLayout title={`${tool.name}: guides, reviews & alternatives`} description={description}>
+<BaseLayout title={pageTitle} description={metaDescription}>
   <PageHead eyebrow={tool.category} title={tool.name} lede={tool.blurb} class="hub-band">
     <span slot="media" class="hub-logo">
       {tool.logo ? <img src={tool.logo} alt={`${tool.name} logo`} width="56" height="56" decoding="async" /> : <span>{tool.name.slice(0, 1)}</span>}
