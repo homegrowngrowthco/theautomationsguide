@@ -52,7 +52,7 @@ If you're searching "Brevo cold email alternative," you've already made your dec
 
 Brevo's value proposition for cold email is essentially: it's cheap and I already have it. That logic holds until reply rates drop and you start wondering whether your messages are landing in primary tabs. The core problem is structural. [Brevo](/tools/brevo/) routes outbound through shared IP pools tuned for opted-in marketing mail, not prospecting at scale. No inbox rotation. No per-domain warmup scheduler. No deliverability dashboard telling you which sending accounts are healthy.
 
-The API, while well-documented per the [Brevo developer reference](https://developers.brevo.com/docs), is designed around campaign sends and transactional triggers, not the sequence-step-level controls that RevOps teams need to wire cold email into a Clay or n8n workflow. If you're running anything above a few hundred cold sends per day, you're leaving deliverability performance on the table.
+The API, while well-documented per the [Brevo developer reference](https://developers.brevo.com/docs), is designed around campaign sends and transactional triggers, not the sequence-step-level controls that RevOps teams need to wire cold email into a [Clay](/go/clay/) or n8n workflow. If you're running anything above a few hundred cold sends per day, you're leaving deliverability performance on the table.
 
 I'd argue the lack of a unified bounce and blacklist monitor is the most dangerous gap. Teams using Brevo for cold outreach often don't realize a domain is burned until reply rates collapse. By then, you've torched sender reputation that takes weeks to recover.
 
