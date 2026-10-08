@@ -8,7 +8,14 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-08 (Session 108).
+Last updated 2026-10-08 (Session 109).
+
+## Session 109 (2026-10-08): next-session prompt reviewed against the live state and rewritten (Fable 5.1, op #1241)
+
+- **Docs only.** Ian asked whether `PROMPT-tag-next-session-2026-10-02.md` makes sense and where it falls short of its objective (topic generation on performance data). Every claim was checked: 0 open PRs; Notion live 12 Queued / 36 Suggested / 233 Skipped / 178 Published; Suggestor reads 100 rows unpaginated and keeps only `.md` (1 of 177 posts); `mineGscDemand` is query-level only; secrets GSC / Notion / Anthropic present, no PostHog.
+- **Corrections:** the builder selftest failed 9/13 as well as 9/20 and 9/27 (one HubSpot-migration dedup fixture, green since 10/01); two linked worktrees (`tag-logo-audit`, `tag-n8n-retry`) belong to other sessions and must not be pruned.
+- **Added to the prompt:** the audit's volume numbers (54 GSC clicks / 28 d, 17 real affiliate clicks / 28 d, ~63 post pageviews a week) and the rule they force (rank on impressions, position and near-wins; clicks are tiebreakers); the per-format GSC table as step one, via `dimensions: ['page']` + the builder's `intentOf()`; pointers to `gsc-search-analytics.py` and the local project-scoped PostHog key; the ranked-shortlist dependency on the engine's Priority sort; the Suggestor's dependents (watchdog id list, Error Trigger, README); the hub-vs-post split in near-wins; the two TODO seed lists; a pre-registered success metric; the ~10/14 pick as the shortlist's first live test; `workflow_dispatch` `dry_run: true` as the CI test path.
+- **Verify:** `qa:docs` 0 hard. **Revert:** `git revert` this PR.
 
 ## Session 108 (2026-10-08): queue ran dry and refilled, Topic Suggestor made retry-safe, Slack copy fixed (Opus 5.5)
 
