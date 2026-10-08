@@ -19,6 +19,7 @@ export type PricingRow = {
   hasFreeTier?: boolean | null;
   freeTierLimit?: string | null;
   entryPaidPlan?: PricingPlan | null;
+  highestPublishedPlan?: PricingPlan | null;
   pricingUnit?: string | null;
 };
 
