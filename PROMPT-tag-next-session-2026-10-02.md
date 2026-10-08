@@ -1,33 +1,54 @@
 # Next session (TAG): revamp topic generation on performance data; queue runway, merge-on-green proof, parked checks
 
-Start inside `theautomationsguide/`. State which model you are running as. Run `git pull --ff-only` on `master`, then `git worktree prune -v` (OneDrive locks `.git/worktrees/tag-*` metadata; "Permission denied" on prune is harmless when `git worktree list` is clean). `TODO.md` is the only source of truth for open tasks; this file was last rewritten after Session 108 (2026-10-08 ~14:30Z: the Notion queue ran dry, 12 topics queued; the Topic Suggestor was made retry-safe; the engine Slack copy was fixed; Ian then set the next session's main work: revamp topic generation on performance data), so re-check every claim with a query or against the repo before acting.
+(File name is historical; it is rewritten in place each session. Content last rewritten 2026-10-08 ~16:30Z after an op #1241 review that verified every claim below against the repo, GitHub Actions and a live Notion query.)
+
+Start inside `theautomationsguide/`. State which model you are running as. Run `git pull --ff-only` on `master`, then `git worktree prune -v`. Two linked worktrees exist on purpose (`C:/tmp/tag-logo-audit`, `C:/tmp/tag-n8n-retry`): other sessions own them, so never remove them; "Permission denied" on prune of a stale `.git/worktrees/tag-*` entry is harmless. `TODO.md` is the only source of truth for open tasks; re-check every claim here with a query or against the repo before acting.
 
 **No manual merges (Ian, 2026-10-05).** Content PRs merge themselves (`auto-merge-content.yml`). Every PR Claude opens gets `gh pr merge --auto --squash <branch>` right after `gh pr create`. Claude's gh user is a ruleset bypass actor: never run a plain `gh pr merge` on a PR whose checks are pending, never `--admin`.
 
-Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESSION_LOG.md` (Sessions 108 and 105), `backlog/README.md`, and `n8n/README.md` (Topic Suggestor row + "Retry stack").
+Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESSION_LOG.md` (Sessions 108 and 105), `backlog/README.md`, `n8n/README.md` (Topic Suggestor row + "Retry stack"), and `audits/AUDIT-CONVERSION-2026-10-01.md` section 1 (the baseline numbers the design must respect).
 
 ## MAIN WORK: revamp topic generation around what actually drives traffic and clicks (Ian, 2026-10-08)
 
 Ian's ask: make topic generation use what is driving traffic, clicks and affiliate clicks; he is not sure we use what we have. Do the routine checks below first (they are short), then spend the session here. **Design first, build second:** bring Ian the inventory + a proposal via AskUserQuestion before writing code.
 
-**Where it stands (verified S108, 2026-10-08; re-check):**
-- Two generators feed the Notion Content Calendar as `Suggested`; promotion to `Queued` is Ian's manual pick, and that pick is what ran the queue dry on 10/08.
-  1. **Weekly backlog builder** `backlog/build-backlog.mjs` (GHA `topic-backlog.yml`, Sun 06:00Z, ~25 topics). Uses: tool registry, affiliate status (anchor fence), dedup against published + calendar, and **GSC unserved queries** (28d, query-level impressions with no dedicated post, `mineGscDemand`, repo secret `GSC_TOKEN_JSON`; `--mine-only` prints them). Format guidance ("migrations and niche 3-way comparisons win, alternatives worst") is hard-coded prompt prose from the 8/04 audit, not measured. Selftest failed the 9/20 and 9/27 runs; green since 10/01.
-  2. **n8n Topic Suggestor** `vfEeiQg3TsPlD24J` (Mon + Thu 11:30Z, 5 topics). Uses almost nothing: "Get Calendar State" reads 100 of ~460 rows, "Build Context" keeps `.md` files so it sees 0 published `.mdx` posts. 15 of the 63 Suggested on 10/08 were duplicates. Made retry-safe in S108; its context is still broken.
-- **Signals not used anywhere today:** GSC page-level clicks / CTR / position (which posts and formats earn clicks, and near-wins at pos 5-15 worth a sibling post); PostHog 408442 pageviews and `affiliate_click` by post and by tool (`source_path` / `source_component`; few real clicks so far, so treat as thin); affiliate economics (live vs pending program, commission) from `src/data/affiliate-links.ts` + `AFFILIATE_PIPELINE.md`; indexation (crawled-not-indexed clusters); the pricing index (`src/data/pricing-index.json`).
+### Where it stands (verified 2026-10-08 16:00Z; re-check)
 
-**What to bring Ian (one AskUserQuestion, options with a recommendation):**
-1. Which signals to add and how to weight them into one score per proposed topic (e.g. observed demand, sibling of a click-earning page, live affiliate program, measured format performance, cannibalization penalty).
-2. One generator or two: likely retire or rebuild the n8n Suggestor so a single, data-fed builder owns topic discovery (fix or remove the S108 TODO context bugs either way).
-3. Whether the generator should also produce a **ranked shortlist** so the weekly Queued pick is a quick yes/no for Ian (he keeps the per-topic veto; no auto-promotion unless he asks).
-4. Data access for CI: GSC is already a repo secret; PostHog needs a project-scoped personal API key as a new secret (Ian creates it; never paste it in chat) or the read stays local.
+Two generators feed the Notion Content Calendar as `Suggested`; promotion to `Queued` is Ian's manual pick, and that pick is what ran the queue dry on 10/08.
 
-**Build rules for this work:** changes to `backlog/` are allowed for this revamp (Ian, 10/08). Keep the deterministic dedup guard and anchor fence, extend `--selftest` fixtures for every new signal, and ship a `--dry-run`/`--mine-only` style read that prints the inputs and scores before anything writes to Notion. Any live n8n change goes through `live-patch.mjs` with Ian's OK. Measure before claiming a signal helps (pull the real numbers into the proposal).
+1. **Weekly backlog builder** `backlog/build-backlog.mjs` (GHA `topic-backlog.yml`, cron Sun 06:00Z; GitHub runs it 4 to 5 h late, last run Sun 10/04 11:30Z, next Sun 10/11). Uses: tool registry, affiliate status (anchor fence), deterministic dedup against published posts + the live calendar, and **GSC unserved queries** only: `mineGscDemand` pulls 28 days with `dimensions: ['query']`, keeps queries with 3+ impressions that no post serves, top 40 (`--mine-only` prints them; repo secret `GSC_TOKEN_JSON`). No page, click, CTR or position signal reaches the prompt. The format quotas in `buildPrompt` ("at most N comparisons, at least N migrations", alternatives fenced out in `dedup`) are hard-coded prose. Its `--selftest` failed the 9/13, 9/20 and 9/27 runs on one dedup fixture (a HubSpot migration title); green since 10/01.
+2. **n8n Topic Suggestor** `vfEeiQg3TsPlD24J` (Mon + Thu 11:30Z, 5 topics). Uses almost nothing: "Get Calendar State" reads 100 of ~460 rows with no pagination (`n8n/topic-suggestor.json` line 153), "Build Context" keeps only `.md` files (line 178) so it sees 1 of 177 posts (176 are `.mdx`). 15 of the 63 Suggested on 10/08 were duplicates. Made retry-safe in S108 (exact-title lookup before create); its context is still broken. **Dependents if it is retired:** `n8n/watchdog.mjs` line 39 watches its id (false alerts otherwise), the Error Trigger workflow is attached to it, and `n8n/README.md` has its rows and setup section.
+
+**Signals not used anywhere today, with their real volume (audit 10/01, window to 9/28; re-pull before the proposal):**
+- **GSC page level:** 54 clicks / 24.3k impressions / 28 d across ~178 posts (94 clicks / 90 d). Near-win set: 96 pages at position 5-15 with 13.9k impressions / 28 d. High-impression zero-click pages include hub pages (`/tools/close/` 1,708 impressions at 5.1) and posts (beehiiv-vs-substack-vs-hubspot 908 at 5.4, aisdr-hubspot-workflow 814 at 5.6, rb2b-pricing 608 at 7.9). A hub near-win is a hub content fix, not a sibling post; keep the two apart in the score.
+- **PostHog 408442:** ~63 post pageviews a week, flat; 17 real-affiliate `affiliate_click` / 28 d, with `source_path` only since 10/02. Thin.
+- **Affiliate economics:** `src/data/affiliate-links.ts` has 78 `live`, 51 `pending`, 5 `applied`, 2 `rejected` keys; commission is prose in `notes` and in `AFFILIATE_PIPELINE.md` tables (indicative only). Two ready seed lists sit in `TODO.md`: 16 listed live-program hubs with zero posts, and 7 held early-coverage topics (re-check ~11/01).
+- **Indexation** (12 crawled-not-indexed on 10/01) and the **pricing index** `src/data/pricing-index.json` (65 of 93 priced): usable as penalties or as "pricing post" candidates, not as demand.
+
+**Volume rule for the design (from the audit's own power calculation: no split test reaches significance in under 33 weeks):** impressions, position and near-wins are the signals that can rank topics; clicks and affiliate clicks are tiebreakers and sanity checks only. Do not build a click-weighted score on 54 clicks.
+
+**The "formats" claim needs measuring first.** The 8/04 audit never produced a per-format click table; its evidence was an output-mix observation (zero alternatives posts in the last 21) plus poorly ranked alternatives queries. Step one of the revamp is that table: pull GSC with `dimensions: ['page']` (28 d and 90 d), map each page to its post frontmatter, classify with the builder's existing `intentOf()` (migration / pricing / alternatives / review / comparison), and report impressions, clicks, CTR and median position per format and per anchor tool. Put the real numbers in the proposal.
+
+**Tooling that already exists (reuse, do not rewrite):**
+- `gsc-search-analytics.py` (local, venv `C:\Users\Ian\.venvs\gsc`, OAuth at `~/.gsc`) already prints page-level clicks / CTR / position and the page-one zero-click set; the builder's `gscAccessToken()` is the CI-side equivalent with the refresh token.
+- `analytics/posthog-setup.mjs` + `analytics/README.md`: a local **project-scoped** `POSTHOG_PERSONAL_API_KEY` in `.env` is Ian's standing setup, so a local PostHog read works today; only CI needs a new repo secret (Ian creates it; never paste it in chat). HogQL goes to `POST /api/projects/408442/query` on `us.posthog.com`. The connector's `execute-sql` is for interactive reads, not the builder.
+- The stager (`stageToNotion`) writes Topic, Status, Priority, Tag, Target Keyword, Notes. The engine's "Get Next Topic" sorts Queued rows by Priority (High first) then Created. A ranked shortlist therefore either packs the score into Priority (no engine change) or adds a Score property and changes the engine sort (live n8n change via `live-patch.mjs`, Ian's OK). The design question must carry that choice.
+- Test path for a changed builder: Actions > "Topic backlog builder" > Run workflow with `dry_run: true` (summary + `backlog-batch` artifact), not the Sunday cron.
+
+### What to bring Ian (one AskUserQuestion, options with a recommendation)
+
+1. Which signals to add and how to weight them into one score per proposed topic (observed demand, near-win sibling, live affiliate program with zero coverage, measured format performance once the table exists, cannibalization penalty), under the volume rule above.
+2. One generator or two: likely retire or rebuild the n8n Suggestor so a single, data-fed builder owns topic discovery (fix or remove the context bugs either way, and handle the dependents listed above).
+3. Whether the generator should also produce a **ranked shortlist** so the weekly Queued pick is a quick yes/no for Ian (he keeps the per-topic veto; no auto-promotion unless he asks), and where the score lives (Priority vs a new property).
+4. Data access for CI: GSC is already a repo secret; PostHog needs a project-scoped personal API key as a new secret or the read stays local.
+5. **Pre-register the success metric before building** (the audit's method): share of each weekly Queued pick taken from the shortlist's top N, and at 8 weeks, 28-day GSC impressions and clicks per post for scored-topic posts vs the prior cohort. Write it into `TODO.md` with the read date.
+
+**Build rules for this work:** changes to `backlog/` are allowed for this revamp (Ian, 10/08). Keep the deterministic dedup guard and anchor fence, extend `--selftest` fixtures for every new signal, and ship a `--dry-run`/`--mine-only` style read that prints the inputs and scores before anything writes to Notion. Any live n8n change goes through `live-patch.mjs` with Ian's OK. Measure before claiming a signal helps. **If the shortlist exists before the ~10/14 pick (NEEDS FROM IAN 1), use it for that pick: it is the revamp's first live acceptance test.**
 
 ## NEEDS FROM IAN (AskUserQuestion, at the point where each is needed)
 
-1. **Next Queued batch (due before ~2026-10-14 12:00Z):** first count Queued in Notion (Content Calendar `62f34586-...`, or the Notion connector's SQL on `collection://3536c795-1a40-4ddf-a210-05a117df3848`). If 4 or fewer remain, run the dry `--audit-queue` (shim in the S108 log), then bring Ian a pick of about 12 from the Suggested pool, as S108 did. Never promote without his answer.
-2. **Topic generation revamp design** (MAIN WORK above): one AskUserQuestion with the inventory and a recommended design before building. The Suggestor context bugs are decided inside it.
+1. **Next Queued batch (due before ~2026-10-14 12:00Z):** first count Queued in Notion (Content Calendar `62f34586-...`, or the Notion connector's SQL on `collection://3536c795-1a40-4ddf-a210-05a117df3848`; 10/08 16:00Z: 12 Queued / 36 Suggested / 233 Skipped / 178 Published). If 4 or fewer remain, run the dry `--audit-queue` (shim in the S108 log), then bring Ian a pick of about 12 from the Suggested pool, as S108 did, or from the new shortlist if it exists. Never promote without his answer.
+2. **Topic generation revamp design** (MAIN WORK above): one AskUserQuestion with the inventory, the format table and a recommended design before building. The Suggestor context bugs are decided inside it.
 3. **Beehiiv steps:** Ian said "not yet" on 10/05. Ask again only if he raises it, or once in a session on or after 10/09; if done, screenshot the signup at 375 px on a post.
 4. **Beehiiv `attribution.js` + mono labels (S105/S106):** ask only if Ian raises perf or the Beehiiv steps. Post-contract change, so his call.
 5. **`/blog/` pagination (low, only if time):** two mocks with screenshots before building. **R8:** only if he raises it.
@@ -39,7 +60,7 @@ Ian's ask: make topic generation use what is driving traffic, clicks and affilia
 
 ## Part A. Suggestor proof (Claude only)
 
-1. **The Mon 10/12 11:30Z Topic Suggestor run** (`vfEeiQg3TsPlD24J`) is the first after S108's patch: its execution should show "Find Existing Title" and "Keep New Topics", the Slack count should equal the pages created, and Notion should hold no new duplicate titles (SQL: `GROUP BY "Topic" HAVING COUNT(*) > 1` over non-Skipped rows). If a create failed, the Slack message says so and nothing re-runs.
+1. **The Mon 10/12 11:30Z Topic Suggestor run** (`vfEeiQg3TsPlD24J`) is the first after S108's patch: its execution should show "Find Existing Title" and "Keep New Topics", the Slack count should equal the pages created, and Notion should hold no new duplicate titles (SQL: `GROUP BY "Topic" HAVING COUNT(*) > 1` over non-Skipped rows). If a create failed, the Slack message says so and nothing re-runs. Skip this if the revamp retired the Suggestor before 10/12.
 2. If any engine run failed or a red `qa` stalled a PR, recover with **Retry** on the execution (never a fresh trigger), per `n8n/README.md` "Retry stack". A red content PR is fixed in-branch or closed.
 
 ## Part B. Parked checks (Claude only)
