@@ -1,0 +1,187 @@
+---
+title: "Migrate from Instantly to Smartlead: Full Playbook"
+description: "Step-by-step guide to migrating from Instantly to Smartlead. Export sequences, preserve sending history, and rebuild warmup without killing deliverability."
+tldr: "Export your sequences and contact history from Instantly, pause sending, transfer mailboxes into Smartlead, rebuild your warmup pool, then relaunch sequences with the same domain structure but better infrastructure."
+pubDate: 2026-10-09
+tags: ["guide", "automation", "email-deliverability"]
+faqs:
+  - question: "How long does it take to migrate from Instantly to Smartlead?"
+    answer: "The technical migration takes 1-2 days. Give yourself an additional 1-2 weeks of warmup ramp on Smartlead before resuming full sending volume."
+  - question: "Will I lose my sending history when I switch from Instantly to Smartlead?"
+    answer: "Instantly does not export per-email sending logs. You can export campaign analytics as CSV, but raw send history tied to individual contacts does not transfer."
+  - question: "Can I import Instantly sequences directly into Smartlead?"
+    answer: "Not via a direct integration. You export sequence steps as CSV or copy them manually, then recreate the cadence inside Smartlead's campaign builder."
+  - question: "Do I need to re-warm my mailboxes after moving to Smartlead?"
+    answer: "Yes. Even if your mailboxes are warmed, you should re-add them to Smartlead's warmup network and run at least 7-10 days of low-volume warmup before ramping sends."
+  - question: "Does Smartlead support the same sending limits as Instantly?"
+    answer: "Smartlead allows you to cap daily sends per mailbox and stagger sending windows, similar to Instantly, but the warmup pool and deliverability infrastructure differ so start conservatively."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+If your sending domains are starting to soft-fail, your open rates have cratered over the last 30 days, or you just got the "your account has been flagged" email, you already know why you are here. The trigger for most [Instantly](/go/instantly/) to [Smartlead](/go/smartlead/) migrations is not a feature gap. It is a deliverability crisis you need to get ahead of before it bleaches your entire domain reputation. This playbook covers the exact sequence: what to export, what to pause, how to transfer mailboxes, and how to rebuild warmup on Smartlead so you are not starting from zero.
+
+<KeyTakeaways items={[
+  "You gain Smartlead's larger warmup pool and more granular deliverability controls, which is the main reason teams switch.",
+  "You lose sequence continuity: contacts mid-sequence will need to be paused, exported, and reimported manually.",
+  "Sending history at the individual contact level does not transfer, only campaign-level analytics exportable as CSV.",
+  "Budget 1-2 days for the technical switch and 1-2 weeks of conservative warmup before returning to full volume."
+]} />
+
+## Before you migrate
+
+Do not pull the plug on Instantly the moment you decide to move. A rushed cutover is the fastest way to damage domains that are already stressed. The prep phase is where the migration actually succeeds or fails.
+
+I'd argue most teams underinvest here and then wonder why deliverability dips post-launch. Spend the time. Here is the pre-migration checklist to run through before touching anything in Smartlead:
+
+- **Pause all active sequences in Instantly.** Do not let contacts receive step 3 from Instantly while you are importing them into Smartlead.
+- **Export all active campaign data** (Instantly Settings > Campaigns > Export). Grab the analytics CSV for each campaign you want to preserve.
+- **Export your lead lists.** From each campaign, export the contact CSV with status columns (replied, bounced, unsubscribed) intact. These statuses matter for suppression.
+- **Document your sequence logic.** Copy every step, delay, and condition to a spreadsheet or Notion doc. You will rebuild these manually.
+- **Audit your domains and mailboxes.** List every sending domain and its associated mailboxes. Note which ones show soft-bounce rates above 3% or which have already been flagged. Those should not transfer. Retire them.
+- **Check DNS records** (SPF, DKIM, DMARC) for every domain. Smartlead will require valid authentication before you can send. Per [Google's email sender guidelines](https://support.google.com/mail/answer/81126), DMARC at minimum policy `p=none` is required for bulk senders above 5,000 messages per day.
+
+<StepRow steps={[
+  {
+    title: "Export leads and campaign data from Instantly",
+    body: "Go to each active campaign in Instantly. Export leads as CSV, making sure to include the Status column so you capture opted-out, bounced, and replied contacts. Export campaign analytics separately for your own records. Per Instantly's help docs, these analytics do not import into Smartlead, but they are your baseline for measuring performance post-migration."
+  },
+  {
+    title: "Disconnect mailboxes from Instantly",
+    body: "In Instantly, go to Email Accounts and remove each mailbox from your account. Do not just pause them. Fully disconnect. If you skip this step, both platforms may attempt to send from the same inbox during a configuration overlap window, which can trigger spam filters or send duplicate emails to prospects."
+  },
+  {
+    title: "Connect mailboxes to Smartlead",
+    body: "In Smartlead, go to Email Accounts > Add Account. Connect via Google OAuth or SMTP/IMAP depending on your mailbox provider. For Google Workspace mailboxes, OAuth is the cleaner path and avoids app password management. For custom SMTP providers like Maildoso or Mailforge, use SMTP credentials. Add every mailbox you intend to use, including warmup-only inboxes."
+  },
+  {
+    title: "Re-add all mailboxes to Smartlead warmup",
+    body: "This is the step teams skip and regret. Even if your mailboxes were actively warming in Instantly, they are cold to Smartlead's warmup pool. In Smartlead, navigate to each email account and enable Warmup. Set initial daily warmup emails to 20-30 and ramp gradually. Per Smartlead's account setup docs, run warmup for at least 7 days before resuming live sequences. Go 14 days if any of your domains showed deliverability stress in Instantly."
+  },
+  {
+    title: "Rebuild sequences in Smartlead",
+    body: "Create a new campaign in Smartlead for each sequence you exported. Paste in your step copy, set delays to match your original cadence, and configure sending windows. Smartlead's campaign builder supports per-step unsubscribe links and custom tracking domains, both of which you should configure before importing leads. Map your sequence logic from the spreadsheet you built in the prep phase."
+  },
+  {
+    title: "Import leads with suppression filters applied",
+    body: "Upload your exported lead CSV into the new Smartlead campaign. Before uploading, filter out anyone with status Bounced, Unsubscribed, or Opted Out from the Instantly export. Importing these contacts without filtering is a compliance risk and will tank your deliverability metrics immediately. Once filtered, upload the clean list and set the campaign to a low daily cap (200-300 emails total across all mailboxes) for the first week."
+  }
+]} />
+
+<Figure class="post-screenshot" caption="Smartlead's leads view showing contact status and campaign assignment after import.">
+  <a href="/go/smartlead/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/smartlead-leads.png" alt="Smartlead leads view with contact status columns and campaign assignment" loading="lazy" />
+  </a>
+</Figure>
+
+## What breaks and what does not transfer
+
+Most migration pain lives in three areas: sequence continuity, sending history, and warmup state. Understanding what actually moves versus what does not will save you from discovering the gaps after you have already relaunched.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The usual gotcha:** Teams assume that because their mailboxes were warmed in Instantly, they carry a "warmed" status that transfers to Smartlead. They do not. Warmup reputation is network-specific. Instantly's warmup pool and Smartlead's warmup pool are separate ecosystems. Reconnecting a mailbox to Smartlead and immediately sending at full volume is the single most common reason migrations cause a deliverability dip rather than a recovery.
+
+    My read is that mid-sequence contacts deserve just as much attention. Anyone who received step 1 or 2 in Instantly but not step 3: if you import them into Smartlead without marking which step they last received, they will get a follow-up that does not reference the prior email. It reads as a cold outreach and tanks reply rates. Segment before you import.
+  </Fragment>
+  <Fragment slot="right">
+    ```txt
+    What transfers cleanly:
+    - Lead lists (CSV export/import)
+    - Suppression lists (bounced, unsubscribed)
+      filter before import
+    - Sequence copy (manual rebuild)
+    - Domain/mailbox configuration
+      reconnect via SMTP or OAuth
+
+    What does NOT transfer:
+    - Per-contact sending history
+    - Warmup reputation (network-specific)
+    - Campaign-level analytics
+      export as CSV for your records
+    - Mid-sequence position tracking
+      document manually before pausing
+
+    Mitigation for mid-sequence contacts:
+    1. Export with "Emails Sent" column
+    2. Segment by step reached
+    3. Import into Smartlead at
+       the correct step offset
+       (or start a new shorter sequence)
+    ```
+  </Fragment>
+</SideBySide>
+
+## Verify it worked
+
+Before you ramp volume, run through these four checks. Skipping even one is how teams end up diagnosing deliverability problems two weeks post-migration.
+
+- **Authenticate every domain.** Use [MXToolbox](https://mxtoolbox.com/SuperTool.aspx) to confirm SPF, DKIM, and DMARC are resolving correctly for every sending domain. Smartlead will show a green checkmark in the Email Accounts panel when DKIM is confirmed, but spot-check MXToolbox independently anyway.
+- **Send a test sequence.** Create a single-contact test campaign in Smartlead using an internal inbox you control. Run a two-step sequence and confirm both emails land in the primary inbox (not spam or promotions) on Gmail and Outlook.
+- **Confirm suppression is active.** Search for a known bounced or unsubscribed email from your Instantly export in Smartlead's lead list. It should not appear in any active campaign. If it does, your pre-import filtering missed rows.
+- **Check warmup is running.** Go to Email Accounts in Smartlead and confirm the warmup status shows "Active" for every mailbox. The daily warmup email count should be incrementing. If it shows paused or zero, re-enable it before you touch live sends.
+
+<ChooseIf title="Should you switch or stay?" items={[
+  {
+    name: "Switch to Smartlead",
+    conditions: [
+      "Your open rates have dropped more than 20% in the last 60 days and you have ruled out list quality as the cause",
+      "You are managing 10 or more sending domains and need more granular per-domain controls",
+      "You want a larger warmup network and more transparent deliverability diagnostics"
+    ],
+    pricing: "From $39/mo",
+    affiliateSlug: "smartlead",
+    ctaLabel: "Try Smartlead",
+    highlight: true
+  },
+  {
+    name: "Stay on Instantly",
+    conditions: [
+      "Your deliverability issues are list-quality problems, not infrastructure (high bounce rates from bad data)",
+      "You are running under 3 domains and the current warmup coverage is sufficient",
+      "Your team relies heavily on Instantly's lead finder and does not want to rebuild data workflows"
+    ],
+    pricing: "From $37/mo",
+    affiliateSlug: "instantly",
+    ctaLabel: "Review Instantly"
+  }
+]} />
+
+If you are evaluating this switch on deliverability grounds specifically, the detailed breakdown in our [Instantly vs Smartlead deliverability comparison](/blog/2026-10-06-instantly-vs-smartlead-deliverability-domains-roi/) is worth reading alongside this playbook. And if you are rebuilding your full outbound stack while you are already in migration mode, the [best cold email stack under $300](/blog/2026-10-09-best-cold-email-stack-under-300-in-2026/) gives you a broader picture of where Smartlead fits.
+
+For teams rebuilding their domain and mailbox infrastructure from scratch, [Mailforge](/go/mailforge/) and [Maildoso](/go/maildoso/) are both worth looking at as mailbox providers that integrate directly with Smartlead's SMTP setup and offer purpose-built cold email infrastructure.
+
+<MyTake>
+Most teams migrating from Instantly are actually fighting a list-quality problem, not a platform problem, and the platform switch confirms it when deliverability does not recover. Before committing to a full migration, I'd check whether your bounce rate traces back to bad contact data. If it does, Smartlead gives you better tooling to manage it going forward, but a cleaner platform running a dirty list still delivers dirty results.
+</MyTake>
+
+## Make the move cleanly
+
+Migrating from Instantly to Smartlead is a three-phase operation: export and pause, reconnect and re-warm, then relaunch conservatively. The teams that get into trouble are the ones who rush the warmup phase or skip the suppression filter on import. Give the warmup pool two weeks to establish reputation on Smartlead's network before you push volume. The platform's deliverability controls are genuinely better. They only work if you give the infrastructure time to build the signal it needs.
+
+<BottomLine
+  verdict="Smartlead is the right destination if deliverability is your trigger. The migration itself is straightforward; the discipline is in the warmup ramp and suppression hygiene on import."
+  pick="Smartlead"
+  affiliateSlug="smartlead"
+  ctaLabel="Try Smartlead"
+/>
+
+<Sources sources={[
+  { label: "Google: Email sender guidelines for bulk senders", url: "https://support.google.com/mail/answer/81126" },
+  { label: "Smartlead docs: Connecting email accounts", url: "https://help.smartlead.ai/en/articles/6969413-how-to-add-an-email-account" },
+  { label: "MXToolbox: SPF, DKIM, DMARC lookup tool", url: "https://mxtoolbox.com/SuperTool.aspx" },
+  { label: "Instantly help: Exporting campaign data", url: "https://help.instantly.ai/en/articles/6968491-how-to-export-leads-from-a-campaign" }
+]} />
