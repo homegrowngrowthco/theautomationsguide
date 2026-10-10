@@ -1,0 +1,188 @@
+---
+title: "Migrate from Brevo to Smartlead: Step-by-Step Playbook"
+description: "Move your cold email sending, domain warmup, and SMTP setup from Brevo to Smartlead without torching your deliverability. Full migration playbook."
+tldr: "Export your Brevo lists and sequences, pause active campaigns, add and warm your sending domains in Smartlead, then migrate sequences step by step over 7 to 14 days to preserve deliverability."
+pubDate: 2026-10-10
+tags: ["guide", "automation", "cold-email"]
+faqs:
+  - question: "Can I use my existing Brevo domains in Smartlead?"
+    answer: "Yes, but you should re-authenticate them with new SPF, DKIM, and DMARC records pointing to Smartlead's infrastructure. Reusing Brevo's DNS records without updating them will cause authentication failures."
+  - question: "How long does Smartlead domain warmup take?"
+    answer: "Smartlead's built-in warmup typically takes 14 to 21 days to move a cold domain to a safe sending volume, though aged domains with prior reputation can compress this to 10 days."
+  - question: "Does Smartlead support SMTP sending like Brevo?"
+    answer: "Smartlead connects mailboxes via SMTP or native Google and Microsoft OAuth. It does not use a shared relay like Brevo; each mailbox is a dedicated sending identity, which is the core deliverability advantage."
+  - question: "Will my contact lists transfer cleanly from Brevo to Smartlead?"
+    answer: "Brevo exports contacts as CSV with all custom fields. Smartlead imports the same CSV format; map your field headers before importing and scrub any unsubscribes first to stay CAN-SPAM and GDPR compliant."
+  - question: "What happens to my Brevo unsubscribe list when I migrate?"
+    answer: "Brevo exports suppressions separately. Download that list and upload it as a suppression list in Smartlead before launching any campaign, or you risk re-contacting opted-out contacts."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+If you're reading a migration guide right now, you're probably past the "should I switch" question. Maybe [Brevo](/go/brevo/) throttled your sending volume. Maybe your deliverability tanked on their shared infrastructure. Or maybe you finally hit the wall where a newsletter-first platform simply cannot run the sequencing and inbox rotation you need for cold outreach. Whatever the trigger, the risk is not the decision. The risk is the execution. A sloppy migration torches domain reputation, re-contacts opted-out leads, and drops warm sequences mid-thread. This playbook keeps that from happening.
+
+<KeyTakeaways items={[
+  "Export contacts and suppressions from Brevo before you touch anything else. Suppressions especially.",
+  "You gain dedicated inbox rotation, per-mailbox warmup, and multi-step sequence control in Smartlead. You lose Brevo's transactional email and SMS channels.",
+  "Plan 14 to 21 days for fresh domain warmup. Aged domains can compress to 10 days.",
+  "Pause, do not delete, active Brevo sequences until Smartlead sequences are live and confirmed sending."
+]} />
+
+## Before You Migrate
+
+The prep work is where migrations actually succeed or fail. Rushing into Smartlead setup without a clean export is the most common failure mode in cold email stack switches. I'd put the suppression list export at the top of the list, above everything else, because it's the one mistake you cannot undo after the fact.
+
+Do all of this before you touch Smartlead:
+
+- **Export all contact lists** from Brevo as CSV, including every custom field column you use in personalization tokens
+- **Export your suppression/unsubscribe list** separately (Brevo calls this "Blocklist" under Contacts > Blocklist). This is not included in standard list exports
+- **Screenshot or copy every active sequence**: subject lines, body copy, wait days, send conditions. Brevo does not export sequences as importable files
+- **Audit your sending domains**: note every domain you have authenticated in Brevo (Settings > Senders and IP > Domains)
+- **Pause, do not delete, any active campaigns** in Brevo. Deleting loses the thread history and reply tracking
+- **Check your current DNS records**: pull SPF, DKIM, and DMARC for each domain using [MXToolbox](https://mxtoolbox.com) before you change anything
+
+If you have been using Brevo for transactional email alongside cold outreach, keep Brevo active for transactional until you have a dedicated transactional provider standing by. Postmark or Resend are the two I'd point you toward. [Smartlead](/go/smartlead/) is not a transactional platform, full stop.
+
+<StatRow stats={[
+  { number: "14-21", label: "Warmup Days", description: "Typical Smartlead inbox warmup window for a cold domain before safe campaign volume" },
+  { number: "3", label: "DNS Records", description: "SPF, DKIM, and DMARC all required in Smartlead for full authentication, same as Brevo" },
+  { number: "~5 min", label: "CSV Import Time", description: "Approximate time to import a 5,000-contact CSV into Smartlead once headers are mapped" }
+]} />
+
+## The Migration Steps
+
+<StepRow steps={[
+  {
+    title: "Create your Smartlead account and set your global sending settings",
+    body: "Sign up for Smartlead and go to Settings before you add any mailboxes. Set your default daily send limit per mailbox (start at 30 to 40 emails per day for warming), your reply detection preferences, and your time zone. These global defaults apply to every mailbox you add, so get them right before you scale."
+  },
+  {
+    title: "Add your sending mailboxes via SMTP or OAuth",
+    body: "In Smartlead, go to Email Accounts and connect each mailbox. For Google Workspace, use OAuth. For any other provider, use SMTP credentials. Smartlead's docs walk through the port settings (587 with STARTTLS is the safe default). Add every mailbox you plan to rotate across: Smartlead's inbox rotation is the core deliverability lever and it only works if you have multiple connected accounts."
+  },
+  {
+    title: "Update DNS records for each sending domain",
+    body: "This is the step most teams rush and then regret. For each domain, add Smartlead's SPF include to your existing SPF record (do not replace the whole record if you still have Brevo or other senders active). Generate DKIM keys inside Smartlead under each mailbox's settings and add the CNAME or TXT record at your DNS provider. Set a DMARC policy of p=none to start monitoring before you enforce. Verify each record with MXToolbox before enabling warmup."
+  },
+  {
+    title: "Enable inbox warmup for every new mailbox",
+    body: "Smartlead has a built-in warmup network. Turn it on for every mailbox immediately after DNS verification. Do not start sending live campaigns until a mailbox has at least 10 days of warmup history. The warmup dashboard shows daily volume, spam rate, and inbox placement so you can watch domain health in real time. For domains with prior sending reputation on Brevo, my read is you can usually reach campaign-ready status in 10 to 14 days rather than the full 21."
+  },
+  {
+    title: "Upload your suppression list before any other list",
+    body: "In Smartlead, go to Leads > Unsubscribe List and bulk upload the CSV you exported from Brevo's Blocklist. This step is non-negotiable for GDPR and CAN-SPAM compliance. Every contact you mail after an unsubscribe is a legal liability, and Smartlead will not automatically know who opted out of Brevo unless you tell it."
+  },
+  {
+    title: "Import leads and rebuild your sequences",
+    body: "Import your contact CSVs into Smartlead campaigns one at a time. Map your Brevo custom field headers (first name, company, custom variables) to Smartlead's variable format during import. Then rebuild each sequence manually: Smartlead's campaign builder is step-by-step with delay settings per email. Copy your subject lines and body copy exactly as they were, replacing Brevo merge syntax with Smartlead's variable syntax. The first name token is a different field name in Smartlead, so check the variable reference in their docs before you launch."
+  }
+]} />
+
+<Figure class="post-screenshot" caption="Smartlead's leads view showing imported contacts with field mapping and campaign assignment status.">
+  <a href="/go/smartlead/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/smartlead-leads.png" alt="Smartlead leads view with imported contacts and campaign columns" loading="lazy" />
+  </a>
+</Figure>
+
+## What Breaks and What Does Not Transfer
+
+The merge syntax difference catches almost every team mid-migration. Brevo uses double curly brace syntax for personalization. Smartlead uses a similar but distinct format. Paste Brevo templates directly into Smartlead without updating variable names and every email goes out with a raw unparsed token where the first name should be. Don't do it.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The gotcha**: Brevo template variables do not map 1:1 to Smartlead. Sequences copied verbatim will fire with broken merge fields. Also, Brevo reply tracking uses its own pixel and link wrapping. Any "replied" logic you built in Brevo automations does not port to Smartlead. Rebuild reply-based branching natively in Smartlead's sequence conditions.
+  </Fragment>
+  <Fragment slot="right">
+    ```text
+    Brevo variable syntax (do not paste this):
+    {{ contact.FIRSTNAME }}
+
+    Smartlead variable syntax (use this):
+    {{first_name}}
+
+    Check Smartlead's variable reference
+    in their docs under Campaign Variables
+    before rebuilding any template.
+    Map every custom field during CSV import
+    so variables resolve correctly on send.
+    ```
+  </Fragment>
+</SideBySide>
+
+Other things that do not transfer cleanly: A/B test results from Brevo campaigns stay in Brevo. Open rate history per contact is not portable. Any Brevo automation that triggered based on email opens or clicks needs to be rebuilt in Smartlead's campaign conditions or in your CRM workflow layer.
+
+What does transfer cleanly: contact data (via CSV), your copywritten sequence content (manually rebuilt), and your domain authentication (once DNS is updated).
+
+## Verify It Worked
+
+Before you declare the migration done, run these four checks:
+
+1. **Send a test email from each mailbox** through Smartlead to a [Mail-Tester](https://www.mail-tester.com) address and confirm you score 9 or higher. A score below 8 means an auth record is broken.
+2. **Confirm suppression list coverage** by searching one known unsubscribe email in Smartlead's unsubscribe list. If it appears, the import succeeded.
+3. **Check the warmup dashboard** for each mailbox: spam placement rate should be below 3% before you enable live campaign sending.
+4. **Send one campaign to a small segment first** (100 to 200 contacts) and monitor replies, bounces, and spam reports for 48 hours before opening full volume.
+
+For a deeper look at how Smartlead's deliverability model compares to other senders, the [Instantly vs Smartlead deliverability breakdown](/blog/2026-10-06-instantly-vs-smartlead-deliverability-domains-roi/) is worth reading alongside this playbook. And if you are evaluating whether Smartlead is the right destination at all, the [Brevo cold email alternatives roundup](/blog/2026-10-07-brevo-cold-email-alternatives-best-swaps-in-2026/) covers the full field.
+
+<ChooseIf title="Should you migrate to Smartlead, or stay on Brevo?" tools={[
+  {
+    name: "Smartlead",
+    conditions: [
+      "Your primary use case is cold outbound, not newsletters or transactional email",
+      "You need inbox rotation across multiple mailboxes and domains",
+      "You want per-mailbox warmup and deliverability monitoring built in"
+    ],
+    pricing: "From $39/mo",
+    affiliateSlug: "smartlead",
+    ctaLabel: "Try Smartlead",
+    highlight: true
+  },
+  {
+    name: "Brevo",
+    conditions: [
+      "You send a mix of cold outreach, newsletters, and transactional email from one platform",
+      "Your team is not ready to manage dedicated mailbox infrastructure",
+      "Volume is low enough that shared SMTP relay does not hurt deliverability"
+    ],
+    pricing: "Free tier available",
+    affiliateSlug: "brevo",
+    ctaLabel: "Stay on Brevo"
+  }
+]} />
+
+<MyTake>
+Brevo was never architected for cold outreach at volume. The migration itself is a half-day of real work, not a weekend project. The warmup period is the actual cost, and teams that skip it by importing to Smartlead and sending at full volume on day one reliably destroy the very domain reputation they were trying to protect. Respect the 14 to 21 day window. It is not a suggestion.
+</MyTake>
+
+## Make the Switch Clean
+
+The mechanics of migrating from Brevo to Smartlead are straightforward: export, authenticate, warm, rebuild, verify. The failure modes are almost always in the sequencing of those steps, not the steps themselves. Suppressions before lists. Warmup before sending. Test before full volume. Follow that order and you arrive at Smartlead with a healthier sending setup than you had on Brevo.
+
+If you want to go deeper on infrastructure before committing, the [best cold email stack under $300 guide](/blog/2026-10-09-best-cold-email-stack-under-300-in-2026/) covers how Smartlead fits into a full outbound setup without overspending. And if you are also evaluating [Instantly](/go/instantly/) before landing on Smartlead, the [Instantly to Smartlead migration playbook](/blog/2026-10-09-migrate-from-instantly-to-smartlead-full-playbook/) covers the same steps with Instantly-specific export notes.
+
+<BottomLine
+  verdict="Smartlead is the right destination for teams doing serious cold outbound. The migration is low-risk if you protect your suppression list and respect the warmup window."
+  pick="Smartlead"
+  affiliateSlug="smartlead"
+  ctaLabel="Try Smartlead"
+/>
+
+<Sources sources={[
+  { label: "Smartlead: Email Account Setup Docs", url: "https://help.smartlead.ai/en/articles/8143665-how-to-add-email-accounts-in-smartlead" },
+  { label: "Brevo: Export Contacts and Blocklist", url: "https://help.brevo.com/hc/en-us/articles/209499605-Export-contacts-from-Brevo" },
+  { label: "Google: SPF and DKIM Best Practices for Gmail Senders", url: "https://support.google.com/mail/answer/81126" },
+  { label: "Smartlead: Warmup Settings Reference", url: "https://help.smartlead.ai/en/articles/8143667-how-does-email-warmup-work-in-smartlead" }
+]} />
