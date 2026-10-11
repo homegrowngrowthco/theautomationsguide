@@ -1,0 +1,202 @@
+---
+title: "Make.com Lead Generation Workflows: 5 Builds That Fill Your Pipeline"
+description: "Five opinionated Make.com lead generation workflow builds for RevOps teams. Covers Clay enrichment, HubSpot sync, Fillout forms, and n8n alternatives."
+tldr: "Make.com is a strong orchestration layer for lead generation workflows when you pair it with Clay for enrichment, Fillout for form capture, and HubSpot for CRM sync, all without writing a line of code."
+pubDate: 2026-10-11
+tags: ["automation", "lead-generation", "make"]
+faqs:
+  - question: "Can Make.com be used for lead generation?"
+    answer: "Yes. Make.com connects form tools, data enrichment APIs, and CRMs in multi-step scenarios, making it a capable orchestration layer for inbound and outbound lead generation workflows."
+  - question: "How does Make compare to Zapier for lead generation?"
+    answer: "Make handles more complex, branching logic at a lower price point than Zapier for equivalent operations, which matters once your lead workflows involve conditional routing or multi-step enrichment."
+  - question: "Can I connect Clay to Make.com?"
+    answer: "Yes. Clay exposes a webhook endpoint you can POST leads to from a Make scenario, triggering waterfall enrichment before the record lands in your CRM."
+  - question: "Does Make.com integrate with HubSpot?"
+    answer: "Make has a native HubSpot module that can create or update contacts, deals, and companies, and can read CRM properties to drive branching logic in your scenario."
+  - question: "Is Make.com good for no-code RevOps automation?"
+    answer: "Make is one of the better no-code options for RevOps because its scenario builder handles branching, iteration, and error routing that simpler tools like Zapier Zaps cannot express cleanly."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most RevOps practitioners treating [Make](/go/make/) as a "Zapier alternative" are leaving serious pipeline value on the table. Make's scenario builder handles iterator loops, error branches, and multi-route logic that a linear Zap cannot express. That means you can build a full inbound-to-outbound lead generation engine without touching a single line of code. Below I'm walking through five specific workflow builds I'd reach for first when standing up a Make.com lead generation stack for a B2B SaaS team.
+
+<KeyTakeaways items={[
+  "Make's router and iterator modules let you build branching lead flows that Zapier Zaps cannot replicate at the same price",
+  "Clay is the best enrichment layer to pair with Make: POST a webhook from Make, let Clay waterfall-enrich, webhook the result back",
+  "Fillout is the fastest way to capture structured lead data into a Make scenario without building a custom form",
+  "HubSpot's native Make module handles create-or-update logic natively, saving you a deduplication step",
+  "n8n is the right swap if your team is technical and wants self-hosted control, but Make wins on setup speed for most RevOps operators"
+]} />
+
+## Why Make.com Is Actually a Lead Generation Tool
+
+The common frame is wrong. Make is not a task automation tool. It is a workflow orchestration layer that happens to have over 1,000 native app connectors. For lead generation specifically, that means you can express the full lead lifecycle inside a single scenario: capture, enrich, score, route, sequence, and notify, with conditional logic at each gate.
+
+<StatRow stats={[
+  { number: "1,000+", label: "Native app integrations", description: "Make's connector library as of 2025, per the Make platform docs" },
+  { number: "10,000", label: "Free ops per month", description: "Make's free tier gives you enough runway to validate a workflow before committing to a paid plan" },
+  { number: "16x", label: "Cheaper than Zapier at mid-tier", description: "Make's Core plan at $10.59/mo for 10k ops vs Zapier Professional at $69/mo for a comparable volume, per both vendors' published pricing" }
+]} />
+
+The typical failure is teams using Make for one-step integrations (form submission fires into a spreadsheet) when the real value is multi-module scenarios that encode your actual qualification logic. The five builds below are all multi-step by design. One-step integrations are what Zapier is for.
+
+## The Five Builds
+
+<StepRow steps={[
+  {
+    title: "Build 1: Fillout Form to Clay Enrichment to HubSpot",
+    body: "This is the inbound lead capture backbone. A Fillout form submission triggers a Make webhook. Make extracts the email and company fields, POSTs them to a Clay table via Clay's inbound webhook, waits for Clay's waterfall enrichment to fire (technographics, LinkedIn URL, headcount, funding), then receives the enriched payload on a second Make webhook and creates or updates the HubSpot contact with all enriched properties mapped. Run HubSpot's 'Search contacts' action first so you are upserting, not duplicating. Fillout earns its place here because it supports multi-step conditional forms and native Make triggers without needing a Zapier intermediary stitched in between."
+  },
+  {
+    title: "Build 2: LinkedIn Ad Lead Gen Form to Sequencer",
+    body: "LinkedIn's Lead Gen Forms push data to Make via the LinkedIn native module. The scenario checks whether the email domain matches a blocklist (personal email domains, competitors) using a Make text parser and a filter module. Passing leads get routed to your sequencer of choice. I'd wire in Smartlead or Instantly here via HTTP module if there is no native Make connector, using the sequencer's REST API to add the lead to a campaign. A Slack notification module fires on every qualified lead so the SDR sees it immediately. This build collapses a three-Zap chain into a single scenario with one error surface to monitor."
+  },
+  {
+    title: "Build 3: G2 Intent Signal to Outbound Trigger",
+    body: "G2 Buyer Intent data (available on G2 Marketing Solutions plans) can be pulled via API or exported to a Google Sheet on a schedule. A Make scenario runs on a 15-minute interval, reads new rows from the sheet, filters for accounts not already in HubSpot, enriches the company domain through Clearbit's free company API or a Clay webhook, scores the account against your ICP definition in a Make router, and for accounts scoring above threshold, creates a HubSpot company plus a task assigned to the owning AE. This is the closest you get to automated intent-to-pipeline without signing an ABM platform contract."
+  },
+  {
+    title: "Build 4: Website Visitor Deanonymization to CRM",
+    body: "Tools like RB2B or Leadfeeder identify anonymous website visitors and expose a webhook or API. A Make scenario receives the visitor payload, extracts the LinkedIn URL or email if present, checks HubSpot for an existing contact, and for net-new records creates the contact and logs a custom 'website visit' activity with the page URL and timestamp. For returning contacts, Make appends the visit to their activity timeline using HubSpot's timeline event API via Make's HTTP module. My read is that this build alone justifies a Make Core subscription if you are running paid traffic. The manual version of this process never actually happens consistently."
+  },
+  {
+    title: "Build 5: Referral or Partner Form to Multi-CRM Sync",
+    body: "Partner-sourced leads often need to land in two systems simultaneously: your HubSpot (or Salesforce) instance and your partner's portal or a shared tracking sheet. A Make scenario receives the referral form submission from Fillout or Tally, creates the contact in HubSpot, logs the partner source as a custom property, writes a row to a shared Google Sheet with the partner's name and referral timestamp, and triggers a confirmation email via HubSpot's transactional email API to both the referring partner and the lead. The multi-destination write is where Make's router module earns its keep. A single Zap cannot fan out cleanly to three destinations with error handling on each branch."
+  }
+]} />
+
+<Figure class="post-screenshot" caption="Clay's waterfall enrichment table, which sits in the middle of Build 1 and Build 3 above: Make posts a lead, Clay fires enrichment providers in sequence, and the result webhooks back into the Make scenario.">
+  <a href="/go/clay/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/clay-enrichment.png" alt="Clay waterfall enrichment table showing multiple data provider columns and enrichment status per lead row" loading="lazy" />
+  </a>
+</Figure>
+
+## The Gotcha That Kills Most Make Lead Workflows
+
+The most common failure point is the missing error handler on the enrichment step. When Clay or any enrichment API returns a 429 or a partial response, Make's default behavior is to stop the scenario run and mark the bundle as failed. Your lead is silently dropped. No alert. No fallback record.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The trap:** You build the happy path (form fires, enrichment returns, HubSpot creates contact) and ship it. Two weeks later you notice a gap in HubSpot contacts. The Make scenario history shows 40 failed bundles from enrichment timeouts. None of those leads made it to your sequencer.
+
+    Fix this before the first lead goes live. Add an error handler route on every HTTP or webhook module that calls an external enrichment API. Route failures to a fallback: create the contact in HubSpot with only the raw form data, tag it with a "needs-enrichment" property, and alert Slack. You can re-enrich manually or run a cleanup scenario on a schedule. The error route is not optional polish. It is the build.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // Make HTTP module: error handler config
+    // Set "Error handling route" on the enrichment module
+    // Fallback action: Resume
+    // Then connect a HubSpot "Create Contact" module
+    // with only guaranteed fields mapped
+
+    {
+      "email": "{{1.email}}",
+      "firstname": "{{1.first_name}}",
+      "lastname": "{{1.last_name}}",
+      "hs_lead_status": "NEW",
+      "enrichment_status__c": "pending",
+      "enrichment_failed": true
+    }
+
+    // Slack notify module after fallback contact create:
+    // "Lead {{1.email}} created without enrichment.
+    //  Enrichment API returned {{error.message}}.
+    //  Review: https://app.hubspot.com/contacts/..."
+    ```
+  </Fragment>
+</SideBySide>
+
+## Which Tool Stack Goes With Make
+
+Make is the orchestration layer, not the data layer or the sending layer. Here is how I'd match it to the other tools in the stack depending on the team's situation:
+
+<ChooseIf title="Which Layer Goes With Make for Lead Gen" tools={[
+  {
+    name: "Clay",
+    conditions: [
+      "Your lead enrichment needs waterfall logic across 10-plus providers",
+      "You want enrichment managed in a spreadsheet-like interface without code",
+      "You are running outbound and need LinkedIn data plus email verification in one pass"
+    ],
+    pricing: "From $149/mo",
+    affiliateSlug: "clay",
+    ctaLabel: "Try Clay",
+    highlight: false
+  },
+  {
+    name: "Fillout",
+    conditions: [
+      "You need multi-step conditional forms that trigger Make webhooks natively",
+      "You want payment collection or document signing inside the same form flow",
+      "Your team does not want to maintain a separate form tool and a Zap just to get data into Make"
+    ],
+    pricing: "Free tier, paid from $19/mo",
+    affiliateSlug: "fillout",
+    ctaLabel: "Try Fillout",
+    highlight: false
+  },
+  {
+    name: "HubSpot",
+    conditions: [
+      "Your CRM is already HubSpot and you want native create-or-update without a dedup script",
+      "You need HubSpot workflow triggers to fire after Make writes the contact",
+      "Your team lives in HubSpot for deal management and you want lead data to land there automatically"
+    ],
+    pricing: "Starter from $20/mo",
+    affiliateSlug: "hubspot",
+    ctaLabel: "Try HubSpot",
+    highlight: false
+  },
+  {
+    name: "n8n",
+    conditions: [
+      "Your team has a developer who can self-host and maintain a Node.js environment",
+      "You need custom code nodes that Make's native modules cannot express",
+      "You want to avoid per-operation pricing as your lead volume scales above 50k ops per month"
+    ],
+    pricing: "Self-hosted free, cloud from $20/mo",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n",
+    highlight: false
+  }
+]} />
+
+If you are already thinking about whether your HubSpot workflow logic should move to n8n, the [HubSpot Workflows to n8n migration playbook](/blog/2026-10-07-hubspot-workflows-to-n8n-migration-playbook/) covers the tradeoffs in detail. For the cold email layer that connects to Builds 2 and 3, the [best cold email stack under $300 in 2026](/blog/2026-10-09-best-cold-email-stack-under-300-in-2026/) is worth reading before you wire up a sequencer.
+
+<MyTake>
+The error handling layer is not an afterthought. It IS the build. A Make scenario that drops leads silently is worse than a manual process, because at least a manual process has a human noticing the gap. Most RevOps operators spend 90% of their scenario-building time on the happy path and zero time on error routes, then wonder why contacts are missing in HubSpot two weeks later. Build the fallback first. The happy path is easy.
+</MyTake>
+
+## Putting the Stack Together
+
+[Make](/tools/make/) is genuinely good at the orchestration problem in B2B lead generation: connecting a form tool to an enrichment layer to a CRM to a sequencer, with conditional routing and error handling, all without engineering involvement. The five builds above cover the most common pipeline gaps RevOps teams tend to patch manually. Start with Build 1 (Fillout to [Clay](/tools/clay/) to [HubSpot](/tools/hubspot/)) as your foundation. Add error handlers before you go live. Layer the intent and deanonymization builds on top once the inbound path is solid.
+
+The [n8n](/tools/n8n/) swap only makes sense once you have a developer who will own the infrastructure and you are north of 50,000 operations per month, where per-op pricing starts to add up meaningfully. For most RevOps operators without that, [Make](/go/make/) is the right call.
+
+<BottomLine
+  verdict="Make is the right orchestration layer for RevOps teams building multi-step lead generation workflows without engineering support. Pair it with Clay for enrichment and Fillout for form capture and you have a production-grade inbound stack in under a day."
+  pick="Make"
+  affiliateSlug="make"
+  ctaLabel="Try Make"
+/>
+
+<Sources sources={[
+  { label: "Make: Official integration directory and pricing", url: "https://www.make.com/en/integrations" },
+  { label: "Clay: Webhook enrichment documentation", url: "https://docs.clay.com" },
+  { label: "Fillout: Make.com native integration docs", url: "https://www.fillout.com/integrations/make" },
+  { label: "HubSpot: Make module documentation", url: "https://www.make.com/en/integrations/hubspot" }
+]} />
