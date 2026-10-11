@@ -1,0 +1,212 @@
+---
+title: "Migrate from Mailchimp to GetResponse Without Losing Your Automations"
+description: "Step-by-step guide to migrating from Mailchimp to GetResponse: export lists, rebuild automations, and verify deliverability without dropping a send."
+tldr: "You can migrate from Mailchimp to GetResponse in a weekend by exporting your lists as CSV, importing them into GetResponse, rebuilding your automations in the visual workflow builder, and re-authenticating your sending domain before your next campaign goes out."
+pubDate: 2026-10-11
+tags: ["guide", "automation", "email-marketing"]
+faqs:
+  - question: "Can I import my Mailchimp subscribers directly into GetResponse?"
+    answer: "Yes. Export your Mailchimp list as a CSV and import it into GetResponse under Contacts > Import. GetResponse maps standard fields automatically, but you will need to re-map any custom merge fields manually."
+  - question: "Will my Mailchimp automations transfer to GetResponse?"
+    answer: "No automation logic transfers automatically. You need to rebuild each sequence in GetResponse's Marketing Automation workflow builder using equivalent triggers and actions."
+  - question: "Does GetResponse require confirmed opt-in for imported contacts?"
+    answer: "GetResponse does not force a re-confirmation for CSV imports, but you must confirm the list was opt-in collected. Uploading cold or scraped contacts violates their terms and risks account suspension."
+  - question: "How long does a full Mailchimp to GetResponse migration take?"
+    answer: "For most teams with under 10,000 contacts and a handful of automations, the migration takes one to two days. Larger lists or complex automation trees may take a full week."
+  - question: "What happens to my Mailchimp campaign history after migrating?"
+    answer: "Campaign history, open and click data, and engagement scores do not transfer to GetResponse. Only the contact records and any custom field data you export from Mailchimp come across."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most teams decide to leave [Mailchimp](/go/mailchimp/) the moment they hit the pricing wall. You upgrade to remove the Mailchimp badge, watch the invoice jump from $20 to $135 overnight because a list cleanup stalled and you crossed a contact tier, and suddenly a tool you picked for simplicity costs more than a proper marketing automation platform. That is the moment. If you are in it right now, this guide walks you through every step of moving to [GetResponse](/go/getresponse/) without torching your automations, tanking your deliverability, or starting from scratch on audience segmentation.
+
+<KeyTakeaways items={[
+  "GetResponse's equivalent plan runs materially cheaper than Mailchimp at the 5,000 and 10,000 contact tiers where the pain usually hits",
+  "No automation logic migrates automatically: you will rebuild sequences in GetResponse's visual workflow builder, but the builder is genuinely powerful",
+  "Campaign history, open rates, and click data do not transfer, so export your Mailchimp reports before you cancel",
+  "DNS re-authentication (SPF, DKIM, DMARC) must happen before your first send or deliverability takes the hit",
+  "The whole migration can run in a weekend for most teams with under 10,000 contacts"
+]} />
+
+## Before You Migrate
+
+Rushing the export step is the most common failure in any platform switch. Spend 30 minutes here and you will save hours of cleanup on the other side. I'd argue this pre-work matters more than anything you do inside GetResponse on day one.
+
+Here is what to pull out of Mailchimp before you touch GetResponse:
+
+- **All lists as CSV**, including merge fields and tags. Mailchimp lets you export per-audience under Audience > All Contacts > Export Audience.
+- **Automation screenshots or flowchart exports** for every active sequence. There is no native export format that GetResponse can read, so a visual record is your rebuild spec.
+- **Campaign performance reports** (open rate, click rate, revenue attribution if you have e-commerce connected). Go to Mailchimp > Reports > Export as CSV. Once you cancel, this data is gone.
+- **Suppression lists and unsubscribes**. Export these separately. You must import your unsubscribes into GetResponse as a suppression list before sending a single email, or you will re-mail people who opted out. That is a CAN-SPAM and GDPR liability, not just a deliverability problem.
+- **Connected integrations list**. Any Zapier workflows, CRM syncs (HubSpot, Pipedrive, Salesforce), or e-commerce connectors pointing at Mailchimp need to be re-pointed after you migrate.
+- **Sending domain records**. Note your current SPF and DKIM setup. You will need to add GetResponse's authentication records to your DNS before anything goes out.
+
+Pause any active Mailchimp automations during the cutover window. Running sequences on both platforms simultaneously means contacts get double-mailed.
+
+<StepRow steps={[
+  {
+    title: "Export your Mailchimp data",
+    body: "In Mailchimp, go to Audience > All Contacts > Export Audience for each list. Export as CSV with all merge fields checked. Separately, go to Reports and export your top campaign data. Finally, export your unsubscribe list from Audience > Manage Contacts > Unsubscribed."
+  },
+  {
+    title: "Create your GetResponse account and authenticate your domain",
+    body: "Sign up for GetResponse and immediately go to Profile > Email Addresses > Add Email Address. Add your sending domain and follow the DKIM and SPF setup instructions. GetResponse provides the DNS records you need. Make these changes in your DNS provider (Cloudflare, Route 53, GoDaddy) and allow up to 48 hours for propagation. Do not send before this is verified."
+  },
+  {
+    title: "Import contacts and suppression list",
+    body: "Go to Contacts > Import in GetResponse. Upload your CSV. Map your Mailchimp merge fields to GetResponse custom fields, creating new custom fields where needed. Tag each import batch with a source tag (for example, 'mc-migration-2026') so you can filter and audit later. Then go to Contacts > Suppression Lists and upload your Mailchimp unsubscribes CSV before anything else goes out."
+  },
+  {
+    title: "Rebuild your automations in the GetResponse workflow builder",
+    body: "Open Marketing Automation > Create Workflow. GetResponse uses a visual canvas with trigger blocks (List subscribed, Link clicked, Tag assigned, Date-based), condition blocks, and action blocks (Send message, Add tag, Move to list, Notify). Rebuild each Mailchimp automation using your screenshots as the spec. Map Mailchimp's 'goals' to GetResponse's conditions. If you had a Mailchimp welcome series, the equivalent is a 'Subscribed to list' trigger feeding a time-delay chain of Send message actions."
+  },
+  {
+    title: "Recreate your email templates",
+    body: "Mailchimp templates do not export in a format GetResponse can import directly. You have two options: paste your HTML into GetResponse's HTML editor, or rebuild visually in GetResponse's drag-and-drop builder. For most teams, rebuilding in the drag-and-drop editor takes less time than wrestling HTML quirks. Bring your brand colors, logo, and footer boilerplate across first, then build each template on top of that base."
+  },
+  {
+    title: "Run a test send, then cut over integrations",
+    body: "Before sending to any real contacts, create a test segment of internal email addresses and send every rebuilt automation sequence through. Verify links, unsubscribe footer, reply-to address, and rendering across Gmail, Outlook, and mobile. Once clean, re-point your Zapier workflows, CRM native integrations, and any API connections from Mailchimp endpoints to GetResponse's API or native connectors. Then cancel Mailchimp only after your first live GetResponse send succeeds."
+  }
+]} />
+
+## What Breaks and What Does Not Transfer
+
+Knowing the gaps upfront beats discovering them mid-campaign.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The gotchas that catch teams off guard:**
+
+    - Mailchimp's "Groups" and "Segments" do not have a direct equivalent. Groups map roughly to GetResponse tags; saved segments need to be recreated as GetResponse search conditions or saved searches.
+    - Mailchimp's e-commerce integration data (purchase history, product recommendations) does not migrate. If you relied on purchase-triggered automations, you will need to reconnect your e-commerce platform (Shopify, WooCommerce) natively in GetResponse and rebuild those triggers from scratch.
+    - RSS-to-email campaigns do not port. Recreate them in GetResponse under Create Newsletter > RSS.
+    - Mailchimp's "Customer Journey" builder maps reasonably well to GetResponse's Marketing Automation canvas, but the branching logic uses different condition syntax. A Mailchimp "If/Else" split on tag presence becomes a GetResponse "If contact has tag" condition block.
+    - Contact engagement scores (Mailchimp's star ratings) do not transfer. You start with a clean engagement slate in GetResponse.
+  </Fragment>
+  <Fragment slot="right">
+    ```
+    MAILCHIMP > GETRESPONSE FIELD MAP
+
+    First Name       → First Name (auto-mapped)
+    Last Name        → Last Name (auto-mapped)
+    Email Address    → Email (auto-mapped)
+    Phone            → Phone (custom field)
+    Birthday         → Custom date field
+    Tags             → Tags (auto-mapped on import)
+    Groups           → Tags (manual re-map)
+    MERGE1..MERGE9   → Custom fields (create first,
+                       then map during import)
+
+    NOT TRANSFERABLE:
+    - Open/click history
+    - Purchase data
+    - Engagement ratings
+    - Campaign send history
+    - A/B test results
+    ```
+  </Fragment>
+</SideBySide>
+
+The first thing I'd check after every import batch is the contact count. GetResponse shows a running import count with errors flagged inline. If your Mailchimp export had 8,400 contacts and GetResponse shows 7,900 imported with 500 errors, those errors are almost always malformed email addresses or duplicate records. Fix the CSV and re-import the error rows. Do not ignore the gap.
+
+## Verify It Worked
+
+Do not declare victory until you have checked all four of these:
+
+1. **DNS authentication confirmed**: In GetResponse under Profile > Email Addresses, your sending domain should show a green "Verified" status for both SPF and DKIM. If either is yellow or red, no amount of great copy will save your deliverability.
+2. **Suppression list active**: Send a test email to an address you know is on your Mailchimp unsubscribe export. It should not arrive. If it does, your suppression import failed.
+3. **Automation triggers firing**: Manually trigger each rebuilt workflow by subscribing a test contact via your signup form. Walk through each sequence step by step and confirm the emails arrive, the delays apply, and the branching conditions route correctly.
+4. **Integrations reconnected**: If you use a CRM sync (say, a HubSpot or [Pipedrive](/go/pipedrive/) native integration or a Zapier bridge), trigger a test contact creation in the source system and confirm the contact appears in GetResponse within the expected sync window.
+
+For teams with a more complex marketing automation stack, the [HubSpot Workflows to n8n migration playbook](/blog/2026-10-07-hubspot-workflows-to-n8n-migration-playbook/) covers the same verify-and-cutover pattern in the context of workflow automation more broadly.
+
+## Who Should Switch and Who Should Stay
+
+<ChooseIf title="Mailchimp vs. GetResponse: Who Should Move?" tools={[
+  {
+    name: "GetResponse",
+    conditions: [
+      "You are hitting Mailchimp's pricing tiers hard and want more contacts for less money",
+      "You need a visual marketing automation builder with conditions and branching, not just linear drip sequences",
+      "You want webinar hosting, landing pages, and email in a single platform without extra tools"
+    ],
+    pricing: "From $19/mo (1,000 contacts)",
+    affiliateSlug: "getresponse",
+    ctaLabel: "Try GetResponse",
+    highlight: true
+  },
+  {
+    name: "Mailchimp",
+    conditions: [
+      "Your team is non-technical and the Mailchimp UI is already embedded in your workflow with no complaints",
+      "You rely heavily on Mailchimp's native Shopify or WooCommerce e-commerce analytics and do not want to rebuild that integration",
+      "You are on the free plan under 500 contacts and have no immediate growth pressure"
+    ],
+    pricing: "Free to 500 contacts, then from $13/mo",
+    affiliateSlug: "mailchimp",
+    ctaLabel: "Stay on Mailchimp"
+  },
+  {
+    name: "ActiveCampaign",
+    conditions: [
+      "You need deeper CRM functionality natively attached to your email automation, not a separate integration",
+      "Your sequences involve lead scoring, site tracking, and sales pipeline triggers that Mailchimp and GetResponse both handle poorly",
+      "You are a B2B SaaS team and want automation logic closer to what Marketo does at a fraction of the cost"
+    ],
+    pricing: "From $15/mo (1,000 contacts)",
+    affiliateSlug: "activecampaign",
+    ctaLabel: "Try ActiveCampaign"
+  },
+  {
+    name: "Brevo",
+    conditions: [
+      "You send transactional email alongside marketing campaigns and want both in one platform",
+      "You are price-sensitive and send high volume: Brevo prices by sends per month, not contact count",
+      "You need SMS and WhatsApp alongside email without bolting on a third-party tool"
+    ],
+    pricing: "Free to 300 emails/day, then from $9/mo",
+    affiliateSlug: "brevo",
+    ctaLabel: "Try Brevo"
+  }
+]} />
+
+My read is that [ActiveCampaign](/go/activecampaign/) is the right answer for B2B SaaS teams building complex lifecycle automation, while GetResponse hits the sweet spot for SMBs and content creators who want a solid automation builder without CRM complexity. If pricing is the primary pain and your list is large but infrequently mailed, [Brevo](/go/brevo/) deserves a serious look. Brevo prices on sends rather than contacts, which is a structurally better model for that situation. I compared all three alongside Kit in the [Kit vs Beehiiv vs Brevo newsletter comparison](/blog/2026-10-06-kit-vs-beehiiv-vs-brevo-newsletter-comparison-2026/) if you want the full breakdown before committing.
+
+For teams currently on Brevo who are also evaluating a switch, the [migrate from Brevo to Smartlead playbook](/blog/2026-10-10-migrate-from-brevo-to-smartlead-step-by-step-playbook/) covers the same export-rebuild-verify pattern for cold outreach contexts.
+
+<MyTake>
+GetResponse gets underestimated because it sits in an awkward middle tier between Mailchimp's simplicity and ActiveCampaign's depth. That framing is wrong. The automation builder is genuinely good, and at the contact tiers where Mailchimp pricing gets painful, GetResponse is not a consolation prize. The real mistake teams make is rebuilding their old Mailchimp sequences one-to-one and never touching the conditional branching and tag-based routing that made the switch worth doing. You moved platforms. Use the features you paid for.
+</MyTake>
+
+## The Migration Is a Forcing Function
+
+A platform migration is uncomfortable. It is also the best audit opportunity you will get. Every sequence you rebuild in GetResponse is a sequence you are forced to re-examine. I'd use the rebuild step as an intentional pruning exercise: if a Mailchimp automation has not driven meaningful engagement in six months, do not migrate it. Kill it and start clean. Your new platform will perform better with five sharp sequences than fifteen inherited ones nobody has touched in two years. The rebuild is not overhead. It is the actual work.
+
+<BottomLine
+  verdict="GetResponse is the right Mailchimp exit for SMBs and content teams who want a real automation builder at a contact-count-friendly price. Migrate your lists, rebuild your sequences intentionally, authenticate your domain before your first send, and you will be in a materially better position within a week."
+  pick="GetResponse"
+  affiliateSlug="getresponse"
+  ctaLabel="Try GetResponse"
+/>
+
+<Sources sources={[
+  { label: "GetResponse: Importing contacts guide", url: "https://www.getresponse.com/help/how-do-i-import-contacts-from-a-csv-or-txt-file.html" },
+  { label: "GetResponse: Marketing Automation overview", url: "https://www.getresponse.com/help/marketing-automation.html" },
+  { label: "Mailchimp: Export your contacts", url: "https://mailchimp.com/help/view-export-contacts/" },
+  { label: "GetResponse: Email authentication (DKIM, SPF, DMARC)", url: "https://www.getresponse.com/help/email-authentication.html" }
+]} />
