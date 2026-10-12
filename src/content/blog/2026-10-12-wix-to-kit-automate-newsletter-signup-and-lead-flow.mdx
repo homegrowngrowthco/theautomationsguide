@@ -1,0 +1,182 @@
+---
+title: "Wix to Kit: Automate Newsletter Signup and Lead Flow"
+description: "How to connect Wix to Kit (ConvertKit) using Zapier, Make, or n8n. Automate subscriber tagging, segmentation, and lead flow from your Wix site."
+tldr: "You can connect Wix to Kit using Zapier for simplicity, Make for logic-heavy flows, or n8n if you want self-hosted control, with no native integration available."
+pubDate: 2026-10-12
+tags: ["automation", "email-marketing", "integrations"]
+faqs:
+  - question: "Is there a native Wix ConvertKit integration?"
+    answer: "No. Wix does not offer a native Kit (ConvertKit) integration. You need a middleware layer like Zapier, Make, or n8n to bridge the two platforms."
+  - question: "How do I add ConvertKit subscribers from a Wix form?"
+    answer: "Connect Wix to Kit via Zapier or Make by triggering on a new Wix form submission and mapping the email field to a Kit subscriber create or tag action."
+  - question: "Can I tag Kit subscribers based on which Wix form they filled out?"
+    answer: "Yes. In Make or n8n, you can add a conditional branch that reads the form name or page URL from the Wix payload and applies a different Kit tag per source."
+  - question: "Does this workflow work with Wix Stores and Wix Bookings?"
+    answer: "Zapier and Make both expose Wix Stores order and Wix Bookings appointment triggers, so you can tag or segment Kit subscribers based on purchase or booking events."
+  - question: "What is the cheapest way to automate Wix to Kit?"
+    answer: "Zapier free tier handles up to 100 tasks per month, which works for low-volume sites. Make free tier gives 1,000 operations per month and more routing logic at the same price."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Wix gets a bad reputation in RevOps circles. I get it. But I still see it on B2B SaaS landing pages and creator sites where the operator just needed something live fast and Wix delivered. The problem surfaces the moment they want that Wix form to feed a [Kit](/go/kit/) (formerly ConvertKit) sequence: there is no native integration, the Wix App Market is no help, and copying form submissions by hand stops working somewhere around day two. This post lays out the exact automation plumbing to make Wix feed Kit cleanly. It covers the three middleware options worth considering ([Zapier](/go/zapier/), [Make](/go/make/), and [n8n](/go/n8n/)) and tells you which one to pick for your situation.
+
+## Why this integration matters and what you are actually building
+
+Wix collects the lead. Kit nurtures them. The gap in between is where most operators lose subscribers to manual copy-paste or a Mailchimp form embed that clashes with the brand. The goal is a flow where a Wix form submission (or store purchase, or booking) immediately creates a Kit subscriber, applies the right tags, and drops them into the correct sequence. No one touches anything.
+
+The underlying mechanics are straightforward. Wix exposes form data either via Zapier/Make native triggers or via Wix Velo (their JavaScript API layer) if you want a webhook approach. Kit's API is well-documented and accepts subscriber creates, tag applications, and sequence enrollments. The middleware just needs to map fields and add routing logic for segmentation.
+
+My read is that most operators underestimate the routing step. They wire up one path and ship it. More on why that causes problems later.
+
+<StatRow stats={[
+  { number: "0", label: "Native integrations", description: "Wix has no built-in Kit connector. Middleware is required." },
+  { number: "1,000", label: "Free ops/month on Make", description: "Make's free tier covers most low-volume Wix sites before you pay a cent." },
+  { number: "3x", label: "Tagging paths typical", description: "Most Wix-to-Kit builds need at least three routing branches: lead magnet, contact form, and product purchase." }
+]} />
+
+## The build, step by step
+
+These steps use Make as the primary example because it handles branching logic better than Zapier at the same price point. I note the Zapier equivalent at each step where it differs.
+
+<StepRow steps={[
+  {
+    title: "Create your Wix form and note the field names",
+    body: "In Wix Editor, open your form and check each field's internal name under Field Settings. The field name is what Make and Zapier receive in the payload, not the label visible to the visitor. Common gotcha: Wix names a field 'field_1' by default. Rename it to 'email' and 'first_name' before you build the automation or you will be remapping constantly."
+  },
+  {
+    title: "Set up the Wix trigger in Make (or Zapier)",
+    body: "In Make, create a new scenario. Search for the Wix module and select 'Watch New Submissions' for your chosen form. Make will ask you to connect your Wix account via OAuth, then select the specific form. In Zapier, the equivalent trigger is 'New Submission' under the Wix app. Run a test submission from your live Wix form so the middleware captures a real payload to map from."
+  },
+  {
+    title: "Add a Kit 'Create or Update Subscriber' action",
+    body: "After the Wix trigger module, add a Kit action. In Make, search for the ConvertKit (Kit) module and pick 'Create or Update Subscriber.' Map the Wix email field to the Kit email field, and first name to first name. 'Create or Update' is safer than 'Create' alone because it prevents duplicate subscriber errors when someone opts in twice. The Kit API v4 reference confirms this endpoint handles both cases."
+  },
+  {
+    title: "Add a Router module for tag and sequence logic",
+    body: "This is where Make earns its price over Zapier's basic tier. After the subscriber action, add a Router (Make) or a Filter (Zapier) to branch by form name or a hidden field value. Route 'lead-magnet-form' submissions to a Kit tag action that applies your 'Lead Magnet' tag and enrolls in a welcome sequence. Route 'contact-form' submissions to a different tag. Each branch ends in a Kit 'Add Tag to Subscriber' module plus, optionally, an 'Add Subscriber to Sequence' module."
+  },
+  {
+    title: "Test with a live submission and verify in Kit",
+    body: "Submit your Wix form with a real email address (use a test alias). Check Make's run history for a green execution. Then open Kit and confirm the subscriber appears with the correct tags and is queued in the right sequence. The first thing I'd check if something looks wrong is whether the Wix form field names in the payload match exactly what you mapped in step one. Case sensitivity matters."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **The field-name trap.** The most common failure in Wix automation builds is that the Wix form sends `field_1` instead of `email` because the operator never renamed the field in the Wix editor. Make receives the payload, maps nothing, and creates a subscriber with a blank email, which Kit quietly rejects. The scenario runs green, nothing shows up in Kit, and you spend an hour debugging the wrong layer.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // Good Wix payload (fields renamed in editor)
+    {
+      "email": "reader@example.com",
+      "first_name": "Alex",
+      "form_name": "lead-magnet-download"
+    }
+
+    // Bad Wix payload (default field names)
+    {
+      "field_1": "reader@example.com",
+      "field_2": "Alex",
+      "form_name": "form1"
+    }
+    ```
+  </Fragment>
+</SideBySide>
+
+## Using n8n for a self-hosted, webhook-based approach
+
+If you are already running [n8n](/tools/n8n/) for other workflows (say, a [HubSpot-to-n8n migration](/blog/2026-10-07-hubspot-workflows-to-n8n-migration-playbook/)), you can skip Zapier and Make entirely and hit the Kit API directly via webhooks. Wix Velo lets you fire a `wix-fetch` POST to an external URL on form submission. Point that URL at an n8n webhook trigger, parse the payload in a Function node, and call the Kit v4 API with an HTTP Request node.
+
+The n8n approach gives you full control over retry logic, error handling, and data transformation. But it requires you to be comfortable writing a small amount of JavaScript in Wix Velo and managing your n8n instance. For most Wix operators, that is overkill. For RevOps teams already self-hosting n8n and wanting everything under one roof, it is the cleaner long-term architecture.
+
+<Figure class="post-screenshot" caption="n8n workflow canvas showing a webhook trigger feeding into a branching flow, similar to how a Wix-to-Kit build is structured across enrichment and tagging steps.">
+  <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with webhook trigger, conditional branch, and HTTP action nodes" loading="lazy" />
+  </a>
+</Figure>
+
+## Which middleware to use
+
+<ChooseIf title="Pick your Wix-to-Kit middleware" tools={[
+  {
+    name: "Zapier",
+    conditions: [
+      "You want the fastest setup with no learning curve",
+      "Your Wix site gets fewer than 100 new subscribers per month",
+      "You only need one or two routing paths with no complex branching"
+    ],
+    pricing: "Free up to 100 tasks/month, Starter $19.99/month",
+    affiliateSlug: "zapier",
+    ctaLabel: "Try Zapier",
+    highlight: false
+  },
+  {
+    name: "Make",
+    conditions: [
+      "You need conditional routing by form, tag, or product type",
+      "You want 1,000 free operations per month before paying",
+      "You are already using Make for other GTM or marketing workflows"
+    ],
+    pricing: "Free 1,000 ops/month, Core $9/month",
+    affiliateSlug: "make",
+    ctaLabel: "Try Make",
+    highlight: true
+  },
+  {
+    name: "n8n",
+    conditions: [
+      "You self-host n8n and want all automations in one place",
+      "You are comfortable with Wix Velo JavaScript to fire webhooks",
+      "You need custom retry logic or complex data transformation"
+    ],
+    pricing: "Self-hosted free, Cloud from $20/month",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n",
+    highlight: false
+  }
+]} />
+
+## What about Beehiiv as an alternative to Kit?
+
+If you are still choosing your newsletter platform and not locked into Kit, [Beehiiv](/go/beehiiv/) has a stronger native web form embed story than Kit, and its growth and referral mechanics suit creator-style audiences better. The Wix-to-Beehiiv automation follows the same middleware pattern above but uses Beehiiv's subscriber API instead of Kit's. My read is that for pure newsletter-focused creators, Beehiiv edges out Kit on built-in monetization. Kit wins on marketing automation depth and tagging flexibility. I covered that tradeoff in detail in the [Kit vs Beehiiv vs Brevo comparison](/blog/2026-10-06-kit-vs-beehiiv-vs-brevo-newsletter-comparison-2026/) if you are still deciding.
+
+For RevOps operators connecting Wix to a lead nurture system rather than a newsletter-first product, Kit is the right call. The tag and sequence model maps cleanly to lifecycle stages in a way Beehiiv's more editorial architecture does not.
+
+<MyTake>
+The real problem with Wix-to-Kit builds is not the middleware configuration. It is that operators treat it as a one-and-done build and never add routing logic for multiple form sources. A flat "every submission gets one tag" setup means your welcome sequence fires for people who filled out a contact form, a lead magnet download, and a webinar registration with zero differentiation. That kills sequence relevance fast. Kit's [deliverability guidance](https://kit.com/features/deliverability) is explicit that engagement signals matter, and a misrouted welcome sequence is one of the fastest ways to crater them. Build the router branches from day one, even if you only have one live form today.
+</MyTake>
+
+## Lock it down before you call it done
+
+A working Wix-to-Kit automation is not just "form submits, subscriber appears." Before you move on, add a Make error handler on the Kit module so failed API calls route to a Slack alert or a Google Sheet log rather than disappearing silently. Check the [Wix Velo API documentation](https://dev.wix.com/docs/velo) if you are using the webhook path to confirm the payload structure for your specific Wix form type. Wix Forms, Wix Stores checkout, and Wix Bookings each send different schemas, and mixing them up is a quiet failure waiting to happen. Also review the [Kit API v4 reference](https://developers.kit.com/reference) to confirm you are using the current subscriber endpoint. Kit updated their API naming when they rebranded from ConvertKit, and old blog tutorials are still pointing at deprecated paths.
+
+Those three checks will catch the most common sources of silent failure in this stack. I'd run them before you consider this integration production-ready.
+
+<BottomLine
+  verdict="Make is the right default for Wix-to-Kit: more routing logic than Zapier at the same entry price, and a 1,000 op free tier that covers most early-stage sites. Add n8n only if you are already running it for the rest of your GTM stack."
+  pick="Make"
+  affiliateSlug="make"
+  ctaLabel="Try Make"
+/>
+
+<Sources sources={[
+  { label: "Kit: Deliverability features overview", url: "https://kit.com/features/deliverability" },
+  { label: "Kit: API v4 reference documentation", url: "https://developers.kit.com/reference" },
+  { label: "Wix Velo: Developer API documentation", url: "https://dev.wix.com/docs/velo" },
+  { label: "Make: Pricing and operations explained", url: "https://www.make.com/en/pricing" }
+]} />
