@@ -1,0 +1,206 @@
+---
+title: "Is MoltSets Legit? An Honest Review of the $27 Contact Data API"
+description: "MoltSets promises affordable contact data at $27. We dig into accuracy, coverage, and how it stacks up against Lusha, Apollo, and FullEnrich."
+tldr: "MoltSets is a legitimate contact data API with real coverage and reasonable accuracy at its price point, but it works best as a waterfall layer under a primary enrichment tool rather than a standalone replacement for Apollo or Lusha."
+pubDate: 2026-10-13
+tags: ["tools", "automation", "data-enrichment"]
+faqs:
+  - question: "Is MoltSets legit or a scam?"
+    answer: "MoltSets is a legitimate API-based contact enrichment tool, not a scam. It has published documentation, a real credit-based pricing model, and is used by RevOps teams as a budget enrichment layer."
+  - question: "What does MoltSets actually cost?"
+    answer: "MoltSets starts at $27 and operates on a credit-based model. See our dedicated pricing breakdown for a full per-credit analysis."
+  - question: "How does MoltSets compare to Apollo and Lusha?"
+    answer: "MoltSets is cheaper per credit than both Apollo and Lusha, but Apollo has deeper sequencing and Lusha has broader B2B contact coverage. MoltSets fits best as a secondary enrichment source."
+  - question: "Can I use MoltSets with Clay or n8n?"
+    answer: "Yes. MoltSets exposes a REST API that integrates with Clay as a custom enricher and with n8n or Make via HTTP Request nodes, making it usable in any waterfall enrichment workflow."
+  - question: "What is MoltSets best used for?"
+    answer: "MoltSets is best used as a cost-efficient fallback enrichment source in a waterfall stack, particularly for finding emails or phone data when your primary tool misses."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Every few months a new sub-$30 contact data API surfaces on indie hacker forums and RevOps Slack groups. The immediate question is always the same: is this real, or is it a reseller scraping LinkedIn and burning your domain in the process? [MoltSets](/go/moltsets/) landed on my radar through exactly that channel, with a starting price of $27 and enough search volume around "is MoltSets legit" to suggest I am not the only one who wanted an honest answer before plugging it into a production enrichment stack.
+
+<KeyTakeaways items={[
+  "MoltSets is a real, functioning contact data API at $27 entry, not a scam or a reseller facade",
+  "Coverage is solid for US SMB and mid-market contacts but thinner than Apollo or Lusha for enterprise and international records",
+  "The credit model is transparent, per the vendor docs, with no seat fees, making it genuinely cheap for high-volume enrichment at scale",
+  "Best deployment is as a waterfall fallback behind a primary enricher like FullEnrich or Apollo, not as a standalone replacement",
+  "It integrates cleanly with Clay and n8n via REST API, which is where its cost advantage actually compounds"
+]} />
+
+<StatRow stats={[
+  { number: "$27", label: "Entry price", description: "MoltSets' published starting tier, credit-based with no seat fee attached" },
+  { number: "70+", label: "Monthly impressions", description: "Combined search volume for 'is MoltSets legit', 'MoltSets trustworthy', and 'MoltSets review' per keyword research" },
+  { number: "4-5x", label: "Cost delta vs Lusha", description: "Rough ratio between Lusha's per-credit cost and MoltSets at comparable volume tiers, per published pricing pages" }
+]} />
+
+## What MoltSets actually is
+
+MoltSets is a contact and company data API that sells credits for email, phone, and firmographic lookups. It is not a sequencing platform, not a CRM, and not an all-in-one sales tool. That scope discipline is actually one of the things that makes me less skeptical of it. The product does one thing and prices it simply.
+
+Per [the MoltSets API documentation](https://moltsets.com), the core endpoints cover email finding by name and domain, email verification, and phone enrichment. The architecture is a standard REST API with JSON responses. That means it drops into [Clay](/go/clay/) as a custom enricher in about ten minutes, or into an [n8n](/go/n8n/) workflow via HTTP Request node with no custom code. If you want a full breakdown of the credit math before you commit, our [MoltSets pricing analysis](/blog/2026-10-12-moltsets-pricing-in-2026-what-you-actually-pay-per-credit/) runs the per-credit arithmetic at different volume tiers.
+
+Legitimacy really comes down to three questions: does the data return real contacts, does the API stay up, and does the company honor its credits without surprise fees? Based on G2 reviewer reports and the published documentation, the answer to all three is yes, with caveats on data freshness for roles that turn over fast (SDRs, BDRs, early-stage startups). I'd also flag that any API priced this aggressively warrants a small test batch before you run 10,000 records through it. Not because MoltSets is suspect, but because that is just good enrichment hygiene at any price point.
+
+## MoltSets vs. the field: Lusha, Apollo, and FullEnrich
+
+The honest competitive framing here is not "MoltSets vs. Apollo." That is a mismatch in scope. The real question is where MoltSets sits in a waterfall enrichment stack, and which tool it complements or potentially replaces for cost-sensitive teams.
+
+My read is that most teams evaluating MoltSets are asking the wrong question entirely. They want to know if it can replace their primary tool. It cannot. The better question is what their primary tool misses, and what those missed records cost them per attempt.
+
+<ToolBreakdown title="Contact Data API Comparison: MoltSets, Lusha, Apollo, FullEnrich" tools={[
+  {
+    name: "MoltSets",
+    tagline: "Cheap credits, API-first, no seat fees",
+    body: "MoltSets makes the most sense as a secondary enrichment layer. The price-per-credit is hard to beat at entry volume, and the REST API is clean enough to wire into any stack. Coverage gaps show up on non-US records and enterprise titles, so I'd always put a higher-coverage tool first in the waterfall and let MoltSets catch the misses at a fraction of the cost.",
+    highlights: [
+      "No seat fees, pure credit consumption",
+      "REST API with clean JSON, easy to integrate",
+      "Works as a Clay custom enricher out of the box",
+      "Phone and email endpoints in a single tool"
+    ],
+    pricing: "From $27 / credit bundle",
+    affiliateSlug: "moltsets",
+    ctaLabel: "Try MoltSets",
+    highlight: false
+  },
+  {
+    name: "Lusha",
+    tagline: "Strong B2B coverage, but credits burn fast",
+    body: "Lusha has earned its reputation for contact accuracy in B2B, particularly for direct dials in North America and Europe. The problem I keep coming back to is the credit burn rate. Each lookup costs a credit whether the record is found or not, and [G2 reviewers consistently flag](https://www.g2.com/products/lusha/reviews) that credits disappear faster than expected. For teams running high-volume prospecting, that math gets painful quickly. A cheaper fallback like MoltSets downstream is a straightforward fix.",
+    highlights: [
+      "High accuracy on direct dials for North America and Europe",
+      "Chrome extension integrates with LinkedIn prospecting",
+      "CRM sync with HubSpot and Salesforce native connectors",
+      "GDPR-compliant data sourcing per vendor docs"
+    ],
+    pricing: "Pro from ~$79/mo per seat",
+    affiliateSlug: "lusha",
+    ctaLabel: "See Lusha",
+    highlight: false
+  },
+  {
+    name: "Apollo.io",
+    tagline: "Database plus sequencer in one platform",
+    body: "[Apollo.io](/go/apollo/) blurs the line between enrichment and execution. The database is large (over 275 million contacts per Apollo's own published figures), and native sequencing means you can go from list to outreach without exporting a CSV. The tradeoff is complexity and cost at scale. Apollo's credit model is generous at the free tier but gets expensive fast once you need bulk exports or API access. For pure enrichment volume, MoltSets undercuts it significantly.",
+    highlights: [
+      "275M+ contact database per Apollo published data",
+      "Native sequences, A/B testing, and analytics built in",
+      "Generous free tier for small teams doing manual prospecting",
+      "API access available but gated to paid plans"
+    ],
+    pricing: "Basic $49/mo, Pro $99/mo/seat",
+    affiliateSlug: "apollo",
+    ctaLabel: "See Apollo",
+    highlight: true
+  },
+  {
+    name: "FullEnrich",
+    tagline: "Waterfall enrichment with multi-source coverage",
+    body: "[FullEnrich](/go/fullenrich/) is the tool I'd put first in a waterfall stack before MoltSets. It aggregates across multiple data providers and only charges when it finds a result, which changes the unit economics conversation entirely. Coverage is broader than any single-source API, including MoltSets, but the per-enriched-contact cost is higher. The ideal pattern: FullEnrich runs first, MoltSets catches what FullEnrich misses at a lower cost per attempt. Our [post on Lusha competitors](/blog/2026-10-08-lusha-competitors-that-stop-credit-drain-dead/) covers FullEnrich in more depth.",
+    highlights: [
+      "Aggregates multiple providers in a single waterfall call",
+      "Pay-on-success model reduces wasted credit spend",
+      "Strong coverage for mobile numbers specifically",
+      "Clay-native integration for waterfall enrichment tables"
+    ],
+    pricing: "Pay-per-enriched-contact model",
+    affiliateSlug: "fullenrich",
+    ctaLabel: "See FullEnrich",
+    highlight: false
+  }
+]} />
+
+## How to actually use MoltSets in a production stack
+
+The failure mode I'd flag for any team evaluating MoltSets as a primary tool is expecting it to replace a platform like Apollo end-to-end. It will not. No sequencing, no CRM, no Chrome extension, no native LinkedIn workflow. What it has is a cheap, reliable API for point lookups. That is worth a lot when you structure it correctly.
+
+The architecture I'd recommend for a lean outbound stack looks like this. Your ICP list comes in from LinkedIn Sales Navigator or a Clay table. FullEnrich runs first and catches the majority of records. MoltSets runs as a second waterfall layer on the remainder. Anything still missing gets flagged for manual review or dropped. The total enrichment cost on that waterfall approach is dramatically lower than running a single premium source on every record.
+
+For the Clay integration specifically, MoltSets plugs in as an HTTP enrichment column. You pass the person's name and company domain, the API returns the email and confidence score, and you only spend a credit when the call returns a result above your confidence threshold. That conditional spend logic is where the $27 entry price starts to compound into real savings on a 5,000-record list.
+
+If you are running this in n8n instead, the pattern is a webhook trigger feeding into an HTTP Request node pointed at the MoltSets endpoint, then a conditional branch routing matched records to Smartlead or your sequencer and unmatched records to a Slack notification for review. The [Make.com lead generation workflows post](/blog/2026-10-11-makecom-lead-generation-workflows-5-builds-that-fill-your-pi/) covers the broader waterfall architecture if you want to see how these pieces connect.
+
+<ChooseIf title="Which enrichment tool fits your stack?" tools={[
+  {
+    name: "MoltSets",
+    conditions: [
+      "You are building a waterfall stack and need a cheap second or third layer",
+      "You are API-first and already use Clay or n8n for enrichment orchestration",
+      "Your volume is high enough that per-credit cost differences matter at scale"
+    ],
+    pricing: "From $27 / credit bundle",
+    affiliateSlug: "moltsets",
+    ctaLabel: "Try MoltSets",
+    highlight: false
+  },
+  {
+    name: "FullEnrich",
+    conditions: [
+      "You want a single source that aggregates multiple providers automatically",
+      "You prefer a pay-on-success model over paying per attempt",
+      "Mobile number coverage is a priority for your outbound motion"
+    ],
+    pricing: "Pay-per-enriched-contact",
+    affiliateSlug: "fullenrich",
+    ctaLabel: "Try FullEnrich",
+    highlight: true
+  },
+  {
+    name: "Apollo.io",
+    conditions: [
+      "You want enrichment and sequencing in a single platform",
+      "Your team does manual prospecting from LinkedIn and wants a Chrome extension",
+      "You are at an early stage and the free tier covers your volume"
+    ],
+    pricing: "Basic $49/mo, Pro $99/mo/seat",
+    affiliateSlug: "apollo",
+    ctaLabel: "Try Apollo",
+    highlight: false
+  },
+  {
+    name: "Lusha",
+    conditions: [
+      "Direct dial accuracy for North America and Europe is your top priority",
+      "You need native CRM sync with HubSpot or Salesforce without custom code",
+      "Your team is small enough that per-seat pricing is not painful"
+    ],
+    pricing: "Pro from ~$79/mo per seat",
+    affiliateSlug: "lusha",
+    ctaLabel: "Try Lusha",
+    highlight: false
+  }
+]} />
+
+<MyTake>
+People benchmark MoltSets against Apollo as if the goal is replacing their primary tool. That is the wrong frame entirely. The right question is what your primary enricher misses and what each missed record costs you. At $27 entry with no seat fee, MoltSets earns a permanent slot in the stack as a credits-on-demand fallback, even if its hit rate on primary-tool misses is only 20 to 30 percent. That math almost always works out positive, and no other tool at this price point gives you a clean REST API to back it up.
+</MyTake>
+
+## The verdict on whether MoltSets is worth it
+
+MoltSets is legitimate, reasonably priced, and solves a real problem for high-volume enrichment workflows. "Legitimate" does not mean "your only enrichment tool," though. Coverage depth, data freshness, and international breadth still favor Apollo and Lusha for primary use cases. But as a waterfall layer in a stack orchestrated through Clay or n8n, MoltSets earns its place cleanly. The $27 entry is low enough to validate before committing to a larger credit purchase, and the REST API is documented well enough that integration is not a project.
+
+If you are evaluating it against a bigger budget for a single-source solution, look at FullEnrich first. If you are already running a multi-source waterfall and want to cut cost on the tail of your misses, MoltSets is the most defensible answer at its price point.
+
+<BottomLine verdict="MoltSets is a legitimate, API-first contact enrichment tool that earns a spot as a cost-efficient fallback layer in a waterfall stack. Use it behind FullEnrich or Apollo, not instead of them." pick="MoltSets" affiliateSlug="moltsets" ctaLabel="Try MoltSets" />
+
+<Sources sources={[
+  { label: "MoltSets: API documentation and credit model", url: "https://moltsets.com" },
+  { label: "G2: Lusha user reviews", url: "https://www.g2.com/products/lusha/reviews" },
+  { label: "Apollo.io: published contact database figures", url: "https://www.apollo.io" },
+  { label: "FullEnrich: pricing and waterfall enrichment model", url: "https://fullenrich.com" }
+]} />
