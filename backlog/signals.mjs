@@ -157,6 +157,12 @@ export function unservedClusters(clusters, covered, { minImpressions = 3, limit 
   return out.sort((a, b) => b.impressions - a.impressions).slice(0, limit);
 }
 
+// The corpus demand is mined against when the rows being scored are already in the
+// calendar (--rank-suggested). A Suggested row is a proposal, not coverage: counted as
+// covered it serves its own cluster and re-scores at demand 0 (2026-10-13: Woodpecker
+// Pricing staged at demand 50 on 10/11 read 0 in the shortlist two days later).
+export const demandCorpus = (covered) => covered.filter((c) => c.status !== 'Suggested');
+
 // ---- 2. near-wins (position 5..15), split hub vs post ----
 // pageRows: GSC rows with dimensions ['page']; pageQueryRows: dimensions ['page','query'].
 // posts: [{ path, title, toolset, titleToolset?, ... }] from parsePublishedPosts. Attributed
@@ -333,6 +339,10 @@ export function selfTestSignals() {
   check('served cluster removed (intent + tools match covers "rb2b cost" too)', !unserved.some((c) => c.key === 'rb2b::pricing'));
   check('unserved cluster kept', unserved.some((c) => c.key === 'apollo+moltsets::general'));
   check('intent mismatch stays unserved', unserved.some((c) => c.key === 'moltsets::pricing'));
+  // A staged (Suggested) pricing row would serve its own cluster; the shortlist corpus drops it.
+  const staged = [...covered, { title: 'MoltSets Pricing in 2026: What You Actually Pay Per Credit', keyword: 'moltsetspricing', toolset: ['moltsets'], status: 'Suggested' }];
+  check('a Suggested row counted as covered serves its own cluster', !unservedClusters(clusters, staged).some((c) => c.key === 'moltsets::pricing'));
+  check('shortlist corpus: a Suggested row is not coverage', unservedClusters(clusters, demandCorpus(staged)).some((c) => c.key === 'moltsets::pricing'));
 
   // 3. near-wins: hub vs post split, operator-only pages excluded, attribution cut.
   const H = 'https://example.test';

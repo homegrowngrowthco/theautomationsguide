@@ -68,6 +68,9 @@ N migrations". The best tool has 3 human affiliate clicks in 90 days. So:
   - overlap -15: jaccard 0.5..0.72 with a covered title (0.72+ is a dedup drop).
 - **Priority** = score tertile within the batch (High / Medium / Low), interleaved by
   anchor tool. The engine's Queued sort (Priority, then Created) needs no change.
+- **`--rank-suggested` mines demand without the Suggested rows** (`demandCorpus`): a
+  staged row is a proposal, not coverage. Counted as covered it served its own cluster
+  and re-scored at demand 0 (found 2026-10-13, at the first pick after a scored run).
 - **Hub near-wins** (`/tools/<slug>/` at position 5..15, e.g. `/tools/close/` on
   "close crm") are listed as hub fixes in the batch and never become a sibling post.
 - The "alternatives" title fence from the 2026-08-04 audit still hard-drops; the
