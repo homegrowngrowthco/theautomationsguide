@@ -45,7 +45,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   tokenSet, tokenCoverage, jaccard, intentOf, isComparison, fetchGscRows, clusterQueries, unservedClusters,
-  nearWins, formatPrior, scoreTopic, assignTiers, selfTestSignals,
+  nearWins, formatPrior, scoreTopic, assignTiers, selfTestSignals, demandCorpus,
 } from './signals.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -959,7 +959,9 @@ async function main() {
   console.log(`Universe: ${universe.length} tools (${universe.filter((t) => t.hasLP).length} with LP, ${universe.filter((t) => t.firstMover).length} first-mover).`);
   console.log(`Dedup corpus: ${covered.length} covered topics (${posts.length} published, ${calendar.length} calendar via ${NOTION_TOKEN ? 'live Notion' : 'local snapshot'}).`);
 
-  const signals = await mineSignals(universe, covered, posts);
+  // The shortlist scores rows that are already Suggested, so they must not count as
+  // coverage of their own demand (overlap below still sees the full corpus).
+  const signals = await mineSignals(universe, RANK_SUGGESTED ? demandCorpus(covered) : covered, posts);
   if (signals.window) console.log(`Signals: ${signals.clusters.length} unserved demand clusters (top: "${signals.clusters[0]?.top}" ${signals.clusters[0]?.impressions} impr), ${signals.nearWinPosts.length} near-win posts, ${signals.nearWinHubs.length} hub fixes, ${signals.zeroCoverage.length} live programs with no post.`);
   if (MINE_ONLY) { printSignals(signals); return; }
 
