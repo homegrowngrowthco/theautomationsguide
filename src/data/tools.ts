@@ -982,6 +982,11 @@ export const tools: Tool[] = [
     ctaPrimary: true,
     listed: true,
     aliases: ['Nutshell'],
+    seo: {
+      title: 'Nutshell CRM pricing, pipeline management & alternatives',
+      name: 'Nutshell CRM',
+      descriptionTail: 'Pipeline management and sequences for SMBs.',
+    },
     blurb:
       'Nutshell is an easy-to-use SMB CRM that bundles pipeline management, email sequences, and basic marketing, aimed at small teams that find HubSpot heavy and overpriced.',
     bestFor:
