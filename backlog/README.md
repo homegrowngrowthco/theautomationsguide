@@ -102,8 +102,9 @@ Two differences from a plain local run, both via the `--stage` flag:
   published, queued, generating, in-review, staged), superseding the local
   `CONTENT_CALENDAR.md` snapshot. With no `NOTION_TOKEN` it falls back to the snapshot.
 - It creates each surviving topic in the Content Calendar DB at `Status: Suggested`. It
-  NEVER sets `Queued` - flipping to `Queued` (what the publishing engine fires on) stays a
-  human decision. The DB id defaults to the engine's `topicsDatabaseId`
+  NEVER sets `Queued` - flipping to `Queued` (what the publishing engine fires on) is done
+  by the "TAG queue top-up" cloud routine on a standing score rule (2026-10-13, see
+  CLAUDE.md), or by hand. The DB id defaults to the engine's `topicsDatabaseId`
   (`62f34586-4f78-4b83-b2ac-105f500d059e`); override with the `NOTION_DATABASE_ID` repo
   variable.
 

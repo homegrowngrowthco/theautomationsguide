@@ -1,6 +1,8 @@
-# Next session (TAG): the 10/15 metric, second scored run, the ~10/20 pick, merge-on-green proof
+# Next session (TAG): read the two unattended runs, builder gaps, merge-on-green proof
 
-(File name is historical; it is rewritten in place each session. Content last rewritten 2026-10-13 ~13:30Z at the end of Session 112, op #1257.)
+(File name is historical; it is rewritten in place each session. Content last rewritten 2026-10-13 ~14:15Z at the end of Session 112, op #1257.)
+
+**Two cloud routines now do part of this with nobody present** (CLAUDE.md, "Cloud routines"). Check them first with `RemoteTrigger` (`list`, `list_runs`, `get_run_log`): "TAG unattended check 2026-10-15" (13:00Z, read-only, Slack DM + docs PR) and "TAG queue top-up (Sun + Wed)" (16:00Z; first run that should promote is Sun 10/18). Do not redo work a run already did correctly; verify it and move on.
 
 Start inside `theautomationsguide/`. State which model you are running as. Run `git pull --ff-only` on `master`, then `git worktree prune -v`. Linked worktrees other sessions own (`C:/tmp/tag-logo-audit`, `C:/tmp/tag-n8n-retry`) are never removed; "Permission denied" on prune of a stale `.git/worktrees/tag-*` entry is harmless. `TODO.md` is the only source of truth for open tasks; re-check every claim here with a query or against the repo before acting.
 
@@ -10,7 +12,8 @@ Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESS
 
 ## What Session 112 changed (verify, do not re-derive)
 
-- **Queue:** Ian picked the top 10 of the corrected shortlist on 10/13; 13 Queued / 34 Suggested at 13:15Z, Priority set by score within the pick (4 High, 3 Medium, 3 Low; titles and scores in the session log). The last one publishes 10/19 20:00Z. Metric (a) first read: 10 of 10 from the top 12.
+- **Queue:** Ian picked the top 10 of the corrected shortlist on 10/13; 13 Queued / 34 Suggested at 13:15Z, Priority set by score within the pick (4 High, 3 Medium, 3 Low; titles and scores in the session log). Metric (a) first read: 10 of 10 from the top 12.
+- **Routines:** an old cloud routine had been promoting topics every Sunday since June with stale rules (it, not Ian, queued MoltSets Pricing on 10/11). Ian had it rewritten as the queue top-up and added the 10/15 one-off. Ian's stated goal: queue work so Claude runs it without him; prefer a dated routine with a Slack DM over a prompt that waits for him.
 - **#381:** `--rank-suggested` no longer counts Suggested rows as coverage of their own demand (`demandCorpus()` in `backlog/signals.mjs`, 34 signal checks). Before the fix every staged row re-scored at demand 0.
 - **#382:** `/tools/nutshell/` has title "Nutshell CRM pricing, pipeline management & alternatives" and a price-led description (`seo` entry, same pattern as Close #368). Baseline 28 d to 10/10: 358 impressions, 209 on "nutshell pipeline management" at 10.0, 0 clicks. Read it ~11/10.
 - **Beehiiv:** Ian asked for the steps by Slack and has them (HGC DM, 10/13) with links and the live values. He applies them himself. Do not re-send; ask at most once whether they are done.
@@ -25,7 +28,7 @@ Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESS
 
 ## NEEDS FROM IAN (AskUserQuestion, at the point where each is needed)
 
-1. **Next Queued batch (due before ~2026-10-20 12:00Z):** count Queued first. If 4 or fewer remain, run `--rank-suggested` and bring Ian a pick of about 10 from the ranked shortlist (say which rows are fence-flagged), then record metric (a) in TODO. Never promote without his answer.
+1. **Queue:** promotion is automatic since 10/13 (the top-up routine, a standing score rule Ian approved). Count Queued; only if the routine failed or fewer than 4 remain with no run due, run `--rank-suggested` and bring Ian a pick. Compare the routine's 10/18 picks with `--rank-suggested`: it reads the stage-time score in Notes and cannot re-rank, so a large disagreement is worth showing him.
 2. **Builder gaps (med):** does he want a pricing or guide post beside a hub that is already a near-win (MoltSets Pricing shipped that way on 10/12)? His answer decides the fence; then make stage dedup and the queue audit derive the tool set the same way. `backlog/` change, PR, selftest green.
 3. **Beehiiv:** ask once whether the Slack steps are done. If yes, screenshot the signup at 375 px on a post and close the TODO item.
 4. **Alternatives fence (low):** three Suggested rows are alternatives titles (top one scored 31 on 10/13). Ask only if one reaches the top of a shortlist.
@@ -39,12 +42,12 @@ Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESS
 ## Part A. Builder and engine proof (Claude only)
 
 1. **Wed 2026-10-14 06:00Z (expect 10:30 to 12:40Z): second scored run**, then Sun 10/18. Check the signal line, the batch table, `Score N = ...` in Notes, and what the queue audit step Skipped (`gh run view <id> --log`, section "QUEUE AUDIT"): a staged row Skipped in the same run is the stage-vs-audit gap again.
-2. **The picked topics publish in Priority order** (High first, then Created). Check the first few engine PRs after 10/13 20:00Z: the review "Is MoltSets Legit?" must lint 0 hard with no testing or observation claim (gotcha 11); `npm run qa:lint -- --post <file>`.
+2. **The picked topics publish in Priority order** (High first, then Created). Check the first few engine PRs after 10/13 20:00Z: the review "Is MoltSets Legit?" must lint 0 hard with no testing or observation claim (gotcha 11); `node qa/lint-content.mjs --post <file>`. The 10/15 routine reads this too.
 3. If any engine run failed or a red `qa` stalled a PR, recover with **Retry** on the execution (never a fresh trigger), per `n8n/README.md` "Retry stack". A red content PR is fixed in-branch or closed.
 
 ## Part B. Parked checks (Claude only)
 
-1. **~2026-10-15 metric (due on or after 10/15):** `source_path` on >90% of human clicks (baseline 6%), split at the redesign deploy 10/02 ~21:55Z. PostHog 408442 via the connector's `execute-sql` (confirm `project-get` returns 408442; filter `$host` on both `theautomationsguide.com` and the root-dotted form). Drop crawler bursts first. On 10/13 every click since 10/08 17:00Z was `source_via=none` with no session and no browser, so the honest read may be "no human clicks to measure"; say so rather than computing a share of zero.
+1. **~2026-10-15 metric (the 10/15 routine reads it; verify its read against one query of your own before closing the TODO sub-bullet):** `source_path` on >90% of human clicks (baseline 6%), split at the redesign deploy 10/02 ~21:55Z. PostHog 408442 via the connector's `execute-sql` (confirm `project-get` returns 408442; filter `$host` on both `theautomationsguide.com` and the root-dotted form). Drop crawler bursts first. On 10/13 every click since 10/08 17:00Z was `source_via=none` with no session and no browser, so the honest read may be "no human clicks to measure"; say so rather than computing a share of zero.
 2. **First real attributed click:** only `source_via` `click` or `last_page` with `is_automated=false` counts, and only with a session, a browser and a TAG pageview on a page that actually links that tool.
 
 ## Part C. Lows if time allows
