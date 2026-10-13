@@ -8,7 +8,20 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-08 (Session 111).
+Last updated 2026-10-13 (Session 112).
+
+## Session 112 (2026-10-13): first pick from the scored shortlist, shortlist bug fixed, Nutshell hub title and meta (Opus 5.5, op #1257)
+
+- **Started 12:26Z.** 0 open PRs. Engine PRs #370 to #380 (10/08 20:00Z on) each merged themselves in about 2 min; none carries an `[auto-register]` commit, so the #354 path is still unproven. All ten bodies carry the S111 "merges itself" line. Watchdog green on every scheduled run.
+- **First scored builder run (10/11 12:35Z, 6.5 h late): green.** 32-check signal selftest, signal line (60 clusters, 11 near-win posts, 3 hub fixes, 8 live programs with no post), 15 proposed, 10 kept and staged with `Score N = ...` in Notes and tertile Priority.
+- **Found in that run:** its own queue audit Skipped the second-highest row minutes after staging it (Nutshell Pipeline Management, 80: "identical tool set" as the Nutshell vs Pipedrive vs Close post). Stage dedup reads the proposer's anchor + alsoCovers, the audit reads alias hits in title + keyword. And hub near-wins are not fenced at proposal time: MoltSets Pricing (82), a 10/08 hub fix, was flipped to Queued in Notion (not by Claude) and published 10/12 (#378). Both in TODO.
+- **Shortlist bug, #381 (`85301a3`):** `--rank-suggested` mined demand against a corpus that included the Suggested rows it scores, so each staged row served its own cluster and read demand 0 (Woodpecker Pricing 77 at stage, 42 in the shortlist, 92 fixed; 2 of 44 rows kept demand, 10 after). `demandCorpus()` drops Suggested rows in that mode only; 2 fixtures.
+- **Pick (Ian, AskUserQuestion): top 10 of the corrected shortlist**, Priority set by score within the pick. High: Woodpecker Pricing 92, Make Integrations 64, Is MoltSets Legit 64, Lemlist Integrations 57. Medium: Kit to Kajabi 55, Pipedrive to JSON 54, Surfe vs FullEnrich 52. Low: Kit to Gumroad 52, Qwilr vs GetAccept 51, Motion 48. Notion verified 13 Queued / 34 Suggested; runway to 10/19 20:00Z. **Metric (a): 10 of 10 from the top 12** (target two thirds). 23 of 44 Suggested rows carry a fence flag.
+- **Hub fixes, split by country and date first (28 d to 10/10).** `/tools/nutshell/` 358 impressions, 91% US, 209 on "nutshell pipeline management" at 10.0, 0 clicks: real. **#382 (`8ea7987`, Ian's OK):** `seo` entry, title "Nutshell CRM pricing, pipeline management & alternatives", description led by the index price ($13 Foundation to $79 Enterprise). Production verified 13:11Z. `/tools/moltsets/` 92, 85% US desktop: real but small, and #378 now targets its top query. `/tools/appy-ai/` 207 over about 30 countries on the brand query, no index price: left.
+- **PostHog 408442:** 9 `affiliate_click` since 10/08 17:00Z, all `source_via=none` with no session and no browser. None real.
+- **Beehiiv (Ian asked for the steps by Slack):** sent to his HGC DM with the live values read through the Beehiiv connector: form title on, direction row, width fixed 400, padding 80 px; welcome email not configured; 0 recommendations; email footer address empty. Nothing written to Beehiiv.
+- **Revert:** `git revert` #382 or #381; pick: set the 10 rows back to Suggested (titles above; prior Priority High, High, High, Medium / Low, Medium, High / Low, Medium, Low).
+- **Gotchas:** a shortlist that scores rows already in the calendar must not count them as coverage; the hub description clip is 158 chars, and a tail that overflows is dropped whole, not trimmed.
 
 ## Session 111 (2026-10-08): Clay link, Close hub title and meta, engine PR-body copy (Opus 5.5, op #1243)
 
