@@ -38,7 +38,7 @@ Most GTM teams that want AI-enriched contacts in [HubSpot](/go/hubspot/) assume 
 
 The standard enrichment pattern in RevOps is fetch, enrich, write back. Pull a new contact's name and company from HubSpot. Enrich it with firmographic or AI-generated context. Write the result back as a property the sales team can see in their sequence queue.
 
-The usual failure point is too many moving parts. A Make scenario that calls OpenAI, then calls the HubSpot API, then handles errors across three separate modules works fine until a module auth token expires and nobody notices for a week. Gumloop's pitch is that the AI step is native, not bolted on. The surface area for failure is genuinely smaller.
+The usual failure point is too many moving parts. A Make scenario that calls OpenAI, then calls the HubSpot API, then handles errors across three separate modules works fine until a module auth token expires and nobody notices for a week. [Gumloop](/tools/gumloop/)'s pitch is that the AI step is native, not bolted on. The surface area for failure is genuinely smaller.
 
 I'd argue most RevOps teams reach for Clay or Make out of habit, not because those tools are actually better for a single-LLM enrichment step. When the output you want is a judgment call rather than a data lookup, Gumloop's architecture fits the job better.
 
