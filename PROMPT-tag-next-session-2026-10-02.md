@@ -1,8 +1,8 @@
 # Next session (TAG): read the two unattended runs, builder gaps, merge-on-green proof
 
-(File name is historical; it is rewritten in place each session. Content last rewritten 2026-10-13 ~14:15Z at the end of Session 112, op #1257.)
+(File name is historical; it is rewritten in place each session. Content last rewritten 2026-10-13 ~14:15Z at the end of Session 112, op #1257; lines marked S113 corrected 2026-10-15 by the unattended routine, which has no op number.)
 
-**Two cloud routines now do part of this with nobody present** (CLAUDE.md, "Cloud routines"). Check them first with `RemoteTrigger` (`list`, `list_runs`, `get_run_log`): "TAG unattended check 2026-10-15" (13:00Z, read-only, Slack DM + docs PR) and "TAG queue top-up (Sun + Wed)" (16:00Z; first run that should promote is Sun 10/18). Do not redo work a run already did correctly; verify it and move on.
+**Two cloud routines now do part of this with nobody present** (CLAUDE.md, "Cloud routines"). Check them first with `RemoteTrigger` (`list`, `list_runs`, `get_run_log`): "TAG unattended check 2026-10-15" (ran 10/15, S113: Slack DM + docs PR; read its log, do not redo it) and "TAG queue top-up (Sun + Wed)" (16:00Z; first run that should promote is Sun 10/18). Do not redo work a run already did correctly; verify it and move on.
 
 Start inside `theautomationsguide/`. State which model you are running as. Run `git pull --ff-only` on `master`, then `git worktree prune -v`. Linked worktrees other sessions own (`C:/tmp/tag-logo-audit`, `C:/tmp/tag-n8n-retry`) are never removed; "Permission denied" on prune of a stale `.git/worktrees/tag-*` entry is harmless. `TODO.md` is the only source of truth for open tasks; re-check every claim here with a query or against the repo before acting.
 
@@ -37,17 +37,17 @@ Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESS
 
 ## Part 0. Close the merge-on-green proof
 
-1. **The next engine PR whose qa pushes an `[auto-register]` commit** is the real test of #354. #357 through #380 had none (`gh pr view <n> --json commits` on every engine PR since #380). It should merge within minutes of green with no help, and its head should carry a `pr-gates` check titled "PR gates pass (dispatched run)". If it sticks, `gh workflow run auto-merge-content.yml`; if a check is `cancelled` with an empty `runner_name`, `gh run rerun <id> --failed`. Never merge by hand. Then delete the TODO item.
+1. **The next engine PR whose qa pushes an `[auto-register]` commit** is the real test of #354. #357 through #388 had none (S113 checked #385, #386, #388; #387 is red, see TODO). It should merge within minutes of green with no help, and its head should carry a `pr-gates` check titled "PR gates pass (dispatched run)". If it sticks, `gh workflow run auto-merge-content.yml`; if a check is `cancelled` with an empty `runner_name`, `gh run rerun <id> --failed`. Never merge by hand. Then delete the TODO item.
 
 ## Part A. Builder and engine proof (Claude only)
 
-1. **Wed 2026-10-14 06:00Z (expect 10:30 to 12:40Z): second scored run**, then Sun 10/18. Check the signal line, the batch table, `Score N = ...` in Notes, and what the queue audit step Skipped (`gh run view <id> --log`, section "QUEUE AUDIT"): a staged row Skipped in the same run is the stage-vs-audit gap again.
-2. **The picked topics publish in Priority order** (High first, then Created). Check the first few engine PRs after 10/13 20:00Z: the review "Is MoltSets Legit?" must lint 0 hard with no testing or observation claim (gotcha 11); `node qa/lint-content.mjs --post <file>`. The 10/15 routine reads this too.
+1. **Wed 2026-10-14 second scored run: done (S113, run 24, green, 7 staged, 0 Skipped).** Next is Sun 10/18. Check the signal line, the batch table, `Score N = ...` in Notes, and what the queue audit step Skipped (`gh run view <id> --log`, section "QUEUE AUDIT"): a staged row Skipped in the same run is the stage-vs-audit gap again.
+2. **The picked topics publish in Priority order** (High first, then Created). Check the first few engine PRs after 10/13 20:00Z: "Is MoltSets Legit?" linted 0 hard, no testing or observation claim (S113). #387 Woodpecker Pricing is red on a truncated link; `node qa/lint-content.mjs --post <file>` on new posts.
 3. If any engine run failed or a red `qa` stalled a PR, recover with **Retry** on the execution (never a fresh trigger), per `n8n/README.md` "Retry stack". A red content PR is fixed in-branch or closed.
 
 ## Part B. Parked checks (Claude only)
 
-1. **~2026-10-15 metric (the 10/15 routine reads it; verify its read against one query of your own before closing the TODO sub-bullet):** `source_path` on >90% of human clicks (baseline 6%), split at the redesign deploy 10/02 ~21:55Z. PostHog 408442 via the connector's `execute-sql` (confirm `project-get` returns 408442; filter `$host` on both `theautomationsguide.com` and the root-dotted form). Drop crawler bursts first. On 10/13 every click since 10/08 17:00Z was `source_via=none` with no session and no browser, so the honest read may be "no human clicks to measure"; say so rather than computing a share of zero.
+1. **~2026-10-15 metric (the 10/15 routine reads it; verify its read against one query of your own before closing the TODO sub-bullet):** `source_path` on >90% of human clicks (baseline 6%), split at the redesign deploy 10/02 ~21:55Z. PostHog 408442 via the connector's `execute-sql` (confirm `project-get` returns 408442; filter `$host` on both `theautomationsguide.com` and the root-dotted form). Drop crawler bursts first. S113 read: 114 clicks, 0 strict human (the click event never has `$session_id` or `$browser`), 1 candidate (10/13 19:02Z Loops tool-strip); not measurable, no share computed.
 2. **First real attributed click:** only `source_via` `click` or `last_page` with `is_automated=false` counts, and only with a session, a browser and a TAG pageview on a page that actually links that tool.
 
 ## Part C. Lows if time allows
