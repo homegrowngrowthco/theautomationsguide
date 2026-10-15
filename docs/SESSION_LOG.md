@@ -8,7 +8,18 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-13 (Session 112).
+Last updated 2026-10-15 (Session 113, unattended routine).
+
+## Session 113 (2026-10-15): unattended cloud routine run, read-only checks (Sonnet 5.5, no op number)
+
+- **"TAG unattended check 2026-10-15"** ran from a fresh clone with the claude.ai connectors only. No op number; the next attended session logs it. Read only: nothing written to Notion, n8n, Beehiiv or PostHog.
+- **Engine PRs since #380:** #385 (MoltSets review), #386 (Make integrations), #388 (Lemlist integrations) each merged by github-actions 1.5 to 2.5 min after opening, one commit each, no `[auto-register]`, so the #354 path is still unproven. **#387 (Woodpecker Pricing, High, score 92) is OPEN and red since 10/14 20:03Z:** qa (lint-content) and pr-gates/build fail on one HARD, the truncated link `/blog/2026-10-05-woodpecker-vs-instantly-best- ` (real slug ends `...best-cold-email-for-small-teams`). It is the 4th `lint-content` failure in 14 days per the ledger. Not touched (read-only run).
+- **Builder run 10/14 (run 24, 11:37Z, 5.6 h late): success.** Signals: 60 unserved clusters, 12 near-win posts, 5 hub fixes, 8 live programs with no post. Proposed 15, kept 7, staged 7/7. Ranked 57 Constant Contact vs GetResponse vs Brevo, 51 Zoom to Kit, 48 Pipedrive Segmentation, 47 Pipedrive Implementation, 27 Motion costs, 27 Descript review, 27 Leadpages review. Queue audit: 0 collisions, 0 fence advisories, 0 Skipped, so no stage-then-skip repeat.
+- **New posts since 10/13 18:00Z:** MoltSets review 0 hard, 2 warn (Smartlead unlinked, 63-char title); Make integrations 0 hard, 1 warn (Apollo unlinked); Lemlist integrations 0 hard, 2 warn (Apollo unlinked, 61-char title). No testing-claim or observation-figure warning; a grep of the MoltSets review found no first-person testing, usage or measurement claim.
+- **Queue:** 9 Queued, 41 Suggested, 191 Published, 1 In Review (#387), 234 Skipped. At 2 a day from 10/15 20:00Z the 9 run out after the 10/19 12:00Z post, dry from 10/19 20:00Z unless the Sun 10/18 16:00Z top-up promotes (about 3 left then, so it should).
+- **source_path metric (PostHog 408442 confirmed):** 114 `affiliate_click` since 10/02 01:21Z (1 before the 10/02 21:55Z deploy, 113 after). 91 `source_via=none`; 23 `click` or `last_page`, of which 20 have a path with no trailing slash (404 probes). 99 flagged `$virt_is_bot`, 1 `is_automated`. None of the 114 carries `$session_id` or `$browser` on the click event, so the strict rule gives 0 human clicks and the share is not meaningful. 3 clicks pass every other test: 10/06 08:49Z Instantly `last_page` from the Woodpecker vs Instantly post, 10/07 16:46Z GetAccept `last_page` from `/` (both already rejected in S107 and S108 as direct `/go/` loads), and **10/13 19:02Z Loops, `click`, `tool-strip`, on the Loops vs Customer.io vs Brevo post**: Chrome desktop, GB, Google referrer, click 3 s after the pageview, no bot flag. That one is probably the first real attributed click (Ian to judge).
+- **Revert:** docs only; close this PR.
+- **Gotchas:** the click event never carries `$session_id` or `$browser` (they sit on the pageview in the same distinct_id), so the "has a session and a browser" rule can never pass; join the pageview instead. The #387 link slug was cut at 40 characters with a trailing space (cause not investigated).
 
 ## Session 112 (2026-10-13): first pick from the scored shortlist, shortlist bug fixed, Nutshell hub title and meta (Opus 5.5, op #1257)
 
