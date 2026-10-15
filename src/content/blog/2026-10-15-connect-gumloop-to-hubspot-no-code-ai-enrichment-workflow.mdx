@@ -1,0 +1,199 @@
+---
+title: "Connect Gumloop to HubSpot: No-Code AI Enrichment Workflow"
+description: "Build a Gumloop HubSpot integration that auto-enriches new contacts with AI, no n8n or Clay required. Step-by-step workflow for RevOps teams."
+tldr: "You can connect Gumloop to HubSpot using Gumloop's native HubSpot node to build an AI enrichment workflow that runs automatically when new contacts are created, no n8n, Make, or Clay required."
+pubDate: 2026-10-15
+tags: ["automation", "hubspot", "enrichment"]
+faqs:
+  - question: "Does Gumloop have a native HubSpot integration?"
+    answer: "Yes. Gumloop includes a native HubSpot node that can read, create, and update contacts and companies without any middleware like Zapier or n8n."
+  - question: "Can Gumloop replace Clay for contact enrichment?"
+    answer: "Gumloop handles AI-powered enrichment flows well, but it does not offer Clay's waterfall enrichment across multiple data providers. It is better used as a workflow layer that processes data from a single enrichment source."
+  - question: "Do I need to know how to code to build a Gumloop HubSpot workflow?"
+    answer: "No. Gumloop is a visual no-code canvas. You connect nodes by dragging and wiring them, and the AI step uses a prompt you write in plain language."
+  - question: "How is Gumloop different from n8n or Make for this use case?"
+    answer: "Gumloop builds AI reasoning directly into the node graph, so you can run an LLM step without a separate API call or code block. n8n and Make require you to wire an OpenAI or Anthropic HTTP node yourself."
+  - question: "What HubSpot plan do I need for this workflow?"
+    answer: "The HubSpot API access required for Gumloop's node is available on all paid HubSpot hubs. Starter tier works for basic contact reads and writes."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most GTM teams that want AI-enriched contacts in [HubSpot](/go/hubspot/) assume they need a multi-tool stack: [Clay](/go/clay/) for enrichment, [n8n](/go/n8n/) or [Make](/go/make/) as the glue, and a developer to hold it together. [Gumloop](/go/gumloop/) flips that assumption. It is a visual AI workflow builder with a native HubSpot node, meaning you can trigger an enrichment flow the moment a contact is created, run it through an LLM step, and write the result back to a custom property, all inside one canvas. No middleware. No HTTP blocks. No Python. This post walks through exactly how I would build that workflow and where teams typically get tripped up.
+
+## Why This Workflow Matters
+
+The standard enrichment pattern in RevOps is fetch, enrich, write back. Pull a new contact's name and company from HubSpot. Enrich it with firmographic or AI-generated context. Write the result back as a property the sales team can see in their sequence queue.
+
+The usual failure point is too many moving parts. A Make scenario that calls OpenAI, then calls the HubSpot API, then handles errors across three separate modules works fine until a module auth token expires and nobody notices for a week. Gumloop's pitch is that the AI step is native, not bolted on. The surface area for failure is genuinely smaller.
+
+I'd argue most RevOps teams reach for Clay or Make out of habit, not because those tools are actually better for a single-LLM enrichment step. When the output you want is a judgment call rather than a data lookup, Gumloop's architecture fits the job better.
+
+<StatRow stats={[
+  { number: "1 canvas", label: "Full workflow surface", description: "Trigger, AI enrichment, and HubSpot write-back all live in one Gumloop flow, no external orchestrator needed" },
+  { number: "~15 min", label: "Realistic build time", description: "From blank canvas to live trigger for a simple one-field enrichment, per Gumloop's own docs" },
+  { number: "0 API blocks", label: "Code required", description: "Gumloop's HubSpot node handles auth and CRUD natively, no raw HTTP calls needed" }
+]} />
+
+<KeyTakeaways items={[
+  "Gumloop has a native HubSpot node that reads and writes contact properties without middleware",
+  "An AI enrichment step (LLM prompt) is a first-class node in Gumloop, not an external HTTP call",
+  "This workflow replaces a Clay plus n8n or Make plus OpenAI stack for teams that do not need waterfall enrichment",
+  "The main gotcha is mapping HubSpot internal property names correctly before you build, not after",
+  "Gumloop is early-stage; for complex multi-source enrichment, Clay still has the edge on data coverage"
+]} />
+
+## Setting Up the Workflow
+
+Before touching Gumloop, do one thing in HubSpot first: identify the exact internal property names you want to write to. HubSpot's internal names are not always what they look like in the UI. A property called "AI Summary" might carry an internal name of `ai_summary_v2` depending on when it was created. Pull these from HubSpot's [property settings API reference](https://developers.hubspot.com/docs/reference/api/crm/properties) or from the Properties section in your portal settings. Getting this wrong means the Gumloop write-back silently fails. The node will not throw an obvious error.
+
+Also create any custom properties in HubSpot before you build the flow. Trying to write to a property that does not exist yet is the most common reason this workflow fails on the first run. Do not skip this step.
+
+<Figure class="post-screenshot" caption="HubSpot Sequences editor showing where contact properties feed into outreach personalization downstream.">
+  <a href="/go/hubspot/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/hubspot-sequences.png" alt="HubSpot Sequences editor with contact property tokens visible in the email template" loading="lazy" />
+  </a>
+</Figure>
+
+<StepRow steps={[
+  {
+    title: "Create a HubSpot private app and grab the access token",
+    body: "In HubSpot, go to Settings > Integrations > Private Apps and create a new app. Grant it scopes for crm.objects.contacts.read and crm.objects.contacts.write (add companies.read if you want firmographic data). Copy the access token. Gumloop will use this to authenticate its HubSpot node, not OAuth, so store it somewhere you can paste it in the next step."
+  },
+  {
+    title: "Connect HubSpot inside Gumloop",
+    body: "In Gumloop, open Integrations and add HubSpot. Paste the private app access token. Skip the OAuth connect flow for this workflow. Private app tokens give you cleaner, stable auth for automated flows that run unattended. Once connected, the HubSpot node appears in your node library."
+  },
+  {
+    title: "Build the trigger: HubSpot Contact Created",
+    body: "Start a new flow. Add a HubSpot trigger node and set the event to Contact Created. Map the output fields you need: First Name, Last Name, Company Name, Job Title, and the contact's email domain at minimum. These become the inputs to your AI step. If you need more data before the LLM runs, add a second HubSpot node set to Get Contact to pull additional properties using the contact ID from the trigger payload."
+  },
+  {
+    title: "Add the AI enrichment node and write your prompt",
+    body: "Add Gumloop's LLM node after the trigger. Select your model (GPT-4o or Claude 3.5 Sonnet are the practical choices here). Write a prompt that references the mapped fields using Gumloop's variable syntax. A useful prompt for a one-sentence ICP fit summary might read: 'Given that the contact is a [job_title] at [company_name], write a single sentence explaining whether this person is likely a decision-maker for a B2B SaaS procurement conversation. Be direct. No hedging.' The LLM output becomes the value you write back to HubSpot."
+  },
+  {
+    title: "Write the AI output back to HubSpot",
+    body: "Add a HubSpot Update Contact node. Set the Contact ID to the ID from the trigger payload. Map the LLM output field to the exact internal property name you verified before building (for example, ai_icp_summary). Save and activate the flow. Test it by creating a contact manually in HubSpot and watching the flow run in Gumloop's execution log."
+  }
+]} />
+
+## The Gotcha You Will Hit (and How to Fix It)
+
+The most common failure point is not the LLM step. It is the variable wiring between nodes. Gumloop passes data between nodes as a structured output object. If you reference a field name that does not exactly match the output schema from the previous node, the node receives an empty string and writes nothing back to HubSpot.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The trap:** You name the LLM output "summary" in the node config but the next node references it as "ai_summary" or just "output." Gumloop does not throw a hard error. The write-back runs, HubSpot accepts the API call, and you have a blank property with no indication of what went wrong. Check the execution log in Gumloop and expand the individual node outputs to verify each field carries a real value before it hits the write-back node.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // Correct: match the output key exactly
+    // LLM node output schema:
+    {
+      "summary": "Decision-maker at a 200-person SaaS company."
+    }
+
+    // HubSpot Update node mapping:
+    // Property: ai_icp_summary
+    // Value: {{nodes.llm_step.summary}}
+
+    // Wrong (silently fails):
+    // Value: {{nodes.llm_step.ai_summary}}
+    // Value: {{nodes.llm_step.output}}
+    ```
+  </Fragment>
+</SideBySide>
+
+## How Gumloop Compares for This Job
+
+Before you commit the build time, here is my honest read on where Gumloop fits versus the tools you are probably already running.
+
+<ChooseIf title="Which tool should run your HubSpot enrichment flow?" tools={[
+  {
+    name: "Gumloop",
+    conditions: [
+      "You want AI reasoning (LLM prompts) built into the enrichment step natively, not via an HTTP call",
+      "Your team does not have a developer available to manage n8n infrastructure",
+      "You are enriching from a single data source or using the LLM itself as the enrichment layer"
+    ],
+    pricing: "Free tier available; paid from $97/mo",
+    affiliateSlug: "gumloop",
+    ctaLabel: "Try Gumloop",
+    highlight: true
+  },
+  {
+    name: "Clay",
+    conditions: [
+      "You need waterfall enrichment across multiple providers (Apollo, Clearbit, LinkedIn, etc.) in one flow",
+      "Your enrichment logic depends on data accuracy more than AI-generated summaries",
+      "You are already running Clay tables and just need HubSpot sync, not a full rebuild"
+    ],
+    pricing: "Starter from $149/mo",
+    affiliateSlug: "clay",
+    ctaLabel: "Try Clay"
+  },
+  {
+    name: "n8n",
+    conditions: [
+      "You have a developer or a technical RevOps operator who can maintain self-hosted infrastructure",
+      "You need complex branching logic, custom code nodes, or integrations not covered by Gumloop",
+      "Cost at scale matters and you want to self-host to avoid per-execution pricing"
+    ],
+    pricing: "Cloud from $20/mo; self-host free",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n"
+  },
+  {
+    name: "Make",
+    conditions: [
+      "Your team is already in the Make ecosystem and has existing scenarios you want to extend",
+      "You need a broader app library than Gumloop currently offers",
+      "You prefer Make's scenario-based pricing model over Gumloop's execution model"
+    ],
+    pricing: "Core from $9/mo",
+    affiliateSlug: "make",
+    ctaLabel: "Try Make"
+  }
+]} />
+
+If you are already running [Make integrations for your GTM team](/blog/2026-10-14-make-integrations-that-actually-work-for-gtm-teams-in-2026/), the question is not whether to switch entirely. It is whether the AI-native layer in Gumloop is worth running in parallel for specific enrichment flows. My read is yes, for any workflow where the output is an LLM-generated field rather than a raw data lookup. Make is excellent at data plumbing. Gumloop is better when the "enrichment" is actually a judgment call you want the LLM to make.
+
+For teams comparing this to the [n8n HubSpot sync pattern](/blog/2026-10-13-connect-salesflare-to-hubspot-with-n8n-auto-sync-contacts/), the trade-off is flexibility versus friction. n8n gives you more control at the cost of significantly more configuration.
+
+<MyTake>
+Clay gets positioned as the default enrichment tool for any serious GTM stack, but that reputation is built on data provider coverage, not AI reasoning. When the enrichment output you actually want is an LLM-generated field (ICP summary, persona fit score, personalization hook), Clay is overkill and adds unnecessary pricing complexity. Gumloop's native LLM node is a cleaner fit for that job than wiring an OpenAI HTTP call inside Make or n8n. Reach for Clay when you need waterfall data from Apollo, Clearbit, or LinkedIn in one pass. Reach for Gumloop when the enrichment is the prompt itself.
+</MyTake>
+
+## One Canvas Is Enough
+
+The Gumloop HubSpot integration is not trying to replace every tool in your stack. What it does well is collapse the three-tool pattern (data trigger, AI call, CRM write-back) into a single canvas that a non-developer can own and debug. For GTM operators tired of managing auth tokens across four different tools just to get a one-sentence summary onto a contact record, that is a real improvement.
+
+Build the flow. Verify the execution log on the first three runs. Then hand it to whoever owns HubSpot operations. Per [Gumloop's integration docs](https://www.gumloop.com/integrations/hubspot), the HubSpot node handles auth state automatically after initial setup, so there is no token refresh to babysit. That alone is worth the switch for a lot of teams running this kind of flow today in Make.
+
+<BottomLine
+  verdict="Gumloop is the fastest path to an AI-enriched HubSpot contact flow for teams without a dedicated developer. Build it here first, then layer Clay or n8n on top only if your data requirements outgrow what a single LLM node can handle."
+  pick="Gumloop"
+  affiliateSlug="gumloop"
+  ctaLabel="Try Gumloop"
+/>
+
+<Sources sources={[
+  { label: "HubSpot Developers: Private Apps authentication", url: "https://developers.hubspot.com/docs/guides/apps/private-apps/overview" },
+  { label: "HubSpot Developers: CRM Properties API reference", url: "https://developers.hubspot.com/docs/reference/api/crm/properties" },
+  { label: "Gumloop: HubSpot integration docs", url: "https://www.gumloop.com/integrations/hubspot" },
+  { label: "G2: Gumloop reviews and category overview", url: "https://www.g2.com/products/gumloop/reviews" }
+]} />
