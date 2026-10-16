@@ -77,7 +77,9 @@ N migrations". The best tool has 3 human affiliate clicks in 90 days. So:
   hub's tool and targets the SAME query as its top query is dropped at generation, flagged in
   `--rank-suggested` and an advisory in `--audit-queue` (never auto-Skipped). Same query =
   60% token coverage both ways plus the same format, so "Nutshell vs Pipedrive" still passes
-  beside a hub ranking for "nutshell pipeline management".
+  beside a hub ranking for "nutshell pipeline management". The fence reads the page-level hubs
+  plus every hub page+query row at position 1..15 with 20+ impressions in 28d (`hubQueries()`),
+  since the page-level list missed both 10/11 cases.
 - **One tool-set rule:** stage dedup, the live calendar corpus and the queue audit all read a
   topic's tools as alias hits in title + target keyword (`rowToolset()`), the fields a Notion
   row keeps, so a staged row cannot be Skipped by the same run's audit for "identical tool set"

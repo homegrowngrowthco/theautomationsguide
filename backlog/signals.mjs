@@ -210,6 +210,41 @@ export function nearWins(pageRows, pageQueryRows, posts, { minAttributed = 100, 
   return { hubs: hubs.sort(desc), posts: postsOut.sort(desc) };
 }
 
+// ---- 2b. hub-fence queries (op #1309) ----
+// The page-level hub list above misses the two hubs the fence exists for: on 10/11
+// /tools/nutshell/ ranked 10.0 for "nutshell pipeline management" (209 impressions) while
+// its page-level average sat outside 5..15, and /tools/moltsets/ had about 92 impressions
+// in all, under the 100 floor. So the fence also reads page+query rows: a /tools/<slug>/
+// hub owns a human query it ranks 1..15 for with at least minImpressions in 28d. The band
+// starts at 1, not 5: a hub already in the top 4 owns the query more, not less, and
+// "moltsets pricing" read position 4.3 site-wide on 10/08. The floor of 20 (under one a
+// day) is above one-off rank-tracker blips, since the fence is a hard drop, and below the
+// smallest real case on record (MoltSets' whole hub, 92 in 28d, 85% US).
+export function hubQueries(pageQueryRows, { minImpressions = 20, maxPos = 15 } = {}) {
+  const out = [];
+  for (const r of pageQueryRows) {
+    const [page, q] = r.keys;
+    const path = (page || '').replace(/^https?:\/\/[^/]+/, '');
+    const hub = path.match(/^\/tools\/([^/]+)\/$/);
+    if (!hub || !isHumanQuery(q)) continue;
+    const pos = r.position || 0;
+    if (pos <= 0 || pos > maxPos || (r.impressions || 0) < minImpressions) continue;
+    out.push({ path, slug: hub[1], topQuery: q, position: Math.round(pos * 10) / 10, attributed: r.impressions, impressions: r.impressions, clicks: r.clicks || 0 });
+  }
+  return out.sort((a, b) => b.attributed - a.attributed);
+}
+// What the hub fence reads: the page-level near-win hubs (their top query) plus every
+// query-level hub row, one entry per hub + query. The "Hub fixes" list stays page-level.
+export function hubFenceList(nearWinHubs, pageQueryRows, opts) {
+  const seen = new Set(), out = [];
+  for (const h of [...(nearWinHubs || []), ...hubQueries(pageQueryRows || [], opts)]) {
+    const k = `${h.slug}::${(h.topQuery || '').toLowerCase()}`;
+    if (!h.topQuery || seen.has(k)) continue;
+    seen.add(k); out.push(h);
+  }
+  return out;
+}
+
 // ---- 3. measured format prior ----
 // Age-adjusted: only posts at least minAgeDays old on asOf count, so a young cohort
 // (September's migrations, August's pricing posts) is not judged on a partial window.

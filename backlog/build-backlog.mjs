@@ -46,6 +46,7 @@ import { fileURLToPath } from 'node:url';
 import {
   tokenSet, tokenCoverage, jaccard, intentOf, isComparison, fetchGscRows, clusterQueries, unservedClusters,
   nearWins, formatPrior, scoreTopic, assignTiers, selfTestSignals, demandCorpus, isSameQuery,
+  hubFenceList,
 } from './signals.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -103,7 +104,14 @@ if (STAGE && !NOTION_TOKEN) {
 // across functions silently collapses or splits matches). ----
 const norm = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 // Strip em/en dashes deterministically rather than relying on a prompt rule.
-const dedash = (s) => (s || '').replace(/\s*[â€”â€“]\s*/g, ', ');
+// Escapes, not literal characters: the literal class had been saved as mojibake, so real
+// em (U+2014) and en (U+2013) dashes passed through untouched (op #1309).
+const dedash = (s) => (s || '').replace(/\s*[\u{2014}\u{2013}]\s*/gu, ', ');
+// Emoji markers in AFFILIATE_PIPELINE.md (star U+2B50, magnifier U+1F50E, check U+2705),
+// as escapes for the same reason: the mojibake class never matched, so firstMover was
+// always false and category names kept their stars.
+const PIPELINE_MARKS = /[\u{2B50}\u{2705}\u{FE0F}\u{1F50E}]/gu;
+const FIRST_MOVER_STAR = /\u{2B50}/u;
 
 // ---- ANCHOR FENCE (anti-slop). Tools we must NEVER anchor a post on: no-affiliate
 // incumbents a young domain cannot rank for. GSC proof (2026-07): gong-alternatives
@@ -198,7 +206,7 @@ function parsePipelineBacklog() {
   for (const line of lines) {
     const h = line.match(/^###\s+(.*)$/);
     if (h) {
-      category = h[1].replace(/[â­ðŸ”Žâœ…]/g, '').replace(/\s+/g, ' ').trim();
+      category = h[1].replace(PIPELINE_MARKS, '').replace(/\s+/g, ' ').trim();
       continue;
     }
     if (!line.trim().startsWith('|')) continue;
@@ -207,7 +215,7 @@ function parsePipelineBacklog() {
     const first = cells[1] || '';
     if (!first || /^-+$/.test(first) || first.toLowerCase() === 'tool') continue; // header/separator
     if (/~~/.test(first)) continue; // excluded (e.g. ~~Koala~~)
-    const name = first.replace(/\*\*/g, '').replace(/[â­ðŸ”Žâœ…]/g, '').trim();
+    const name = first.replace(/\*\*/g, '').replace(PIPELINE_MARKS, '').trim();
     if (!name) continue;
     const notes = (cells[3] || '') + ' ' + (cells[2] || '');
     out.push({
@@ -216,7 +224,7 @@ function parsePipelineBacklog() {
       category,
       hasLP: false,
       listed: false,
-      firstMover: /â­/.test(line), // a star anywhere in the row
+      firstMover: FIRST_MOVER_STAR.test(line), // a star anywhere in the row
       aliases: [name],
     });
   }
@@ -435,16 +443,17 @@ function auditActiveRows(universe, corpus, active, hubs = []) {
   return { collisions, fenceAdvisories };
 }
 
-// Near-win hubs for the audit's hub-fence advisory: the two GSC pulls nearWins() needs.
-// null without GSC creds (the advisory is then skipped and the audit says so).
-async function fetchNearWinHubs(posts) {
+// The hub-fence list for the audit's advisory (page-level near-win hubs + query-level hub
+// rows, hubFenceList): the two GSC pulls nearWins() needs. null without GSC creds (the
+// advisory is then skipped and the audit says so).
+async function fetchHubFence(posts) {
   const access = await gscAccessToken();
   if (!access) return null;
   const [p28, pq28] = await Promise.all([
     fetchGscRows(access, GSC_SITE, { days: 28, dimensions: ['page'] }),
     fetchGscRows(access, GSC_SITE, { days: 28, dimensions: ['page', 'query'] }),
   ]);
-  return nearWins(p28.rows, pq28.rows, posts).hubs;
+  return hubFenceList(nearWins(p28.rows, pq28.rows, posts).hubs, pq28.rows);
 }
 
 async function auditQueue(universe) {
@@ -470,12 +479,12 @@ async function auditQueue(universe) {
   const active = rows.filter((r) => r.status === 'Queued' || r.status === 'Suggested');
   // Corpus = local posts + Published Notion rows (ground truth of what exists).
   const posts = parsePublishedPosts(universe);
-  const hubs = await fetchNearWinHubs(posts);
+  const hubs = await fetchHubFence(posts);
   const { collisions, fenceAdvisories } = auditActiveRows(universe, [...posts, ...published], active, hubs || []);
 
   console.log(`\n=== QUEUE AUDIT (db ${NOTION_DB}) ===`);
   console.log(`Active: ${active.length} rows (${active.filter((r) => r.status === 'Queued').length} Queued, ${active.filter((r) => r.status === 'Suggested').length} Suggested). Corpus: local posts + ${published.length} Published Notion rows.`);
-  console.log(hubs ? `Hub fence: ${hubs.length} near-win hub(s) from GSC${hubs.length ? ': ' + hubs.map((h) => `${h.path} "${h.topQuery}" @${h.position}`).join(', ') : ''}.`
+  console.log(hubs ? `Hub fence: ${hubs.length} hub + query pair(s) from GSC${hubs.length ? ': ' + hubs.map((h) => `${h.path} "${h.topQuery}" @${h.position}`).join(', ') : ''}.`
     : 'Hub fence: skipped (no GSC_TOKEN_JSON or GSC_TOKEN_FILE).');
   console.log(`\nDUPLICATE COLLISIONS (auto-Skip candidates): ${collisions.length}`);
   for (const c of collisions) console.log(`  [${c.status}] ${c.title.slice(0, 66)}\n        -> ${c.reason}`);
@@ -554,7 +563,7 @@ function zeroCoverageLive(universe, posts) {
 }
 
 const EMPTY_SIGNALS = (universe, posts) => ({
-  clusters: [], nearWinPosts: [], nearWinHubs: [], prior: null, priorOf: () => 5,
+  clusters: [], nearWinPosts: [], nearWinHubs: [], hubFence: [], prior: null, priorOf: () => 5,
   zeroCoverage: zeroCoverageLive(universe, posts), clicksByTool: new Map(), window: null,
 });
 
@@ -579,7 +588,8 @@ async function mineSignals(universe, covered, posts) {
     for (const s of p.toolset) clicksByTool.set(s, (clicksByTool.get(s) || 0) + (row.clicks || 0));
   }
   return {
-    clusters, nearWinPosts: nw.posts, nearWinHubs: nw.hubs, prior, priorOf: prior.priorOf,
+    // hubFence: page-level near-win hubs + query-level hub rows (what the hub fence reads).
+    clusters, nearWinPosts: nw.posts, nearWinHubs: nw.hubs, hubFence: hubFenceList(nw.hubs, pq28.rows), prior, priorOf: prior.priorOf,
     zeroCoverage: zeroCoverageLive(universe, posts), clicksByTool,
     window: { start28: p28.start, end: p28.end, start90: p90.start, queries: q28.rows.length, pages: p28.rows.length },
   };
@@ -594,6 +604,8 @@ function printSignals(s) {
   for (const p of s.nearWinPosts.slice(0, 20)) console.log(`  ${String(p.attributed).padStart(5)} attr  pos ${p.position}  ${p.title.slice(0, 60)}  ["${p.topQuery}"]`);
   console.log(`\nHUB FIXES (near-win /tools/ hubs; content work on the hub, never a sibling post): ${s.nearWinHubs.length}`);
   for (const h of s.nearWinHubs.slice(0, 15)) console.log(`  ${String(h.attributed).padStart(5)} attr  pos ${h.position}  ${h.path}  ["${h.topQuery}"]`);
+  console.log(`\nHUB FENCE (hub + query pairs a same-query post is dropped for): ${s.hubFence.length}`);
+  for (const h of s.hubFence.slice(0, 25)) console.log(`  ${String(h.attributed).padStart(5)} impr  pos ${h.position}  ${h.path}  ["${h.topQuery}"]`);
   if (s.prior) {
     console.log(`\nFORMAT PRIOR (90d impressions per post, posts published on or before ${s.prior.cutoff}):`);
     for (const g of s.prior.table) console.log(`  ${g.format.padEnd(13)} ${String(g.posts).padStart(3)} posts  ${String(Math.round(g.imprPerPost)).padStart(5)} impr/post  ${String(g.clicks).padStart(3)} clicks  prior ${g.prior}`);
@@ -1043,7 +1055,7 @@ async function main() {
       if (!anchor) flags.push('CTA fence: no universe tool in the title');
       else if (noAnchorReason(anchor)) flags.push(`fence: ${noAnchorReason(anchor)}`);
       if (isAlternativesFraming(c.title)) flags.push('format fence: alternatives');
-      const hubFlag = hubFenceReason(universe, c, signals.nearWinHubs);
+      const hubFlag = hubFenceReason(universe, c, signals.hubFence);
       if (hubFlag) flags.push(hubFlag);
       return { topic: c.title, targetKeyword: c.targetKeyword, keyword: c.keyword, toolset: c.toolset, anchorTool: anchor?.name || '(no tool in title)',
         anchorSlug: anchor?.slug || null, anchorStatus: anchor ? (affiliateStatusOf(anchor) || 'none') : 'none', priorityNow: c.priority || '-', flags };
@@ -1056,7 +1068,7 @@ async function main() {
   console.log(`Proposing ${COUNT} topics via ${MODEL}...`);
 
   const proposals = await propose(universe, covered, COUNT, signals);
-  const { kept: raw, dropped } = dedup(proposals, universe, covered, signals.nearWinHubs);
+  const { kept: raw, dropped } = dedup(proposals, universe, covered, signals.hubFence);
   const kept = scoreBatch(raw, signals, covered, posts);
 
   writeOutputs(kept, dropped, {
@@ -1280,6 +1292,47 @@ function selfTest() {
   const preFence = auditActiveRows(universe, covered, [calendarRow(universe, MOLTSETS_1011.topic, MOLTSETS_1011.targetKeyword, { status: 'Suggested' })], HUBS);
   hcheck('audit: a pre-fence hub sibling is an advisory, not an auto-Skip',
     preFence.collisions.length === 0 && preFence.fenceAdvisories.some((a) => a.note.startsWith('hub fence: /tools/moltsets/')));
+  // QUERY-LEVEL HUBS (op #1309 follow-up). GSC rows shaped like 10/11: the page-level
+  // list misses both hubs (nutshell's page average is outside 5..15, moltsets' page is
+  // under 100), so only the page+query rows can fence the two motivating topics.
+  const G = 'https://theautomationsguide.com';
+  const gscPages = [
+    { keys: [`${G}/tools/nutshell/`], impressions: 358, clicks: 0, position: 18.4 },
+    { keys: [`${G}/tools/moltsets/`], impressions: 92, clicks: 0, position: 7.1 },
+  ];
+  const gscPageQuery = [
+    { keys: [`${G}/tools/nutshell/`, 'nutshell pipeline management'], impressions: 209, clicks: 0, position: 10.0 },
+    { keys: [`${G}/tools/nutshell/`, 'nutshell crm'], impressions: 60, clicks: 0, position: 31.0 },
+    { keys: [`${G}/tools/nutshell/`, '+nutshell "pipeline management"'], impressions: 40, clicks: 0, position: 9.0 },
+    { keys: [`${G}/tools/moltsets/`, 'moltsets pricing'], impressions: 34, clicks: 0, position: 6.0 },
+    { keys: [`${G}/tools/moltsets/`, 'moltsets login'], impressions: 25, clicks: 0, position: 3.0 },
+    { keys: [`${G}/tools/moltsets/`, 'moltsets api'], impressions: 12, clicks: 0, position: 8.0 },
+  ];
+  const pageHubs = nearWins(gscPages, gscPageQuery, covered).hubs;
+  const fenceList = hubFenceList(pageHubs, gscPageQuery);
+  const fenceKeys = fenceList.map((h) => `${h.slug}::${h.topQuery}`);
+  hcheck('query-level: page-level near-win hubs miss both 10/11 hubs', pageHubs.length === 0, `(${pageHubs.map((h) => h.path).join(', ') || 'none'})`);
+  hcheck('query-level: fence list holds both motivating hub queries (and a top-4 one)',
+    ['nutshell::nutshell pipeline management', 'moltsets::moltsets pricing', 'moltsets::moltsets login'].every((k) => fenceKeys.includes(k)), `(${fenceKeys.join(', ')})`);
+  hcheck('query-level: operator string, out-of-band and under-20 rows left out', fenceList.length === 3, `(${fenceList.length})`);
+  const fromGsc = dedup([NUTSHELL_1011, MOLTSETS_1011, ...OTHER_QUERY], universe, covered, fenceList);
+  hcheck('query-level: "Nutshell Pipeline Management..." fenced from page+query rows',
+    reasonOf(fromGsc, NUTSHELL_1011).startsWith('hub fence: /tools/nutshell/ already ranks 10 for "nutshell pipeline management"'), `(${reasonOf(fromGsc, NUTSHELL_1011) || 'kept'})`);
+  hcheck('query-level: "MoltSets Pricing..." fenced from page+query rows',
+    reasonOf(fromGsc, MOLTSETS_1011).startsWith('hub fence: /tools/moltsets/ already ranks 6 for "moltsets pricing"'), `(${reasonOf(fromGsc, MOLTSETS_1011) || 'kept'})`);
+  hcheck('query-level: different-query Nutshell posts still kept', OTHER_QUERY.every((t) => fromGsc.kept.some((k) => k.topic === t.topic)));
+  hcheck('query-level: a hub query under the floor fences nothing',
+    hubFenceReason(universe, calendarRow(universe, 'MoltSets API: Endpoints, Limits, and Setup', 'moltsets api'), fenceList) === null);
+
+  // DEDASH + PIPELINE MARKS (op #1309): the regexes held mojibake, so real dashes and the
+  // first-mover star were never matched.
+  const dashed = dedash('Apollo vs Clay \u{2014} the 2026 pick \u{2013} compared');
+  hcheck('dedash removes a real em dash and a real en dash', dashed.length > 0 && !/[\u{2014}\u{2013}]/u.test(dashed), `("${dashed}")`);
+  const pipeline = parsePipelineBacklog();
+  hcheck('pipeline parse reads first-mover stars and strips them from names and categories',
+    pipeline.some((t) => t.firstMover) && !pipeline.some((t) => /[\u{2B50}\u{2705}\u{1F50E}]/u.test(`${t.name} ${t.category}`)),
+    `(${pipeline.filter((t) => t.firstMover).length} first-mover of ${pipeline.length})`);
+
   const hubFails = hubFix.filter((h) => !h.ok).map((h) => h.name);
   console.log(`HUB FENCE fixture: ${hubFix.length} checks, ${hubFails.length} failed.`);
 
