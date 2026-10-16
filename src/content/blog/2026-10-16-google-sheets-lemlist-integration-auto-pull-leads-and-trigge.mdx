@@ -1,0 +1,187 @@
+---
+title: "Google Sheets Lemlist Integration: Auto-Pull Leads and Trigger Sequences"
+description: "Connect Google Sheets to Lemlist to auto-pull leads and trigger sequences. Step-by-step with Make, n8n, Zapier, and Clay."
+tldr: "Connect Google Sheets to Lemlist via Make, n8n, Zapier, or Clay to auto-import leads into campaigns the moment a new row appears in your sheet."
+pubDate: 2026-10-16
+tags: ["automation", "outbound", "integration"]
+faqs:
+  - question: "Does Lemlist have a native Google Sheets integration?"
+    answer: "Lemlist does not offer a direct built-in Google Sheets connector. You need a middleware like Make, Zapier, or n8n to watch the sheet and push leads via the Lemlist API."
+  - question: "How do I trigger a Lemlist sequence when a row is added to Google Sheets?"
+    answer: "Set up a Make or n8n scenario that watches for new rows in your sheet, maps columns to Lemlist lead fields, and calls the Lemlist API to add the lead to a running campaign."
+  - question: "Can I use Clay to populate Google Sheets before pushing to Lemlist?"
+    answer: "Yes. Clay can export enriched leads to Google Sheets as a staging layer, which your automation then watches and forwards into Lemlist campaigns automatically."
+  - question: "What Lemlist API endpoint adds a lead to a campaign?"
+    answer: "The POST /api/campaigns/{campaignId}/leads/{email} endpoint adds and optionally activates a lead inside a specific campaign, per the Lemlist API docs."
+  - question: "Will leads added via the API bypass unsubscribe checks in Lemlist?"
+    answer: "No. Lemlist applies global unsubscribe and blacklist checks regardless of how a lead is added, including via API."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most outbound teams are leaving an obvious automation on the table. The Google Sheets doc functioning as the handoff point between research, enrichment, and outreach sits there getting copied and pasted into [Lemlist](/go/lemlist/) manually. Someone adds a row, someone else notices it, opens Lemlist, clicks "Import leads," uploads a CSV, picks a campaign, and the sequence starts maybe two hours later. This post kills that loop. I'll show you how to wire Google Sheets to Lemlist so a new row triggers the sequence automatically, and walk through four middleware options (Make, n8n, Zapier, and Clay) so you can pick the one that fits your stack.
+
+## Why this workflow matters and how to set it up
+
+The Google Sheets to Lemlist pipeline is valuable precisely because your sheet is already the common denominator. SDRs pull from [Clay](/go/clay/) exports, ops teams drop in ICP matches from [Apollo](/go/apollo/) filters, BDRs paste LinkedIn Sales Navigator exports. The sheet is where leads land first. If your sequencing tool starts working the moment a row appears, you compress time-to-first-touch without changing anyone's research habits.
+
+The mechanism is straightforward: a trigger watches your sheet for new rows, a mapping step formats the payload, and the Lemlist API call adds the lead to a campaign. [Per the Lemlist API docs](https://developer.lemlist.com/#add-a-lead-in-a-campaign), the endpoint is `POST /api/campaigns/{campaignId}/leads/{email}` and it accepts first name, last name, company name, phone, LinkedIn URL, and any custom variables you've defined on the campaign.
+
+My read is that most teams stall here not because the API is hard but because nobody owns the decision to build it. Pick an owner, block two hours, and it's done.
+
+<StatRow stats={[
+  { number: "POST", label: "Lemlist API method", description: "One endpoint adds and activates a lead inside any campaign, no CSV upload needed" },
+  { number: "~2 min", label: "Trigger-to-sequence lag", description: "With a polling interval of 1-2 minutes in Make or Zapier, leads hit Lemlist before a manual import starts" },
+  { number: "0", label: "Native connectors", description: "Lemlist has no built-in Google Sheets sync, so middleware is the only path" }
+]} />
+
+<StepRow steps={[
+  {
+    title: "Prepare your Google Sheet schema",
+    body: "Create named columns for every field Lemlist expects: firstName, lastName, email, companyName, and any custom variables your campaign uses (for example, `icebreaker` or `caseStudyUrl`). Add a `status` column defaulting to blank. Your automation will write `queued` here once the lead is pushed, so you never double-import."
+  },
+  {
+    title: "Get your Lemlist API key and campaign ID",
+    body: "In Lemlist, go to Settings > Integrations > API. Copy your API key. Then open the campaign you want to trigger and grab the campaign ID from the URL (it looks like `cam_xxxxxxx`). Hardcode this in your automation or store it in a lookup table if you route leads to multiple campaigns."
+  },
+  {
+    title: "Build the trigger in your middleware",
+    body: "In Make, use the Google Sheets module set to `Watch New Rows` on your specific sheet and tab. Set polling to every 1 or 2 minutes. In n8n, use the Google Sheets Trigger node in polling mode. In Zapier, use `New Spreadsheet Row` from the Google Sheets app. Point all of these at the same tab and include a filter that only fires when the `status` column is empty. Reruns will duplicate leads without that guard."
+  },
+  {
+    title: "Map columns to the Lemlist API call",
+    body: "Add an HTTP module (Make), HTTP Request node (n8n), or Webhooks by Zapier action that calls `POST https://api.lemlist.com/api/campaigns/{campaignId}/leads/{email}` with Basic Auth (username: any string, password: your API key). In the JSON body, map your sheet columns to the API fields. Keep custom variable names consistent with what the campaign template expects, or Lemlist will silently ignore them."
+  },
+  {
+    title: "Write status back to the sheet",
+    body: "After the API call succeeds, add a Google Sheets `Update Row` step that writes `queued` (or the Lemlist-returned lead ID) into the `status` column of that row. This is your idempotency guard. Without it, every polling cycle will re-import the same lead until you manually clear the sheet."
+  },
+  {
+    title: "Test with a single row before going live",
+    body: "Add one row with a test email address (use a Lemlist test campaign or pause the real campaign first). Watch the automation run, confirm the lead appears in Lemlist with all variables populated, and confirm the sheet row gets updated. Then turn on the real campaign and flip the automation to active."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **The trap most teams hit:** Lemlist custom variables are case-sensitive and must match the variable names defined inside the campaign template exactly. If your campaign uses `iceBreaker` and your sheet column is mapped as `icebreaker`, the variable lands blank in every email. The API call will return a 200, so you get no error to debug. You only notice when a rep flags that the personalization line is missing from sent emails.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // Correct body for POST /api/campaigns/{campaignId}/leads/{email}
+    {
+      "firstName": "Maya",
+      "lastName": "Patel",
+      "companyName": "Stackd Inc",
+      "linkedinUrl": "https://linkedin.com/in/mayapatel",
+      "iceBreaker": "Saw your post on async standups",
+      "caseStudyUrl": "https://yourdomain.com/case/fintech"
+    }
+    // variable names must match the campaign template exactly
+    // Basic Auth: username = any string, password = API key
+    ```
+  </Fragment>
+</SideBySide>
+
+## Choosing the right middleware for your stack
+
+The automation pattern is the same across tools. Where they differ is in how much code you want to write, how many operations you are billed for, and whether you need this to slot into a larger workflow already living in one of these platforms.
+
+Don't bother building this in Zapier if your volume exceeds a few hundred leads per month. The per-task pricing compounds fast, and you lose the conditional routing flexibility you'll eventually want. Use Make instead.
+
+For teams already running enrichment in Clay, there is an argument for using Clay itself as the trigger layer. Clay can write enriched rows to a Google Sheet on a schedule, and you can chain a [Make](/go/make/) scenario off that sheet rather than building a Clay-to-Lemlist direct push. That keeps Clay doing enrichment and Make handling the sequencing logic. I'd argue this split is cleaner than trying to do everything in Clay's HTTP action column, especially when you need conditional routing across multiple campaigns.
+
+For teams on [n8n](/go/n8n/), the self-hosted path is worth it if you're already paying for an instance and volume is high. The [Make integrations for GTM teams](/blog/2026-10-14-make-integrations-that-actually-work-for-gtm-teams-in-2026/) post covers the case for Make vs n8n in more depth, but the short version is this: Make's visual debugger makes the Sheets-to-API mapping faster to build and easier to hand off to a non-engineer on the team.
+
+<Figure class="post-screenshot" caption="n8n workflow canvas showing a webhook trigger routing enriched leads through an ICP branch before pushing to outreach tools.">
+  <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with webhook trigger, enrichment node, ICP branch, and Smartlead output" loading="lazy" />
+  </a>
+</Figure>
+
+<ChooseIf title="Which middleware fits your Google Sheets to Lemlist build?" tools={[
+  {
+    name: "Make",
+    conditions: [
+      "You want a visual builder with a native Google Sheets module and solid error handling",
+      "Your team includes non-engineers who will maintain the workflow",
+      "You are already using Make for other GTM automations and want one platform"
+    ],
+    pricing: "Free tier available; Core from $9/month",
+    affiliateSlug: "make",
+    ctaLabel: "Try Make",
+    highlight: false
+  },
+  {
+    name: "n8n",
+    conditions: [
+      "You self-host or are comfortable with a cloud n8n instance and want no operation caps",
+      "The workflow is part of a larger multi-step enrichment pipeline",
+      "You want to write JavaScript in Function nodes for custom mapping logic"
+    ],
+    pricing: "Self-hosted free; Cloud from $20/month",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n",
+    highlight: false
+  },
+  {
+    name: "Zapier",
+    conditions: [
+      "You need the fastest possible setup with zero configuration overhead",
+      "Volume is low (under 1,000 leads per month) and cost per task is acceptable",
+      "Your team already uses Zapier and adding a Zap is lower friction than a new tool"
+    ],
+    pricing: "Free tier (100 tasks); Starter from $19.99/month",
+    affiliateSlug: "zapier",
+    ctaLabel: "Try Zapier",
+    highlight: false
+  },
+  {
+    name: "Clay",
+    conditions: [
+      "You are enriching leads in Clay before sequencing and want the pipeline in one place",
+      "You want to use Clay's HTTP action to call the Lemlist API directly without a separate automation tool",
+      "You are already paying for Clay credits and want to minimize the number of SaaS subscriptions"
+    ],
+    pricing: "Starter from $149/month",
+    affiliateSlug: "clay",
+    ctaLabel: "Try Clay",
+    highlight: true
+  }
+]} />
+
+For a deeper look at what else Lemlist can connect to beyond Sheets, the [Lemlist integrations guide](/blog/2026-10-15-lemlist-integrations-guide-every-connection-worth-setting-up/) covers every major connector worth setting up and where each one earns its place in the stack.
+
+<MyTake>
+The Google Sheets handoff gets treated as a temporary fix, so nobody automates it. That's backwards. A sheet that's been running for two weeks and gets new rows daily is your permanent process, whether you admit it or not. The manual import step isn't a minor inconvenience sitting between research and outreach. It's a systematic delay baked into every lead in your pipeline, and it compounds across every rep, every day.
+</MyTake>
+
+## Build it once, then add routing logic
+
+The six-step build above is the foundation. Once it is running reliably, the natural next extension is campaign routing. Instead of hardcoding one campaign ID, add a lookup step that reads a `segment` or `persona` column from the sheet and maps it to the correct Lemlist campaign ID. Make handles this with a Router module and filters. n8n uses an IF or Switch node. That single addition lets your sheet-based workflow feed multiple sequences without any manual sorting.
+
+If you are sourcing leads from [Lemlist](/tools/lemlist/) and want to validate emails before they hit the sequence, consider adding a verification step between the sheet trigger and the API call. A bad email address costs a Lemlist send credit and hurts deliverability whether it came from a CSV or an automation. The first thing I'd check in any new build is whether your sheet source (Clay export, Apollo filter, or otherwise) already applies email verification upstream. If it doesn't, add a verification HTTP call before the Lemlist API call, not after.
+
+The Google Sheets to Lemlist integration is one of those builds that looks trivial until you realize it removes a manual touchpoint that was silently throttling your outbound throughput every single day.
+
+<BottomLine verdict="Make is the fastest path to a production-ready Google Sheets to Lemlist automation for most RevOps teams. The visual builder, native Sheets module, and readable error logs make it easier to build, test, and hand off than either n8n or Zapier at this specific use case." pick="Make" affiliateSlug="make" ctaLabel="Try Make" />
+
+<Sources sources={[
+  { label: "Lemlist API docs: Add a lead to a campaign", url: "https://developer.lemlist.com/#add-a-lead-in-a-campaign" },
+  { label: "Make docs: Google Sheets modules", url: "https://www.make.com/en/help/app/google-sheets" },
+  { label: "n8n docs: Google Sheets Trigger node", url: "https://docs.n8n.io/integrations/builtin/trigger-nodes/n8n-nodes-base.googlesheetstrigger/" },
+  { label: "Zapier: Google Sheets + Lemlist integration overview", url: "https://zapier.com/apps/google-sheets/integrations/lemlist" }
+]} />
