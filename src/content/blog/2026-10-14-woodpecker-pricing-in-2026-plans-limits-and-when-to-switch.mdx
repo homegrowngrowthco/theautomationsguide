@@ -1,0 +1,152 @@
+---
+title: "Woodpecker Pricing in 2026: Plans, Limits, and When to Switch"
+description: "Woodpecker pricing broken down by tier, real cost for a typical outbound team, and when Instantly or Smartlead makes more financial sense."
+tldr: "Woodpecker starts at $29/month per mailbox but costs balloon quickly for multi-sender teams, making Instantly or Smartlead cheaper above 3 to 5 active senders."
+pubDate: 2026-10-14
+tags: ["tools", "automation", "cold-email"]
+faqs:
+  - question: "How much does Woodpecker cost per month?"
+    answer: "Woodpecker charges per mailbox, starting at $29/month for one sender on the Cold Email plan. A five-mailbox team pays roughly $145/month before add-ons."
+  - question: "Does Woodpecker charge per seat or per mailbox?"
+    answer: "Woodpecker charges per mailbox (sending address), not per user seat. Each additional connected inbox adds to your monthly cost."
+  - question: "Is Woodpecker cheaper than Instantly?"
+    answer: "No, for teams running more than three mailboxes. Instantly's flat-rate plans include unlimited sending accounts, while Woodpecker bills per mailbox."
+  - question: "What is the contact limit on Woodpecker's base plan?"
+    answer: "The Cold Email entry plan includes 500 contacted prospects per month. Higher volumes require upgrading to a higher tier or purchasing add-ons."
+  - question: "When should I switch from Woodpecker to Smartlead?"
+    answer: "Switch when your active mailbox count exceeds five or you need AI-powered warmup built in, since Smartlead's per-seat model becomes cheaper at that scale."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The question I get most from early-stage outbound teams is whether [Woodpecker](/go/woodpecker/) is worth it compared to the newer flat-rate senders. The answer used to be simple: Woodpecker was the reliable, agency-friendly option with solid deliverability tooling. In 2026 it still is. But its per-mailbox billing is now a genuine competitive disadvantage for teams scaling past a handful of inboxes. If you are evaluating Woodpecker before signing a contract, or wondering why your bill keeps creeping up, here is the full picture.
+
+<KeyTakeaways items={[
+  "Woodpecker bills per mailbox ($29/mo each), so cost scales linearly with inbox count, not team headcount.",
+  "The 500 contacted prospects/month cap on the base Cold Email plan is the first wall most teams hit.",
+  "A five-mailbox team pays roughly $145/month on Woodpecker vs. $97/month flat on Instantly's Growth plan.",
+  "Woodpecker's agency and CRM add-ons push real costs well above the headline rate for anything beyond solo outbound.",
+  "Switch triggers: more than five active mailboxes, need for native AI warmup, or a pipeline integration that Woodpecker's Zapier dependency makes clunky."
+]} />
+
+<StatRow stats={[
+  { number: "$29", label: "Per mailbox/month", description: "Woodpecker Cold Email entry price, billed per sending address" },
+  { number: "500", label: "Contacted prospects/month", description: "The cap on the base plan before you hit upgrade prompts" },
+  { number: "$97", label: "Instantly Growth flat rate", description: "Unlimited mailboxes on Instantly's mid-tier, for direct comparison" }
+]} />
+
+## What Woodpecker actually charges
+
+[Woodpecker's pricing page](https://woodpecker.co/pricing/) structures billing around two axes: plan tier and mailbox count. The Cold Email plan covers outbound prospecting sequences. The Sales Assistant plan adds CRM-style follow-up tracking. There is also an Agency plan for multi-client management.
+
+Here is how the tiers break down in plain language:
+
+**Cold Email (from $29/mailbox/month):** Basic sequence builder, A/B testing, deliverability monitoring, and 500 contacted prospects per month on the entry configuration. Need more contacts? You buy up to a higher prospect tier. The per-mailbox charge stays constant regardless of how many sequences you run.
+
+**Sales Assistant (from $49/mailbox/month):** Adds CRM task management, prospect scoring, and a higher default prospect limit. This is where agencies and SDR teams with active pipeline management typically land. The price jump per mailbox adds up fast.
+
+**Agency (custom):** White-label client management, team seats, and consolidated billing across clients. Priced on volume and usually requires a conversation with sales. The first thing I'd check in any agency deal is whether the per-mailbox rate is negotiated or stays at list price.
+
+A few add-ons worth flagging: email verification is not native, so you are paying for an integration (NeverBounce, [ZeroBounce](/go/zerobounce/), or Bouncer) on top of your plan. Warmup runs through Woodpecker's own warmup pool, but it is not as configurable as what [Smartlead](/go/smartlead/) or Instantly ship natively.
+
+## The true cost for a real outbound team
+
+Say a five-person SDR team each runs two active sending addresses. That is a realistic configuration for inbox rotation and deliverability. Ten mailboxes on the Cold Email plan.
+
+**Woodpecker:** 10 mailboxes x $29 = $290/month. Add a ZeroBounce plan for verification (roughly $20-30/month at moderate volume) and you are at $310-320/month before any CRM connectors or agency features.
+
+**Same team on Instantly's Hypergrowth plan ($358/month):** Unlimited mailboxes, built-in warmup across all inboxes, and unlimited active leads. Pricier at that specific count, but the ceiling disappears. At fifteen mailboxes, Instantly is already cheaper per mailbox.
+
+**Same team on [Smartlead](/tools/smartlead/)'s Pro plan ($94/month):** 60 active mailboxes, unlimited email sending, and AI warmup included. For teams that have already moved past five inboxes, Smartlead is the most aggressive value in the market right now. It is not close.
+
+My read: the math only favors Woodpecker at one to three mailboxes. Past that, the per-mailbox billing is a slow cost leak that compounds every time you add an inbox.
+
+You can cross-reference how the full [best cold email stack under $300](/blog/2026-10-09-best-cold-email-stack-under-300-in-2026/) breaks down if you want to see where Woodpecker fits in a multi-tool setup.
+
+## Which tier for which team
+
+<ChooseIf title="Which cold email sender fits your situation?" tools={[
+  {
+    name: "Woodpecker",
+    conditions: [
+      "You run one to three mailboxes and want a proven, agency-trusted platform",
+      "You need white-label client reporting without building it yourself",
+      "Your sequences are simple (under five steps) and deliverability tooling matters more than price"
+    ],
+    pricing: "From $29/mailbox/month",
+    affiliateSlug: "woodpecker",
+    ctaLabel: "See Woodpecker pricing",
+    highlight: false
+  },
+  {
+    name: "Instantly",
+    conditions: [
+      "You are scaling past five mailboxes and want flat-rate billing with no surprises",
+      "Inbox warmup built into the same dashboard is a hard requirement",
+      "You want unlimited active leads without counting contacted prospects per month"
+    ],
+    pricing: "From $37/month (flat rate, unlimited mailboxes on Growth)",
+    affiliateSlug: "instantly",
+    ctaLabel: "See Instantly pricing",
+    highlight: true
+  },
+  {
+    name: "Smartlead",
+    conditions: [
+      "You need AI-powered warmup and multi-channel sequences in one tool",
+      "Your team is running more than ten active mailboxes and volume is the priority",
+      "You want to [migrate from Instantly to Smartlead](/blog/2026-10-09-migrate-from-instantly-to-smartlead-full-playbook/) or are already Smartlead-curious"
+    ],
+    pricing: "From $39/month (Basic), $94/month (Pro, 60 mailboxes)",
+    affiliateSlug: "smartlead",
+    ctaLabel: "See Smartlead pricing",
+    highlight: false
+  }
+]} />
+
+## Where Woodpecker holds its ground
+
+To be fair: Woodpecker is not overpriced for what it delivers. The deliverability monitoring is genuinely useful. The sequence builder is stable and mature. The agency workflow (client-separated campaigns, white-label reports) has no direct equivalent in [Instantly](/tools/instantly/) at the same price point. Per [G2 reviews on Woodpecker](https://www.g2.com/products/woodpecker/reviews), users consistently praise deliverability and support responsiveness. Those things matter more than a $30/month difference when a campaign is actively running.
+
+The CRM integrations, while Zapier-dependent for most connections, cover the common stack. Running Pipedrive or HubSpot sequences that trigger into Woodpecker via webhook? That pattern works reliably. The trouble starts when you need anything more complex: routing warm replies into a CRM stage, triggering enrichment on open, or building conditional branches. That requires glue you build and maintain yourself. Compare that to Smartlead's native webhooks and you start to see where the product has aged.
+
+For agencies managing ten or more clients with separate inboxes per client, Woodpecker's agency plan is still one of the cleaner operational models. Stitching together sub-accounts in Instantly works, but it lacks the reporting layer agencies need for client-facing dashboards.
+
+If you are evaluating how Woodpecker compares directly against Instantly on feature parity, the [Woodpecker vs Instantly comparison](/blog/2026-10-05-woodpecker-vs-instantly-best-cold-email-for-small-teams/) covers that match-up in detail.
+
+<MyTake>
+Woodpecker's per-mailbox pricing was a reasonable structure in 2021, when most teams ran one or two inboxes per rep. It has not kept pace with flat-rate competitors, and I'd argue the billing model is now the single biggest obstacle to Woodpecker retaining customers past year one. The product quality is real. But the pricing forces teams to switch at exactly the moment they are succeeding with outbound, which is a self-defeating design.
+</MyTake>
+
+## The honest switching calculus
+
+The switch trigger is rarely frustration with Woodpecker itself. The usual pattern is staying too long because "it works," while the mailbox count quietly doubles and the bill follows. My first check for any team evaluating this: count your active sending addresses, multiply by $29, and compare that number to Instantly's Growth plan or Smartlead's Pro. If Woodpecker is more than $50/month cheaper, stay. If it is within $30, the feature set differences probably tip toward the flat-rate tools.
+
+One practical note worth flagging: [Woodpecker does not export sequences in a format that imports cleanly elsewhere](/blog/2026-10-10-migrate-from-brevo-to-smartlead-step-by-step-playbook/), so budget migration time if you have long, multi-step sequences. Contacts export as CSV without issue. Sequences need to be rebuilt manually.
+
+<BottomLine
+  verdict="Woodpecker is worth the price at one to three mailboxes, especially for agencies needing white-label reporting. Past five mailboxes, Instantly or Smartlead is cheaper by enough to matter. Run the math before your next renewal."
+  pick="Woodpecker"
+  affiliateSlug="woodpecker"
+  ctaLabel="See Woodpecker pricing"
+/>
+
+<Sources sources={[
+  { label: "Woodpecker: official pricing page", url: "https://woodpecker.co/pricing/" },
+  { label: "G2: Woodpecker user reviews 2026", url: "https://www.g2.com/products/woodpecker/reviews" },
+  { label: "Instantly: pricing page", url: "https://instantly.ai/pricing" },
+  { label: "Smartlead: pricing page", url: "https://www.smartlead.ai/pricing" }
+]} />
