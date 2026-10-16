@@ -45,7 +45,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   tokenSet, tokenCoverage, jaccard, intentOf, isComparison, fetchGscRows, clusterQueries, unservedClusters,
-  nearWins, formatPrior, scoreTopic, assignTiers, selfTestSignals, demandCorpus,
+  nearWins, formatPrior, scoreTopic, assignTiers, selfTestSignals, demandCorpus, isSameQuery,
+  hubFenceList,
 } from './signals.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -103,7 +104,14 @@ if (STAGE && !NOTION_TOKEN) {
 // across functions silently collapses or splits matches). ----
 const norm = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 // Strip em/en dashes deterministically rather than relying on a prompt rule.
-const dedash = (s) => (s || '').replace(/\s*[â€”â€“]\s*/g, ', ');
+// Escapes, not literal characters: the literal class had been saved as mojibake, so real
+// em (U+2014) and en (U+2013) dashes passed through untouched (op #1309).
+const dedash = (s) => (s || '').replace(/\s*[\u{2014}\u{2013}]\s*/gu, ', ');
+// Emoji markers in AFFILIATE_PIPELINE.md (star U+2B50, magnifier U+1F50E, check U+2705),
+// as escapes for the same reason: the mojibake class never matched, so firstMover was
+// always false and category names kept their stars.
+const PIPELINE_MARKS = /[\u{2B50}\u{2705}\u{FE0F}\u{1F50E}]/gu;
+const FIRST_MOVER_STAR = /\u{2B50}/u;
 
 // ---- ANCHOR FENCE (anti-slop). Tools we must NEVER anchor a post on: no-affiliate
 // incumbents a young domain cannot rank for. GSC proof (2026-07): gong-alternatives
@@ -198,7 +206,7 @@ function parsePipelineBacklog() {
   for (const line of lines) {
     const h = line.match(/^###\s+(.*)$/);
     if (h) {
-      category = h[1].replace(/[â­ðŸ”Žâœ…]/g, '').replace(/\s+/g, ' ').trim();
+      category = h[1].replace(PIPELINE_MARKS, '').replace(/\s+/g, ' ').trim();
       continue;
     }
     if (!line.trim().startsWith('|')) continue;
@@ -207,7 +215,7 @@ function parsePipelineBacklog() {
     const first = cells[1] || '';
     if (!first || /^-+$/.test(first) || first.toLowerCase() === 'tool') continue; // header/separator
     if (/~~/.test(first)) continue; // excluded (e.g. ~~Koala~~)
-    const name = first.replace(/\*\*/g, '').replace(/[â­ðŸ”Žâœ…]/g, '').trim();
+    const name = first.replace(/\*\*/g, '').replace(PIPELINE_MARKS, '').trim();
     if (!name) continue;
     const notes = (cells[3] || '') + ' ' + (cells[2] || '');
     out.push({
@@ -216,7 +224,7 @@ function parsePipelineBacklog() {
       category,
       hasLP: false,
       listed: false,
-      firstMover: /â­/.test(line), // a star anywhere in the row
+      firstMover: FIRST_MOVER_STAR.test(line), // a star anywhere in the row
       aliases: [name],
     });
   }
@@ -258,6 +266,44 @@ function parsePublishedPosts(universe, asOf = null) {
       path: `/blog/${f.replace(/\.mdx$/, '')}/`, pubDate });
   }
   return posts;
+}
+
+// ONE tool-set rule for a calendar topic (op #1309): alias hits in its title + target
+// keyword, the only fields a Notion row carries. Stage dedup, the live calendar corpus and
+// the queue audit all derive a topic's tool set here, so a row the builder stages cannot
+// be Skipped by the same run's audit for "identical tool set". Before this, stage dedup
+// used the proposer's anchor + alsoCovers: on 10/11 that read {nutshell, pipedrive, close}
+// for "Nutshell Pipeline Management: How It Works and When It Beats Pipedrive" while the
+// audit read {nutshell, pipedrive} (Close's aliases are "Close CRM" and "Close.com"), which
+// is exactly the published Nutshell vs Pipedrive vs Close post, so it staged and was
+// Skipped minutes later. A union with anchor + alsoCovers would have missed it the same way.
+function rowToolset(universe, title, targetKeyword) {
+  return [...new Set(titleTools(universe, `${title || ''} ${targetKeyword || ''}`))].sort();
+}
+// A calendar row as dedup and the audit see it. targetKeyword is the raw text (the hub
+// fence reads its words); keyword is the normalised dedup key.
+function calendarRow(universe, title, targetKeyword, extra = {}) {
+  const t = (title || '').trim(), kw = (targetKeyword || '').trim();
+  return { title: t, keyword: norm(kw) || norm(t), targetKeyword: kw, toolset: rowToolset(universe, t, kw), ...extra };
+}
+
+// HUB FENCE (Ian, 2026-10-16: "fence same-query only"). A near-win /tools/<slug>/ hub
+// already ranks for its top query; a post naming that tool and targeting the SAME query
+// (isSameQuery: mutual 60% token coverage + same format) competes with the hub instead of
+// lifting it. MoltSets Pricing (82) and Nutshell Pipeline Management (80) were both staged
+// that way on 10/11. A post on a different query for the tool ("Nutshell vs Pipedrive"
+// beside the hub's "nutshell pipeline management") passes. Hard drop at generation time,
+// a flag in --rank-suggested, an advisory in --audit-queue (never an auto-Skip).
+function hubFenceReason(universe, row, hubs) {
+  if (!hubs || !hubs.length) return null;
+  const tools = new Set(row.toolset || rowToolset(universe, row.title, row.targetKeyword));
+  for (const h of hubs) {
+    if (!h.slug || !h.topQuery || !tools.has(h.slug)) continue;
+    if ([row.targetKeyword, row.title].some((t) => isSameQuery(t, h.topQuery))) {
+      return `hub fence: ${h.path || `/tools/${h.slug}/`} already ranks ${h.position} for "${h.topQuery}"; fix the hub instead`;
+    }
+  }
+  return null;
 }
 
 function parseCalendarRows(universe) {
@@ -316,10 +362,8 @@ async function fetchNotionCalendar(universe) {
       const props = page.properties || {};
       const title = (props.Topic?.title || []).map((t) => t.plain_text).join('');
       const kw = (props['Target Keyword']?.rich_text || []).map((t) => t.plain_text).join('');
-      const hay = `${title} ${kw}`;
-      const toolset = universe.filter((t) => aliasHit(t.aliases, hay)).map((t) => t.slug);
-      rows.push({ source: 'notion', title: title.trim(), keyword: norm(kw) || norm(title), toolset: [...new Set(toolset)].sort(),
-        status: props.Status?.select?.name || '', priority: props.Priority?.select?.name || '', targetKeyword: kw.trim() });
+      rows.push(calendarRow(universe, title, kw,
+        { source: 'notion', status: props.Status?.select?.name || '', priority: props.Priority?.select?.name || '' }));
     }
     cursor = res.json.has_more ? res.json.next_cursor : undefined;
   } while (cursor);
@@ -374,32 +418,11 @@ async function queueStatus() {
 // generates a duplicate. Safe: only hard dedup collisions are auto-skipped; fence
 // mentions are advisories (a no-anchor tool can legitimately be a migration "from"
 // side), reported but never auto-skipped.
-async function auditQueue(universe) {
-  if (!NOTION_TOKEN) {
-    console.error('--audit-queue requires NOTION_TOKEN. Run: node --env-file=<path-with-NOTION_TOKEN> backlog/build-backlog.mjs --audit-queue [--prune-apply]');
-    process.exit(1);
-  }
-  const rows = [];
-  let cursor;
-  do {
-    const res = await notionApi('POST', `/databases/${NOTION_DB}/query`, { page_size: 100, start_cursor: cursor });
-    if (!res.ok) throw new Error(`Notion query failed (${res.status}): ${JSON.stringify(res.json).slice(0, 300)}`);
-    for (const page of res.json.results || []) {
-      const props = page.properties || {};
-      const title = (props.Topic?.title || []).map((t) => t.plain_text).join('').trim();
-      const kw = (props['Target Keyword']?.rich_text || []).map((t) => t.plain_text).join('');
-      const status = props.Status?.select?.name || '(none)';
-      const toolset = universe.filter((t) => aliasHit(t.aliases, `${title} ${kw}`)).map((t) => t.slug);
-      rows.push({ id: page.id, title, keyword: norm(kw) || norm(title), status, toolset: [...new Set(toolset)].sort() });
-    }
-    cursor = res.json.has_more ? res.json.next_cursor : undefined;
-  } while (cursor);
-
-  const published = rows.filter((r) => r.status === 'Published');
-  const active = rows.filter((r) => r.status === 'Queued' || r.status === 'Suggested');
-  // Corpus = local published posts + Published Notion rows (ground truth of what exists).
-  const index = buildIndex(universe, [...parsePublishedPosts(universe), ...published]);
-
+// The audit's per-row judgement, shared with the selftest (op #1309) so the stage-vs-audit
+// consistency fixture runs the audit's real logic. corpus = published posts + Published
+// rows; active = Queued/Suggested rows from calendarRow(); hubs = near-win hubs (may be []).
+function auditActiveRows(universe, corpus, active, hubs = []) {
+  const index = buildIndex(universe, corpus);
   const collisions = [];
   const fenceAdvisories = [];
   // Check Queued first (higher risk: auto-fires), then Suggested; an earlier-kept
@@ -413,10 +436,56 @@ async function auditQueue(universe) {
     if (namedNoAnchor.length && intentOf(row.title) === 'alternatives') {
       fenceAdvisories.push({ ...row, note: `built around no-program incumbent ${namedNoAnchor.map((t) => t.name).join(', ')}` });
     }
+    // Rows staged before the hub fence existed: advisory only, never auto-Skipped.
+    const hub = hubFenceReason(universe, row, hubs);
+    if (hub) fenceAdvisories.push({ ...row, note: hub });
   }
+  return { collisions, fenceAdvisories };
+}
+
+// The hub-fence list for the audit's advisory (page-level near-win hubs + query-level hub
+// rows, hubFenceList): the two GSC pulls nearWins() needs. null without GSC creds (the
+// advisory is then skipped and the audit says so).
+async function fetchHubFence(posts) {
+  const access = await gscAccessToken();
+  if (!access) return null;
+  const [p28, pq28] = await Promise.all([
+    fetchGscRows(access, GSC_SITE, { days: 28, dimensions: ['page'] }),
+    fetchGscRows(access, GSC_SITE, { days: 28, dimensions: ['page', 'query'] }),
+  ]);
+  return hubFenceList(nearWins(p28.rows, pq28.rows, posts).hubs, pq28.rows);
+}
+
+async function auditQueue(universe) {
+  if (!NOTION_TOKEN) {
+    console.error('--audit-queue requires NOTION_TOKEN. Run: node --env-file=<path-with-NOTION_TOKEN> backlog/build-backlog.mjs --audit-queue [--prune-apply]');
+    process.exit(1);
+  }
+  const rows = [];
+  let cursor;
+  do {
+    const res = await notionApi('POST', `/databases/${NOTION_DB}/query`, { page_size: 100, start_cursor: cursor });
+    if (!res.ok) throw new Error(`Notion query failed (${res.status}): ${JSON.stringify(res.json).slice(0, 300)}`);
+    for (const page of res.json.results || []) {
+      const props = page.properties || {};
+      const title = (props.Topic?.title || []).map((t) => t.plain_text).join('');
+      const kw = (props['Target Keyword']?.rich_text || []).map((t) => t.plain_text).join('');
+      rows.push(calendarRow(universe, title, kw, { id: page.id, status: props.Status?.select?.name || '(none)' }));
+    }
+    cursor = res.json.has_more ? res.json.next_cursor : undefined;
+  } while (cursor);
+
+  const published = rows.filter((r) => r.status === 'Published');
+  const active = rows.filter((r) => r.status === 'Queued' || r.status === 'Suggested');
+  // Corpus = local posts + Published Notion rows (ground truth of what exists).
+  const posts = parsePublishedPosts(universe);
+  const hubs = await fetchHubFence(posts);
+  const { collisions, fenceAdvisories } = auditActiveRows(universe, [...posts, ...published], active, hubs || []);
 
   console.log(`\n=== QUEUE AUDIT (db ${NOTION_DB}) ===`);
   console.log(`Active: ${active.length} rows (${active.filter((r) => r.status === 'Queued').length} Queued, ${active.filter((r) => r.status === 'Suggested').length} Suggested). Corpus: local posts + ${published.length} Published Notion rows.`);
+  console.log(hubs ? `Hub fence: ${hubs.length} hub + query pair(s) from GSC${hubs.length ? ': ' + hubs.map((h) => `${h.path} "${h.topQuery}" @${h.position}`).join(', ') : ''}.`
+    : 'Hub fence: skipped (no GSC_TOKEN_JSON or GSC_TOKEN_FILE).');
   console.log(`\nDUPLICATE COLLISIONS (auto-Skip candidates): ${collisions.length}`);
   for (const c of collisions) console.log(`  [${c.status}] ${c.title.slice(0, 66)}\n        -> ${c.reason}`);
   console.log(`\nFENCE ADVISORIES (manual review, NOT auto-skipped): ${fenceAdvisories.length}`);
@@ -494,7 +563,7 @@ function zeroCoverageLive(universe, posts) {
 }
 
 const EMPTY_SIGNALS = (universe, posts) => ({
-  clusters: [], nearWinPosts: [], nearWinHubs: [], prior: null, priorOf: () => 5,
+  clusters: [], nearWinPosts: [], nearWinHubs: [], hubFence: [], prior: null, priorOf: () => 5,
   zeroCoverage: zeroCoverageLive(universe, posts), clicksByTool: new Map(), window: null,
 });
 
@@ -519,7 +588,8 @@ async function mineSignals(universe, covered, posts) {
     for (const s of p.toolset) clicksByTool.set(s, (clicksByTool.get(s) || 0) + (row.clicks || 0));
   }
   return {
-    clusters, nearWinPosts: nw.posts, nearWinHubs: nw.hubs, prior, priorOf: prior.priorOf,
+    // hubFence: page-level near-win hubs + query-level hub rows (what the hub fence reads).
+    clusters, nearWinPosts: nw.posts, nearWinHubs: nw.hubs, hubFence: hubFenceList(nw.hubs, pq28.rows), prior, priorOf: prior.priorOf,
     zeroCoverage: zeroCoverageLive(universe, posts), clicksByTool,
     window: { start28: p28.start, end: p28.end, start90: p90.start, queries: q28.rows.length, pages: p28.rows.length },
   };
@@ -534,6 +604,8 @@ function printSignals(s) {
   for (const p of s.nearWinPosts.slice(0, 20)) console.log(`  ${String(p.attributed).padStart(5)} attr  pos ${p.position}  ${p.title.slice(0, 60)}  ["${p.topQuery}"]`);
   console.log(`\nHUB FIXES (near-win /tools/ hubs; content work on the hub, never a sibling post): ${s.nearWinHubs.length}`);
   for (const h of s.nearWinHubs.slice(0, 15)) console.log(`  ${String(h.attributed).padStart(5)} attr  pos ${h.position}  ${h.path}  ["${h.topQuery}"]`);
+  console.log(`\nHUB FENCE (hub + query pairs a same-query post is dropped for): ${s.hubFence.length}`);
+  for (const h of s.hubFence.slice(0, 25)) console.log(`  ${String(h.attributed).padStart(5)} impr  pos ${h.position}  ${h.path}  ["${h.topQuery}"]`);
   if (s.prior) {
     console.log(`\nFORMAT PRIOR (90d impressions per post, posts published on or before ${s.prior.cutoff}):`);
     for (const g of s.prior.table) console.log(`  ${g.format.padEnd(13)} ${String(g.posts).padStart(3)} posts  ${String(Math.round(g.imprPerPost)).padStart(5)} impr/post  ${String(g.clicks).padStart(3)} clicks  prior ${g.prior}`);
@@ -807,7 +879,8 @@ function unregisteredNamed(universe, text) {
     .map((t) => t.name);
 }
 
-function dedup(proposals, universe, covered) {
+// hubs: near-win /tools/ hubs from signals.nearWinHubs (empty = no hub fence).
+function dedup(proposals, universe, covered, hubs = []) {
   const resolve = makeResolver(universe);
   const index = buildIndex(universe, covered); // grows as we keep, so within-batch dupes also collide
   const coveredAnchors = new Map(); // slug -> [titles] for partial-overlap warnings
@@ -819,9 +892,11 @@ function dedup(proposals, universe, covered) {
   for (const p of proposals) {
     const topic = dedash(p.topic || '');
     const anchor = resolve(p.anchorTool || '');
+    // The proposer's tools (anchor + alsoCovers) still drive the score and the overlap
+    // warning; collisions use the row as Notion will store it (calendarRow, the audit's
+    // tool-set rule), so stage dedup and the queue audit cannot disagree (op #1309).
     const toolSlugs = [anchor?.slug, ...(p.alsoCovers || []).map((n) => resolve(n)?.slug)].filter(Boolean);
-    const kw = norm(p.targetKeyword || '') || norm(topic);
-    const cand = { title: topic, keyword: kw, toolset: toolSlugs };
+    const cand = calendarRow(universe, topic, dedash(p.targetKeyword || ''));
 
     const text = `${topic} ${p.targetKeyword || ''}`;
     if (!anchor) { dropped.push({ topic, reason: 'anchor not in universe' }); continue; }
@@ -841,6 +916,8 @@ function dedup(proposals, universe, covered) {
     // it chases.
     if (isAlternativesFraming(topic)) { dropped.push({ topic, reason: 'format fence: "alternatives/competitors" is the worst-performing format (audit 2026-08-04)' }); continue; }
     if (!namesEarningTool(universe, text)) { dropped.push({ topic, reason: 'CTA fence: title names no tool that can carry a /go/ CTA' }); continue; }
+    const hubFenced = hubFenceReason(universe, cand, hubs);
+    if (hubFenced) { dropped.push({ topic, reason: hubFenced }); continue; }
     const reason = collide(universe, index, cand);
     if (reason) { dropped.push({ topic, reason }); continue; }
     addToIndex(universe, index, cand); // dedup subsequent proposals against this one too
@@ -978,6 +1055,8 @@ async function main() {
       if (!anchor) flags.push('CTA fence: no universe tool in the title');
       else if (noAnchorReason(anchor)) flags.push(`fence: ${noAnchorReason(anchor)}`);
       if (isAlternativesFraming(c.title)) flags.push('format fence: alternatives');
+      const hubFlag = hubFenceReason(universe, c, signals.hubFence);
+      if (hubFlag) flags.push(hubFlag);
       return { topic: c.title, targetKeyword: c.targetKeyword, keyword: c.keyword, toolset: c.toolset, anchorTool: anchor?.name || '(no tool in title)',
         anchorSlug: anchor?.slug || null, anchorStatus: anchor ? (affiliateStatusOf(anchor) || 'none') : 'none', priorityNow: c.priority || '-', flags };
     });
@@ -989,7 +1068,7 @@ async function main() {
   console.log(`Proposing ${COUNT} topics via ${MODEL}...`);
 
   const proposals = await propose(universe, covered, COUNT, signals);
-  const { kept: raw, dropped } = dedup(proposals, universe, covered);
+  const { kept: raw, dropped } = dedup(proposals, universe, covered, signals.hubFence);
   const kept = scoreBatch(raw, signals, covered, posts);
 
   writeOutputs(kept, dropped, {
@@ -1169,7 +1248,95 @@ function selfTest() {
   console.log(`\nCONTROLS: ${CONTROLS.length} topics, ${good.kept.length} survived, ${blocked.length} over-blocked.`);
   if (blocked.length) { console.log('OVER-BLOCKED (should have survived):'); blocked.forEach((d) => console.log(`  - ${d.topic}\n      -> ${d.reason}`)); }
 
-  const pass = sig.pass && unexpected.length === 0 && nowCaught.length === 0 && blocked.length === 0;
+  // HUB FENCE + ONE TOOL-SET RULE (op #1309). Proposals carry the 10/11 run's real
+  // metadata (artifact of run 38139806105), hubs are the two the fence must respect.
+  const hubFix = [];
+  const hcheck = (name, ok, detail = '') => { hubFix.push({ name, ok }); console.log(`  ${ok ? 'ok  ' : 'FAIL'} ${name}${detail ? ' ' + detail : ''}`); };
+  const HUBS = [
+    { path: '/tools/nutshell/', slug: 'nutshell', topQuery: 'nutshell pipeline management', position: 10, attributed: 209 },
+    { path: '/tools/moltsets/', slug: 'moltsets', topQuery: 'moltsets pricing', position: 6.2, attributed: 120 },
+  ];
+  const NUTSHELL_1011 = { topic: 'Nutshell Pipeline Management: How It Works and When It Beats Pipedrive', anchorTool: 'Nutshell', alsoCovers: ['Pipedrive', 'Close'], targetKeyword: 'nutshell pipeline management' };
+  const MOLTSETS_1011 = { topic: 'MoltSets Pricing in 2026: What You Actually Pay Per Credit', anchorTool: 'MoltSets', alsoCovers: ['Apollo.io', 'ZoomInfo'], targetKeyword: 'moltsets pricing' };
+  // Different queries on the fenced tools: must pass the hub fence (and dedup).
+  const OTHER_QUERY = [
+    { topic: 'Nutshell Pricing in 2026: Seats, Plans, and the Costs Nobody Lists', anchorTool: 'Nutshell', alsoCovers: [], targetKeyword: 'nutshell pricing' },
+    { topic: 'Migrate from Pipedrive to Nutshell Without Losing Your Deal History', anchorTool: 'Nutshell', alsoCovers: ['Pipedrive'], targetKeyword: 'pipedrive to nutshell migration' },
+  ];
+  console.log('\nHUB FENCE + ONE TOOL-SET RULE (op #1309):');
+  const fenced = dedup([NUTSHELL_1011, MOLTSETS_1011, ...OTHER_QUERY], universe, covered, HUBS);
+  const reasonOf = (res, t) => res.dropped.find((d) => d.topic === t.topic)?.reason || '';
+  hcheck('(a) Nutshell Pipeline Management vs hub query "nutshell pipeline management" dropped by the hub fence',
+    reasonOf(fenced, NUTSHELL_1011).startsWith('hub fence: /tools/nutshell/ already ranks 10 for "nutshell pipeline management"'), `(${reasonOf(fenced, NUTSHELL_1011) || 'kept'})`);
+  hcheck('(c) MoltSets Pricing vs hub query "moltsets pricing" dropped by the hub fence',
+    reasonOf(fenced, MOLTSETS_1011).startsWith('hub fence: /tools/moltsets/'), `(${reasonOf(fenced, MOLTSETS_1011) || 'kept'})`);
+  hcheck('(b) different-query Nutshell posts kept beside the fenced hub',
+    OTHER_QUERY.every((t) => fenced.kept.some((k) => k.topic === t.topic)), `(${OTHER_QUERY.map((t) => reasonOf(fenced, t) || 'kept').join(' | ')})`);
+  const vsPipedrive = calendarRow(universe, 'Nutshell vs Pipedrive: Which CRM Fits a Two-Person Sales Team', 'nutshell vs pipedrive');
+  hcheck('(b) "Nutshell vs Pipedrive" is not the hub\'s query', hubFenceReason(universe, vsPipedrive, HUBS) === null);
+  hcheck('no hubs, no hub fence (old behaviour without GSC)', hubFenceReason(universe, calendarRow(universe, MOLTSETS_1011.topic, 'moltsets pricing'), []) === null);
+  // (d) Stage vs audit on the 10/11 case, no hub fence in play. The proposer's tool set
+  // and the row's observable one differ (Close is only an alias hit as "Close CRM").
+  const proposerSig = signature(['nutshell', 'pipedrive', 'close']);
+  const rowSig = signature(calendarRow(universe, NUTSHELL_1011.topic, NUTSHELL_1011.targetKeyword).toolset);
+  hcheck('(d) 10/11 cause reproduced: proposer tool set != row tool set', proposerSig !== rowSig, `(${proposerSig} vs ${rowSig})`);
+  const staged = dedup([NUTSHELL_1011, ...OTHER_QUERY, ...CONTROLS.map(asProposal)], universe, covered);
+  hcheck('(d) stage dedup drops the 10/11 Nutshell row for the tool set the audit uses',
+    /^identical tool set .*Nutshell vs Pipedrive vs Close/.test(reasonOf(staged, NUTSHELL_1011)), `(${reasonOf(staged, NUTSHELL_1011) || 'kept'})`);
+  // Everything stage kept, written as Notion rows and run through the audit's own
+  // judgement against the same corpus: nothing may come back as a collision.
+  const asRows = staged.kept.map((k) => calendarRow(universe, k.topic, k.targetKeyword, { status: 'Suggested' }));
+  const audit = auditActiveRows(universe, covered, asRows, HUBS);
+  hcheck('(d) every staged row survives the same run\'s audit', staged.kept.length > 0 && audit.collisions.length === 0,
+    `(${staged.kept.length} staged, ${audit.collisions.length} audit collisions${audit.collisions.length ? ': ' + audit.collisions.map((c) => `${c.title} -> ${c.reason}`).join(' | ') : ''})`);
+  const preFence = auditActiveRows(universe, covered, [calendarRow(universe, MOLTSETS_1011.topic, MOLTSETS_1011.targetKeyword, { status: 'Suggested' })], HUBS);
+  hcheck('audit: a pre-fence hub sibling is an advisory, not an auto-Skip',
+    preFence.collisions.length === 0 && preFence.fenceAdvisories.some((a) => a.note.startsWith('hub fence: /tools/moltsets/')));
+  // QUERY-LEVEL HUBS (op #1309 follow-up). GSC rows shaped like 10/11: the page-level
+  // list misses both hubs (nutshell's page average is outside 5..15, moltsets' page is
+  // under 100), so only the page+query rows can fence the two motivating topics.
+  const G = 'https://theautomationsguide.com';
+  const gscPages = [
+    { keys: [`${G}/tools/nutshell/`], impressions: 358, clicks: 0, position: 18.4 },
+    { keys: [`${G}/tools/moltsets/`], impressions: 92, clicks: 0, position: 7.1 },
+  ];
+  const gscPageQuery = [
+    { keys: [`${G}/tools/nutshell/`, 'nutshell pipeline management'], impressions: 209, clicks: 0, position: 10.0 },
+    { keys: [`${G}/tools/nutshell/`, 'nutshell crm'], impressions: 60, clicks: 0, position: 31.0 },
+    { keys: [`${G}/tools/nutshell/`, '+nutshell "pipeline management"'], impressions: 40, clicks: 0, position: 9.0 },
+    { keys: [`${G}/tools/moltsets/`, 'moltsets pricing'], impressions: 34, clicks: 0, position: 6.0 },
+    { keys: [`${G}/tools/moltsets/`, 'moltsets login'], impressions: 25, clicks: 0, position: 3.0 },
+    { keys: [`${G}/tools/moltsets/`, 'moltsets api'], impressions: 12, clicks: 0, position: 8.0 },
+  ];
+  const pageHubs = nearWins(gscPages, gscPageQuery, covered).hubs;
+  const fenceList = hubFenceList(pageHubs, gscPageQuery);
+  const fenceKeys = fenceList.map((h) => `${h.slug}::${h.topQuery}`);
+  hcheck('query-level: page-level near-win hubs miss both 10/11 hubs', pageHubs.length === 0, `(${pageHubs.map((h) => h.path).join(', ') || 'none'})`);
+  hcheck('query-level: fence list holds both motivating hub queries (and a top-4 one)',
+    ['nutshell::nutshell pipeline management', 'moltsets::moltsets pricing', 'moltsets::moltsets login'].every((k) => fenceKeys.includes(k)), `(${fenceKeys.join(', ')})`);
+  hcheck('query-level: operator string, out-of-band and under-20 rows left out', fenceList.length === 3, `(${fenceList.length})`);
+  const fromGsc = dedup([NUTSHELL_1011, MOLTSETS_1011, ...OTHER_QUERY], universe, covered, fenceList);
+  hcheck('query-level: "Nutshell Pipeline Management..." fenced from page+query rows',
+    reasonOf(fromGsc, NUTSHELL_1011).startsWith('hub fence: /tools/nutshell/ already ranks 10 for "nutshell pipeline management"'), `(${reasonOf(fromGsc, NUTSHELL_1011) || 'kept'})`);
+  hcheck('query-level: "MoltSets Pricing..." fenced from page+query rows',
+    reasonOf(fromGsc, MOLTSETS_1011).startsWith('hub fence: /tools/moltsets/ already ranks 6 for "moltsets pricing"'), `(${reasonOf(fromGsc, MOLTSETS_1011) || 'kept'})`);
+  hcheck('query-level: different-query Nutshell posts still kept', OTHER_QUERY.every((t) => fromGsc.kept.some((k) => k.topic === t.topic)));
+  hcheck('query-level: a hub query under the floor fences nothing',
+    hubFenceReason(universe, calendarRow(universe, 'MoltSets API: Endpoints, Limits, and Setup', 'moltsets api'), fenceList) === null);
+
+  // DEDASH + PIPELINE MARKS (op #1309): the regexes held mojibake, so real dashes and the
+  // first-mover star were never matched.
+  const dashed = dedash('Apollo vs Clay \u{2014} the 2026 pick \u{2013} compared');
+  hcheck('dedash removes a real em dash and a real en dash', dashed.length > 0 && !/[\u{2014}\u{2013}]/u.test(dashed), `("${dashed}")`);
+  const pipeline = parsePipelineBacklog();
+  hcheck('pipeline parse reads first-mover stars and strips them from names and categories',
+    pipeline.some((t) => t.firstMover) && !pipeline.some((t) => /[\u{2B50}\u{2705}\u{1F50E}]/u.test(`${t.name} ${t.category}`)),
+    `(${pipeline.filter((t) => t.firstMover).length} first-mover of ${pipeline.length})`);
+
+  const hubFails = hubFix.filter((h) => !h.ok).map((h) => h.name);
+  console.log(`HUB FENCE fixture: ${hubFix.length} checks, ${hubFails.length} failed.`);
+
+  const pass = sig.pass && unexpected.length === 0 && nowCaught.length === 0 && blocked.length === 0 && hubFails.length === 0;
   console.log(`\n${bad.dropped.length}/${SCRUBBED_2026_08_12.length} caught deterministically; ${ACCEPTED_JUDGMENT_LEAKS.size} left to human review. Signals: ${sig.pass ? 'PASS' : 'FAIL (' + sig.fails.join(', ') + ')'}.`);
   console.log(`selftest: ${pass ? 'PASS' : 'FAIL'}`);
   process.exit(pass ? 0 : 1);

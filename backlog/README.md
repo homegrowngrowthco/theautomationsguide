@@ -73,6 +73,19 @@ N migrations". The best tool has 3 human affiliate clicks in 90 days. So:
   and re-scored at demand 0 (found 2026-10-13, at the first pick after a scored run).
 - **Hub near-wins** (`/tools/<slug>/` at position 5..15, e.g. `/tools/close/` on
   "close crm") are listed as hub fixes in the batch and never become a sibling post.
+- **Hub fence** (Ian 2026-10-16, "fence same-query only"; op #1309): a topic that names the
+  hub's tool and targets the SAME query as its top query is dropped at generation, flagged in
+  `--rank-suggested` and an advisory in `--audit-queue` (never auto-Skipped). Same query =
+  60% token coverage both ways plus the same format, so "Nutshell vs Pipedrive" still passes
+  beside a hub ranking for "nutshell pipeline management". The fence reads the page-level hubs
+  plus every hub page+query row at position 1..15 with 20+ impressions in 28d (`hubQueries()`),
+  since the page-level list missed both 10/11 cases.
+- **One tool-set rule:** stage dedup, the live calendar corpus and the queue audit all read a
+  topic's tools as alias hits in title + target keyword (`rowToolset()`), the fields a Notion
+  row keeps, so a staged row cannot be Skipped by the same run's audit for "identical tool set"
+  (10/11: the proposer's alsoCovers said Close, the row did not).
+- **Near-win paths in Notes are whole** (`/blog/<slug>/`, never clipped): the engine copies
+  them as internal links, and a 40-char clip shipped a broken one in #387.
 - The "alternatives" title fence from the 2026-08-04 audit still hard-drops; the
   measured table now rates the format second, so that fence is an open decision (TODO).
 
