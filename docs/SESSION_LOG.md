@@ -8,7 +8,20 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-15 (Session 113, unattended routine).
+Last updated 2026-10-16 (Session 114).
+
+## Session 114 (2026-10-16): #387 fixed and live, clipped-slug root cause fixed in builder and engine, hub fence, click rule changed (Opus 5.5, op #1309)
+
+- **Started ~16:20Z** from the prompt; Ian had answered ops issues #1, #7, #8 (option 1 each). Also logs S113's routine run.
+- **#387 (Woodpecker Pricing, High 92):** link fixed in-branch to the full slug, ZeroBounce linked by `link-live-mentions.mjs`; merged itself on green, production verified (post and linked post 200).
+- **Merge-on-green proof closed:** #391 carried an `[auto-register]` commit and merged in 3 min with "PR gates pass (dispatched run)" and the qa verdict on its head. #354 works.
+- **Root cause of the clipped slug:** `signals.mjs` wrote the near-win sibling into Notes as `.slice(0, 40)`; the engine (execution 23302) gave the model only the 12 newest slugs, so it copied the clip; Parse Draft's guard regex skipped an href ending in a space. No published post has a bad `/blog/` link (126 hrefs set-diffed).
+- **Fixes:** Notes now carry the full `/blog/<slug>/` (#393). Engine guard (Ian's OK; he ran the apply after the classifier blocked it): any `/blog/` href is normalised, snapped to a unique 20+ char prefix, or unlinked, against the full Fetch Blog List; 13 fixtures in `n8n/update-engine-link-guard-snap.mjs --selftest` (CI). Live 17:16Z, re-run reports already patched, active. Three Notion rows (Queued Pipedrive to JSON, Suggested Pipedrive Segmentation and Implementation) had the same clip; Notes text fixed, status and priority untouched.
+- **Hub fence (#393, Ian: same-query only):** a post targeting a query a `/tools/` hub ranks 15 or better for (20+ impressions, page+query rows) is dropped; different queries pass. Stage dedup and the audit share one tool-set rule (alias hits in title + keyword; the 10/11 Nutshell miss was "Close" not matching). Mojibake regexes fixed: `dedash` now removes real dashes, the first-mover star matches (19 of 75 tools). Selftest PASS.
+- **Click rule (Ian, #8):** join the pageview within 60 s for session and browser. Since 10/02 01:21Z, 114 clicks: strict 0, joined 2. Loops 10/13 19:02Z passes (Ian counted it, #7); GetAccept 10/07 on `/` passes the join but `/` links no tool. Human clicks: 1.
+- **Routines:** top-up 10/14 run correct (11 Queued, above its 9 floor, no change). Queue 7 Queued at 16:30Z; next top-up Sun 10/18 16:00Z.
+- **Revert:** `git revert` #393 or this PR; engine `node --env-file=../growth-engine/.env n8n/live-patch.mjs --restore ~/.n8n-backups/sjZADhZGIuz9tZHK-2026-10-16T17-16-07-417Z.json --apply`.
+- **Gotchas:** never truncate a slug or URL in any text a model reads; an engine guard must match every href the lint gate matches; a fence must be tested against the cases that motivated it (page-level near-wins missed both).
 
 ## Session 113 (2026-10-15): unattended cloud routine run, read-only checks (Sonnet 5.5, no op number)
 
