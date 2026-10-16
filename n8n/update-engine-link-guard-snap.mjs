@@ -179,7 +179,7 @@ if (process.argv.includes('--selftest')) {
     real = run('the [Woodpecker vs Instantly comparison](/blog/2026-10-05-woodpecker-vs-instantly-best- ) covers it.', { posts: repoPosts });
   }
   const checks = [
-    ['patch applies to the committed JSON', changes.length === 1],
+    ['patch applies to the committed JSON, or it is already patched', changes.length === 1 || (changes.length === 0 && wf.nodes.find((n) => n.name === NODE).parameters.jsCode.includes(SENTINEL))],
     ['#387 clipped href with trailing space snaps to the full slug', c387.md === `the [Woodpecker vs Instantly comparison](/blog/${W}/) covers it.` && c387.log[0]?.action === 'snap'],
     ['#387 case snaps against the real src/content/blog list too', real.md === `the [Woodpecker vs Instantly comparison](/blog/${W}/) covers it.`],
     ['40-char nutshell fragment snaps', cNut.md === `see [the CRM shootout](/blog/${N}/).`],
