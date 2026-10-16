@@ -100,9 +100,12 @@ jobs:
         # Runs AFTER staging so freshly staged rows are audited too. Dry-run manual
         # runs audit without writing (no --prune-apply). Only hard dedup collisions
         # are auto-Skipped; fence advisories are report-only (see build-backlog.mjs).
+        # GSC feeds the hub-fence advisory (near-win /tools/ hubs); without it the
+        # audit skips that advisory and says so.
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DATABASE_ID: ${{ vars.NOTION_DATABASE_ID }}
+          GSC_TOKEN_JSON: ${{ secrets.GSC_TOKEN_JSON }}
         run: |
           node backlog/build-backlog.mjs --audit-queue ${{ steps.cfg.outputs.prune }} 2>&1 | tee queue-audit.txt
           {

@@ -62,6 +62,19 @@ export const isComparison = (text) => /\bvs\.?(\s|$)|\bversus\b/i.test(text || '
 // (guides, stacks, recipes).
 export const formatOf = (text) => intentOf(text) || (isComparison(text) ? 'comparison' : 'other');
 
+// Same search query (the hub fence in build-backlog.mjs, op #1309). Reuses the served-query
+// rule (60% token coverage, as unservedClusters and scoreTopic use it) in BOTH directions,
+// so neither text may carry much the other lacks, plus the same format. One direction alone
+// fenced every post that merely contains a short branded hub query ("close crm calling
+// workflow" contains "close crm"); jaccard 0.72 let "moltsets pricing plans" through beside
+// a hub ranking for "moltsets pricing". Format equality keeps "close crm pricing" (pricing)
+// and "close crm vs pipedrive" (comparison) apart from the hub's "close crm" (other).
+export function isSameQuery(text, query) {
+  const a = tokenSet(text), b = tokenSet(query);
+  if (!a.size || !b.size) return false;
+  return formatOf(text) === formatOf(query) && tokenCoverage(b, a) >= 0.6 && tokenCoverage(a, b) >= 0.6;
+}
+
 // Human queries only: no rank-tracker operator strings, no URLs or phone numbers.
 // (Operator strings are what inflate "near-win" pages: the beehiiv-vs-substack post had
 // 949 page impressions on 2026-10-05 and 119 attributable to real queries.)
@@ -286,7 +299,9 @@ export function scoreTopic(topic, ctx) {
   const clicks = topic.anchorSlug && ctx.clicksByTool ? ctx.clicksByTool.get(topic.anchorSlug) || 0 : 0;
   const parts = [
     `demand ${demand}` + (served.length ? ` ("${served[0].top}" ${impr} impr/28d, best pos ${bestPos === Infinity ? '-' : bestPos})` : ' (no unserved query)'),
-    `near-win ${nearWin}` + (sibBest ? ` (${sibBest.path.replace(/^\/blog\//, '').slice(0, 40)} ${sibBest.attributed} impr @${sibBest.position})` : ''),
+    // The FULL path in the site's link form, never clipped: the engine copies it from Notes
+    // as an internal link, and a 40-char clip shipped a broken one (#387, op #1309).
+    `near-win ${nearWin}` + (sibBest ? ` (${sibBest.path} ${sibBest.attributed} impr @${sibBest.position})` : ''),
     `monetisation ${monetisation} (${st}${st === 'live' && !topic.anchorHasPosts ? ', no post yet' : ''})`,
     `format ${prior} (${format})`,
     overlap ? `overlap ${overlap} (near "${overlapTitle.slice(0, 40)}", jaccard ${overlapJ.toFixed(2)})` : '',
@@ -347,19 +362,20 @@ export function selfTestSignals() {
   // 3. near-wins: hub vs post split, operator-only pages excluded, attribution cut.
   const H = 'https://example.test';
   const posts = [
-    { path: '/blog/moltsets-cheap-api/', title: 'MoltSets: Cheap B2B Contact Data API', toolset: ['moltsets'], pubDate: '2026-07-23' },
+    // A real-length slug (63 chars): the Notes fixture below asserts it is never clipped.
+    { path: '/blog/2026-07-23-moltsets-cheap-b2b-contact-data-api-for-revops-teams/', title: 'MoltSets: Cheap B2B Contact Data API', toolset: ['moltsets'], pubDate: '2026-07-23' },
     { path: '/blog/beehiiv-vs-substack/', title: 'Beehiiv vs Substack vs HubSpot', toolset: ['beehiiv', 'substack', 'hubspot'], pubDate: '2026-05-13' },
     { path: '/blog/deep-page/', title: 'Apollo vs Clay', toolset: ['apollo', 'clay'], pubDate: '2026-05-06' },
   ];
   const pageRows = [
     { keys: [`${H}/tools/close/`], impressions: 3675, clicks: 0, position: 5.7 },
-    { keys: [`${H}/blog/moltsets-cheap-api/`], impressions: 487, clicks: 6, position: 5.5 },
+    { keys: [`${H}/blog/2026-07-23-moltsets-cheap-b2b-contact-data-api-for-revops-teams/`], impressions: 487, clicks: 6, position: 5.5 },
     { keys: [`${H}/blog/beehiiv-vs-substack/`], impressions: 949, clicks: 0, position: 5.4 },
     { keys: [`${H}/blog/deep-page/`], impressions: 400, clicks: 1, position: 20.0 },
   ];
   const pq = [
     { keys: [`${H}/tools/close/`, 'close crm'], impressions: 3571, clicks: 0, position: 5.5 },
-    { keys: [`${H}/blog/moltsets-cheap-api/`, 'moltsets vs apollo'], impressions: 239, clicks: 0, position: 5.8 },
+    { keys: [`${H}/blog/2026-07-23-moltsets-cheap-b2b-contact-data-api-for-revops-teams/`, 'moltsets vs apollo'], impressions: 239, clicks: 0, position: 5.8 },
     { keys: [`${H}/blog/beehiiv-vs-substack/`, '+substack hubspot integration free paid'], impressions: 119, clicks: 0, position: 1.8 },
     { keys: [`${H}/blog/deep-page/`, 'apollo vs clay'], impressions: 300, clicks: 1, position: 20.0 },
   ];
@@ -396,6 +412,7 @@ export function selfTestSignals() {
   check('near-win from the sibling post', s1.nearWin === 16, `(${s1.nearWin})`);
   check('live anchor with posts = 15', s1.monetisation === 15);
   check('comparison takes the best prior', s1.prior === 10);
+  check('near-win sibling path written whole, in /blog/<slug>/ link form', s1.breakdown.includes('(/blog/2026-07-23-moltsets-cheap-b2b-contact-data-api-for-revops-teams/ 239 impr'), `(${s1.breakdown.match(/near-win[^;]*/)?.[0]})`);
   check('sanity line carries clicks but score does not', s1.sanity.endsWith('6') && s1.score === s1.demand + s1.nearWin + s1.monetisation + s1.prior + s1.overlap);
   const s2 = scoreTopic({ topic: 'Connect RB2B to HubSpot', toolset: ['rb2b', 'hubspot'], anchorSlug: 'rb2b', anchorStatus: 'live', anchorHasPosts: false }, ctx);
   check('no cluster = demand 0; live with no post = 20', s2.demand === 0 && s2.monetisation === 20, `(${s2.demand}, ${s2.monetisation})`);
@@ -413,6 +430,24 @@ export function selfTestSignals() {
   check('full duplicate is the dedup guard\'s job, not a score penalty', dup.overlap === 0);
   const tiers = assignTiers([{ score: 10 }, { score: 90 }, { score: 50 }, { score: 70 }, { score: 30 }, { score: 60 }, { score: 20 }]);
   check('tiers: top third High, middle Medium, rest Low', tiers.map((t) => t.priority).join(',') === 'High,High,High,Medium,Medium,Low,Low', `(${tiers.map((t) => t.priority).join(',')})`);
+
+  // 6. same query (hub fence, op #1309): the 10/11 hub-sibling keywords match their hub's
+  // query; a different query on the same tool, a different format, or a longer query that
+  // merely contains a short branded hub query does not.
+  const sq = [
+    ['nutshell pipeline management', 'nutshell pipeline management', true],
+    ['moltsets pricing', 'moltsets pricing', true],
+    ['Nutshell pipeline management guide', 'nutshell pipeline management', true],
+    ['moltsets pricing plans 2026', 'moltsets pricing', true],
+    ['nutshell vs pipedrive', 'nutshell pipeline management', false],
+    ['close crm pricing', 'close crm', false],
+    ['close crm vs pipedrive', 'close crm', false],
+    ['close crm calling workflow', 'close crm', false],
+    ['MoltSets Pricing in 2026: What You Actually Pay Per Credit', 'moltsets pricing', false],
+    ['', 'moltsets pricing', false],
+  ];
+  const sqBad = sq.filter(([t, h, want]) => isSameQuery(t, h) !== want);
+  check('same-query rule: mutual 60% coverage + same format', sqBad.length === 0, sqBad.length ? `(wrong: ${sqBad.map(([t, h]) => `"${t}" ~ "${h}"`).join('; ')})` : `(${sq.length} pairs)`);
 
   return { pass: fails.length === 0, lines, fails };
 }
