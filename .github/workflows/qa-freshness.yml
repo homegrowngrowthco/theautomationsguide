@@ -109,6 +109,9 @@ jobs:
       - name: Daily Briefing stuck-Generating flag
         run: node n8n/update-briefing-stuck-generating.mjs --selftest
 
+      - name: Engine internal-link guard (snap or strip /blog/ hrefs)
+        run: node n8n/update-engine-link-guard-snap.mjs --selftest
+
   # /tools renders one section per toolCategories entry, so a tool filed under any other
   # category silently disappears from the index (18 listed tools did, until 2026-10-01).
   # tools.ts is edited by affiliate/registry PRs that qa-content-pr.yml never sees, so
