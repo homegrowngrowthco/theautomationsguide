@@ -1,0 +1,186 @@
+---
+title: "Connect Zoom to Kit: Webinar Subscriber Tagging Automation"
+description: "Step-by-step guide to connecting Zoom and Kit via Zapier, Make, or n8n. Automate webinar tagging and follow-up sequences without manual CSV exports."
+tldr: "Connect Zoom to Kit using Zapier, Make, or n8n to automatically tag webinar registrants and attendees, then trigger segmented follow-up sequences without touching a CSV."
+pubDate: 2026-10-19
+tags: ["automation", "email-marketing", "webinars"]
+faqs:
+  - question: "Does Kit have a native Zoom integration?"
+    answer: "No. Kit does not have a built-in Zoom connector. You need a middleware layer like Zapier, Make, or n8n to pass Zoom webinar data into Kit."
+  - question: "Can I tag Zoom attendees differently from no-shows in Kit?"
+    answer: "Yes. Zoom's webhook sends separate events for registrants, attendees, and absentees. You can branch on those events in your automation to apply different Kit tags per group."
+  - question: "What Zoom plan do I need for webinar automation?"
+    answer: "You need at minimum a Zoom Webinars add-on (starts around $79/month per host). Basic Zoom Meetings do not expose the webinar registrant and attendee webhooks required for this workflow."
+  - question: "Will this workflow capture late registrants?"
+    answer: "Yes, as long as the trigger is set to fire on each new registrant event rather than at a scheduled time. Zapier, Make, and n8n all support event-driven triggers for this."
+  - question: "How do I prevent duplicate subscribers in Kit?"
+    answer: "Kit's API deduplicates on email address by default. If a contact already exists, the tag is added without creating a second subscriber record."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+If you are still manually exporting Zoom registrant CSVs after every webinar and importing them into [Kit](/go/kit/), you are leaking the most important signal the webinar generates: whether someone actually showed up. The attendee/no-show split is where segmented follow-up sequences live, and it is completely invisible inside a flat CSV export. This tutorial walks through the three real middleware options for Zoom-to-Kit integrations, with concrete steps and the specific branching logic that makes the automation worth building.
+
+## Why this workflow matters more than a simple subscribe trigger
+
+Webinar registration alone is a weak signal. The useful data is layered: registered and attended, registered and did not attend, attended for less than 10 minutes versus stayed for the full session. Kit lets you act on all of that via tags and sequences, but only if the data arrives in the right shape.
+
+The standard failure mode here is piping every registrant into a single Kit tag with a single follow-up sequence. That treats a hot prospect who asked three questions during Q&A exactly the same as someone who registered, forgot, and never logged in. A well-structured Zoom-to-Kit workflow applies at minimum three tags per webinar event: `webinar-registered`, `webinar-attended`, and `webinar-no-show`. From there, Kit's automation rules fan out into differentiated sequences.
+
+Zoom exposes this data through its webhook system, but there is no native Kit connector. You need a middleware layer. The three options I'd point any operator to are [Zapier](/go/zapier/), [Make](/go/make/), and [n8n](/go/n8n/). Each carries a different tradeoff that affects which one fits your stack.
+
+<StatRow stats={[
+  { number: "3", label: "Core tag events", description: "Registered, attended, and no-show are the minimum branching points for useful follow-up segmentation" },
+  { number: "$79/mo", label: "Zoom Webinar add-on entry price", description: "Required to access the registrant and attendee webhooks that power this automation" },
+  { number: "0", label: "Native integrations", description: "Kit has no built-in Zoom connector as of 2026. Middleware is mandatory for every Zoom-to-Kit integration" }
+]} />
+
+## Setting up the workflow
+
+Before writing a single Zap or scenario, get the Zoom side clean. In Zoom's App Marketplace, create a Webhook-Only app (or use the Server-to-Server OAuth app if you want tighter auth). Subscribe to three event types: `webinar.registration_created`, `webinar.participant_joined`, and `webinar.ended` (from which you can derive no-shows by cross-referencing who joined against who registered). On the Kit side, create your webinar-specific tags in advance and note the tag IDs from Kit's API. The [Kit developer docs](https://developers.kit.com) show the exact `POST /v2/tags/{id}/subscribers` endpoint you will be hitting.
+
+<StepRow steps={[
+  {
+    title: "Create your Zoom Webhook or Server-to-Server OAuth app",
+    body: "In the Zoom App Marketplace, go to Develop > Build App and choose Webhook Only (or Server-to-Server OAuth for production). Subscribe to webinar.registration_created, webinar.participant_joined, and webinar.ended. Copy the Verification Token or your OAuth credentials. You need a Zoom Webinars add-on active on the account, not just a standard Meetings license."
+  },
+  {
+    title: "Create matching tags in Kit before the webinar fires",
+    body: "In Kit, add three tags per webinar: one for registered (e.g. 'webinar-2026-q4-registered'), one for attended ('webinar-2026-q4-attended'), and one for no-show ('webinar-2026-q4-no-show'). Log the numeric tag IDs from the Kit API or the URL in your Kit account. Naming these with a date prefix keeps your tag list manageable as you run more webinars."
+  },
+  {
+    title: "Connect Zoom to your middleware and map the registrant event",
+    body: "In Zapier, Make, or n8n, create a webhook trigger pointed at your Zoom app's event URL. Parse the payload for email, first_name, last_name, and webinar_id. Pass email and the 'registered' tag ID to Kit's subscriber API. This fires the moment someone completes registration, so the confirmation email sequence can start immediately."
+  },
+  {
+    title: "Add a branch for attendee vs. no-show after the webinar ends",
+    body: "When webinar.ended fires, Zoom's payload does not include a full attendee list inline. The cleaner approach is to use the Zoom Reports API (GET /report/webinars/{webinarId}/participants) in a subsequent step. In Make or n8n, add an HTTP module to pull that report. Cross-reference the attendee emails against your registrant list, then apply the attended or no-show tag accordingly in Kit."
+  },
+  {
+    title: "Trigger the appropriate Kit sequence from the tag",
+    body: "In Kit, set up automation rules: when tag 'webinar-2026-q4-attended' is added, enroll in the 'Post-Webinar Attendee' sequence. When 'webinar-2026-q4-no-show' is added, enroll in the 'Missed It? Here Is the Replay' sequence. Keep these sequences short: three emails over five days is enough. Attendees convert on direct CTAs; no-shows need the replay hook first."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **The gotcha: Zoom's participant report has a delay.** The `webinar.ended` webhook fires immediately, but the participant report endpoint returns a 400 or empty response for 5 to 15 minutes after the webinar closes. If your Make scenario or n8n workflow hits the Reports API in the same execution that catches `webinar.ended`, you will pull an empty list and tag everyone as a no-show. Build in a delay module (Make's Sleep or n8n's Wait node) of at least 15 minutes before the Reports API call.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // n8n: HTTP Request node config
+    // Run AFTER a 15-min Wait node
+    {
+      "method": "GET",
+      "url": "https://api.zoom.us/v2/report/webinars/{{webinarId}}/participants",
+      "authentication": "oAuth2",
+      "queryParameters": {
+        "page_size": 300
+      }
+    }
+
+    // Then: Code node to extract emails
+    const attendeeEmails = items[0].json
+      .participants
+      .map(p => p.user_email);
+
+    return attendeeEmails.map(email => ({ json: { email } }));
+    ```
+  </Fragment>
+</SideBySide>
+
+## Which middleware fits your setup
+
+The middleware choice is not just about price. It affects how much you can do with the Zoom Reports API call (Zapier makes that harder), how maintainable the workflow is six months from now, and whether your team can debug it without you.
+
+<ChooseIf title="Which middleware for your Zoom to Kit workflow?" tools={[
+  {
+    name: "Zapier",
+    conditions: [
+      "Your team is non-technical and needs to own the workflow without RevOps help",
+      "You are running fewer than four webinars per month and do not need the Reports API cross-reference",
+      "You already pay for a Zapier plan that covers multi-step Zaps"
+    ],
+    pricing: "From $19.99/mo (Starter)",
+    affiliateSlug: "zapier",
+    ctaLabel: "Try Zapier",
+    highlight: false
+  },
+  {
+    name: "Make",
+    conditions: [
+      "You want a visual scenario builder but also need the Zoom Reports API call with a delay module",
+      "You run webinars regularly and need the attendee/no-show branch working reliably",
+      "You want more operations per dollar than Zapier allows"
+    ],
+    pricing: "From $9/mo (Core)",
+    affiliateSlug: "make",
+    ctaLabel: "Try Make",
+    highlight: true
+  },
+  {
+    name: "n8n",
+    conditions: [
+      "You self-host or want full control over data residency for GDPR compliance",
+      "Your team is comfortable with JavaScript and wants to write the cross-reference logic as a Code node",
+      "You are already running other RevOps automations on n8n and want one platform"
+    ],
+    pricing: "Free self-hosted, from $20/mo cloud",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n",
+    highlight: false
+  }
+]} />
+
+My read is that Make hits the sweet spot for most teams doing this workflow. The Sleep module handles the Zoom Reports API delay cleanly, the HTTP module makes the attendee cross-reference straightforward, and the per-operation pricing is far more forgiving than Zapier once your webinar cadence grows. I would only push toward [n8n](/tools/n8n/) if data residency is a hard requirement or the team already lives there.
+
+If you want to see how similar multi-step automation logic plays out in Make, the [Make integrations guide for GTM teams](/blog/2026-10-14-make-integrations-that-actually-work-for-gtm-teams-in-2026/) covers the module patterns worth knowing.
+
+<Figure class="post-screenshot" caption="n8n workflow canvas showing a webhook trigger branching into an enrichment step and conditional routing, the same pattern used for the Zoom attendee cross-reference.">
+  <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with webhook trigger, enrichment node, ICP branch, and downstream action nodes" loading="lazy" />
+  </a>
+</Figure>
+
+## Sequence design for attendees vs. no-shows
+
+The tagging is the infrastructure. The sequences are where the revenue actually lives. For attendees, the first email should go out within 30 minutes of the webinar ending, while attention is still warm. Reference something specific from the session rather than a generic "Thanks for attending" opener. Kit's custom fields let you pass in the webinar title so the sequence feels personalized without manual work.
+
+For no-shows, I'd argue the conventional "send immediately" instinct is wrong. Delay the first email by two to four hours. Lead with the replay link, not a hard CTA. [Kit's automation rules](https://help.kit.com/en/articles/2502638-rules) let you set up a simple conditional: if the subscriber clicks the replay link within 48 hours, move them to the attendee sequence. That click signal is nearly as strong as live attendance for conversion intent.
+
+This same tagging-plus-sequence pattern applies directly to course and membership funnels, which is why it clusters naturally with [connecting Kit to Kajabi](/blog/2026-10-18-connect-kit-to-kajabi-automate-your-course-and-newsletter-le/). The subscriber intelligence you build in Kit from webinar behavior compounds across every product you sell.
+
+<MyTake>
+Most teams build this integration and then write one generic follow-up sequence for everyone. That is the real mistake. The attendee/no-show branch is not optional polish, it is the whole point. A warm attendee who asked questions during Q&A and a registrant who never logged in are not the same lead, and treating them identically wastes the only meaningful signal a webinar produces.
+</MyTake>
+
+## Putting it together
+
+The Zoom-to-Kit integration is about four hours of setup time across middleware configuration, Kit tag creation, and sequence drafting. The operational payoff is real: every webinar you run from that point forward automatically segments your list, starts warm follow-up within minutes of the session ending, and routes high-intent attendees into a faster conversion path than no-shows. The [Kit developer docs](https://developers.kit.com) cover the subscriber tag API in detail if you want to extend the workflow further, for example by passing custom fields like attendance duration from the Zoom Reports payload. Start with the three-tag minimum, get that working cleanly, and layer on complexity from there.
+
+<BottomLine
+  verdict="Make is the most practical middleware for this workflow. It handles the Zoom Reports API delay with a native Sleep module, the HTTP connector covers the attendee cross-reference without custom code, and the pricing scales better than Zapier for teams running webinars regularly."
+  pick="Make"
+  affiliateSlug="make"
+  ctaLabel="Try Make"
+/>
+
+<Sources sources={[
+  { label: "Kit: Automation rules documentation", url: "https://help.kit.com/en/articles/2502638-rules" },
+  { label: "Kit developer docs: Subscriber tag API", url: "https://developers.kit.com" },
+  { label: "Zoom: Webhook events reference", url: "https://developers.zoom.us/docs/api/webhooks/events/" },
+  { label: "Zoom: Reports API participants endpoint", url: "https://developers.zoom.us/docs/api/rest/reference/zoom-api/methods/#operation/reportWebinarParticipants" }
+]} />
