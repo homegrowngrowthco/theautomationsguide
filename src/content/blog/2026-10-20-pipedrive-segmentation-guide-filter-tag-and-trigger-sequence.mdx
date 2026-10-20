@@ -1,0 +1,250 @@
+---
+title: "Pipedrive Segmentation Guide: Filter, Tag, and Trigger Sequences"
+description: "How to segment Pipedrive contacts, apply labels, use filters, and trigger outreach sequences without needing a CRM admin. Practical RevOps playbook."
+tldr: "You can build powerful Pipedrive segments using native filters and custom fields, then trigger sequences via n8n or Make without touching admin settings or hiring a specialist."
+pubDate: 2026-10-20
+tags: ["guide", "automation", "pipedrive"]
+faqs:
+  - question: "Does Pipedrive have segmentation?"
+    answer: "Yes. Pipedrive supports segmentation through contact and deal filters, custom fields, and labels. You can save filter views and use them as audiences for email campaigns or automation triggers."
+  - question: "How do I tag contacts in Pipedrive?"
+    answer: "Pipedrive uses Labels (colored tags on persons and organizations) rather than a true tagging system. You can also create a multi-option custom field to replicate tag-style segmentation with more granularity."
+  - question: "Can Pipedrive trigger email sequences automatically?"
+    answer: "Pipedrive's native automation can send single emails on deal stage changes, but for multi-step sequences you need to push to a dedicated sequencer like Smartlead or Lemlist via n8n, Make, or Zapier."
+  - question: "What is the best way to segment Pipedrive without a developer?"
+    answer: "Use saved filters built on custom fields and label values, then wire those filters to an automation via Pipedrive's workflow automation or a no-code tool like n8n or Make."
+  - question: "Does Pipedrive integrate with HubSpot for segmentation?"
+    answer: "Yes, via a native two-way sync or through middleware like n8n and Make. This lets you use HubSpot's list-building on top of Pipedrive pipeline data without migrating your CRM."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most [Pipedrive](/go/pipedrive/) users treat the CRM as a pipeline visualizer and nothing else. They chase deals through stages, log calls, then export a CSV whenever they need to do real segmentation work in a spreadsheet. That is a failure of setup, not a failure of the tool. Pipedrive has a capable filter engine, a label system, custom fields, and an automation layer that, wired correctly, can slice your contact base, tag records automatically, and push the right people into a cold sequence or a nurture track without a single admin ticket. This guide walks through exactly how to set that up.
+
+<KeyTakeaways items={[
+  "Pipedrive segments live in saved filters built on custom fields, labels, and pipeline data, no admin panel required to create them.",
+  "Labels are Pipedrive's native tagging layer; for more than six segments, use a multi-option custom field instead.",
+  "Native workflow automation can trigger on filter conditions but stops at single emails, use n8n or Make to push to Smartlead or Lemlist for true sequences.",
+  "HubSpot lists can sit on top of Pipedrive data via sync for teams that need richer segmentation logic without switching CRMs.",
+  "The usual trap is building segments in filters but never connecting them to an action, a segment with no trigger is just a saved search."
+]} />
+
+## The segmentation model Pipedrive actually uses
+
+Before building anything, it helps to understand what Pipedrive gives you natively. The platform has four segmentation surfaces, and most teams only use one of them.
+
+**Filters** are the core of any Pipedrive segment. You can filter Persons, Organizations, Deals, Activities, and Leads independently. Filters support AND/OR logic, date ranges, field comparisons, and pipeline-specific conditions. Save a filter and it becomes a reusable segment you can share with your team.
+
+**Labels** are colored tags you apply to Persons and Organizations. They show up in list views and can be used as filter conditions. Pipedrive gives you up to ten label colors, named whatever you want. Think "Hot Lead," "Customer," "Churned," "Partner." Coarse but fast to apply.
+
+**Custom fields** are the power layer. You can create text, numeric, date, dropdown, and multi-option fields on any object. A multi-option custom field called "Segment" with values like "ICP-SMB," "ICP-MM," and "ICP-ENT" gives you a tag-like system with no color ceiling and full filter support. I'd start here rather than leaning on labels for anything requiring more than five distinct values.
+
+**Pipeline stage** is the most overlooked segmentation dimension. A contact's associated deal stage is queryable in filters, which means "everyone in the Proposal stage with a deal value over $10k in the Enterprise pipeline" is a valid segment you can build in about 90 seconds.
+
+<StatRow stats={[
+  { number: "400+", label: "Filter conditions", description: "Pipedrive supports over 400 field and activity conditions across its filter builder, per the Pipedrive help docs." },
+  { number: "10", label: "Native label slots", description: "Pipedrive's label system gives you ten color-coded tags per object type before you need to move to custom fields." },
+  { number: "3x", label: "Objects you can filter", description: "Persons, Organizations, and Deals each have independent filter engines, so your segments can live at any level of the data model." }
+]} />
+
+## How to build a Pipedrive segment step by step
+
+<StepRow steps={[
+  {
+    title: "Define your segment criteria on paper first",
+    body: "Before touching the UI, write out the logic in plain English. 'All Persons where Industry = SaaS AND Deal Stage = Qualified AND Last Activity > 14 days ago.' This prevents you from building filters that look right but miss edge cases. If you cannot write the criteria in one sentence, the segment is probably two segments."
+  },
+  {
+    title: "Create the custom fields you need",
+    body: "Go to Settings > Data Fields > Person (or Organization). Add a multi-option custom field called 'Segment' or 'ICP Tier' with your values. Add a single-line text field called 'Enrichment Source' if you are using Clay or a waterfall enrichment tool upstream. These fields will be your most reliable filter handles later."
+  },
+  {
+    title: "Build and save the filter",
+    body: "In the Contacts > People list view, click the filter icon and add your conditions. Chain AND/OR groups as needed. When the count looks right (spot-check 5-10 records manually), hit Save Filter, give it a descriptive name like 'ICP-SMB / Stale 14d,' and set sharing to All Users. A saved filter is your segment. Treat it like a list in HubSpot or a smart campaign in Marketo."
+  },
+  {
+    title: "Apply labels in bulk or via automation",
+    body: "Select filtered records in list view and use the bulk-edit action to apply a label. For ongoing automation, go to Automations and create a trigger: 'When a Person's custom field Segment changes' then 'Update Label to Hot.' This keeps labels in sync with your custom field values without manual work."
+  },
+  {
+    title: "Wire the segment to a sequence trigger",
+    body: "For native single-email outreach, Pipedrive's automation supports 'Send email' as an action. For multi-step sequences, you need to push records out. Create a Pipedrive automation that fires a webhook when a Person matches your segment conditions, then catch it in n8n or Make, transform the payload, and create a contact in Smartlead or Lemlist. The webhook trigger is available on the Professional plan and above."
+  }
+]} />
+
+<Figure class="post-screenshot" caption="Pipedrive's pipeline view, where deal stage filters become segment handles for automation triggers.">
+  <a href="/go/pipedrive/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/pipedrive-pipeline.png" alt="Pipedrive pipeline view showing deal stages used as segment filters" loading="lazy" />
+  </a>
+</Figure>
+
+## The webhook-to-sequence wiring (where most setups break)
+
+The filter-and-label work above gets you clean segments. The automation step is where teams leave value on the table. Here is the common failure mode and the fix.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The trap:** Teams set up a Pipedrive automation that fires on a label change but use the built-in "Send email" action. That sends one email from the rep's connected inbox and stops. No follow-up, no sequence enrollment, no reply detection. When the rep goes on PTO, the emails still fire but nobody handles replies. Worse, Pipedrive does not deduplicate enrollment, so if the label gets toggled twice, the contact gets two emails.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // n8n webhook node catches Pipedrive payload
+    // Then maps to Smartlead API call
+    {
+      "email": "{{$json.person.email[0].value}}",
+      "first_name": "{{$json.person.first_name}}",
+      "last_name": "{{$json.person.last_name}}",
+      "campaign_id": "42",
+      "custom_fields": {
+        "company": "{{$json.organization.name}}",
+        "segment": "{{$json.person.segment}}"
+      }
+    }
+    // Add an IF node upstream: check
+    // "already_enrolled" custom field = true
+    // to prevent duplicate enrollment
+    ```
+  </Fragment>
+</SideBySide>
+
+The fix is a deduplication guard. In [n8n](/go/n8n/), add an IF node that checks a Pipedrive custom field called "Sequence Enrolled" before the Smartlead or [Lemlist](/go/lemlist/) enrollment call. If the field is true, the branch exits. After successful enrollment, write back to the Pipedrive Person record via the API to flip "Sequence Enrolled" to true. One extra API call. Zero double-enrollments. You can see how this pattern scales in the [n8n workflow canvas](/screenshots/n8n.png) when you add a branching enrichment step.
+
+For teams already looking at [Pipedrive-to-JSON data pipelines](/blog/2026-10-17-pipedrive-to-json-export-and-pipe-deal-data-without-zapier/), the same webhook pattern applies. The payload structure is identical.
+
+## When to bring HubSpot into the segmentation layer
+
+[HubSpot](/go/hubspot/) has a materially better segmentation UI than Pipedrive. Full stop. Active lists with behavioral triggers, lifecycle stage logic, and form submission history are genuinely more powerful than Pipedrive's saved filters. If your GTM motion involves marketing nurture alongside sales pipeline work, my read is that the right architecture is Pipedrive as the deal-of-record system and HubSpot handling all segmentation and sequence enrollment upstream. Don't try to force Pipedrive to do both jobs well.
+
+The native [HubSpot-Pipedrive sync](https://www.pipedrive.com/en/marketplace/app/hub-spot/bd0de31cbef83a51) is bidirectional and handles Contact-to-Person and Deal-to-Deal mapping. You can build your segment as a HubSpot Active List, enroll it in a HubSpot sequence, and have deal creation or stage updates sync back to Pipedrive automatically.
+
+The catch: you are now paying for two CRMs. For teams under 10 reps on Pipedrive's Professional plan, the HubSpot Sales Hub add-on cost often does not pencil. In that case, stay native in Pipedrive and use [Make](/go/make/) or n8n as the middleware layer instead.
+
+For a deeper look at how Make connects to GTM tooling, [Make integrations for GTM teams](/blog/2026-10-14-make-integrations-that-actually-work-for-gtm-teams-in-2026/) covers the pattern in more detail.
+
+<Figure>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" width="640" height="220">
+    <rect width="640" height="220" fill="#f9f7f2" rx="12" />
+    <rect x="20" y="80" width="120" height="56" rx="8" fill="#e6fbf6" stroke="#14a890" stroke-width="2" />
+    <text x="80" y="106" text-anchor="middle" font-size="13" font-weight="600" fill="#0d8c78" font-family="sans-serif">Pipedrive</text>
+    <text x="80" y="122" text-anchor="middle" font-size="11" fill="#262b32" font-family="sans-serif">Saved Filter</text>
+    <line x1="140" y1="108" x2="200" y2="108" stroke="#14a890" stroke-width="2" marker-end="url(#arr)" />
+    <rect x="200" y="80" width="120" height="56" rx="8" fill="#ffffff" stroke="#cdc7b3" stroke-width="2" />
+    <text x="260" y="106" text-anchor="middle" font-size="13" font-weight="600" fill="#262b32" font-family="sans-serif">Webhook</text>
+    <text x="260" y="122" text-anchor="middle" font-size="11" fill="#262b32" font-family="sans-serif">Automation</text>
+    <line x1="320" y1="108" x2="380" y2="108" stroke="#14a890" stroke-width="2" marker-end="url(#arr)" />
+    <rect x="380" y="80" width="120" height="56" rx="8" fill="#e6fbf6" stroke="#14a890" stroke-width="2" />
+    <text x="440" y="106" text-anchor="middle" font-size="13" font-weight="600" fill="#0d8c78" font-family="sans-serif">n8n / Make</text>
+    <text x="440" y="122" text-anchor="middle" font-size="11" fill="#262b32" font-family="sans-serif">Dedup + Route</text>
+    <line x1="500" y1="108" x2="560" y2="108" stroke="#14a890" stroke-width="2" marker-end="url(#arr)" />
+    <rect x="560" y="80" width="64" height="56" rx="8" fill="#ffffff" stroke="#cdc7b3" stroke-width="2" />
+    <text x="592" y="106" text-anchor="middle" font-size="12" font-weight="600" fill="#262b32" font-family="sans-serif">Seq.</text>
+    <text x="592" y="122" text-anchor="middle" font-size="11" fill="#262b32" font-family="sans-serif">Tool</text>
+    <text x="80" y="160" text-anchor="middle" font-size="10" fill="#0d8c78" font-family="sans-serif">Labels + Fields</text>
+    <text x="260" y="160" text-anchor="middle" font-size="10" fill="#0d8c78" font-family="sans-serif">Fires on change</text>
+    <text x="440" y="160" text-anchor="middle" font-size="10" fill="#0d8c78" font-family="sans-serif">Enrolled check</text>
+    <text x="592" y="160" text-anchor="middle" font-size="10" fill="#0d8c78" font-family="sans-serif">Smartlead etc.</text>
+    <defs>
+      <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#14a890" />
+      </marker>
+    </defs>
+  </svg>
+</Figure>
+
+## Which tool handles which part of the stack
+
+<ChooseIf title="Pick the right layer for your segmentation stack" tools={[
+  {
+    name: "Pipedrive (native)",
+    conditions: [
+      "You want segments built purely on pipeline data: stage, deal value, last activity",
+      "Your team is under 10 reps and you cannot justify a second platform",
+      "Single-touch email actions on segment entry are enough"
+    ],
+    pricing: "From $14/seat/mo (Essential)",
+    affiliateSlug: "pipedrive",
+    ctaLabel: "Try Pipedrive",
+    highlight: false
+  },
+  {
+    name: "n8n",
+    conditions: [
+      "You need multi-step logic between Pipedrive and a sequence tool",
+      "You want to self-host and keep costs near zero at volume",
+      "You are comfortable with a JSON-based workflow builder"
+    ],
+    pricing: "Free self-hosted; Cloud from $20/mo",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n",
+    highlight: true
+  },
+  {
+    name: "Make",
+    conditions: [
+      "You want a visual, no-code scenario builder with Pipedrive's native Make module",
+      "Your team has non-technical operators who will maintain the automations",
+      "You need built-in error handling and run history without self-hosting"
+    ],
+    pricing: "Free tier; Core from $9/mo",
+    affiliateSlug: "make",
+    ctaLabel: "Try Make",
+    highlight: false
+  },
+  {
+    name: "HubSpot (list layer)",
+    conditions: [
+      "Your marketing team already lives in HubSpot and needs behavioral segmentation",
+      "You want lifecycle stage logic, form fills, or page views as segment criteria",
+      "You are willing to pay for a two-CRM architecture and manage the sync"
+    ],
+    pricing: "Marketing Hub Starter from $15/mo",
+    affiliateSlug: "hubspot",
+    ctaLabel: "Try HubSpot",
+    highlight: false
+  }
+]} />
+
+## A note on sequence tool selection
+
+Once your segment is clean and the trigger is wired, the sequencer choice matters. [Smartlead](/go/smartlead/) and [Lemlist](/go/lemlist/) both accept contact enrollment via API and support custom field variables for personalization tokens. If you are using [Mailshake](/go/mailshake/) or [Instantly](/go/instantly/) instead, the API structure differs but the n8n or Make pattern is identical: HTTP request node pointing at the enrollment endpoint with your mapped fields. Don't let tool preference change the architecture. The pattern holds regardless of which sequencer sits at the end of the chain.
+
+For context on how Pipedrive fits into a broader outreach stack, the comparison of [Mailshake vs Pipedrive](/blog/2026-10-16-mailshake-vs-pipedrive-why-they-get-confused-and-what-to-use/) covers why these tools are complementary, not competing. And if you need better enrichment on your segment records before enrollment, the [Surfe vs Fullenrich waterfall coverage comparison](/blog/2026-10-17-surfe-vs-fullenrich-which-has-better-waterfall-coverage/) is worth reading before you commit to an enrichment layer.
+
+Per [Pipedrive's developer docs](https://developers.pipedrive.com/docs/api/v1), the Persons API supports full CRUD on custom fields, which means any automation tool that can make an authenticated POST request can write segment data back to Pipedrive without a developer on call.
+
+<MyTake>
+Most teams struggling with Pipedrive segmentation are not missing a feature. They are missing a data contract: a written agreement on which custom fields mean what, who sets them, and when. The filter engine is good enough. The discipline around populating it consistently is what fails. I'd spend the first hour of any segmentation project writing that data contract, not building filters. Obsessing over which middleware tool to pick is a distraction until the field definitions are locked.
+</MyTake>
+
+## The segment is only as good as the action it triggers
+
+A saved filter with no downstream trigger is just a fancy search. The whole point of building clean Pipedrive segments is that they become the inputs to repeatable, automatable motions: sequence enrollment, deal stage nudges, rep task creation, or Slack alerts on segment size changes. According to [G2's CRM workflow automation research](https://www.g2.com/categories/crm), teams that automate at least one post-filter action see meaningfully higher CRM data quality over time, because the automation surface pressure-tests whether the segment logic is actually correct.
+
+Start with one segment, one trigger, one action. Wire the [Pipedrive](/tools/pipedrive/) webhook to [n8n](/tools/n8n/) or [Make](/tools/make/), add the deduplication guard, enroll into your sequence tool of choice, and write the enrollment flag back to the Person record. When that loop runs cleanly for two weeks, you have a pattern you can replicate across every segment in your model. Simple. Repeatable. No admin overhead.
+
+<BottomLine
+  verdict="Pipedrive's native filter and label engine is more capable than most teams use it. Pair it with n8n or Make for sequence enrollment, add a dedup guard, and you have a segmentation-to-sequence workflow that requires zero admin overhead to maintain."
+  pick="Pipedrive"
+  affiliateSlug="pipedrive"
+  ctaLabel="Try Pipedrive"
+/>
+
+<Sources sources={[
+  { label: "Pipedrive: Filter your data in Pipedrive", url: "https://support.pipedrive.com/en/article/filters" },
+  { label: "Pipedrive Developer Docs: Persons API", url: "https://developers.pipedrive.com/docs/api/v1" },
+  { label: "Pipedrive Marketplace: HubSpot integration", url: "https://www.pipedrive.com/en/marketplace/app/hub-spot/bd0de31cbef83a51" },
+  { label: "G2: CRM workflow automation category research", url: "https://www.g2.com/categories/crm" }
+]} />
