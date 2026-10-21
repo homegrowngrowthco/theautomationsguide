@@ -6,6 +6,9 @@ RevOps/GTM automation blog at **theautomationsguide.com**. Affiliate-monetized (
 - **Deploy:** Netlify auto-deploys every push to master (~90s). Rollback guide: [DEPLOYMENT.md](DEPLOYMENT.md).
 - **History:** full session-by-session log in [docs/SESSION_LOG.md](docs/SESSION_LOG.md). Open tasks ONLY in [TODO.md](TODO.md).
 
+This file is an index: state, a pointer, no history, no counts. Detail is on demand and leaves with its task.
+Narrative goes to the session log (`docs/SESSION_LOG.md`), never here. (Tier rule from the markdown hygiene audit, op #1357, 2026-10-21.)
+
 ## Architecture map
 
 | Area | Where | Notes |
