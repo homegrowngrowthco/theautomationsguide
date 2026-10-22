@@ -1,0 +1,160 @@
+---
+title: "Motion Pricing in 2026: Plans, AI Features, and When to Switch"
+description: "Motion's plans start at $19/month but the real cost depends on seats and AI features. Here's what each tier actually gets you and when to switch."
+tldr: "Motion costs $19 per user per month on the Individual plan (billed annually) and $12 per user per month on Team, with AI scheduling included on all paid tiers, but the calendar blocking and task AI that make it worth paying for are gated behind the annual commitment."
+pubDate: 2026-10-22
+tags: ["tools", "automation", "scheduling"]
+faqs:
+  - question: "How much does Motion cost per month?"
+    answer: "Motion's Individual plan is $19/user/month billed annually (or $34 month-to-month). The Team plan is $12/user/month billed annually, with a minimum of two seats."
+  - question: "Does Motion have a free plan?"
+    answer: "No. Motion offers a 7-day free trial but has no permanent free tier. You need a paid plan to use the AI scheduling engine after the trial ends."
+  - question: "Is Motion worth it compared to Calendly?"
+    answer: "They solve different problems. Calendly handles inbound meeting booking; Motion auto-schedules your task list around those meetings. Most RevOps operators use both."
+  - question: "What is the Motion Team plan best for?"
+    answer: "The Team plan adds shared project views, team member task visibility, and collaborative workspaces, making it the right tier for ops teams managing cross-functional sprint work."
+  - question: "Can Motion replace a project management tool like Asana?"
+    answer: "Partially. Motion handles task prioritization and calendar blocking well, but it lacks Gantt views, dependency chains, and deep integrations that dedicated PM tools offer."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Land on [Motion](/go/motion/)'s pricing page and you will find something slightly unusual: two plans, one AI promise, and a billing structure that punishes month-to-month buyers hard. The question I hear from RevOps operators is not "what does Motion cost?" It is "what am I actually paying for, and does the AI scheduling engine justify the seat cost against tools I already own?" This breakdown answers that, including where [Calendly](/go/calendly/), [Chili Piper](/go/chili-piper/), and [Cal.com](/go/cal-com/) fit into the picture.
+
+<KeyTakeaways items={[
+  "Individual plan is $19/user/month (annual) or $34 month-to-month, a 44% penalty for flexibility",
+  "Team plan drops to $12/user/month (annual, 2-seat minimum) and adds shared workspaces and project views",
+  "AI task scheduling and calendar blocking are included on all paid tiers, not locked behind a premium add-on",
+  "Motion does not have a free tier, only a 7-day trial, so you are committing blind without testing your workflow first",
+  "Calendly and Chili Piper handle inbound booking; Motion handles what happens after the meeting lands on your calendar"
+]} />
+
+<StatRow stats={[
+  { number: "$19", label: "Individual plan", description: "Per user per month, billed annually. Month-to-month jumps to $34." },
+  { number: "$12", label: "Team plan", description: "Per user per month, billed annually. Minimum two seats, so floor is $24/month." },
+  { number: "7 days", label: "Free trial", description: "No permanent free tier. The trial is the only way to evaluate before committing." }
+]} />
+
+## What you actually get at each tier
+
+Motion's pricing is deceptively simple on the surface. Two plans, one billing frequency toggle, done. But the delta between Individual and Team is mostly about collaboration surface, not AI capability. The AI scheduling engine, which auto-blocks time for tasks and reschedules when your calendar fills up, ships on both plans. That is the main value proposition, and it is not paywalled behind the higher tier.
+
+Where Team earns its price is shared project views, the ability to see teammates' task loads, and collaborative workspaces. For a solo operator or founder, Individual is sufficient. For a RevOps or GTM team where you need visibility into who owns what, Team is the right call.
+
+Per [Motion's own pricing documentation](https://www.usemotion.com/pricing), the feature split is intentionally minimal. Motion is betting you stay for the AI engine, not the feature matrix. I'd argue that is actually a reasonable product bet, but it does mean the tier decision is almost entirely about headcount and collaboration needs, not capability.
+
+<ChooseIf title="Which Motion tier fits your team?" tools={[
+  {
+    name: "Individual Plan ($19/mo annual)",
+    conditions: [
+      "You are a solo operator, founder, or IC managing your own task list and calendar",
+      "You do not need to share project visibility with colleagues",
+      "You want AI scheduling without paying for seats you will not use"
+    ],
+    pricing: "$19/user/month (annual) or $34 month-to-month",
+    affiliateSlug: "motion",
+    ctaLabel: "Try Motion Individual",
+    highlight: false
+  },
+  {
+    name: "Team Plan ($12/mo annual)",
+    conditions: [
+      "You run a RevOps, GTM, or ops team and need shared workspaces and task visibility",
+      "You are managing cross-functional projects where knowing teammate capacity matters",
+      "You have at least two people who will actually log tasks into Motion consistently"
+    ],
+    pricing: "$12/user/month (annual, 2-seat minimum)",
+    affiliateSlug: "motion",
+    ctaLabel: "Try Motion Team",
+    highlight: true
+  }
+]} />
+
+## The true cost: running the math
+
+Concrete numbers matter here. Consider a three-person ops team: a RevOps lead, a marketing ops manager, and a CS ops analyst.
+
+**Team plan, annual commitment:**
+3 seats x $12/month x 12 months = $432/year
+
+That is $144 per person annually. For comparison, a standard [Calendly](/tools/calendly/) Teams seat runs $16/user/month billed annually, so you are looking at roughly $192/year per person for Calendly on top of that.
+
+**Month-to-month on Individual, same team:**
+3 seats x $34/month x 12 months = $1,224/year
+
+That is a $792 premium for the flexibility to cancel. Hard to justify unless your team structure is genuinely uncertain. The annual commitment on Team saves roughly 65% versus month-to-month Individual for the same headcount.
+
+**The cost nobody puts in their spreadsheet:** if your team does not discipline themselves to log tasks into Motion, the AI engine has nothing to schedule. The tool becomes a $144/year calendar skin. The ROI lives entirely in the behavior change, not the feature set. My read is that most teams underestimate how much process change this tool actually requires before it pays off.
+
+There are no usage-based overages, no per-meeting fees, and no AI credit limits per [Motion's pricing page](https://www.usemotion.com/pricing). What you see is what you pay. In a SaaS world full of consumption traps, that is worth crediting them for.
+
+## Where Motion fits in the scheduling stack
+
+Motion does not compete with [Calendly](/tools/calendly/), [Chili Piper](/tools/chili-piper/), or [Cal.com](/tools/cal-com/) directly. Those tools solve inbound booking: a prospect clicks a link, picks a slot, lands on your calendar. Motion solves what happens after that meeting lands, specifically how you organize and auto-prioritize the work that exists around those meetings.
+
+The distinction matters for buying decisions. If the problem is "our AEs cannot get demos booked efficiently," Motion is not your answer. If the problem is "our ops team is constantly context-switching and missing deadlines," Motion has a real case.
+
+That said, there is some scheduling overlap. Motion has a [booking link feature](https://www.usemotion.com/features/booking-links) that lets contacts book meetings directly, similar to Calendly's core use case. For simple inbound scheduling without revenue-critical routing logic, it is adequate. For anything involving round-robin routing, CRM handoff triggers, or [Chili Piper](/tools/chili-piper/)-style Concierge flows, you still need a dedicated scheduling tool. Don't try to make Motion's booking links do that job.
+
+For context on how scheduling tools connect into follow-up automation, our breakdown of [email sequence tooling alongside Pipedrive](/blog/2026-10-22-pipedrive-automated-emails-set-up-sequences-without-a-dev/) is worth reading alongside this one.
+
+<IntentTable
+  title="Motion vs. scheduling alternatives: what each tool is actually for"
+  caption="Motion occupies a different lane than the booking tools. The right answer is often both."
+  cols={[
+    { name: "Motion", affiliateSlug: "motion", ctaLabel: "Try Motion", highlight: true },
+    { name: "Calendly", affiliateSlug: "calendly", ctaLabel: "Try Calendly", highlight: false },
+    { name: "Chili Piper", affiliateSlug: "chili-piper", ctaLabel: "Try Chili Piper", highlight: false },
+    { name: "Cal.com", affiliateSlug: "cal-com", ctaLabel: "Try Cal.com", highlight: false }
+  ]}
+  rows={[
+    { label: "Primary job", cells: ["AI task scheduling and calendar blocking", "Inbound meeting booking via shareable links", "Revenue-critical meeting routing and Concierge", "Open-source booking with self-host option"] },
+    { label: "Pricing entry point", cells: ["$19/user/month (annual)", "$10/user/month (annual)", "Custom, typically $30+ per seat", "Free (cloud), self-hosted free"] },
+    { label: "CRM integration depth", cells: ["Limited (calendar sync)", "HubSpot, Salesforce via Zapier/native", "Deep Salesforce and HubSpot native", "Via webhooks and Zapier"] },
+    { label: "Best team fit", cells: ["Ops, founders, ICs with heavy task loads", "AEs, SDRs, CS needing simple booking", "Revenue teams with complex routing rules", "Dev-comfortable teams wanting control"] },
+    { label: "AI scheduling", cells: ["Core feature, all paid tiers", "Not applicable", "Not applicable", "Not applicable"] }
+  ]}
+/>
+
+## When to switch (or not)
+
+The signal that it is time to look at Motion is usually consistent: your calendar controls you instead of the other way around. You end an overscheduled week with zero deep work completed, and tasks keep rolling over day after day. Motion's AI engine treats task completion as a first-class calendar event rather than an afterthought. That framing alone is worth something.
+
+The signal that Motion is the wrong move: your team is already disciplined with a PM tool like Asana, Linear, or Notion, and the real problem is pipeline execution rather than personal productivity. In that case, you are buying a solution for a problem you do not have. I'd check your actual task completion rate before signing an annual contract.
+
+Motion's integrations are also thin relative to something like [Clay](/tools/clay/) or [n8n](/tools/n8n/) for automation depth. Motion is a productivity layer. Not an automation engine. Those are genuinely different buying decisions and conflating them is how teams end up with tool overlap and unused seats.
+
+<MyTake>
+The annual-only value proposition is a trap for teams who have not yet validated that their members will actually change their task management habits. The AI scheduler is only as good as the tasks you feed it. Signing a $432/year Team contract when your team still lives in Slack threads and spreadsheets means you are paying for a calendar sync at a premium price. Validate the behavior change first, then commit.
+</MyTake>
+
+## The bottom line on Motion pricing
+
+For a solo RevOps operator or a small ops team that genuinely needs to reclaim deep work time from a fragmented calendar, Motion's $12 to $19 per user per month (annual) is a defensible spend. The AI scheduling engine ships at every tier. No overage surprises. The booking link feature covers basic inbound scheduling without forcing a separate tool purchase. Where it falls short: CRM-connected routing, deep automation, and teams who are not yet disciplined about logging tasks. If your real problem is inbound meeting booking and revenue routing, [Chili Piper](/tools/chili-piper/) or Calendly are still the right answer there. Motion does not change that.
+
+<BottomLine
+  verdict="Motion is worth the annual commitment for ops professionals and small teams who will actually use the task engine. Skip it if your team's scheduling problem is inbound booking volume rather than calendar fragmentation."
+  pick="Motion"
+  affiliateSlug="motion"
+  ctaLabel="See Motion pricing"
+/>
+
+<Sources sources={[
+  { label: "Motion: official pricing page", url: "https://www.usemotion.com/pricing" },
+  { label: "Motion: booking links feature overview", url: "https://www.usemotion.com/features/booking-links" },
+  { label: "Calendly: plans and pricing", url: "https://calendly.com/pricing" },
+  { label: "Cal.com: open-source scheduling documentation", url: "https://cal.com/pricing" }
+]} />
