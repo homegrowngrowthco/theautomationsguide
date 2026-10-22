@@ -4,7 +4,7 @@
 
 Start inside `theautomationsguide/`. State which model you are running as. `git pull --ff-only` on `master`, then `git worktree prune -v` (never remove a worktree another session owns). `TODO.md` is the only source of truth for open tasks; re-check every claim here with a query before acting. The SessionStart inbox lists `[tag]` issues on `homegrowngrowthco/claude-projects-ops`: act on ANSWERED ones first, close each with a `[claude op #N] done: ...` comment and the `answered` label.
 
-**Cloud routines do part of this unattended** (CLAUDE.md, "Cloud routines"; `RemoteTrigger` list, list_runs, get_run_log): "TAG queue top-up (Sun + Wed)" `trig_01KVAmk2g9KEerLehzufnag6` (16:00Z) and "TAG unattended check (weekly, Thu 13:00Z)" `trig_01Pg3Ga6j4BJG19MKhCBJ7zc` (next 10/22). They report through ops issues, never a Slack DM. Verify a run's work; do not redo it.
+**Cloud routines do part of this unattended** (CLAUDE.md, "Cloud routines"; `RemoteTrigger` list, list_runs, get_run_log): "TAG queue top-up (Sun + Wed)" `trig_01KVAmk2g9KEerLehzufnag6` (16:00Z) and "TAG unattended check (weekly, Thu 13:00Z)" `trig_01Pg3Ga6j4BJG19MKhCBJ7zc` (next 10/29). They report through ops issues, never a Slack DM. Verify a run's work; do not redo it.
 
 **No manual merges (Ian, 2026-10-05).** Content PRs merge themselves; every PR Claude opens gets `gh pr merge --auto --squash <branch>` right after `gh pr create`. Never a plain `gh pr merge` on pending checks, never `--admin`.
 
@@ -15,7 +15,7 @@ Read first: `CLAUDE.md` (gotchas 5, 6, 10, 11), `TODO.md`, the top of `docs/SESS
 - **#387 fixed and live; merge-on-green proven** (#391, `[auto-register]` commit, merged in 3 min unaided).
 - **Clipped slug root cause fixed twice:** builder Notes now carry the full `/blog/<slug>/` (#393); live engine Parse Draft guard (17:16Z) normalises, snaps (unique 20+ char prefix) or unlinks every `/blog/` href against the full post list, logging to `linkGuard`. Backup `~/.n8n-backups/sjZADhZGIuz9tZHK-2026-10-16T17-16-07-417Z.json`.
 - **Hub fence (#393):** drops a post targeting a query a `/tools/` hub ranks 15 or better for (20+ impressions, page+query rows). Stage dedup and the audit share one tool-set rule. `dedash` and the first-mover star regexes fixed (19 of 75 tools now first-mover in the proposer prompt).
-- **Click rule changed (Ian, ops #8):** pageview join within 60 s. Human clicks since 10/02: 1 of 5 (10/13 Loops). The rule is spelled out in the TODO item; rebuild the HogQL from it (affiliate_click LEFT JOIN same-distinct_id `$pageview` within 60 s before, path = `source_path`; burst = 3+ clicks in 10 s; headless = `last_page` with a `$pageleave` duration of 2 s or less).
+- **Click rule changed (Ian, ops #8):** pageview join within 60 s. Human clicks since 10/02: 2 of 5 (10/13 Loops, 10/19 VoiceOS hub-cta). The rule is spelled out in the TODO item; rebuild the HogQL from it (affiliate_click LEFT JOIN same-distinct_id `$pageview` within 60 s before, path = `source_path`; burst = 3+ clicks in 10 s; headless = `last_page` with a `$pageleave` duration of 2 s or less).
 - **Beehiiv** is ops issue #9 (Ian's). Do not ask again; when it is closed, screenshot the signup at 375 px on a post and close the TODO item.
 
 ## Part A. Reads (Claude only)
