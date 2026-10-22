@@ -8,7 +8,18 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-16 (Session 114).
+Last updated 2026-10-22 (Session 115).
+
+## Session 115 (2026-10-22): weekly unattended cloud routine run, read-only checks (Sonnet 5.5, no op number)
+
+- **"TAG unattended check (weekly, Thu 13:00Z)"** ran from a fresh clone with the claude.ai connectors only. No op number; the next attended session logs it. Read only: nothing written to Notion, n8n, Beehiiv or PostHog. No ops issue opened (nothing needs Ian).
+- **Engine PRs 10/15 13:09Z to 10/22 (#391 to #407, 15 content PRs):** every one merged by github-actions 2 to 5 min after opening, none left open. Three carried an `[auto-register]` bot commit (#391, #399, #406); #399 and #406 heads show `pr-gates` and `qa` success and merged unaided, so the #354 path is proven three times.
+- **Builder runs:** 10/18 (run 25, 10:49Z, success) Signals 60 clusters, 13 near-win, 6 hub fixes, 8 programs with no post; proposed 15, kept 3 (Surfe vs Clay 51, Close to HubSpot 50, ActiveCampaign vs Brevo vs Customer.io 21); staged 3/3. Hub fence dropped FullEnrich Pricing, Findymail Review and JustCall promo codes (same-query reasons). 10/21 (run 26, 11:35Z, success) 60 clusters, 14 near-win, 5 hub fixes, 7 programs; kept 2 (Pipedrive Automated Emails 59, Findymail Review 3); staged 2/2. Both audits: 0 collisions, 0 advisories, 0 Skipped, so no stage-then-skip.
+- **New posts (16 since #387 incl. 10/14 Woodpecker):** 0 hard everywhere. Warnings are 61 to 72 char titles and unlinked live-program mentions (Apollo, Make, Clay, Findymail, Smartlead). No testing-claim or observation-with-figure warning.
+- **Queue:** 7 Queued, 34 Suggested, 206 Published, 234 Skipped (0 In Review). Queued are Kit to Gumroad, Motion Scheduling, Pipedrive Implementation, Motion costs, Descript review, ActiveCampaign vs Brevo vs Customer.io, Findymail review. At 2 a day from 10/22 20:00Z they run out after the 10/25 20:00Z post (dry from 10/26 12:00Z); the Sun 10/25 16:00Z top-up lands before that. Top-up runs were not read (no RemoteTrigger here).
+- **source_path metric (PostHog 408442 confirmed):** 198 `affiliate_click` since 10/02 01:21Z (1 before the 21:55Z deploy). 166 are `source_via=none`, 32 `click` or `last_page`; 27 of those 32 have a path with no trailing slash (404 probes); 179 flagged `$virt_is_bot`, 1 `is_automated`. The 10/21 18:05 to 20:09Z burst (about 80 fresh distinct_ids) is the crawler. None carries `$session_id` or `$browser`, so strict = 0. Pageview join = 2: 10/13 19:02Z Loops `tool-strip` on the Loops vs Customer.io vs Brevo post (counted by Ian) and **new 10/19 14:49Z VoiceOS `hub-cta` on `/tools/voiceos/`** (Chrome, Google referrer, click 1.8 s after the pageview). Dropped as direct `/go/` loads: 10/06 Instantly (no pageview), 10/07 GetAccept and 10/18 Aloware on `/` (home links no tool). Under 5 human clicks, so the path share is not meaningful (both have one). Which rule is official stays Ian's (ops #8).
+- **Revert:** docs only; close this PR.
+- **Gotchas:** the click event never carries `$session_id` or `$browser`; the 10/21 evening burst shows the crawler now probes `/go/` with 80 fresh ids, all flagged bot.
 
 ## Session 114 (2026-10-16): #387 fixed and live, clipped-slug root cause fixed in builder and engine, hub fence, click rule changed (Opus 5.5, op #1309)
 
