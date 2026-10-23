@@ -1,0 +1,168 @@
+---
+title: "Gumroad ConvertKit Integration: Tag Buyers and Trigger Upsells"
+description: "Connect Kit to Gumroad to auto-tag buyers and fire upsell sequences. Step-by-step with native Zapier, n8n, and Make options covered."
+tldr: "Use Zapier, n8n, or Make to connect Gumroad purchase webhooks to Kit so every buyer gets tagged instantly and enters a product-specific upsell sequence automatically."
+pubDate: 2026-10-23
+tags: ["automation", "kit", "email-automation"]
+faqs:
+  - question: "Does Gumroad have a native ConvertKit integration?"
+    answer: "Gumroad does not have a direct native Kit integration. You connect them via Zapier, n8n, Make, or Gumroad's webhook feature pointing at Kit's API."
+  - question: "How do I tag a Kit subscriber when they buy on Gumroad?"
+    answer: "Send a Gumroad sale webhook to your automation layer (Zapier, n8n, or Make), look up or create the subscriber in Kit by email, then apply a tag matching the product purchased."
+  - question: "Can I trigger a Kit sequence from a Gumroad purchase?"
+    answer: "Yes. After tagging the subscriber, add a second Kit action to add them to a specific sequence by sequence ID. That sequence starts sending immediately."
+  - question: "What is the cheapest way to connect Gumroad and Kit?"
+    answer: "n8n self-hosted is free beyond server costs and handles this workflow cleanly with its Kit and webhook nodes. Zapier's free tier covers low-volume use but caps at 100 tasks per month."
+  - question: "What happens if a buyer already exists in Kit?"
+    answer: "A well-built workflow checks for an existing subscriber first and updates their tags rather than creating a duplicate. Both the n8n Kit node and Zapier's Kit integration handle this with a find-or-create action."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The Gumroad/[Kit](/go/kit/) gap is a real revenue leak. A buyer hits your thank-you page, their email lands nowhere in Kit, and the upsell sequence you spent an afternoon writing fires for exactly zero people. The native connection does not exist, so the workflow lives in the middle layer: Zapier, [n8n](/go/n8n/), or [Make](/go/make/). This post covers all three paths, which one to pick, and the tagging schema that makes the downstream upsell logic actually work.
+
+## Why the middle layer matters here
+
+Gumroad exposes a [ping/webhook on every completed sale](https://help.gumroad.com/article/53-gumroad-ping), sending a POST payload with the buyer's email, product name, product ID, price, and order ID. That is all you need. Kit (formerly ConvertKit) accepts subscriber creates and tag assignments via its [v4 REST API](https://developers.kit.com/v4). The automation layer's only job is to catch the Gumroad ping, pull the email and product name, and call Kit's API with the right tag.
+
+The part most people skip is the tagging schema. Tagging someone "buyer" is almost useless. Tagging them `gumroad-product-writing-course` and `buyer-2026-10` gives you segments you can actually filter on, suppress from cold outreach, and fork into product-specific upsell sequences. I'd argue that the tag naming decision matters more than which middleware you pick.
+
+<StatRow stats={[
+  { number: "~200ms", label: "Gumroad ping latency", description: "Per Gumroad docs, the sale ping fires within seconds of payment confirmation" },
+  { number: "3", label: "Integration paths", description: "Zapier (no-code), n8n (self-hosted or cloud), and Make all have stable Kit and webhook nodes" },
+  { number: "100%", label: "API coverage needed", description: "Kit v4 API covers subscriber create, tag assign, and sequence enroll in a single authenticated call" }
+]} />
+
+<StepRow steps={[
+  {
+    title: "Set up the Gumroad ping endpoint",
+    body: "In Gumroad, go to Settings > Advanced > Ping. Paste your automation layer's webhook URL here. Gumroad will POST to this URL on every completed sale. For Zapier, use the 'Webhooks by Zapier' trigger URL. For n8n or Make, create a webhook node first and copy its URL. Test with Gumroad's built-in ping test button before going live."
+  },
+  {
+    title: "Parse the sale payload",
+    body: "The Gumroad ping body includes `email`, `product_name`, `product_id`, `price`, `quantity`, and `order_id` as form-encoded fields. Map `email` and `product_name` immediately. Build your tag string from product_name: strip spaces, lowercase, prefix with `gumroad-`. A product called 'Cold Email Playbook' becomes the tag `gumroad-cold-email-playbook`. Do this transformation in the automation layer with a text transform step, not in Kit."
+  },
+  {
+    title: "Find or create the Kit subscriber",
+    body: "Call Kit's POST /v4/subscribers endpoint with the buyer's email. If the subscriber already exists, Kit returns their subscriber ID. If not, it creates them. Both Zapier's Kit integration and n8n's Kit node wrap this as a 'find or create' action. Never skip the lookup step. Pass `first_name` from the Gumroad payload if available."
+  },
+  {
+    title: "Apply the product tag",
+    body: "With the subscriber ID in hand, call Kit's POST /v4/tags/{tag_id}/subscribers endpoint, or use the 'Add Tag to Subscriber' action in Zapier or n8n. If the tag does not exist yet, create it via the API first and store its tag_id as a static value in your automation. Add a second tag for the purchase month (`buyer-2026-10`) so you can segment by cohort later."
+  },
+  {
+    title: "Enroll in the upsell sequence",
+    body: "Add a final step: Kit's POST /v4/sequences/{sequence_id}/subscribers. Pass the subscriber ID. The sequence ID is a static integer you copy from the Kit sequence URL. This fires the sequence immediately. Build a separate sequence per product, not one generic 'buyer' sequence. The product-specific angle is what actually drives upsell conversion."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **The common trap:** Gumroad sends the ping as `application/x-www-form-urlencoded`, not JSON. Automation tools default to expecting JSON, so the payload either errors out or arrives as a single unparsed string. In n8n, set the webhook node's response format to "Form-Urlencoded". In Make, use the "Parse query string" function on the raw body. In Zapier, the Webhooks trigger handles this automatically when you use "Catch Hook."
+  </Fragment>
+  <Fragment slot="right">
+    ```js
+    // n8n: transform product_name to Kit tag slug
+    // in a Code node before the Kit node
+    const productName = $input.item.json.body.product_name;
+    const tagSlug = "gumroad-" + productName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+
+    return [{ json: { tagSlug, email: $input.item.json.body.email } }];
+    ```
+  </Fragment>
+</SideBySide>
+
+## Which automation layer to use
+
+Most people reach for Zapier out of habit when the workflow is simple enough that the platform choice mostly comes down to budget and how much you want to own the infrastructure. I'd skip Zapier for this specific workflow unless you're already paying for it. The n8n path is cleaner and cheaper at anything above trivial volume.
+
+<ChooseIf title="Which middleware fits your Gumroad to Kit workflow" tools={[
+  {
+    name: "Zapier",
+    conditions: [
+      "You want this running in 30 minutes with zero infrastructure decisions",
+      "You process fewer than 500 Gumroad sales per month (stays in Starter territory)",
+      "You already pay for Zapier for other workflows"
+    ],
+    pricing: "Free up to 100 tasks/mo, Starter $19.99/mo",
+    affiliateSlug: "zapier",
+    ctaLabel: "Try Zapier",
+    highlight: false
+  },
+  {
+    name: "n8n",
+    conditions: [
+      "You want to self-host and pay nothing beyond your VPS cost",
+      "You need to branch logic (different sequences per product, refund handling, gift purchases)",
+      "You are already running other n8n workflows and want one canvas"
+    ],
+    pricing: "Self-hosted free, Cloud from $20/mo",
+    affiliateSlug: "n8n",
+    ctaLabel: "Try n8n",
+    highlight: true
+  },
+  {
+    name: "Make",
+    conditions: [
+      "You prefer a visual scenario builder over n8n's node graph",
+      "You need Gumroad plus Kit plus a third tool (Notion, Airtable, Slack) in one scenario",
+      "You want cloud-hosted but cheaper than Zapier at volume"
+    ],
+    pricing: "Free tier 1,000 ops/mo, Core $9/mo",
+    affiliateSlug: "make",
+    ctaLabel: "Try Make",
+    highlight: false
+  }
+]} />
+
+<Figure class="post-screenshot" caption="n8n workflow canvas showing a webhook trigger routing Gumroad sale data through a tag-transform Code node before the Kit subscriber node.">
+  <a href="/go/n8n/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/n8n.png" alt="n8n workflow canvas with webhook trigger, enrichment step, and branching logic nodes" loading="lazy" />
+  </a>
+</Figure>
+
+## Building the upsell sequence in Kit
+
+Once the tagging layer is working, the sequence logic is straightforward. My read is that the instinct to build one long nurture sequence for all buyers is the wrong call. The better pattern is three short sequences per product:
+
+1. **Delivery plus onboarding** (days 0 to 3): confirm the purchase, deliver any bonus content, set expectations.
+2. **Social proof plus use case** (days 4 to 10): one or two emails showing what buyers do with the product. No pitch.
+3. **Upsell** (days 11 to 14): introduce the logical next product. Use Kit's [conditional content blocks](https://help.kit.com/hc/en-us/articles/360044062872) to personalize the offer by tag so one template serves multiple products.
+
+The sequence ID you drop into your automation's final step corresponds to sequence 1. When a subscriber completes sequence 1, Kit's built-in automations (Automation Rules) can move them into sequence 2 on a tag trigger. No extra middleware needed for that hand-off.
+
+This is the same architecture worth recommending whether you're connecting Gumroad and Kit or running a [Zoom webinar tagging workflow](/blog/2026-10-19-connect-zoom-to-kit-webinar-subscriber-tagging-automation/) or a [Kajabi course enrollment sequence](/blog/2026-10-18-connect-kit-to-kajabi-automate-your-course-and-newsletter-le/). The middle-layer pattern is identical; the payload fields change.
+
+<MyTake>
+The automation infrastructure takes 45 minutes. The sequence copy takes the afternoon. Creators get the webhook wired up, ship generic "thanks for buying" copy, then wonder why upsell conversion is flat. Build the sequence first. Wire the automation to it second. The order matters more than the tooling.
+</MyTake>
+
+## Get it running
+
+The Gumroad to [Kit](/tools/kit/) integration is three nodes and one webhook URL. The complexity is in the tag naming convention and sequence design, not the plumbing. Pick your middleware, copy the endpoint URL into Gumroad's ping field, and run a test purchase (Gumroad lets you buy your own product for $0) to verify the subscriber appears in Kit with the right tag before you open it to real traffic.
+
+If you need more branching logic than a single Zap allows, the [n8n](/go/n8n/) path scales cleanly. For anything in between, [Make](/go/make/) hits a good balance of visual clarity and affordable operations pricing.
+
+<BottomLine verdict="n8n is my default pick here: the self-hosted option costs nothing at low volume, the Kit and webhook nodes cover the full workflow, and the Code node handles the form-encoded payload parsing cleanly without workarounds." pick="n8n" affiliateSlug="n8n" ctaLabel="Try n8n" />
+
+<Sources sources={[
+  { label: "Gumroad Help: Ping (webhook) documentation", url: "https://help.gumroad.com/article/53-gumroad-ping" },
+  { label: "Kit Developer Docs: v4 REST API reference", url: "https://developers.kit.com/v4" },
+  { label: "Kit Help: Conditional content blocks in emails", url: "https://help.kit.com/hc/en-us/articles/360044062872" }
+]} />
