@@ -2900,6 +2900,19 @@ export const tools: Tool[] = [
     blurb:
       'Signal House is an SMS and MMS messaging provider with APIs built for CRM and marketing systems, for teams adding two-way texting to their outreach.',
   },
+  {
+    slug: 'twilio',
+    name: 'Twilio',
+    category: 'Calling & Conversation Intelligence',
+    badge: 'Paid',
+    ctaLabel: 'Try Twilio',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/twilio.png',
+    aliases: ['Twilio'],
+    blurb:
+      'Build amazing customer experiences on the Twilio platform with APIs for SMS, RCS, voice, and email, plus conversational AI for smarter engagement, and identity verification for trust.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body

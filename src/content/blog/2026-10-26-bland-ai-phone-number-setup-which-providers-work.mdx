@@ -1,0 +1,175 @@
+---
+title: "Bland AI Phone Number Setup: Which Providers Work"
+description: "A RevOps guide to configuring phone numbers in Bland AI. Covers Twilio, Vonage, and native numbers with real setup steps and gotchas."
+tldr: "Bland AI supports its own managed numbers and Twilio as the primary BYOC provider, with setup taking under 30 minutes once your Twilio SID and auth token are ready."
+pubDate: 2026-10-26
+tags: ["guide", "automation", "ai-voice"]
+faqs:
+  - question: "What phone number providers work with Bland AI?"
+    answer: "Bland AI supports its own managed phone numbers and Twilio as a bring-your-own-carrier option. Vonage and other SIP providers are not natively supported as of late 2026."
+  - question: "Can I use a Twilio number with Bland AI?"
+    answer: "Yes. You connect Twilio to Bland AI by providing your Account SID, Auth Token, and a purchased Twilio number. Bland AI then controls the number via Twilio's API."
+  - question: "How long does Bland AI phone number setup take?"
+    answer: "With a Twilio account already active, the full connection takes under 30 minutes. Provisioning a net-new Twilio number adds roughly 5 minutes."
+  - question: "Does Bland AI support toll-free numbers?"
+    answer: "Yes, toll-free numbers can be provisioned through Twilio and imported into Bland AI using the same BYOC flow as local numbers."
+  - question: "What is the difference between a Bland AI managed number and a Twilio number?"
+    answer: "Bland managed numbers are faster to spin up but give you less carrier-level control. Twilio BYOC lets you port existing numbers and manage compliance independently."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most RevOps teams hit the same wall their first day with [Bland AI](/go/bland-ai/): voice agent ready, script dialed in, and then the dashboard asks you to configure a phone number and the documentation goes quiet. This post covers every provider path that actually works, the [Twilio](/tools/twilio/) setup most teams end up using, and the specific gotchas that will burn you if you skip the prep.
+
+## Why Phone Number Config Is the Real Bottleneck
+
+Bland AI is a first-mover in programmable AI voice calling. The agent quality is solid, the API is well-documented for call logic, and the latency is competitive. But the phone number layer is where teams stall. Bland sits on top of carrier infrastructure it does not own end to end, which means your setup choice at the number level affects compliance exposure, number portability, call quality routing, and cost per minute in ways that matter for outbound at any real scale.
+
+Two paths exist. Use a Bland-managed number provisioned directly in the dashboard, or bring your own number via [Twilio](/go/twilio/) (BYOC). A third path, SIP trunking from providers like Vonage or Bandwidth, surfaces in forum threads but is not a supported native integration as of late 2026. I would not rely on it for production.
+
+<KeyTakeaways items={[
+  "Bland AI supports two reliable number paths: managed numbers (fast, less control) and Twilio BYOC (portable, more control)",
+  "Twilio is the only BYOC carrier with first-class Bland AI support and documented setup steps",
+  "You need a Twilio Account SID, Auth Token, and a purchased number before you touch the Bland dashboard",
+  "Toll-free numbers work via Twilio BYOC but require A2P/TCR registration on the Twilio side before import",
+  "Bland managed numbers cannot be ported out if you switch providers later"
+]} />
+
+<StatRow stats={[
+  { number: "~30 min", label: "Twilio BYOC setup time", description: "From Twilio account ready to first test call in Bland AI, per the vendor setup docs" },
+  { number: "$0.0085", label: "Twilio per-minute inbound", description: "Twilio's standard per-minute rate for inbound US voice, on top of Bland AI's own usage pricing" },
+  { number: "2", label: "Supported number paths", description: "Bland managed numbers and Twilio BYOC are the two production-ready options as of late 2026" }
+]} />
+
+## Setting Up a Bland Managed Number
+
+If you are running a proof of concept or your team does not have an existing Twilio account, start here. Bland provisions numbers from its own pool. Pick a country, pick an area code where available, and Bland returns a number you can assign to an agent immediately.
+
+The tradeoff is control. You cannot port a Bland managed number to another carrier if you move to [Vapi](/go/vapi/) or another AI voice platform later. If a number develops spam reputation, your remediation options are limited to requesting a new number from Bland support rather than managing reputation directly in a carrier console. That is a meaningful constraint at any real call volume.
+
+For inbound-only use cases or quick demos, this path is fine. For any production outbound campaign where number hygiene and portability matter, go Twilio.
+
+## Configuring Twilio for Bland AI (Step by Step)
+
+This is the path I would take for any team running outbound at scale. Twilio gives you carrier-level controls Bland's managed pool does not, and the setup is straightforward once you know the sequence.
+
+<StepRow steps={[
+  {
+    title: "Create and verify your Twilio account",
+    body: "Go to twilio.com, create an account, and complete identity verification. If you are doing outbound in the US, start your SHAKEN/STIR and CNAM registration now. These take 24 to 72 hours and you cannot shortcut them."
+  },
+  {
+    title: "Purchase a phone number in Twilio",
+    body: "In the Twilio console, go to Phone Numbers > Manage > Buy a Number. Filter by capability (Voice), country, and area code. For toll-free, filter by the 800/833/844/855/866/877/888 prefix. Confirm the purchase. The number appears immediately under Active Numbers."
+  },
+  {
+    title: "Grab your Twilio credentials",
+    body: "From the Twilio console homepage, copy your Account SID and Auth Token. These are the two values Bland AI needs. Do not use a subaccount SID unless you specifically want number isolation by subaccount."
+  },
+  {
+    title: "Add Twilio as a provider in Bland AI",
+    body: "In the Bland AI dashboard, navigate to Phone Numbers and select 'Import a number.' Choose Twilio as the provider. Paste your Account SID and Auth Token. Bland will validate the credentials and pull a list of numbers associated with that Twilio account."
+  },
+  {
+    title: "Select the number and assign it to an agent",
+    body: "Pick the number you purchased from the dropdown Bland populates. Assign it to an existing agent or create a new one. Save, then trigger a test call from the Bland dashboard to confirm the number is routing correctly."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **The most common failure point** is credential mismatch: teams paste the wrong SID (project vs. subaccount) or copy an Auth Token that has been rotated. The second trap is skipping SHAKEN/STIR registration in Twilio before importing. Your calls will go out, but carrier flagging will tank answer rates within the first few hundred dials. Do the registration before you import. Not after. Before.
+  </Fragment>
+  <Fragment slot="right">
+    ```
+    Twilio Console > Account Info
+
+    Account SID:  ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    Auth Token:   [hidden, click to reveal]
+
+    Bland AI > Phone Numbers > Import
+    Provider:     Twilio
+    Account SID:  paste above
+    Auth Token:   paste above
+
+    [Validate] -> pulls Active Numbers list
+    Select:       +1 (555) 867-5309
+    Assign to:    Outbound SDR Agent v2
+    [Save]
+    ```
+  </Fragment>
+</SideBySide>
+
+## Which Provider Path Fits Your Situation
+
+The honest answer is that most teams doing anything beyond a proof of concept should be on Twilio BYOC. But the managed number path has a real use case. Here is where each one belongs.
+
+<ChooseIf title="Bland AI Phone Number Provider" tools={[
+  {
+    name: "Bland Managed Number",
+    conditions: [
+      "You are building a proof of concept or internal demo and need to move in under 10 minutes",
+      "You do not have an existing Twilio account and are not ready to set one up",
+      "Portability and carrier-level compliance controls are not a concern yet"
+    ],
+    pricing: "Included in Bland AI plan",
+    affiliateSlug: "bland-ai",
+    ctaLabel: "Try Bland AI",
+    highlight: false
+  },
+  {
+    name: "Twilio BYOC",
+    conditions: [
+      "You are running outbound at any real volume and need number hygiene controls",
+      "You have existing numbers you want to port or reuse across platforms",
+      "Your compliance team needs SHAKEN/STIR, CNAM, and carrier-level audit trails"
+    ],
+    pricing: "Twilio number ~$1.15/mo + per-min usage",
+    affiliateSlug: "bland-ai",
+    ctaLabel: "Set Up Bland + Twilio",
+    highlight: true
+  }
+]} />
+
+## What Does Not Work (and What the Forums Get Wrong)
+
+A few things come up repeatedly in Bland AI community threads. They deserve a direct answer, not hedging.
+
+**Vonage:** Not a native integration. Some teams have tried to pipe Vonage through a SIP trunk and route it as if it were Twilio. Bland support will not troubleshoot it. If you are already on Vonage for other infrastructure, the pragmatic move is to add a Twilio account specifically for Bland. Two accounts is annoying. An unsupported SIP configuration failing mid-campaign is worse.
+
+**Bandwidth and Lumen:** Same situation. These carriers show up in enterprise telephony threads but are not on Bland's supported provider list. The [Bland AI API reference](https://docs.bland.ai) covers the supported BYOC options clearly.
+
+**Google Voice:** Hard no. Google Voice does not support SIP or programmatic call control in the way Bland requires. This surfaces in threads from non-technical buyers and the answer has not changed.
+
+**Number pooling for high-volume outbound:** If you are dialing at the volume where you need 10 or more numbers rotating to protect per-number reputation, set up multiple Twilio numbers, import each into Bland AI, and assign them to the same agent or a pool depending on how your campaign logic routes calls. This is a Twilio configuration question more than a Bland question. The [Twilio docs on phone number management](https://www.twilio.com/docs/phone-numbers) cover pool provisioning in detail.
+
+For teams thinking about how Bland AI compares architecturally to its closest competitor on the number and provider side, the [Bland AI vs Vapi comparison](/blog/) goes deeper on infrastructure tradeoffs. If you are building this into a broader AI voice workflow, the question of [what GTM workflow automation does that Zapier cannot](/blog/2026-10-25-what-gtm-workflow-automation-does-that-zapier-cannot/) is worth reading before you wire up your orchestration layer.
+
+<MyTake>
+Bland's managed number pool is a liability for anyone planning to scale outbound past a few hundred calls a week. Number portability matters more than most teams realize until they want to switch tools or survive a compliance audit. At that point you are negotiating with Bland support instead of just exporting a CSV from Twilio. Start with BYOC even if it costs you 30 extra minutes at setup. The regret asymmetry is not close.
+</MyTake>
+
+## The Short Version
+
+Bland AI phone number configuration is genuinely straightforward once you know which path you are on. Managed numbers get you live in minutes but lock you in. Twilio BYOC takes 30 minutes, costs a few dollars a month per number, and gives you the carrier-level control that production outbound requires. Get your SHAKEN/STIR registration done in Twilio before you import. Do not copy the wrong Account SID. Test with an actual inbound call before you declare the setup done. Everything else in Bland AI, the agent prompts, the transfer logic, the webhook integrations, is downstream of getting this layer right.
+
+<BottomLine verdict="For any team running outbound AI voice calls at real volume, Twilio BYOC is the right Bland AI phone number setup. The managed number path is fine for demos but not for production." pick="Bland AI" affiliateSlug="bland-ai" ctaLabel="Get Started with Bland AI" />
+
+<Sources sources={[
+  { label: "Bland AI: official API and phone number docs", url: "https://docs.bland.ai" },
+  { label: "Twilio: phone number management documentation", url: "https://www.twilio.com/docs/phone-numbers" },
+  { label: "Twilio: SHAKEN/STIR caller ID verification guide", url: "https://help.twilio.com/articles/1260803965530-How-to-Use-Caller-ID-Authentication" }
+]} />
