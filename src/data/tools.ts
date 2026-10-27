@@ -2926,6 +2926,43 @@ export const tools: Tool[] = [
     blurb:
       'Snov.io is an outreach automation platform for sales teams, marketers, and anyone who runs cold outreach. Find prospects, automate email campaigns, and manage your sales process from first contact to closed deal.',
   },
+  {
+    slug: 'notion',
+    name: 'Notion',
+    category: 'Scheduling & Productivity',
+    badge: 'Paid',
+    ctaLabel: 'Try Notion',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/notion.png',
+    aliases: ['Notion'],
+    blurb:
+      'Build Custom Agents, search across all your apps, and automate busywork. The AI workspace where teams get more done, faster.',
+  },
+  {
+    slug: 'guru',
+    name: 'Guru',
+    category: 'Scheduling & Productivity',
+    badge: 'Paid',
+    ctaLabel: 'Try Guru',
+    ctaPrimary: false,
+    listed: false,
+    aliases: ['Guru'],
+    blurb:
+      'Guru is featured in a comparison on The Automations Guide.',
+  },
+  {
+    slug: 'seismic',
+    name: 'Lessonly (Seismic Learning)',
+    category: 'Scheduling & Productivity',
+    badge: 'Paid',
+    ctaLabel: 'Try Lessonly (Seismic Learning)',
+    ctaPrimary: false,
+    listed: false,
+    aliases: ['Lessonly (Seismic Learning)'],
+    blurb:
+      'Learn how Seismic’s AI-powered enablement, training, and coaching solution enables sales and marketing teams to engage buyers and grow revenue.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
