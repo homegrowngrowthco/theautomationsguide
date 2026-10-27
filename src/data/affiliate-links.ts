@@ -1153,6 +1153,20 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'live',
     notes: 'Approved 2026-10-01 (PartnerStack). The tag-register link also lands on the homepage, so only this one is registered.',
   },
+  hunter: {
+    name: 'Hunter.io',
+    url: '',
+    homepageFallback: 'https://hunter.io/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
+  'snov-io': {
+    name: 'Snov.io',
+    url: '',
+    homepageFallback: 'https://snov.io/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
 };
 
 /**
