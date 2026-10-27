@@ -2900,6 +2900,32 @@ export const tools: Tool[] = [
     blurb:
       'Signal House is an SMS and MMS messaging provider with APIs built for CRM and marketing systems, for teams adding two-way texting to their outreach.',
   },
+  {
+    slug: 'hunter',
+    name: 'Hunter.io',
+    category: 'Lead Data & Enrichment',
+    badge: 'Paid',
+    ctaLabel: 'Try Hunter.io',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/hunter.png',
+    aliases: ['Hunter.io'],
+    blurb:
+      'Hunter.io is featured in a comparison on The Automations Guide.',
+  },
+  {
+    slug: 'snov-io',
+    name: 'Snov.io',
+    category: 'Lead Data & Enrichment',
+    badge: 'Paid',
+    ctaLabel: 'Try Snov.io',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/snov-io.png',
+    aliases: ['Snov.io'],
+    blurb:
+      'Snov.io is an outreach automation platform for sales teams, marketers, and anyone who runs cold outreach. Find prospects, automate email campaigns, and manage your sales process from first contact to closed deal.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
