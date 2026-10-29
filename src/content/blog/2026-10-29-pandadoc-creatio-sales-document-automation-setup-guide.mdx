@@ -1,0 +1,205 @@
+---
+title: "PandaDoc + Creatio: Sales Document Automation Setup Guide"
+description: "How RevOps teams connect PandaDoc and Creatio for end-to-end document automation, CPQ, and e-sign workflows. Step-by-step setup with real config detail."
+tldr: "Connect PandaDoc to Creatio via the native integration or REST API to automate proposal generation, CPQ pricing, and e-sign workflows directly from Creatio opportunity records."
+pubDate: 2026-10-29
+tags: ["automation", "automation", "crm"]
+faqs:
+  - question: "Does PandaDoc have a native integration with Creatio?"
+    answer: "PandaDoc offers a native CRM integration framework and REST API that connects to Creatio. Most teams configure it via the PandaDoc API with Creatio webhooks or middleware like Make or Zapier."
+  - question: "Can PandaDoc pull product and pricing data from Creatio for CPQ?"
+    answer: "Yes. PandaDoc document tokens map to Creatio opportunity product line items, so pricing tables auto-populate when a rep triggers document generation from an opportunity record."
+  - question: "How does e-sign status sync back to Creatio from PandaDoc?"
+    answer: "PandaDoc webhooks fire on document status changes (sent, viewed, signed, completed) and update a custom field or activity log on the Creatio opportunity record in near real time."
+  - question: "What middleware works best for PandaDoc and Creatio integration?"
+    answer: "Make and Zapier both have PandaDoc connectors. Make handles multi-step branching logic better if your CPQ workflow has conditional pricing tiers or approval gates."
+  - question: "Is this integration worth building if you already use a separate CPQ tool?"
+    answer: "If you already have a dedicated CPQ layer like Salesforce CPQ or DealHub, PandaDoc sits downstream as the document and e-sign layer only. The Creatio integration still captures signed document status back to the record."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most RevOps teams running [Creatio](/go/creatio/) as their CRM still send proposals the slow way. Rep exports opportunity data, pastes it into a Word or Google Docs template, attaches a PDF, and waits. The Creatio plus [PandaDoc](/go/pandadoc/) integration eliminates that entirely. When the workflow is properly wired, a rep clicks one button inside a Creatio opportunity record, PandaDoc generates a pre-populated proposal pulling live product and pricing data, routes it through any required approvals, and fires a webhook back to Creatio the moment the prospect signs. This guide covers how to actually build that, including the token mapping, webhook config, and the CPQ pricing table setup that most documentation skips over.
+
+## Why This Integration Matters for Revenue Teams
+
+The core problem is data duplication and deal velocity. Every time a rep manually copies opportunity fields into a document template, you introduce error risk and add friction at exactly the moment a deal is closest to closing. [Salesforce Research's State of Sales report](https://www.salesforce.com/resources/research-reports/state-of-sales/) consistently finds that reps spend roughly 34% of their working week on non-selling tasks, with document preparation near the top of that list.
+
+Creatio's no-code process automation engine is well-suited to triggering document generation events. PandaDoc's token system and REST API are mature enough to receive those triggers and map CRM field values into document placeholders cleanly. The integration is not plug-and-play out of the box for most Creatio configurations, but it is not a major engineering lift either. A RevOps practitioner comfortable with webhooks and JSON can stand this up in an afternoon.
+
+I'd argue the real barrier here is not technical complexity but the tendency to treat this as a "nice to have" instead of a pipeline data quality problem. Blank CRM fields at close are almost always traceable to manual document steps that nobody bothered to automate.
+
+<StatRow stats={[
+  { number: "34%", label: "Time lost to admin", description: "Share of a sales rep's week spent on non-selling tasks including document prep, per Salesforce State of Sales" },
+  { number: "<2 hrs", label: "Setup time", description: "Realistic time to configure the PandaDoc REST API connection and first Creatio webhook trigger for a standard opportunity-to-proposal flow" },
+  { number: "3 events", label: "Key webhook triggers", description: "PandaDoc fires on document_sent, document_viewed, and document_completed, covering the full e-sign lifecycle back to Creatio" }
+]} />
+
+## Setting Up the Integration
+
+Before touching either tool, map out what data needs to flow in each direction. Creatio to PandaDoc carries opportunity fields (contact name, company, deal value, product line items, pricing). PandaDoc to Creatio carries document status, signed date, and the completed document link. Get that data map on paper first, because token naming inconsistencies are the most common failure point.
+
+<StepRow steps={[
+  {
+    title: "Generate your PandaDoc API key and configure the workspace",
+    body: "In PandaDoc, navigate to Settings > API > Developer Dashboard and create a new API key scoped to your sales workspace. Note the workspace ID, you will need it in every API call. Per the PandaDoc API docs, production keys are tied to a specific workspace and will not surface documents from other workspaces, so confirm you are in the right one before proceeding."
+  },
+  {
+    title: "Create the document template with Creatio token placeholders",
+    body: "Build your proposal template inside PandaDoc using token variables that map to Creatio field names. The token format is a field name wrapped in double curly braces on each side. Name each token to match the Creatio API field name exactly (for example, the opportunity name field in Creatio's API is OpportunityName, so your token should be named OpportunityName). Include a PandaDoc Pricing Table for product line items, you will populate it via the line_items array in the API payload rather than a static token."
+  },
+  {
+    title: "Build the Creatio webhook or business process trigger",
+    body: "In Creatio's Process Designer, create a business process that fires when an opportunity stage changes to (for example) 'Proposal' or when a rep clicks a custom button on the opportunity page. The process action should be an HTTP Request task pointing to the PandaDoc REST API endpoint POST /documents. Construct the JSON payload to include the template ID, recipient details from the Creatio contact record, and the token values from the opportunity fields. If your Creatio instance is on-premise, confirm outbound HTTPS to api.pandadoc.com is allowed through your firewall."
+  },
+  {
+    title: "Map pricing table line items from Creatio opportunity products",
+    body: "This is the step most guides skip. In Creatio, opportunity product records live in a related detail on the opportunity object. Your HTTP Request task needs to iterate through those records and build the line_items array for the PandaDoc API call. Each item needs name, quantity, price, and optionally discount fields. If you are using middleware like Make or Zapier rather than a direct Creatio business process, this is where a Make iterator module earns its keep, looping through opportunity product rows and appending each to the payload array before the HTTP call fires."
+  },
+  {
+    title: "Configure PandaDoc webhooks to write status back to Creatio",
+    body: "In PandaDoc Settings > Integrations > Webhooks, add a webhook endpoint pointing to a Creatio web service or a middleware receiver. Subscribe to document_sent, document_viewed, document_completed, and optionally document_declined. When PandaDoc fires the event, your receiving endpoint should update a custom field on the Creatio opportunity (for example, Proposal Status) and log an activity to the timeline with the event timestamp and document link. Test this with PandaDoc's built-in webhook tester before going live."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **The common trap: token name mismatches**
+
+    The usual failure here is that PandaDoc tokens are case-sensitive and whitespace-sensitive. If your Creatio field passes the value as `opportunity_name` but your template token is named `OpportunityName`, PandaDoc renders the token as an empty string rather than throwing a visible error. You ship a proposal with blank fields and do not find out until the prospect replies confused.
+
+    Always run a test document generation call and inspect the rendered PDF before connecting any live opportunity stage trigger. This single step catches probably 80% of config issues before they reach a prospect.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    {
+      "name": "Proposal - Acme Corp",
+      "template_uuid": "YOUR_TEMPLATE_UUID",
+      "recipients": [
+        {
+          "email": "contact@acme.com",
+          "first_name": "Jane",
+          "last_name": "Doe",
+          "role": "Client"
+        }
+      ],
+      "tokens": [
+        { "name": "OpportunityName", "value": "Acme Corp Enterprise Deal" },
+        { "name": "AccountName", "value": "Acme Corp" },
+        { "name": "DealValue", "value": "$48,000" },
+        { "name": "OwnerName", "value": "Alex Rivera" }
+      ],
+      "pricing_tables": [
+        {
+          "name": "Products",
+          "data_table": {
+            "columns": ["name","qty","price"],
+            "rows": [
+              ["Platform License", "10", "3600.00"],
+              ["Implementation", "1", "8400.00"]
+            ]
+          }
+        }
+      ]
+    }
+    ```
+  </Fragment>
+</SideBySide>
+
+## Choosing Your Integration Approach
+
+Not every team needs the same architecture here. A Creatio instance with a skilled admin can build the HTTP Request task natively inside a business process and avoid middleware entirely. Teams without that Creatio expertise, or teams that want reusable automation logic they can fork for other integrations, are better served by a middleware layer.
+
+My read: if your pricing table has more than two or three conditional tiers, skip the native Creatio approach and go straight to Make. The iterator module alone saves you hours of debugging malformed JSON payloads.
+
+<ChooseIf title="Which integration approach fits your team?" tools={[
+  {
+    name: "Creatio Native Business Process",
+    conditions: [
+      "Your team has a Creatio admin comfortable with the Process Designer and HTTP Request tasks",
+      "You want zero middleware dependencies and the logic to live entirely inside Creatio",
+      "Your pricing table structure is simple enough to construct inline without iterator loops"
+    ],
+    pricing: "No additional tooling cost beyond Creatio and PandaDoc licenses",
+    affiliateSlug: "creatio",
+    ctaLabel: "Explore Creatio",
+    highlight: false
+  },
+  {
+    name: "Make (Middleware Layer)",
+    conditions: [
+      "You need complex conditional logic, for example different templates for different deal sizes or product lines",
+      "Your team manages other integrations in Make and wants consistent tooling",
+      "You want visual scenario debugging when a document generation call fails"
+    ],
+    pricing: "Make Core from $9/month, PandaDoc module included",
+    affiliateSlug: "make",
+    ctaLabel: "Try Make",
+    highlight: true
+  },
+  {
+    name: "Zapier (Middleware Layer)",
+    conditions: [
+      "Your RevOps team is already on Zapier and the Creatio trigger events you need are covered by the Zapier connector",
+      "Your document workflow is linear with no branching logic",
+      "Speed of setup matters more than cost"
+    ],
+    pricing: "Zapier Professional from $49/month",
+    affiliateSlug: "zapier",
+    ctaLabel: "Try Zapier",
+    highlight: false
+  }
+]} />
+
+## The E-Sign Lifecycle and CRM Writeback
+
+The integration is only half-useful if document status does not flow back into Creatio reliably. Most teams underinvest in the writeback side. They celebrate when the proposal sends successfully and then scramble to find signed document records at quarter-end because nothing updated the CRM.
+
+A clean writeback setup does three things. It stamps the opportunity with a `Proposal Sent Date` when PandaDoc fires `document_sent`. It logs a `Document Viewed` activity with a timestamp when `document_viewed` fires (useful for follow-up timing and sales coaching). And it moves the opportunity stage and attaches the signed PDF link when `document_completed` fires. The [PandaDoc webhook documentation](https://developers.pandadoc.com/reference/webhooks) outlines the full event payload structure, including the `download_protected_url` field you should store as the signed copy reference on the Creatio record.
+
+If you are building this in Make, the scenario structure is straightforward. A webhook trigger module receives the PandaDoc event, a router branches on `event.type`, and each branch runs an HTTP Request module to update the appropriate Creatio record via PATCH. The opportunity record is identified by the `document.external_id` value you passed when creating the document. That external ID should be the Creatio opportunity GUID. Set it deliberately in your document creation payload and the writeback becomes a direct lookup with no fuzzy matching required.
+
+This pattern connects directly to broader GTM workflow automation principles. If you want context on where native business process tools like Creatio's designer hit their limits versus dedicated automation layers, [this breakdown of what GTM workflow automation does that Zapier cannot](/blog/2026-10-25-what-gtm-workflow-automation-does-that-zapier-cannot/) is worth reading before you commit to an architecture.
+
+## Making CPQ Work Without a Dedicated CPQ Tool
+
+Creatio has product catalog and opportunity product functionality built in, which means for many mid-market B2B teams it covers the basics of configure-price-quote without a separate CPQ layer. The PandaDoc pricing table handles the quote presentation and calculation layer (discounts, totals, optional line items the prospect can accept or decline). Together they approximate a lightweight CPQ workflow.
+
+Where this breaks down is approval gates. If your pricing requires sales manager approval before a quote goes out, that approval logic needs to live somewhere explicit. In a native Creatio build, a business process approval step before the HTTP Request task handles this cleanly. In a Make scenario, an approval notification sent to a Slack channel, with the Make scenario paused on a webhook waiting for confirmation, is workable but more fragile. I would not rely on that pattern for deals above a certain dollar threshold without testing the timeout behavior carefully in a non-production environment first.
+
+For teams evaluating [PandaDoc](/tools/pandadoc/) as their document layer versus alternatives like [Qwilr](/go/qwilr/) or [GetAccept](/go/getaccept/), the differentiator for this specific integration is PandaDoc's API maturity. The REST API is well-documented and the pricing table payload structure is stable across API versions. That stability matters when you are building a production integration rather than a demo that works once and then quietly breaks.
+
+<MyTake>
+Most teams wire up the outbound flow (Creatio to PandaDoc) and declare victory. The writeback is an afterthought, and that is exactly backwards. A proposal that sends cleanly but leaves no trace in the CRM when signed produces the same data quality problem as manual document handling, just with a nicer PDF. Build the webhook writeback first, validate it in staging, and only then connect the document generation trigger to live opportunity stages. The outbound flow is the easy part.
+</MyTake>
+
+## Putting It Together
+
+The [PandaDoc](/tools/pandadoc/) and Creatio integration is a legitimate revenue acceleration lever for any B2B team where proposal creation and e-sign are currently manual. The setup requires care around token naming, line item payload construction, and webhook writeback, but none of it requires custom development. A RevOps practitioner with API familiarity and access to either Creatio's Process Designer or a middleware layer like [Make](/tools/make/) can have this running end-to-end in a single sprint. Once it is live, reps generate compliant, pre-populated proposals in one click, and signed document status flows back into Creatio automatically, giving you the pipeline visibility and audit trail that quota-carrying managers and finance teams actually need at close.
+
+<BottomLine
+  verdict="PandaDoc is the right document automation layer for Creatio-based sales teams. The API is mature, the token and pricing table system handles real CPQ complexity, and the webhook writeback closes the loop on e-sign status in the CRM."
+  pick="PandaDoc"
+  affiliateSlug="pandadoc"
+  ctaLabel="Try PandaDoc"
+/>
+
+<Sources sources={[
+  { label: "Salesforce: State of Sales Report", url: "https://www.salesforce.com/resources/research-reports/state-of-sales/" },
+  { label: "PandaDoc: REST API Reference", url: "https://developers.pandadoc.com/reference/create-document" },
+  { label: "PandaDoc: Webhooks Documentation", url: "https://developers.pandadoc.com/reference/webhooks" },
+  { label: "Creatio: REST API Service Overview", url: "https://academy.creatio.com/docs/developer/back-end_development/rest_api_service/overview" }
+]} />
