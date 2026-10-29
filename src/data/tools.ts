@@ -2963,6 +2963,19 @@ export const tools: Tool[] = [
     blurb:
       'Learn how Seismic’s AI-powered enablement, training, and coaching solution enables sales and marketing teams to engage buyers and grow revenue.',
   },
+  {
+    slug: 'creatio',
+    name: 'Creatio Native Business Process',
+    category: 'Workflow Automation',
+    badge: 'Paid',
+    ctaLabel: 'Try Creatio Native Business Process',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/creatio.png',
+    aliases: ['Creatio Native Business Process'],
+    blurb:
+      'Creatio Oy — Oulu-pohjainen ohjelmistostudio. Suunnittelemme ja kehitämme korkealaatuisia ohjelmistoja ja verkkopalveluita.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
