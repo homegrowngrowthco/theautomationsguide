@@ -31,12 +31,14 @@ same Content Calendar the publishing engine reads, but never publishes anything 
 Run from the project root (so dotenv finds `./.env` with `ANTHROPIC_API_KEY`):
 
 ```
-node backlog/build-backlog.mjs               # 15 topics is the CI default; local default 25
+node backlog/build-backlog.mjs               # 30 topics is the CI default; local default 25
 node backlog/build-backlog.mjs --count=40
 node backlog/build-backlog.mjs --model=claude-opus-4-8
 node backlog/build-backlog.mjs --mine-only       # print every signal input, no Claude, no writes
 node backlog/build-backlog.mjs --rank-suggested  # score the live Suggested rows (NOTION_TOKEN), no writes
-node backlog/build-backlog.mjs --selftest        # offline fixtures: signals + the 2026-08-12 scrub
+node backlog/build-backlog.mjs --prompt-only     # print the exact Claude prompt, no Claude, no writes
+node backlog/build-backlog.mjs --recent-drops=<dir>  # feed <dir>/**/backlog-batch.json's dropped titles back
+node backlog/build-backlog.mjs --selftest        # offline fixtures: signals, the 2026-08-12 scrub, topic supply
 ```
 
 GSC locally: `GSC_TOKEN_FILE=C:/Users/Ian/.gsc/token.json` (the same OAuth token the
@@ -89,6 +91,37 @@ N migrations". The best tool has 3 human affiliate clicks in 90 days. So:
 - The "alternatives" title fence from the 2026-08-04 audit still hard-drops; the
   measured table now rates the format second, so that fence is an open decision (TODO).
 
+## Topic supply (op #1498, 2026-11-04)
+
+Why: from 10/18 to 11/04 the builder kept 20 of 105 proposals, about 1.2 topics a day against
+2 a day published, and 57 of 85 drops were the same 10 or so ideas re-proposed (Dripify x10,
+Waterfall.io x7, JustCall promo x7). The guard was right each time; the prompt never told the
+model. Whether this lifts the yield is unproven until the first scheduled run after it (11/08).
+
+- **The prompt states the fences, from the fence's own data** (`fenceFacts()`): the tool list
+  holds only legal anchors, then a foil-only list (`noAnchorReason()`: rejected, no-program or a
+  `NO_ANCHOR` incumbent) and an unregistered list (no `affiliate-links.ts` entry, unnameable in
+  a title). A registry status change moves the tool with no prompt edit. It also states that
+  every "vs" operand must be on the first two lists, names the hub-owned queries
+  (`hubFence`), and tells the model a demand query it cannot serve is to be skipped, since the
+  demand list is where it was picking up Waterfall.io and Nooks.
+- **Dropped titles feed back, with no store of their own.** Each run already uploads the
+  `backlog-batch` artifact (90 days), and its JSON has the `dropped` list. The workflow downloads
+  the last 3 successful master runs' artifacts with `gh` and the job token (`actions: read`) and
+  passes the folder as `--recent-drops=<dir>`. CI commits nothing (a ruleset guards master, and
+  `GITHUB_TOKEN` pushes trigger nothing). No artifact, a failed fetch or a corrupt file warns and
+  the run proposes without feedback. A hub-fence drop quoting a tracker prompt is not fed back.
+- **30 topics a CI run, up from 15.** `max_tokens` scales (`maxTokensFor()`: 300 a topic, floor
+  6000; 9000 at 30). A response cut off by `max_tokens` used to fail JSON parsing and exit 1 with
+  nothing staged; it now keeps its complete topics and warns (`parseProposals()`). Any other
+  unparseable response stays fatal.
+- **`isHumanQuery()` drops AI-tracker prompts** ("evaluate the b2b ai sales company findymail on
+  ..."), which had no operator syntax and fit under 80 characters. It is the one definition, so
+  clusters, near-wins and the hub fence all stop reading them.
+- **Read a run by:** `Proposed N -> kept K, dropped D; R repeated a fed-back title` in the log,
+  the `Feedback:` line in the batch, `Recent drops: T titles from 3 run(s)`, and the `Claude:
+  stop_reason` line. Repeat-idea drops (a reworded Dripify) count against the fix even when R is 0.
+
 **Pre-registered success metric** (Ian, 2026-10-08): the share of each weekly Queued
 pick taken from the shortlist's top 12 (target two thirds), and at 8 weeks (~2026-12-10)
 28-day GSC impressions, clicks and median position per post for scored-topic posts vs
@@ -104,7 +137,7 @@ then the Phase 2 stager pushes the survivors to Notion as `Suggested` (never `Qu
 ## Phase 2 (BUILT) — scheduled on GitHub Actions
 
 `.github/workflows/topic-backlog.yml` runs the same script twice a week (Sunday and
-Wednesday 06:00 UTC, 15 topics a run; GitHub starts cron runs 4 to 5 h late) and stages
+Wednesday 06:00 UTC, 30 topics a run; GitHub starts cron runs 4 to 5 h late) and stages
 the survivors. We host on GitHub Actions, not n8n, because the universe and
 dedup corpus are all repo files the script already parses, so CI keeps the script as the
 single source of truth (no logic duplicated into n8n Code nodes). The publishing engine

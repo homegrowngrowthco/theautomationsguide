@@ -37,12 +37,16 @@ on:
       count:
         description: 'How many topics to propose'
         required: false
-        default: '15'
+        default: '30'
       dry_run:
         description: 'Preview only - do NOT write to Notion'
         type: boolean
         required: false
         default: false
+
+permissions:
+  contents: read
+  actions: read   # read the last runs' backlog-batch artifacts (recent dropped titles)
 
 jobs:
   build:
@@ -72,9 +76,9 @@ jobs:
       - name: Resolve run config
         id: cfg
         run: |
-          # 15 per run, twice a week: about what the weekly 25 plus the retired Suggestor's
-          # 10 used to add, so the Suggested pool grows no faster than Ian picks from it.
-          COUNT="${{ github.event.inputs.count || '15' }}"
+          # 30 per run, twice a week (op #1498). Asked for 15, the builder kept 20 of 105 from
+          # 10/18 to 11/04, about 1.2 topics a day against 2 a day published.
+          COUNT="${{ github.event.inputs.count || '30' }}"
           # Scheduled runs always stage. Manual runs stage unless dry_run=true.
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
             STAGE=""
@@ -88,13 +92,37 @@ jobs:
           echo "stage=$STAGE" >> "$GITHUB_OUTPUT"
           echo "prune=$PRUNE" >> "$GITHUB_OUTPUT"
 
+      # The last 3 successful master runs' dropped titles become "do not re-propose" in the
+      # prompt. The store is the backlog-batch artifact every run already uploads (90 days),
+      # so CI commits nothing. Successful runs only: a run that died before the build uploads
+      # the stale backlog-batch.json committed in the repo. Feedback is an optimisation, so a
+      # failure here warns and the build proposes without it.
+      - name: Fetch recent dropped titles
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set +e
+          got=0
+          for id in $(gh run list --workflow topic-backlog.yml --branch master --status success --limit 6 --json databaseId --jq '.[].databaseId'); do
+            [ "$got" -ge 3 ] && break
+            if gh run download "$id" -n backlog-batch -D "$RUNNER_TEMP/recent-drops/$id"; then
+              got=$((got + 1))
+            else
+              echo "::warning::no backlog-batch artifact read from run $id"
+            fi
+          done
+          echo "Recent batches fetched: $got"
+          exit 0
+
       - name: Build (and stage) the backlog
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DATABASE_ID: ${{ vars.NOTION_DATABASE_ID }}
           GSC_TOKEN_JSON: ${{ secrets.GSC_TOKEN_JSON }}
-        run: node backlog/build-backlog.mjs --count=${{ steps.cfg.outputs.count }} ${{ steps.cfg.outputs.stage }}
+        run: node backlog/build-backlog.mjs --count=${{ steps.cfg.outputs.count }} --recent-drops="$RUNNER_TEMP/recent-drops" ${{ steps.cfg.outputs.stage }}
 
       - name: Queue self-clean (audit Queued/Suggested vs published corpus)
         # Runs AFTER staging so freshly staged rows are audited too. Dry-run manual
