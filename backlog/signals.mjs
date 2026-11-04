@@ -83,6 +83,12 @@ export function isHumanQuery(q) {
   if (q.length > 80 || q.includes('"') || q.includes('site:') || /https?:\/\//.test(q)) return false;
   if (/^[%+-]/.test(q.trim())) return false; // "+substack hubspot ..." / "%aisdr ..." rank-tracker syntax
   if (/^[\d\s()+-]+$/.test(q)) return false;
+  // AI-visibility tracker prompts: "evaluate the b2b ai sales company findymail on outbound
+  // sales & email execution" has no operator syntax and is under 80 characters, so it passed
+  // and fenced Findymail Review as a hub query twice (10/18, 11/01, op #1498). In GSC 10/05 to
+  // 11/01, 91 of 2,419 queries open with "evaluate" (262 impressions), all prompt-shaped. Word
+  // count is no test: real questions run as long.
+  if (/^evaluate\s/i.test(q.trim())) return false;
   return true;
 }
 
@@ -483,6 +489,22 @@ export function selfTestSignals() {
   ];
   const sqBad = sq.filter(([t, h, want]) => isSameQuery(t, h) !== want);
   check('same-query rule: mutual 60% coverage + same format', sqBad.length === 0, sqBad.length ? `(wrong: ${sqBad.map(([t, h]) => `"${t}" ~ "${h}"`).join('; ')})` : `(${sq.length} pairs)`);
+
+  // 7. AI-tracker prompts (op #1498): real GSC strings out, long human questions in, and a
+  // hub's fence and near-win top query never read the tracker string.
+  const TRACKER = 'evaluate the b2b ai sales company findymail on outbound sales & email execution';
+  const trackerOut = [TRACKER, 'evaluate orum on dialing automation and faster connection strategies', 'evaluate whether attio or hubspot is better for pipeline visibility.'];
+  const humanIn = ['which is better for enrichment, moltsets or apollo?', "what does a gtm workflow automation tool do that zapier can't?", 'how to evaluate close crm', 'findymail review'];
+  check('tracker prompts are not human queries', trackerOut.every((s) => !isHumanQuery(s)), `(${trackerOut.filter((s) => isHumanQuery(s)).join('; ') || 'all out'})`);
+  check('long human questions stay human', humanIn.every((s) => isHumanQuery(s)), `(${humanIn.filter((s) => !isHumanQuery(s)).join('; ') || 'all in'})`);
+  const hubPq = [
+    { keys: [`${H}/tools/findymail/`, TRACKER], impressions: 900, clicks: 0, position: 6.0 },
+    { keys: [`${H}/tools/findymail/`, 'findymail pricing'], impressions: 120, clicks: 0, position: 9.0 },
+  ];
+  const trackerHubs = nearWins([{ keys: [`${H}/tools/findymail/`], impressions: 1020, clicks: 0, position: 6.4 }], hubPq, []).hubs;
+  check('near-win hub top query skips the tracker prompt', trackerHubs.length === 1 && trackerHubs[0].topQuery === 'findymail pricing' && trackerHubs[0].attributed === 120, `(${trackerHubs[0]?.topQuery})`);
+  const trackerFence = hubFenceList(trackerHubs, hubPq).map((h) => h.topQuery);
+  check('hub fence list holds no tracker prompt', trackerFence.length === 1 && trackerFence[0] === 'findymail pricing', `(${trackerFence.join('; ')})`);
 
   return { pass: fails.length === 0, lines, fails };
 }

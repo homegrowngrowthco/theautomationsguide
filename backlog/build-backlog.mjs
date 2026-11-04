@@ -36,17 +36,20 @@
 //   node backlog/build-backlog.mjs --model=claude-opus-4-8  # override model
 //   node backlog/build-backlog.mjs --mine-only       # print every signal input, no Claude, no writes
 //   node backlog/build-backlog.mjs --rank-suggested  # score the live Suggested rows (NOTION_TOKEN), no writes
+//   node backlog/build-backlog.mjs --prompt-only     # print the exact Claude prompt, no Claude, no writes
+//   node backlog/build-backlog.mjs --recent-drops=<dir>  # feed <dir>/**/backlog-batch.json's dropped titles back
 //   GSC: set GSC_TOKEN_JSON or GSC_TOKEN_FILE (locally: GSC_TOKEN_FILE=~/.gsc/token.json).
 
 import 'dotenv/config';
 import Anthropic from '@anthropic-ai/sdk';
-import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { readFileSync, writeFileSync, readdirSync, mkdtempSync, mkdirSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   tokenSet, tokenCoverage, jaccard, intentOf, isComparison, fetchGscRows, clusterQueries, unservedClusters,
   nearWins, formatPrior, scoreTopic, assignTiers, selfTestSignals, demandCorpus, isSameQuery,
-  hubFenceList,
+  hubFenceList, isHumanQuery,
 } from './signals.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -61,6 +64,11 @@ const MINE_ONLY = process.argv.includes('--mine-only');
 // --rank-suggested: score every live Suggested row with the same signals and print the
 // ranked shortlist (no Claude, no writes). This is what the weekly Queued pick reads.
 const RANK_SUGGESTED = process.argv.includes('--rank-suggested');
+// --prompt-only: build and print the exact prompt the proposer would get, then exit.
+const PROMPT_ONLY = process.argv.includes('--prompt-only');
+// --recent-drops=<dir>: the backlog-batch artifacts of recent runs, downloaded by the workflow.
+// Their dropped titles reach the prompt as "do not re-propose". A missing dir means no feedback.
+const RECENT_DROPS_DIR = (process.argv.find((a) => a.startsWith('--recent-drops=')) || '').split('=')[1] || '';
 
 // --stage writes the kept topics to the live Notion Content Calendar as
 // Status:Suggested (the publishing engine only fires on Status:Queued, so staged
@@ -91,7 +99,7 @@ if (STATUS) {
 
 // --selftest never calls Claude: it replays a fixed fixture through the local
 // dedup/fence logic, so it must run key-free (that is what makes it CI-able).
-if (!process.env.ANTHROPIC_API_KEY && !MINE_ONLY && !SELFTEST && !RANK_SUGGESTED && !AUDIT_QUEUE) {
+if (!process.env.ANTHROPIC_API_KEY && !MINE_ONLY && !SELFTEST && !RANK_SUGGESTED && !AUDIT_QUEUE && !PROMPT_ONLY) {
   console.error('ANTHROPIC_API_KEY not set. Add it to .env (project root) or your environment.');
   process.exit(1);
 }
@@ -166,6 +174,22 @@ function noAnchorReason(tool) {
   return null;
 }
 const isNoAnchor = (tool) => noAnchorReason(tool) !== null;
+
+// What the fences in dedup() will do to each universe tool, told to the proposer up front so
+// the prompt cannot drift from the fence (op #1498). Same predicates, never a second list:
+//   nameable: can anchor a post.
+//   foilOnly: noAnchorReason() fences it as an anchor, but it has a registry entry, so
+//             /go/<slug> resolves and it may sit in a comparison column or a migration "from".
+//   unnameable: no registry entry, so the registry fence rejects it anywhere in a title.
+function fenceFacts(universe) {
+  const facts = { nameable: [], foilOnly: [], unnameable: [] };
+  for (const t of universe) {
+    if (affiliateStatusOf(t) === null) facts.unnameable.push(t);
+    else if (isNoAnchor(t)) facts.foilOnly.push(t);
+    else facts.nameable.push(t);
+  }
+  return facts;
+}
 
 // ---------- 1. UNIVERSE: tools.ts ----------
 function parseToolsTs() {
@@ -614,15 +638,54 @@ function printSignals(s) {
 }
 
 // ---------- 3. PROPOSE via Claude (single batched call) ----------
-function buildPrompt(universe, covered, count, signals) {
-  const toolLines = universe
+// Dropped titles from recent runs' backlog-batch.json artifacts (op #1498). Since 10/18 the
+// proposer re-spent 57 of 85 drops on the same 10 or so ideas, because nothing told it what
+// the guard had already rejected. Batches arrive newest or oldest first, order does not
+// matter. A hub-fence drop that quotes a tracker prompt was a false drop (Findymail, 11/01),
+// so it is not an idea to avoid.
+function recentDropTitles(batches) {
+  const seen = new Map();
+  for (const b of batches) {
+    for (const d of Array.isArray(b?.dropped) ? b.dropped : []) {
+      const topic = dedash(d?.topic || '').trim();
+      const key = norm(topic);
+      const hubQuery = (d?.reason || '').match(/^hub fence: .* for "(.*)"; fix the hub instead$/);
+      if (!key || seen.has(key) || (hubQuery && !isHumanQuery(hubQuery[1]))) continue;
+      seen.set(key, { topic, reason: dedash(d?.reason || '').slice(0, 120) });
+    }
+  }
+  return [...seen.values()];
+}
+
+// Every backlog-batch.json under dir (the workflow downloads one artifact per run into its
+// own subfolder). Feedback is an optimisation: a missing dir or a bad file warns and moves on.
+function loadRecentBatches(dir) {
+  if (!dir) return [];
+  let files;
+  try {
+    files = readdirSync(dir, { recursive: true }).map(String).filter((f) => basename(f) === 'backlog-batch.json');
+  } catch (e) {
+    console.warn(`WARN: no recent drops read from ${dir} (${e.code || e.message}); proposing without them.`);
+    return [];
+  }
+  const batches = [];
+  for (const f of files) {
+    try { batches.push(JSON.parse(readFileSync(join(dir, f), 'utf8'))); }
+    catch (e) { console.warn(`WARN: skipped recent batch ${f} (${e.message}).`); }
+  }
+  return batches;
+}
+
+function buildPrompt(universe, covered, count, signals, recentDrops = []) {
+  const facts = fenceFacts(universe);
+  const toolLines = facts.nameable
     .map((t) => `- ${t.name} [${t.category}]${t.firstMover ? ' (first-mover)' : ''}${t.hasLP ? ' (has LP)' : ''}`)
     .join('\n');
   const coveredLines = covered.map((c) => `- ${c.title} (${c.source})`).join('\n');
   const demandLines = signals.clusters.length
     ? [
         '',
-        'OBSERVED SEARCH DEMAND (28d GSC: queries Google already shows this site for that no published or staged topic serves, grouped by the tools they name. Topics that directly serve one of these OUTRANK every other consideration; name the served query in the rationale):',
+        'OBSERVED SEARCH DEMAND (28d GSC: queries Google already shows this site for that no published or staged topic serves, grouped by the tools they name. Topics that directly serve one of these OUTRANK every other consideration, EXCEPT that a query about a tool outside the universe, a foil-only tool, or a hub-owned query cannot be served: skip those, however many impressions they show. Name the served query in the rationale):',
         ...signals.clusters.slice(0, 40).map((c) => `- "${c.top}" (${c.impressions} impressions/28d across ${c.queries.length} ${c.queries.length === 1 ? 'query' : 'queries'}, best position ${c.bestPosition}${c.tools.length ? `, tools: ${c.tools.join(', ')}` : ''})`),
       ]
     : [];
@@ -643,6 +706,16 @@ function buildPrompt(universe, covered, count, signals) {
         ...signals.prior.table.map((g) => `- ${g.format}: ${g.imprPerPost.toFixed(0)} impressions per post over ${g.posts} posts`),
       ]
     : [];
+  const hubLines = (signals.hubFence || []).length
+    ? ['', `HUB-OWNED QUERIES (a /tools/ page already ranks for each, so a post targeting the same query is discarded; choose another query for that tool): ${[...new Set(signals.hubFence.map((h) => `"${h.topQuery}"`))].join(', ')}`]
+    : [];
+  const dropLines = recentDrops.length
+    ? [
+        '',
+        'DO NOT RE-PROPOSE (recent runs proposed these and the guard discarded them; a rewording of the same idea is discarded the same way, so spend the slot on a different idea, even over a demand query above):',
+        ...recentDrops.map((d) => `- ${d.topic}${d.reason ? ` (${d.reason})` : ''}`),
+      ]
+    : [];
   // NOTE: no backtick characters in this prompt (it lives inside a template literal).
   return [
     'You are the topic strategist for The Automations Guide, a RevOps/GTM automation blog.',
@@ -657,12 +730,18 @@ function buildPrompt(universe, covered, count, signals) {
     ...nearWinLines,
     ...zeroLines,
     ...formatLines,
+    ...hubLines,
+    ...dropLines,
     '',
     `TASK: propose the ${count} highest-leverage NET-NEW topics. Favor, in this order: observed-demand clusters above, near-win siblings, live programs with no post, thin-competition first-mover categories (AI SDR agents, AI voice, visitor ID, AI agent builders, GEO/AI-search), tools that tie back to the site core (n8n, Make, HubSpot, Apollo, Clay).`,
     '',
     'FORMATS: no quotas. Pick the format the demand asks for: a "<tool> pricing" cluster wants a pricing post, "<a> vs <b>" wants a comparison, "<tool> review" wants a review, "migrate" or "switch" wants a migration guide ("Migrate from X to Y without losing Z"), an integration query wants a recipe ("Connect X to Y for <outcome>"). Where the demand is silent, lean on the measured format performance above. Never propose "X alternatives" or "X competitors" posts (hard-fenced).',
     '',
-    'HARD FENCE (a proposal that breaks this is discarded): NEVER set anchorTool to a no-affiliate incumbent this young domain cannot rank for: Gong, Outreach, Salesloft, ZoomInfo, Salesforce, Gainsight, Marketo, Seismic, Clari, 6sense, Chorus, Drift, Highspot. You MAY name them as a comparison foil or as the "from" side of a migration ("Migrate off Outreach to X"), but the anchorTool must be a tool with an affiliate landing page or a realistic affiliate path. Prefer anchors marked (has LP).',
+    'HARD FENCE (read from the affiliate registry; a proposal that breaks any line is discarded):',
+    ...(facts.foilOnly.length ? [`- FOIL-ONLY TOOLS (no affiliate program, program rejected, or a no-affiliate incumbent this young domain cannot rank for): ${facts.foilOnly.map((t) => t.name).join(', ')}. NEVER set anchorTool to one of these. You MAY name one as a comparison foil or as the "from" side of a migration, beside an anchor from the TOOL UNIVERSE list.`] : []),
+    ...(facts.unnameable.length ? [`- UNREGISTERED TOOLS (no affiliate registry entry, so a link to them would 404): ${facts.unnameable.map((t) => t.name).join(', ')}. NEVER name one of these anywhere in a title.`] : []),
+    '- Every "vs" operand MUST be a tool from the TOOL UNIVERSE list or the FOIL-ONLY list, by that exact name. A tool on neither list cannot be compared, however often people search for it. Write comparisons as "A vs B: angle", with only tool names before the colon.',
+    '- The anchorTool must come from the TOOL UNIVERSE list. Prefer anchors marked (has LP).',
     '',
     'Return STRICT JSON only, no prose, in this shape:',
     '{"topics":[{"topic":"...","anchorTool":"...","alsoCovers":["..."],"targetKeyword":"...","tag":"comparison|tools|automation|revops|guide","priority":"High|Medium|Low","firstMover":true,"needsLP":false,"rationale":"one sentence on why this wins"}]}',
@@ -670,14 +749,42 @@ function buildPrompt(universe, covered, count, signals) {
   ].join('\n');
 }
 
-async function propose(universe, covered, count, signals) {
+// Output room for a batch. 6000 was close to the edge at 30 topics (about 150 to 200 tokens
+// each), and running out used to kill the whole run. Stays under the ~16000 a non-streaming
+// request can safely ask for up to count=50.
+const maxTokensFor = (count) => Math.max(6000, count * 300);
+
+// The proposer's JSON, or the complete topics of a response cut off by max_tokens: a truncated
+// body parses nowhere, so before op #1498 one cut-off topic cost the whole batch (exit 1, nothing
+// staged). Only a max_tokens stop is salvaged; any other unparseable response stays fatal.
+function parseProposals(raw, stopReason) {
+  const tryTopics = (s) => {
+    try { const p = JSON.parse(s); return Array.isArray(p.topics) ? p.topics : []; } catch { return null; }
+  };
+  const m = raw.match(/\{[\s\S]*\}/);
+  const whole = m ? tryTopics(m[0]) : null;
+  if (whole) return { topics: whole, truncated: false };
+  if (stopReason === 'max_tokens') {
+    // The root object never closed, so the last brace that parses closes the last complete
+    // topic (a later one can sit inside the cut-off topic's own string).
+    const start = raw.indexOf('{');
+    for (let end = raw.lastIndexOf('}'); start >= 0 && end > start; end = raw.lastIndexOf('}', end - 1)) {
+      const salvaged = tryTopics(`${raw.slice(start, end + 1)}]}`);
+      if (salvaged && salvaged.length) return { topics: salvaged, truncated: true };
+    }
+  }
+  return { topics: null, truncated: stopReason === 'max_tokens' };
+}
+
+async function propose(universe, covered, count, signals, recentDrops) {
   const client = new Anthropic();
-  const prompt = buildPrompt(universe, covered, count, signals);
+  const prompt = buildPrompt(universe, covered, count, signals, recentDrops);
+  const maxTokens = maxTokensFor(count);
   let res;
   try {
     res = await client.messages.create({
       model: MODEL,
-      max_tokens: 6000,
+      max_tokens: maxTokens,
       messages: [{ role: 'user', content: prompt }],
     });
   } catch (err) {
@@ -685,11 +792,11 @@ async function propose(universe, covered, count, signals) {
     process.exit(1);
   }
   const raw = res.content[0]?.type === 'text' ? res.content[0].text.trim() : '';
-  const m = raw.match(/\{[\s\S]*\}/);
-  if (!m) { console.error('Model did not return JSON. Raw:', raw.slice(0, 500)); process.exit(1); }
-  let parsed;
-  try { parsed = JSON.parse(m[0]); } catch (e) { console.error('JSON parse failed:', e.message, '\nRaw:', raw.slice(0, 500)); process.exit(1); }
-  return Array.isArray(parsed.topics) ? parsed.topics : [];
+  console.log(`Claude: stop_reason ${res.stop_reason}, ${res.usage?.output_tokens} output tokens of ${maxTokens}.`);
+  const { topics, truncated } = parseProposals(raw, res.stop_reason);
+  if (!topics) { console.error(`Model did not return usable JSON (stop_reason ${res.stop_reason}). Raw:`, raw.slice(0, 500)); process.exit(1); }
+  if (truncated) console.warn(`WARN: response hit max_tokens (${maxTokens}); kept the ${topics.length} complete topics of the ${count} asked for.`);
+  return { topics, truncated };
 }
 
 // ---------- 4. DETERMINISTIC dedup guard ----------
@@ -994,6 +1101,7 @@ function writeOutputs(kept, dropped, meta) {
     `# Topic backlog batch (${kept.length} topics)`,
     '',
     `Generated by build-backlog.mjs. Model: ${meta.model}. Universe: ${meta.universe} tools. Dedup corpus: ${meta.covered} covered topics. Dropped as duplicate/invalid: ${dropped.length}.`,
+    meta.recentDrops ? `Feedback: ${meta.recentDrops.titles} dropped titles from ${meta.recentDrops.runs} recent run(s) fed to the prompt; ${meta.recentDrops.repeated} proposal(s) repeated one word for word.${meta.truncated ? ' The response hit max_tokens, so the batch is short.' : ''}` : '',
     meta.signals ? `Signals: GSC ${meta.signals.start28}..${meta.signals.end} (${meta.signals.clusters} unserved demand clusters, ${meta.signals.nearWinPosts} near-win posts, ${meta.signals.nearWinHubs} hub fixes, ${meta.signals.zeroCoverage} live programs with no post). Priority = score tertile; clicks never enter the score.` : 'Signals: none (no GSC creds), so every topic scored on monetisation and format only.',
     '',
     'Eyeball this, then (Phase 2) the n8n workflow stages the approved rows in Notion as Suggested. Nothing here is queued or published automatically.',
@@ -1065,18 +1173,25 @@ async function main() {
     ranked.forEach((t, i) => console.log(`${String(i + 1).padStart(3)}. ${String(t.score).padStart(3)}  ${t.priority.padEnd(6)} (now ${t.priorityNow.padEnd(6)})  ${t.topic.slice(0, 70)}${t.flags.length ? `  [${t.flags.join('; ')}]` : ''}\n       ${t.breakdown}; ${t.sanity}`));
     return;
   }
+  const recentBatches = loadRecentBatches(RECENT_DROPS_DIR);
+  const recentDrops = recentDropTitles(recentBatches);
+  console.log(`Recent drops: ${recentDrops.length} titles from ${recentBatches.length} run(s)${RECENT_DROPS_DIR ? '' : ' (no --recent-drops)'}.`);
+  if (PROMPT_ONLY) { console.log(`\n${buildPrompt(universe, covered, COUNT, signals, recentDrops)}`); return; }
   console.log(`Proposing ${COUNT} topics via ${MODEL}...`);
 
-  const proposals = await propose(universe, covered, COUNT, signals);
+  const { topics: proposals, truncated } = await propose(universe, covered, COUNT, signals, recentDrops);
+  const fedBack = new Set(recentDrops.map((d) => norm(d.topic)));
+  const repeated = proposals.filter((p) => fedBack.has(norm(dedash(p.topic || '')))).length;
   const { kept: raw, dropped } = dedup(proposals, universe, covered, signals.hubFence);
   const kept = scoreBatch(raw, signals, covered, posts);
 
   writeOutputs(kept, dropped, {
-    model: MODEL, universe: universe.length, covered: covered.length, proposed: proposals.length, staged: STAGE,
+    model: MODEL, universe: universe.length, covered: covered.length, proposed: proposals.length, staged: STAGE, truncated,
+    recentDrops: { runs: recentBatches.length, titles: recentDrops.length, repeated },
     signals: signals.window ? { ...signals.window, clusters: signals.clusters.length, nearWinPosts: signals.nearWinPosts.length, nearWinHubs: signals.nearWinHubs.length, zeroCoverage: signals.zeroCoverage.length } : null,
     hubFixes: signals.nearWinHubs.slice(0, 15),
   });
-  console.log(`\nProposed ${proposals.length} -> kept ${kept.length}, dropped ${dropped.length} as duplicate/invalid.`);
+  console.log(`\nProposed ${proposals.length} -> kept ${kept.length}, dropped ${dropped.length} as duplicate/invalid; ${repeated} repeated a fed-back title word for word.`);
   console.log('Ranked (score / tier / topic):');
   [...kept].sort((a, b) => b.score - a.score).forEach((t, i) => console.log(`  ${String(i + 1).padStart(2)}. ${String(t.score).padStart(3)}  ${t.priority.padEnd(6)}  ${t.topic.slice(0, 72)}`));
   console.log(`Wrote backlog/backlog-batch.json and backlog/backlog-batch.md`);
@@ -1336,7 +1451,88 @@ function selfTest() {
   const hubFails = hubFix.filter((h) => !h.ok).map((h) => h.name);
   console.log(`HUB FENCE fixture: ${hubFix.length} checks, ${hubFails.length} failed.`);
 
-  const pass = sig.pass && unexpected.length === 0 && nowCaught.length === 0 && blocked.length === 0 && hubFails.length === 0;
+  // TOPIC SUPPLY (op #1498): the prompt states what the fences will do, recent drops feed back,
+  // a 30-topic response fits, and a tracker prompt fences nothing.
+  const supply = [];
+  const scheck = (name, ok, detail = '') => { supply.push({ name, ok }); console.log(`  ${ok ? 'ok  ' : 'FAIL'} ${name}${detail ? ' ' + detail : ''}`); };
+  console.log('\nTOPIC SUPPLY (op #1498):');
+  const noSignals = EMPTY_SIGNALS(universe, []);
+  const facts = fenceFacts(universe);
+  const prompt = buildPrompt(universe, [], 30, noSignals, []);
+  const section = (p, from, to) => p.slice(p.indexOf(from), p.indexOf(to, p.indexOf(from)));
+  const universeBlock = (p) => section(p, 'TOOL UNIVERSE (', 'ALREADY COVERED');
+  const lineOf = (p, head) => p.split('\n').find((l) => l.startsWith(head)) || '';
+  const listed = (block, t) => block.includes(`- ${t.name} [`);
+  scheck('(1) fence parity: every universe tool is an anchor exactly when noAnchorReason() is null',
+    universe.every((t) => facts.nameable.includes(t) === (noAnchorReason(t) === null)), `(${facts.nameable.length} anchors, ${facts.foilOnly.length} foil-only, ${facts.unnameable.length} unregistered)`);
+  scheck('(1) the prompt lists no fenced tool as an anchor', ![...facts.foilOnly, ...facts.unnameable].some((t) => listed(universeBlock(prompt), t)) && facts.nameable.every((t) => listed(universeBlock(prompt), t)));
+  scheck('(1) every foil-only and unregistered tool is named on its line',
+    facts.foilOnly.length > 0 && facts.unnameable.length > 0 && facts.foilOnly.every((t) => lineOf(prompt, '- FOIL-ONLY TOOLS').includes(t.name)) && facts.unnameable.every((t) => lineOf(prompt, '- UNREGISTERED TOOLS').includes(t.name)));
+  scheck('(1) the prompt states the "vs" operand rule', /Every "vs" operand MUST be a tool/.test(prompt));
+  const anchored = dedup(facts.foilOnly.map((t) => ({ topic: `${t.name} Review for Outbound Teams`, anchorTool: t.name })), universe, []);
+  scheck('(1) dedup agrees: a post anchored on any foil-only tool is fence-dropped', anchored.kept.length === 0 && anchored.dropped.every((d) => d.reason.startsWith('fence:')), `(${anchored.dropped.length} dropped, ${anchored.kept.length} kept)`);
+  const named = dedup(facts.unnameable.map((t) => ({ topic: `Clay vs ${t.name}: Which Fits a Small Team`, anchorTool: 'Clay' })), universe, []);
+  scheck('(1) dedup agrees: naming any unregistered tool is registry-fence-dropped', named.kept.length === 0 && named.dropped.every((d) => d.reason.startsWith('registry fence:')), `(${named.dropped.length} dropped, ${named.kept.length} kept${named.kept.length ? ': ' + named.kept.map((k) => k.topic).join('; ') : ''})`);
+  // Drift lock: a registry status change moves the tool in the prompt, with no prompt edit.
+  const moved = facts.nameable.find((t) => AFFILIATE_STATUS.has(norm(t.slug)));
+  const movedWas = AFFILIATE_STATUS.get(norm(moved.slug));
+  AFFILIATE_STATUS.set(norm(moved.slug), 'rejected');
+  const movedPrompt = buildPrompt(universe, [], 30, noSignals, []);
+  scheck(`(1) drift lock: ${moved.name} set to rejected leaves the anchor list and joins the foil line`,
+    !listed(universeBlock(movedPrompt), moved) && lineOf(movedPrompt, '- FOIL-ONLY TOOLS').includes(moved.name));
+  AFFILIATE_STATUS.set(norm(moved.slug), movedWas);
+  scheck('(1) prompt text rules: no em or en dash, no backtick, no modelled first-person claim',
+    !/[\u{2014}\u{2013}`]/u.test(prompt) && !/\b(in my testing|i tested|we tested|i've seen|i have seen|in my experience)\b/i.test(prompt));
+
+  const DRIP = { topic: 'Instantly vs Dripify: Which Outbound Tool Wins', reason: 'unknown comparison operand(s): Dripify not in the tool universe' };
+  const PROMO = { topic: 'JustCall Promo Code and Discount Guide 2026', reason: 'hub fence: /tools/justcall/ already ranks 14.5 for "justcall promo code"; fix the hub instead' };
+  const FALSE_DROP = { topic: 'Findymail Review 2026: Email Finder for Outbound on a Budget', reason: 'hub fence: /tools/findymail/ already ranks 6 for "evaluate the b2b ai sales company findymail on outbound sales & email execution"; fix the hub instead' };
+  const drops = recentDropTitles([{ meta: {}, topics: [], dropped: [DRIP, PROMO, FALSE_DROP] }, { dropped: [{ ...DRIP, topic: DRIP.topic.toUpperCase() }, { topic: '', reason: 'x' }] }, { meta: {} }, null]);
+  scheck('(2) recent drops dedup across runs and survive a batch with no dropped list', drops.length === 2 && drops[0].topic === DRIP.topic && drops[1].topic === PROMO.topic, `(${drops.map((d) => d.topic).join('; ')})`);
+  scheck('(2) a hub-fence drop that quotes a tracker prompt is not fed back', !drops.some((d) => d.topic === FALSE_DROP.topic));
+  const dropPrompt = buildPrompt(universe, [], 30, noSignals, drops);
+  scheck('(2) dropped titles reach the prompt as do-not-re-propose', dropPrompt.includes('DO NOT RE-PROPOSE') && drops.every((d) => dropPrompt.includes(`- ${d.topic} (`)));
+  scheck('(2) no drops, no section', !prompt.includes('DO NOT RE-PROPOSE'));
+  const dropDir = mkdtempSync(join(tmpdir(), 'tag-recent-drops-'));
+  try {
+    mkdirSync(join(dropDir, '101')); mkdirSync(join(dropDir, '102')); mkdirSync(join(dropDir, '103'));
+    writeFileSync(join(dropDir, '101', 'backlog-batch.json'), JSON.stringify({ dropped: [DRIP] }));
+    writeFileSync(join(dropDir, '102', 'backlog-batch.json'), '{"dropped":[{"topic":"cut off');
+    writeFileSync(join(dropDir, '103', 'backlog-batch.md'), '# not the json');
+    const loaded = loadRecentBatches(dropDir);
+    scheck('(2) artifact dir: reads the good batch, skips a corrupt one and other files', loaded.length === 1 && recentDropTitles(loaded).length === 1, `(${loaded.length})`);
+  } finally { rmSync(dropDir, { recursive: true, force: true }); }
+  scheck('(2) a missing artifact dir degrades to no feedback, no throw', loadRecentBatches(join(dropDir, 'gone')).length === 0 && loadRecentBatches('').length === 0);
+
+  const workflow = r('.github', 'workflows', 'topic-backlog.yml');
+  const ciCount = Number((workflow.match(/inputs\.count \|\| '(\d+)'/) || [])[1]);
+  scheck('(3) CI count is 30 and the dispatch input default agrees', ciCount === 30 && new RegExp(`default: '${ciCount}'`).test(workflow), `(${ciCount})`);
+  scheck('(3) the CI count leaves room: 250 tokens a topic, inside the safe non-streaming size', maxTokensFor(ciCount) >= ciCount * 250 && maxTokensFor(ciCount) <= 16000, `(${maxTokensFor(ciCount)})`);
+  scheck('(2) the workflow fetches artifacts with actions: read and passes the dir to the build', /actions: read/.test(workflow) && /--recent-drops=/.test(workflow));
+  const topicJson = (n) => `{"topic":"T${n}, with {braces} in it","anchorTool":"Clay","alsoCovers":["Apollo"],"targetKeyword":"k${n}","tag":"tools","priority":"High","firstMover":true,"needsLP":false,"rationale":"r"}`;
+  const fullBody = `{"topics":[${topicJson(1)},${topicJson(2)},${topicJson(3)}]}`;
+  const cut = `\`\`\`json\n${fullBody.slice(0, fullBody.lastIndexOf(topicJson(3)) + 40)}`;
+  const full = parseProposals(`\`\`\`json\n${fullBody}\n\`\`\``, 'end_turn');
+  scheck('(3) a complete response parses whole', full.topics?.length === 3 && !full.truncated);
+  const salvaged = parseProposals(cut, 'max_tokens');
+  scheck('(3) a response cut by max_tokens keeps its complete topics', salvaged.topics?.length === 2 && salvaged.truncated === true && salvaged.topics[1].topic === 'T2, with {braces} in it', `(${salvaged.topics?.length})`);
+  scheck('(3) a cut with no complete topic stays fatal', parseProposals('{"topics":[{"topic":"cut', 'max_tokens').topics === null);
+  scheck('(3) broken JSON on a normal stop stays fatal, not salvaged', parseProposals(cut, 'end_turn').topics === null && parseProposals('no json here', 'end_turn').topics === null);
+
+  // 11/01 shape: the proposer copied the tracker prompt from the demand list as its keyword.
+  const TRACKER = 'evaluate the b2b ai sales company findymail on outbound sales & email execution';
+  const trackerRows = [
+    { keys: [`${G}/tools/findymail/`, TRACKER], impressions: 170, clicks: 0, position: 6.0 },
+    { keys: [`${G}/tools/findymail/`, 'findymail pricing'], impressions: 40, clicks: 0, position: 9.0 },
+  ];
+  const trackerList = hubFenceList([], trackerRows);
+  scheck('(4) the 11/01 Findymail row is not fenced by the tracker prompt', trackerList.every((h) => h.topQuery !== TRACKER) && hubFenceReason(universe, calendarRow(universe, FALSE_DROP.topic, TRACKER), trackerList) === null, `(${trackerList.map((h) => h.topQuery).join('; ')})`);
+  scheck('(4) the same hub still fences its real query', (hubFenceReason(universe, calendarRow(universe, 'Findymail Pricing Explained', 'findymail pricing'), trackerList) || '').startsWith('hub fence: /tools/findymail/'));
+
+  const supplyFails = supply.filter((s) => !s.ok).map((s) => s.name);
+  console.log(`TOPIC SUPPLY fixture: ${supply.length} checks, ${supplyFails.length} failed.`);
+
+  const pass = sig.pass && unexpected.length === 0 && nowCaught.length === 0 && blocked.length === 0 && hubFails.length === 0 && supplyFails.length === 0;
   console.log(`\n${bad.dropped.length}/${SCRUBBED_2026_08_12.length} caught deterministically; ${ACCEPTED_JUDGMENT_LEAKS.size} left to human review. Signals: ${sig.pass ? 'PASS' : 'FAIL (' + sig.fails.join(', ') + ')'}.`);
   console.log(`selftest: ${pass ? 'PASS' : 'FAIL'}`);
   process.exit(pass ? 0 : 1);
