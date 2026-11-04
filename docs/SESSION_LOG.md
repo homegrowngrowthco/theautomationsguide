@@ -8,7 +8,23 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-11-04 (Session 117).
+Last updated 2026-11-04 (Session 118).
+
+## Session 118 (2026-11-04): queue refilled, 6 wrong-company registrations fixed, merger recovery, Playwright on 26.04 (Opus 5.5, op #1498)
+
+- **Queue:** 0 Queued at the start. Yield since 10/18 was 20 of 105 proposed, about 1.2 a day against 2 published. No fence dominates (dedup 35%, unknown operand 29%, dead program 15%, hub fence 12%, alternatives 6%); 67% of drops were the same 10 or so ideas re-proposed. Ian approved 9 rows by rank (2 scored, 7 legacy); reading post bodies held 4 as duplicates (Motion, HubSpot/Make/n8n/Kit, LeadMagic vs Clay, Beehiiv), so those are Skipped and 5 are Queued. The 7 held early-coverage topics have no demand and no program: not promoted, TODO closed. Declined extending the top-up's rule: a routine has no GSC token, and legacy rows do not regrow.
+- **Builder (#438, a81cf22):** the prompt states the fence's own rules, feeds back the last 3 runs' drops via the `backlog-batch` artifact, CI count 30, tracker queries dropped from signals. Dispatched run 41858141397: kept 10 of 30, staged 10, with comparisons back (Instantly vs Dripify 75). This morning's old code kept 1 of 15. One run each.
+- **Watchdog (#436, 54af3f7):** warns in Slack once a day when Queued is under 4, unless a top-up lands first; never turns the run red. Real run read 5 Queued; the low-queue post is proven by fixtures only.
+- **Duplicates (ops #60):** Circleback vs Fathom is a 301 to the 7/15 post (#433, 0795d1c, production verified); Lindy vs Relevance AI kept (Ian).
+- **Registry audit, 40 auto-registered entries, 6 wrong (#434, f2b79af):** bouncer to usebouncer.com (was for sale), profound to tryprofound.com (parked), fathom to fathom.ai (another company), prospeo to prospeo.io (another company), warmforge to warmforge.ai (placeholder), guru to getguru.com (another service). Bouncer and prospeo have 6 posts each, fathom 4. Bouncer and profound logos restored in #441 after #434 replaced correct marks.
+- **Resolver (#437, 9161584):** `qa/homepage-identity.mjs` scores a page on what the post says the tool does, rejects foreign `lang` and more placeholders, and refuses without a 1.5x lead. Root cause: the old rule only checked the brand was in the title. Dry run: all 7 known-wrong now resolve right, 2 of the 34 good refused, 1 changed. In pr-gates since #441.
+- **Merger (#435, f12ffa4):** the sweep re-runs qa once on a stuck bot head or a non-content red, capped by `run_attempt`; a named `playwright-install` signature whose comment says infrastructure; a no-runner cancel re-runs once; 6 min timeout on the install step. Replay: recovers #417; #421 is correctly left (content red); #424 still needs `update-branch`. Not exercised live.
+- **Playwright (#442, 7478fa9):** 1.64.1 and `runs-on: ubuntu-26.04`. Throwaway #439 run 41857320355: image 26.04, install, overflow, Vision all success, closed. Overflow 225 pages, 0, before and after. Creatio logo in #440 (16614af).
+- **Other:** Dripify registered pending (#441; Ian to apply, ops #66). Click rule widened (Ian, ops #8): any same-distinct_id event within 60 s; 11/03 MoltSets counts, human clicks 3 of 5. Alita n8n key healthy. Old queue items converted: ops #63 (parked) to #67; alarm secret is #68. GEO sheet at `audits/GEO-RERUN-SHEET.md`.
+- **Mistakes:** the top-level's first census ran a scratch shim without `--status`: one extra local Claude call, no writes. The brief's "replace all 6 logos" overwrote 2 correct marks. A subagent created the missing `no-auto-merge` label.
+- **Not proven yet:** a real engine post on 26.04, and the top-up on the new rows (see below if reads landed).
+- **Revert:** each PR reverts alone; #442 restores the pin and 1.59.1 together; #433 restores the post.
+- **Gotchas:** CLAUDE.md gotchas 5, 17, 18. A single-domain audit found 15% wrong after a known single case; audit the class, not the instance.
 
 ## Session 117 (2026-11-04): qa red on every content PR since 10/30, ubuntu-latest moved to 26.04 (op #1496)
 
