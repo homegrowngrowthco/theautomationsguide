@@ -2976,6 +2976,18 @@ export const tools: Tool[] = [
     blurb:
       'Learn how Seismic’s AI-powered enablement, training, and coaching solution enables sales and marketing teams to engage buyers and grow revenue.',
   },
+  {
+    slug: 'creatio',
+    name: 'Creatio',
+    category: 'CRM',
+    badge: 'Paid',
+    ctaLabel: 'Try Creatio',
+    ctaPrimary: false,
+    listed: false,
+    aliases: ['Creatio', 'Creatio Native Business Process'],
+    blurb:
+      'Creatio brings people and AI agents together on one AI CRM and workflow platform, with no limits on users, agents, workflows, or scale.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body
