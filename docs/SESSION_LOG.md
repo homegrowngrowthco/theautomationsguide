@@ -8,7 +8,17 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-29 (Session 116).
+Last updated 2026-11-04 (Session 117).
+
+## Session 117 (2026-11-04): qa red on every content PR since 10/30, ubuntu-latest moved to 26.04 (op #1496)
+
+- **Cause:** `ubuntu-latest` moved to Ubuntu 26.04 (10/29 20:03Z run on 24.04, 10/30 12:02Z on 26.04). `npx playwright install --with-deps chromium` exits 1 there on 1.59.1, so qa died before the overflow and Vision gates. The failure ledger logged it as `other` 6 times. Nothing merged from #423 (10/29) until today.
+- **Fix:** #430 pins only the qa job to `ubuntu-24.04` (abc5892). Verified on #425's run 41848901868: image 24.04, Playwright install, overflow and Vision all success.
+- **Unblocked, all merged by github-actions 11/04 14:36Z to 14:40Z:** #417, #421, #424, #425, #426, #427, #428, #429. `gh pr update-branch` gave each a fresh qa run on the pinned workflow.
+- **Two PRs needed more than the pin:** #421 had registered the wrong company (creatio.io, a Finnish studio; its blurb's em dash failed lint). Corrected to Creatio the CRM on creatio.com, logo-less because its icon fails the logo gate. #417 conflicted with master in both registries; took master's copy and re-added the Twilio entries.
+- **Separate, still open:** the Notion queue is empty (0 Queued, 36 Suggested, 34 of them unscored legacy rows). Engine runs at 11/03 21:00Z and 11/04 13:00Z exited in about 3 s with no topic. Today's builder staged 1 row; the top-up fires 17:09Z and opens an issue if short.
+- **Revert:** revert #430 (one line), though qa goes red again until Playwright supports 26.04.
+- **Gotchas:** see CLAUDE.md gotcha 17. A runner-image move can red every PR with no repo change; pin any job that installs a browser.
 
 ## Session 116 (2026-10-29): weekly unattended cloud routine run, read-only checks (Sonnet 5.5, no op number)
 
