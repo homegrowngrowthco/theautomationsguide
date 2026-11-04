@@ -5,10 +5,12 @@
 // /go/<slug> with no affiliate-links.ts entry 404s at build) or render logo-less.
 //
 // For each unknown tool it:
-//   1. Resolves the homepage by probing common TLDs and VERIFYING the page
-//      identifies as that tool (the normalized name appears in <title> /
-//      og:site_name / og:title, or in the resolved host). Wrong-domain guesses
-//      are rejected — we never register a /go/ target we couldn't confirm.
+//   1. Resolves the homepage by probing common TLDs (plus use/try/get + brand .com)
+//      and VERIFYING the page: it must name the tool, must not be parked or foreign,
+//      and must talk about what the post says the tool does. When nothing clears
+//      that bar, or two domains stay too close to call, the tool stays unresolved:
+//      we never register a /go/ target we couldn't confirm. qa/homepage-identity.mjs
+//      holds these rules and why each exists.
 //   2. Sources a logo from the site's own icons (apple-touch-icon -> rel=icon ->
 //      og:image) with a Google-favicon fallback, saved to public/brand/tools/.
 //   3. Appends a `pending` affiliate-links.ts entry (homepage fallback) and a
@@ -23,12 +25,13 @@
 //   node qa/auto-register-tools.mjs --changed                   # git-changed posts vs origin/master
 //   node qa/auto-register-tools.mjs --post <p> --dry-run        # report only, no writes
 //   node qa/auto-register-tools.mjs --post <p> --url-hint slug=https://...  # skip TLD probe for slug
-//   node qa/auto-register-tools.mjs --selftest                  # offline deep-link-variant fixtures
+//   node qa/auto-register-tools.mjs --selftest                  # offline deep-link + homepage-identity fixtures
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { parseToolTaxonomy } from './registry.mjs';
+import { norm, metaOf, postTerms, assessPage, chooseHomepage, PARKED_RE } from './homepage-identity.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Za-z]:)/, '$1'), '..');
 const AFF_PATH = path.join(ROOT, 'src/data/affiliate-links.ts');
@@ -36,12 +39,6 @@ const TOOLS_PATH = path.join(ROOT, 'src/data/tools.ts');
 const LOGO_DIR = path.join(ROOT, 'public/brand/tools');
 
 const TLDS = ['com', 'io', 'ai', 'co', 'app', 'so', 'dev'];
-// Markers of parked / for-sale / marketplace landing pages (Atom, Dan, Sedo,
-// GoDaddy, Afternic…). Matched against title + og:title + description.
-// A broker's title often puts the DOMAIN where the word "domain" would go
-// ("Surfer.app is for sale") — the first alternative covers that form, which a
-// `domain (?:is )?for sale`-only pattern missed.
-const PARKED_RE = /\b(?:(?:domain|[a-z0-9-]+\.[a-z]{2,}) (?:is |may be )?for sale|buy this domain|purchase this domain|own (?:this domain|[a-z0-9.-]+ today)|make an offer|domain broker|guided transfer|premium domain|parked (?:free|domain)|this domain is available)\b/i;
 const UA = 'Mozilla/5.0 (compatible; AutomationsGuideBot/1.0; +https://theautomationsguide.com)';
 const FETCH_TIMEOUT = 9000;
 
@@ -70,7 +67,6 @@ for (let i = 0; i < args.length; i++) {
 
 // ---------- helpers ----------
 
-const norm = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 const decodeEntities = (s) => (s || '')
   .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
   .replace(/&quot;/g, '"').replace(/&apos;|&#0*39;|&#x0*27;/gi, "'").replace(/&nbsp;/g, ' ')
@@ -198,27 +194,6 @@ function existingToolSlugs(src) {
 
 // ---------- resolve homepage ----------
 
-// Page identity, read from the WHOLE document. Neither a fixed byte slice nor
-// the <head> is a safe bound: frase.io closes </head> at byte ~4k but emits its
-// real <title> at byte ~172k (client-rendered page), so both windows read an
-// EMPTY identity, failed the identity check, and rejected the tool's own
-// homepage. Collect every <title> (a page can carry several — inline SVGs have
-// them) and let the caller pick the one that names the tool.
-function metaOf(html) {
-  const doc = html.length > 400000 ? html.slice(0, 400000) : html;
-  const meta = (re) => (doc.match(re) || [])[1] || '';
-  return {
-    titles: [...doc.matchAll(/<title[^>]*>([^<]+)<\/title>/gi)].map((m) => m[1].trim()),
-    ogSite: meta(/<meta[^>]+property=["']og:site_name["'][^>]+content=["']([^"']+)["']/i),
-    ogTitle: meta(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i),
-    ogDesc: meta(/<meta[^>]+(?:property|name)=["']og:description["'][^>]+content=["']([^"']+)["']/i)
-      || meta(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i),
-    generator: meta(/<meta[^>]+name=["']generator["'][^>]+content=["']([^"']+)["']/i),
-    hasOgImage: /<meta[^>]+property=["']og:image["']/i.test(doc),
-    hasAppleIcon: /rel=["'][^"']*apple-touch-icon/i.test(doc),
-  };
-}
-
 // Fetch a homepage we already TRUST (human-supplied or registry-recorded) and
 // shape it like a probe candidate. No identity/parked checks: the URL is given,
 // not guessed. We still fetch it for the og:description + html the blurb and
@@ -227,14 +202,15 @@ async function fromKnownUrl(url) {
   const r = await fetchText(url);
   if (!r) return null;
   const u = new URL(r.finalUrl);
-  return { score: 1000, homepage: `${u.protocol}//${u.host}/`, host: u.host, html: r.html, blurb: metaOf(r.html).ogDesc.trim() };
+  return { homepage: `${u.protocol}//${u.host}/`, host: u.host, html: r.html, blurb: metaOf(r.html).ogDesc.trim() };
 }
 
-// Probe every candidate domain, keep the ones whose PAGE IDENTITY (not just the
-// host string) names the tool, then score by how strongly the page looks like
-// the real product homepage. This is what stops `justcall.com` ("Just Call", an
-// unrelated site) from beating the real `justcall.io`.
-async function resolveHomepage(name, slug, registryHomepage) {
+// Probe every candidate domain, keep the pages that name the tool and are not
+// parked or foreign, then take the one that best matches what the post says the
+// tool does (`post` is the text of the post referencing it). This is what stops
+// `justcall.com` ("Just Call", an unrelated site) beating the real `justcall.io`,
+// and creatio.io (a Finnish studio) beating creatio.com.
+async function resolveHomepage(name, slug, registryHomepage, post) {
   // Human-confirmed URL from a PR comment reply — skip the TLD probe entirely.
   if (urlHints.has(slug)) {
     const hintUrl = urlHints.get(slug);
@@ -261,65 +237,37 @@ async function resolveHomepage(name, slug, registryHomepage) {
   const dotted = segs.length >= 2 && TLDS.includes(segs[segs.length - 1])
     ? { host: `${segs.slice(0, -1).join('')}.${segs[segs.length - 1]}`, stem: norm(segs.slice(0, -1).join('')) }
     : null;
+  // The same reading of the NAME: slug "customerio", name "Customer.io".
+  const dn = (name || '').toLowerCase().match(/^([a-z0-9-]+)\.([a-z]{2,4})$/);
+  const dottedName = dn && TLDS.includes(dn[2]) ? { host: `${dn[1]}.${dn[2]}`, stem: norm(dn[1]) } : null;
   // Identity targets: match the page against the CLEAN slug as well as the name.
   // Brand names that bake in a TLD ("Otter.ai", "Reply.io") normalize to
   // "otterai"/"replyio", but the site's <title> usually says the bare brand
   // ("Otter Meeting Agent…"), so a name-only check fails. The slug ("otter") is
   // the canonical clean identifier and matches. For a dotted-domain slug the
   // bare stem ("factors") is added too, since the site titles itself "Factors".
-  const targets = [...new Set([norm(slug.replace(/-/g, '')), norm(name), dotted?.stem].filter((t) => t && t.length >= 2))];
-  const matchesIdentity = (ident) => targets.some((t) => ident.includes(t));
-  // Every base × common TLD, plus the dotted-domain host if the slug implies one.
+  const targets = [...new Set([norm(slug.replace(/-/g, '')), norm(name), dotted?.stem, dottedName?.stem].filter((t) => t && t.length >= 2))];
+  // Every base × common TLD, plus the dotted-domain hosts if slug or name implies
+  // one, plus the use/try/get forms: the real sites of bouncer, profound and guru
+  // are usebouncer.com, tryprofound.com and getguru.com, which no TLD grid reaches.
   const hosts = new Set();
   for (const base of bases) for (const tld of TLDS) hosts.add(`${base}.${tld}`);
   if (dotted) hosts.add(dotted.host);
+  if (dottedName) hosts.add(dottedName.host);
+  for (const prefix of ['use', 'try', 'get']) hosts.add(`${prefix}${slug.replace(/-/g, '')}.com`);
+  const terms = postTerms(post || '', slug, name);
   const candidates = [];
   for (const host of hosts) {
-      const r = await fetchText(`https://${host}/`);
-      if (!r) continue;
-      const u = new URL(r.finalUrl);
-      // A parked domain redirects to the BROKER's own host (surfer.app lands on
-      // www.fortune.domains). Whatever the landing page's copy claims, a host
-      // carrying none of the brand's identity stems is not this tool's homepage.
-      // Real redirects keep the brand (surfer.ai -> surferseo.com).
-      if (!matchesIdentity(norm(u.host))) continue;
-      const { titles, ogSite, ogTitle, ogDesc, generator, hasOgImage, hasAppleIcon } = metaOf(r.html);
-      const ident = norm(`${titles.join(' ')} ${ogSite} ${ogTitle}`);
-      if (!matchesIdentity(ident)) continue; // identity must name the tool — host match alone is not enough
-      // The document can carry several <title>s; score against the one that
-      // actually names the tool, not whichever came first.
-      const title = titles.find((t) => matchesIdentity(norm(t))) || titles[0] || '';
-      // Parked/for-sale pages pass the identity check trivially (their title IS
-      // the domain, e.g. "artisan.so") and can outscore the real product site.
-      if (PARKED_RE.test(`${titles.join(' ')} ${ogTitle} ${ogDesc}`)) continue;
-      // Site-builder placeholder pages carry no for-sale copy, so PARKED_RE
-      // misses them: calendly.ai served a stock GoDaddy Website Builder page
-      // titled just "calendly.ai" and outscored the real calendly.com (a
-      // bare-domain title startsWith the brand, earning the +100 bonus).
-      if (/godaddy|go ?daddy|starfield|sedo|parking|parked/i.test(generator)) continue;
-      // A title that is just the raw domain, on a page with no social card, is a
-      // placeholder. (Real homepages that title themselves "Brand.ai" ship one.)
-      if (norm(title) === norm(host) && !hasOgImage) continue;
-      // Same shape, bare-brand variant: an app-login shell titles itself with
-      // JUST the brand and ships no social card and no description. aloware.io
-      // (the login SPA) outscored the real aloware.com this way on PR #191 —
-      // the bare-brand title earns the +100 startsWith bonus while the
-      // marketing homepage's descriptive title doesn't name the brand at all.
-      if (targets.some((t) => norm(title) === t) && !hasOgImage && !ogDesc) continue;
-
-      let score = 0;
-      if (targets.some((t) => norm(title).startsWith(t)) || targets.some((t) => norm(ogSite) === t)) score += 100;
-      else score += 50;
-      if (hasOgImage) score += 20; // real product sites ship social cards
-      if (hasAppleIcon) score += 20;
-      if (ogDesc) score += 10;
-      if (title.length > 25) score += 10;                                 // descriptive, not a parked "Just Call"
-      score += Math.max(0, 6 - TLDS.indexOf(host.split('.').pop()));      // gentle TLD tiebreak only
-      candidates.push({ score, homepage: `${u.protocol}//${u.host}/`, host: u.host, html: r.html, blurb: ogDesc.trim() });
+    const r = await fetchText(`https://${host}/`);
+    if (!r) continue;
+    const assessed = assessPage({ host, finalUrl: r.finalUrl, html: r.html }, { targets, terms });
+    if (assessed.reject) continue;
+    const u = new URL(r.finalUrl);
+    candidates.push({ ...assessed, homepage: `${u.protocol}//${u.host}/`, host: u.host, html: r.html });
   }
-  if (!candidates.length) return null;
-  candidates.sort((a, b) => b.score - a.score);
-  return candidates[0];
+  const { winner, refused } = chooseHomepage(candidates);
+  if (refused) console.error(`[auto-register] ${slug} (${name}): ${refused}`);
+  return winner || null;
 }
 
 // ---------- source a logo ----------
@@ -584,7 +532,9 @@ async function logoOnlyMode(slugs) {
   process.exit(0);
 }
 
-// Offline fixtures for deepLinkParent (no network, no file writes).
+// Offline fixtures (no network, no file writes): deepLinkParent, then the homepage
+// rules, each distilled from a page the resolver really met (qa/homepage-identity.mjs
+// says what each one did). A fixture for a wrong company asserts it never wins.
 function selftest() {
   const aff = new Set(['leadfeeder', 'leadfeeder-web-visitors', 'reply-io', 'reply-io-pricing', 'substack', 'new-tool-pricing']);
   const tools = new Map([['leadfeeder', {}], ['reply-io', {}], ['rb2b', {}]]);
@@ -596,8 +546,81 @@ function selftest() {
     ['prefix has no tool entry -> null', deepLinkParent('new-tool-pricing', aff, tools), null],
     ['unregistered slug -> null (auto-register still handles it)', deepLinkParent('leadfeeder-new', aff, tools), null],
   ];
+
+  // Build a page; `text` repeats so a body reads as a real homepage, not a thin one.
+  const page = ({ title = '', lang = 'en', desc = '', og = true, generator = '', text = '', pad = 0 }) => `<!doctype html><html${lang ? ` lang="${lang}"` : ''}><head><title>${title}</title>${
+    desc ? `<meta name="description" content="${desc}">` : ''}${og ? '<meta property="og:image" content="/card.png">' : ''}${
+    generator ? `<meta name="generator" content="${generator}">` : ''}</head><body><p>${text}</p>${'<p>word </p>'.repeat(pad)}</body></html>`;
+  const resolve = (slug, name, post, pages) => {
+    const targets = [...new Set([norm(slug.replace(/-/g, '')), norm(name)])];
+    const terms = postTerms(post, slug, name);
+    const candidates = pages
+      .map(([host, html, finalHost]) => assessPage({ host, finalUrl: `https://${finalHost || host}/`, html }, { targets, terms }))
+      .filter((a) => !a.reject);
+    const { winner, refused } = chooseHomepage(candidates);
+    return winner ? winner.domain : `refused: ${refused.split(':')[0]}`;
+  };
+  const assessReject = (slug, name, host, html, finalHost) => assessPage(
+    { host, finalUrl: `https://${finalHost || host}/`, html },
+    { targets: [...new Set([norm(slug), norm(name)])], terms: ['meeting', 'email', 'schedul', 'crm', 'notetak'] },
+  ).reject || 'accepted';
+
+  const creatioPost = 'title: "PandaDoc + Creatio: Sales Document Automation Setup Guide"\nCreatio is a CRM with no-code workflow automation for sales teams. Connect the Creatio sales pipeline to your document workflow.';
+  const creatioCom = page({ title: 'AI CRM and Workflow Platform | Creatio', desc: 'One AI CRM and workflow platform', text: 'Creatio brings no-code workflow automation, CRM, sales pipeline and document approvals together.', pad: 300 });
+  const creatioIo = page({ title: 'Creatio — Luomme digitaalisia ratkaisuja', lang: 'fi', desc: 'Creatio Oy, Oulu-pohjainen ohjelmistostudio', text: 'Creatio Oy suunnittelee ja kehittaa ohjelmistoja.', pad: 300 });
+  const studioInEnglish = page({ title: 'Creatio | Software studio in Finland', lang: 'en', desc: 'Custom software development', text: 'Creatio builds mobile apps and websites for Finnish startups.', pad: 300 });
+  const fathomPost = 'title: "Circleback vs Fathom: Best AI Meeting Notetaker"\nFathom is an AI meeting notetaker. Fathom records calls, writes the summary, and syncs notes to HubSpot and Salesforce.';
+  const fathomAi = page({ title: 'Fathom AI Notetaker - Never Take Notes Again', text: 'Fathom records every meeting and call, writes the summary, and syncs notes to HubSpot and Salesforce. Fathom notetaker for sales.', pad: 300 });
+  const fathomIo = page({ title: 'Fathom.io &#8211; Fathom.io', lang: 'en-US', desc: 'Fathom.io', text: 'Fathom The Enterprise Intelligence OS for governed AI assets. Fathom Fathom.' });
+  const fathomHq = page({ title: 'Fathom | Reporting Forecasting and Consolidation Software', lang: 'en-US', text: 'Fathom financial reporting and forecasting for accountants.', pad: 300 });
+  const prospeoPost = 'title: "LeadMagic vs Surfe: Best LinkedIn Enrichment"\nProspeo is a B2B email finder with verified emails and mobile numbers for sales outreach.';
+  const prospeoIo = page({ title: 'Prospeo - Find Verified Emails &amp; Phone Numbers for Outreach', og: false, desc: 'Prospeo helps sales teams find verified business emails and mobile numbers.', text: 'Loading' });
+  const prospeoApp = page({ title: 'Prospeo - Logiciel de prospection commerciale terrain', lang: 'fr', desc: 'Optimisez vos tournees commerciales et boostez vos ventes avec Prospeo.', pad: 300 });
+  const guruPost = 'title: "Trainual Review: Is It Worth It for GTM Teams"\nGuru is a knowledge base that verifies internal documentation and answers employee questions.';
+  const guruSo = page({ title: 'Welcome to Guru', og: false, text: 'A little help. For your whole day. Sign in or sign up.' });
+  const loopsPost = 'title: "Loops vs Brevo"\nLoops is an email platform for SaaS with transactional and lifecycle marketing sends.';
+  const loopsSo = page({ title: 'Loops | Email Platform for SaaS', text: 'Loops sends transactional and lifecycle marketing email for SaaS.', pad: 300 });
+  const loopsTwin = page({ title: 'Loops Mail | Email for SaaS', text: 'Loops sends transactional and lifecycle marketing email for SaaS.', pad: 300 });
+  const loopsDev = page({ title: 'Loops. Because work should feel like play', desc: 'Plan software work', text: 'Loops helps plan software work, keep it moving and check progress.', pad: 300 });
+  const qwilrPage = page({ title: 'Interactive Proposals &amp; Analytics | Qwilr', text: 'Qwilr interactive proposals with analytics and signatures.', pad: 300 });
+  const qwilrPost = 'title: "Qwilr vs PandaDoc"\nQwilr builds interactive proposals with analytics and signatures.';
+  const featurePage = page({ title: 'Otter Meeting Agent', desc: 'Meeting notes', text: 'Otter meeting notetaker for every call. CRM sync coming soon. email schedule', pad: 300 });
+
+  cases.push(
+    // The seven real wrong registrations (op #1498).
+    ['creatio.io (lang=fi) vs creatio.com -> creatio.com', resolve('creatio', 'Creatio Native Business Process', creatioPost, [['creatio.com', creatioCom, 'www.creatio.com'], ['creatio.io', creatioIo, 'www.creatio.io']]), 'creatio.com'],
+    ['creatio.io rejected on its lang, not its score', assessReject('creatio', 'Creatio', 'creatio.io', creatioIo), 'lang=fi'],
+    ['same studio in English still loses on what the post says', resolve('creatio', 'Creatio', creatioPost, [['creatio.com', creatioCom], ['creatio.io', studioInEnglish]]), 'creatio.com'],
+    ['prospeo.app (lang=fr) vs thin prospeo.io -> prospeo.io', resolve('prospeo', 'Prospeo', prospeoPost, [['prospeo.io', prospeoIo], ['prospeo.app', prospeoApp]]), 'prospeo.io'],
+    ['fathom.io + fathomhq vs fathom.ai -> fathom.ai', resolve('fathom', 'Fathom', fathomPost, [['fathom.com', fathomHq, 'www.fathomhq.com'], ['fathom.io', fathomIo], ['fathom.ai', fathomAi, 'www.fathom.ai']]), 'fathom.ai'],
+    ['fathom.io alone (real site unreachable) -> refused', resolve('fathom', 'Fathom', fathomPost, [['fathom.io', fathomIo]]), 'refused: best page does not match the post'],
+    ['profound.app Sedo template -> parked', assessReject('profound', 'Profound', 'profound.app', page({ title: 'profound.app&nbsp;-&nbsp;profound Resources and Information.', og: false, desc: 'profound.app is your first and best source for information about profound.' })), 'parked or for sale'],
+    ['bouncer.com "- For Sale" title -> parked', assessReject('bouncer', 'Bouncer', 'bouncer.com', page({ title: 'bouncer.com - For Sale', lang: '', og: false, text: 'This premium domain is for sale' })), 'parked or for sale'],
+    ['warmforge.com WordPress placeholder -> placeholder', assessReject('warmforge', 'Warmforge', 'warmforge.com', page({ title: 'Warm Forge', text: 'A bright idea, coming soon' })), 'placeholder page'],
+    ['warmforge.ai: title lacks brand, host + text carry it -> accepted', assessReject('warmforge', 'Warmforge', 'warmforge.ai', page({ title: 'Premium Email Warmup &amp; Deliverability Center', text: 'Warmforge warms email. Warmforge inbox placement. Warmforge heat score.', pad: 300 }), 'www.warmforge.ai'), 'accepted'],
+    ['title lacks brand, host is NOT the brand -> rejected', assessReject('warmforge', 'Warmforge', 'warmforgehq.ai', page({ title: 'Premium Email Warmup', text: 'Warmforge Warmforge Warmforge', pad: 300 })), 'page does not name the tool'],
+    ['getguru.com form counts as the brand host', assessReject('guru', 'Guru', 'getguru.com', page({ title: 'The Governed Knowledge Layer', text: 'Guru verifies knowledge. Guru answers. Guru connects email.', pad: 300 }), 'www.getguru.com'), 'accepted'],
+    ['guru.so alone, unrelated consumer app -> refused', resolve('guru', 'Guru', guruPost, [['guru.so', guruSo, 'mobile.guru.so']]), 'refused: best page does not match the post'],
+    // Do not guess, and do not refuse what is not a guess.
+    ['two domains too close -> refused', resolve('loops', 'Loops', loopsPost, [['loops.so', loopsSo], ['loops.app', loopsTwin]]), 'refused: too close to call'],
+    ['clear lead over a same-name company -> winner', resolve('loops', 'Loops', loopsPost, [['loops.so', loopsSo], ['loops.dev', loopsDev, 'www.loops.dev']]), 'loops.so'],
+    ['one site on two domains is not a rival, .com kept', resolve('qwilr', 'Qwilr', qwilrPost, [['qwilr.com', qwilrPage], ['qwilr.dev', qwilrPage]]), 'qwilr.com'],
+    ['no candidates -> refused', resolve('pandadoc', 'PandaDoc', 'title: "x"', []), 'refused: no candidate names the tool'],
+    // Guards that already existed must keep firing.
+    ['surfer.app lands on a broker host -> rejected', assessReject('surfer', 'Surfer', 'surfer.app', page({ title: 'surfer.app' }), 'www.fortune.domains'), 'host carries no brand stem'],
+    ['"Surfer.app is for sale" -> parked', PARKED_RE.test('Surfer.app is for sale'), true],
+    ['calendly.ai GoDaddy builder -> rejected', assessReject('calendly', 'Calendly', 'calendly.ai', page({ title: 'calendly.ai', generator: 'Starfield Technologies; Go Daddy Website Builder', pad: 300 })), 'site-builder placeholder'],
+    ['artisan.so raw domain title, no card -> rejected', assessReject('artisan', 'Artisan', 'artisan.so', page({ title: 'artisan.so', og: false, pad: 300 })), 'raw-domain title, no social card'],
+    ['aloware.io login shell -> rejected', assessReject('aloware', 'Aloware', 'aloware.io', page({ title: 'Aloware', og: false, pad: 300 })), 'bare-brand app shell'],
+    // Nothing here should cost a real homepage.
+    ['real homepage saying "coming soon" on a feature -> accepted', assessReject('otter', 'Otter', 'otter.ai', featurePage), 'accepted'],
+    ['missing lang is not evidence -> accepted', assessReject('otter', 'Otter', 'otter.ai', page({ title: 'Otter Meeting Agent', lang: '', desc: 'Notes', text: 'meeting', pad: 300 })), 'accepted'],
+    ['en-US counts as English -> accepted', assessReject('otter', 'Otter', 'otter.ai', page({ title: 'Otter Meeting Agent', lang: 'en-US', desc: 'Notes', text: 'meeting', pad: 300 })), 'accepted'],
+  );
+
   let fail = 0;
   for (const [name, got, want] of cases) { const pass = got === want; if (!pass) fail++; console.log(`${pass ? 'PASS' : 'FAIL'} ${name}${pass ? '' : `  -> got ${got}`}`); }
+  console.log(`${cases.length - fail}/${cases.length} fixtures passed`);
   process.exit(fail ? 1 : 0);
 }
 
@@ -621,9 +644,14 @@ async function main() {
   const toolSlugs = existingToolSlugs(toolsSrc);
 
   const wanted = new Map(); // slug -> name (unique across all posts)
+  const wantedPost = new Map(); // slug -> text of the post(s) referencing it
   for (const p of posts) {
     if (!existsSync(p)) { console.error(`post not found: ${p}`); continue; }
-    for (const [slug, name] of parsePost(readFileSync(p, 'utf8'))) if (!wanted.has(slug)) wanted.set(slug, name);
+    const postText = readFileSync(p, 'utf8');
+    for (const [slug, name] of parsePost(postText)) {
+      if (!wanted.has(slug)) wanted.set(slug, name);
+      wantedPost.set(slug, `${wantedPost.get(slug) || ''}\n${postText}`);
+    }
   }
 
   // A post that reaches auto-register is a head-to-head comparison, so its tools
@@ -647,7 +675,7 @@ async function main() {
     const needLogo = !tool || !tool.hasLogo;
     if (!needAff && !needLogo) { report.skipped.push(slug); continue; }
 
-    const resolved = await resolveHomepage(name, slug, affHomepages.get(slug));
+    const resolved = await resolveHomepage(name, slug, affHomepages.get(slug), wantedPost.get(slug));
     if (!resolved) { report.unresolved.push({ slug, name }); continue; }
 
     let logoRel = null;
