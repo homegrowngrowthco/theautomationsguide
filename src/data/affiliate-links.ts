@@ -1202,6 +1202,13 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
+  dripify: {
+    name: 'Dripify',
+    url: '',
+    homepageFallback: 'https://dripify.com/',
+    status: 'pending',
+    notes: 'Program confirmed on dripify.com/affiliate-program/ (read 2026-11-04), not yet applied. PartnerStack. Up to 35% recurring: monthly plans 35% first purchase then 20% on renewals; annual plans 30% first and 30% on renewals. Tracked by cookie plus IP, no cookie length stated on the page. Paid monthly by PayPal or bank, no minimum. Third-party sources disagree on 20% vs 30% recurring, so these are the program page figures.',
+  },
 };
 
 /**

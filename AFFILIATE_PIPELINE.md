@@ -66,6 +66,7 @@ Build landing pages + apply as content warrants. ⭐ = strongest first-mover opp
 | Regie.ai | 🔎 verify | AI sales agent + content |
 | Qualified (Piper) | 🔎 partner | Inbound AI SDR for Salesforce sites |
 | Outplay | 🔎 verify | Multichannel, SMB |
+| Dripify | ✅ not yet applied (PartnerStack) | LinkedIn outreach automation. Up to 35% recurring: monthly plans 35% first then 20% renewals, annual plans 30% first and renewals. Apply: https://dripify.com/affiliate-program/. Pending entry + unlisted LP registered 2026-11-04 |
 
 ### Cold email infra / deliverability / inboxes
 | Tool | Program | Notes |

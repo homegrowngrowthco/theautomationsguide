@@ -1685,7 +1685,7 @@ export const tools: Tool[] = [
     ctaLabel: 'Try Bouncer',
     ctaPrimary: false,
     listed: false,
-    logo: '/brand/tools/bouncer.png',
+    logo: '/brand/tools/bouncer.svg',
     aliases: ['Bouncer'],
     blurb:
       'Bouncer is featured in a comparison on The Automations Guide.',
@@ -2990,6 +2990,19 @@ export const tools: Tool[] = [
     aliases: ['Creatio', 'Creatio Native Business Process'],
     blurb:
       'Creatio brings people and AI agents together on one AI CRM and workflow platform, with no limits on users, agents, workflows, or scale.',
+  },
+  {
+    slug: 'dripify',
+    logo: '/brand/tools/dripify.png',
+    name: 'Dripify',
+    category: 'Sales Engagement & Sequencing',
+    badge: 'Paid',
+    ctaLabel: 'Try Dripify',
+    ctaPrimary: false,
+    listed: false,
+    aliases: ['Dripify'],
+    blurb:
+      'Dripify is a LinkedIn outreach automation tool that runs multi-step sequences and automatic follow-ups for sales teams.',
   },
 ];
 
