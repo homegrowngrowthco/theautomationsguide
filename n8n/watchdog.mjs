@@ -28,7 +28,9 @@
 //      GITHUB_TOKEN + GITHUB_REPOSITORY + GITHUB_RUN_ID (set by Actions; find the anchor run),
 //      WATCHDOG_NOW (ISO time, testing only: judge the window as if it were then; skips the
 //      GitHub lookup) + WATCHDOG_PREV (ISO time, testing only: the anchor to use with it).
-// Exit code 1 when there is anything to report, so the Action run fails visibly too.
+//      NOTION_TOKEN (queue runway only; missing or rejected is reported, never read as empty).
+// Exit code 1 when an engine check has anything to report, so the Action run fails visibly too.
+// The queue runway warning is the exception: it posts to Slack and leaves the run green.
 
 const BASE = (process.env.N8N_API_URL || 'https://homegrowngrowth.app.n8n.cloud').replace(/\/+$/, '');
 const INSTANCE_TZ = 'America/New_York'; // n8n instance default, used when a workflow sets none
@@ -132,6 +134,103 @@ export function judge(wf, execs, now, tz = wf.settings?.timezone || INSTANCE_TZ,
   return problems;
 }
 
+// ---- queue runway: a warning about supply, not a verdict on the engine ----
+// An empty-queue engine run finishes status=success in about 3s, so judge() stays quiet while
+// nothing publishes. This reads the same Queued rows the engine's "Get Next Topic" reads.
+//
+// It never touches process.exitCode. A red run that stayed red for days of low supply would hide
+// a real engine failure behind an already-red badge and GitHub's failure email. Nothing here
+// writes or re-runs anything either: the watchdog only reads n8n and Notion.
+//
+// Once a day with no stored state: only the first run after noon ET posts, worked out from the
+// previous run's start time that main() already has. GitHub fires these crons hours late (10/27
+// to 11/04: 06:00-07:45 ET and 16:10-18:40 ET), and noon falls between the two. A skipped run
+// moves the post to the next run instead of losing it. Every run still logs the count and leaves
+// an annotation.
+//
+// Quiet when a top-up lands first. The "TAG queue top-up" cloud routine (Sun + Wed 16:00 UTC, see
+// CLAUDE.md) fills to 10; 10 on Wed minus 8 posts is 3 on Sat evening and 2 on Sun morning, a
+// healthy trough that would otherwise warn weekly. If that top-up is missed, the next one is days
+// away, so the next run warns: this can delay a warning past a missed top-up, never suppress it.
+// If the routine's schedule changes, update TOPUP_* here.
+const NOTION_DB = '62f34586-4f78-4b83-b2ac-105f500d059e'; // Content Calendar
+const NOTION_VERSION = '2022-06-28'; // matches the live engine's Notion-Version header
+export const RUNWAY_MIN = 4; // under 2 days at 2 posts a day
+const POST_SPACING_MS = 12 * 3600e3; // 2 posts a day
+const POSTS_PER_DAY = 2;
+const TOPUP_DAYS = [0, 3]; // Sun, Wed (UTC)
+const TOPUP_UTC_HOUR = 16;
+const TOPUP_ROOM_MS = 2 * 3600e3; // a top-up this recent may still be running
+const DAY_ROLLS_AT_MS = 12 * 3600e3; // the once-a-day slot opens at noon ET
+
+// { count } or { error }. Any failed page is an error, never a partial count or a zero.
+export async function readQueued(token, fetchImpl = fetch) {
+  if (!token) return { error: 'no NOTION_TOKEN' };
+  try {
+    let count = 0, cursor;
+    for (let page = 0; page < 20; page++) {
+      const r = await fetchImpl(`https://api.notion.com/v1/databases/${NOTION_DB}/query`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${token}`, 'notion-version': NOTION_VERSION, 'content-type': 'application/json' },
+        body: JSON.stringify({ filter: { property: 'Status', select: { equals: 'Queued' } }, page_size: 100, ...(cursor ? { start_cursor: cursor } : {}) }),
+        signal: AbortSignal.timeout(20e3),
+      });
+      if (!r.ok) return { error: `Notion HTTP ${r.status}` };
+      const j = await r.json();
+      if (!Array.isArray(j.results)) return { error: 'Notion reply had no results list' };
+      count += j.results.length;
+      if (!j.has_more) return { count };
+      if (!j.next_cursor) return { error: 'Notion said has_more with no cursor' };
+      cursor = j.next_cursor;
+    }
+    return { count }; // 2000+ rows: the exact number no longer matters
+  } catch (e) { return { error: `Notion read failed: ${e.message}` }; }
+}
+export function nextTopUp(now) {
+  const first = new Date(now);
+  first.setUTCHours(TOPUP_UTC_HOUR, 0, 0, 0);
+  for (let i = 0; ; i++) {
+    const t = first.getTime() + i * 86400e3;
+    if (TOPUP_DAYS.includes(new Date(t).getUTCDay()) && t + TOPUP_ROOM_MS > now) return t;
+  }
+}
+const runwayDay = (ms) => { const p = localParts(new Date(ms - DAY_ROLLS_AT_MS), INSTANCE_TZ); return `${p.month}/${p.day}`; };
+// No previous run known (API error, first run, local run): post rather than stay silent.
+export const firstRunOfDay = (now, prevMs) => !Number.isFinite(prevMs) || runwayDay(now) !== runwayDay(prevMs);
+// The line to send, or null when there is nothing to say.
+export function runwayNotice(read, now) {
+  if (read.error) return `⚠️ *Queue runway check failed (${read.error}).* The Queued count is unknown, which does NOT mean the queue is empty. The engine checks are unaffected.`;
+  const { count } = read;
+  if (count >= RUNWAY_MIN) return null;
+  const topUp = nextTopUp(now);
+  if (topUp - now <= count * POST_SPACING_MS) return null;
+  const day = new Date(topUp).toLocaleDateString('en-US', { timeZone: INSTANCE_TZ, weekday: 'short' });
+  const head = count === 0
+    ? '📭 *Content queue is EMPTY:* 0 Queued topics, so engine runs publish nothing and still report success.'
+    : `📉 *Content queue is low: ${count} Queued topic${count === 1 ? '' : 's'} left*, about ${count / POSTS_PER_DAY} day${count === POSTS_PER_DAY ? '' : 's'} at ${POSTS_PER_DAY} posts a day.`;
+  return `${head} The next top-up (${day}) comes too late. Move Suggested rows to Queued in the Content Calendar, or check the TAG queue top-up routine.`;
+}
+// Never throws and never sets the exit code: the engine verdict is the watchdog's own job.
+export async function checkRunway({ now, prevMs, dry = false, token = process.env.NOTION_TOKEN, webhook = process.env.SLACK_WEBHOOK_URL, runUrl = process.env.GITHUB_RUN_URL, fetchImpl = fetch, log = console.log }) {
+  const result = { read: null, notice: null, due: false, sent: false };
+  try {
+    const read = result.read = await readQueued(token, fetchImpl);
+    log(`Queue runway: ${read.error ? `read failed, ${read.error}` : `${read.count} Queued`}`);
+    const notice = result.notice = runwayNotice(read, now);
+    if (!notice) return result;
+    log(`::warning title=Queue runway::${read.error ? `read failed, ${read.error}` : `${read.count} Queued, under ${RUNWAY_MIN}`}`);
+    result.due = firstRunOfDay(now, prevMs);
+    if (!result.due) { log('Queue runway: already reported in this day\'s slot, not posting.'); return result; }
+    const text = `${HEADER}\n${notice}` + (runUrl ? `\n<${runUrl}|Watchdog run>` : '');
+    log('\n' + text);
+    if (dry || !webhook) return result;
+    const r = await fetchImpl(webhook, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text }), signal: AbortSignal.timeout(20e3) });
+    log(`Slack (queue runway): HTTP ${r.status}`);
+    result.sent = r.ok;
+  } catch (e) { log(`Queue runway: could not finish (${e.message}).`); }
+  return result;
+}
+
 // ---- live ----
 async function api(path) {
   const r = await fetch(`${BASE}/api/v1${path}`, { headers: { 'X-N8N-API-KEY': process.env.N8N_API_KEY, accept: 'application/json' } });
@@ -195,6 +294,11 @@ async function main() {
         : `The watchdog could not reach n8n (${e.message}).`);
     }
   }
+  await reportProblems(problems, dry);
+  await checkRunway({ now, prevMs: prev.ms, dry }); // after the engine verdict, which it cannot change
+}
+
+async function reportProblems(problems, dry) {
   if (!problems.length) { console.log('All scheduled runs accounted for.'); return; }
   const text = `${HEADER}\n🐕 *n8n watchdog: ${problems.length} problem${problems.length === 1 ? '' : 's'}*\n${problems.map((p) => '• ' + p).join('\n')}`
     + (process.env.GITHUB_RUN_URL ? `\n<${process.env.GITHUB_RUN_URL}|Watchdog run>` : '');
@@ -207,7 +311,7 @@ async function main() {
 }
 
 // ---- offline selftest ----
-function selftest() {
+async function selftest() {
   const tz = 'America/New_York';
   const checks = [];
   const t = (name, pass, info = '') => checks.push([name, pass, info]);
@@ -255,10 +359,77 @@ function selftest() {
   const gapExecs = [ex('7', '2026-10-01T14:00:00.300Z', 'error')];
   const w4 = windowFor(wNow, Date.parse('2026-10-01T16:38:00Z'));
   t('gap regression: fixed 13h window misses the 10:00 ET failure', judge(daily10, gapExecs, wNow, tz, {}, SPAN_MS).length === 0);
-  t('gap regression: anchored window reports it', judge(daily10, gapExecs, wNow, tz, {}, w4.span).length === 1, judge(daily10, gapExecs, wNow, tz, {}, w4.span).join(' / '));  let fail = 0;
+  t('gap regression: anchored window reports it', judge(daily10, gapExecs, wNow, tz, {}, w4.span).length === 1, judge(daily10, gapExecs, wNow, tz, {}, w4.span).join(' / '));
+
+  // Queue runway. Thu 2026-11-05 is days from any top-up, so the plain threshold applies.
+  const thu = Date.parse('2026-11-05T21:00:00Z');
+  t('runway: 3 Queued on a Thu -> warns with the count', /3 Queued topics left/.test(runwayNotice({ count: 3 }, thu) || ''), runwayNotice({ count: 3 }, thu));
+  t('runway: at 4 Queued -> quiet', runwayNotice({ count: 4 }, thu) === null);
+  t('runway: 0 Queued, a successful read -> says EMPTY', /EMPTY/.test(runwayNotice({ count: 0 }, thu) || ''));
+  // The healthy 10-row cycle: Sat 16:10 ET has 3, Sun 06:25 ET has 3, both before Sunday's top-up.
+  t('runway: 3 on Sat evening, top-up first -> quiet', runwayNotice({ count: 3 }, Date.parse('2026-10-31T20:10:00Z')) === null);
+  t('runway: 3 on Sun morning, top-up first -> quiet', runwayNotice({ count: 3 }, Date.parse('2026-11-01T11:25:00Z')) === null);
+  t('runway: 1 on Sat evening runs out before the top-up -> warns', runwayNotice({ count: 1 }, Date.parse('2026-10-31T20:10:00Z')) !== null);
+  t('runway: 2 just after the top-up time, may still be running -> quiet', runwayNotice({ count: 2 }, Date.parse('2026-11-01T17:00:00Z')) === null);
+  t('runway: 2 well after the top-up time, it was missed -> warns', runwayNotice({ count: 2 }, Date.parse('2026-11-01T20:41:00Z')) !== null);
+  t('runway: 3 on Sun evening after a short top-up -> warns', runwayNotice({ count: 3 }, Date.parse('2026-11-01T23:00:00Z')) !== null);
+
+  // Notion read: stubs only. A failed read must never become a count.
+  const reply = (body, status = 200) => ({ ok: status < 400, status, json: async () => body });
+  const bodies = [];
+  const pages = [reply({ results: [1, 2], has_more: true, next_cursor: 'c2' }), reply({ results: [3], has_more: false })];
+  const paged = await readQueued('tok', async (_u, o) => { bodies.push(JSON.parse(o.body)); return pages.shift(); });
+  t('read: follows pagination and filters on Status = Queued', paged.count === 3 && bodies[1].start_cursor === 'c2' && bodies[0].filter.select.equals === 'Queued', JSON.stringify(paged));
+  const zero = await readQueued('tok', async () => reply({ results: [], has_more: false }));
+  t('read: a real empty result is count 0', zero.count === 0 && !zero.error);
+  const failures = [
+    ['HTTP 401', async () => reply({}, 401)],
+    ['HTTP 503', async () => reply({}, 503)],
+    ['network throw', async () => { throw new Error('fetch failed'); }],
+    ['200 with no results list', async () => reply({ object: 'error' })],
+    ['has_more with no cursor', async () => reply({ results: [1], has_more: true })],
+  ];
+  for (const [name, f] of failures) {
+    const r = await readQueued('tok', f);
+    const text = runwayNotice(r, thu) || '';
+    t(`read: ${name} -> reported as a failed read, not a count`, r.error && r.count === undefined && /unknown/.test(text) && !/Content queue is/.test(text), JSON.stringify(r));
+  }
+  const lost = [reply({ results: [1], has_more: true, next_cursor: 'c2' }), reply({}, 500)];
+  t('read: a failed second page is an error, not a partial count', (await readQueued('tok', async () => lost.shift())).error === 'Notion HTTP 500');
+  t('read: no token -> reported, no request made', (await readQueued('', async () => { throw new Error('must not fetch'); })).error === 'no NOTION_TOKEN');
+
+  // Once a day, on the real run times of 10/27-11/04: exactly the afternoon run of each day posts.
+  const runs = ['10-26T21:07', '10-27T09:57', '10-27T20:49', '10-28T10:43', '10-28T21:13', '10-29T11:01', '10-29T21:17', '10-30T10:58', '10-30T20:57', '10-31T10:30', '10-31T20:10', '11-01T11:25', '11-01T20:41', '11-02T12:45', '11-02T23:38', '11-03T12:11', '11-03T21:53', '11-04T12:23'].map((s) => Date.parse(`2026-${s}:00Z`));
+  const posts = runs.slice(1).filter((r, i) => firstRunOfDay(r, runs[i])).map((r) => new Date(r).toISOString().slice(5, 16));
+  t('limit: real run times post once a day, across the 11/01 DST change', posts.join() === '10-27T20:49,10-28T21:13,10-29T21:17,10-30T20:57,10-31T20:10,11-01T20:41,11-02T23:38,11-03T21:53', posts.join());
+  t('limit: no known previous run -> posts', firstRunOfDay(thu, NaN));
+  t('limit: a skipped afternoon run moves the post to the next run', firstRunOfDay(Date.parse('2026-11-04T12:23:00Z'), Date.parse('2026-11-03T12:11:00Z')));
+
+  // The whole check: what reaches Slack, and that nothing reaches the exit code.
+  const WEBHOOK = 'https://slack.invalid/hook';
+  const run = async (notion, opts = {}, slack = async () => reply({})) => {
+    const posted = [];
+    const fetchImpl = async (u, o) => { if (u === WEBHOOK) { posted.push(JSON.parse(o.body).text); return slack(); } return notion(); };
+    const r = await checkRunway({ now: thu, prevMs: Date.parse('2026-11-05T11:00:00Z'), token: 'tok', webhook: WEBHOOK, runUrl: '', fetchImpl, log: () => {}, ...opts });
+    return { ...r, posted };
+  };
+  const three = async () => reply({ results: [1, 2, 3], has_more: false });
+  const four = async () => reply({ results: [1, 2, 3, 4], has_more: false });
+  const low = await run(three);
+  t('check: low queue, first run of the day -> one Slack post', low.sent && low.posted.length === 1 && low.posted[0].startsWith(HEADER), JSON.stringify(low));
+  t('check: low queue, second run of the day -> no post', (await run(three, { prevMs: Date.parse('2026-11-05T20:00:00Z') })).posted.length === 0);
+  t('check: at 4 -> no post', (await run(four)).posted.length === 0);
+  t('check: --dry -> no post', (await run(three, { dry: true })).posted.length === 0);
+  const down = await run(async () => { throw new Error('fetch failed'); });
+  t('check: Notion down -> posts the failed read, not a low queue', down.posted.length === 1 && /check failed/.test(down.posted[0]) && !/Content queue is/.test(down.posted[0]), JSON.stringify(down));
+  t('check: Notion down, second run of the day -> no post', (await run(async () => reply({}, 500), { prevMs: Date.parse('2026-11-05T20:00:00Z') })).posted.length === 0);
+  const slackDown = await run(three, {}, async () => { throw new Error('slack down'); });
+  t('check: Slack throwing does not throw', slackDown.sent === false && slackDown.posted.length === 1);
+  t('check: none of the above touched the exit code', !process.exitCode, String(process.exitCode));
+  let fail = 0;
   for (const [name, pass, info] of checks) { if (!pass) fail++; console.log(`${pass ? 'PASS' : 'FAIL'} ${name}${pass || !info ? '' : '  -> ' + info}`); }
   if (fail) process.exit(1);
 }
 
-if (process.argv.includes('--selftest')) selftest();
+if (process.argv.includes('--selftest')) await selftest();
 else await main();
