@@ -2980,6 +2980,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'creatio',
+    logo: '/brand/tools/creatio.svg',
     name: 'Creatio',
     category: 'CRM',
     badge: 'Paid',
