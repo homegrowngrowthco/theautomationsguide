@@ -13,7 +13,10 @@ name: Merge green content PRs
 #    fails the merge rather than shipping an unchecked head.
 # 2. DAILY BACKSTOP (14:00 UTC, or Run workflow): sweeps every open content PR,
 #    merges any green one the instant path missed, and Slack-alerts the red or
-#    stalled ones (PR #88 sat failing for 20 days with no ping).
+#    stalled ones (PR #88 sat failing for 20 days with no ping). It also re-runs
+#    a stuck qa once: a bot-pushed head with no verdict, or a red qa that did not
+#    come from a content gate (cap in run_attempt; recoveryPlan in merge-green.mjs).
+#    Either path re-runs a run whose jobs were cancelled with no runner.
 #
 # Never merges red; never bypasses (github-actions[bot] is not a bypass actor).
 # Non-content PRs merge via GitHub native auto-merge (`gh pr merge --auto`).

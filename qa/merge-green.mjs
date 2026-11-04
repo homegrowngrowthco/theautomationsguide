@@ -7,7 +7,8 @@
 //     gates on a bot-pushed head are dispatched at the end of the qa job, so they
 //     finish a few minutes after qa does).
 //   - mode 'sweep' (daily backstop + manual dispatch): evaluate every open content
-//     PR once, merge the green ones, Slack-report the red or stalled ones.
+//     PR once, merge the green ones, re-run a stuck qa once (recoveryPlan below),
+//     Slack-report the red or stalled ones.
 //
 // Never merges red. Never bypasses: the merge goes through the API as
 // github-actions[bot], which is not a ruleset bypass actor, and pins `sha` so a
@@ -16,10 +17,32 @@
 //
 //   node qa/merge-green.mjs --selftest   # frozen offline fixtures (CI)
 
+import { readFileSync } from 'node:fs';
+
 export const REQUIRED_CHECKS = ['qa', 'pr-gates'];
 export const NETLIFY_CONTEXT = 'netlify/theautomationsguide/deploy-preview';
 export const HOLD_LABEL = 'no-auto-merge';
 const RED = new Set(['failure', 'cancelled', 'timed_out', 'action_required', 'startup_failure', 'stale']);
+
+const BOT_LOGIN = 'github-actions[bot]';
+const BOT_HEAD = /^\[(auto-register|qa-fix-\d+)\]/;
+const QA_WORKFLOW_PATH = '.github/workflows/qa-content-pr.yml';
+
+// The retry cap lives in GitHub, not in memory: run_attempt survives between sweeps
+// and any re-run counts, so a sweep re-runs a given qa run at most once.
+export const MAX_QA_ATTEMPTS = 2;
+
+// qa steps whose red repeats on the same tree. Everything else (runner image, npm,
+// browser install, preview server, the Vision API, a job timeout) can pass on a retry.
+export const CONTENT_GATE_STEPS = [
+  'Lint content (deterministic gate)',
+  'Logo-asset gate (deterministic)',
+  'Build site (catch MDX compile errors fast)',
+  'Render-acceptance gate (deterministic, post-build)',
+  'Mobile-overflow gate (deterministic, post-build)',
+  'Verify the fix builds and renders',
+  'Block the merge (needs a human)',
+];
 
 export function isContentPr(pr) {
   return pr.title.startsWith('content:') && pr.head.ref.startsWith('content/');
@@ -73,6 +96,92 @@ export function evaluate({ pr, reviews = [], checkRuns = [], statuses = [], requ
   if (blocked.length) return { state: 'blocked', reasons: blocked };
   if (wait.length) return { state: 'wait', reasons: wait };
   return { state: 'merge', reasons: [] };
+}
+
+// The newest qa run that really executed. A GITHUB_TOKEN push also creates a run on
+// the new head, with zero jobs, actor github-actions[bot] and (despite the old name
+// "action_required stub") conclusion `failure` in the API, so a stub is told apart by
+// its actor. The one to re-run is the run that pushed the bot commit: it checks out
+// the branch by name, so a new attempt gates the tip, and on a pass its publish step
+// puts the verdict there and dispatches the PR gates (the #354 path; #353's qa
+// attempt 2 did exactly this on 10/05).
+export function pickQaRun(runs) {
+  return runs
+    .filter((r) => r.event === 'pull_request' && r.actor?.login !== BOT_LOGIN)
+    .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))[0] || null;
+}
+
+// Pure decision for a PR with no qa pass on its head (a bot-pushed head with no qa
+// check, or a red qa): { action: 'none' | 'rerun' | 'report', reason? }.
+// `gh pr update-branch` from the sweep is NOT an option: it would push as
+// GITHUB_TOKEN and make new stubs (gotcha 5). A re-run keeps its original GITHUB_SHA,
+// so it reuses the workflow file of its original merge commit: after a workflow fix
+// only a push by a person starts a run on the new file (#424 after #430).
+export function recoveryPlan({ pr, reviews = [], checkRuns = [], headMessage = '', headDate = null,
+  run = null, failedStep = null, workflowChanged = false }) {
+  const none = { action: 'none' };
+  if (pr.draft || (pr.labels || []).some((l) => l.name === HOLD_LABEL)) return none;
+  if (reviews.some((r) => r.state === 'CHANGES_REQUESTED') || pr.mergeable_state === 'dirty') return none;
+  const qa = latestByName(checkRuns).get('qa');
+  if (qa ? qa.status !== 'completed' || !RED.has(qa.conclusion) : !BOT_HEAD.test(headMessage)) return none;
+  if (!run) return { action: 'report', reason: 'no qa run found to re-run' };
+  if (run.status !== 'completed') return none;
+  const person = `run gh pr update-branch ${pr.number} from a person's login`;
+  // A gate red repeats only if the gate saw this tree. A bot commit pushed after the
+  // run ended (the PR-comment tool reply) changed it, so that one is worth a re-run.
+  const gateSawHead = !headDate || Date.parse(headDate) <= Date.parse(run.updated_at);
+  if (CONTENT_GATE_STEPS.includes(failedStep) && gateSawHead) {
+    return { action: 'report', reason: `qa failed at "${failedStep}" on this tree, so a re-run would repeat it: content, fix the post or close the PR` };
+  }
+  if (run.run_attempt >= MAX_QA_ATTEMPTS) {
+    return { action: 'report', reason: `qa run ${run.id} was already re-run (attempt ${run.run_attempt}, cap ${MAX_QA_ATTEMPTS}) and the head still has no pass: ${failedStep ? `last failed at "${failedStep}"` : 'no failed step'}; ${person}` };
+  }
+  if (workflowChanged) {
+    return { action: 'report', reason: `the qa workflow changed after run ${run.id} and a re-run would reuse its old file: ${person} so a new run starts on the current one` };
+  }
+  return { action: 'rerun', reason: `qa run ${run.id} ${failedStep ? `failed at "${failedStep}"` : `ended ${run.conclusion}`}, head has no pass` };
+}
+
+// A job cancelled before any runner took it (Actions incident, #353 on 10/05). The
+// run's own conclusion can be `failure`, because the pr-gates rollup job did run and
+// went red on its cancelled needs, so this reads the jobs. A job that hit its timeout
+// has a runner name (#417's hung install) and is left to recoveryPlan.
+export function runnerlessCancel(run, jobs) {
+  return run.run_attempt === 1 && run.conclusion !== 'success'
+    && jobs.some((j) => j.conclusion === 'cancelled' && !j.runner_name);
+}
+
+async function rerunIfRunnerless(github, owner, repo, core, run) {
+  const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, { owner, repo, run_id: run.id, per_page: 100 });
+  if (!runnerlessCancel(run, jobs)) return false;
+  try {
+    await github.rest.actions.reRunWorkflow({ owner, repo, run_id: run.id });
+    core.notice(`Run ${run.id} (${run.name}) had jobs cancelled with no runner; re-ran it once.`);
+    return true;
+  } catch (err) {
+    core.warning(`Re-run of ${run.id} failed: ${err.message}`);
+    return false;
+  }
+}
+
+async function planRecovery(github, owner, repo, g) {
+  const { data: head } = await github.rest.repos.getCommit({ owner, repo, ref: g.pr.head.sha });
+  const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
+    owner, repo, workflow_id: QA_WORKFLOW_PATH.split('/').pop(), branch: g.pr.head.ref, per_page: 100,
+  });
+  const run = pickQaRun(runs);
+  let failedStep = null;
+  let workflowChanged = false;
+  if (run) {
+    const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, { owner, repo, run_id: run.id, per_page: 100 });
+    failedStep = jobs.flatMap((j) => j.steps || []).find((s) => s.conclusion === 'failure')?.name || null;
+    const { data: commits } = await github.rest.repos.listCommits({
+      owner, repo, sha: 'master', path: QA_WORKFLOW_PATH, since: run.created_at, per_page: 1,
+    });
+    workflowChanged = commits.length > 0;
+  }
+  const plan = recoveryPlan({ ...g, headMessage: head.commit.message, headDate: head.commit.committer.date, run, failedStep, workflowChanged });
+  return { plan, run };
 }
 
 async function gather(github, owner, repo, number) {
@@ -133,6 +242,8 @@ export async function runForBranch({ github, context, core, branch, pollMs = 200
       return;
     }
   }
+  if (wr && wr.conclusion !== 'success' && wr.head_sha === pr0.head.sha
+    && await rerunIfRunnerless(github, owner, repo, core, wr)) return;
 
   const started = Date.now();
   for (;;) {
@@ -165,11 +276,38 @@ export async function sweep({ github, context, core }) {
   const prs = await github.paginate(github.rest.pulls.list, { owner, repo, state: 'open', base: 'master', per_page: 100 });
   const merged = [];
   const stuck = [];
+  const rerun = [];
   for (const p of prs.filter(isContentPr)) {
     const g = await gather(github, owner, repo, p.number);
     const v = evaluate(g);
     const ageH = Math.round((Date.now() - Date.parse(p.created_at)) / 3600000);
     core.info(`#${p.number} (${ageH}h): ${v.state} ${v.reasons.join('; ')}`);
+    if (v.state !== 'merge') {
+      // A run cancelled with no runner first: the instant path may have died in the
+      // same incident. A re-run is not news, so it stays out of Slack; if it does not
+      // recover, the next sweep reports the PR with the reason.
+      const headRuns = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, { owner, repo, head_sha: g.pr.head.sha, per_page: 100 });
+      let reran = false;
+      for (const r of headRuns) {
+        if (r.status === 'completed' && r.conclusion !== 'success' && r.run_attempt === 1
+          && await rerunIfRunnerless(github, owner, repo, core, r)) reran = true;
+      }
+      if (reran) { rerun.push(p); continue; }
+      const { plan, run } = await planRecovery(github, owner, repo, g);
+      core.info(`#${p.number} recovery: ${plan.action} ${plan.reason || ''}`);
+      if (plan.action === 'rerun') {
+        try {
+          await github.rest.actions.reRunWorkflow({ owner, repo, run_id: run.id });
+          core.notice(`#${p.number}: ${plan.reason}; re-ran qa once.`);
+          rerun.push(p);
+          continue;
+        } catch (err) {
+          v.reasons.push(`re-run of qa run ${run.id} failed: ${err.message}`);
+        }
+      } else if (plan.action === 'report') {
+        v.reasons.push(plan.reason);
+      }
+    }
     if (v.state === 'merge') {
       try {
         await merge(github, owner, repo, g.pr);
@@ -191,7 +329,7 @@ export async function sweep({ github, context, core }) {
       stuck.map((s) => `• <${s.p.html_url}|#${s.p.number}> (${s.ageH}h old) ${s.p.title}\n    ↳ ${s.reasons.join('; ')}`).join('\n'));
   }
   if (parts.length) await slack(parts.join('\n\n'));
-  core.info(`Merged: ${merged.length}, stuck: ${stuck.length}`);
+  core.info(`Merged: ${merged.length}, re-ran: ${rerun.length}, stuck: ${stuck.length}`);
 }
 
 // ---------------------------------------------------------------- selftest
@@ -237,7 +375,77 @@ function selftest() {
     [{ title: 'content: a', head: { ref: 'ci/a' } }, false],
   ];
   for (const [p, want] of content) if (isContentPr(p) !== want) { fail++; console.log(`FAIL isContentPr ${p.title} ${p.head.ref}`); }
-  const total = cases.length + content.length;
+
+  // Stuck-head recovery, shaped from the real runs of #417, #421, #424, #425.
+  const lint = 'Lint content (deterministic gate)';
+  const pw = 'Install Playwright Chromium';
+  const AUTOREG = '[auto-register] Register tools referenced in src/content/blog/x.mdx';
+  const netlifyOnly = [run('Pages changed - theautomationsguide', 'neutral')];
+  const qaRun = (o = {}) => ({ id: 1, status: 'completed', conclusion: 'failure', run_attempt: 1,
+    created_at: '2026-10-30T12:02:51Z', updated_at: '2026-10-30T12:04:00Z', ...o });
+  const stuckHead = { pr: pr({ number: 424 }), checkRuns: netlifyOnly, headMessage: AUTOREG, headDate: '2026-10-30T12:03:14Z' };
+  const plans = [
+    ['#417 job timeout on the install, bot head: re-run', { ...stuckHead, run: qaRun({ conclusion: 'cancelled' }) }, 'rerun'],
+    ['#421 lint red on the pushed tree: report, a re-run repeats it', { ...stuckHead, run: qaRun(), failedStep: lint }, 'report'],
+    ['#424 install red, first sweep: re-run', { ...stuckHead, run: qaRun(), failedStep: pw }, 'rerun'],
+    ['#424 next sweep, attempt 2: cap, report', { ...stuckHead, run: qaRun({ run_attempt: 2 }), failedStep: pw }, 'report'],
+    ['#424 after the workflow fix: re-run reuses the old file, report', { ...stuckHead, run: qaRun(), failedStep: pw, workflowChanged: true }, 'report'],
+    ['lint red, then a tool reply pushed a bot commit: the tree changed, re-run',
+      { ...stuckHead, headDate: '2026-10-30T15:00:00Z', run: qaRun(), failedStep: lint }, 'rerun'],
+    ['that re-run also red: cap holds', { ...stuckHead, headDate: '2026-10-30T15:00:00Z', run: qaRun({ run_attempt: 2 }), failedStep: lint }, 'report'],
+    ['#425 install red on a head with one commit: re-run', { pr: pr({ number: 425 }), checkRuns: [run('qa', 'failure')], headMessage: 'content: add X', run: qaRun(), failedStep: pw }, 'rerun'],
+    ['vision needs a human on the head: report', { pr: pr(), checkRuns: [run('qa', 'failure')], run: qaRun(), failedStep: 'Block the merge (needs a human)' }, 'report'],
+    ['bot head, qa run still going: none', { ...stuckHead, run: qaRun({ status: 'in_progress', conclusion: null }) }, 'none'],
+    ['bot head, no real run found: report', { ...stuckHead }, 'report'],
+    ['person pushed, qa not reported yet: none', { ...stuckHead, headMessage: 'fix: edit the post', run: qaRun() }, 'none'],
+    ['published qa pass on the head: none', { ...stuckHead, checkRuns: [run('qa', 'success')], run: qaRun() }, 'none'],
+    ['qa in progress on the head: none', { ...stuckHead, checkRuns: [run('qa', null, { status: 'in_progress' })], run: qaRun() }, 'none'],
+    ['hold label wins: none', { ...stuckHead, pr: pr({ labels: [{ name: HOLD_LABEL }] }), run: qaRun() }, 'none'],
+    ['conflict: a re-run could not merge, none', { ...stuckHead, pr: pr({ mergeable: false, mergeable_state: 'dirty' }), run: qaRun() }, 'none'],
+  ];
+  for (const [name, input, want] of plans) {
+    const got = recoveryPlan(input).action;
+    if (got !== want) { fail++; console.log(`FAIL plan ${name}: want ${want}, got ${got}`); }
+  }
+  if (!recoveryPlan({ ...stuckHead, run: qaRun(), failedStep: pw, workflowChanged: true }).reason.includes('gh pr update-branch 424')) {
+    fail++; console.log('FAIL the workflow-changed report must carry the update-branch command');
+  }
+
+  // #417's three runs: the stub on the head is ignored, the real run is newest of the rest.
+  const stub = { id: 3, event: 'pull_request', conclusion: 'failure', actor: { login: BOT_LOGIN }, created_at: '2026-10-26T20:03:06Z' };
+  const real = { id: 2, event: 'pull_request', conclusion: 'cancelled', actor: { login: 'homegrowngrowthco' }, created_at: '2026-10-26T20:02:36Z' };
+  const old = { id: 1, event: 'pull_request', conclusion: 'failure', actor: { login: 'homegrowngrowthco' }, created_at: '2026-10-26T19:00:00Z' };
+  const picks = [
+    ['stub skipped', [stub, real, old], 2],
+    ['only a stub', [stub], null],
+  ];
+  for (const [name, runs, want] of picks) {
+    const got = pickQaRun(runs)?.id ?? null;
+    if (got !== want) { fail++; console.log(`FAIL pickQaRun ${name}: want ${want}, got ${got}`); }
+  }
+
+  // #353's first attempts on 10/05, and the two look-alikes that must not re-run.
+  const noRunner = { conclusion: 'cancelled', runner_name: '' };
+  const ran = { conclusion: 'success', runner_name: 'GitHub Actions 1' };
+  const cancels = [
+    ['#353 qa, cancelled with no runner', { run_attempt: 1, conclusion: 'failure' }, [noRunner], true],
+    ['#353 PR gates, rollup red over cancelled needs', { run_attempt: 1, conclusion: 'failure' },
+      [ran, noRunner, { conclusion: 'failure', runner_name: 'GitHub Actions 2' }], true],
+    ['already re-run once', { run_attempt: 2, conclusion: 'failure' }, [noRunner], false],
+    ['#417 job timeout has a runner', { run_attempt: 1, conclusion: 'cancelled' }, [{ conclusion: 'cancelled', runner_name: 'GitHub Actions 3' }], false],
+    ['stub run has no jobs', { run_attempt: 1, conclusion: 'failure' }, [], false],
+  ];
+  for (const [name, r, jobs, want] of cancels) {
+    if (runnerlessCancel(r, jobs) !== want) { fail++; console.log(`FAIL runnerlessCancel ${name}`); }
+  }
+
+  // The names above must match the workflow, or the classes silently stop matching.
+  const wf = readFileSync(new URL(`../${QA_WORKFLOW_PATH}`, import.meta.url), 'utf8');
+  const contract = [...CONTENT_GATE_STEPS, pw].map((s) => `- name: ${s}`);
+  contract.push('id: playwright-install', 'SIG="playwright-install"');
+  for (const s of contract) if (!wf.includes(s)) { fail++; console.log(`FAIL qa-content-pr.yml has no "${s}"`); }
+
+  const total = cases.length + content.length + plans.length + 1 + picks.length + cancels.length + contract.length;
   console.log(`[merge-green] selftest: ${total - fail}/${total} passed`);
   process.exit(fail ? 1 : 0);
 }
