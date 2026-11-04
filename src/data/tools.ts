@@ -2901,6 +2901,57 @@ export const tools: Tool[] = [
       'Signal House is an SMS and MMS messaging provider with APIs built for CRM and marketing systems, for teams adding two-way texting to their outreach.',
   },
   {
+    slug: 'hunter',
+    name: 'Hunter.io',
+    category: 'Lead Data & Enrichment',
+    badge: 'Paid',
+    ctaLabel: 'Try Hunter.io',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/hunter.png',
+    aliases: ['Hunter.io'],
+    blurb:
+      'Hunter.io is featured in a comparison on The Automations Guide.',
+  },
+  {
+    slug: 'snov-io',
+    name: 'Snov.io',
+    category: 'Lead Data & Enrichment',
+    badge: 'Paid',
+    ctaLabel: 'Try Snov.io',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/snov-io.png',
+    aliases: ['Snov.io'],
+    blurb:
+      'Snov.io is an outreach automation platform for sales teams, marketers, and anyone who runs cold outreach. Find prospects, automate email campaigns, and manage your sales process from first contact to closed deal.',
+  },
+  {
+    slug: 'notion',
+    name: 'Notion',
+    category: 'Scheduling & Productivity',
+    badge: 'Paid',
+    ctaLabel: 'Try Notion',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/notion.png',
+    aliases: ['Notion'],
+    blurb:
+      'Build Custom Agents, search across all your apps, and automate busywork. The AI workspace where teams get more done, faster.',
+  },
+  {
+    slug: 'guru',
+    name: 'Guru',
+    category: 'Scheduling & Productivity',
+    badge: 'Paid',
+    ctaLabel: 'Try Guru',
+    ctaPrimary: false,
+    listed: false,
+    aliases: ['Guru'],
+    blurb:
+      'Guru is featured in a comparison on The Automations Guide.',
+  },
+  {
     slug: 'twilio',
     name: 'Twilio',
     category: 'Calling & Conversation Intelligence',
@@ -2912,6 +2963,18 @@ export const tools: Tool[] = [
     aliases: ['Twilio'],
     blurb:
       'Build amazing customer experiences on the Twilio platform with APIs for SMS, RCS, voice, and email, plus conversational AI for smarter engagement, and identity verification for trust.',
+  },
+  {
+    slug: 'seismic',
+    name: 'Lessonly (Seismic Learning)',
+    category: 'Scheduling & Productivity',
+    badge: 'Paid',
+    ctaLabel: 'Try Lessonly (Seismic Learning)',
+    ctaPrimary: false,
+    listed: false,
+    aliases: ['Lessonly (Seismic Learning)'],
+    blurb:
+      'Learn how Seismic’s AI-powered enablement, training, and coaching solution enables sales and marketing teams to engage buyers and grow revenue.',
   },
 ];
 
