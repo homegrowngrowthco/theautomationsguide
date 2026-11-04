@@ -2965,16 +2965,15 @@ export const tools: Tool[] = [
   },
   {
     slug: 'creatio',
-    name: 'Creatio Native Business Process',
-    category: 'Workflow Automation',
+    name: 'Creatio',
+    category: 'CRM',
     badge: 'Paid',
-    ctaLabel: 'Try Creatio Native Business Process',
+    ctaLabel: 'Try Creatio',
     ctaPrimary: false,
     listed: false,
-    logo: '/brand/tools/creatio.png',
-    aliases: ['Creatio Native Business Process'],
+    aliases: ['Creatio', 'Creatio Native Business Process'],
     blurb:
-      'Creatio Oy — Oulu-pohjainen ohjelmistostudio. Suunnittelemme ja kehitämme korkealaatuisia ohjelmistoja ja verkkopalveluita.',
+      'Creatio brings people and AI agents together on one AI CRM and workflow platform, with no limits on users, agents, workflows, or scale.',
   },
 ];
 

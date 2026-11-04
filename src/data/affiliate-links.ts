@@ -1189,9 +1189,9 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
   creatio: {
-    name: 'Creatio Native Business Process',
+    name: 'Creatio',
     url: '',
-    homepageFallback: 'https://www.creatio.io/',
+    homepageFallback: 'https://www.creatio.com/',
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
