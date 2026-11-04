@@ -218,8 +218,13 @@ jobs:
           POST: ${{ steps.slug.outputs.post }}
         run: node qa/render-acceptance.mjs --post "$POST"
 
+      # Normally about 25 s. The step timeout matters: #417's install hung until the
+      # 15-minute JOB timeout, which ends as `cancelled`, so failure() was false and
+      # no comment, Slack line or ledger entry went out. A step timeout is a failure.
       - name: Install Playwright Chromium
+        id: playwright-install
         if: steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
+        timeout-minutes: 6
         run: npx playwright install --with-deps chromium
 
       # Deterministic MOBILE-OVERFLOW gate. render-acceptance uses linkedom (no
@@ -571,6 +576,7 @@ jobs:
           elif [ "${{ steps.lint-logos.outcome }}" = "failure" ]; then SIG="lint-logos"
           elif [ "${{ steps.build.outcome }}" = "failure" ]; then SIG="build"
           elif [ "${{ steps.render-acceptance.outcome }}" = "failure" ]; then SIG="render-acceptance"
+          elif [ "${{ steps.playwright-install.outcome }}" = "failure" ]; then SIG="playwright-install"
           elif [ "${{ steps.mobile-overflow.outcome }}" = "failure" ]; then SIG="mobile-overflow"
           elif [ "${{ steps.review.outcome }}" = "failure" ]; then SIG="vision-review"
           elif [ "${{ steps.apply-fix.outcome }}" = "failure" ]; then SIG="vision-fix"
@@ -617,8 +623,19 @@ jobs:
                 .map((l) => { const [slug, name] = l.split('\t'); return { slug, name: name || slug }; });
             } catch { /* no breadcrumb -> generic message below */ }
 
+            const failSig = process.env.FAIL_SIGNATURE || 'other';
             let body;
-            if (unresolved.length) {
+            if (failSig === 'playwright-install') {
+              body = [
+                `🚨 **QA could not run: CI infrastructure, not this post.**`,
+                ``,
+                `The Playwright browser install failed, so the overflow and Vision gates never saw the post. Do not edit the post for this.`,
+                ``,
+                `The usual cause is a runner image or Playwright change, which reds every content PR at once (11/04, op #1496). The daily sweep re-runs a stuck qa once. If the fix is a workflow change, a re-run still uses the old workflow file, so run \`gh pr update-branch ${context.payload.pull_request.number}\` from a person's login after it lands.`,
+                ``,
+                `Failed run: ${runUrl}`,
+              ].join('\n');
+            } else if (unresolved.length) {
               const list = unresolved.map((u) => `- **${u.name}** (\`affiliateSlug: "${u.slug}"\`)`).join('\n');
               body = [
                 `🚨 **QA needs one thing from you — no code review required.**`,
@@ -639,7 +656,9 @@ jobs:
                 ``,
                 `See the failed run for the specific step + error: ${runUrl}`,
                 ``,
-                `Fix the post on the branch, or close the PR.`,
+                failSig === 'other'
+                  ? `The failed step is not a content gate, so read the run before editing the post.`
+                  : `Fix the post on the branch, or close the PR.`,
               ].join('\n');
             }
             // RECURRENCE ESCALATION (failure ledger). If this is the 2nd+ failure
@@ -649,7 +668,7 @@ jobs:
             // which parses to NaN and safely skips escalation.
             const rec = parseInt(process.env.RECURRENCE_COUNT || '0', 10);
             if (rec >= 2) {
-              const sig = process.env.FAIL_SIGNATURE || 'other';
+              const sig = failSig;
               const ord = rec === 2 ? '2nd' : rec === 3 ? '3rd' : `${rec}th`;
               const ledgerUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/blob/qa-ledger/qa-failure-ledger.json`;
               body = `:repeat: **RECURRING FAILURE: ${ord} '${sig}' failure in 14 days.** This class needs a structural fix, not another patch. Ledger: ${ledgerUrl}\n\n` + body;
@@ -671,7 +690,9 @@ jobs:
           FAIL_SIGNATURE: ${{ steps.fail-signature.outputs.signature }}
           LEDGER_URL: ${{ github.server_url }}/${{ github.repository }}/blob/qa-ledger/qa-failure-ledger.json
         run: |
-          if [ -s qa-unresolved-tools.txt ]; then
+          if [ "$FAIL_SIGNATURE" = "playwright-install" ]; then
+            MSG="🚨 *CI infrastructure failure on a content PR, not the post*\nThe Playwright install failed, so qa never reached the overflow and Vision gates. Do not edit the post.\nPR: $PR_URL\nFailed run: $RUN_URL"
+          elif [ -s qa-unresolved-tools.txt ]; then
             TOOLS=$(cut -f2 qa-unresolved-tools.txt | paste -sd, - | sed 's/,/, /g')
             MSG="🚨 *Content PR needs one thing from you (no code review)*\nCouldn't confirm the website for: *${TOOLS}*. Reply on the PR with the homepage URL(s) and I'll register + re-run.\nPR: $PR_URL\nRun: $RUN_URL"
           else
