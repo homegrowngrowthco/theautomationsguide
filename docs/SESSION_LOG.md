@@ -8,7 +8,18 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-10-22 (Session 115).
+Last updated 2026-10-29 (Session 116).
+
+## Session 116 (2026-10-29): weekly unattended cloud routine run, read-only checks (Sonnet 5.5, no op number)
+
+- **"TAG unattended check (weekly, Thu 13:00Z)"** ran from a fresh clone with the connectors only. No op number; the next attended session logs it. Read only: nothing written to Notion, n8n, Beehiiv or PostHog. Opened ops issue #57; the queue-dry ask is already on #48.
+- **Engine PRs (#408 to #421):** 12 merged by github-actions 1.5 to 14 min after opening (#410 took 14 min, #413 8 min). #419 carried an `[auto-register]` commit and merged unaided. **#417 (Bland AI phone setup) is OPEN since 10/26 20:02Z, about 63 h:** 1st commit failed the build job's HARD lint step, the bot head has only `action_required` stubs and no qa/pr-gates verdict, and the daily sweep ran 3 times without recovering it. #421 (10/29 12:03Z) is open and normal.
+- **Builder runs:** 10/25 (run 27, success) 60 clusters, 14 near-win, 5 hub fixes, 5 programs; kept 4 (GTM workflow vs Zapier 66, Pipedrive for Marketing 49, Bland AI numbers 39, Trainual 23); staged 4/4. 10/28 (run 28, success) 60 clusters, 12 near-win, 5 hub fixes, 3 programs; kept 5 (ActiveCampaign to Close 46, PandaDoc + Creatio 41, Signal House 23, Diginius 23, Flocksy 8); staged 5/5. Both audits: 0 collisions, 0 advisories, so no stage-then-skip.
+- **New posts (11 since #407, 0 hard each):** warnings are 62 to 80 char titles, unlinked live mentions (Make, Lemlist, Apollo x2, ConvertKit) and missing logos (flocksy, guru, seismic). The "first-person usage claim" warning on the Pipedrive Implementation post is a false positive (FAQ question "How do I set up pipeline stages"); no real testing claim, no observation-with-figure warning.
+- **Queue:** 3 Queued (Signal House, Diginius, Flocksy), 34 Suggested, 217 Published, 234 Skipped, 2 In Review. At 2 a day from 10/29 20:00Z it is dry from 10/31 12:00Z; the Sun 11/01 16:00Z top-up lands after, and the pool of scored rows is empty (top-up comment on ops #48).
+- **source_path metric (PostHog 408442 confirmed):** 10 new `affiliate_click` since 10/22 13:00Z. Dropped: 8 `source_via=none` (5 flagged bot, incl. the 10/27 22:33Z and 10/28 20:31Z bursts of 3 and 2 fresh ids), 2 `last_page` on `/` (10/25 Aloware, 10/26 Bland AI; pageview 6 to 7 s before, home links no tool). Strict 0, joined 0 new, so human clicks stay 2 of 5 (share not meaningful). Rule choice stays Ian's (ops #8).
+- **Revert:** docs only; close this PR.
+- **Gotchas:** a bot-pushed head after a red first commit gets no verdict and the sweep does not re-run it.
 
 ## Session 115 (2026-10-22): weekly unattended cloud routine run, read-only checks (Sonnet 5.5, no op number)
 
