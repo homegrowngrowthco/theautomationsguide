@@ -1,0 +1,29 @@
+name: TEST ONLY corpus overflow on 26.04
+
+# Lives only on the throwaway branch of op #1498. Never merged. Proves the whole
+# corpus, not just the one post the qa job sees, keeps its overflow result on the
+# new runner. No secrets.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  corpus-overflow:
+    if: startsWith(github.event.pull_request.head.ref, 'content/zz-test-')
+    runs-on: ubuntu-26.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+        timeout-minutes: 6
+      - run: npm run qa:overflow
