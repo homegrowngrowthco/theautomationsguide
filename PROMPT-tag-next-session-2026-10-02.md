@@ -14,7 +14,7 @@ Do not run this before Mon 11/09, so the 11/08 builder run and top-up have lande
 
 ## 1. State read (Sonnet, read only)
 
-Report: open PRs; engine PRs since 11/04 21:00Z with qa image line, conclusions and time to merge (TODO "first real engine posts"; **any red goes to the top of your report**); engine executions (workflow `sjZADhZGIuz9tZHK`, GET only; about 3 s means no topic); the top-up runs of 11/04 and 11/08 (`RemoteTrigger` list_runs, get_run_log on `trig_01KVAmk2g9KEerLehzufnag6`): what it promoted and held; Queued and Suggested counts via `node --env-file=../todo-sync/.env <shim> --status`, and pass `--status` explicitly because with no flag the script runs a full builder dry run and spends a Claude call; open `project:tag` issues on `homegrowngrowthco/claude-projects-ops`, with answers; the watchdog's runway line.
+Report: open PRs; engine PRs since 11/05 with qa conclusions and time to merge (#444 on 11/04 proved `ubuntu-26.04` on one real post; **any red goes to the top of your report**); whether any of them registered a new tool, since the #437 resolver has not yet met one on a real post; engine executions (workflow `sjZADhZGIuz9tZHK`, GET only; about 3 s means no topic); the top-up run of 11/08 (`RemoteTrigger` list_runs, get_run_log on `trig_01KVAmk2g9KEerLehzufnag6`): what it promoted and held (the 11/04 run is in Session 118); Queued and Suggested counts via `node --env-file=../todo-sync/.env <shim> --status`, and pass `--status` explicitly because with no flag the script runs a full builder dry run and spends a Claude call; open `project:tag` issues on `homegrowngrowthco/claude-projects-ops`, with answers; the watchdog's runway line.
 
 ## 2. Read the builder on the 11/08 run (Sonnet)
 
