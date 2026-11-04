@@ -1181,6 +1181,13 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
+  twilio: {
+    name: 'Twilio',
+    url: '',
+    homepageFallback: 'https://www.twilio.com/',
+    status: 'pending',
+    notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
+  },
   seismic: {
     name: 'Lessonly (Seismic Learning)',
     url: '',

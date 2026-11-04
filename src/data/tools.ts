@@ -2952,6 +2952,19 @@ export const tools: Tool[] = [
       'Guru is featured in a comparison on The Automations Guide.',
   },
   {
+    slug: 'twilio',
+    name: 'Twilio',
+    category: 'Calling & Conversation Intelligence',
+    badge: 'Paid',
+    ctaLabel: 'Try Twilio',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/twilio.png',
+    aliases: ['Twilio'],
+    blurb:
+      'Build amazing customer experiences on the Twilio platform with APIs for SMS, RCS, voice, and email, plus conversational AI for smarter engagement, and identity verification for trust.',
+  },
+  {
     slug: 'seismic',
     name: 'Lessonly (Seismic Learning)',
     category: 'Scheduling & Productivity',
