@@ -1685,7 +1685,7 @@ export const tools: Tool[] = [
     ctaLabel: 'Try Bouncer',
     ctaPrimary: false,
     listed: false,
-    logo: '/brand/tools/bouncer.svg',
+    logo: '/brand/tools/bouncer.png',
     aliases: ['Bouncer'],
     blurb:
       'Bouncer is featured in a comparison on The Automations Guide.',
@@ -1854,6 +1854,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'warmforge',
+    logo: '/brand/tools/warmforge.png',
     name: 'Warmforge',
     category: 'Cold Email & Deliverability',
     badge: 'Paid',
@@ -1979,7 +1980,7 @@ export const tools: Tool[] = [
     listed: false,
     aliases: ['Profound'],
     blurb:
-      'profound.app is your first and best source for information about profound. Here you will also find topics relating to issues of general interest. We hope you find what you are looking for!',
+      'Profound is an AI search visibility and marketing platform: it shows what customers ask AI assistants, deploys agents to act on it, and measures the results.',
   },
   {
     slug: 'fathom',
@@ -1992,7 +1993,7 @@ export const tools: Tool[] = [
     logo: '/brand/tools/fathom.png',
     aliases: ['Fathom'],
     blurb:
-      'Fathom.io',
+      'Fathom is an AI meeting notetaker that transcribes and summarizes calls and syncs the notes to tools like Slack, Salesforce and HubSpot.',
   },
   {
     slug: 'avoma',
@@ -2044,7 +2045,7 @@ export const tools: Tool[] = [
     logo: '/brand/tools/prospeo.png',
     aliases: ['Prospeo'],
     blurb:
-      'Optimisez vos tournées commerciales et boostez vos ventes avec Prospeo. L',
+      'Prospeo is a B2B email finder that helps sales teams find verified business emails and mobile numbers, export leads and reach decision-makers.',
   },
   {
     slug: 'moltsets',
@@ -2941,6 +2942,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'guru',
+    logo: '/brand/tools/guru.png',
     name: 'Guru',
     category: 'Scheduling & Productivity',
     badge: 'Paid',
