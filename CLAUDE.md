@@ -70,6 +70,7 @@ Narrative goes to the session log (`docs/SESSION_LOG.md`), never here. (Tier rul
 14. **A PostHog `phc_` token does not reveal its project.** Match the bundle token against `api_token` from `GET /api/projects/<id>/` with a key scoped to that project, and never resolve `@current`. 408442 is TAG's alone; pre-split history stays there, so filter insights on both `theautomationsguide.com` and `theautomationsguide.com.` permanently.
 15. **The "in my testing" twin posts are not data.** Ian's call is that they stay as-is, but never cite them as measurement. Two indexation claims are also unsettled: inbound links are not required (the 9/06 control indexed with none), and "FAQs predict indexation" is confounded with the sitemap re-read.
 16. **`hubspot` affiliate status is `rejected`**, so HubSpot-anchored posts cannot earn.
+17. **The `qa` job is pinned to `ubuntu-24.04`** (op #1496): Playwright 1.59.1 refuses Ubuntu 26.04, which `ubuntu-latest` became on 10/30. After a workflow fix, `gh pr update-branch <n>` gets a held PR a fresh qa run on the new workflow.
 
 ## Current strategic state (2026-10-16)
 
