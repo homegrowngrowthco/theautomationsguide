@@ -48,7 +48,7 @@ on:
 jobs:
   qa:
     if: startsWith(github.event.pull_request.head.ref, 'content/')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04   # pinned op #1496: Playwright 1.59.1 refuses ubuntu-latest (Ubuntu 26.04 since 10/30), which reds every content PR
     permissions:
       contents: write
       pull-requests: write
