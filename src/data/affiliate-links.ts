@@ -679,7 +679,7 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   bouncer: {
     name: 'Bouncer',
     url: '',
-    homepageFallback: 'https://bouncer.com/',
+    homepageFallback: 'https://www.usebouncer.com/',
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
@@ -763,7 +763,7 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   warmforge: {
     name: 'Warmforge',
     url: '',
-    homepageFallback: 'https://warmforge.com/',
+    homepageFallback: 'https://www.warmforge.ai/',
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
@@ -819,14 +819,14 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   profound: {
     name: 'Profound',
     url: '',
-    homepageFallback: 'https://profound.app/',
+    homepageFallback: 'https://www.tryprofound.com/',
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
   fathom: {
     name: 'Fathom',
     url: '',
-    homepageFallback: 'https://fathom.io/',
+    homepageFallback: 'https://fathom.ai/',
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
@@ -854,7 +854,7 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   prospeo: {
     name: 'Prospeo',
     url: '',
-    homepageFallback: 'https://prospeo.app/',
+    homepageFallback: 'https://prospeo.io/',
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
@@ -1177,7 +1177,7 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   guru: {
     name: 'Guru',
     url: '',
-    homepageFallback: 'https://mobile.guru.so/',
+    homepageFallback: 'https://www.getguru.com/',
     status: 'pending',
     notes: 'Auto-registered from a content PR (referenced before manual onboarding). Verify the affiliate program + commission on application.',
   },
