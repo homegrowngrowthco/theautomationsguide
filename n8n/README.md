@@ -346,6 +346,11 @@ Born from a Notion API outage that failed 3 scheduled runs on 10/01 with nothing
 
 Plus the Daily Briefing flags any Content Calendar topic stuck in **Generating** for 3h+ (an engine run that died after claiming it; set it back to Queued).
 
+**Queue runway (op #1498).** An empty-queue engine run finishes `success`, so layer 3 cannot see it. The watchdog also counts Queued rows in the Content Calendar and posts to the same Slack webhook when there are under 4 (under 2 days at 2 posts a day), or when the Notion read fails, which it reports as a failed read and never as an empty queue. Rules, all in `watchdog.mjs`:
+- **The run stays green.** This is a supply warning, and days of red would hide a real engine failure. It starts no retries or re-runs.
+- **Once a day:** only the first run after noon ET posts, worked out from the previous run's start time, so it needs no stored state. Every run still logs the count and leaves a run annotation.
+- **Quiet when the next top-up lands first.** The top-up routine (Sun + Wed 16:00 UTC) fills to 10, which dips to 3 and then 2 before Sunday's refill in a healthy week. A missed or short top-up warns on the next run. The schedule is hard-coded as `TOPUP_*`: update it if the routine moves.
+
 Facts measured on this instance, which the design depends on (do not "simplify" these away):
 - **The error workflow must be active (published) or it never fires.** An inactive copy received nothing.
 - **A failed re-run fires the error workflow again** with `mode: "retry"` and `retryOf` set, so the re-run count is computed from the `retryOf` chain with no stored state.
