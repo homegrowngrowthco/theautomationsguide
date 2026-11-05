@@ -2,7 +2,7 @@
 
 > RUNBOOK (per todo-sync CONVENTION: no per-step TODO items required; actionable queue items live in TODO.md)
 
-Last updated: 2026-07-17
+Last updated: 2026-11-04
 
 ## Search Engine Submission
 
@@ -44,6 +44,48 @@ Done: 4a Crunchbase (2026-07-01, https://www.crunchbase.com/organization/the-aut
 - **"Alternative to":** vendor documentation, tool-vendor blogs, generic SaaS review sites
 
 **4d — BetaList — DROPPED (paid-only, no free tier as of 2026-07-23).** Kept here only if the calculus changes: **Startup name:** `The Automations Guide` · **Tagline:** `Independent automation reviews for RevOps and GTM teams` · **Description:** `In-depth tool reviews, comparisons, and workflow playbooks for RevOps and GTM automation. Covers HubSpot, Clay, n8n, Zapier, Make, and 50+ more tools.` · **Categories:** Productivity, Marketing.
+
+## Brand-search nudge (brand-term Step 5, paste-ready)
+
+Ian posts this; nothing here sends itself. Growth audit 8/04, section 10, item 3: the goal is more people searching the site's name. Use the line in whichever newsletter or LinkedIn post goes out next, or post a variant on its own.
+
+**Before posting:** search `the automations guide` in a private window. The last recorded state (audit 8/04) has inner pages surfacing and the homepage not at position 1; that was not re-checked for this draft. The copy makes no claim about rank, so it stands either way. If the site does not show up at all, hold the post.
+
+**One line (newsletter or LinkedIn):**
+
+> Next time you are choosing a RevOps or automation tool, search "the automations guide" on Google and start there.
+
+**LinkedIn variant A, the direct ask:**
+
+> A small ask for anyone working in RevOps or GTM.
+>
+> Next time you are comparing automation tools, search "the automations guide" on Google.
+>
+> You will find tool reviews, pricing, head-to-head comparisons and workflow playbooks in one place.
+>
+> There is no link in this post on purpose. A name is easier to remember than a URL when a stack decision lands on your desk. A small site also gets found when people look for it by name, so the search itself helps.
+
+**LinkedIn variant B, the problem first:**
+
+> Search for a sales tool and a lot of what comes back is written by the company selling it.
+>
+> Every one of those pages says its product is the one you need. That is a hard place to make a buying decision.
+>
+> So here is one name to keep for the next time you are choosing a CRM, an enrichment tool or an outbound platform: search "the automations guide".
+>
+> It covers:
+> - Head-to-head tool comparisons
+> - Tool reviews with pricing and alternatives
+> - Step-by-step workflow playbooks for RevOps and GTM teams
+>
+> Save the name, not the link.
+
+**Notes for the paste:**
+
+- No URL in either variant, on purpose: the ask is the search. Adding a link gives readers a reason to skip it.
+- Neither says "independent" or "unbiased", because the site carries affiliate links ([disclosure](https://theautomationsguide.com/disclosure/)).
+- Add no traffic, ranking or testing claim when editing. Nothing here has been measured.
+- **Reading it afterwards:** GSC > Performance > Queries, filter "contains" `automations guide`. The last recorded figure is 0 branded impressions in the 28 days before the 7/03 audit, which is old, so pull a fresh number on the day of the post.
 
 ## Analytics
 
