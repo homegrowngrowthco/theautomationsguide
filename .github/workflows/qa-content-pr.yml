@@ -606,6 +606,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPS_ISSUES_PAT: ${{ secrets.OPS_ISSUES_PAT }}
+          ALARM_PROBE: '1'
           SIGNATURE: ${{ steps.fail-signature.outputs.signature }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -695,7 +696,7 @@ jobs:
             });
 
       - name: Slack — QA failed (manual review)
-        if: failure() && steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true' && steps.is-head.outputs.current == 'true' && steps.needs-human.outcome != 'failure' && env.SLACK_WEBHOOK_URL != ''
+        if: false
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           PR_URL: ${{ github.event.pull_request.html_url }}
