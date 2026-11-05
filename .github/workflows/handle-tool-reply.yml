@@ -12,8 +12,11 @@ name: Register tool from PR comment reply
 #
 # After parsing, runs qa/auto-register-tools.mjs with --url-hint args so it
 # can skip the TLD probe for that slug and use the confirmed URL directly.
-# Commits any registry/logo additions to the PR branch, which re-triggers the
-# normal QA workflow (qa-content-pr.yml) automatically.
+# Commits any registry/logo additions to the PR branch. That push does NOT
+# re-trigger QA: a GITHUB_TOKEN push never starts workflows (CLAUDE.md gotcha 5),
+# so the new head has no qa verdict until the daily sweep in
+# auto-merge-content.yml re-runs the stuck qa once, or a later push or
+# `gh pr update-branch <n>` starts a fresh run.
 
 on:
   issue_comment:

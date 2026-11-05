@@ -18,7 +18,9 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(root, 'dist');
 const OUT = process.env.OUT || 'C:/tmp/tag-shots/qa';
 mkdirSync(OUT, { recursive: true });
-const EXE = process.env.CHROME_EXE || 'C:/Users/Ian/AppData/Local/ms-playwright/chromium-1228/chrome-win64/chrome.exe';
+// The full Chromium of whichever Playwright is installed, so a version bump needs
+// no edit here. If it is missing: npx playwright install chromium.
+const EXE = process.env.CHROME_EXE || chromium.executablePath();
 const ROOT_FONT = Number(process.env.ROOT_FONT || 0);
 
 const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript', '.svg': 'image/svg+xml', '.avif': 'image/avif', '.webp': 'image/webp', '.jpg': 'image/jpeg', '.png': 'image/png', '.woff2': 'font/woff2', '.woff': 'font/woff', '.wasm': 'application/wasm', '.txt': 'text/plain', '.xml': 'application/xml', '.json': 'application/json', '.pf_meta': 'application/octet-stream' };
