@@ -8,7 +8,20 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-11-04 (Session 118).
+Last updated 2026-11-04 (Session 119).
+
+## Session 119 (2026-11-04): GEO flat at 1 of 25, 24 Suggested rows skipped, stricter top-up, partner links kept (Opus 5.5, op #1501)
+
+- **Ran early on purpose:** the prompt's date gate (11/09) exists for the 11/08 builder and top-up data, so sections 1, 2 and 6 stay for the next session. Ian had just answered ops #64, #65, #67 and #68, so section 4 ran, with section 5. Section 3 did not: `OPS_ISSUES_PAT` is still missing (Ian asked where to run the command; answered on ops #68).
+- **GEO (#446, 672a147):** 25 of 25 cells usable. 1 of 25, same cell as 9/24, a name on a ChatGPT chip with no URL. 13 of 24 misses are real; 11 had no readable sources. The committed sheet differs from Ian's by 2 edits (a HubSpot tracking key, a template address). Ian's local file was backed up in the scratchpad, then restored to master.
+- **Nudge (#447, c57aca1):** one line and two LinkedIn variants, paste-ready in OFF_SITE_SEO_CHECKLIST.md. Ops #65 closed: LinkedIn still running.
+- **Small fixes (#448, 63638af):** `qa-shots` uses Playwright's own Chromium (1.64.1 resolved chromium-1248, 57 shots clean against a stale 10/05 dist, so this proves the browser path only). The reply handler's header comment corrected.
+- **Partner links (ops #64, closed):** Ian said remove them, then #449 found a curl did not reproduce the Leadfeeder defect and the key reached both vendors. Auto-merge paused, Ian re-decided: keep all three, #449 closed unmerged. Credit is still unproven; PartnerStack steps moved to ops #66.
+- **Suggested rows:** 27 older rows read against post bodies: 24 Skipped with Ian's OK (12 body duplicates, 3 alternatives, 9 no-program), 3 kept. Census Suggested 32 to 8, Skipped 238 to 262. To restore one, filter Skipped by last edited 2026-11-05 in Notion and set it back to Suggested.
+- **Top-up (`trig_01KVAmk2g9KEerLehzufnag6`):** rule d now reads post bodies and holds when in doubt, held rows are named with their slug, engine times corrected. Verified by reading the update response: schedule, environment, sources and connectors unchanged. Next run Sun 11/08 17:09Z. Expect more holds: of the 5 scored rows, Laxis vs Avoma vs Otter overlaps a post and 3 are borderline, so it may open the "pool exhausted" issue.
+- **Mistakes:** the top-level told Ian the Leadfeeder defect "is real" in a question before anyone had tested it; the registry build tested it, and that cost a re-decision. The top-level also said the ruling was on the issue before it was. A mask missed the escaped form of a URL parameter, printing part of a third-party tracking key in the transcript (not in the repo). The #449 subagent followed partner links with curl, so PartnerStack may show a click or two from 11/04.
+- **Gotcha:** subagents have no RemoteTrigger; a routine update has to run at the top level.
+- **Revert:** each PR reverts alone. Top-up: resend the whole prompt with the old rule d, "It is not a clear duplicate of a published post. Check the filenames in src/content/blog/ and the Published rows: the same tools with the same intent (pricing, review, migration, or a comparison of the same pair) is a duplicate. When in doubt it is not a duplicate."
 
 ## Session 118 (2026-11-04): queue refilled, 6 wrong-company registrations fixed, merger recovery, Playwright on 26.04 (Opus 5.5, op #1498)
 
