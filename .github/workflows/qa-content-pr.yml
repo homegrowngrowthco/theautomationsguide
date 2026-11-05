@@ -33,7 +33,8 @@ name: QA and auto-fix content PRs
 #  10. Failure recurrence ledger: every red run appends its failure class to
 #      qa-failure-ledger.json on the qa-ledger branch (qa/failure-ledger.mjs,
 #      contents API only). The 2nd same-class failure within 14 days prefixes
-#      the failure comment + Slack ping with a loud RECURRING FAILURE line.
+#      the failure comment + Slack ping with a loud RECURRING FAILURE line. At 3
+#      distinct PRs in 14 days it also opens one decision-queue issue.
 #      All ledger logic is failure-path only + continue-on-error, so it can
 #      never break a passing run.
 #
@@ -567,6 +568,15 @@ jobs:
       # The ledger WRITE deliberately ignores the stale-run guard (data is data —
       # a failure happened on this sha either way); only the COMMENT steps below
       # stay behind the guard exactly as before.
+      #
+      # Repeated-red alarm: at 3 distinct PRs with one signature in 14 days the same
+      # script opens one decision-queue issue on claude-projects-ops, deduped by the
+      # signature in open titles. OPS_ISSUES_PAT is on this step and no other. Any
+      # failure of that call is a warning and changes nothing else; on a fork PR or
+      # with no secret it is empty and the script logs one line and skips. Fixtures:
+      # node qa/failure-ledger.mjs --selftest, in pr-gates. The step timeout stops a
+      # hung call from eating the job timeout, which would end `cancelled` and drop
+      # the comment and Slack steps below.
       - name: Derive failure signature
         if: failure() && steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
         id: fail-signature
@@ -592,8 +602,10 @@ jobs:
         if: failure() && steps.slug.outputs.skip != 'true' && steps.skip-check.outputs.skip != 'true'
         id: ledger
         continue-on-error: true
+        timeout-minutes: 2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPS_ISSUES_PAT: ${{ secrets.OPS_ISSUES_PAT }}
           SIGNATURE: ${{ steps.fail-signature.outputs.signature }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
