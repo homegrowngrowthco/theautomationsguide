@@ -991,17 +991,17 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   },
   leadfeeder: {
     name: 'Leadfeeder',
-    url: 'https://leadfeeder.partnerlinks.io/tag-homepage',
+    url: '',
     homepageFallback: 'https://www.leadfeeder.com/',
-    status: 'live',
-    notes: 'Approved by 2026-10-01 (PartnerStack, $100 one-time per referred customer after 2 paid months). Caveat: the link hands ps_partner_key to dealfront.com, which 301s to leadfeeder.com WITHOUT the query and sets no first-party cookie, so attribution rests on PartnerStack\'s own cookie. Check the PartnerStack click/lead count after the first clicks. Deep-link variant below: leadfeeder-web-visitors.',
+    status: 'rejected',
+    notes: 'Dropped by Ian 2026-11-04 (ops #64); falls back to homepage + UTM tag. Status rejected follows the HubSpot convention for a program we hold no link in: the vendor did not reject us and the program exists (PartnerStack, $100 one-time per referred customer after 2 paid months). Defect that prompted it: recorded 2026-10-01, the link handed ps_partner_key to dealfront.com, which 301ed to leadfeeder.com without the query, so PartnerStack might not count the click. A curl on 2026-11-04 showed the key surviving the 301 (ending at leadfeeder.com/dealfront/); the PartnerStack click count was never checked. To restore: set url to https://leadfeeder.partnerlinks.io/tag-homepage and status to live. Deep-link variant below: leadfeeder-web-visitors.',
   },
   'leadfeeder-web-visitors': {
     name: 'Leadfeeder Web Visitors',
-    url: 'https://leadfeeder.partnerlinks.io/tag-web-visitors',
+    url: '',
     homepageFallback: 'https://www.leadfeeder.com/web-visitors/',
-    status: 'live',
-    notes: 'Added 2026-10-01. Lands on the web visitors product page; use in visitor-ID posts.',
+    status: 'rejected',
+    notes: 'Dropped by Ian 2026-11-04 (ops #64) with the leadfeeder entry above, same program and same recorded defect (see that note); falls back to the web visitors page + UTM tag. The vendor did not reject us. To restore: set url to https://leadfeeder.partnerlinks.io/tag-web-visitors and status to live.',
   },
   '6sense': {
     name: '6sense',
@@ -1078,10 +1078,10 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   },
   leadpages: {
     name: 'Leadpages',
-    url: 'https://try.leadpages.com/tag',
+    url: '',
     homepageFallback: 'https://leadpages.com/',
-    status: 'live',
-    notes: 'Approved 2026-10-01 (PartnerStack). The tag-pricing link Ian was given lands on htmlpub.com/pricing (a different product), so it is NOT registered; ask PartnerStack/Leadpages to fix it before adding a pricing deep link.',
+    status: 'rejected',
+    notes: 'Dropped by Ian 2026-11-04 (ops #64); falls back to homepage + UTM tag. Status rejected follows the HubSpot convention for a program we hold no link in: the vendor did not reject us and the program exists (PartnerStack, approved 2026-10-01). Defect that prompted it: the separate tag-pricing partner link lands on htmlpub.com/pricing (a different product) and was never registered here; the tag link itself reached leadpages.com with the partner key on 2026-11-04. To restore: set url to https://try.leadpages.com/tag and status to live; do not add tag-pricing unless PartnerStack or Leadpages fixes it.',
   },
   trainual: {
     name: 'Trainual',
