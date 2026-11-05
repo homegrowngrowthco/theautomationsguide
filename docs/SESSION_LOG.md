@@ -12,7 +12,7 @@ Last updated 2026-11-04 (Session 119).
 
 ## Session 119 (2026-11-04): GEO flat at 1 of 25, 24 Suggested rows skipped, stricter top-up, partner links kept (Opus 5.5, op #1501)
 
-- **Ran early on purpose:** the prompt's date gate (11/09) exists for the 11/08 builder and top-up data, so sections 1, 2 and 6 stay for the next session. Ian had just answered ops #64, #65, #67 and #68, so section 4 ran, with section 5. Section 3 did not: `OPS_ISSUES_PAT` is still missing (Ian asked where to run the command; answered on ops #68).
+- **Ran early on purpose:** the prompt's date gate (11/09) exists for the 11/08 builder and top-up data, so sections 1, 2 and 6 stay for the next session. Ian had just answered ops #64, #65, #67 and #68, so section 4 ran, with section 5. Section 3 ran last, once Ian added `OPS_ISSUES_PAT` (ops #68).
 - **GEO (#446, 672a147):** 25 of 25 cells usable. 1 of 25, same cell as 9/24, a name on a ChatGPT chip with no URL. 13 of 24 misses are real; 11 had no readable sources. The committed sheet differs from Ian's by 2 edits (a HubSpot tracking key, a template address). Ian's local file was backed up in the scratchpad, then restored to master.
 - **Nudge (#447, c57aca1):** one line and two LinkedIn variants, paste-ready in OFF_SITE_SEO_CHECKLIST.md. Ops #65 closed: LinkedIn still running.
 - **Small fixes (#448, 63638af):** `qa-shots` uses Playwright's own Chromium (1.64.1 resolved chromium-1248, 57 shots clean against a stale 10/05 dist, so this proves the browser path only). The reply handler's header comment corrected.
@@ -22,6 +22,7 @@ Last updated 2026-11-04 (Session 119).
 - **Mistakes:** the top-level told Ian the Leadfeeder defect "is real" in a question before anyone had tested it; the registry build tested it, and that cost a re-decision. The top-level also said the ruling was on the issue before it was. A mask missed the escaped form of a URL parameter, printing part of a third-party tracking key in the transcript (not in the repo). The #449 subagent followed partner links with curl, so PartnerStack may show a click or two from 11/04.
 - **Gotcha:** subagents have no RemoteTrigger; a routine update has to run at the top level.
 - **Revert:** each PR reverts alone. Top-up: resend the whole prompt with the old rule d, "It is not a clear duplicate of a published post. Check the filenames in src/content/blog/ and the Published rows: the same tools with the same intent (pricing, review, migration, or a comparison of the same pair) is a duplicate. When in doubt it is not a duplicate."
+- **Repeated-red alarm (#452):** `qa/failure-ledger.mjs` opens one `[tag] qa red on N PRs: <signature>` issue at 3 distinct PRs in 14 days, deduped by the signature in open titles whatever the count; any failed call is a warning and qa is untouched. Replay on real history rings 11/01 21:03Z on `other` (#424 to #426; #427 to #429 dedup), and also 10/14 20:02Z on `lint-content` (#334, #350, #387), which the design did not mention. Throwaway #451, run 41957856244: the step ran with the secret and the token listed ops issues, with no ledger entry and no ring. The create call is unproven until the first real ring (TODO). Revert: the PR alone; deleting the secret silences the alarm.
 
 ## Session 118 (2026-11-04): queue refilled, 6 wrong-company registrations fixed, merger recovery, Playwright on 26.04 (Opus 5.5, op #1498)
 

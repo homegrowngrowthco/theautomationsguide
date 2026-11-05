@@ -50,7 +50,7 @@ Narrative goes to the session log (`docs/SESSION_LOG.md`), never here. (Tier rul
 ## Key IDs / integrations
 
 - PostHog project **408442** (dashboard 1699394); GA4 `G-RKWHJ95P3H`; GSC property `sc-domain:theautomationsguide.com`; Beehiiv form `d41efc59-7041-482b-8178-6d238e6c3cfa`; IndexNow key file `dde35cca97309131104c0505957f0948.txt`.
-- Repo secrets: `ANTHROPIC_API_KEY`, `GSC_TOKEN_JSON`, `N8N_API_KEY`, `NOTION_TOKEN`, `SLACK_WEBHOOK_URL`.
+- Repo secrets: `ANTHROPIC_API_KEY`, `GSC_TOKEN_JSON`, `N8N_API_KEY`, `NOTION_TOKEN`, `OPS_ISSUES_PAT` (Issues read and write on `claude-projects-ops` only; the qa ledger step), `SLACK_WEBHOOK_URL`.
 
 ## Evergreen gotchas (earned the hard way — details in the session log)
 

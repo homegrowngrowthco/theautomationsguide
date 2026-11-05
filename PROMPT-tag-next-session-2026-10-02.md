@@ -1,6 +1,6 @@
 Work each numbered section in its own subagent (general-purpose, Opus for writes, Sonnet for reads). The top-level session only dispatches, reads the section's 10-line report, and logs. Never let the top-level context pass 200k; if it does, /compact before the next section.
 
-# Next session (TAG): read the supply fix and the stricter top-up, build the alarm if its secret exists
+# Next session (TAG): read the supply fix and the stricter top-up
 
 (File name is historical; it is rewritten in place each session. Content last rewritten 2026-11-04 at the end of Session 119, op #1501.)
 
@@ -10,7 +10,7 @@ Subagents cannot ask Ian, and they have no `RemoteTrigger`: routine reads and up
 
 Read first: `CLAUDE.md` (gotchas 5, 6, 10, 17, 18, and "Cloud routines"), `TODO.md`, the top of `docs/SESSION_LOG.md` (Session 119).
 
-Sections 1, 2 and 6 need the 11/08 builder run and top-up, so do not run them before Mon 11/09. Sections 3 and 4 can run any time Ian has answered.
+Sections 1, 2 and 6 need the 11/08 builder run and top-up, so do not run them before Mon 11/09. Section 4 can run any time Ian has answered. There is no section 3: the repeated-red alarm shipped in Session 119.
 
 ## 1. State read (Sonnet, read only; the top level reads the routine)
 
@@ -22,13 +22,9 @@ Top level: the top-up run of 11/08 (`RemoteTrigger` list_runs, get_run_log on `t
 
 Per TODO: `Proposed N -> kept K`, `Recent drops`, reworded repeats, format mix, any max_tokens WARN. Baseline: old code kept 1 of 15, new code kept 10 of 30 on 11/04. If yield fell back or the mix is all pricing and review, return evidence and a recommendation: the "vs" wording first. Supply must hold 2 a day, so also report how many eligible scored rows are left. Check the holds against post bodies: too many false holds is a rule problem, and real duplicates are the rule working. If supply still cannot hold, bring Ian the choice of new tool sources or 1 post a day.
 
-## 3. Repeated-red alarm (Opus; only if `gh secret list` shows `OPS_ISSUES_PAT`)
-
-Design in TODO and ops #68. In `qa/failure-ledger.mjs`, with fixtures: one issue per signature at 3 distinct PRs in 14 days, deduped by open title, using a body file. It must not fail the qa job if the issue call fails. If the secret is missing, leave the TODO; ops #68 already asks, and it has Ian's answer on where to run the command.
-
 ## 4. Answered queue items (Sonnet for reads, Opus for writes)
 
-Ops #66 and #68, whichever Ian has answered: claim with `[claude op #N] on it`, do the follow-up, close with `[claude op #N] done: ...`. #66 now also carries the Leadpages `tag-pricing` disable and the Leadfeeder click read: if Leadfeeder counts no human clicks, retarget `/go/leadfeeder` to the final URL in a PR, and correct the registry note either way. Curl checks on 11/04 may show as a click or two; they do not prove credit. Do not follow partner links with curl again.
+Ops #66, if Ian has answered (#68 is closed and done): claim with `[claude op #N] on it`, do the follow-up, close with `[claude op #N] done: ...`. #66 now also carries the Leadpages `tag-pricing` disable and the Leadfeeder click read: if Leadfeeder counts no human clicks, retarget `/go/leadfeeder` to the final URL in a PR, and correct the registry note either way. Curl checks on 11/04 may show as a click or two; they do not prove credit. Do not follow partner links with curl again.
 
 ## 5. Small corrections (Opus)
 
