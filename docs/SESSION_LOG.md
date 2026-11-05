@@ -8,7 +8,17 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-11-04 (Session 119).
+Last updated 2026-11-05 (Session 120).
+
+## Session 120 (2026-11-05): weekly unattended cloud routine run, read-only checks (Sonnet 5.5, no op number)
+
+- **"TAG unattended check (weekly, Thu 13:00Z)"** ran from a fresh clone with the connectors only. No op number; the next attended session logs it. Read only: nothing written to Notion, n8n, Beehiiv or PostHog. No ops issue opened (nothing met the queue criteria).
+- **Engine PRs (window 10/29 14:10Z to now):** #423, #444 and #453 merged by github-actions 2 to 3 min after opening. #453 (Instantly vs Dripify, 11/05) is the proof case: bot `[auto-register]` head 5e0c7da at 13:02:38Z, `qa` and `pr-gates` success (a second `pr-gates` check republished at 13:05:08Z), merged 13:05:30Z with no help. The exact title "PR gates pass (dispatched run)" was not checked. #424 to #429 were the PRs held since 10/30 to 11/03 by the runner outage; all merged by github-actions 11/04 14:36 to 14:40Z, so none is open or red now. #444 had no auto-register commit.
+- **Builder runs:** Sun 11/01 (run 29, schedule, success) 60 clusters, 12 near-win, 5 hub fixes, 2 programs; kept 3 of 15 (MoltSets vs Apollo 81, Lindy vs Relevance AI 48, Motion Scheduling Review 30); staged 3/3. Wed 11/04 (run 31, success) 60 clusters, 14 near-win, 4 hub fixes; kept 1 of 15 (MailReach Review 37); staged 1/1. Both ran old code (30-topic count landed after, #438; the 11/04 dispatches 32 and 33 are S118's). Both audits: 0 collisions, 0 advisories, 0 Skipped, so no stage-then-Skipped. Dispatch 30 (11/02) not read.
+- **New posts (11 added since 10/29 14:10Z, 0 hard each):** warnings only: Diginius title 61 chars, Flocksy has no logo, Surfe waterfall post leaves a Smartlead mention unlinked. Circleback vs Fathom was added then 301ed (#433), so it has no file. No testing-claim or observation-with-figure warning.
+- **Queue:** 228 Published, 8 Queued, 8 Suggested, 262 Skipped. Queued: Dripify vs Lemlist vs Taplio (High), Pipedrive/Salesforce, Lemlist vs Brevo vs Smartlead, Nooks vs Orum vs Kixie, JustCall vs Kixie vs Aircall (Medium), Instantly vs Clay vs Apollo, Smartlead deliverability, Fillout Review (Low). At 2 a day from 11/05 20:00Z it runs dry after the 11/09 12:00Z post; the Sun 11/08 top-up lands first.
+- **source_path metric (PostHog 408442 confirmed):** 333 `affiliate_click` since 10/02 01:21Z. Dropped: 294 `source_via=none`, 31 `last_page` with a path that has no trailing slash, 1 flagged automated, and 4 `last_page` on `/` (pageview 4 to 8 s before, home links no tool) among the 8 other last_page/click rows. Strict human: 0 (no click event carries `$session_id` or `$browser`). Pageview-join human: 3 (10/13 Loops `tool-strip`, 10/19 VoiceOS `hub-cta`, 11/03 MoltSets `choose-if`), all after the redesign deploy with a non-empty path; before it 0 humans. Under 5, so the share is not meaningful. No new human click since 11/03. Rule choice stays Ian's (ops #8).
+- **Dated reads:** none due (Nutshell ~11/10, pricing ~11/12). **Revert:** docs only; close this PR.
 
 ## Session 119 (2026-11-04): GEO flat at 1 of 25, 24 Suggested rows skipped, stricter top-up, partner links kept (Opus 5.5, op #1501)
 
