@@ -190,12 +190,31 @@ jobs:
       - name: Merge-on-green decisions
         run: node qa/merge-green.mjs --selftest
 
+  # The repeated-red alarm rings Ian through the decision queue and must never fail the
+  # qa job. Its rules, the replay on real ledger history and every failure of the issue
+  # call are pinned by offline fixtures. Node builtins only; the only server is a stub on
+  # 127.0.0.1. No secret here, by design.
+  failure-ledger-selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Failure ledger and repeated-red alarm
+        run: node qa/failure-ledger.mjs --selftest
+
   # The ONE check ruleset 24417620 requires from this workflow. Green only when
   # every job above succeeded; a failed, cancelled or skipped gate turns it red.
   # When adding a job above, add it to `needs` here or it gates nothing.
   pr-gates:
     if: always()
-    needs: [freshness, pricing-selftest, live-links-selftest, n8n-selftests, tools-taxonomy, build, merge-green-selftest]
+    needs: [freshness, pricing-selftest, live-links-selftest, n8n-selftests, tools-taxonomy, build, merge-green-selftest, failure-ledger-selftest]
     runs-on: ubuntu-latest
     timeout-minutes: 2
     permissions:
