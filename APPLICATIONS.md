@@ -271,7 +271,7 @@ These 10 tools all feature in posts publishing over the next ~3 weeks (the High 
 - Landing page to cite: `/tools/aircall/`
 - Relevant content: **Dedicated published pricing post** `/blog/2026-08-14-aircall-pricing-in-2026-per-seat-costs-and-hidden-add-ons/` + `/blog/2026-06-22-krispcall-vs-justcall-vs-aircall-for-sdr-teams/`
 - Promo angle: "We publish a dedicated Aircall pricing breakdown and an SDR dialer comparison, exactly the intent-stage content a pay-per-lead program monetizes."
-- Applied: [x]  Approved: REJECTED 2026-08-19 (re-apply when traffic builds)
+- Applied: [x]  Approved: [x] (2026-11-05, after a 2026-08-19 rejection and a re-application)
 
 ### 29. Trigify
 - **Apply link: https://trigify-io-1.getrewardful.com/signup** (Rewardful; unadvertised on trigify.io — this portal is the only entry point)

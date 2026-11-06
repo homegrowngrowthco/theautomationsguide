@@ -579,10 +579,32 @@ export const affiliateLinks: Record<string, AffiliateLink> = {
   },
   aircall: {
     name: 'Aircall',
-    url: '',
+    url: 'https://get.aircall.io/8tnb05ixpq0c',
     homepageFallback: 'https://aircall.io/',
-    status: 'pending',
-    notes: 'Rejected 2026-08-19 (PartnerStack affiliate program); PartnerStack shows a pending application again as of 2026-10-01. The $75/lead program targets established review sites.',
+    status: 'live',
+    notes: 'Rejected 2026-08-19, re-applied, approved 2026-11-05 (PartnerStack, $75 per qualified lead, 90-day cookie). Deep-link variants below: aircall-voice-agent, aircall-teams.',
+  },
+  // Aircall deep links (same program, page-specific destinations; added 2026-11-05).
+  'aircall-voice-agent': {
+    name: 'Aircall AI Voice Agent',
+    url: 'https://get.aircall.io/la9i2zb2y3lh-tckq86',
+    homepageFallback: 'https://aircall.io/products/ai/voice-agent/',
+    status: 'live',
+    notes: 'Added 2026-11-05. Lands on the AI Voice Agent product page.',
+  },
+  'aircall-teams': {
+    name: 'Aircall for Teams',
+    url: 'https://get.aircall.io/uzxcwisi3vt8-vdy1tc',
+    homepageFallback: 'https://aircall.io/c/builtforteams/',
+    status: 'live',
+    notes: 'Added 2026-11-05. Lands on the affiliate landing page (aircall.io/c/builtforteams/).',
+  },
+  bookyourdata: {
+    name: 'Bookyourdata',
+    url: 'https://join.bookyourdata.com/tag',
+    homepageFallback: 'https://www.bookyourdata.com/',
+    status: 'live',
+    notes: 'Approved 2026-11-05 (PartnerStack). The destination answers curl with a 403 (bot protection); the redirect carries the partner key.',
   },
   fireflies: {
     name: 'Fireflies',

@@ -1592,12 +1592,25 @@ export const tools: Tool[] = [
     category: 'Calling & Conversation Intelligence',
     badge: 'Paid',
     ctaLabel: 'Try Aircall',
-    ctaPrimary: false,
-    listed: false,
+    ctaPrimary: true,
+    listed: true,
     logo: '/brand/tools/aircall.png',
     aliases: ['Aircall'],
     blurb:
-      'AI-powered customer communications platform to unify channels, automate tasks, & provide insights. Integrate with CRM & helpdesk. 250+ integrations like Hubspot, Salesforce.',
+      'Aircall is a cloud phone system for sales and support teams that logs calls into the CRM and helpdesk, with 250+ integrations including HubSpot and Salesforce, plus AI features for summaries and automated follow-up tasks.',
+  },
+  {
+    slug: 'bookyourdata',
+    name: 'Bookyourdata',
+    category: 'Lead Data & Enrichment',
+    badge: 'Paid',
+    ctaLabel: 'Try Bookyourdata',
+    ctaPrimary: true,
+    listed: true,
+    logo: '/brand/tools/bookyourdata.png',
+    aliases: ['Bookyourdata', 'BookYourData', 'bookyourdata.com'],
+    blurb:
+      'Bookyourdata is a B2B contact database for building prospect lists by job title, industry and company size, sold on pay-as-you-go credits rather than a subscription, for teams that buy contact data in batches.',
   },
   {
     slug: 'fireflies',
