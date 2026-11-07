@@ -42,5 +42,5 @@ const posts = all
       </div>
     )}
   </Container></div>
-  <ItemListSchema name="Tool Reviews" items={posts.map((p) => ({ url: `/blog/${p.slug}/`, name: p.data.title }))} />
+  <ItemListSchema name="Tool Reviews" items={posts.map((p) => ({ url: `/blog/${p.id}/`, name: p.data.title }))} />
 </BaseLayout>

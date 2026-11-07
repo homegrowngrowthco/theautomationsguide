@@ -30,7 +30,7 @@ const fmtShort = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', da
 const TOP_ENTRY_SLUG = '2026-05-06-apollo-vs-clay-vs-linkedin-sales-nav-best-for-outbound-2026';
 const heroPost =
   allPosts.find((p) => (p.data as { featured?: boolean }).featured) ??
-  allPosts.find((p) => p.slug === TOP_ENTRY_SLUG) ??
+  allPosts.find((p) => p.id === TOP_ENTRY_SLUG) ??
   allPosts[0];
 const heroTools = toolsCompared(heroPost.body, heroPost.data.title).slice(0, 4);
 const heroLabel = (heroPost.data as { featured?: boolean }).featured ? 'Featured comparison' : 'Most-read comparison';
@@ -107,7 +107,7 @@ const categories = toolCategories
           </div>
         </div>
         {heroTools.length > 0 && (
-          <a class="home-panel" href={`/blog/${heroPost.slug}/`}>
+          <a class="home-panel" href={`/blog/${heroPost.id}/`}>
             <span class="home-panel-head">
               <span><strong>{heroLabel}</strong></span>
               <span>prices read {readDate}</span>
@@ -138,7 +138,7 @@ const categories = toolCategories
       <ol class="home-latest">
         {latest.map((p) => (
           <li>
-            <a href={`/blog/${p.slug}/`}>
+            <a href={`/blog/${p.id}/`}>
               <time datetime={p.data.pubDate.toISOString()}>{fmtShort(p.data.pubDate)}</time>
               <span class="home-latest-kind">{classifySection(p)}</span>
               <span class="home-latest-title">{p.data.title}</span>
@@ -160,7 +160,7 @@ const categories = toolCategories
         <div class="home-format">
           <h2><a href={sec.href}>{sec.heading}</a></h2>
           <ul>
-            {sec.posts.map((p) => <li><a href={`/blog/${p.slug}/`}>{p.data.title}</a></li>)}
+            {sec.posts.map((p) => <li><a href={`/blog/${p.id}/`}>{p.data.title}</a></li>)}
           </ul>
           <a class="home-format-all" href={sec.href}>View all <span aria-hidden="true">&rarr;</span></a>
         </div>

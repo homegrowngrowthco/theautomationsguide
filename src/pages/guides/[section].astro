@@ -38,5 +38,5 @@ const posts = await getSectionPosts(section);
       </div>
     )}
   </Container></div>
-  <ItemListSchema name={section.title} items={posts.map((p) => ({ url: `/blog/${p.slug}/`, name: p.data.title }))} />
+  <ItemListSchema name={section.title} items={posts.map((p) => ({ url: `/blog/${p.id}/`, name: p.data.title }))} />
 </BaseLayout>

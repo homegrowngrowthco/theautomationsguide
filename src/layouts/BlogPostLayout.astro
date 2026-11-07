@@ -43,8 +43,8 @@ const displayAuthor = !author || author === 'The Automations Guide' ? 'Ian Chamb
 
 // Per-post OG image (build-time PNG at /og/<slug>.png). Used for og:image,
 // twitter:image, and the BlogPosting `image`.
-const ogImage = new URL(`/og/${post.slug}.png`, Astro.site).toString();
-const shareUrl = new URL(`/blog/${post.slug}/`, Astro.site).toString();
+const ogImage = new URL(`/og/${post.id}.png`, Astro.site).toString();
+const shareUrl = new URL(`/blog/${post.id}/`, Astro.site).toString();
 
 // Tools this post compares, for JSON-LD about/mentions (entity-graph signal).
 const mentionedTools = tools
@@ -73,7 +73,7 @@ const formattedUpdatedDate = updatedDate?.toLocaleDateString('en-US', {
   timeZone: 'UTC',
 });
 
-const postUrl = new URL(`/blog/${post.slug}/`, Astro.site).toString();
+const postUrl = new URL(`/blog/${post.id}/`, Astro.site).toString();
 
 const isNamedAuthor = displayAuthor !== 'The Automations Guide';
 const blogPostingSchema = {

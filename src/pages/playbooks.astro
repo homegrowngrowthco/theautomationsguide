@@ -38,5 +38,5 @@ const posts = all
       </div>
     )}
   </Container></div>
-  <ItemListSchema name="RevOps & GTM Automation Playbooks" items={posts.map((p) => ({ url: `/blog/${p.slug}/`, name: p.data.title }))} />
+  <ItemListSchema name="RevOps & GTM Automation Playbooks" items={posts.map((p) => ({ url: `/blog/${p.id}/`, name: p.data.title }))} />
 </BaseLayout>
