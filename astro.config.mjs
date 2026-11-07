@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
+import { unified } from '@astrojs/markdown-remark';
 import { FontaineTransform } from 'fontaine';
 import { readdirSync, readFileSync } from 'node:fs';
 
@@ -63,6 +64,10 @@ export default defineConfig({
   // cross-page CSS caching for zero blocking stylesheet fetches, the right side of
   // the trade for a content site where most sessions are single-page organic visits.
   build: { format: 'directory', inlineStylesheets: 'always' },
+  // Astro 7 changed the compressHTML default from `true` to `'jsx'`, which strips
+  // whitespace between inline elements and can alter rendered prose spacing. Pin
+  // the v4-v6 behavior so the upgrade is output-preserving (op #1538).
+  compressHTML: true,
   // Code blocks are styled by the cream/ink design system in global.css
   // (.prose pre = cream bg + border, .prose pre code = ink text). Astro's default
   // Shiki highlighter (github-dark) injects an inline dark background-color on
@@ -72,7 +77,9 @@ export default defineConfig({
   // <pre><code> with no inline styles, letting the CSS fully control the look
   // (cream box, ink monochrome text) on every post. MDX inherits this via
   // extendMarkdownConfig (default true).
-  markdown: { syntaxHighlight: false, rehypePlugins: [rehypeAffiliateRel] },
+  // Astro 7.4 made Satteri the default Markdown processor; the unified (remark/rehype)
+  // processor keeps rehypeAffiliateRel and the pre-upgrade HTML output (op #1538).
+  markdown: { syntaxHighlight: false, processor: unified({ rehypePlugins: [rehypeAffiliateRel] }) },
   vite: {
     plugins: [
       // Generate metric-matched fallback @font-face faces (size-adjust /

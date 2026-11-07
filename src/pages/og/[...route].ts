@@ -7,7 +7,7 @@ import { getCollection } from 'astro:content';
 import { OGImageRoute } from 'astro-og-canvas';
 
 const posts = await getCollection('blog', ({ data }) => !data.draft);
-const pages = Object.fromEntries(posts.map((p) => [p.slug, p.data]));
+const pages = Object.fromEntries(posts.map((p) => [p.id, p.data]));
 
 // Default share card (M-2) — /og/default.png. Used by BaseLayout for every
 // non-post page (home, /blog, /about, /tools, /reviews, /playbooks, /teams/*)
@@ -17,7 +17,10 @@ pages['default'] = {
   tags: ['Guides · Reviews · Workflows'],
 } as (typeof posts)[number]['data'];
 
-export const { getStaticPaths, GET } = OGImageRoute({
+// astro-og-canvas 0.11+ made OGImageRoute async (it returns a Promise), so it is
+// awaited; otherwise getStaticPaths/GET are undefined and Astro errors
+// GetStaticPathsRequired on this dynamic route. Top-level await is fine here.
+export const { getStaticPaths, GET } = await OGImageRoute({
   param: 'route',
   pages,
   getImageOptions: (_path, page: (typeof posts)[number]['data']) => ({

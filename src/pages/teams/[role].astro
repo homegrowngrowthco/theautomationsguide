@@ -35,5 +35,5 @@ const teamWord = audience.navLabel.replace(/^For /, '');
       </div>
     )}
   </Container></div>
-  <ItemListSchema name={audience.title} items={posts.map((p) => ({ url: `/blog/${p.slug}/`, name: p.data.title }))} />
+  <ItemListSchema name={audience.title} items={posts.map((p) => ({ url: `/blog/${p.id}/`, name: p.data.title }))} />
 </BaseLayout>

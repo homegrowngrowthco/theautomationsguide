@@ -1,7 +1,14 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
+// Astro 6+: zod is no longer re-exported from astro:content; import it from astro/zod.
+import { z } from 'astro/zod';
 
 const blog = defineCollection({
-  type: 'content',
+  // Astro 5+ Content Layer API: the legacy `type: 'content'` collection is a glob
+  // loader on the same folder. Entry ids come from the filename (2026-06-16-foo.mdx
+  // -> "2026-06-16-foo"), the same as the old slug, so /blog/<id>/, /og/<id>.png and
+  // /cards/<id>.png URLs are unchanged (op #1538, M3 dependency patch).
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
   schema: z.object({
     title: z.string(),
     description: z.string(),

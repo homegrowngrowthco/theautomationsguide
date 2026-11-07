@@ -26,8 +26,7 @@ const readOn = new Date(`${pricingReadDate}T12:00:00Z`).toLocaleDateString('en-U
           {hasPrice ? (
             <>
               {p?.name ? `${p.name}: ` : ''}
-              {annual && <>{annual}/mo billed annually</>}
-              {annual && monthly && ', '}
+              {annual && <>{annual}/mo billed annually</>}{annual && monthly && ', '}
               {monthly && <>{monthly}/mo billed monthly</>}
               {p?.unitIncluded && <> (includes {p.unitIncluded})</>}
             </>

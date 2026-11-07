@@ -122,7 +122,7 @@ function badgeSvg(spot: BadgeSpot, logo: { buf: Buffer; w: number; h: number }):
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
-  return posts.map((post) => ({ params: { route: `${post.slug}.png` }, props: { post } }));
+  return posts.map((post) => ({ params: { route: `${post.id}.png` }, props: { post } }));
 }
 
 export async function GET({ props }: APIContext) {
