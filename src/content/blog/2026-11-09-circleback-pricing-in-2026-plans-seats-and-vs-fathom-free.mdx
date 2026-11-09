@@ -1,0 +1,166 @@
+---
+title: "Circleback Pricing in 2026: Plans, Seats, and vs Fathom Free"
+description: "Circleback pricing explained: every plan, real per-seat math for a 10-rep team, and how it stacks up against Fathom's free tier and tl;dv."
+tldr: "Circleback starts at $18 per seat per month on its Pro plan, with no free tier, while Fathom offers a genuinely unlimited free plan that makes Circleback hard to justify for small teams without specific CRM automation needs."
+pubDate: 2026-11-09
+tags: ["tools", "automation", "ai-notetaking"]
+faqs:
+  - question: "How much does Circleback cost per month?"
+    answer: "Circleback's Pro plan is $18 per seat per month (billed annually) or $23 month-to-month. Teams plans add admin controls and SSO at custom pricing."
+  - question: "Does Circleback have a free plan?"
+    answer: "No. Circleback offers a free trial but no permanent free tier. Fathom is the main alternative with a truly unlimited free plan."
+  - question: "Is Fathom really free forever?"
+    answer: "Fathom's individual plan is free with no meeting limits, unlimited transcripts, and AI summaries. Paid plans unlock team features and CRM integrations starting around $19 per user per month."
+  - question: "How does Circleback compare to tl;dv pricing?"
+    answer: "tl;dv has a free tier similar to Fathom and a Pro plan at $18 per user per month, making it price-equivalent to Circleback but with a heavier focus on call coaching and revenue intelligence."
+  - question: "What does Circleback include that Fathom does not?"
+    answer: "Circleback's main differentiator is native action-item syncing to HubSpot, Salesforce, and Notion, plus customizable meeting templates that push structured data to your CRM automatically."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+If you are evaluating [Circleback](/go/circleback/) right now, the first thing you hit is a pricing page with no free plan and a "Start trial" button that tells you nothing concrete. The question GTM teams actually ask is not "what are the tiers called" but "what does this cost for my 10-rep team, and is it meaningfully better than Fathom's free plan or worth the upgrade from tl;dv?" I mapped Circleback's published pricing against its two main competitors so you can make that call without sitting through a discovery call.
+
+<KeyTakeaways items={[
+  "Circleback has no free plan. Pro is $18 per seat per month billed annually, roughly $23 month-to-month.",
+  "Fathom's individual plan is genuinely free with unlimited meetings. That changes the ROI math for small teams entirely.",
+  "For a 10-rep team, Circleback runs $2,160 to $2,760 per year before any add-ons. Fathom runs $0 for solo use or roughly $2,280 per year for the team tier.",
+  "Circleback's real edge is CRM write-back: structured action items pushed to HubSpot or Salesforce fields, not just a summary in the notes field.",
+  "tl;dv sits at the same $18 price point but leans into call coaching and revenue intelligence rather than CRM data hygiene."
+]} />
+
+<StatRow stats={[
+  { number: "$18", label: "Circleback Pro per seat/month", description: "Billed annually. Month-to-month adds roughly 25% to that rate per Circleback's published pricing page." },
+  { number: "$0", label: "Fathom individual plan", description: "Unlimited meetings, transcripts, and AI summaries. No seat cap, no meeting limit, no expiry per Fathom's pricing page." },
+  { number: "$2,160", label: "Circleback annual cost for 10 reps", description: "At the $18 rate billed annually. Add SSO, admin controls, or custom templates and you are in custom-quote territory." }
+]} />
+
+## What you actually get at each Circleback tier
+
+Circleback publishes two named tiers and a custom enterprise track. Here is how I read what matters in each, stripped of marketing language.
+
+The **Pro plan at $18 per seat per month** (annual) covers the core loop: bot joins your Zoom, Google Meet, or Teams call, transcribes and summarizes it, extracts action items, and pushes them to your connected tools. HubSpot and Salesforce integrations are included at this tier. That is the main reason to pick Circleback over a free tool. You get custom meeting templates so the AI fills structured fields rather than dumping a wall of text into the CRM notes field. That is a real operational difference if your RevOps motion requires consistent deal-stage data capture.
+
+The **Teams or Enterprise tier** adds SSO, admin-level visibility across the org, usage analytics, and priority support. Circleback does not publish a price here. Per the vendor's own positioning, this tier targets orgs with 20-plus seats and compliance requirements. If you need SOC 2 or HIPAA alignment, you are in a custom-quote conversation.
+
+What Circleback does not offer: a free tier, any form of call coaching or rep scoring, or revenue intelligence dashboards. It is a data-capture and CRM-hygiene tool, not a [Gong](/go/gong/)-style conversation intelligence platform. I'd argue that distinction matters more than most buyers realize when they are comparison shopping.
+
+<IntentTable
+  title="Circleback vs Fathom vs tl;dv: What you get for the money"
+  caption="All prices annual billing. Fathom free tier is individual only; team features require paid plan."
+  cols={[
+    { name: "Circleback", affiliateSlug: "circleback", ctaLabel: "Try Circleback", highlight: false },
+    { name: "Fathom", affiliateSlug: "fathom", ctaLabel: "Try Fathom", highlight: true },
+    { name: "tl;dv", affiliateSlug: "tl-dv", ctaLabel: "Try tl;dv", highlight: false }
+  ]}
+  rows={[
+    { label: "Free plan", cells: ["No (trial only)", "Yes, unlimited individual", "Yes, limited clips"] },
+    { label: "Entry paid price", cells: ["$18/seat/mo", "~$19/user/mo (team)", "$18/user/mo"] },
+    { label: "CRM write-back", cells: ["HubSpot + Salesforce (Pro)", "HubSpot + Salesforce (paid)", "HubSpot + Salesforce (Pro)"] },
+    { label: "Custom meeting templates", cells: ["Yes", "Limited", "No"] },
+    { label: "Call coaching / rep scoring", cells: ["No", "No", "Yes (Pro+)"] },
+    { label: "Revenue intelligence", cells: ["No", "No", "Yes (paid)"] },
+    { label: "Slack / Notion sync", cells: ["Yes", "Yes", "Yes"] },
+    { label: "SSO / enterprise controls", cells: ["Custom tier only", "Enterprise only", "Enterprise only"] }
+  ]}
+/>
+
+## The true cost: real math for a 10-rep team
+
+Let me run the arithmetic for three common buying situations so you can pressure-test the budget case.
+
+**Scenario A: 10 AEs, Circleback Pro, annual billing.**
+10 seats x $18 x 12 months = $2,160 per year. If even two of those reps are month-to-month during a trial extension, add roughly $46 per month for those seats. If you need admin controls and SSO, you are in a custom quote. Budget $2,400 to $3,000 as a realistic annual range for a 10-rep team once you factor in the enterprise feature negotiation.
+
+**Scenario B: 10 AEs, Fathom team plan, annual billing.**
+Fathom's team plan is [published at approximately $19 per user per month](https://fathom.video/pricing) for the paid tier. That is 10 x $19 x 12 = $2,280 per year. The difference versus Circleback Pro is roughly $120 per year at that seat count, essentially a rounding error. The real question is whether you need Circleback's structured CRM template fields or whether Fathom's AI summary-to-notes-field approach is good enough for your RevOps process.
+
+**Scenario C: Solo founder or one-rep team.**
+Fathom wins this scenario outright. Free is free. Circleback asks you to pay $18 per month minimum. If you are not syncing to a CRM in a structured way, there is no rational case for paying Circleback over Fathom at the individual level. This is not a close call.
+
+**The add-on risk on Circleback:** per the [Circleback pricing page](https://circleback.ai/pricing), the enterprise tier does not list a per-seat rate. Teams that start on Pro and then need SSO or compliance controls mid-year will face a mid-contract conversation. Plan for that if you are at a Series B or later company with an IT security review process.
+
+## Which tier for which team
+
+<ChooseIf
+  title="Which AI notetaker fits your team?"
+  tools={[
+    {
+      name: "Circleback",
+      conditions: [
+        "You need structured data written to specific CRM fields, not just meeting notes",
+        "Your RevOps process requires consistent deal-stage data capture from every call",
+        "You are running HubSpot or Salesforce and want action items auto-logged without manual entry"
+      ],
+      pricing: "$18/seat/mo (annual)",
+      affiliateSlug: "circleback",
+      ctaLabel: "Try Circleback",
+      highlight: true
+    },
+    {
+      name: "Fathom",
+      conditions: [
+        "You are a solo operator or early team that cannot justify per-seat costs yet",
+        "You want unlimited free meeting notes with solid AI summaries and no seat pressure",
+        "Your CRM hygiene process is still ad hoc and you are not ready for structured templates"
+      ],
+      pricing: "Free individual / ~$19/user/mo team",
+      affiliateSlug: "fathom",
+      ctaLabel: "Try Fathom",
+      highlight: false
+    },
+    {
+      name: "tl;dv",
+      conditions: [
+        "You want call coaching and rep scoring alongside meeting summaries",
+        "You are building a revenue intelligence layer without committing to Gong pricing",
+        "Your team needs clip-and-share features for async sales enablement and deal reviews"
+      ],
+      pricing: "Free tier / $18/user/mo Pro",
+      affiliateSlug: "tl-dv",
+      ctaLabel: "Try tl;dv",
+      highlight: false
+    }
+  ]}
+/>
+
+For teams already running structured RevOps with [HubSpot](/tools/hubspot/) or Salesforce as their system of record, Circleback's template-to-CRM-field workflow is genuinely useful. The alternative is building that logic yourself in Zapier or n8n, which costs engineering time and breaks every time the notetaker changes its output format. For teams that are still figuring out their post-call process, Fathom's free tier is the right starting point. You can always migrate later when the structure actually matters.
+
+If you are comparing Circleback against conversation intelligence tools rather than pure notetakers, [tl;dv](/tools/tl-dv/) is the more honest comparison. At identical price points, tl;dv adds rep coaching and pipeline analytics that Circleback does not touch. The overlap with Gong is real, though tl;dv is priced 60-70% below [Gong](/tools/gong/) for equivalent seats, per published vendor pricing.
+
+For teams evaluating their broader outbound stack alongside notetaker costs, it is worth reading how [calling platforms factor into the total RevOps budget](/blog/2026-11-07-justcall-vs-kixie-vs-aircall-best-calling-platform-for-sdrs/) before locking in another per-seat line item.
+
+<MyTake>
+Circleback's pricing is only defensible if your team actually uses the CRM template engine. If your reps are going to let the AI dump a summary into the notes field anyway, you are paying $18 per seat per month for something Fathom does free. My read is that most teams adopt AI notetakers before they have the RevOps process to make structured output matter, which means a meaningful share of Circleback customers are paying for a capability they have not operationalized. Start with Fathom. Add Circleback when you have a data model worth writing to.
+</MyTake>
+
+## The bottom line on Circleback pricing
+
+Circleback charges a fair price for what it does, but "fair" only applies if you are buying the right thing. The CRM template-to-field write-back is a genuine differentiator that saves RevOps teams from building and maintaining their own post-call enrichment workflows in tools like [n8n](/tools/n8n/) or [Zapier](/tools/zapier/). For a 10-rep team at $2,160 per year, that is easy to justify if it eliminates even a few hours of manual CRM cleanup per week. For solo operators or early teams without structured CRM processes, Fathom's free tier covers 90% of the same surface area at zero cost, and [Fathom](/tools/fathom/) is where I would start before evaluating paid options.
+
+<BottomLine
+  verdict="Circleback is worth the $18 per seat if your RevOps process requires structured CRM field writes after every call. If you are still building that process, start with Fathom free and upgrade when the structure actually matters."
+  pick="Circleback"
+  affiliateSlug="circleback"
+  ctaLabel="See Circleback pricing"
+/>
+
+<Sources sources={[
+  { label: "Circleback: official pricing page", url: "https://circleback.ai/pricing" },
+  { label: "Fathom: pricing and plan details", url: "https://fathom.video/pricing" },
+  { label: "tl;dv: pricing page", url: "https://tldv.io/pricing" },
+  { label: "G2: Circleback reviews and feature ratings", url: "https://www.g2.com/products/circleback/reviews" }
+]} />
