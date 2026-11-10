@@ -1,0 +1,158 @@
+---
+title: "Bland AI Pricing in 2026: Voice Minute Costs and Plans"
+description: "Bland AI pricing explained: per-minute costs, enterprise tiers, and when Vapi or Synthflow is actually cheaper for your call volume."
+tldr: "Bland AI charges around $0.09 per minute on its self-serve plan, with enterprise custom pricing available, making Vapi cheaper at high call volumes but Bland more accessible to start."
+pubDate: 2026-11-10
+tags: ["tools", "automation", "voice-ai"]
+faqs:
+  - question: "How much does Bland AI cost per minute?"
+    answer: "Bland AI's self-serve plan is priced at approximately $0.09 per minute for outbound voice calls. Enterprise plans negotiate custom per-minute rates below that floor."
+  - question: "Is Bland AI cheaper than Vapi?"
+    answer: "At low volumes (under 10,000 minutes per month) Bland AI is comparable or cheaper. Above that threshold Vapi's volume pricing tends to undercut Bland's self-serve rate."
+  - question: "Does Bland AI have a free trial?"
+    answer: "Bland AI offers a limited free tier for testing, but meaningful call testing requires adding credits. There is no unlimited free trial."
+  - question: "What is the difference between Bland AI and Synthflow pricing?"
+    answer: "Synthflow uses a subscription plus per-minute model starting around $29/month for 500 minutes, while Bland AI is purely consumption-based with no seat fee on self-serve."
+  - question: "Can I use Bland AI for inbound calls?"
+    answer: "Yes, Bland AI supports both inbound and outbound voice agents. Per-minute costs apply to both, and inbound requires provisioning a phone number through the platform."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The question that keeps coming up in RevOps Slack channels right now is not "should we try AI voice?" but "what will it actually cost us per month once we scale this thing?" [Bland AI](/go/bland-ai/) is the most talked-about entry point because its self-serve onboarding is dead simple, but the per-minute pricing math gets complicated fast once you layer in LLM costs, telephony fees, and the volume break points where competitors like [Vapi](/go/vapi/) and [Synthflow](/go/synthflow/) become meaningfully cheaper. This post does the arithmetic so you do not have to.
+
+<KeyTakeaways items={[
+  "Bland AI self-serve is ~$0.09/min all-in; enterprise negotiates below that floor",
+  "Vapi undercuts Bland on volume above roughly 10,000 minutes per month",
+  "Synthflow bundles minutes into monthly subscriptions, which is better for predictable, mid-volume programs",
+  "The real gotcha across all three is LLM latency costs baked into concurrent call limits, not the per-minute rate alone"
+]} />
+
+<StatRow stats={[
+  { number: "$0.09", label: "Bland AI self-serve rate", description: "Per-minute all-in cost on the standard consumption plan, per Bland AI's published pricing" },
+  { number: "$0.05", label: "Vapi enterprise floor", description: "Approximate per-minute rate at high volume (10k+ min/month) based on Vapi's published volume tiers" },
+  { number: "500 min", label: "Synthflow starter bundle", description: "Minutes included in Synthflow's $29/month entry plan before per-minute overages kick in" }
+]} />
+
+## What Bland AI's pricing actually includes
+
+[Bland AI's pricing page](https://www.bland.ai/pricing) is refreshingly direct for this category: you pay per minute of call time. No seat fees, no platform fees on the self-serve tier, no separate charges for the number of agents you configure. The $0.09/min rate covers voice synthesis, the telephony relay, and the basic LLM inference powering the conversation. What it does not cover is phone number provisioning, which runs about $1.15 per number per month through Bland's Twilio-backed infrastructure.
+
+Where teams get surprised is concurrent call capacity. The self-serve plan caps you at a relatively low number of simultaneous calls. If you are running a dialing campaign that needs 20 or 50 live calls at once, you will hit that ceiling before your minute bill gets interesting. Enterprise contracts unlock higher concurrency and typically negotiate a per-minute rate between $0.04 and $0.07 depending on committed volume. My read is that the self-serve tier is genuinely useful for proofs of concept and smaller programs (under 5,000 minutes per month), but anyone building a production SDR replacement workflow should be in conversation with Bland's sales team before writing a line of configuration.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The concurrency trap**
+
+    Teams often forecast their monthly minute bill correctly but forget to account for concurrent call limits. If your outbound program fires 50 calls at 9 AM, a low concurrency cap means calls queue instead of connect. That is not a billing problem, it is a pipeline problem. The first thing I would check before committing to any plan is the concurrent call ceiling, not the per-minute rate.
+  </Fragment>
+  <Fragment slot="right">
+    ```
+    Example: 10,000 min/month program
+
+    Self-serve ($0.09/min):
+      10,000 × $0.09 = $900/month
+      + 2 numbers × $1.15 = $2.30
+      Total: ~$902/month
+
+    Enterprise ($0.06/min negotiated):
+      10,000 × $0.06 = $600/month
+      + numbers + SLA fee
+      Total: ~$620-650/month
+
+    Concurrency needed: 30 simultaneous
+    Self-serve limit: often 5-10
+    → Enterprise required regardless of budget
+    ```
+  </Fragment>
+</SideBySide>
+
+## The true cost: real math for a 10-rep SDR team
+
+Say a RevOps team is standing up an AI voice layer for a 10-rep outbound motion. Each AI agent makes 150 calls per day, average call duration of 90 seconds (most go to voicemail or hit a 20-second answer before hang-up, with a few 4-minute conversations pulling the average up). That is roughly 225 minutes per agent per day, 2,250 minutes across the team, and about 45,000 minutes per month on a 20-day working month.
+
+At Bland AI's self-serve rate that is $4,050/month. At a negotiated enterprise rate of $0.06/min it drops to $2,700/month. At [Vapi](/tools/vapi/)'s published volume pricing for 50k+ minutes, around $0.05/min all-in per [Vapi's billing docs](https://docs.vapi.ai/billing), the same load costs $2,250/month. That $450 delta is real but not the deciding factor. The deciding factor is usually developer time: Bland AI's no-code agent builder versus Vapi's API-first approach. If your team has an engineer to own the integration, Vapi wins on cost. If this is a RevOps-led build with no dedicated eng, Bland AI's setup speed offsets the premium.
+
+[Synthflow](/tools/synthflow/) at this volume does not make economic sense on its subscription tiers. Its $299/month "Scale" plan includes 2,000 minutes, and overages run $0.13/min. At 45,000 minutes, your Synthflow bill comes out to $299 + (43,000 x $0.13) = $5,888/month, per [Synthflow's published pricing](https://synthflow.ai/pricing). Synthflow is priced for lower-volume programs, not high-throughput dialing.
+
+This is the same cost-at-scale tension I see covered in the [AI dialer comparison between Nooks, Orum, and Kixie](/blog/2026-11-07-nooks-vs-orum-vs-kixie-best-dialer-for-sdr-teams-2026/): the tool with the friendliest entry price is rarely the right call once you model out 90-day volumes.
+
+## Which plan fits which team
+
+<ChooseIf title="Bland AI vs Vapi vs Synthflow: which fits your program" tools={[
+  {
+    name: "Bland AI",
+    conditions: [
+      "You are running a proof of concept or pilot under 5,000 minutes per month",
+      "Your RevOps team is owning the build without dedicated engineering support",
+      "You want a no-code agent builder and fast time-to-first-call"
+    ],
+    pricing: "~$0.09/min self-serve, custom enterprise",
+    affiliateSlug: "bland-ai",
+    ctaLabel: "Try Bland AI",
+    highlight: false
+  },
+  {
+    name: "Vapi",
+    conditions: [
+      "You have an engineer or technical RevOps lead who can own API-level integration",
+      "Your program will exceed 10,000 minutes per month within 60 days",
+      "You need fine-grained control over LLM model selection and voice provider"
+    ],
+    pricing: "~$0.07/min standard, lower at volume",
+    affiliateSlug: "vapi",
+    ctaLabel: "Try Vapi",
+    highlight: true
+  },
+  {
+    name: "Synthflow",
+    conditions: [
+      "You want predictable monthly billing rather than consumption-based surprises",
+      "Your use case is inbound receptionist or low-volume appointment booking",
+      "Call volume is under 3,000 minutes per month consistently"
+    ],
+    pricing: "From $29/month (500 min included)",
+    affiliateSlug: "synthflow",
+    ctaLabel: "Try Synthflow",
+    highlight: false
+  }
+]} />
+
+## Where the pricing is fair and where it stings
+
+Bland AI's self-serve pricing is genuinely fair for the category. A flat per-minute rate with no seat tax is the right model for teams who do not know their volume yet. The enterprise tier is competitive if you can get to a commitment conversation quickly.
+
+What stings is the concurrency ceiling on self-serve. It is functionally a forcing mechanism to push you into enterprise, and the gap between self-serve and enterprise capability is wide enough to create real production risk if you do not catch it in scoping. The pattern that keeps surfacing in community forums: teams go live with a campaign only to discover their calls are queueing instead of dialing because they hit the concurrency wall.
+
+Vapi's pricing is aggressive at volume but the total cost of ownership includes the developer time to maintain a more complex integration. That is a real cost that does not appear on the pricing page.
+
+Synthflow's overage rate of $0.13/min is the worst of the three for anyone who underestimates their volume. If you buy a subscription expecting predictability and blow past the included minutes, you end up paying more per minute than Bland AI's self-serve rate. For a discussion of how that same overage-trap pattern plays out in a different category, see the [Warmly pricing breakdown](/blog/2026-11-10-warmly-pricing-in-2026-plans-seat-costs-and-when-to-upgrade/).
+
+<MyTake>
+The per-minute rate is the wrong number to anchor on when evaluating AI voice platforms. Concurrency limits and developer ownership cost are the variables that actually determine your total spend and time-to-value. Bland AI is priced to win at the pilot stage and it does. But the enterprise conversation needs to happen before you go to production, not after your first campaign queues instead of dials. Teams that skip that step are negotiating from a weak position mid-rollout, and vendors know it.
+</MyTake>
+
+## The bottom line on Bland AI pricing
+
+Bland AI is the right starting point for most RevOps-led AI voice programs, specifically because self-serve onboarding does not require procurement or engineering sign-off to validate the use case. The $0.09/min rate is not the cheapest in the market at scale, but it is priced fairly for the speed and simplicity it delivers. When your program clears 10,000 minutes per month and you have the engineering resources to handle a more complex integration, [Vapi](/tools/vapi/) earns a serious look. [Synthflow](/tools/synthflow/) is the right fit when call volume is bounded and billing predictability matters more than cost efficiency.
+
+<BottomLine verdict="Start with Bland AI for pilots and low-volume programs. Move the conversation to enterprise pricing before you hit production. Evaluate Vapi seriously once you can commit to 10k+ minutes per month and have engineering capacity to own the integration." pick="Bland AI" affiliateSlug="bland-ai" ctaLabel="See Bland AI pricing" />
+
+<Sources sources={[
+  { label: "Bland AI: official pricing page", url: "https://www.bland.ai/pricing" },
+  { label: "Vapi docs: billing and usage", url: "https://docs.vapi.ai/billing" },
+  { label: "Synthflow: plans and pricing", url: "https://synthflow.ai/pricing" }
+]} />
