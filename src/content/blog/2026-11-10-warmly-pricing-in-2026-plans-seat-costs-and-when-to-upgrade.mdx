@@ -1,0 +1,161 @@
+---
+title: "Warmly Pricing in 2026: Plans, Seat Costs, and When to Upgrade"
+description: "A no-fluff breakdown of Warmly's 2026 pricing tiers, real seat costs, and how it stacks up against RB2B and Factors.ai for pipeline-generating teams."
+tldr: "Warmly's paid plans start around $700/month for up to 3 seats, with meaningful jumps at the Business tier once you need more reveal volume and CRM routing automation."
+pubDate: 2026-11-10
+tags: ["tools", "automation", "intent"]
+faqs:
+  - question: "How much does Warmly cost in 2026?"
+    answer: "Warmly's Startup plan runs roughly $700/month billed annually, covering up to 3 seats and a capped number of monthly identified visitors. Business pricing requires a custom quote."
+  - question: "Does Warmly have a free plan?"
+    answer: "Yes, Warmly offers a free tier that reveals up to 500 visitors per month, though it lacks CRM sync and AI routing features."
+  - question: "What is the difference between Warmly and RB2B?"
+    answer: "RB2B focuses on identifying individual LinkedIn profiles visiting your site and pushing them to Slack, while Warmly adds account-level intent scoring, CRM routing, and meeting booking automation on top of the reveal layer."
+  - question: "Is Warmly worth it for small sales teams?"
+    answer: "For teams under four reps with low site traffic, the free or Startup tier can generate pipeline. The Business tier only pays off when you have enough volume to justify the routing automation."
+  - question: "How does Warmly pricing compare to Factors.ai?"
+    answer: "Factors.ai pricing is also volume-based and roughly comparable to Warmly at the mid-tier, but Factors leans harder into G2 intent and account analytics rather than real-time visitor orchestration."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The question I hear most from GTM operators evaluating [Warmly](/go/warmly/) is not "does it work?" but "at what point does the math actually close?" Website visitor identification is a crowded space in 2026, and the pricing models vary enough that you can easily land on the wrong tier, or the wrong tool entirely, if you skip the arithmetic before signing. This post breaks down what Warmly actually costs at each stage, how those costs compare against [RB2B](/go/rb2b/) and [Factors.ai](/go/factors-ai/), and which team profile fits which option.
+
+<KeyTakeaways items={[
+  "Warmly's free tier reveals up to 500 visitors/month with no CRM sync, useful for validating signal before committing budget.",
+  "The Startup plan at roughly $700/month (annual) is the realistic entry point for teams that want Slack alerts and basic HubSpot or Salesforce push.",
+  "Business pricing is custom and only worth pursuing when your site volume is high enough that manual triage of identified accounts becomes a bottleneck.",
+  "RB2B is cheaper for pure LinkedIn-level person identification but lacks Warmly's orchestration layer. Factors.ai sits in between on features but ahead on G2 intent data.",
+  "The gotcha is visitor reveal limits: overages are charged per thousand, and fast-growing sites can blow past the Startup cap in a heavy traffic month."
+]} />
+
+<StatRow stats={[
+  { number: "$0", label: "Free tier entry", description: "Warmly's free plan reveals up to 500 unique visitors per month, no credit card required." },
+  { number: "~$700/mo", label: "Startup plan (annual)", description: "Covers up to 3 seats and roughly 10,000 identified visitors per month billed annually. Month-to-month carries a premium." },
+  { number: "15-20%", label: "Typical reveal rate", description: "Per Warmly's own published benchmarks, most B2B sites see 15 to 20% of visitors identified at the account level, with individual-level ID coming in lower." }
+]} />
+
+## What Warmly's tiers actually include
+
+Warmly structures pricing around three variables: revealed visitor volume, seat count, and automation feature access. The free plan is a proof-of-concept tier. Startup is where real RevOps workflows begin. Business is where you get AI routing, multi-channel orchestration, and the deeper CRM field mapping that makes the tool worth its cost for a live outbound motion.
+
+The free plan caps at 500 visitors and gives you Slack notifications plus limited CRM integration. It's enough to confirm that Warmly is picking up signal on your site. It won't power a consistent pipeline motion. Startup bumps the limit significantly and adds direct HubSpot and Salesforce sync, intent scoring, and the ability to route accounts to specific reps by territory or account owner logic.
+
+Business is where pricing goes opaque, as it typically does with tools in this category. Per the [published pricing page](https://warmly.ai/pricing) (checked November 2026), Business requires a sales conversation and is scoped by estimated monthly unique visitors plus seat count. My read is that teams under ten reps with sub-50,000 monthly site visits should exhaust the Startup plan first before engaging on a Business quote. Don't let a vendor AE talk you into Business tier before you've proven the Startup signal converts to pipeline.
+
+<IntentTable
+  title="Warmly Tier Comparison: What You Actually Get"
+  caption="Annotated against what matters operationally, not just what's on the vendor feature checklist."
+  cols={[
+    { name: "Free", affiliateSlug: "warmly", ctaLabel: "Start Free" },
+    { name: "Startup (~$700/mo)", affiliateSlug: "warmly", ctaLabel: "See Startup" },
+    { name: "Business (custom)", affiliateSlug: "warmly", ctaLabel: "Get a Quote" }
+  ]}
+  rows={[
+    { label: "Visitor reveals/mo", cells: ["500", "~10,000", "Custom volume"] },
+    { label: "Seats included", cells: ["1", "Up to 3", "Custom, per seat fees above base"] },
+    { label: "CRM sync (HubSpot / Salesforce)", cells: ["Limited", "Yes", "Yes + custom field mapping"] },
+    { label: "Slack alerts", cells: ["Yes", "Yes", "Yes"] },
+    { label: "AI rep routing", cells: ["No", "Basic", "Full territory + round-robin logic"] },
+    { label: "Multi-channel orchestration", cells: ["No", "No", "Yes (email + LinkedIn sequences)"] },
+    { label: "Overage charges", cells: ["Blocked at cap", "Per 1,000 visitors above limit", "Negotiated in contract"] },
+    { label: "Best for", cells: ["Validating signal", "1-3 rep teams with active outbound", "Growth-stage teams with real volume"] }
+  ]}
+/>
+
+## The true cost: running the math for a real team
+
+Put some concrete numbers on this. Say you're a 5-rep SaaS team on the Startup plan at $700/month. That plan officially seats 3 users, so you need to add 2 more. Per the Warmly pricing page, additional seats beyond the included count run roughly $50-$75 per seat per month at the Startup tier.
+
+The arithmetic: $700 (base) plus 2 seats at $60 (midpoint estimate) lands at $820/month on annual billing, or approximately $9,840/year. If your site spikes in a launch month and you push 14,000 identified visitors instead of 10,000, you're looking at overage charges on the 4,000 excess, typically billed at around $20-$30 per additional thousand. That's an $80-$120 overage on a heavy month. Manageable, but worth factoring into the annual budget if you run regular campaigns.
+
+At that spend level, the tool needs to close pipeline you can actually attribute. I'd argue the minimum reasonable benchmark for Warmly justifying Startup-tier spend is 3-5 influenced opportunities per month in a sales cycle where average contract value is at least $15,000. Below that ACV, the per-opportunity cost of identified intent starts looking expensive relative to outbound alternatives like [Apollo](/go/apollo/) or [Clay](/go/clay/), which surface similar account signals at lower unit costs (see the [Instantly vs Clay vs Apollo lead gen ROI comparison](/blog/2026-11-08-instantly-vs-clay-vs-apollo-lead-gen-roi-compared/) for the full breakdown on that tradeoff).
+
+For Business tier, vendors in this category consistently price at $2,000-$5,000+/month for teams with meaningful volume. Without a quote in hand, I'd budget $3,000/month as a planning assumption if your site sees 50,000+ monthly B2B visitors and you have a full SDR team needing automated routing.
+
+## Which tier for which team
+
+<ChooseIf
+  title="Which Warmly Plan Fits Your Team?"
+  tools={[
+    {
+      name: "Free Tier",
+      conditions: [
+        "You have fewer than 500 monthly B2B visitors and need to prove signal exists before budgeting",
+        "You're pre-SDR and just want Slack pings when target accounts visit",
+        "You want to validate Warmly's reveal quality vs. your existing enrichment stack before committing"
+      ],
+      pricing: "Free",
+      affiliateSlug: "warmly",
+      ctaLabel: "Start Free"
+    },
+    {
+      name: "Startup (~$700/mo annual)",
+      conditions: [
+        "You have 1-4 SDRs with an active outbound motion who need live account intent routed into their sequences",
+        "Your site gets 5,000 to 15,000 monthly B2B visitors and CRM sync is a hard requirement",
+        "You're already pairing Warmly with a workflow tool like Make or n8n to push identified accounts into Smartlead or HubSpot sequences"
+      ],
+      pricing: "~$700/mo (annual), ~$850/mo (monthly)",
+      affiliateSlug: "warmly",
+      ctaLabel: "See Startup Plan",
+      highlight: true
+    },
+    {
+      name: "Business (custom quote)",
+      conditions: [
+        "You have 5+ reps and site volume high enough that manual triage of daily identified accounts creates a real bottleneck",
+        "You need territory-based rep routing, round-robin assignment, or multi-channel sequence enrollment from within Warmly itself",
+        "Your RevOps team wants AI-powered orchestration rather than stitching everything together in a middleware layer"
+      ],
+      pricing: "Custom, budget $2,500-$5,000+/mo",
+      affiliateSlug: "warmly",
+      ctaLabel: "Request a Quote"
+    }
+  ]}
+/>
+
+## How Warmly compares to RB2B and Factors.ai on value per dollar
+
+The honest framing here is that these three tools are not fully substitutable. They share the visitor identification category but diverge sharply on what you do with the signal afterward.
+
+[RB2B](/tools/rb2b/) leads on individual-level LinkedIn identification, pushing a named person (not just an account) to Slack when they visit your site. Its pricing is simpler: a flat monthly fee around $119/month at the base tier as of late 2026, per the [RB2B pricing page](https://www.rb2b.com/pricing), covering a set number of identified individuals. If your use case is "I want to know which specific person from Acme Corp visited our pricing page and reach out to them on LinkedIn within the hour," RB2B delivers that at a lower price than Warmly's Startup plan. What it does not do is route that person into a CRM workflow, trigger a sequence in [Smartlead](/go/smartlead/), or score account-level intent over time.
+
+[Factors.ai](/tools/factors-ai/) occupies the analytical middle ground. It layers G2 intent data, LinkedIn ad attribution, and account-level scoring on top of the visitor reveal layer, as detailed on the [Factors.ai pricing overview](https://www.factors.ai/pricing). Where Warmly optimizes for real-time sales rep action, Factors leans toward marketing and demand gen teams who want to understand which channels are driving high-intent accounts. Pricing is similarly volume-based and in the same rough band as Warmly's Startup tier, but the tool requires more configuration to operationalize for SDR workflows. I'd argue most SDR teams will find Factors harder to action without a marketing ops person owning the setup.
+
+My read: if your motion is SDR-led and you want identified accounts flowing into existing sequences in Smartlead or [Lemlist](/go/lemlist/) with minimal middleware, Warmly is the right anchor. If you want person-level LinkedIn reach-out automation, RB2B is cheaper and faster to set up. If you're a marketing-led team trying to close the attribution loop on paid spend and G2 category intent, Factors.ai makes more sense. The workflow post we published covers exactly how to pipe Warmly's webhook output into an [n8n](/go/n8n/) or [Make](/go/make/) automation for sequence enrollment, which is where the Startup tier earns its keep.
+
+<MyTake>
+Most teams shopping Business tier would be better served staying on Startup and spending $50/month on a Make or n8n workflow layer instead. The orchestration features Warmly charges Business-tier rates for are largely replicable with a webhook, a few Make scenarios, and a Smartlead or HubSpot sequence. Save the Business conversation for when your SDRs are genuinely drowning in volume, not just when a vendor AE makes the upgrade sound appealing.
+</MyTake>
+
+## The bottom line on Warmly's 2026 pricing
+
+Warmly's pricing structure rewards teams that move fast on identified intent. The free tier de-risks the signal validation step. The Startup plan is the right bet for most lean outbound teams, provided you're pairing it with a CRM and sequence tool so the identified accounts actually convert to pipeline. Business tier is a real conversation to have once your site volume and rep count make manual triage the bottleneck. Go in with a benchmark ACV and volume number so you can pressure-test the ROI before signing.
+
+<BottomLine
+  verdict="For most B2B SaaS outbound teams, Warmly's Startup plan at roughly $700/month is the right starting point. Upgrade to Business only when identified account volume exceeds what your SDRs can manually triage each day."
+  pick="Warmly"
+  affiliateSlug="warmly"
+  ctaLabel="See Warmly Pricing"
+/>
+
+<Sources sources={[
+  { label: "Warmly: official pricing page", url: "https://warmly.ai/pricing" },
+  { label: "RB2B: pricing and plan details", url: "https://www.rb2b.com/pricing" },
+  { label: "Factors.ai: pricing overview", url: "https://www.factors.ai/pricing" },
+  { label: "G2: Warmly reviews and competitive context", url: "https://www.g2.com/products/warmly/reviews" }
+]} />
