@@ -1,0 +1,136 @@
+---
+title: "Maildoso Pricing in 2026: Inbox Costs, Domain Limits, and When to Use Mailforge Instead"
+description: "Maildoso pricing explained: real inbox costs, domain limits, hidden fees, and how it stacks up against Mailforge and Warmforge for cold email infra."
+tldr: "Maildoso starts at around $3 per inbox per month with domain and warming included, making it one of the cheapest managed cold email infra options, but Mailforge edges it out for teams that need higher domain volume or tighter deliverability controls."
+pubDate: 2026-11-11
+tags: ["tools", "automation", "cold-email"]
+faqs:
+  - question: "How much does Maildoso cost per inbox?"
+    answer: "Maildoso pricing runs approximately $3 per inbox per month, with domains and email warming bundled in. Volume discounts apply at higher inbox counts."
+  - question: "Does Maildoso include domain registration?"
+    answer: "Yes, Maildoso bundles domain registration and DNS setup into its per-inbox pricing, so you are not paying separately for domains the way you would with a bare Google Workspace or Microsoft 365 setup."
+  - question: "What is the difference between Maildoso and Mailforge?"
+    answer: "Both are managed cold email infrastructure platforms, but Mailforge offers more granular deliverability controls and higher domain volume tiers, while Maildoso is simpler and cheaper for smaller inbox counts."
+  - question: "Does Maildoso include email warmup?"
+    answer: "Yes, Maildoso includes automated inbox warming, comparable to what Warmforge offers as a standalone product."
+  - question: "Is Maildoso good for high-volume cold email?"
+    answer: "Maildoso works well up to a few hundred inboxes, but teams running 500 or more inboxes often find Mailforge or a custom infrastructure setup more cost-effective and controllable."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Cold email infrastructure pricing is weirdly opaque for a category that claims to simplify outbound. Most vendors bury the per-inbox math behind "contact us" forms or list domains and inboxes separately, so you end up reverse-engineering a number that should be on page one. [Maildoso](/go/maildoso/) is one of the cleaner exceptions: it bundles domains, inboxes, and warming into a single per-inbox rate. But "clean" does not automatically mean "right for your team." Here is what Maildoso actually costs in 2026, where the limits show up, and when I would route a team to [Mailforge](/go/mailforge/) instead.
+
+<KeyTakeaways items={[
+  "Maildoso prices at roughly $3 per inbox per month, with domains and warming bundled, no separate line items for DNS or warmup.",
+  "The practical ceiling is around 200 to 300 inboxes before per-inbox cost advantages erode relative to Mailforge volume tiers.",
+  "Mailforge wins on deliverability controls and high-volume domain management; Maildoso wins on simplicity and low entry cost.",
+  "Warmforge is a standalone warming layer, not a full infra platform, so it is not a direct substitute for either."
+]} />
+
+<StatRow stats={[
+  { number: "~$3", label: "Per inbox per month", description: "Maildoso's all-in per-inbox rate including domain and warming, per published pricing" },
+  { number: "3 to 5", label: "Inboxes per domain", description: "Recommended ratio to protect domain reputation; Maildoso enforces reasonable defaults here" },
+  { number: "14 days", label: "Warmup period", description: "Minimum inbox aging before Maildoso considers an inbox ready for live sends, per vendor guidance" }
+]} />
+
+## What Maildoso pricing actually includes
+
+The headline number for Maildoso is approximately $3 per inbox per month. At that price, you get domain registration, DNS configuration (SPF, DKIM, DMARC), inbox creation, and automated warming. That is a meaningful bundle. Price those components separately on Google Workspace or Microsoft 365 and you are looking at $6 to $7 per inbox just for the seat, plus whatever you spend on a warming tool like [Warmforge](/go/warmforge/) or a comparable third-party service on top.
+
+The all-in-one rate is Maildoso's core value proposition. For teams standing up 20 to 100 inboxes quickly, it is genuinely compelling. A 50-inbox deployment at $3 each runs $150 per month. The same setup through [Google Workspace Starter](https://workspace.google.com/pricing) ($6 per seat) plus a Warmforge subscription runs $300 to $400 per month before you factor in domain registration costs.
+
+Where the pricing gets more nuanced is at scale. Maildoso offers volume pricing for larger inbox counts, but the published tiers are not as granular as what [Mailforge publishes](https://www.mailforge.ai/pricing). Teams running 150 to 500 inboxes across multiple campaigns often find the Maildoso rate stays flatter while Mailforge's volume tiers compress the per-inbox cost more aggressively. The first thing I'd check before committing at that scale is a side-by-side inbox count quote from both vendors.
+
+One thing Maildoso does not charge separately for: DNS setup. That sounds obvious, but several cheaper alternatives make you configure records yourself or charge a one-time setup fee. Maildoso handles propagation and record verification as part of onboarding, which matters if your team does not have an ops person comfortable in Cloudflare or Route 53.
+
+## The true cost: running the math for a real team
+
+Say you are running a 3-person SDR team sending from 60 inboxes across 20 domains (three inboxes per domain, a sensible ratio for cold email). Here is how the monthly math shakes out across the main options.
+
+**Maildoso at $3/inbox:** 60 inboxes x $3 = $180/month. Domains and warming included. No warmup tool needed.
+
+**Google Workspace Starter plus Warmforge:** 60 seats x $6 = $360 for inboxes. Domain registration at roughly $12/domain/year = $240 annualized, or $20/month for 20 domains. [Warmforge's published pricing](https://warmforge.io/pricing) adds another $49 to $99 per month depending on tier. Total: $430 to $480 per month. That is 2.4x to 2.7x the Maildoso cost for identical infrastructure.
+
+**Mailforge at comparable volume:** Mailforge's pricing is structured differently, with domain slots and inbox counts broken out. At 60 inboxes, Mailforge lands in a similar range to Maildoso, sometimes slightly higher. But it starts pulling ahead on cost per inbox once you cross 200 inboxes, where its volume discounts actually kick in and Maildoso's per-inbox rate stays flat.
+
+My read is that Maildoso is the right default for teams under 150 inboxes who want to get running fast. Above that threshold, get a Mailforge quote before committing.
+
+## Which tier fits which team
+
+<ChooseIf title="Maildoso vs. Mailforge vs. Warmforge: which fits your situation" tools={[
+  {
+    name: "Maildoso",
+    conditions: [
+      "You are standing up 20 to 150 inboxes and want a single bill with no DNS DIY",
+      "You are an agency or SDR team that rotates inbox pools frequently and values fast provisioning",
+      "You want warming included without paying for a separate Warmforge or Mailreach subscription"
+    ],
+    pricing: "~$3/inbox/month, all-in",
+    affiliateSlug: "maildoso",
+    ctaLabel: "See Maildoso pricing",
+    highlight: false
+  },
+  {
+    name: "Mailforge",
+    conditions: [
+      "You are running 200 or more inboxes and want volume-tier discounts that actually compress per-inbox cost",
+      "You need more granular deliverability controls, reputation monitoring, or dedicated IP options",
+      "You are managing infrastructure for multiple clients and need domain isolation and reporting by client"
+    ],
+    pricing: "Volume-tiered, inbox and domain slots priced separately",
+    affiliateSlug: "mailforge",
+    ctaLabel: "See Mailforge pricing",
+    highlight: true
+  },
+  {
+    name: "Warmforge",
+    conditions: [
+      "You already have inboxes provisioned elsewhere and just need a warming layer on top",
+      "You are supplementing an existing Google Workspace or Microsoft 365 setup with automated warmup",
+      "You want warming analytics and deliverability scoring without switching infrastructure vendors"
+    ],
+    pricing: "Standalone warmup plans from ~$49/month",
+    affiliateSlug: "warmforge",
+    ctaLabel: "See Warmforge pricing",
+    highlight: false
+  }
+]} />
+
+## Where Maildoso earns its price and where it does not
+
+Maildoso earns it on onboarding speed and simplicity. If you are setting up a new outbound motion and do not want to spend a week on DNS configuration, inbox provisioning, and warming schedules, Maildoso collapses that into hours. For teams running cold email alongside tools like [Instantly](/go/instantly/) or [Smartlead](/go/smartlead/), that matters. Both senders support Maildoso inboxes directly, and [the ROI tradeoffs in cold email infrastructure](/blog/2026-11-08-instantly-vs-clay-vs-apollo-lead-gen-roi-compared/) often come down to how much ops time you are spending on setup versus sending.
+
+Where I'd push back on Maildoso is deliverability transparency. The warmup is automated, but the reporting on inbox health, spam folder placement rates, and domain reputation scoring is thinner than what Mailforge or a dedicated tool like [Mailreach](/go/mailreach/) surfaces. For teams that track deliverability metrics closely, that is a real gap. You are trusting the warming algorithm without much visibility into whether it is actually working.
+
+The domain limit question comes up often. Maildoso does not cap the number of domains you can provision per se, but the practical limit is whatever your budget supports at $3 per inbox. Want 100 domains with two inboxes each? That is 200 inboxes at $600 per month. Still below what a comparable Google Workspace build costs, but a meaningful commitment. At that domain density, I'd run a [deliverability comparison between your sending platform options](/blog/2026-11-06-lemlist-vs-brevo-vs-smartlead-best-cold-email-tool-roi/) to confirm your sender is extracting value from the infrastructure spend.
+
+<MyTake>
+Maildoso's bundled pricing is genuinely well-designed, but the marketing undersells one real weakness: the warmup is a black box. You get no visibility into placement rates or domain reputation drift until something breaks. Mailforge gives you actual levers to pull when inboxes start sliding toward spam folders. If deliverability is your primary concern rather than setup speed, pay the modest Mailforge premium upfront rather than debug placement issues after the sequences are already running.
+</MyTake>
+
+## The bottom line on Maildoso pricing
+
+Maildoso at roughly $3 per inbox per month is one of the better-priced managed infrastructure options available in 2026, especially once you price in what domain registration, DNS setup, and warming would cost separately. It is the right call for teams under 150 inboxes who want a fast, low-maintenance setup. Above that threshold, [Mailforge](/tools/mailforge/) earns a serious look, particularly if you need volume discounts or deeper deliverability visibility. [Warmforge](/tools/warmforge/) is a complement, not a competitor: it makes sense when you already have inboxes elsewhere and want to bolt on warming analytics without switching infra vendors.
+
+<BottomLine verdict="Maildoso is the fastest and most cost-effective way to stand up managed cold email infrastructure under 150 inboxes. For higher volume or tighter deliverability controls, budget for Mailforge instead." pick="Maildoso" affiliateSlug="maildoso" ctaLabel="See Maildoso pricing" />
+
+<Sources sources={[
+  { label: "Maildoso: official pricing page", url: "https://www.maildoso.com/pricing" },
+  { label: "Mailforge: infrastructure pricing and tiers", url: "https://www.mailforge.ai/pricing" },
+  { label: "Google Workspace: plan comparison and pricing", url: "https://workspace.google.com/pricing" },
+  { label: "Warmforge: warmup plan pricing", url: "https://warmforge.io/pricing" }
+]} />
