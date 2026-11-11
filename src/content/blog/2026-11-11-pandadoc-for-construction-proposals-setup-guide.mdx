@@ -1,0 +1,167 @@
+---
+title: "PandaDoc for Construction Proposals: Setup Guide"
+description: "Step-by-step PandaDoc setup for construction teams: templates, tokens, approval flows, and how it compares to Qwilr and GetAccept. No technical skills needed."
+tldr: "Set up PandaDoc for construction proposals by building a master template with smart fields for scope, materials, and payment terms, then add an approval workflow and eSign before sending your first live proposal in under a day."
+pubDate: 2026-11-11
+tags: ["guide", "automation", "proposals"]
+faqs:
+  - question: "Can non-technical construction teams set up PandaDoc without IT help?"
+    answer: "Yes. PandaDoc's template builder is drag-and-drop, and all token mapping, approval routing, and eSign setup works through the UI with no code or API knowledge required."
+  - question: "Does PandaDoc work for construction proposals with line-item pricing?"
+    answer: "Yes. PandaDoc has a native pricing table that supports line items, quantity, unit price, discounts, and totals, which maps well to materials and labor breakdowns in construction bids."
+  - question: "How does PandaDoc compare to Qwilr for construction proposals?"
+    answer: "PandaDoc is stronger for structured, multi-section proposals with approval workflows and CRM sync. Qwilr wins on visual presentation and is a better fit if you sell design-heavy residential work."
+  - question: "Can I collect a deposit payment inside a PandaDoc proposal?"
+    answer: "Yes. PandaDoc integrates with Stripe so clients can pay a deposit directly on the signed document, which is useful for construction contracts requiring upfront payment."
+  - question: "What CRMs does PandaDoc connect to for construction teams?"
+    answer: "PandaDoc has native integrations with HubSpot, Salesforce, Pipedrive, and Zoho, allowing you to pull contact and project data into proposals without manual copy-paste."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Construction teams lose deals not because their bids are wrong, but because the proposal itself is a Word doc stapled to a PDF that the client has to print, sign, scan, and email back. When RevOps work surfaces in a project pipeline, that document handoff is almost always the first thing that needs fixing. [PandaDoc](/go/pandadoc/) solves the mechanical problem well: it gives estimators a reusable template with smart fields, an inline pricing table, an approval step so a PM can review before the proposal goes out, and a one-click eSign that closes the loop. This guide walks a non-technical construction team through the full setup, start to live proposal, in a single day.
+
+## Why construction proposals break without a system
+
+The typical failure is that every proposal is built from scratch. Someone digs up last month's Word doc, manually edits the client name and scope, forgets to update the payment schedule, and sends a PDF with the wrong project address. The client signs anyway, but now you have a contract with an error in it and an estimator who spent 45 minutes on a document that should take 10.
+
+The fix is not more process discipline. It is a template that makes the wrong thing hard to do. PandaDoc's token system (they call them "variables") lets you define fields for client name, project address, scope summary, start date, and payment terms once, then fill them in a form view before every send. The document cannot go out with the wrong client name because there is no place to accidentally leave the old one.
+
+<StatRow stats={[
+  { number: "18 min", label: "Avg. proposal completion time", description: "PandaDoc reports the median time to complete a sent document is under 20 minutes, per their 2023 State of Digital Documents data" },
+  { number: "3x", label: "Faster close vs. paper contracts", description: "Per PandaDoc's internal benchmarks, eSign proposals close roughly 3x faster than PDF-and-email workflows" },
+  { number: "$0", label: "Extra cost for eSign on paid plans", description: "eSign, audit trails, and payment collection via Stripe are included on PandaDoc's Business plan at $49/seat/month" }
+]} />
+
+## Setting up PandaDoc for construction proposals
+
+Before touching templates, map out the five to seven fields that change on every proposal: client name, project address, project type (commercial, residential, renovation), scope summary, materials line items, labor line items, and payment schedule. Everything else, your company description, license numbers, warranty language, dispute resolution, should be static text that never needs editing. I'd argue this mapping step is worth doing on paper before you open the tool. If you skip it, you end up with a template full of variables that half your estimators ignore.
+
+<StepRow steps={[
+  {
+    title: "Build your master template",
+    body: "In PandaDoc, go to Templates and click New Template. Use the drag-and-drop editor to lay out your standard proposal sections: Cover Page, Project Scope, Pricing Table, Payment Schedule, Terms and Conditions, Signature Block. For your cover page, type the client name as a variable using the curly-brace token syntax in PandaDoc's editor (the platform renders it as a fillable field, not raw code). Do the same for project address and start date. This becomes your single source of truth."
+  },
+  {
+    title: "Configure the pricing table",
+    body: "Click the Pricing Table block and add rows for your standard line items: Site Preparation, Foundation, Framing, Electrical Rough-In, Plumbing Rough-In, Finish Work, Cleanup. Set quantities and unit prices as editable fields so estimators can adjust per project. Enable the discount column if you offer volume pricing. PandaDoc auto-calculates subtotals and tax. This replaces your Excel bid sheet and lives inside the proposal."
+  },
+  {
+    title: "Set up approval workflow",
+    body: "Go to Settings > Workflows and create an approval step triggered before any proposal is sent. Assign approval to your project manager or principal estimator. The workflow sends them an in-app and email notification; they review the document and either approve or kick it back with comments. No proposal leaves the building without a second set of eyes. This one step catches the wrong-address problem before it becomes a signed contract problem."
+  },
+  {
+    title: "Add eSign and payment collection",
+    body: "Drop a Signature block at the end of your template for both the client and your authorized signatory. If you require a deposit to begin work, add a Payment block linked to your Stripe account. Per the PandaDoc docs, clients can pay the deposit amount directly on the signed document without leaving the page. Set the deposit amount as a variable so it auto-populates as a percentage of the total from the pricing table."
+  },
+  {
+    title: "Connect your CRM and test a live send",
+    body: "If your team uses HubSpot or Pipedrive, install the PandaDoc integration from their marketplace. Once connected, you can generate a proposal from a Deal record and have contact name, company, and project address pre-filled from CRM fields. Create a test deal, generate the proposal, fill the remaining variables in the form view, run it through the approval workflow, and send to your own email to verify the client experience before going live."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **The trap most teams hit on step three:** they set up the approval workflow but do not set a timeout. If the approver is on a job site and the client is waiting, the proposal sits in limbo for 24 hours. PandaDoc lets you configure an auto-escalation or fallback approver after a set delay. Set it to four hours during business hours. Without this, the workflow becomes a bottleneck instead of a safeguard.
+  </Fragment>
+  <Fragment slot="right">
+    ```
+    Approval workflow config (PandaDoc Settings > Workflows):
+
+    Trigger: Before send
+    Approver: Primary Estimator (email)
+    Fallback approver: Principal / Owner
+    Escalation delay: 4 hours
+    Reminder frequency: Every 2 hours
+    On rejection: Notify sender + require comment
+    ```
+  </Fragment>
+</SideBySide>
+
+## How PandaDoc compares to Qwilr and GetAccept for construction
+
+PandaDoc is not the only option here. [Qwilr](/go/qwilr/) and [GetAccept](/go/getaccept/) both serve proposal workflows, and each has a different philosophy that may fit better depending on your business type.
+
+<ChooseIf title="Which proposal tool fits your construction business?" tools={[
+  {
+    name: "PandaDoc",
+    conditions: [
+      "You send structured, multi-section proposals with detailed line-item pricing",
+      "You need an approval workflow before proposals go to clients",
+      "You want CRM integration with HubSpot, Salesforce, or Pipedrive to auto-fill contact and project data"
+    ],
+    pricing: "From $19/seat/mo (Essentials), Business at $49/seat/mo for workflows",
+    affiliateSlug: "pandadoc",
+    ctaLabel: "Try PandaDoc",
+    highlight: true
+  },
+  {
+    name: "Qwilr",
+    conditions: [
+      "You sell design-heavy residential work where visual presentation wins the bid",
+      "You want proposals that look like a website, not a PDF, with embedded videos and interactive pricing",
+      "Your team is small and you do not need a formal approval step"
+    ],
+    pricing: "From $35/seat/mo (Business), $59/seat/mo (Enterprise)",
+    affiliateSlug: "qwilr",
+    ctaLabel: "Try Qwilr"
+  },
+  {
+    name: "GetAccept",
+    conditions: [
+      "You want built-in video messaging so an estimator can record a walkthrough of the proposal",
+      "Your sales cycle involves multiple stakeholders and you need engagement tracking to see who viewed what",
+      "You are a mid-size commercial contractor where deal intelligence matters more than visual design"
+    ],
+    pricing: "From $25/seat/mo (Essential), $69/seat/mo (Professional)",
+    affiliateSlug: "getaccept",
+    ctaLabel: "Try GetAccept"
+  }
+]} />
+
+My read on this: for most commercial and residential contractors sending 20 to 100 proposals a month, PandaDoc hits the right balance of structure, workflow control, and CRM connectivity. Qwilr is a real option if your competitive differentiator is design quality. GetAccept is worth the premium if you have a business development rep who follows up and can use the engagement data to know when to call. If you are curious how [Pipedrive](/tools/pipedrive/) fits into a broader RevOps setup alongside document tools, [our breakdown of Salesforce vs. Pipedrive for outbound teams](/blog/2026-11-06-salesforce-vs-pipedrive-outbound-why-sdrs-are-switching/) covers how the CRM layer affects proposal workflows.
+
+## Tips for keeping templates clean as your business grows
+
+The first version of your template will not be the last. The common failure is letting estimators edit the master template directly, which means within three months you have six variants and no one knows which is current. Lock the template so only one person (the operations manager or whoever owns RevOps) can edit it. Estimators work from the template but cannot modify it. Any change request goes through the template owner. This is a governance decision, not a PandaDoc configuration, and it is the one that actually determines whether this setup holds up at month six.
+
+Also: build separate templates for commercial and residential work from the start. Don't try to make one template serve both. The scope language, warranty terms, and payment structures are different enough that a combined document ends up awkward for each. Per [PandaDoc's template documentation](https://support.pandadoc.com/hc/en-us/articles/360016249454), you can organize templates into folders by project type, which keeps the estimator's view clean.
+
+For teams using [HubSpot](/tools/hubspot/) as their CRM, the PandaDoc native integration lets you map Deal properties directly to template variables, so a project address stored in a custom Deal field auto-populates in the proposal. The [PandaDoc-HubSpot integration guide](https://www.pandadoc.com/integrations/hubspot/) walks through the field mapping step by step. It takes about 30 minutes to configure and eliminates the manual copy-paste step that introduces errors in the first place.
+
+<MyTake>
+Most construction teams underestimate how much deal velocity they lose at the proposal stage specifically. I'd argue the approval workflow is the highest-leverage feature in this whole setup, not the template or the eSign, because it creates a forcing function for quality review without adding calendar overhead. The teams that skip it because it "slows things down" are usually the ones sending proposals with errors in them. Speed is not the goal. Accurate, professional proposals sent quickly is the goal. Those are different things.
+</MyTake>
+
+## Sending your first live proposal
+
+Once your template is built, your approval workflow is configured, and your CRM is connected, the actual send takes under five minutes per proposal. An estimator creates or opens a deal in the CRM, clicks the PandaDoc button, selects the right template, fills in the variable form (scope summary, any line items not pre-populated, start date, payment schedule), submits for approval, and the proposal goes to the approver. After approval, one click sends it to the client with a tracked link. You get a notification when they open it, when they view the pricing section, and when they sign. That visibility alone changes how you follow up.
+
+The [PandaDoc State of Digital Documents report](https://www.pandadoc.com/state-of-digital-documents/) and [G2 reviewer data](https://www.g2.com/products/pandadoc/reviews) consistently point to the same bottleneck: the biggest driver of proposal tool adoption is not the feature set, it is template quality. A well-structured template with clean variables and accurate boilerplate is what makes the tool stick for a non-technical team. Spend the most time there. The approval workflow and eSign are table stakes. The template is the actual work.
+
+<BottomLine
+  verdict="PandaDoc is the right starting point for construction teams that want structured proposals with approval workflows and eSign without hiring a developer or buying a custom quoting tool. Build the template right once and the rest falls into place."
+  pick="PandaDoc"
+  affiliateSlug="pandadoc"
+  ctaLabel="Try PandaDoc"
+/>
+
+<Sources sources={[
+  { label: "PandaDoc: State of Digital Documents 2023", url: "https://www.pandadoc.com/state-of-digital-documents/" },
+  { label: "PandaDoc Support: Template management", url: "https://support.pandadoc.com/hc/en-us/articles/360016249454" },
+  { label: "PandaDoc: HubSpot integration guide", url: "https://www.pandadoc.com/integrations/hubspot/" },
+  { label: "G2: PandaDoc user reviews", url: "https://www.g2.com/products/pandadoc/reviews" }
+]} />
