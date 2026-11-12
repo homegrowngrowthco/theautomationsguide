@@ -8,7 +8,17 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-11-05 (Session 120).
+Last updated 2026-11-12 (Session 121).
+
+## Session 121 (2026-11-12): weekly unattended cloud routine run, read-only checks (Sonnet 5.5, no op number)
+
+- **"TAG unattended check (weekly, Thu 13:00Z)"** ran from a fresh clone with the connectors only. No op number; the next attended session logs it. Read only: nothing written to Notion, n8n, Beehiiv or PostHog. No ops issue opened (nothing met the queue criteria).
+- **Engine PRs (window 11/05 14:11Z to now):** 14 `content/` PRs (#455, #457, #458, #460 to #467, #469 to #471), all merged by github-actions 1 to 4 min after opening (#458 took 11 min); none open or red. #463 (11/08) is the proof case: bot `[auto-register]` commit at 21:02:49Z, `qa` and `pr-gates` success (two `pr-gates` checks, 21:04:51Z and 21:04:53Z), merged 21:05:09Z with no help. The exact title "PR gates pass (dispatched run)" was not checked. #458 has one commit.
+- **Builder runs:** Sun 11/08 (run 34, schedule, success, started 13:09Z) 60 clusters, 17 near-win, 8 hub fixes; "Proposed 30 -> kept 10, 0 repeats"; top score 87 (MoltSets Company Deep Dive), then 57, 53, 53, 18 x5, 17; "Staged 10/10". Wed 11/11 (run 35, success, started 13:57Z, 7.9 h after 06:00Z) 60 clusters, 7 hub fixes; "Proposed 30 -> kept 6, 3 repeated a fed-back title word for word"; top 59 (Clay vs Apollo Signal-Based Outbound), 52, 38, 36, 18, 10; "Staged 6/6". Both audits: 0 collisions, 0 advisories, 0 Skipped, so no stage-then-Skipped. Yield is 10 and 6 of 30 against the 1 of 15 baseline.
+- **New posts (14 added, 0 hard each):** warnings only: titles over 60 chars (Lemlist pricing 62, Maildoso 87, Warmly 62, JustCall 65), "multiple clients" client-scale wording (Maildoso, Lemlist/Brevo/Smartlead), unlinked live-program mentions (Findymail and Make in Instantly/Clay/Apollo; Clay, Apollo, ActiveCampaign, Instantly in Lemlist/Brevo/Smartlead). No testing-claim or observation-with-a-figure warning.
+- **Queue:** 242 Published, 8 Queued, 10 Suggested, 262 Skipped. Queued: Smartlead deliverability (Low), Warmforge Review (Medium), GetAccept Review, Vector Review, Fillout Review, Prospeo Pricing, Fillout Pricing (Low), Avoma Pricing (Medium). At 2 a day from 11/12 20:00Z the last one publishes 11/16 12:00Z; the Sun 11/15 top-up lands first.
+- **source_path metric (PostHog 408442 confirmed):** 512 `affiliate_click` since 10/02 01:21Z (470 `source_via=none`, 39 `last_page`, 3 `click`). Dropped: 470 none; 34 `last_page` paths with no trailing slash; 4 `last_page` on `/` (pageview 5 to 7 s before, home links no tool); 1 woodpecker `last_page` (10/06, no pageview within 60 s). Strict human: 0 (no click event carries `$session_id` or `$browser`). Pageview-join human: 3, unchanged since 11/03 (10/13 Loops `tool-strip`, 10/19 VoiceOS `hub-cta`, 11/03 MoltSets `choose-if`), all after the redesign deploy with a non-empty path; before it 0. Under 5, so the share is not meaningful. Rule choice stays Ian's (ops #8).
+- **Dated reads:** Nutshell (~11/10) and the pricing index rebuild (~11/12) are due but are not routine work; left in TODO. **Revert:** docs only; close this PR.
 
 ## Session 120 (2026-11-05): weekly unattended cloud routine run, read-only checks (Sonnet 5.5, no op number)
 
