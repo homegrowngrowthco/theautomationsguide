@@ -1,0 +1,156 @@
+---
+title: "Avoma Pricing in 2026: Per-Seat Costs, Plan Limits, and When Laxis Is Cheaper"
+description: "Avoma pricing broken down by tier, seat cost, and real team size math. Plus when Laxis or Fathom undercuts it on price."
+tldr: "Avoma starts at $19 per seat per month for basic recording but the AI coaching and CRM sync features most teams actually need sit at $59 to $79 per seat, making Laxis cheaper for teams that only need transcription and basic summaries."
+pubDate: 2026-11-13
+tags: ["tools", "automation", "meeting-intelligence"]
+faqs:
+  - question: "How much does Avoma cost per seat?"
+    answer: "Avoma ranges from $19 per seat per month on the Starter plan to $129 per seat on the Enterprise plan. Most RevOps teams land on the Business tier at $79 per seat for CRM sync and AI coaching."
+  - question: "Does Avoma have a free plan?"
+    answer: "Yes, Avoma offers a free plan limited to 300 minutes of transcription per month with no AI coaching or CRM integration features."
+  - question: "Is Laxis cheaper than Avoma?"
+    answer: "Laxis starts at $16.99 per seat per month and includes transcription, summaries, and basic CRM sync at that price, making it cheaper than Avoma for teams that do not need advanced coaching or deal intelligence."
+  - question: "What is the difference between Avoma and Fathom?"
+    answer: "Fathom offers a generous free tier with unlimited recording for individuals, while Avoma targets teams needing pipeline coaching, deal reviews, and CRM field population. Fathom is cheaper for solo users; Avoma justifies cost at the team level."
+  - question: "Does Avoma integrate with Salesforce and HubSpot?"
+    answer: "Yes, Avoma supports native integrations with both Salesforce and HubSpot for CRM field population, but bidirectional sync and custom field mapping are locked to the Business plan at $79 per seat or higher."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The question I hear most often when a RevOps team is evaluating meeting intelligence tools is not "which one has the best transcription." It is "which one is actually worth the per-seat cost at our headcount." [Avoma](/go/avoma/) is usually on the shortlist, and the pricing page does not make it easy to figure out what you really pay. The free plan is real but hobbled. The mid tiers look affordable until you realize the features that justify the tool are locked behind the most expensive seat costs. And [Laxis](/go/laxis/) and [Fathom](/go/fathom/) are quietly undercutting Avoma on price for a lot of team profiles. Here is the actual math.
+
+<KeyTakeaways items={[
+  "Avoma's free plan caps at 300 minutes of transcription per month, enough for one rep's light week but not a full team",
+  "The features most RevOps teams want (CRM field sync, AI coaching, deal intelligence) require the Business tier at $79 per seat per month",
+  "Laxis starts at $16.99 per seat and covers transcription plus basic CRM sync, making it cheaper for teams with no coaching requirement",
+  "Fathom's free tier is unlimited for individual recording, the best option for solo sellers or founders who do not need team dashboards",
+  "A 10-rep team on Avoma Business pays $790 per month before any annual discount, compare that against the full Laxis team plan"
+]} />
+
+<StatRow stats={[
+  { number: "$19", label: "Avoma Starter", description: "Per seat per month, annual billing. Includes recording and basic transcription but no CRM integration or AI coaching." },
+  { number: "$79", label: "Avoma Business", description: "Per seat per month where CRM field population, deal intelligence, and AI coaching scorecards unlock. The realistic tier for sales teams." },
+  { number: "$16.99", label: "Laxis entry price", description: "Per seat per month on the Premium plan, which includes transcription, meeting summaries, and basic HubSpot and Salesforce sync." }
+]} />
+
+## What Avoma's tiers actually include
+
+Avoma publishes four paid tiers plus a free plan. The free plan gives you 300 transcription minutes per month and no integrations. That is roughly five to six hour-long calls, which covers light use for a founder but nothing at the rep level.
+
+The Starter plan at $19 per seat per month adds unlimited recording and transcription, speaker identification, and basic meeting summaries. No CRM sync. No AI coaching. No deal-level insights. For most sales teams, this plan is a trial tier dressed up as a real option, and I'd skip it entirely unless you are running a proof-of-concept before committing to a higher tier.
+
+The Plus plan at $59 per seat is where things become useful: HubSpot and Salesforce integration, CRM field auto-population from call data, and conversation intelligence basics. The limitation worth flagging is that custom field mapping and bidirectional sync are still restricted at this tier.
+
+The Business plan at $79 per seat is the realistic target for a revenue team that wants Avoma to actually affect pipeline. AI coaching scorecards, deal intelligence dashboards, pipeline review features, and full CRM sync with custom field support all live here. Per [Avoma's pricing page](https://www.avoma.com/pricing), Enterprise pricing is custom and targets teams needing SSO, advanced permissions, and dedicated support.
+
+## The true cost for a real team
+
+Let me run the arithmetic for a 10-rep sales team on annual billing, which is how most teams actually buy.
+
+**Avoma Starter (10 seats):** 10 x $19 x 12 = $2,280 per year. You get recordings and transcripts. No CRM sync.
+
+**Avoma Plus (10 seats):** 10 x $59 x 12 = $7,080 per year. You get CRM integration but limited coaching.
+
+**Avoma Business (10 seats):** 10 x $79 x 12 = $9,480 per year. Full feature set.
+
+My read is that Plus is where most teams think they can land, then discover they need Business-level CRM mapping six weeks in. That mid-tier bait-and-switch is a common failure pattern with per-seat tools in this category. Budget for Business upfront or do not budget for Avoma at all.
+
+Now compare the same 10-rep team on [Laxis](/go/laxis/). The Premium plan at $16.99 per seat covers transcription, summaries, and basic CRM sync. At 10 seats annual: 10 x $16.99 x 12 = $2,039 per year. The Business plan at around $39 per seat (per [Laxis's published pricing](https://www.laxis.com/pricing)) adds team analytics and advanced CRM: 10 x $39 x 12 = $4,680 per year.
+
+For a team that does not need AI coaching scorecards or pipeline deal intelligence, Laxis Business at $4,680 delivers comparable CRM sync to Avoma Business at $9,480. That $4,800 annual delta is real budget you could put toward headcount or enablement content instead.
+
+[Fathom](/go/fathom/) occupies a different position entirely. Its free plan is genuinely unlimited for individual recording and summaries, the best free tier in this category by a wide margin. The [Fathom pricing page](https://fathom.video/pricing) shows the Team plan at around $19 per seat per month, with Salesforce and HubSpot sync available on the Premium tier. For teams that primarily need transcription plus lightweight CRM logging, Fathom competes directly with Avoma Plus at a fraction of the Business cost.
+
+You can read a more detailed breakdown of how [Circleback pricing compares to Fathom's free tier](/blog/2026-11-09-circleback-pricing-in-2026-plans-seats-and-vs-fathom-free/) if you are evaluating both.
+
+## Which tier fits which team
+
+<ChooseIf title="Which meeting intelligence tool fits your team?" tools={[
+  {
+    name: "Avoma",
+    conditions: [
+      "Your team runs structured coaching programs and needs AI scorecards against a defined rubric",
+      "You want deal intelligence surfaced from calls into a pipeline review dashboard",
+      "You are already paying for Salesforce or HubSpot and need deep bidirectional field sync"
+    ],
+    pricing: "From $19/seat, Business at $79/seat",
+    affiliateSlug: "avoma",
+    ctaLabel: "See Avoma pricing",
+    highlight: false
+  },
+  {
+    name: "Laxis",
+    conditions: [
+      "You need transcription, summaries, and CRM logging but do not have a formal coaching program",
+      "Your team is under 20 reps and budget is a primary constraint",
+      "You want CRM sync without paying Business-tier prices to get it"
+    ],
+    pricing: "From $16.99/seat, Business at ~$39/seat",
+    affiliateSlug: "laxis",
+    ctaLabel: "See Laxis pricing",
+    highlight: true
+  },
+  {
+    name: "Fathom",
+    conditions: [
+      "You are a solo founder or AE who wants unlimited free recording with no team overhead",
+      "Your team only needs basic call notes and CRM logging, not coaching or deal intelligence",
+      "You want the best free tier in the category with no transcription minute caps"
+    ],
+    pricing: "Free tier unlimited; Team from $19/seat",
+    affiliateSlug: "fathom",
+    ctaLabel: "See Fathom pricing",
+    highlight: false
+  }
+]} />
+
+<MyTake>
+Avoma's Plus tier is where the product actually falls apart as a value proposition. At $59 per seat you are paying for CRM sync but still missing the coaching and deal intelligence that make the tool worth the operational overhead of deploying it. You end up with a mid-priced product that does less than the cheap alternative (Laxis) and less than the expensive one (Avoma Business). Skip Plus. Commit to Business or move to Laxis.
+</MyTake>
+
+## The add-ons and limits worth watching
+
+A few things the top-level pricing does not surface prominently.
+
+**Storage limits.** Avoma's free and Starter plans cap recording storage. Business and Enterprise offer extended storage, but confirm the specifics for your call volume before signing.
+
+**Seats vs. viewers.** Avoma charges per active seat. If your RevOps or enablement function wants to view call libraries and dashboards without joining calls, check whether viewer-only seats are available or if they consume full seat licenses at $79 each. This one sneaks up on teams at renewal.
+
+**Annual vs. monthly billing.** Monthly billing on Avoma carries a price premium. If you are committing to the platform, annual billing is the realistic comparison point. All figures in this post use annual pricing.
+
+**Integrations beyond CRM.** Avoma connects to [Salesforce](/go/salesforce/), [HubSpot](/go/hubspot/), Zoom, Google Meet, and Teams. Zapier-based custom integrations require the Business tier or above. If your stack relies on middleware routing call data into other tools, that is a Business-tier requirement worth factoring into the decision before you sign.
+
+## What Avoma is actually worth buying
+
+The specific scenario where Avoma Business justifies $79 per seat is a team running a structured sales methodology (MEDDIC, SPICED, Challenger) where the AI scorecard grades calls against that methodology in real time and surfaces gaps for manager review. That replaces meaningful manual coaching work. For a 10-rep team where the sales manager is reviewing calls and scoring them weekly, $9,480 per year for Avoma Business is cheap relative to the manager hours it absorbs.
+
+If you are not running a structured methodology and you just want calls recorded, transcribed, and logged to CRM, Laxis or [Fathom](/tools/fathom/) at roughly half the price delivers that outcome. The pattern I'd flag is teams buying Avoma Business because the demo impressed them, then using 20% of the feature set and resenting the per-seat cost at renewal. Methodology adoption has to precede the tool purchase, not follow it. Per [G2's meeting assistant category reviews](https://www.g2.com/categories/meeting-assistant), this is a recurring complaint across the coaching-tier products, not just Avoma.
+
+<BottomLine
+  verdict="Avoma Business is worth the price for teams running structured sales coaching with CRM deal intelligence as a workflow. For teams that only need transcription and CRM logging, Laxis delivers comparable output at roughly half the annual cost."
+  pick="Avoma"
+  affiliateSlug="avoma"
+  ctaLabel="See Avoma pricing"
+/>
+
+<Sources sources={[
+  { label: "Avoma: Pricing page", url: "https://www.avoma.com/pricing" },
+  { label: "Laxis: Pricing page", url: "https://www.laxis.com/pricing" },
+  { label: "Fathom: Pricing page", url: "https://fathom.video/pricing" },
+  { label: "G2: Meeting Assistant Software category reviews", url: "https://www.g2.com/categories/meeting-assistant" }
+]} />
