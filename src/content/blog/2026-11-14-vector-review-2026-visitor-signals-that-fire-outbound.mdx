@@ -1,0 +1,217 @@
+---
+title: "Vector Review 2026: Visitor Signals That Fire Outbound"
+description: "An honest Vector review for RevOps teams: how visitor ID signals compare to RB2B and Trigify, and when they actually move outbound pipeline."
+tldr: "Vector is a solid first-mover visitor identification tool that surfaces account-level and person-level intent signals worth routing into outbound, though it competes in a tightening field against RB2B and Trigify."
+pubDate: 2026-11-14
+tags: ["tools", "automation", "outbound"]
+faqs:
+  - question: "What is Vector used for in sales?"
+    answer: "Vector identifies anonymous website visitors at the person and account level, then routes those signals into outbound sequences or CRM workflows so reps can contact high-intent prospects."
+  - question: "How does Vector compare to RB2B?"
+    answer: "Both de-anonymize website traffic, but RB2B focuses on US LinkedIn-matched individuals while Vector surfaces broader account and contact signals and is built for workflow automation hooks."
+  - question: "Does Vector integrate with HubSpot or Salesforce?"
+    answer: "Per Vector's documentation, it supports native CRM pushes to HubSpot and Salesforce, plus webhook outputs for custom routing through tools like n8n or Zapier."
+  - question: "Is Vector worth it for small outbound teams?"
+    answer: "It depends on your traffic volume. Below roughly 5,000 monthly unique visitors the signal volume is thin and the ROI case gets harder to make versus a free RB2B plan."
+  - question: "What is Trigify and how does it relate to visitor ID?"
+    answer: "Trigify is a signal aggregation layer that pulls intent from multiple sources including social, job change, and technology signals. It overlaps with visitor ID tools when used as a unified trigger router."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Visitor identification has been a RevOps talking point for years, but most implementations die in a Slack channel. Someone gets excited about the tool, connects the script, and then nothing routes anywhere actionable. The signal sits in a dashboard while reps work their normal cold list. [Vector](/go/vector/) is trying to solve the activation gap, not just the identification gap. This review breaks down where it fits, how it stacks against [RB2B](/go/rb2b/) and [Trigify](/go/trigify/), and when the ROI math actually works.
+
+<KeyTakeaways items={[
+  "Vector surfaces person-level and account-level signals with native CRM and webhook outputs built for automation-first teams.",
+  "RB2B wins on US individual identification at a lower entry price; Vector wins on workflow flexibility and broader signal types.",
+  "Trigify sits in a different lane: it aggregates multi-source intent, making it a complement to visitor ID rather than a direct swap.",
+  "Below 5,000 monthly unique visitors, signal volume is too thin for most teams to see ROI from any paid visitor ID tool.",
+  "The activation layer matters more than identification accuracy. A signal that does not fire a sequence is just a vanity dashboard."
+]} />
+
+<StatRow stats={[
+  { number: "98%", label: "Anonymous traffic", description: "Per Marketo research, roughly 98% of website visitors leave without identifying themselves, which is the core problem visitor ID tools address." },
+  { number: "5-15%", label: "Match rate range", description: "Visitor ID tools typically match between 5% and 15% of US traffic to a named individual, depending on data partner coverage and traffic source mix." },
+  { number: "72hrs", label: "Intent decay window", description: "Industry consensus places the high-value outreach window at under 72 hours after a signal fires. Routing speed is as important as signal quality." }
+]} />
+
+## What Vector Actually Does
+
+Vector drops a first-party script on your site, matches visitor fingerprints against its identity graph, and returns a payload that can include company name, LinkedIn-matched individual, pages visited, session depth, and repeat visit count. The output is not just a lead record. It is a structured signal event you can route.
+
+That routing is the differentiator Vector is betting on. Per [Vector's documentation](https://www.vectorapp.io), the platform ships with native connectors to HubSpot and Salesforce, plus a webhook layer that works with any middleware. That means you can build a workflow where a matched VP of Engineering who visits your pricing page three times in a week fires directly into a [Smartlead](/tools/smartlead/) sequence, posts a Slack alert to the AE who owns that account, and creates a CRM task, without a human touching it. I already published a step-by-step Vector plus n8n workflow on this site that covers that exact routing pattern if you want the build specifics.
+
+The identification quality depends heavily on traffic source. Paid LinkedIn traffic tends to match well because the cookie ecosystem is richer there. Direct and branded organic traffic matches worse. The first thing I'd check before committing to any visitor ID tool is your traffic source breakdown in GA4, because that number determines whether the per-match economics make sense.
+
+<ToolBreakdown
+  title="Vector vs RB2B vs Trigify: What Each One Actually Is"
+  tools={[
+    {
+      name: "Vector",
+      tagline: "Visitor ID built for outbound automation routing",
+      body: "Vector's core pitch is that identification without activation is useless. The platform is built around signal events you can webhook into your stack. If your team is already running automation in n8n or Make, Vector slots in cleanly as an event source. The tradeoff is that the identity graph skews toward North American B2B and the match rate on non-LinkedIn-sourced traffic is not exceptional.",
+      highlights: [
+        "Person-level and account-level identification",
+        "Native HubSpot and Salesforce connectors",
+        "Webhook output for n8n, Zapier, Make routing",
+        "Session depth and repeat visit signals",
+        "Sequence trigger logic built into the platform"
+      ],
+      pricing: "Contact for pricing",
+      affiliateSlug: "vector",
+      ctaLabel: "Try Vector",
+      highlight: true
+    },
+    {
+      name: "RB2B",
+      tagline: "US LinkedIn-matched individual visitor ID",
+      body: "RB2B is the name most RevOps practitioners hit first because of its free tier and sharp US LinkedIn matching. The free plan pushes individual visitor profiles to Slack. The paid tier adds CRM integrations and higher volume. My read is that RB2B is the right starting point for teams that want to validate visitor ID ROI before committing budget, specifically US-focused teams with strong LinkedIn traffic.",
+      highlights: [
+        "Free plan with Slack push for individual visitors",
+        "Strong US LinkedIn match rates",
+        "Paid tier adds CRM and volume",
+        "Person-level focus rather than account-level",
+        "Simpler stack footprint than Vector"
+      ],
+      pricing: "Free plan available; paid from ~$149/mo",
+      affiliateSlug: "rb2b",
+      ctaLabel: "Try RB2B"
+    },
+    {
+      name: "Trigify",
+      tagline: "Multi-source intent signals beyond website visits",
+      body: "Trigify is not a visitor ID tool in the traditional sense. It aggregates signals from job changes, LinkedIn activity, technology installs, and yes, website intent, into a single trigger layer. The practical use case is to combine website visit signals with job change signals and technographic changes in the same workflow. It is a complement to Vector or RB2B, not a replacement.",
+      highlights: [
+        "Aggregates social, tech, and intent signals",
+        "Job change and hiring signal triggers",
+        "LinkedIn engagement signal layer",
+        "Webhook and CRM routing",
+        "Better for multi-signal scoring than pure visitor ID"
+      ],
+      pricing: "From $99/mo",
+      affiliateSlug: "trigify",
+      ctaLabel: "Try Trigify"
+    }
+  ]}
+/>
+
+## The Activation Problem Nobody Talks About
+
+The usual failure here is not the tool. It is the absence of a defined response playbook before the script goes live. A visitor signal fires. It lands in HubSpot. No one has decided who owns it, what the outreach message is, what the SLA is, or how to suppress accounts already in active deals. Within two weeks the alerts are noise and the AEs have muted the Slack channel.
+
+Vector's automation-first architecture helps with this because it forces you to define routing logic at setup. You have to specify: if this account matches, send to this sequence, assign to this owner, suppress if deal stage is X. That constraint is a forcing function for the activation design that most visitor ID implementations skip entirely. I'd argue that is Vector's most underrated feature.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The trap:** Connecting the script and treating "data in CRM" as the goal. The signal is not the outcome. The sequence enrollment, the AE notification, and the suppression logic are the outcome. Teams that skip the playbook design before script install almost always end up with a dashboard that nobody checks.
+  </Fragment>
+  <Fragment slot="right">
+    ```
+    Vector signal event fires
+    └─ Account in CRM? 
+       ├─ Yes, open deal → suppress, log visit only
+       ├─ Yes, closed lost < 90d → alert AE, no sequence
+       └─ No match → enrich via Clay
+          └─ ICP score > 70?
+             ├─ Yes → enroll in Smartlead sequence
+             └─ No → add to low-priority nurture list
+    ```
+  </Fragment>
+</SideBySide>
+
+That routing tree is the actual work. The tool is just the trigger. If you want to see this wired into a live [n8n](/tools/n8n/) workflow with Clay enrichment in the middle, the Vector plus n8n workflow post on this site has the full canvas walkthrough.
+
+## How to Choose Between Vector, RB2B, and Trigify
+
+<ChooseIf
+  title="Which Visitor Signal Tool Fits Your Team?"
+  tools={[
+    {
+      name: "Vector",
+      conditions: [
+        "You are already running automation workflows in n8n, Make, or Zapier and want visitor signals as a webhook event source",
+        "You need both person-level and account-level signals in the same payload",
+        "Your team has the capacity to build and maintain a routing playbook, not just consume a dashboard"
+      ],
+      pricing: "Contact for pricing",
+      affiliateSlug: "vector",
+      ctaLabel: "Try Vector",
+      highlight: true
+    },
+    {
+      name: "RB2B",
+      conditions: [
+        "You want to validate visitor ID ROI before committing to a paid plan",
+        "Your traffic is predominantly US-based and you source a lot from LinkedIn campaigns",
+        "You want individual-level identification pushed to Slack with minimal setup"
+      ],
+      pricing: "Free plan; paid from ~$149/mo",
+      affiliateSlug: "rb2b",
+      ctaLabel: "Try RB2B"
+    },
+    {
+      name: "Trigify",
+      conditions: [
+        "You want to combine website visit signals with job change and LinkedIn engagement signals in a single workflow",
+        "You are building a multi-signal scoring model rather than acting on individual visit events",
+        "You already have visitor ID covered and need a broader intent aggregation layer on top"
+      ],
+      pricing: "From $99/mo",
+      affiliateSlug: "trigify",
+      ctaLabel: "Try Trigify"
+    }
+  ]}
+/>
+
+## The Traffic Volume Gate
+
+Before any of this matters, there is a minimum traffic threshold worth being honest about. If you are running fewer than 5,000 monthly unique visitors, the absolute number of matched individuals is going to be small regardless of match rate. At a 10% match rate on 5,000 visitors, you are looking at 500 matched sessions per month, and not all of them are ICP. The economics of a paid visitor ID tool start making sense when the matched ICP volume justifies the sequence management overhead.
+
+[Warmly pricing in 2026](/blog/2026-11-10-warmly-pricing-in-2026-plans-seat-costs-and-when-to-upgrade/) goes through similar math for that platform, and the threshold reasoning translates directly here. For teams under 5,000 monthly uniques, my read is to start with [RB2B](/tools/rb2b/)'s free plan and treat it as a learning period rather than a production signal source. Do not buy your way into a signal program you haven't proven yet.
+
+For teams above that threshold, the question becomes stack fit. If you are already in an automation-heavy RevOps setup where signals route through webhooks into enrichment layers and sequence tools, [Vector](/tools/vector/) is the cleaner architectural choice. The event-based model maps to how modern outbound stacks actually work.
+
+According to [G2's intent data category research](https://www.g2.com/categories/buyer-intent-data-tools), buyer intent tools see the highest adoption among companies with dedicated RevOps or marketing ops functions, which tracks with the activation-first argument Vector is making.
+
+<MyTake>
+Most visitor ID conversations are really conversations about whether the outbound team has the operational discipline to act on signals inside 72 hours. The tool choice is secondary. Buying Vector or any visitor ID platform before you have a defined suppression list, a sequence ready, and an owner assigned to new signal review is a way of spending budget to feel like you have a system without actually building one. The dashboard is not the system.
+</MyTake>
+
+## The Cluster Play: Vector in a Broader Signal Stack
+
+For teams ready to go beyond single-source visitor ID, the most defensible architecture is Vector as the website signal layer, [Trigify](/tools/trigify/) as the multi-signal aggregator pulling job changes and LinkedIn signals, and [Clay](/go/clay/) as the enrichment and scoring middle layer before anything hits a sequence. That three-layer approach means you are reaching out to accounts showing correlated signals across multiple channels, not just one visit to your pricing page. Per [Clay's enrichment documentation](https://docs.clay.com), the waterfall enrichment model lets you combine Vector's visit signal with firmographic and technographic data in the same row before making a sequence enrollment decision.
+
+The outbound activation layer, whether that is [Smartlead](/tools/smartlead/), Lemlist, or Instantly, sits at the end of that chain. What Vector gives you is the front-of-funnel event that starts the enrichment process. That is a narrower job than some vendor pitches suggest, but it is a real and valuable one when the rest of the stack is in place. Skip the cluster build until the single-source case is working.
+
+## Verdict
+
+Vector is worth evaluating for automation-first GTM teams that have the traffic volume, the routing playbook, and the sequence infrastructure to do something with the signal. It is not a shortcut to pipeline. It is a trigger source that requires the rest of the stack to function. For teams starting out or running primarily US LinkedIn traffic, RB2B's free plan is the lower-risk entry point. For teams wanting to aggregate signals beyond website visits, Trigify belongs in the conversation alongside, not instead of, a visitor ID tool.
+
+<BottomLine
+  verdict="Vector is the right choice for RevOps teams running automation-first stacks who want visitor signals as a webhook event source they can route into enrichment and sequencing workflows. Start with RB2B free if you are still validating the signal-to-pipeline case."
+  pick="Vector"
+  affiliateSlug="vector"
+  ctaLabel="Try Vector"
+/>
+
+<Sources
+  sources={[
+    { label: "Marketo: Why 98% of Visitors Remain Anonymous", url: "https://www.marketo.com/articles/website-personalization/" },
+    { label: "G2: Buyer Intent Data Tools Category Overview", url: "https://www.g2.com/categories/buyer-intent-data-tools" },
+    { label: "Clay: Waterfall Enrichment Documentation", url: "https://docs.clay.com" },
+    { label: "Vector: Product Documentation and Integration Guide", url: "https://www.vectorapp.io" }
+  ]}
+/>
