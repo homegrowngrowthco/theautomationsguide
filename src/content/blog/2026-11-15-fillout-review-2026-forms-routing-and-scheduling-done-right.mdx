@@ -1,0 +1,215 @@
+---
+title: "Fillout Review 2026: Forms, Routing, and Scheduling Done Right"
+description: "A deep-dive Fillout review covering forms, scheduling, and meeting routing. See how it stacks up against Tally and Chili Piper for RevOps teams."
+tldr: "Fillout is a genuinely capable form, scheduling, and meeting-routing platform that handles most of what Chili Piper does at a fraction of the price, making it the right default for most B2B SaaS GTM stacks in 2026."
+pubDate: 2026-11-15
+tags: ["tools", "automation", "forms"]
+faqs:
+  - question: "What is Fillout used for?"
+    answer: "Fillout is used for building forms, surveys, quizzes, and scheduling pages, with native routing logic that qualifies leads and books meetings without extra middleware."
+  - question: "Is Fillout a Chili Piper alternative?"
+    answer: "Yes. Fillout handles inbound form-to-calendar routing natively, covering the core use case most teams buy Chili Piper for, at a significantly lower price point."
+  - question: "How does Fillout compare to Tally?"
+    answer: "Tally is a lightweight, free-first form builder with no native scheduling. Fillout adds conditional routing, meeting booking, and CRM sync that Tally cannot match."
+  - question: "Does Fillout integrate with HubSpot and Salesforce?"
+    answer: "Yes, Fillout has native two-way integrations with both HubSpot and Salesforce, including field mapping and pipeline creation on form submission."
+  - question: "What does Fillout cost?"
+    answer: "Fillout has a free tier, a Starter plan around $19 per month, and a Business plan around $40 per month. Meeting routing is available on paid plans."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+If you have ever tried to justify a $30-per-seat-per-month [Chili Piper](/go/chili-piper/) invoice to a CFO who can see the demo request form is literally just routing to a calendar, you will understand why [Fillout](/go/fillout/) landed on my radar. Fillout is a form and scheduling platform that has quietly matured into a serious GTM infrastructure layer: conditional routing, CRM sync, meeting booking, and multi-step qualification flows, all in one product that starts free. This review breaks down what Fillout actually does well, where it still has gaps, and how it compares to [Tally](/go/tally/) and Chili Piper so you can make a defensible stack decision without reading three different vendor comparison pages.
+
+<KeyTakeaways items={[
+  "Fillout replaces both your form tool and your meeting router for most standard inbound GTM motions.",
+  "Native HubSpot and Salesforce sync means no Zapier tax on basic form-to-CRM flows.",
+  "Chili Piper's moat is enterprise round-robin logic and deep Salesforce assignment rules; Fillout does not fully match that.",
+  "Tally wins on simplicity and free-forever, but has zero native scheduling and no CRM sync.",
+  "Fillout's pricing is roughly 60 to 80 percent cheaper than Chili Piper for a typical five-rep team."
+]} />
+
+## What Fillout actually is in 2026
+
+Fillout started as a form builder with a cleaner UI than Typeform and a more generous free tier than most competitors. What changed is that the team layered scheduling directly into the form flow. You can embed a calendar step inside a multi-step form, apply conditional logic to decide which rep's calendar appears, and sync everything to your CRM in a single submission event. That architecture matters because it removes the hand-off between a form submission and a downstream routing tool. That hand-off is exactly the gap [Chili Piper](/go/chili-piper/) was built to fill, and Fillout is now eating into it from below.
+
+The product sits at an intersection that most tools avoid: Typeform and [Tally](/tools/tally/) own the form-first side, Calendly and [Cal.com](/go/cal-com/) own the pure scheduling side, and Chili Piper owns the enterprise routing side. Fillout is trying to cover all three with a single product. How well it succeeds is the actual question this review answers.
+
+<StatRow stats={[
+  { number: "$0", label: "Free Tier", description: "Fillout's free plan covers unlimited forms, 1,000 submissions per month, and basic scheduling, more than enough to validate the workflow." },
+  { number: "~$40/mo", label: "Business Plan", description: "Per-workspace pricing (not per seat) covering advanced routing, CRM sync, and priority support. A five-rep team pays the same as a one-rep team." },
+  { number: "$30+/seat", label: "Chili Piper Cost", description: "Chili Piper's Distro product runs $30 per seat per month. A five-rep team hits $150 per month before you add Concierge for form routing." }
+]} />
+
+## Feature breakdown: forms, routing, and scheduling
+
+<ToolBreakdown title="Fillout vs. Tally vs. Chili Piper" tools={[
+  {
+    name: "Fillout",
+    tagline: "Forms plus scheduling plus routing in one product",
+    body: "Fillout's core strength is that the form submission and the meeting booking are a single atomic event. Conditional logic routes to rep calendars based on answers, company size, or CRM data. Native HubSpot and Salesforce integrations write contact, deal, and meeting records on submission. The UI is polished enough that you do not need a designer to build a good-looking form. The scheduling layer supports round-robin, priority routing, and collective meetings. Per-workspace pricing means a growing team does not pay more as headcount scales.",
+    highlights: [
+      "Multi-step form builder with conditional branching",
+      "Inline calendar booking as a form step",
+      "Round-robin and priority-based rep routing",
+      "Native HubSpot and Salesforce two-way sync",
+      "Per-workspace pricing, not per seat"
+    ],
+    pricing: "Free tier / Starter $19/mo / Business $40/mo",
+    affiliateSlug: "fillout",
+    ctaLabel: "Try Fillout",
+    highlight: true
+  },
+  {
+    name: "Tally",
+    tagline: "Dead-simple free forms, no scheduling at all",
+    body: "Tally is the tool I'd recommend if all you need is a clean, conversion-optimized form with zero budget. It has a generous free plan, a Notion-like editing experience, and decent webhook support for custom integrations. What it does not have is native scheduling, any CRM sync out of the box, or routing logic beyond basic redirects. You would need Zapier or Make to wire a Tally submission to Calendly and then again to your CRM. That is three products doing what Fillout handles natively.",
+    highlights: [
+      "Free forever for most use cases",
+      "Clean, fast form builder with good UX",
+      "Webhook support for custom workflows",
+      "No native scheduling or CRM sync",
+      "No routing or rep assignment logic"
+    ],
+    pricing: "Free / Pro $29/mo",
+    affiliateSlug: "tally",
+    ctaLabel: "Try Tally"
+  },
+  {
+    name: "Chili Piper",
+    tagline: "Enterprise-grade routing with deep Salesforce rules",
+    body: "Chili Piper's Distro and Concierge products remain the reference standard for complex routing logic tied to Salesforce assignment rules, territory models, and ownership hierarchies. If your RevOps team is managing a 50-rep field sales org with named accounts, ownership conflicts, and queue-based fallback routing, Chili Piper handles configuration depth that Fillout simply cannot match today. The price reflects that complexity. The usual failure mode is paying for Chili Piper at a 10-rep company because someone assumed enterprise equals better.",
+    highlights: [
+      "Deep Salesforce assignment rule integration",
+      "Territory and named-account routing",
+      "Ownership conflict resolution",
+      "Queue-based fallback logic",
+      "Concierge for form-to-calendar on your existing site forms"
+    ],
+    pricing: "Distro $30/seat/mo, Concierge $30/seat/mo",
+    affiliateSlug: "chili-piper",
+    ctaLabel: "Try Chili Piper"
+  }
+]} />
+
+## Where Fillout genuinely earns its place in the stack
+
+The form-to-meeting handoff is where Fillout shines. A standard inbound demo request flow looks like this: prospect fills a form, gets qualified, sees a calendar, books a meeting. Without a tool like Fillout, you are stitching together a form tool, a router, and a scheduler, then hoping the [Zapier](/go/zapier/) zaps fire in the right order before the CRM record goes stale. With Fillout, all of that is a single flow built in one place.
+
+The CRM integration quality matters here. Per [Fillout's HubSpot integration docs](https://www.fillout.com/help/hubspot), the native connector supports bidirectional field mapping, contact deduplication, and creating deals or tickets on submission. That is table stakes for RevOps, but it matters that you do not need an intermediary. I'd argue most teams using [HubSpot](/go/hubspot/) for inbound routing have an unnecessary Zapier layer they could collapse by switching to Fillout.
+
+The scheduling experience is also better than expected for a form-first tool. Round-robin distribution works correctly. You can set buffer times, limit daily booking caps per rep, and configure collective meeting types for multi-stakeholder discovery calls. This covers probably 80 percent of what a typical B2B SaaS team actually needs from a scheduling tool. Don't bother with a standalone Calendly account just to handle inbound routing if you are already paying for Fillout's Business plan.
+
+## Where Fillout still falls short
+
+My honest read is that Fillout has two real gaps today. First, Salesforce routing at any real complexity level. If you are matching leads to owners based on territory hierarchies, managing assignment queues with ownership conflict rules, or integrating with Salesforce's native lead assignment engine, Fillout's routing logic is not deep enough. Chili Piper was built specifically for that problem, and the configuration surface area in Distro reflects years of enterprise edge-case handling that Fillout has not had time to replicate.
+
+Second, Fillout's analytics layer is thin. You can see submission counts and completion rates, but you do not get funnel drop-off analysis by step, A/B testing on form variants, or the kind of conversion attribution that a mature demand gen team needs to optimize landing page performance. Per [G2 reviews of Fillout](https://www.g2.com/products/fillout/reviews), this is the most common complaint from power users. If form conversion optimization is a real priority for your team, that gap is worth taking seriously.
+
+If your routing is relatively simple (inbound form to rep calendar based on a few qualifying questions) and your CRM of record is HubSpot, Fillout covers the motion end to end. Complex Salesforce orgs with real territory and ownership logic will hit the ceiling.
+
+<SideBySide>
+  <Fragment slot="left">
+
+**The gotcha with multi-CRM teams**
+
+If your team uses both HubSpot and Salesforce (a common setup during migrations or when marketing and sales use different platforms), Fillout's integrations treat them as separate destinations. You cannot write to both in a single submission event without a workaround. The usual trap here is assuming native sync means bidirectional sync across all connected tools simultaneously.
+
+  </Fragment>
+  <Fragment slot="right">
+
+```
+Workaround for dual-CRM write:
+
+1. Set Fillout to write natively to HubSpot on submit
+2. Add a Zapier step triggered on new Fillout submission
+   (via webhook) to write to Salesforce independently
+3. Use submission ID as the deduplication key in both CRMs
+4. This adds ~2-3 seconds of lag before Salesforce record
+   is created, which is acceptable for async follow-up
+   but not for real-time Salesforce routing logic
+```
+
+  </Fragment>
+</SideBySide>
+
+## How to choose between these three
+
+<ChooseIf title="Which tool fits your team?" tools={[
+  {
+    name: "Fillout",
+    conditions: [
+      "You need forms, scheduling, and CRM sync in one product without middleware",
+      "Your CRM is HubSpot or you have a straightforward Salesforce setup",
+      "You want to replace Chili Piper Concierge without paying per-seat pricing"
+    ],
+    pricing: "Free / $19 / $40 per workspace per month",
+    affiliateSlug: "fillout",
+    ctaLabel: "Try Fillout",
+    highlight: true
+  },
+  {
+    name: "Tally",
+    conditions: [
+      "You just need clean, free forms with no scheduling requirement",
+      "You are comfortable building your own Zapier or Make routing layer",
+      "Your submission volumes are low and CRM sync can be async"
+    ],
+    pricing: "Free / Pro $29/mo",
+    affiliateSlug: "tally",
+    ctaLabel: "Try Tally"
+  },
+  {
+    name: "Chili Piper",
+    conditions: [
+      "You have a 20-plus rep sales org with Salesforce territory and ownership rules",
+      "You need queue-based fallback routing with conflict resolution",
+      "Your existing site forms cannot be replaced and you need Concierge to intercept them"
+    ],
+    pricing: "From $30/seat/month per product",
+    affiliateSlug: "chili-piper",
+    ctaLabel: "Try Chili Piper"
+  }
+]} />
+
+## Fillout in the broader GTM stack
+
+Fillout fits cleanly alongside the rest of a modern inbound motion. If you are using [n8n](/tools/n8n/) or [Zapier](/tools/zapier/) for workflow automation, Fillout's webhook output is well-structured and easy to parse downstream. It also pairs naturally with intent tools. If a [Warmly](/go/warmly/) or similar de-anonymization layer is feeding enriched company data into your HubSpot, Fillout can pull those enriched fields into routing conditions on form load, so a prospect from a known account sees a different calendar than a cold inbound lead.
+
+The comparison between Fillout, Tally, and Chili Piper goes deeper on the routing logic specifics if you need a side-by-side breakdown of individual features.
+
+For teams running outbound sequences through tools like [Smartlead](/tools/smartlead/) or [Apollo](/go/apollo/) alongside inbound, Fillout also solves the warm inbound problem: a prospect who clicks a link from a sequence and fills a form should get routed to the rep who sent the outreach, not into a generic round-robin. Per [Fillout's scheduling documentation](https://www.fillout.com/help/scheduling), URL parameter routing handles this natively by passing a rep ID via query string to pre-select the correct calendar. That is a workflow I'd set up on day one for any team running coordinated outbound-plus-inbound plays.
+
+<MyTake>
+The real reason Chili Piper still has a market in 2026 is not technical superiority for most teams. It is Salesforce inertia. RevOps teams on complex Salesforce orgs are not going to rebuild their routing logic in a newer tool just to save $150 per month. Fair enough. But for any team under about 25 reps that is not locked into Salesforce assignment rules, paying for Chili Piper is a reflexive enterprise-tool choice, not a rational stack decision. Fillout is the more honest default for that cohort, and the per-workspace pricing means the gap only widens as you add reps.
+</MyTake>
+
+## The bottom line
+
+Fillout has earned a first-look position in any B2B SaaS GTM stack evaluation in 2026. The form-plus-routing-plus-scheduling architecture is genuinely useful, the per-workspace pricing model is fair as the team scales, and the native CRM integrations remove a category of Zapier overhead that quietly taxes RevOps teams every month. It is not the right answer if you are deep in Salesforce territory logic, but that is a narrower use case than the tool category pricing would have you believe. For everything else, Fillout is the more honest, less expensive default.
+
+<BottomLine
+  verdict="Fillout is the right starting point for inbound form-to-meeting routing for most B2B SaaS teams. Only move to Chili Piper if Salesforce assignment rule complexity genuinely requires it."
+  pick="Fillout"
+  affiliateSlug="fillout"
+  ctaLabel="Try Fillout"
+/>
+
+<Sources sources={[
+  { label: "Fillout: HubSpot integration documentation", url: "https://www.fillout.com/help/hubspot" },
+  { label: "Fillout: Scheduling and calendar routing documentation", url: "https://www.fillout.com/help/scheduling" },
+  { label: "G2: Fillout user reviews", url: "https://www.g2.com/products/fillout/reviews" }
+]} />
