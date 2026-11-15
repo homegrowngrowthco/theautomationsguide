@@ -91,6 +91,25 @@ N migrations". The best tool has 3 human affiliate clicks in 90 days. So:
 - The "alternatives" title fence from the 2026-08-04 audit still hard-drops; the
   measured table now rates the format second, so that fence is an open decision (TODO).
 
+## Rules changed by the 2026-11-15 growth audit (op #1633)
+
+Evidence and numbers: [audits/AUDIT-GROWTH-2026-11-15.md](../audits/AUDIT-GROWTH-2026-11-15.md).
+
+- **Signals read US rows only.** Every GSC fetch passes `country: GSC_COUNTRY` (default
+  `usa`). 44% of impressions came from other countries at rank-tracker positions. Set
+  `GSC_COUNTRY=` (empty) to read every country again. Thresholds were tuned on all-country
+  counts, so expect fewer clusters and near-wins.
+- **Question prompts are not demand.** `isHumanQuery()` drops a query ending in "?" or
+  running to 10 words or more (376 such queries held 2,144 impressions and 5 clicks).
+- **The intent key belongs to the anchor only.** `intentKeys()` keys a pricing, review or
+  alternatives title on the first tool the title names, reads the intent from the part
+  before the colon, and gives a comparison head no key. Before this, "X Pricing ... and
+  When Y Is Cheaper" was dropped whenever Y had a pricing post, and every pricing post
+  registered its foil: 30 of 68 drops in runs 34 to 36, none of them a real duplicate.
+- **Two more formats are fenced:** migration guides and "best of" roundups, by the title's
+  head, the same way alternatives is. Migrations were the reliable format in July; in the
+  28 days to 11/12, 29 of them had 1 click.
+
 ## Topic supply (op #1498, 2026-11-04)
 
 Why: from 10/18 to 11/04 the builder kept 20 of 105 proposals, about 1.2 topics a day against

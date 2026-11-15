@@ -89,12 +89,26 @@ export function isHumanQuery(q) {
   // 11/01, 91 of 2,419 queries open with "evaluate" (262 impressions), all prompt-shaped. Word
   // count is no test: real questions run as long.
   if (/^evaluate\s/i.test(q.trim())) return false;
+  // Question prompts and very long strings (audit 2026-11-15, op #1633). In GSC 10/16 to 11/12,
+  // 376 queries ending in "?" held 2,144 impressions and 5 clicks (4 of them in a burst PostHog
+  // could not match to visits), and 207 queries of 10 or more words held 527 impressions and
+  // 0 clicks. People rarely type the question mark; AI-visibility trackers do. This replaces the
+  // op #1498 note above that word count is no test: at 10 words it is, and the mark is better.
+  if (/\?\s*$/.test(q) || q.trim().split(/\s+/).length >= 10) return false;
   return true;
 }
 
 // ---- GSC fetch (paged) ----
 // endLagDays: GSC data settles about 3 days late, so the window ends 3 days back.
-export async function fetchGscRows(access, site, { days, dimensions, rowLimit = 5000, endLagDays = 3, now = Date.now() } = {}) {
+// country (optional, a GSC three-letter code such as 'usa'): only that country's rows. The
+// 2026-11-15 audit found 44% of impressions came from outside the US, UK, Canada and
+// Australia at rank-tracker positions, so the builder reads demand from US rows only.
+export function gscQueryBody({ start, end, dimensions, rowLimit, startRow, country }) {
+  const body = { startDate: start, endDate: end, dimensions, rowLimit, startRow };
+  if (country) body.dimensionFilterGroups = [{ filters: [{ dimension: 'country', operator: 'equals', expression: country }] }];
+  return body;
+}
+export async function fetchGscRows(access, site, { days, dimensions, rowLimit = 5000, endLagDays = 3, now = Date.now(), country = null } = {}) {
   const end = new Date(now - endLagDays * 864e5).toISOString().slice(0, 10);
   const start = new Date(now - (endLagDays + days - 1) * 864e5).toISOString().slice(0, 10);
   const rows = [];
@@ -104,7 +118,7 @@ export async function fetchGscRows(access, site, { days, dimensions, rowLimit = 
       {
         method: 'POST',
         headers: { authorization: `Bearer ${access}`, 'content-type': 'application/json' },
-        body: JSON.stringify({ startDate: start, endDate: end, dimensions, rowLimit, startRow }),
+        body: JSON.stringify(gscQueryBody({ start, end, dimensions, rowLimit, startRow, country })),
       }
     );
     if (!res.ok) throw new Error(`GSC searchAnalytics failed (${res.status}): ${(await res.text()).slice(0, 200)}`);
@@ -117,8 +131,8 @@ export async function fetchGscRows(access, site, { days, dimensions, rowLimit = 
 
 // ---- 1. demand clusters ----
 // Group human queries by (universe tools named, intent) when that pair pins a topic down:
-// two or more tools ("moltsets vs apollo", "how does moltsets compare to apollo?", "which
-// is better for enrichment, moltsets or apollo?" become ONE cluster) or one tool plus an
+// two or more tools ("moltsets vs apollo", "moltsets or apollo for enrichment", "compare
+// moltsets and apollo data" become ONE cluster) or one tool plus an
 // intent ("rb2b pricing" + "rb2b cost"). A single tool with no intent pins nothing (40
 // Pipedrive queries from "pipedrive to json" to "pipedrive marketing automation" are not
 // one demand), so those and tool-less queries group by their sorted token set.
@@ -373,7 +387,8 @@ export function selfTestSignals() {
 
   // 1. clustering: three phrasings of one demand sum; operator strings and brand-only drop.
   const clusters = clusterQueries([
-    q('moltsets vs apollo', 30, 5.8), q('how does moltsets compare to apollo?', 32, 3.0), q('which is better for enrichment, moltsets or apollo?', 28, 5.0),
+    q('moltsets vs apollo', 30, 5.8), q('moltsets or apollo for enrichment', 32, 3.0), q('compare moltsets and apollo data', 28, 5.0),
+    q('how does moltsets compare to apollo?', 400, 1.0),
     q('moltsets pricing', 34, 4.3, 1), q('rb2b pricing', 334, 9.0), q('rb2b cost', 9, 8.9), q('moltsets', 56, 7.1),
     q('"aisdr" "hubspot" "salesforce"', 7, 7.7), q('+substack hubspot integration free paid', 36, 1.8), q('nutshell pipeline management', 186, 10.1),
   ], universe, aliasHit);
@@ -382,6 +397,7 @@ export function selfTestSignals() {
   check('cluster best position is the min', byKey['apollo+moltsets::general']?.bestPosition === 3);
   check('cluster rb2b pricing merges cost', byKey['rb2b::pricing']?.impressions === 343);
   check('operator strings dropped', !clusters.some((c) => c.queries.some((x) => /"|^\+/.test(x.query))));
+  check('a question prompt adds nothing to its cluster', !clusters.some((c) => c.queries.some((x) => x.query.endsWith('?'))));
   check('single-token brand query dropped', !clusters.some((c) => c.queries.some((x) => x.query === 'moltsets')));
   check('tool-less query clusters by tokens', !!byKey['q::management nutshell pipeline']);
   const single = clusterQueries([q('pipedrive to json', 37, 28), q('pipedrive marketing automation', 93, 30), q('pipedrive automation', 55, 22)],
@@ -494,9 +510,16 @@ export function selfTestSignals() {
   // hub's fence and near-win top query never read the tracker string.
   const TRACKER = 'evaluate the b2b ai sales company findymail on outbound sales & email execution';
   const trackerOut = [TRACKER, 'evaluate orum on dialing automation and faster connection strategies', 'evaluate whether attio or hubspot is better for pipeline visibility.'];
-  const humanIn = ['which is better for enrichment, moltsets or apollo?', "what does a gtm workflow automation tool do that zapier can't?", 'how to evaluate close crm', 'findymail review'];
+  const humanIn = ['moltsets or apollo for enrichment', 'gtm workflow automation tool vs zapier differences','how to evaluate close crm', 'findymail review'];
+  // Real GSC strings, 10/16 to 11/12 (op #1633): a question mark, or 10 or more words.
+  const promptOut = ['which is better for enrichment, moltsets or apollo?', 'does surfe use waterfall enrichment across multiple data providers?',
+    'what do revenue leaders say about the roi difference between apollo and clay'];
   check('tracker prompts are not human queries', trackerOut.every((s) => !isHumanQuery(s)), `(${trackerOut.filter((s) => isHumanQuery(s)).join('; ') || 'all out'})`);
-  check('long human questions stay human', humanIn.every((s) => isHumanQuery(s)), `(${humanIn.filter((s) => !isHumanQuery(s)).join('; ') || 'all in'})`);
+  check('question prompts and 10-word strings are not human queries', promptOut.every((s) => !isHumanQuery(s)), `(${promptOut.filter((s) => isHumanQuery(s)).join('; ') || 'all out'})`);
+  check('plain long queries stay human', humanIn.every((s) => isHumanQuery(s)), `(${humanIn.filter((s) => !isHumanQuery(s)).join('; ') || 'all in'})`);
+  const usBody = gscQueryBody({ start: '2026-10-16', end: '2026-11-12', dimensions: ['query'], rowLimit: 5000, startRow: 0, country: 'usa' });
+  check('a country fetch filters on that country and a plain fetch sends no filter',
+    usBody.dimensionFilterGroups?.[0]?.filters?.[0]?.expression === 'usa' && !('dimensionFilterGroups' in gscQueryBody({ start: 'a', end: 'b', dimensions: ['page'], rowLimit: 1, startRow: 0 })));
   const hubPq = [
     { keys: [`${H}/tools/findymail/`, TRACKER], impressions: 900, clicks: 0, position: 6.0 },
     { keys: [`${H}/tools/findymail/`, 'findymail pricing'], impressions: 120, clicks: 0, position: 9.0 },

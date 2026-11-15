@@ -474,8 +474,8 @@ async function fetchHubFence(posts) {
   const access = await gscAccessToken();
   if (!access) return null;
   const [p28, pq28] = await Promise.all([
-    fetchGscRows(access, GSC_SITE, { days: 28, dimensions: ['page'] }),
-    fetchGscRows(access, GSC_SITE, { days: 28, dimensions: ['page', 'query'] }),
+    fetchGscRows(access, GSC_SITE, { days: 28, dimensions: ['page'], country: GSC_COUNTRY }),
+    fetchGscRows(access, GSC_SITE, { days: 28, dimensions: ['page', 'query'], country: GSC_COUNTRY }),
   ]);
   return hubFenceList(nearWins(p28.rows, pq28.rows, posts).hubs, pq28.rows);
 }
@@ -562,6 +562,10 @@ async function stageToNotion(kept) {
 // refresh_token, webmasters.readonly scope) or GSC_TOKEN_FILE (path to it). Skips
 // gracefully when neither is set so local runs without GSC still work.
 const GSC_SITE = process.env.GSC_SITE || 'sc-domain:theautomationsguide.com';
+// Demand, near-wins, the hub fence and the format prior all read US rows only (audit
+// 2026-11-15, op #1633: 44% of impressions were rank trackers in other countries). Set
+// GSC_COUNTRY to an empty string to read every country again.
+const GSC_COUNTRY = process.env.GSC_COUNTRY ?? 'usa';
 
 async function gscAccessToken() {
   const raw = process.env.GSC_TOKEN_JSON || (process.env.GSC_TOKEN_FILE ? readFileSync(process.env.GSC_TOKEN_FILE, 'utf8') : '');
@@ -595,10 +599,10 @@ async function mineSignals(universe, covered, posts) {
   const access = await gscAccessToken();
   if (!access) { console.log('(GSC signals skipped: set GSC_TOKEN_JSON or GSC_TOKEN_FILE to enable)'); return EMPTY_SIGNALS(universe, posts); }
   const [q28, p28, pq28, p90] = await Promise.all([
-    fetchGscRows(access, GSC_SITE, { days: 28, dimensions: ['query'] }),
-    fetchGscRows(access, GSC_SITE, { days: 28, dimensions: ['page'] }),
-    fetchGscRows(access, GSC_SITE, { days: 28, dimensions: ['page', 'query'] }),
-    fetchGscRows(access, GSC_SITE, { days: 90, dimensions: ['page'] }),
+    fetchGscRows(access, GSC_SITE, { days: 28, dimensions: ['query'], country: GSC_COUNTRY }),
+    fetchGscRows(access, GSC_SITE, { days: 28, dimensions: ['page'], country: GSC_COUNTRY }),
+    fetchGscRows(access, GSC_SITE, { days: 28, dimensions: ['page', 'query'], country: GSC_COUNTRY }),
+    fetchGscRows(access, GSC_SITE, { days: 90, dimensions: ['page'], country: GSC_COUNTRY }),
   ]);
   const clusters = unservedClusters(clusterQueries(q28.rows, universe, aliasHit), covered);
   const nw = nearWins(p28.rows, pq28.rows, posts);
@@ -735,10 +739,10 @@ function buildPrompt(universe, covered, count, signals, recentDrops = []) {
     '',
     `TASK: propose the ${count} highest-leverage NET-NEW topics. Favor, in this order: observed-demand clusters above, near-win siblings, live programs with no post, thin-competition first-mover categories (AI SDR agents, AI voice, visitor ID, AI agent builders, GEO/AI-search), tools that tie back to the site core (n8n, Make, HubSpot, Apollo, Clay).`,
     '',
-    'FORMATS: no quotas. Pick the format the demand asks for: a "<tool> pricing" cluster wants a pricing post, "<a> vs <b>" wants a comparison, "<tool> review" wants a review, "migrate" or "switch" wants a migration guide ("Migrate from X to Y without losing Z"), an integration query wants a recipe ("Connect X to Y for <outcome>"). Where the demand is silent, lean on the measured format performance above. Never propose "X alternatives" or "X competitors" posts (hard-fenced).',
+    'FORMATS: no quotas. Pick the format the demand asks for: a "<tool> pricing" cluster wants a pricing post, "<a> vs <b>" wants a comparison, "<tool> review" wants a review, an integration query wants a recipe ("Connect X to Y for <outcome>"). Where the demand is silent, lean on the measured format performance above. Never propose "X alternatives" or "X competitors" posts, migration guides ("Migrate from X to Y", "Switching from X to Y") or "best X" and "top N" roundups (all hard-fenced). In a pricing or review title, put the tool the post is about first, before any tool it is compared with.',
     '',
     'HARD FENCE (read from the affiliate registry; a proposal that breaks any line is discarded):',
-    ...(facts.foilOnly.length ? [`- FOIL-ONLY TOOLS (no affiliate program, program rejected, or a no-affiliate incumbent this young domain cannot rank for): ${facts.foilOnly.map((t) => t.name).join(', ')}. NEVER set anchorTool to one of these. You MAY name one as a comparison foil or as the "from" side of a migration, beside an anchor from the TOOL UNIVERSE list.`] : []),
+    ...(facts.foilOnly.length ? [`- FOIL-ONLY TOOLS (no affiliate program, program rejected, or a no-affiliate incumbent this young domain cannot rank for): ${facts.foilOnly.map((t) => t.name).join(', ')}. NEVER set anchorTool to one of these. You MAY name one as a comparison foil, beside an anchor from the TOOL UNIVERSE list.`] : []),
     ...(facts.unnameable.length ? [`- UNREGISTERED TOOLS (no affiliate registry entry, so a link to them would 404): ${facts.unnameable.map((t) => t.name).join(', ')}. NEVER name one of these anywhere in a title.`] : []),
     '- Every "vs" operand MUST be a tool from the TOOL UNIVERSE list or the FOIL-ONLY list, by that exact name. A tool on neither list cannot be compared, however often people search for it. Write comparisons as "A vs B: angle", with only tool names before the colon.',
     '- The anchorTool must come from the TOOL UNIVERSE list. Prefer anchors marked (has LP).',
@@ -829,14 +833,45 @@ function makeResolver(universe) {
 function titleTools(universe, text) {
   return universe.filter((t) => aliasHit(t.aliases, text)).map((t) => t.slug);
 }
+// The part of a title before its first colon: what the post is, before its angle.
+const titleHead = (title) => String(title || '').split(':')[0];
+// The universe tool a text names FIRST by position (the longer alias wins a tie), else null.
+function firstTool(universe, text) {
+  const h = ' ' + (text || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim() + ' ';
+  let best = null, bestAt = Infinity, bestLen = 0;
+  for (const t of universe) for (const a of t.aliases) {
+    const n = (a || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    if (n.length < 3) continue;
+    const at = h.indexOf(' ' + n + ' ');
+    if (at === -1) continue;
+    if (at < bestAt || (at === bestAt && n.length > bestLen)) { best = t.slug; bestAt = at; bestLen = n.length; }
+  }
+  return best;
+}
+// ONE key, for the ANCHOR only (audit 2026-11-15, op #1633). This used to return a key for
+// every tool the title or keyword named. The builder writes pricing titles as "X Pricing in
+// 2026: ... and When Y Is Cheaper", so "Bookyourdata Pricing ... When It Beats Lusha" was
+// dropped as pricing::lusha, and each published pricing post also registered its foil (the
+// Pabbly pricing post names Make, which then blocked "Gumloop Pricing ... When Make Is
+// Cheaper"). In runs 34 to 36, 30 of 68 drops used this rule and none of the 30 anchors had
+// a pricing post. Three changes:
+//   - the anchor is the first tool the TITLE names (the keyword only when the title has none);
+//   - the intent is read from the head (before the colon) first, so "Factors.ai Review ...
+//     Without the Warmly Price Tag" is a review, not pricing;
+//   - a head that is a comparison ("Apollo vs LeadMagic vs Clay: Data Quality and Cost") gets
+//     no key: comparisons are judged pair-wise by comparisonEntry().
 function intentKeys(universe, title, keyword) {
-  const intent = intentOf(`${title} ${keyword}`);
+  const full = `${title || ''} ${keyword || ''}`;
+  const head = titleHead(title);
+  const intent = intentOf(head) || intentOf(full);
   if (!intent) return [];
-  const slugs = titleTools(universe, `${title} ${keyword}`);
   // Migrations are pair-wise: "Pipedrive to Attio" and "Pipedrive to Close" are
   // different topics, so key on the sorted pair when both ends are known tools.
+  const slugs = titleTools(universe, full);
   if (intent === 'migration' && slugs.length >= 2) return [`migration::${[...slugs].sort().join('+')}`];
-  return slugs.map((slug) => `${intent}::${slug}`);
+  if (isComparison(head)) return [];
+  const anchor = firstTool(universe, title) || firstTool(universe, keyword);
+  return anchor ? [`${intent}::${anchor}`] : [];
 }
 
 // Comparison posts compete PAIR-wise: "A vs B vs C" and "B vs A vs D" both own the
@@ -940,6 +975,15 @@ function addToIndex(universe, index, cand) {
 // reviews at pos 6-15; migrations are the reliable format). Four such topics were
 // Skipped by hand on 2026-08-12. Stop minting them at the source.
 const isAlternativesFraming = (text) => /\balternatives?\b|\bcompetitors?\b/i.test(text || '');
+// Two more formats fenced on 2026-11-15 (Ian, op #1633, audits/AUDIT-GROWTH-2026-11-15.md).
+// The note above that migrations are the reliable format no longer holds: 29 migration
+// guides had 1 click and 74 US impressions in 28 days, and 11 "best of" roundups had 1 click.
+// Both read the HEAD (before the colon) only: "X Pricing: Plans and When to Switch to Y" is a
+// pricing post, and "A vs B: Best CRM for a Small Team" is a comparison.
+const isMigrationFormat = (title) => intentOf(titleHead(title)) === 'migration';
+const isBestOfFraming = (title) => { const head = titleHead(title); return !isComparison(head) && /\bbest\b|\btop\s+\d+\b/i.test(head); };
+const FENCE_MIGRATION = 'format fence: migration guides earn no clicks (29 posts, 1 click in 28 days; audit 2026-11-15)';
+const FENCE_BEST_OF = 'format fence: "best of" roundups earn no clicks (11 posts, 1 click in 28 days; audit 2026-11-15)';
 
 // CTA FENCE. A title naming no tool that can carry a /go/ CTA is an essay, not a
 // monetisable post: "Why RevOps Budgets Blow Up in Q1" has nothing to link. This
@@ -1022,6 +1066,8 @@ function dedup(proposals, universe, covered, hubs = []) {
     // audit's finding is about the post FORMAT, which the title states, not the query
     // it chases.
     if (isAlternativesFraming(topic)) { dropped.push({ topic, reason: 'format fence: "alternatives/competitors" is the worst-performing format (audit 2026-08-04)' }); continue; }
+    if (isMigrationFormat(topic)) { dropped.push({ topic, reason: FENCE_MIGRATION }); continue; }
+    if (isBestOfFraming(topic)) { dropped.push({ topic, reason: FENCE_BEST_OF }); continue; }
     if (!namesEarningTool(universe, text)) { dropped.push({ topic, reason: 'CTA fence: title names no tool that can carry a /go/ CTA' }); continue; }
     const hubFenced = hubFenceReason(universe, cand, hubs);
     if (hubFenced) { dropped.push({ topic, reason: hubFenced }); continue; }
@@ -1163,6 +1209,8 @@ async function main() {
       if (!anchor) flags.push('CTA fence: no universe tool in the title');
       else if (noAnchorReason(anchor)) flags.push(`fence: ${noAnchorReason(anchor)}`);
       if (isAlternativesFraming(c.title)) flags.push('format fence: alternatives');
+      if (isMigrationFormat(c.title)) flags.push('format fence: migration');
+      if (isBestOfFraming(c.title)) flags.push('format fence: best of');
       const hubFlag = hubFenceReason(universe, c, signals.hubFence);
       if (hubFlag) flags.push(hubFlag);
       return { topic: c.title, targetKeyword: c.targetKeyword, keyword: c.keyword, toolset: c.toolset, anchorTool: anchor?.name || '(no tool in title)',
@@ -1251,45 +1299,42 @@ const SCRUBBED_2026_08_12 = [
   'Why Your Automation Stack Costs 3x More Than It Should',
   'Your Pipedrive Sequences Are Silent',
 ];
-// Must SURVIVE. Guards against over-blocking: a review, a migration, a workflow
-// tutorial, a pricing page, and a comparison that shares a tool pair with a
-// published post but carries a genuinely different angle.
+// Must SURVIVE. Guards against over-blocking: a review, two workflow tutorials, a
+// pricing page, and a comparison that shares a tool pair with a published post but
+// carries a genuinely different angle. (Migration guides were controls until
+// 2026-11-15; they are fenced now, see FENCE_MIGRATION, and checked in the supply fixture.)
 const CONTROLS = [
   'Profound Review 2026: The GEO and AI Search Tool Built for B2B Content Teams',
-  'Migrate from Aircall to JustCall Without Disrupting Your SDR Team',
+  'Connect Aircall to Pipedrive for Call Logging Without Zapier',
   'Connect PandaDoc to HubSpot for Proposal Automation Without Custom Code',
   'What JustCall Actually Costs in 2026: Per-Seat Pricing, AI Add-ons, and Hidden Fees',
   'Apollo vs Lusha: Best Contact Data for Healthcare Outbound',
-  // REGRESSION LOCK. A migration guide may legitimately target an "x alternatives"
-  // query. The first live dry run rejected four migrations because the format fence
-  // read topic+targetKeyword instead of the title. Migrations are the site's most
-  // reliable format, so this must never be blocked again.
+  // REGRESSION LOCK. A post may legitimately target an "x alternatives" query without
+  // being an alternatives post. The first live dry run rejected four topics because the
+  // format fence read topic+targetKeyword instead of the title. The fences read the
+  // title only, so this must never be blocked again.
   {
-    topic: 'Migrate from GetResponse to ActiveCampaign Without Losing Your Sequences',
+    topic: 'Connect GetResponse to Pipedrive for Lead Handoff Without Custom Code',
     targetKeyword: 'getresponse alternatives',
   },
 ];
 
-// The 8 the fences deliberately do NOT catch. Each needs a semantic judgment a
+// The 6 the fences deliberately do NOT catch (8 until 2026-11-15, when the migration
+// fence began catching "HubSpot Workflows Failing? Migrate to Kit" and "Migrate from
+// Lusha to Prospeo"). Each needs a semantic judgment a
 // deterministic gate cannot make without becoming brittle and over-blocking, so
 // they stay a human-review job rather than a bad rule. Kept explicit so a future
 // change that DOES catch one is visible (the test tells you to shrink this list).
 //   - HubSpot vs Zapier / Pipedrive vs ActiveCampaign: real tools, but the pairing
 //     is cross-category. "Is this a fair comparison?" is not mechanical.
-//   - HubSpot Workflows -> Kit: CRM automation vs newsletter tool, same problem.
 //   - Kit vs Beehiiv vs Loops: a 3rd permutation of the newsletter family, but it
 //     carries enough distinct framing to clear the bare-permutation gate. Tightening
 //     that threshold would over-block legitimate re-angles.
-//   - Migrate from Lusha to Prospeo: duplicates a QUEUED row, not a published one.
-//     Production catches this (main() puts the live calendar in the dedup corpus);
-//     the selftest runs offline against published posts only.
 //   - The remaining three are vague/thin framings ("Your Pipedrive Sequences Are
 //     Silent"), which is an editorial call, not a detectable property.
 const ACCEPTED_JUDGMENT_LEAKS = new Set([
   'HubSpot vs Zapier: Why RevOps Teams Use Both and When to Drop One',
-  'HubSpot Workflows Failing? Migrate to Kit in 2026',
   'Kit vs Beehiiv vs Loops: B2B Revenue Stack',
-  'Migrate from Lusha to Prospeo Without Losing Your Enrichment Workflows',
   'Outbound Data Spend Blowup: Apollo vs Clay',
   'Pipedrive vs ActiveCampaign: Which Tool Actually Owns Your Pipeline',
   'Why RevOps Teams Are Abandoning Loops',
@@ -1376,7 +1421,7 @@ function selfTest() {
   // Different queries on the fenced tools: must pass the hub fence (and dedup).
   const OTHER_QUERY = [
     { topic: 'Nutshell Pricing in 2026: Seats, Plans, and the Costs Nobody Lists', anchorTool: 'Nutshell', alsoCovers: [], targetKeyword: 'nutshell pricing' },
-    { topic: 'Migrate from Pipedrive to Nutshell Without Losing Your Deal History', anchorTool: 'Nutshell', alsoCovers: ['Pipedrive'], targetKeyword: 'pipedrive to nutshell migration' },
+    { topic: 'Nutshell Email Sequences: Set Up Automated Follow-Ups Without a Sales Ops Hire', anchorTool: 'Nutshell', alsoCovers: [], targetKeyword: 'nutshell email sequences' },
   ];
   console.log('\nHUB FENCE + ONE TOOL-SET RULE (op #1309):');
   const fenced = dedup([NUTSHELL_1011, MOLTSETS_1011, ...OTHER_QUERY], universe, covered, HUBS);
@@ -1527,7 +1572,37 @@ function selfTest() {
   ];
   const trackerList = hubFenceList([], trackerRows);
   scheck('(4) the 11/01 Findymail row is not fenced by the tracker prompt', trackerList.every((h) => h.topQuery !== TRACKER) && hubFenceReason(universe, calendarRow(universe, FALSE_DROP.topic, TRACKER), trackerList) === null, `(${trackerList.map((h) => h.topQuery).join('; ')})`);
-  scheck('(4) the same hub still fences its real query', (hubFenceReason(universe, calendarRow(universe, 'Findymail Pricing Explained', 'findymail pricing'), trackerList) || '').startsWith('hub fence: /tools/findymail/'));
+  // (5) audit 2026-11-15, op #1633: the intent key is the anchor's alone, and two formats are fenced.
+  const keysOf = (title, kw = '') => intentKeys(universe, title, kw).join(',');
+  scheck('(5) a pricing title keys on the tool it is about, not the foil in its subtitle',
+    keysOf('Bookyourdata Pricing in 2026: Credits, Plans, and When It Beats Lusha', 'bookyourdata pricing') === 'pricing::bookyourdata', `(${keysOf('Bookyourdata Pricing in 2026: Credits, Plans, and When It Beats Lusha', 'bookyourdata pricing')})`);
+  scheck('(5) a review whose subtitle says "price" is a review of its first tool',
+    keysOf('Factors.ai Review 2026: Website Visitor Signals for Outbound Without the Warmly Price Tag') === 'review::factors-ai', `(${keysOf('Factors.ai Review 2026: Website Visitor Signals for Outbound Without the Warmly Price Tag')})`);
+  scheck('(5) a comparison with a cost word registers no pricing key', keysOf('Apollo vs LeadMagic vs Clay: Data Quality and Cost in 2026') === '');
+  scheck('(5) a foil after the colon does not make a pricing post a comparison', keysOf('Circleback Pricing in 2026: Plans, Seats, and vs Fathom Free') === 'pricing::circleback', `(${keysOf('Circleback Pricing in 2026: Plans, Seats, and vs Fathom Free')})`);
+  const lushaPricing = [calendarRow(universe, 'Lusha Pricing in 2026: Credits, Seats, and When to Switch', 'lusha pricing'),
+    calendarRow(universe, 'Pabbly Pricing in 2026: LTD, Monthly Plans, and When It Beats Make', 'pabbly pricing')];
+  const foilRun = dedup([
+    { topic: 'Bookyourdata Pricing in 2026: Credits, Plans, and When It Beats Lusha', anchorTool: 'Bookyourdata', alsoCovers: ['Lusha'], targetKeyword: 'bookyourdata pricing' },
+    { topic: 'Gumloop Pricing in 2026: Run Credits, Automation Plans, and When Make Is Cheaper', anchorTool: 'Gumloop', alsoCovers: ['Make'], targetKeyword: 'gumloop pricing' },
+    { topic: 'What Lusha Costs in 2026: Every Plan and Credit, and When Apollo Is Cheaper', anchorTool: 'Lusha', alsoCovers: ['Apollo'], targetKeyword: 'lusha cost' },
+  ], universe, lushaPricing);
+  scheck('(5) runs 34 to 36 replayed: the two foil drops are kept, the real second Lusha pricing post is dropped',
+    foilRun.kept.length === 2 && foilRun.dropped.length === 1 && foilRun.dropped[0].topic.startsWith('What Lusha Costs') && foilRun.dropped[0].reason === 'intent already covered (pricing::lusha)',
+    `(kept ${foilRun.kept.length}; ${foilRun.dropped.map((d) => d.reason).join(' | ')})`);
+  const formats = dedup([
+    { topic: 'Migrate from Aircall to JustCall Without Disrupting Your SDR Team', anchorTool: 'JustCall', alsoCovers: ['Aircall'], targetKeyword: 'aircall to justcall' },
+    { topic: 'Best Email Automation for Pipedrive in 2026', anchorTool: 'Pipedrive', alsoCovers: [], targetKeyword: 'pipedrive email automation' },
+    { topic: 'Close vs Nutshell: Best Affordable CRM for a Two-Person Team', anchorTool: 'Close', alsoCovers: ['Nutshell'], targetKeyword: 'close vs nutshell' },
+    { topic: 'Motion Pricing in 2026: Plans, AI Features, and When to Switch to Calendly', anchorTool: 'Motion', alsoCovers: ['Calendly'], targetKeyword: 'motion pricing' },
+  ], universe, []);
+  const freason = (start) => formats.dropped.find((d) => d.topic.startsWith(start))?.reason || 'kept';
+  scheck('(5) a migration guide and a "best of" roundup are format-fenced', freason('Migrate from Aircall') === FENCE_MIGRATION && freason('Best Email Automation') === FENCE_BEST_OF, `(${freason('Migrate from Aircall')} | ${freason('Best Email Automation')})`);
+  scheck('(5) "best" after a comparison head and "switch to" after a pricing head are not fenced', freason('Close vs Nutshell') === 'kept' && freason('Motion Pricing') === 'kept', `(${freason('Close vs Nutshell')} | ${freason('Motion Pricing')})`);
+  scheck('(5) the prompt names the two new fences and the anchor-first rule', /migration guides/.test(prompt) && /"best X" and "top N" roundups/.test(prompt) && /put the tool the post is about first/.test(prompt));
+  scheck('(5) GSC reads default to US rows', GSC_COUNTRY === 'usa' || 'GSC_COUNTRY' in process.env);
+
+  scheck('(4) the same hub still fences its real query',(hubFenceReason(universe, calendarRow(universe, 'Findymail Pricing Explained', 'findymail pricing'), trackerList) || '').startsWith('hub fence: /tools/findymail/'));
 
   const supplyFails = supply.filter((s) => !s.ok).map((s) => s.name);
   console.log(`TOPIC SUPPLY fixture: ${supply.length} checks, ${supplyFails.length} failed.`);
