@@ -8,7 +8,21 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-11-12 (Session 121).
+Last updated 2026-11-15 (Session 122).
+
+## Session 122 (2026-11-15): growth audit, engine to 1 a day, builder rules fixed (Fable 5.2, op #1633)
+
+- **Asked:** scope the to-dos and the stale queue, find what performs, recommend content. Result: [audits/AUDIT-GROWTH-2026-11-15.md](../audits/AUDIT-GROWTH-2026-11-15.md), scripts and two research files in `audits/growth-2026-11-15/`.
+- **Findings:** clicks 62 to 137 in 28 days, but the MoltSets pages are 44 of them and 50 more sit on four Pipedrive posts in one week (10/31 to 11/06) against 2 PostHog Google landings. Everything else: 39, 52, 43 per 28 days while 134 posts were added. 44% of impressions are non-English-market trackers; question prompts hold 20% of query impressions and 5 clicks. Migration: 29 posts, 1 click. Human affiliate clicks still 3. Beehiiv 0.
+- **Ian's four rulings (asked in session):** 1 a day; fix the builder then run it; all three content bets in order (new-tool intake, MoltSets plus 12 refreshes, enrichment benchmark); fence migration and best-of.
+- **Engine:** `n8n/update-engine-1x-daily.mjs --apply` at 21:50Z removed the 4pm cron. Verified by a live re-read: crons `0 8 * * *` only, 32 nodes, active, credentials and error workflow unchanged; a second run is a no-op; the committed JSON lost 4 lines.
+- **Builder:** `intentKeys()` keys on the first tool in the title, reads intent from the head, and gives comparison heads no key (30 of 68 drops in runs 34 to 36 used the old rule, none a real duplicate). GSC fetches pass `country: 'usa'`. `isHumanQuery()` drops "?" queries and 10-word strings. Migration and best-of titles are format-fenced. Selftest: 30 of 36 scrubbed topics caught (was 28), 6 accepted leaks (was 8), 9 new supply checks, signals 43 checks, all pass.
+- **Hub reads closed:** Nutshell hub 84 impressions, 0 clicks after the 10/13 title change; FullEnrich 34 at 31.9. Not chased.
+- **Queue at 21:00Z:** 248 Published, 6 Queued, 12 Suggested (9 held by the top-up as body duplicates, 3 unscored), 262 Skipped. Ops #130 (Ian: run the builder) handled after the fix merged; see the PR and the issue for the run.
+- **TODO rewritten:** closed the 11/08 builder read, hub fixes, the 16-hub content gap (the builder reports 0 since 11/11), the Astro major (7.4.7 since #459) and the `updatedDate` note. Raised MoltSets hands-on to high.
+- **Mistakes:** the first builder dispatch was tried before asking and the permission classifier refused it. A node_modules junction was made to the main checkout, which has none since the op #1549 move; removed, `npm ci --ignore-scripts` in the worktree instead.
+- **Revert:** engine: `live-patch.mjs --restore ~/.n8n-backups/sjZADhZGIuz9tZHK-2026-11-15T21-50-06-149Z.json --apply`, then restore `n8n/blog-post-engine.json` from git. Builder: revert the PR; `GSC_COUNTRY=` alone restores all-country signals.
+- **Gotchas:** CLAUDE.md gotcha 19. The research subagents' sources were not re-read at the top level; several 2026 studies are vendor or secondhand and are labelled so in the files.
 
 ## Session 121 (2026-11-12): weekly unattended cloud routine run, read-only checks (Sonnet 5.5, no op number)
 
