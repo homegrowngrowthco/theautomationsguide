@@ -1,0 +1,192 @@
+---
+title: "folk CRM Pricing in 2026: Plans, Seat Costs, and When Salesflare Wins"
+description: "folk CRM pricing broken down by tier, real seat costs for small teams, and an honest comparison with Salesflare and Pipedrive. 800 words."
+tldr: "folk CRM starts at $20 per seat per month but the Standard plan at $40 per seat is the realistic entry point for teams that need automations, making Salesflare a better deal for pipeline-focused sales teams at a similar price."
+pubDate: 2026-11-17
+tags: ["tools", "automation", "crm"]
+faqs:
+  - question: "How much does folk CRM cost per month?"
+    answer: "folk CRM starts at $20 per seat per month on the Standard plan (billed annually). The Premium plan runs $40 per seat per month, and an Enterprise tier is custom-quoted."
+  - question: "Does folk CRM have a free plan?"
+    answer: "folk offers a free trial but no permanent free tier. After the trial you must move to a paid plan."
+  - question: "Is folk CRM cheaper than Salesflare?"
+    answer: "folk's Standard plan ($20/seat/month) is cheaper than Salesflare's Growth plan ($29/seat/month), but Salesflare includes email tracking, pipeline automation, and sequence tools that folk only unlocks at higher tiers."
+  - question: "What is the difference between folk Standard and Premium?"
+    answer: "Standard caps automations and pipeline views; Premium unlocks unlimited sequences, custom dashboards, and priority support. For most sales teams, Premium at $40/seat is the functional tier."
+  - question: "When should I choose Salesflare over folk CRM?"
+    answer: "Choose Salesflare when your team runs outbound sequences, needs automatic data capture from email and LinkedIn, or wants a CRM that surfaces pipeline risk without manual data entry."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+[folk](/go/folk/) keeps its pricing page clean and approachable. That's intentional branding. But clean hides real decisions: the entry plan is lighter than it looks, the tier that actually covers automations costs twice as much, and at that price you're squarely in [Salesflare](/go/salesflare/) territory. Salesflare was built from the ground up for outbound sales teams, not relationship managers. Here's the real breakdown.
+
+<KeyTakeaways items={[
+  "folk Standard costs $20/seat/month (annual); Premium is $40/seat/month, and that is the tier most sales teams actually need.",
+  "A 5-seat team on Premium pays $2,400 per year before any add-ons.",
+  "Salesflare Growth at $29/seat/month includes automatic data capture and email sequences that folk only partially covers even at Premium.",
+  "Pipedrive Essential at $14/seat/month undercuts both for teams that just need a visual pipeline with no outreach automation."
+]} />
+
+<StatRow stats={[
+  { number: "$20", label: "Standard (annual)", description: "folk's entry paid tier per seat per month, billed annually. Covers basic pipelines and limited automations." },
+  { number: "$40", label: "Premium (annual)", description: "The tier that unlocks unlimited sequences, custom dashboards, and priority support. Realistic floor for a sales team." },
+  { number: "$29", label: "Salesflare Growth", description: "Per seat per month, annual billing. Includes email tracking, LinkedIn sidebar, and auto-enrichment from your inbox." }
+]} />
+
+## folk's tier structure, annotated
+
+[folk CRM's pricing page](https://www.folk.app/pricing) lists three tiers: Standard, Premium, and Enterprise. Here's what that actually means for a RevOps operator evaluating it.
+
+**Standard ($20/seat/month, annual):** Unlimited contacts, pipelines, basic email sync, and limited automations. The automation cap is the quiet killer here. Want multi-step sequences or trigger-based pipeline moves? You'll hit the ceiling fast. I'd treat Standard as a solo-founder or personal CRM tier, full stop. It's not a team sales tool at this price.
+
+**Premium ($40/seat/month, annual):** Unlimited automations, custom dashboards, priority support, and deeper integrations. This is where folk becomes a usable sales tool. The jump from $20 to $40 is 100%. Name that clearly when you're building a business case internally.
+
+**Enterprise (custom):** SSO, audit logs, dedicated support. Per [folk's docs](https://www.folk.app/pricing), pricing is negotiated directly. Useful for 25-plus seat teams with compliance requirements.
+
+No permanent free tier, only a time-limited trial. That matters for early-stage teams shopping on flexibility.
+
+<IntentTable
+  title="folk vs. Salesflare vs. Pipedrive: what you actually get"
+  caption="Mapped to real use cases, not vendor marketing copy."
+  cols={[
+    { name: "folk Premium", affiliateSlug: "folk", ctaLabel: "Try folk", highlight: false },
+    { name: "Salesflare Growth", affiliateSlug: "salesflare", ctaLabel: "Try Salesflare", highlight: true },
+    { name: "Pipedrive Essential", affiliateSlug: "pipedrive", ctaLabel: "Try Pipedrive", highlight: false }
+  ]}
+  rows={[
+    { label: "Price/seat/month (annual)", cells: ["$40", "$29", "$14"] },
+    { label: "Automatic data capture from email", cells: ["Partial (manual sync)", "Yes, automatic", "No"] },
+    { label: "Built-in email sequences", cells: ["Yes (unlimited at Premium)", "Yes", "Via add-on ($32+/seat)"] },
+    { label: "LinkedIn enrichment sidebar", cells: ["Via Chrome extension", "Native sidebar", "No"] },
+    { label: "Pipeline automation triggers", cells: ["Yes (unlimited at Premium)", "Yes", "Yes"] },
+    { label: "Contact enrichment", cells: ["Manual or via Zapier", "Auto from inbox/calendar", "Via Marketplace add-ons"] },
+    { label: "Best fit", cells: ["Relationship managers, agencies", "Outbound SMB sales teams", "Visual pipeline, low overhead"] }
+  ]}
+/>
+
+## The true cost for a real team
+
+Let me run the actual math for a 5-seat SMB sales team, which is the core folk buyer, across all three tools.
+
+**folk Premium, 5 seats, annual:**
+5 x $40 x 12 = $2,400/year
+
+No add-ons required at this tier for core functionality. But if you want email verification or enrichment at scale, you'll be routing through [Zapier](/go/zapier/) or a third-party tool. Budget another $20 to $50/month realistically.
+
+**Salesflare Growth, 5 seats, annual:**
+5 x $29 x 12 = $1,740/year
+
+That's $660 cheaper per year than folk Premium for the same 5-person team. Salesflare also includes automatic data capture from Gmail or Outlook that folk doesn't offer at any tier. For teams doing outbound prospecting, the [enrichment loop Salesflare builds into email and calendar sync](https://salesflare.com/blog/crm-data-enrichment) removes a real manual burden.
+
+**[Pipedrive](/go/pipedrive/) Essential, 5 seats, annual:**
+5 x $14 x 12 = $840/year
+
+Cheapest by a wide margin. But sequences cost extra (the Power add-on starts at $32/seat/month per [Pipedrive's pricing page](https://www.pipedrive.com/en/pricing)), so a sequences-enabled Pipedrive stack runs approximately $2,760/year for 5 seats. That's actually more expensive than folk Premium once you add it up.
+
+<Figure class="post-screenshot" caption="Pipedrive's pipeline view: the visual drag-and-drop that makes it the default choice for teams that want simple stage tracking without CRM overhead.">
+  <a href="/go/pipedrive/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/pipedrive-pipeline.png" alt="Pipedrive pipeline view showing drag-and-drop deal cards across stages" loading="lazy" />
+  </a>
+</Figure>
+
+## Which tier fits which team
+
+<ChooseIf
+  title="Which CRM fits your situation?"
+  tools={[
+    {
+      name: "folk Standard ($20/seat)",
+      conditions: [
+        "You are a solo founder or one-person team managing relationships, not a sales pipeline.",
+        "You send fewer than 50 outreach emails a week and do not need automated sequences.",
+        "You want a lightweight address book with pipeline views and are not dependent on automation."
+      ],
+      pricing: "From $20/seat/month (annual)",
+      affiliateSlug: "folk",
+      ctaLabel: "Try folk",
+      highlight: false
+    },
+    {
+      name: "folk Premium ($40/seat)",
+      conditions: [
+        "Your team runs structured outreach sequences and needs trigger-based pipeline automation.",
+        "Relationship context (notes, enrichment, group tagging) matters as much as pipeline stage.",
+        "You are an agency or founder-led team where the CRM doubles as a network OS, not just a sales tool."
+      ],
+      pricing: "From $40/seat/month (annual)",
+      affiliateSlug: "folk",
+      ctaLabel: "Try folk Premium",
+      highlight: false
+    },
+    {
+      name: "Salesflare Growth ($29/seat)",
+      conditions: [
+        "Your team runs outbound and you want the CRM to auto-capture contacts from email and LinkedIn without manual entry.",
+        "You need email sequences, open tracking, and pipeline automation in one tool at a mid-market price.",
+        "Data hygiene is a bottleneck and you want enrichment to happen passively as your reps work."
+      ],
+      pricing: "From $29/seat/month (annual)",
+      affiliateSlug: "salesflare",
+      ctaLabel: "Try Salesflare",
+      highlight: true
+    },
+    {
+      name: "Pipedrive Essential ($14/seat)",
+      conditions: [
+        "You need a visual drag-and-drop pipeline and nothing else. No sequences, no enrichment.",
+        "Your team is under five people and you will manage outreach through a separate tool like Lemlist or Instantly.",
+        "Budget is the primary constraint and you are willing to bolt on tools later."
+      ],
+      pricing: "From $14/seat/month (annual)",
+      affiliateSlug: "pipedrive",
+      ctaLabel: "Try Pipedrive",
+      highlight: false
+    }
+  ]}
+/>
+
+## Pricing fairness: where folk earns it and where it stings
+
+folk's Standard tier is priced correctly for what it is. It's a beautiful, opinionated relationship manager for founders and small teams who think in networks rather than pipelines. The UI is genuinely one of the best in the SMB CRM category, and the group tagging and enrichment workflow is well thought out. [G2 reviewers consistently flag the interface as a differentiator](https://www.g2.com/products/folk/reviews).
+
+What stings is the gap between Standard and Premium. Doubling the price to unlock automations is a steep jump. Salesflare delivers comparable automation coverage plus auto-enrichment for $11/seat less per month. For a 10-seat team, that's $1,320/year. Real money on a startup budget.
+
+My read is that folk is making a deliberate bet: charge more at the automation tier because the product experience is worth it to their target buyer (agencies, founder-led GTM teams). That's a defensible position. It just means folk Premium is the wrong tool if your primary motion is high-volume outbound.
+
+The comparison to [lemlist pricing](/blog/2026-11-12-lemlist-pricing-in-2026-plans-limits-and-when-replyio-wins/) is worth making: tools in the $30 to $50/seat range are increasingly expected to bundle automation and enrichment as table stakes, not upsells.
+
+<MyTake>
+folk is priced for the tool it actually is, not the tool some buyers think they're purchasing. If your mental model of a CRM is "where I track deals and fire automated sequences," folk at $40/seat will feel expensive next to Salesflare. If your mental model is "where I manage relationships and my network," folk is well-priced and genuinely differentiated. The mistake is buying folk for an outbound sales motion and then wondering why it feels incomplete. That's a buyer problem, not a product problem.
+</MyTake>
+
+## The bottom line
+
+folk CRM is a strong product at a fair price for relationship-led teams. But if your primary use case is outbound sales, pipeline management, and automated follow-up, [Salesflare](/tools/salesflare/) delivers more automation surface area at a lower per-seat cost. And if sequences aren't part of your motion at all, [Pipedrive](/tools/pipedrive/) at $14/seat is hard to argue with. Know what you're actually buying before you commit to an annual plan.
+
+<BottomLine
+  verdict="folk Premium is the right choice for founders and agencies running relationship-led GTM. For outbound sales teams, Salesflare Growth delivers more automation per dollar at $29/seat."
+  pick="Salesflare"
+  affiliateSlug="salesflare"
+  ctaLabel="See Salesflare pricing"
+/>
+
+<Sources sources={[
+  { label: "folk: Official pricing page", url: "https://www.folk.app/pricing" },
+  { label: "Salesflare: CRM data enrichment from email and calendar", url: "https://salesflare.com/blog/crm-data-enrichment" },
+  { label: "Pipedrive: Plans and pricing", url: "https://www.pipedrive.com/en/pricing" },
+  { label: "G2: folk CRM reviews", url: "https://www.g2.com/products/folk/reviews" }
+]} />
