@@ -8,7 +8,17 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-11-15 (Session 122).
+Last updated 2026-11-19 (Session 123).
+
+## Session 123 (2026-11-19): weekly unattended cloud routine run, read-only checks (Sonnet 5.5, no op number)
+
+- **"TAG unattended check (weekly, Thu 13:00Z)"** ran from a fresh clone with the connectors only. No op number; the next attended session logs it. Read only: nothing written to Notion, n8n, Beehiiv or PostHog. No ops issue opened (nothing met the queue criteria).
+- **Engine PRs (window 11/12 14:11Z to now):** 11 `content/` PRs (#473 to #479, #481, #482, #484, #485), all merged 1 to 2 min after opening; none open, no PR open at all. `merged_by` read for #485 only (github-actions); the rest merged on the same 1 to 2 min pattern. No `[auto-register]` proof case checked (#485 has 1 commit).
+- **Builder runs:** Sun 11/15 (run 36, schedule, success, started 13:48Z) 60 clusters, 19 near-win, 7 hub fixes; "Proposed 30 -> kept 6"; Flocksy pricing 59, Surfer vs Frase 53, Trigify vs Vector 21, folk pricing 18, Aloware review 10, Avoma trio 0; "Staged 6/6". Run 37 (11/15 21:55Z) was a manual dispatch after the #480 builder fix, success. Wed 11/18 (run 38, schedule, success, started 15:29Z, 9.5 h after 06:00Z) 60 clusters, 8 near-win, 1 hub fix; "Proposed 30 -> kept 11", 0 repeats; top Brevo Expert Setup 40, ActiveCampaign to Demio 38, Instantly pricing 25, then 18 x5, 17, 10, 10; "Staged 11/11". Queue audits: 0 collisions, 0 advisories, 0 Skipped, so no stage-then-Skipped.  Run 37's log was not read.
+- **New posts (11 added since 11/12, 0 hard each):** warnings only: titles over 60 chars, unlinked live-program mentions, one "multiple clients" wording (Warmforge), flocksy has no logo. No testing-claim or observation-with-a-figure warning. **Duplicate:** the 11/17 and 11/18 posts are both "folk CRM Pricing in 2026: Plans, Seat Costs, and When Salesflare Wins" with different bodies (#482, #484); in TODO.
+- **Queue:** 252 Published, 9 Queued, 25 Suggested, 262 Skipped. Queued: Prospeo pricing, Fillout pricing, Aloware review (Low), Avoma review, ActiveCampaign vs Drip, Kit email metrics, Connect ActiveCampaign to Demio (Medium), Brevo Expert Setup (High), Lindy pricing (Low). At 1 a day (13:00Z) from 11/20 the last publishes 11/28; the Sun 11/22 and Wed 11/25 top-ups land first.
+- **source_path metric (PostHog 408442 confirmed):** 670 `affiliate_click` since 10/02 01:21Z (624 `source_via=none`, 42 `last_page`, 4 `click`). Dropped: 624 none; about 37 `last_page` paths with no trailing slash; 4 on `/`; 1 woodpecker `last_page` (10/06). Strict human: 0 (no click carries `$session_id` or `$browser`). Pageview-join human: 4 (new: 11/16 Smartlead `inline` on the lemlist-to-smartlead migration post; its session and browser come from a `$pageleave` 0.2 s earlier, no `$pageview` within 60 s, so 3 if a pageview is required). All after the redesign deploy with a non-empty path; before it 0. Under 5, share not meaningful. Rule choice stays Ian's (ops #8).
+- **Dated reads:** conversion audit is due on or after 11/26; Nutshell and pricing index rebuild stay in TODO. **Revert:** docs only; close this PR.
 
 ## Session 122 (2026-11-15): growth audit, engine to 1 a day, builder rules fixed (Fable 5.2, op #1633)
 
