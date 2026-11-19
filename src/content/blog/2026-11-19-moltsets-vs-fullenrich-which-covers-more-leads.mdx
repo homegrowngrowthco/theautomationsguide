@@ -1,0 +1,159 @@
+---
+title: "MoltSets vs FullEnrich: Which Covers More Leads"
+description: "MoltSets vs FullEnrich compared on coverage, waterfall logic, pricing, and fit for RevOps teams enriching outbound lead lists at scale."
+tldr: "MoltSets wins on raw coverage breadth through its multi-provider waterfall, while FullEnrich is the cleaner choice for teams enriching smaller lists where deliverability and LinkedIn data quality matter most."
+pubDate: 2026-11-19
+tags: ["comparison", "automation", "data-enrichment"]
+faqs:
+  - question: "Is MoltSets better than FullEnrich for cold email lists?"
+    answer: "MoltSets tends to surface more total emails through its waterfall approach, but FullEnrich returns higher-confidence LinkedIn-verified data. For large cold email volumes, MoltSets covers more leads; for precision outreach, FullEnrich is the safer pick."
+  - question: "Does FullEnrich have a waterfall enrichment model?"
+    answer: "Yes. FullEnrich runs a cascade across multiple underlying providers before returning a result, similar to MoltSets, but its provider mix skews toward LinkedIn-sourced data and business email verification."
+  - question: "What is MoltSets used for?"
+    answer: "MoltSets is a contact data API used to find and verify work emails and phone numbers at scale, typically integrated into Clay workflows or outbound automation stacks."
+  - question: "How does MoltSets pricing compare to FullEnrich?"
+    answer: "Both tools charge on a per-credit or per-enrichment basis. MoltSets is generally more cost-effective at high volume, while FullEnrich's pricing reflects its emphasis on verified, high-quality matches."
+  - question: "Can I use MoltSets and FullEnrich together?"
+    answer: "Yes, and many RevOps teams do. A common pattern is running MoltSets first for broad coverage, then passing unmatched records through FullEnrich as a secondary waterfall layer."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+If your outbound list is sitting at 60% email coverage and you are deciding between [MoltSets](/go/moltsets/) and [FullEnrich](/go/fullenrich/) to close the gap, the choice is not obvious. Both tools run waterfall enrichment across multiple underlying providers, both return work emails and phone numbers, and both drop neatly into a [Clay](/go/clay/) workflow or a direct API call. The difference is in where each tool's provider mix actually shines, and which failure mode you can live with: missing coverage or missing confidence.
+
+<KeyTakeaways items={[
+  "MoltSets runs a broader provider waterfall, giving higher raw email-find rates on large lists with diverse firmographic profiles.",
+  "FullEnrich skews toward LinkedIn-sourced and business-verified data, which tends to produce fewer bounces on the records it does return.",
+  "Both integrate cleanly with Clay as enrichment columns, but MoltSets has a more documented API for n8n and custom stacks.",
+  "The two tools are not mutually exclusive. A common RevOps pattern is sequencing them: MoltSets first, FullEnrich as the fallback layer.",
+  "Lusha remains the third realistic option if you need phone numbers as the primary output rather than email."
+]} />
+
+<StatRow stats={[
+  { number: "75-85%", label: "MoltSets find rate", description: "Vendor-reported email find rate on well-defined ICP lists with job title and company domain provided." },
+  { number: "2-5x", label: "Coverage gap vs. single-source tools", description: "Waterfall enrichment tools like MoltSets and FullEnrich typically return 2-5x more matched emails than any single provider alone, per G2 reviewer benchmarks." },
+  { number: "$0.10-0.20", label: "Per-credit cost range", description: "Approximate per-enrichment cost for both tools at mid-tier volume, before any annual or bulk discounts." }
+]} />
+
+## What each tool actually does under the hood
+
+The marketing language around both tools sounds nearly identical: waterfall enrichment, multi-provider coverage, high deliverability. The meaningful difference is in the composition of that waterfall.
+
+[MoltSets](/go/moltsets/) aggregates across a wider set of providers, including some that specialize in SMB and mid-market contacts outside North America. That breadth is its main argument. If you are enriching a list that spans multiple geographies or less common industries, MoltSets will return something on a higher percentage of records. The tradeoff is that some of those matches come from lower-confidence sources, so you want a verification step downstream. This is why [pairing MoltSets with a deliverability-focused tool](/blog/2026-11-13-smartlead-deliverability-problems-fixes-and-pivots/) before launch matters more than it does with FullEnrich. Skip that step and you will pay for it in domain reputation.
+
+[FullEnrich](/go/fullenrich/)'s waterfall leans on LinkedIn-corroborated data as a primary layer. That means the records it returns are more likely to be current and deliverable, but its match rate on obscure personas or small-company targets is narrower. [G2 reviewers](https://www.g2.com/categories/data-enrichment) consistently note FullEnrich performs best on Director-and-above titles at companies with active LinkedIn presences. For enterprise-focused outbound, that is exactly the right constraint. I'd argue the LinkedIn-first approach is actually underrated for senior buyer personas, where a stale email from a data co-op is worse than no email at all.
+
+<SpectrumBar
+  leftLabel="MoltSets"
+  rightLabel="FullEnrich"
+  caption="How the two tools trade off coverage breadth against data confidence across key enrichment dimensions."
+  dimensions={[
+    { name: "Email find rate (raw)", leftPole: "Higher volume matched", rightPole: "Higher confidence matched", lean: "left" },
+    { name: "Geographic coverage", leftPole: "Global, incl. APAC/LATAM", rightPole: "North America + EU strong", lean: "left" },
+    { name: "LinkedIn data quality", leftPole: "Mixed sources", rightPole: "LinkedIn-corroborated", lean: "right" },
+    { name: "Phone number coverage", leftPole: "Limited", rightPole: "Better at senior roles", lean: "right" },
+    { name: "API documentation depth", leftPole: "More complete", rightPole: "Adequate, less verbose", lean: "left" },
+    { name: "Clay integration friction", leftPole: "Low (native column)", rightPole: "Low (native column)", lean: "center" }
+  ]}
+/>
+
+## Plugging each into a real outbound stack
+
+Both tools live most comfortably inside a Clay enrichment waterfall, where you sequence them as columns and only spend a credit when the previous column returns empty. That architecture is the standard RevOps pattern now. Any team not running a waterfall is leaving significant coverage on the table compared to single-source lookups, full stop.
+
+A practical column order for a mid-market outbound list: Apollo built-in email finder first, then MoltSets for the gaps, then FullEnrich as a third pass on still-empty rows, then a final bounce-verification step with [Bouncer](/go/bouncer/) or [ZeroBounce](/go/zerobounce/) before the list touches [Smartlead](/go/smartlead/) or [Instantly](/go/instantly/). That sequence is what [Clay's waterfall documentation](https://docs.clay.com) is designed around, and it works because you only pay credits on actual matches at each layer.
+
+Outside Clay, MoltSets has a cleaner API reference for direct integration into [n8n](/go/n8n/) or custom enrichment pipelines. FullEnrich's API is functional but less extensively documented, which matters if your team is building a custom enrichment service rather than relying on Clay's native columns. For teams running enrichment entirely through [Clay's](/tools/clay/) waterfall UI, the documentation gap is irrelevant. But if you are wiring this into a custom stack, the difference in API verbosity is real and will cost you time.
+
+[Lusha](/go/lusha/) comes up in every one of these conversations. Its differentiation is phone numbers, particularly mobile numbers for senior decision-makers. If your sequence is phone-first rather than email-first, [Lusha](/tools/lusha/) is the more natural primary tool, with MoltSets or FullEnrich handling the email layer. For pure email enrichment, Lusha rarely wins the coverage argument.
+
+<Figure class="post-screenshot" caption="Clay's waterfall enrichment table shows how multiple providers stack as sequential columns, only charging a credit on a successful match.">
+  <a href="/go/clay/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/clay-enrichment.png" alt="Clay waterfall enrichment table with multiple provider columns and conditional credit logic" loading="lazy" />
+  </a>
+</Figure>
+
+## How to choose
+
+The first question I'd ask is: what does your ICP actually look like? If you are enriching lists of VP-and-above buyers at Series B-and-later SaaS companies with active LinkedIn profiles, FullEnrich's confidence advantage probably outweighs any coverage gap. You will get fewer matched records, but the ones you get will bounce less. That matters a lot for domain reputation when you are sending at volume through shared infrastructure.
+
+If your ICP is broader, geographic coverage matters, or you are working lists that mix SMB with enterprise, MoltSets' wider provider net will return more usable records overall. The usual failure here is teams optimizing for find rate without thinking about what happens downstream. A 10% higher find rate means nothing if a higher share of those emails hard-bounce and start degrading your sending domain. My read is that the verification step is non-negotiable once you are sending more than a few hundred emails per day. Build it in before you celebrate the coverage number.
+
+<ChooseIf
+  title="Which tool fits your enrichment workflow?"
+  tools={[
+    {
+      name: "MoltSets",
+      conditions: [
+        "Your ICP spans multiple geos, industries, or company sizes where no single provider dominates.",
+        "You are running a Clay waterfall and want maximum first-pass coverage before spending credits on secondary tools.",
+        "You have a downstream bounce-verification step and can absorb some lower-confidence matches."
+      ],
+      pricing: "Credit-based, approx. $0.10-0.15/enrichment at mid-volume",
+      affiliateSlug: "moltsets",
+      ctaLabel: "Try MoltSets",
+      highlight: false
+    },
+    {
+      name: "FullEnrich",
+      conditions: [
+        "Your ICP is senior decision-makers at companies with strong LinkedIn presence, primarily North America or EU.",
+        "Deliverability is paramount and you would rather have fewer but higher-confidence matches.",
+        "You are enriching a smaller, curated list where precision matters more than raw volume."
+      ],
+      pricing: "Credit-based, approx. $0.15-0.20/enrichment at mid-volume",
+      affiliateSlug: "fullenrich",
+      ctaLabel: "Try FullEnrich",
+      highlight: true
+    },
+    {
+      name: "Lusha",
+      conditions: [
+        "Phone numbers, especially mobile numbers for senior buyers, are your primary enrichment goal.",
+        "You run a phone-first or multi-channel sequence where email is secondary.",
+        "Your team values a managed platform with compliance handling rather than a raw API."
+      ],
+      pricing: "From $36/seat/month on Pro tier",
+      affiliateSlug: "lusha",
+      ctaLabel: "Try Lusha",
+      highlight: false
+    }
+  ]}
+/>
+
+<MyTake>
+Framing MoltSets vs FullEnrich as a binary choice is the wrong mental model entirely. Any team enriching more than 2,000 contacts per month should be running both in sequence inside Clay, treating the per-credit cost as the price of coverage insurance rather than a tool subscription fee. The only real decision is which one goes first in the waterfall. For most SMB-to-mid-market ICPs, MoltSets earns that first slot on volume alone, and FullEnrich cleans up behind it.
+</MyTake>
+
+## The bottom line on contact data coverage
+
+Neither tool dominates across every use case. That is the honest answer. MoltSets covers more leads in raw terms, particularly on diverse or international lists. FullEnrich returns more trustworthy records on senior enterprise personas. The teams getting the most out of both are the ones who stopped treating them as competing tools and started running them as sequential waterfall layers, which is what the per-credit pricing model is designed for anyway.
+
+If you are only going to pick one to start with, MoltSets gets you further on a first pass against an unknown list. If you have already run a first-pass enrichment and want to upgrade confidence on the matched records, FullEnrich earns its place as the quality layer.
+
+<BottomLine
+  verdict="MoltSets covers more leads on broad or diverse lists and earns the first waterfall slot for most teams. Use FullEnrich as your quality layer for senior enterprise personas or as a secondary pass on unmatched records."
+  pick="MoltSets"
+  affiliateSlug="moltsets"
+  ctaLabel="Try MoltSets"
+/>
+
+<Sources sources={[
+  { label: "MoltSets: official API documentation and find-rate claims", url: "https://moltsets.com" },
+  { label: "FullEnrich: product overview and waterfall methodology", url: "https://fullenrich.com" },
+  { label: "G2: contact data enrichment category reviews", url: "https://www.g2.com/categories/data-enrichment" },
+  { label: "Clay: waterfall enrichment workflow documentation", url: "https://docs.clay.com" }
+]} />
