@@ -1,0 +1,199 @@
+---
+title: "Brevo Expert Setup: Automations, Segments, and CRM Sync"
+description: "How B2B RevOps teams configure Brevo automations, scoring, segments, and CRM sync to run a real pipeline. Covers ActiveCampaign and GetResponse too."
+tldr: "Brevo is a capable B2B marketing automation platform when you configure contact scoring, behavioral segments, and bidirectional CRM sync correctly from the start."
+pubDate: 2026-11-20
+tags: ["guide", "automation", "email"]
+faqs:
+  - question: "Is Brevo good for B2B marketing automation?"
+    answer: "Brevo supports contact scoring, behavioral segmentation, and CRM sync that cover most B2B use cases. It lacks some advanced lead routing found in HubSpot or ActiveCampaign at higher tiers."
+  - question: "Does Brevo integrate with Salesforce or HubSpot CRM?"
+    answer: "Brevo has a native two-way sync with Salesforce and a webhook-based integration with HubSpot. Contact attributes, deal stages, and list membership can flow in both directions."
+  - question: "How does Brevo contact scoring work?"
+    answer: "Brevo scoring assigns points based on email opens, clicks, page visits, and form fills. You set thresholds per attribute and trigger automations when a contact crosses a score tier."
+  - question: "How does Brevo compare to ActiveCampaign for B2B?"
+    answer: "ActiveCampaign has deeper conditional logic and CRM pipeline features out of the box. Brevo wins on price per contact and deliverability infrastructure at scale."
+  - question: "Can Brevo replace a CRM entirely?"
+    answer: "Brevo has a lightweight built-in CRM (deals, pipelines, tasks) that works for small B2B teams, but most teams above 10 reps will want to sync it to Salesforce or Pipedrive for rep-facing views."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Most B2B teams that land on [Brevo](/go/brevo/) treat it as a newsletter tool and leave 70% of the platform untouched. The automation builder, contact scoring engine, and CRM sync layer are all there, but the default onboarding pushes you toward simple broadcast campaigns. If you are running a real GTM motion with MQL thresholds, pipeline stages, and rep handoff workflows, you have to build the scaffolding yourself. This guide covers exactly that: how to configure scoring, build behavioral segments that actually qualify leads, wire up a bidirectional CRM sync, and understand where Brevo fits versus [ActiveCampaign](/go/activecampaign/) or [GetResponse](/go/getresponse/) when your stack needs change.
+
+<KeyTakeaways items={[
+  "Brevo contact scoring is attribute-based and automation-triggered, not AI-driven. Set explicit thresholds or it does nothing.",
+  "Bidirectional CRM sync requires the Business plan or above. The free tier is one-way push only.",
+  "Behavioral segments use AND/OR logic across email activity, page visits, and custom attributes. Chain them with automations for MQL routing.",
+  "ActiveCampaign has better native CRM pipeline logic. GetResponse edges ahead on webinar-to-nurture flows. Brevo wins on deliverability infrastructure and price per contact.",
+  "The usual failure is building automations before segments. Flip that order every time."
+]} />
+
+## The Architecture Before You Build Anything
+
+The mistake I see most often on Brevo setups is jumping straight into the automation builder before defining what a qualified contact actually looks like in the account. Automations in Brevo are triggered by segment membership, score thresholds, or events. If your segments are loose and your scoring rules are undefined, every automation fires on noise.
+
+The correct build order is scoring rules first, segments second, automations third. Here is what that looks like in practice.
+
+<StatRow stats={[
+  { number: "250+", label: "Automation Triggers", description: "Brevo supports over 250 trigger conditions across email, SMS, web behavior, and CRM events per the vendor docs." },
+  { number: "$0", label: "Entry Price", description: "Brevo's free plan allows up to 300 emails per day and unlimited contacts, covering the segment and scoring setup phase at no cost." },
+  { number: "2-way", label: "CRM Sync Depth", description: "On the Business plan, Brevo syncs contact properties, deal stages, and list membership back and forth with Salesforce and Pipedrive natively." }
+]} />
+
+<StepRow steps={[
+  {
+    title: "Define Your Scoring Dimensions",
+    body: "In Brevo, go to Contacts > Lead Scoring and create a scoring model. I'd recommend three buckets: engagement score (email opens +2, clicks +5, unsubscribes -20), behavior score (form fills +10, pricing page visit +15, demo request +25), and fit score (synced from CRM as a custom attribute, e.g. company size or industry). Keep it simple. A model with more than 8 rules becomes impossible to debug when a contact is not routing correctly."
+  },
+  {
+    title: "Build Segments With Explicit Thresholds",
+    body: "Create a saved segment for each MQL tier. Example: 'Hot MQL' = score >= 50 AND NOT (deal stage = Closed Lost) AND (last activity <= 30 days). Brevo's segment builder supports nested AND/OR logic. Use the 'Preview contacts' button before saving. If the segment returns fewer than 5 contacts on a list you know has active prospects, your attribute mapping is probably wrong. Check that custom contact attributes are being written correctly by whatever enrichment or form tool feeds the account."
+  },
+  {
+    title: "Wire Up Automation Entry Points",
+    body: "Build one automation per MQL tier rather than one giant branching workflow. Each automation entry trigger should be 'Contact enters segment [Hot MQL]'. From there: send an internal Slack or email notification to the assigned rep, create a task in the CRM (via native sync or webhook), and enroll the contact in a 3-email nurture sequence with a 48-hour wait between sends. Keeping automations small and segment-scoped makes them auditable."
+  },
+  {
+    title: "Configure the CRM Sync",
+    body: "Under Integrations, connect your CRM. For Salesforce, Brevo maps contact properties to Salesforce lead or contact fields bidirectionally. For Pipedrive, the native integration syncs deals and persons. The critical setting most teams miss: set the 'update existing records' rule to 'always update from Brevo' for marketing attributes (score, segment name, last email click date) and 'always update from CRM' for sales attributes (deal stage, rep owner, close date). Mixing these up means reps see stale data."
+  },
+  {
+    title: "Set Up Suppression and Exit Logic",
+    body: "Every nurture automation needs a clean exit condition. In Brevo's automation builder, add an exit trigger: 'Contact exits segment [Hot MQL]' OR 'Contact property: deal stage = Closed Won OR Closed Lost'. Without this, contacts who convert or churn out stay enrolled in sequences and generate noise for reps. Also create a global suppression list called 'CRM Active Deals' and add it as an exclusion condition on every marketing automation entry trigger."
+  }
+]} />
+
+## Where the Real Complexity Lives: Webhooks and Custom Events
+
+The segment and scoring setup above handles 80% of B2B use cases. The remaining 20% requires custom events, which is where [Brevo](/tools/brevo/)'s API earns its keep.
+
+<SideBySide>
+  <Fragment slot="left">
+    **The trap:** Teams use Brevo's standard email-event triggers (opened, clicked) as proxies for intent. Those signals are noisy after iOS Mail Privacy Protection killed reliable open tracking. A contact who "opened" every email because Apple pre-fetched it will score into Hot MQL with zero real intent.
+
+    The fix is behavioral events from your product or website. Send a custom event to Brevo via the API when a contact visits the pricing page, starts a trial, or logs in after 7 days of inactivity. These are ground-truth signals and they should carry 3x to 5x the scoring weight of email engagement. I'd argue that any scoring model that still leans on raw open rates as a primary signal is effectively measuring mail server behavior, not buyer intent.
+
+    Per [Brevo's developer docs](https://developers.brevo.com/docs/track-events), custom events are sent via a simple POST to the transactional events endpoint and appear in the automation builder as "Event: [event name]" triggers within minutes.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    POST https://api.brevo.com/v3/events
+    Headers:
+      api-key: YOUR_API_KEY
+      Content-Type: application/json
+
+    {
+      "event_name": "pricing_page_viewed",
+      "event_properties": {
+        "plan_viewed": "business",
+        "time_on_page_seconds": 142
+      },
+      "identifiers": {
+        "email": "contact@example.com"
+      }
+    }
+    ```
+
+    Map `event_name` as the automation trigger.
+    Use `event_properties` values in conditions:
+    "If plan_viewed = business AND
+    time_on_page_seconds > 60, add +20 score."
+
+    Chain this with a segment filter:
+    "Score >= 50 AND event: pricing_page_viewed
+    in last 7 days" = demo-ready MQL.
+  </Fragment>
+</SideBySide>
+
+## Brevo vs. ActiveCampaign vs. GetResponse for B2B Teams
+
+Brevo is not the automatic answer for every B2B stack. Here is my honest read on when each platform fits.
+
+<ChooseIf title="Which Platform Fits Your B2B Stack" tools={[
+  {
+    name: "Brevo",
+    conditions: [
+      "You need high sending volume at a low per-contact cost and deliverability is a priority",
+      "Your CRM is Salesforce or Pipedrive and you want a native two-way sync without middleware",
+      "Your team is small-to-mid size and wants automation plus transactional email under one contract"
+    ],
+    pricing: "Free to $65/mo (Business plan unlocks CRM sync)",
+    affiliateSlug: "brevo",
+    ctaLabel: "Try Brevo",
+    highlight: true
+  },
+  {
+    name: "ActiveCampaign",
+    conditions: [
+      "You need deep conditional branching logic inside automations (predictive sending, goal steps, splits by CRM field)",
+      "Your team wants a built-in sales CRM with pipeline stages and rep task management without leaving the marketing tool",
+      "You run complex multi-touch attribution and need deal-level reporting inside the marketing platform"
+    ],
+    pricing: "From $49/mo (Plus, 1,000 contacts)",
+    affiliateSlug: "activecampaign",
+    ctaLabel: "Try ActiveCampaign"
+  },
+  {
+    name: "GetResponse",
+    conditions: [
+      "Webinars are a core demand gen channel and you want registration, reminder, and follow-up sequences in one tool",
+      "You are running a content business or course alongside B2B outreach and need landing pages plus email in one platform",
+      "Your budget is tight and you want automation plus list growth tools without paying per-contact overages"
+    ],
+    pricing: "From $19/mo (Email Marketing, 1,000 contacts)",
+    affiliateSlug: "getresponse",
+    ctaLabel: "Try GetResponse"
+  }
+]} />
+
+If you are comparing the broader email infrastructure question, the [lemlist pricing breakdown](/blog/2026-11-12-lemlist-pricing-in-2026-plans-limits-and-when-replyio-wins/) is worth a read alongside this, since cold outbound and marketing automation often need to coexist in a B2B stack without cannibalizing each other's sending reputation.
+
+## Verification: How to Know Your Setup Is Actually Working
+
+Before you call the Brevo build done, run these four checks.
+
+**Score audit.** Pull the contact list sorted by score descending. The top 20 should be recognizable as engaged prospects or current customers. If random contacts appear at the top, your scoring weights are wrong or custom attributes are not being populated.
+
+**Automation entry log.** In Brevo's automation reports, check "Contacts currently in automation" vs. "Contacts who exited." A healthy ratio is at least 70% completing the workflow without early exit. High early-exit rates usually mean the exit trigger is too broad or a segment condition flips too quickly.
+
+**CRM field parity.** Pick five contacts at random and compare the Brevo contact record with the corresponding record in your CRM. The sync lag should be under 15 minutes for property updates per [Brevo's integration docs](https://help.brevo.com/hc/en-us/articles/209483885). If fields are mismatched, check the field mapping and confirm the sync direction rule is set correctly per step four above.
+
+**Suppression coverage.** Send a test contact through the system by manually adding them to the Hot MQL segment. Confirm the automation fires, the CRM task is created, and the internal notification lands. Then mark the contact as Closed Won in the CRM and verify they exit the automation within one sync cycle.
+
+<MyTake>
+Brevo gets undersold in the RevOps community because it launched as a transactional email provider and the rebrand from Sendinblue never fully shook that association. My read is that most feature-checklist comparisons against [ActiveCampaign](/tools/activecampaign/) never run the total cost of ownership math. At scale, Brevo's per-contact pricing is meaningfully lower, and for B2B teams under 50 employees who want marketing automation, transactional email, and CRM sync under one contract, that gap compounds fast. Teams that dismiss it are usually paying a premium for ActiveCampaign pipeline features they could replicate with a Pipedrive sync and 20 minutes of Brevo automation config.
+</MyTake>
+
+## Build the Foundation, Then Automate
+
+A Brevo setup that earns the label "expert" is not about using every feature. It is about having a coherent data model: clean scoring rules that map to real intent signals, segments that reflect actual pipeline stages, and a CRM sync that keeps marketing and sales looking at the same record. Build in that order and the automation layer becomes straightforward. Skip the foundation and you spend every quarter debugging why the wrong contacts are routing to reps.
+
+For teams evaluating the full email cluster, [GetResponse](/tools/getresponse/) is worth a look if webinars anchor your demand gen, and ActiveCampaign earns consideration when your sales motion needs CRM depth inside the marketing platform itself. But for most B2B teams building a scalable, budget-conscious GTM stack, Brevo is a more capable starting point than its reputation suggests.
+
+<BottomLine
+  verdict="Brevo is the right foundation for B2B teams that want marketing automation, transactional email, and CRM sync under one contract without paying ActiveCampaign's per-contact premiums. Set up scoring and segments before touching the automation builder."
+  pick="Brevo"
+  affiliateSlug="brevo"
+  ctaLabel="Try Brevo"
+/>
+
+<Sources sources={[
+  { label: "Brevo Developer Docs: Track Events API", url: "https://developers.brevo.com/docs/track-events" },
+  { label: "Brevo Help: CRM Sync Integration Guide", url: "https://help.brevo.com/hc/en-us/articles/209483885" },
+  { label: "G2: Brevo Reviews and Ratings", url: "https://www.g2.com/products/brevo/reviews" },
+  { label: "Brevo Pricing Page", url: "https://www.brevo.com/pricing/" }
+]} />
