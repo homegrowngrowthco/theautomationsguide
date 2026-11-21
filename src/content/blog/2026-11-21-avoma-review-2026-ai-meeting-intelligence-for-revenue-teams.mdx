@@ -1,0 +1,152 @@
+---
+title: "Avoma Review 2026: AI Meeting Intelligence for Revenue Teams"
+description: "Honest Avoma review for RevOps teams. How it stacks up against Fathom, tl;dv, and Gong on transcription, coaching, and CRM sync in 2026."
+tldr: "Avoma is the strongest mid-market meeting intelligence platform for teams that need coaching scorecards, CRM auto-fill, and deal intelligence without paying Gong prices."
+pubDate: 2026-11-21
+tags: ["comparison", "automation", "sales-intelligence"]
+faqs:
+  - question: "Is Avoma worth it for small sales teams?"
+    answer: "Avoma's starter tiers are priced for small teams and include CRM sync and AI summaries. Teams under five reps will likely find Fathom cheaper for pure note-taking but will miss Avoma's coaching and deal intelligence layers."
+  - question: "How does Avoma compare to Gong?"
+    answer: "Avoma covers roughly 80 percent of Gong's feature set at a fraction of the per-seat cost. Gong pulls ahead on revenue forecasting depth and enterprise integrations, but most sub-200-rep teams do not need that layer."
+  - question: "Does Avoma integrate with HubSpot and Salesforce?"
+    answer: "Yes. Avoma syncs call recordings, AI summaries, and next steps directly to contact and deal records in both HubSpot and Salesforce via native integrations."
+  - question: "What is Avoma's pricing in 2026?"
+    answer: "Avoma runs from a free tier up to roughly $129 per seat per month for the Revenue Intelligence plan. See the dedicated pricing breakdown for exact tier limits."
+  - question: "Can Avoma replace a manual call review process?"
+    answer: "It can replace ad-hoc call reviews for most teams. Avoma's scorecards and keyword trackers surface coaching moments automatically, though managers still need to set up the criteria and act on the data."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+If your RevOps stack still relies on reps manually logging call notes into your CRM, you are leaving a gap that compounds every quarter. [According to Salesforce's State of Sales research](https://www.salesforce.com/resources/research-reports/state-of-sales/), reps log fewer than 60 percent of customer interactions manually. Meeting intelligence platforms close that gap by transcribing, summarizing, and routing conversation data automatically. [Avoma](/go/avoma/) sits in an interesting middle band: more opinionated than consumer-grade recorders like [Fathom](/go/fathom/) or [tl;dv](/go/tl-dv/), and far cheaper than [Gong](/go/gong/) or [Outreach](/go/outreach/) for teams not yet at enterprise scale. This review breaks down where Avoma actually earns its seat cost and where the gaps show up.
+
+<KeyTakeaways items={[
+  "Avoma is the best all-in-one option for teams that need transcription, coaching scorecards, and CRM sync under one bill",
+  "Fathom wins on pure price if all you need is free AI notes with no coaching layer",
+  "tl;dv is the right call for async-first teams that live in Notion or Slack and want clip sharing above all else",
+  "Gong is the enterprise play, but its deal intelligence premium rarely pays off below 50 quota-carrying reps",
+  "CRM auto-fill quality, not transcription accuracy, is the real differentiator between these tools in 2026"
+]} />
+
+<StatRow stats={[
+  { number: "95%+", label: "Transcription accuracy", description: "Avoma claims on English calls per their product documentation, consistent with what G2 reviewers report on clean audio" },
+  { number: "$129", label: "Revenue Intelligence seat/mo", description: "Avoma's top plan per their published 2026 pricing, the tier where deal and pipeline intelligence unlocks" },
+  { number: "40%", label: "CRM data gap estimate", description: "Salesforce State of Sales research finds reps log fewer than 60 percent of customer interactions manually" }
+]} />
+
+## What Avoma actually does well
+
+Avoma is fundamentally a meeting operating system, not just a recorder. That distinction matters for how you evaluate it. When a call ends, Avoma produces a transcript, an AI summary with agenda-mapped sections, action items extracted as tasks, and a CRM sync that pushes the summary and next steps to the linked deal or contact record. That last piece is where most lighter tools fall short.
+
+The coaching layer is the other genuine differentiator. Managers can build scorecards tied to specific call behaviors: did the rep ask a discovery question in the first five minutes, did they present pricing before confirming budget, did they confirm next steps before hanging up. Avoma scores calls against those criteria automatically and surfaces outliers in a coaching dashboard. It is not the depth of [Gong's](/tools/gong/) conversation intelligence suite, but for a team of 10 to 50 reps it covers the 80 percent case without a six-figure contract.
+
+Deal intelligence, available on the Revenue Intelligence plan at $129 per seat per month, tracks topic trends across all calls on an opportunity and surfaces risk signals like "competitor mentioned" or "decision maker not on the last three calls." My read is that this feature alone justifies the plan upgrade for any team running deals above $20K ACV. The signal is baked into your existing call flow with no extra motion from reps.
+
+One thing worth flagging: Avoma's value scales directly with how disciplined your team is about using it. If reps mute the bot or join from their phone, the data degrades fast. The usual failure mode is launching the tool, getting excited about the dashboards, and then watching recording rates drop to 60 percent by month two because nobody enforced the join-from-desktop norm. Governance before tooling, every time.
+
+<Figure class="post-screenshot" caption="Gong's AI Composer drafting a follow-up from a call brief, illustrating the kind of post-call automation Avoma also pursues in its own CRM sync workflow">
+  <a href="/go/gong/" target="_blank" rel="noopener noreferrer sponsored">
+    <img src="/screenshots/gong-composer.png" alt="Gong AI Composer interface showing a drafted follow-up email generated from a call summary" loading="lazy" />
+  </a>
+</Figure>
+
+## Avoma vs. Fathom vs. tl;dv: who is each tool for
+
+I'd argue most comparison posts in this space get the framing wrong. They treat transcription accuracy as the headline comparison point when, in practice, all four tools below are within a rounding error of each other on clean audio. The real question is what happens after the transcript.
+
+<ChooseIf title="Which meeting intelligence tool fits your team?" tools={[
+  {
+    name: "Avoma",
+    conditions: [
+      "You need coaching scorecards and manager dashboards, not just transcripts",
+      "CRM auto-fill to HubSpot or Salesforce is a core workflow requirement",
+      "You want deal intelligence and topic tracking across an entire opportunity"
+    ],
+    pricing: "Free tier available; paid from ~$19/seat/mo",
+    affiliateSlug: "avoma",
+    ctaLabel: "Try Avoma",
+    highlight: true
+  },
+  {
+    name: "Fathom",
+    conditions: [
+      "You need personal AI notes for free and have no coaching or CRM-sync requirement",
+      "Solo founder or very small team where per-seat cost is the primary constraint",
+      "Zoom is your primary meeting platform and you want zero-config setup"
+    ],
+    pricing: "Free for individuals; team plans from ~$19/seat/mo",
+    affiliateSlug: "fathom",
+    ctaLabel: "Try Fathom"
+  },
+  {
+    name: "tl;dv",
+    conditions: [
+      "Your team is async-first and needs to clip, timestamp, and share meeting moments in Slack or Notion",
+      "You run customer research or product discovery calls and need a highlight reel workflow",
+      "CRM sync is nice-to-have, not a hard requirement"
+    ],
+    pricing: "Free tier; Pro from ~$18/seat/mo",
+    affiliateSlug: "tl-dv",
+    ctaLabel: "Try tl;dv"
+  },
+  {
+    name: "Gong",
+    conditions: [
+      "You have 50 or more quota-carrying reps and need enterprise-grade forecasting tied to call data",
+      "You want deep integration with Salesforce forecasting and revenue intelligence at the pipeline level",
+      "Budget is not a constraint and you need the market-leading conversation intelligence depth"
+    ],
+    pricing: "Custom pricing, typically $1,200+ per seat/year",
+    affiliateSlug: "gong",
+    ctaLabel: "Explore Gong"
+  }
+]} />
+
+## The honest gaps
+
+Avoma is not without friction. A few areas to pressure-test before you commit.
+
+The meeting scheduler is a native feature, but it is not competitive with [Calendly](/go/calendly/) or [Chili Piper](/go/chili-piper/) on routing logic. Avoma bundles it to give the product a broader surface area. Don't let it replace a purpose-built scheduler if routing is core to your motion. That is a tradeoff, not a feature.
+
+Transcript search is functional but not great. You can search by keyword across all calls, but filtering by rep, date range, and topic simultaneously is clunky enough that most managers will default to dashboard views rather than free-text search. [G2 reviewers note this directly](https://www.g2.com/products/avoma/reviews), and the gap versus Gong's search experience is real.
+
+CRM field mapping requires setup investment. Out of the box, Avoma maps summaries and action items to standard fields. If you have custom objects or non-standard deal stages in [Salesforce](/tools/salesforce/) or [HubSpot](/go/hubspot/), budget two to four hours of admin work to get the sync right. It is not plug-and-play for a mature CRM instance. The first thing I'd check before signing any contract is whether your deal stage names match Avoma's default mapping, because cleaning that up post-launch is painful.
+
+For a full breakdown of what each plan actually costs and where the tier limits bite, the [Avoma pricing breakdown](/blog/2026-11-13-avoma-pricing-in-2026-per-seat-costs-plan-limits-and-when-la/) covers the numbers in detail.
+
+## How to choose
+
+Start with what problem you are actually solving. Pure note-taking does not need Avoma. Coaching at scale does. Deal signal tracking across an opportunity pipeline does. The question I'd ask before signing: does your manager actually have time to review scorecards, or will the coaching dashboard become shelfware by Q2? The tool is only as valuable as the review cadence it plugs into.
+
+For teams already running a conversation intelligence tool and considering a switch, the main thing Avoma offers over lighter options is the deal intelligence and CRM sync depth. If you are on [Laxis](/tools/laxis/) or a similar lightweight recorder and finding that CRM data quality is still poor after six months, Avoma's auto-fill and structured summaries will close a lot of that gap without the complexity of a Gong migration. Per [Avoma's own product documentation](https://www.avoma.com/pricing), the Business plan is where the CRM sync becomes genuinely configurable, so that is the floor I'd recommend for any team treating this as a pipeline data problem rather than a notetaking convenience.
+
+<MyTake>
+Most teams shopping Avoma are shopping for a Gong alternative at half the price, and for the majority of them that is exactly the right call. Where I'd push back is on the assumption that meeting intelligence alone fixes CRM hygiene. Avoma surfaces the data faster than any manual process will. But if your deal stages and field definitions are not clean before you turn it on, you are automating bad data into your CRM at a higher velocity than before. Sort your data model first. Then buy the tool.
+</MyTake>
+
+## The bottom line
+
+Avoma sits in a defensible position in 2026: more structured than consumer recorders, more affordable than enterprise conversation intelligence, and native enough to both HubSpot and Salesforce to serve as connective tissue between your call activity and your pipeline data. The coaching and deal intelligence layers are genuinely useful for mid-market teams. The gaps (clunky search, a scheduler that cannot replace a routing tool, and field mapping that requires real admin attention) are real but not deal-breakers for most RevOps use cases.
+
+<BottomLine verdict="Avoma is the right call for mid-market revenue teams that need coaching scorecards and CRM auto-fill without enterprise pricing. Start on the Business plan and upgrade to Revenue Intelligence when deal tracking becomes a priority." pick="Avoma" affiliateSlug="avoma" ctaLabel="Try Avoma" />
+
+<Sources sources={[
+  { label: "Avoma: product documentation and pricing page", url: "https://www.avoma.com/pricing" },
+  { label: "G2: Avoma user reviews", url: "https://www.g2.com/products/avoma/reviews" },
+  { label: "Salesforce: State of Sales report, call logging data", url: "https://www.salesforce.com/resources/research-reports/state-of-sales/" },
+  { label: "tl;dv: pricing and feature overview", url: "https://tldv.io/pricing/" }
+]} />
