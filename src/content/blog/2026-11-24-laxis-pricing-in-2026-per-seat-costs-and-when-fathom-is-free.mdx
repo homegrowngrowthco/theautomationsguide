@@ -1,0 +1,159 @@
+---
+title: "Laxis Pricing in 2026: Per-Seat Costs and When Fathom Is Free Enough"
+description: "Laxis pricing broken down by plan, seat cost, and real team math. Plus when Fathom's free tier beats paying for Laxis or Avoma."
+tldr: "Laxis starts at $16.99 per seat per month on the Basic plan, rises to $39.99 on Pro, and the free tier is limited enough that most revenue teams hit a paywall fast. Fathom's free plan is genuinely unlimited for individual reps, making it the better default for solo users who just need transcripts."
+pubDate: 2026-11-24
+tags: ["tools", "automation", "meeting-intelligence"]
+faqs:
+  - question: "How much does Laxis cost per month?"
+    answer: "Laxis costs $16.99 per seat per month on Basic, $39.99 on Pro, and $59.99 on the Business plan. An Enterprise tier is available on a custom quote."
+  - question: "Does Laxis have a free plan?"
+    answer: "Yes, Laxis has a free tier but it caps you at a limited number of AI meeting summaries per month and lacks CRM sync, making it impractical for active sales reps."
+  - question: "Is Fathom actually free for sales teams?"
+    answer: "Fathom's free plan offers unlimited recordings and AI summaries with no meeting cap, but it lacks team-level features like shared playlists, CRM sync, and manager dashboards. Those require Fathom Team Edition at $29 per seat per month."
+  - question: "How does Laxis compare to Avoma on price?"
+    answer: "Laxis Pro at $39.99 per seat is cheaper than Avoma's Growth plan at $59 per seat, but Avoma includes conversation intelligence and revenue analytics that Laxis reserves for its Business tier."
+  - question: "What is the minimum Laxis team spend?"
+    answer: "A five-seat Laxis Pro team costs $200 per month billed monthly, or closer to $170 per month if you pay annually. CRM integrations with Salesforce require the Business plan, pushing that five-seat cost to $300 per month."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+The question I get from RevOps leads evaluating meeting intelligence tools is almost never "is Laxis good?" It's "do I actually need to pay for this, or does the free Fathom tier cover my team?" The answer depends entirely on what your reps do after a call. If they need action items pushed into Salesforce, deal summaries surfaced in a CRM, or managers reviewing call snippets, free Fathom is not enough. If they just need an accurate transcript and a summary in their inbox, you may be paying for features you will never open.
+
+<KeyTakeaways items={[
+  "Laxis Basic is $16.99 per seat per month. Pro is $39.99. Business is $59.99. CRM sync to Salesforce requires Business.",
+  "Fathom's free plan has no meeting cap, but team features (shared views, manager dashboards, CRM push) start at $29 per seat per month on Team Edition.",
+  "A five-seat Laxis Pro team costs roughly $200 per month. The same team on Fathom Team Edition costs $145 per month.",
+  "Avoma sits above both on price (Growth is $59 per seat) but adds revenue analytics and scorecard coaching that neither Laxis nor Fathom match at mid-tier."
+]} />
+
+<StatRow stats={[
+  { number: "$16.99", label: "Laxis Basic", description: "Entry paid seat per month. AI summaries included but no CRM write-back and limited integrations." },
+  { number: "$39.99", label: "Laxis Pro", description: "Most common team config. Adds HubSpot sync, keyword tracking, and unlimited recording storage." },
+  { number: "$0", label: "Fathom Free", description: "Unlimited recordings and summaries for individual reps. No team features, no CRM push, no sharing." }
+]} />
+
+## What Laxis actually costs at each tier
+
+[Laxis](/go/laxis/) publishes its pricing directly on the [Laxis pricing page](https://laxis.com/pricing) with four tiers. Here is what those tiers mean operationally, not just what the vendor lists.
+
+**Free:** Capped AI meeting summaries. The cap is low enough that an active AE will blow through it in the first week of a good pipeline month. No integrations, no CRM sync. Worth trying for a week, but do not build a workflow on it.
+
+**Basic at $16.99 per seat per month:** Removes the summary cap, adds Zoom and Google Meet bot support, and gives you basic email action item export. The CRM integration here is surface-level, specifically an email-to-CRM manual log rather than an automatic write-back. If your reps manually paste notes into HubSpot or Pipedrive anyway, this tier might hold.
+
+**Pro at $39.99 per seat per month:** This is where most revenue teams land. You get native HubSpot and Salesforce sync (read the fine print: Salesforce write-back is documented as Pro-eligible, but [G2 reviewers](https://www.g2.com/products/laxis/reviews) consistently flag that two-way Salesforce sync requires Business), keyword and topic tracking, and AI-generated CRM field population. That last feature is the main reason to buy Laxis over a free recorder.
+
+**Business at $59.99 per seat per month:** Adds team-level analytics, manager dashboards, deal risk signals, and confirmed two-way Salesforce sync. If you are coming from an [Avoma](/go/avoma/) evaluation and want comparable conversation intelligence, this is the tier that actually competes.
+
+## The true cost: real math for a 10-rep team
+
+Say you have 10 AEs running 8 to 12 discovery and demo calls per week. Here is what each tool costs at that scale.
+
+**Laxis Pro, 10 seats:** $39.99 x 10 = $399.90 per month ($4,799 per year). If you need Salesforce two-way sync and discover mid-quarter that it requires Business, you are looking at $599.90 per month instead.
+
+**Laxis Business, 10 seats:** $59.99 x 10 = $599.90 per month ($7,199 per year).
+
+**Fathom Team Edition, 10 seats:** $29 x 10 = $290 per month. HubSpot and Salesforce sync is included per [Fathom's pricing page](https://fathom.video/pricing). Fathom is the cheapest path to a fully synced HubSpot setup for a team this size.
+
+**Avoma Growth, 10 seats:** $59 x 10 = $590 per month. The [Avoma review](/blog/2026-11-21-avoma-review-2026-ai-meeting-intelligence-for-revenue-teams/) I covered earlier is worth reading if you are deciding between Avoma and Laxis Business specifically, since they overlap heavily at this price point.
+
+The arithmetic that catches teams: Laxis Pro looks $20 cheaper per seat than Avoma Growth. But if you need revenue analytics, scorecards, or confirmed two-way Salesforce write-back, Laxis Business erases that gap entirely. You end up at the same monthly spend with less conversation intelligence. That is a bad trade.
+
+## Which tier fits which team
+
+<ChooseIf title="Laxis vs Fathom vs Avoma: pick by team profile" tools={[
+  {
+    name: "Fathom Free",
+    conditions: [
+      "You are a solo rep or founder who just needs accurate transcripts and a decent summary",
+      "Your CRM logging is still manual or you use a Zapier zap to push notes yourself",
+      "You do not need a manager to review calls or share snippets across the team"
+    ],
+    pricing: "Free forever for individuals",
+    affiliateSlug: "fathom",
+    ctaLabel: "Try Fathom Free",
+    highlight: false
+  },
+  {
+    name: "Laxis Pro",
+    conditions: [
+      "Your team is 3 to 15 reps and you need HubSpot sync without paying Avoma prices",
+      "You want AI-generated CRM field population and keyword tracking in one tool",
+      "Salesforce is not your primary CRM, or you can live with manual Salesforce exports for now"
+    ],
+    pricing: "$39.99 per seat per month",
+    affiliateSlug: "laxis",
+    ctaLabel: "See Laxis Pro",
+    highlight: true
+  },
+  {
+    name: "Laxis Business",
+    conditions: [
+      "You need confirmed two-way Salesforce sync and cannot compromise on that",
+      "Managers need a dashboard to review calls and flag coaching moments",
+      "You want deal risk signals and revenue analytics without moving to a full Gong contract"
+    ],
+    pricing: "$59.99 per seat per month",
+    affiliateSlug: "laxis",
+    ctaLabel: "See Laxis Business",
+    highlight: false
+  },
+  {
+    name: "Avoma Growth",
+    conditions: [
+      "You want structured scorecards and conversation intelligence built in at the same price point as Laxis Business",
+      "Your RevOps team needs call analytics that feed directly into pipeline forecasting",
+      "You are evaluating this alongside Gong and need a credible mid-market alternative"
+    ],
+    pricing: "$59 per seat per month",
+    affiliateSlug: "avoma",
+    ctaLabel: "See Avoma pricing",
+    highlight: false
+  }
+]} />
+
+## When Fathom is genuinely free enough
+
+[Fathom's](/go/fathom/) free tier is the most honest free plan in the meeting intelligence category. Unlimited recordings, unlimited AI summaries, no seat cap, no meeting cap. The constraint is entirely in the direction of team-level features. You cannot share call libraries, you cannot give a manager a view across all rep calls, and you cannot push structured data into your CRM automatically.
+
+My read is that the free tier covers about 60 to 70 percent of what individual reps actually use day-to-day. The gap shows up the moment a sales manager wants visibility or a RevOps lead wants to build a workflow on top of call data. That is where you either pay for Fathom Team Edition ($29 per seat) or start taking Laxis Pro seriously.
+
+One thing to know: if your stack already includes [Gong](/go/gong/) for your enterprise segment and you are adding a notetaker for a smaller pod or a CS team, Fathom Free stacked with a lightweight Zapier push to your CRM is a legitimate zero-cost setup. I would not build a full RevOps motion on it, but for a low-call-volume team it clears the bar.
+
+The Fathom vs Laxis decision mirrors the pattern from the [folk CRM pricing analysis](/blog/2026-11-18-folk-crm-pricing-in-2026-plans-seat-costs-and-when-salesflar/): the free tier looks great until you need the integrations that justify the tool category, and then you are paying anyway.
+
+<MyTake>
+Most teams shopping Laxis Pro should budget for Laxis Business from day one. The Salesforce sync story at the Pro tier is murky enough, based on consistent G2 reviewer reports, that discovering mid-quarter that two-way sync requires an upgrade is a real operational risk. The $20 per seat difference between Pro and Business is a rounding error at five seats. Getting burned by a half-working CRM sync mid-quarter is not.
+</MyTake>
+
+## The meeting intelligence pricing picture
+
+With [Avoma](/tools/avoma/) at $59 per seat on Growth, [Laxis](/tools/laxis/) spanning $17 to $60 depending on CRM needs, and [Fathom](/tools/fathom/) genuinely free for individuals, the category has a clear three-tier structure. Free solo use. $29 to $40 per seat for small team CRM sync. $59 per seat for revenue analytics and conversation intelligence. The mistake most teams make is buying the middle tier assuming it includes the top-tier integrations. Read the Salesforce fine print before you sign an annual contract on any of these tools.
+
+<BottomLine
+  verdict="Laxis Pro is the right call for HubSpot-centric teams of 3 to 15 reps who want AI-generated CRM fields without paying Avoma prices. If Salesforce two-way sync is non-negotiable, start at Business. If you are a solo rep or a small team with no CRM automation requirements, Fathom Free is genuinely good enough."
+  pick="Laxis"
+  affiliateSlug="laxis"
+  ctaLabel="See Laxis pricing"
+/>
+
+<Sources sources={[
+  { label: "Laxis: official pricing page", url: "https://laxis.com/pricing" },
+  { label: "Fathom: pricing and plan comparison", url: "https://fathom.video/pricing" },
+  { label: "G2: Laxis user reviews (CRM sync notes)", url: "https://www.g2.com/products/laxis/reviews" },
+  { label: "Avoma: pricing page", url: "https://www.avoma.com/pricing" }
+]} />
