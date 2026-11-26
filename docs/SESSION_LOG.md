@@ -8,7 +8,17 @@ Entries below Session 65 use the older long-form format and include the pre-clea
 
 ---
 
-Last updated 2026-11-19 (Session 123).
+Last updated 2026-11-26 (Session 124).
+
+## Session 124 (2026-11-26): weekly unattended cloud routine run, read-only checks (Sonnet 5.5, no op number)
+
+- **"TAG unattended check (weekly, Thu 13:00Z)"** ran from a fresh clone with the connectors only. No op number; the next attended session logs it. Read only: nothing written to Notion, n8n, Beehiiv or PostHog. No ops issue opened (nothing met the queue criteria).
+- **Engine PRs (window 11/19 14:11Z to now):** 7 `content/` PRs (#487 to #493, one a day at 13:02Z), each merged 1 to 2 min after opening; none open or red. `merged_by` not read per PR. No `[auto-register]` proof case checked (commit lists not read).
+- **Builder runs:** Sun 11/22 (run 39, schedule, success, started 14:25Z) 60 clusters, 8 near-win, 1 hub fix; "Proposed 30 -> kept 15"; top Bookyourdata pricing 52, then 25 x3 (Profound vs Surfer, Laxis pricing, CalCom pricing), 22, 18, 17 x2, 10 x2, 8, 3 x2, 2 x2; "Staged 15/15". Wed 11/25 (run 40, schedule, success, started 17:01Z, 11 h after 06:00Z) 60 clusters, 8 near-win, 1 hub fix; "Proposed 30 -> kept 3, 1 repeated a fed-back title"; PandaDoc pricing 25, Creatio CRM pricing 18, Synthflow review 9; "Staged 3/3". Both queue audits: 0 collisions, 0 advisories, 0 Skipped, so no stage-then-Skipped. Yield fell from 15 to 3 of 30; supply stays the live risk.
+- **New posts (7 added since 11/20, 0 hard each):** only title-over-60 warnings (bookyourdata 62, laxis 68, pandadoc 64). No testing-claim or observation-with-a-figure warning.
+- **Queue:** 259 Published, 9 Queued, 36 Suggested, 262 Skipped. Queued: Prospeo pricing, Fillout pricing, Aloware review, Lindy pricing, Instantly pricing, Cognism pricing (Low), Connect ActiveCampaign to Demio, CalCom pricing, Warmly vs Trigify (Medium). At 1 a day from 11/27 the last publishes 12/05; the Sun 11/29 and Wed 12/02 top-ups land first. Not dry within 3 days.
+- **source_path metric (PostHog 408442 confirmed):** 841 `affiliate_click` since 10/02 01:21Z (791 `source_via=none`, 43 `last_page`, 7 `click`). Dropped: 791 none; 38 `last_page` paths with no trailing slash; 4 `last_page` on `/` (pageview 5 to 8 s before); 1 woodpecker `last_page` (10/06, no pageview in 60 s); 2 clicks with no pageview or pageleave in the 60 s before (11/03 MoltSets, 11/20 Lemlist). Strict human: 0 (no click carries `$session_id` or `$browser`). Pageview-join human: 5 (10/13 Loops `tool-strip`, 10/19 VoiceOS `hub-cta`, 11/16 Smartlead `inline` via a `$pageleave` 0.2 s earlier, 11/24 Appy AI `hub-cta`, 11/24 Flocksy `bottom-line`); 7 if the two no-join clicks count, which is looser than the 60 s rule. Share with a non-empty path: 5 of 5, all after the 10/02 deploy; before it 0. Rule choice stays Ian's (ops #8).
+- **Dated reads:** conversion audit is due today (11/26) and is not part of this check's steps; left in TODO. **Revert:** docs only; close this PR.
 
 ## Session 123 (2026-11-19): weekly unattended cloud routine run, read-only checks (Sonnet 5.5, no op number)
 
