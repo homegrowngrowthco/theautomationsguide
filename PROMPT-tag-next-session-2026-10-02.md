@@ -32,7 +32,7 @@ The ones in TODO that need no decision: the `handle-tool-reply.yml` PR comment, 
 
 ## 6. Dated reads
 
-Nutshell hub ~11/10; pricing index ~11/12 (this rebuild also clears 5 wrong domains from the public JSON; do not touch `pricing/` scripts); clicks at 5 human under the widened rule, currently 3; conversion audit ~11/26; next GEO re-run ~12/04; topic-score metric ~12/10. If a date has not arrived, leave it in TODO and say so. Beehiiv is ops #9, Ian's. The brand-search nudge is Ian's to paste. Do not ask again.
+Nutshell hub ~11/10; pricing index ~11/12 (this rebuild also clears 5 wrong domains from the public JSON; do not touch `pricing/` scripts); clicks at 5 human under the widened rule, reached on 11/26 (5 of 5 carry a source_path, S124); conversion audit ~11/26; next GEO re-run ~12/04; topic-score metric ~12/10. If a date has not arrived, leave it in TODO and say so. Beehiiv is ops #9, Ian's. The brand-search nudge is Ian's to paste. Do not ask again.
 
 ## Rules
 
