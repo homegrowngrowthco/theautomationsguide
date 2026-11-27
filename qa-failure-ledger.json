@@ -1,11 +1,5 @@
 [
   {
-    "date": "2026-10-14T20:02:45.838Z",
-    "pr": 387,
-    "sha": "2e3cd24e881441a39a85baa5ba85084bb0f74333",
-    "signature": "lint-content"
-  },
-  {
     "date": "2026-10-29T12:04:20.020Z",
     "pr": 421,
     "sha": "8f9be720a83962fdba3cb17f84bad43cdd6cf8ce",
@@ -53,5 +47,12 @@
     "sha": "1b66e38eab3b54a5166394c97fa14dd295b6406c",
     "signature": "playwright-install",
     "run_id": "42293424174"
+  },
+  {
+    "date": "2026-11-27T13:03:03.290Z",
+    "pr": 495,
+    "sha": "47ae2d028cd5f6066caaa8484603d9756432e4a3",
+    "signature": "lint-content",
+    "run_id": "46003698755"
   }
 ]
