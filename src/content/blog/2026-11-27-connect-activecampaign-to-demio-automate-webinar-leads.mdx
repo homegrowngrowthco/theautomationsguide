@@ -1,0 +1,170 @@
+---
+title: "Connect ActiveCampaign to Demio: Automate Webinar Leads"
+description: "Step-by-step guide to connecting ActiveCampaign and Demio via webhook. Automate lead capture, tagging, and follow-up sequences for every webinar."
+tldr: "Use Demio's native webhook to POST registrant and attendee data to ActiveCampaign via Make or Zapier, then trigger automations based on attendance status to send targeted follow-ups within minutes of the webinar ending."
+pubDate: 2026-11-27
+tags: ["automation", "email-marketing", "webinars"]
+faqs:
+  - question: "Does Demio have a native ActiveCampaign integration?"
+    answer: "Demio offers a direct ActiveCampaign integration under its Business plan, but it only syncs registrants. For attendance-based branching and follow-up triggers, a webhook routed through Make or Zapier gives you far more control."
+  - question: "How do I connect ActiveCampaign to Demio with a webhook?"
+    answer: "In Demio, go to your event settings and add a webhook URL under the Integrations tab. Point that URL at a Make or Zapier scenario that parses the payload and creates or updates a contact in ActiveCampaign with the appropriate tags."
+  - question: "What data does Demio send in its webhook payload?"
+    answer: "Demio's webhook payload includes the registrant's name, email, registration timestamp, event ID, and an attended boolean field you can use to branch your automation logic."
+  - question: "Can I trigger different follow-up sequences for attendees vs. no-shows?"
+    answer: "Yes. The attended field in the Demio webhook payload lets you route contacts into separate ActiveCampaign automations, one for attendees and one for no-shows, using a filter step in Make or Zapier."
+  - question: "Do I need a paid plan on Make or Zapier to run this workflow?"
+    answer: "Make's free tier supports this workflow if your webinar volume is low, but Zapier's free plan limits you to single-step Zaps, so you will need at least a Starter plan on Zapier to handle multi-step logic."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Webinar leads are some of the warmest prospects in a B2B funnel. Teams waste them constantly by sending the same generic "Thanks for joining" email to everyone, regardless of whether anyone actually showed up. The fix is straightforward: connect [ActiveCampaign](/go/activecampaign/) to [Demio](/go/demio/) via webhook, branch on the `attended` field, and fire distinct follow-up sequences within minutes of the event ending. This guide covers the exact steps, the gotchas, and when to use [Make](/go/make/) versus [Zapier](/go/zapier/) as the middleware.
+
+## Why the native integration is not enough
+
+Demio ships a direct ActiveCampaign connector under its Business plan. It syncs registrants to a list and that is about it. You get a contact record and maybe a tag if you configure it. What you do not get: reliable attendance-status routing, the ability to fire different automations for attendees versus no-shows, or a hook that fires immediately after the webinar ends rather than on a sync schedule.
+
+The webhook approach solves all three. Demio fires a POST request to your middleware the moment a registrant is created, and again when the event ends, with an `attended` boolean in the payload. That single field is what separates a hot follow-up from a re-engagement nurture. Everything else is just plumbing.
+
+<StatRow stats={[
+  { number: "47%", label: "avg. no-show rate", description: "Industry benchmark for B2B webinars, per ON24's 2024 Webinar Benchmarks Report. Half your registrants need a different message than attendees." },
+  { number: "<5 min", label: "ideal follow-up delay", description: "Per HubSpot Research, response rates to webinar follow-ups drop sharply after 60 minutes. Automation closes this gap automatically." },
+  { number: "2 events", label: "Demio webhook triggers", description: "Demio fires separate webhook payloads for registration and for event completion, giving you two distinct automation entry points." }
+]} />
+
+## Setting up the workflow
+
+The architecture is simple: Demio webhook fires to Make or Zapier, middleware parses the payload and applies logic, then ActiveCampaign receives a create-or-update call that tags the contact and enters them into the right automation. I'd pick [Make](/go/make/) over Zapier for this if you have any volume at all. The router module in Make lets you branch on `attended` without burning an extra Zap step, and the native iterator handles Demio's registrant array without workarounds.
+
+<StepRow steps={[
+  {
+    title: "Create your ActiveCampaign automation shells first",
+    body: "Build two automations in ActiveCampaign before touching Demio: one triggered by the tag 'webinar-attended' and one triggered by 'webinar-no-show'. Keep them in draft. This way your webhook has somewhere to land contacts before you go live. Each automation should have its own follow-up sequence and a deal-creation step if the webinar topic maps to a pipeline stage."
+  },
+  {
+    title: "Grab your Make or Zapier webhook URL",
+    body: "In Make, create a new scenario and add a 'Custom Webhook' trigger module. Copy the generated URL. In Zapier, create a new Zap with 'Webhooks by Zapier' as the trigger, choose 'Catch Hook', and copy the URL. Keep this tab open. You will paste it into Demio next."
+  },
+  {
+    title: "Add the webhook to Demio",
+    body: "Inside Demio, open your event (or series), go to Settings, then the Integrations tab. Scroll to the Webhooks section and paste your middleware URL. Enable both the 'Registrant Added' and 'Event Ended' triggers. Save. Send a test registration through Demio to confirm your middleware receives a payload before moving on."
+  },
+  {
+    title: "Parse the payload and branch on 'attended'",
+    body: "In Make, add a Router module after the webhook trigger. Route A: filter on `attended = true`. Route B: filter on `attended = false` (or the absence of the field on registration payloads, which you can handle with a separate event-type filter using the `event` key Demio includes in the POST body). In Zapier, use a Filter step on the attended field, then duplicate the Zap for the alternate branch."
+  },
+  {
+    title: "Create or update the contact in ActiveCampaign",
+    body: "On each branch, add an ActiveCampaign 'Create or Update Contact' module. Map `email`, `first_name`, and `last_name` from the Demio payload. Add the appropriate tag ('webinar-attended' or 'webinar-no-show') in the Tags field. Use ActiveCampaign's 'Add Tag' action if the contact already exists, so you do not overwrite other tags. This tag fires the automation you built in step one."
+  },
+  {
+    title: "Test end-to-end and activate",
+    body: "Register a test email, run the event in Demio, then mark yourself as attended in a test session. Confirm the contact appears in ActiveCampaign with the correct tag and enters the right automation. Check the Make or Zapier execution logs for any mapping errors. Then activate your scenario and your Demio event."
+  }
+]} />
+
+<SideBySide>
+  <Fragment slot="left">
+    **The usual trap:** Demio's `Event Ended` webhook fires for the whole event, not per-attendee. If you only listen for `Event Ended`, you get one payload with aggregate data, not individual records. You need to combine the `Registrant Added` payload (which captures email at sign-up) with attendance data from the `Event Ended` payload, joined on email. Make handles this with a data store. Zapier needs a Storage by Zapier step or an external lookup, which is messier to maintain.
+  </Fragment>
+  <Fragment slot="right">
+    ```json
+    // Demio Event Ended payload (abbreviated)
+    {
+      "event": "event.completed",
+      "registrants": [
+        {
+          "email": "lead@example.com",
+          "first_name": "Alex",
+          "last_name": "Chen",
+          "attended": true,
+          "registered_at": "2026-11-20T14:00:00Z"
+        },
+        {
+          "email": "noshowlead@example.com",
+          "first_name": "Sam",
+          "last_name": "Torres",
+          "attended": false,
+          "registered_at": "2026-11-20T13:45:00Z"
+        }
+      ],
+      "event_id": "evt_8821",
+      "event_name": "Q4 Product Deep Dive"
+    }
+    ```
+  </Fragment>
+</SideBySide>
+
+## Choosing your middleware: Make vs. Zapier
+
+The webhook-to-ActiveCampaign logic is achievable on both platforms. They diverge the moment you need to iterate on the registrant array inside the `Event Ended` payload. Make's [iterator module](https://www.make.com/en/help/tools/iterator) handles the array natively. In Zapier, you need a Formatter step to loop through it, which is clunkier and slower to debug. If you are running more than one webinar a month, that friction compounds fast.
+
+<ChooseIf title="Make vs. Zapier for this workflow" tools={[
+  {
+    name: "Make",
+    conditions: [
+      "You want to iterate over the registrants array natively without workarounds",
+      "You are running more than one webinar per week and need reliable execution logs",
+      "You want to branch attended vs. no-show logic in a single scenario with a Router module"
+    ],
+    pricing: "Free tier available; Core from $9/mo",
+    affiliateSlug: "make",
+    ctaLabel: "Try Make",
+    highlight: true
+  },
+  {
+    name: "Zapier",
+    conditions: [
+      "Your team already lives in Zapier and rebuilding in Make is not worth the context switch",
+      "Your webinar volume is low (one or two events per month) and simplicity wins",
+      "You only need to capture registrants at sign-up, not branch on attendance status post-event"
+    ],
+    pricing: "Starter from $19.99/mo for multi-step Zaps",
+    affiliateSlug: "zapier",
+    ctaLabel: "Try Zapier"
+  }
+]} />
+
+## What to build in ActiveCampaign once contacts land
+
+Tags do the heavy lifting, but the automation logic is where most teams underinvest. For attendees, I'd argue the sequence should open with a recap email that arrives within ten minutes of the event ending (Make can fire this quickly enough), followed by a value-add email at day two and a soft CTA at day five. For no-shows, lead with the recording, not an apology. Give them a reason to watch it, not a reason to feel guilty for missing it.
+
+Don't skip lead scoring here. If you are using [ActiveCampaign](/tools/activecampaign/) lead scoring, add a score increment (+15 for attended, +5 for registered but did not attend) inside the same automation that applies the tag. This surfaces hot leads in your CRM view without manual triage. The [ActiveCampaign vs. Drip comparison](/blog/2026-11-22-activecampaign-vs-drip-which-wins-for-b2b-in-2026/) we published goes deeper on when scoring becomes genuinely useful versus noise.
+
+For teams also running email nurture through [Make](/tools/make/), the same Make scenario that handles the Demio webhook can branch into additional actions: creating a deal in a CRM, notifying a Slack channel when a high-intent attendee registers, or enriching the contact record via a Clay waterfall before it hits ActiveCampaign. Per the [ActiveCampaign automations docs](https://help.activecampaign.com/hc/en-us/articles/221517307-Automations-overview), a tag-based entry trigger is the most reliable way to kick off a sequence from an external tool, so the tag-first approach here is by design.
+
+<MyTake>
+Most teams bolt this together fast and never revisit the no-show branch. That is a mistake. No-shows who registered for a specific topic have already self-identified as interested. They just had a conflict. A three-email re-engagement sequence with the replay link, spaced over ten days, will consistently outperform a single generic follow-up. The attended branch gets all the attention because it feels more urgent. My read is that the no-show branch is where the incremental effort actually pays off.
+</MyTake>
+
+## One workflow, compounding returns
+
+This integration takes under two hours to build correctly, and it pays back on every webinar you run afterward. The key decisions are using the `Event Ended` payload (not just registration), iterating over the registrants array in Make, and building two distinct automations in ActiveCampaign before you go live. Skip any of those and you end up with a flat list import, which is barely better than a manual CSV export. Per the [Demio webhook docs](https://help.demio.com/en/articles/3867793-webhook-integrations), both the `Registrant Added` and `Event Ended` triggers need to be active for the full picture.
+
+<BottomLine
+  verdict="Make is the right middleware for this workflow. Its native iterator and router modules handle Demio's registrant array and attendance branching without the workarounds Zapier requires. Build your ActiveCampaign automations first, point the Demio webhook at Make, and both branches run hands-free from day one."
+  pick="Make"
+  affiliateSlug="make"
+  ctaLabel="Try Make"
+/>
+
+<Sources sources={[
+  { label: "ON24: 2024 Webinar Benchmarks Report", url: "https://www.on24.com/resources/webinar-benchmarks-report/" },
+  { label: "Demio docs: Webhook integrations", url: "https://help.demio.com/en/articles/3867793-webhook-integrations" },
+  { label: "ActiveCampaign docs: Automations overview", url: "https://help.activecampaign.com/hc/en-us/articles/221517307-Automations-overview" },
+  { label: "Make docs: Iterator module", url: "https://www.make.com/en/help/tools/iterator" }
+]} />
