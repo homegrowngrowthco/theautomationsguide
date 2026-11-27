@@ -3017,6 +3017,19 @@ export const tools: Tool[] = [
     blurb:
       'Dripify is a LinkedIn outreach automation tool that runs multi-step sequences and automatic follow-ups for sales teams.',
   },
+  {
+    slug: 'demio',
+    name: 'Demio',
+    category: 'Workflow Automation',
+    badge: 'Paid',
+    ctaLabel: 'Try Demio',
+    ctaPrimary: false,
+    listed: false,
+    logo: '/brand/tools/demio.png',
+    aliases: ['Demio'],
+    blurb:
+      'Demio is featured in a comparison on The Automations Guide.',
+  },
 ];
 
 // Common English words that double as brand names — for these, a bare body

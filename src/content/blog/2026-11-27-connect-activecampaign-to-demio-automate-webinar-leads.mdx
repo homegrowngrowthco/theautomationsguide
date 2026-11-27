@@ -36,7 +36,7 @@ Webinar leads are some of the warmest prospects in a B2B funnel. Teams waste the
 
 ## Why the native integration is not enough
 
-Demio ships a direct ActiveCampaign connector under its Business plan. It syncs registrants to a list and that is about it. You get a contact record and maybe a tag if you configure it. What you do not get: reliable attendance-status routing, the ability to fire different automations for attendees versus no-shows, or a hook that fires immediately after the webinar ends rather than on a sync schedule.
+[Demio](/tools/demio/) ships a direct ActiveCampaign connector under its Business plan. It syncs registrants to a list and that is about it. You get a contact record and maybe a tag if you configure it. What you do not get: reliable attendance-status routing, the ability to fire different automations for attendees versus no-shows, or a hook that fires immediately after the webinar ends rather than on a sync schedule.
 
 The webhook approach solves all three. Demio fires a POST request to your middleware the moment a registrant is created, and again when the event ends, with an `attended` boolean in the payload. That single field is what separates a hot follow-up from a re-engagement nurture. Everything else is just plumbing.
 
