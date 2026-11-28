@@ -1,0 +1,154 @@
+---
+title: "Cal.com Pricing in 2026: Plans, Seat Costs, and When Calendly Wins"
+description: "Cal.com pricing broken down by plan, seat cost, and real team math. Plus when Calendly or Chili Piper is worth the premium instead."
+tldr: "Cal.com's free and Team plans are genuinely competitive for self-hosted or budget-conscious teams, but Calendly wins on polish and Chili Piper wins on revenue-room routing once your GTM motion gets complex."
+pubDate: 2026-11-28
+tags: ["tools", "automation", "scheduling"]
+faqs:
+  - question: "How much does Cal.com cost per month?"
+    answer: "Cal.com's Team plan starts at $15 per seat per month (billed annually). The free individual plan is unlimited for personal booking links with no seat fee."
+  - question: "Is Cal.com really free?"
+    answer: "Yes for individuals. The free plan includes unlimited event types, one-on-one scheduling, and basic integrations. Team features, round-robin routing, and CRM sync require a paid plan."
+  - question: "What is the difference between Cal.com and Calendly pricing?"
+    answer: "Cal.com Team starts at $15 per seat and Calendly's Teams plan starts at $16 per seat, so list prices are nearly identical. The real gap is in routing sophistication, CRM depth, and self-host options where Cal.com has a structural advantage."
+  - question: "Can I self-host Cal.com for free?"
+    answer: "Yes. Cal.com is open-source and you can self-host the community edition at no license cost, though you bear your own infrastructure and maintenance overhead."
+  - question: "Does Cal.com integrate with HubSpot and Salesforce?"
+    answer: "Yes. CRM sync with HubSpot and Salesforce is available on the Team plan and above, including contact creation and meeting logging on booked events."
+---
+
+import SideBySide from '@/components/post/SideBySide.astro';
+import StatRow from '@/components/post/StatRow.astro';
+import PullQuote from '@/components/post/PullQuote.astro';
+import MyTake from '@/components/post/MyTake.astro';
+import StepRow from '@/components/post/StepRow.astro';
+import Figure from '@/components/post/Figure.astro';
+import ToolBreakdown from '@/components/post/ToolBreakdown.astro';
+import ChooseIf from '@/components/post/ChooseIf.astro';
+import IntentTable from '@/components/post/IntentTable.astro';
+import SpectrumBar from '@/components/post/SpectrumBar.astro';
+import ComparisonTable from '@/components/ComparisonTable.astro';
+import KeyTakeaways from '@/components/post/KeyTakeaways.astro';
+import Sources from '@/components/post/Sources.astro';
+import BottomLine from '@/components/post/BottomLine.astro';
+
+Scheduling is not a sexy RevOps problem. It is one that leaks pipeline in quietly painful ways: unrouted leads, broken CRM sync, reps double-booked because someone grabbed the wrong calendar link. [Cal.com](/go/cal-com/) has become the credible open-source contender to Calendly over the last two years, and the pricing question is legitimate. The list prices look nearly identical, but the total cost story and the capability ceiling are very different depending on your team size, your CRM stack, and whether you want to self-host.
+
+<KeyTakeaways items={[
+  "Cal.com free is genuinely unlimited for individuals, not a crippled trial.",
+  "Team plan at $15 per seat per month (annual) is essentially price-matched to Calendly Teams at $16.",
+  "Self-hosted community edition costs zero in license fees, but you own the ops burden.",
+  "Calendly wins on out-of-box routing polish; Chili Piper wins when you need revenue-room-grade inbound routing.",
+  "The add-on that bites teams: Cal.com's enterprise SSO and advanced routing are not on the Team plan."
+]} />
+
+<StatRow stats={[
+  { number: "$0", label: "Free plan seat cost", description: "Unlimited personal booking links, basic integrations, no credit card required per Cal.com pricing page." },
+  { number: "$15", label: "Team plan per seat/month", description: "Billed annually. Includes round-robin, CRM sync, collective events, and team availability." },
+  { number: "$0 license", label: "Self-hosted community edition", description: "Full open-source repo, no per-seat fee. You provision your own Postgres and deploy on any cloud." }
+]} />
+
+## What each Cal.com plan actually buys you
+
+The [Cal.com pricing page](https://cal.com/pricing) lists three tiers for most teams: Free, Team, and Enterprise. There is also a self-hosted path that changes the math entirely.
+
+**Free** is not a 14-day trial. It is a permanent plan covering one user, unlimited event types, Zoom and Google Meet links, basic email reminders, and public booking pages. For a solo consultant or a founder doing their own outbound, this is a complete product. The limits that actually matter at the individual level: no round-robin, no collective scheduling, no CRM write-back, and no team availability views.
+
+**Team** at $15 per seat per month (annual) unlocks everything a RevOps build actually needs. Round-robin routing, collective events with multiple hosts on a single booking, CRM sync with [HubSpot](/go/hubspot/) and [Salesforce](/go/salesforce/), custom workflows, and the routing forms that let you qualify inbound before showing a calendar. This is the tier you price when you are modeling real GTM usage.
+
+**Enterprise** is contact-sales. The features that push you there are SAML SSO, audit logs, custom domain on managed cloud, dedicated support SLAs, and advanced routing logic with Salesforce-field-based assignment. If you need a rep's Salesforce territory to auto-assign the right calendar, that is an Enterprise conversation.
+
+**Self-hosted community edition** costs zero in license fees. Cal.com is [Apache 2.0 licensed on GitHub](https://github.com/calcom/cal.com). You get the full platform, run it on your own infrastructure, and pay nothing per seat. The honest cost here is engineering time for provisioning, upgrades, and managing the Postgres database. For a scrappy startup with a DevOps-capable founding team, this is a legitimate path. For a 20-person RevOps org that does not want to manage infrastructure, the trade is probably not worth it.
+
+I'd argue the free tier is the most underrated part of Cal.com's model. Most competitors either time-limit it or cripple it enough that you feel the squeeze within a week. Cal.com doesn't do that.
+
+## The true cost: a concrete team-size example
+
+Run the math for a 10-rep SDR team on the managed cloud Team plan.
+
+10 seats x $15 x 12 months = **$1,800 per year**.
+
+Calendly Teams for the same 10 seats at $16 per seat per month = **$1,920 per year**. That is a $120 annual difference. Meaningless at this scale.
+
+What actually shifts the number: if two of those reps need Salesforce territory-based routing (routing an inbound form to the right rep based on the account owner field in SFDC), you are looking at Enterprise pricing on Cal.com. Per the [Cal.com enterprise FAQ](https://cal.com/enterprise), that is a negotiated annual contract typically starting around $3,000 to $5,000 per year for small teams. At that point, [Chili Piper](/go/chili-piper/), which charges per router rather than per seat and bakes Salesforce routing natively into its core product, deserves a real comparison.
+
+The add-on that surprises most teams: **custom email domains for confirmations** and **SMS reminders** are not included in the Team plan. SMS is a per-message add-on. If you are running a high-volume demo booking flow where SMS confirmation materially affects show rates, budget an extra $50 to $200 per month depending on volume.
+
+## Which tier fits which team
+
+<ChooseIf title="Cal.com vs Calendly vs Chili Piper: pick your fit" tools={[
+  {
+    name: "Cal.com Free or Team",
+    conditions: [
+      "You want open-source flexibility or a self-host option to avoid per-seat costs at scale.",
+      "Your team is 1 to 15 reps and routing logic is round-robin or availability-based, not Salesforce-field-driven.",
+      "You run a lean GTM stack and do not need enterprise SSO or audit logs."
+    ],
+    pricing: "Free for individuals, $15/seat/month (annual) for teams",
+    affiliateSlug: "cal-com",
+    ctaLabel: "See Cal.com plans",
+    highlight: true
+  },
+  {
+    name: "Calendly",
+    conditions: [
+      "You want the most polished out-of-box experience with no configuration lift for your reps.",
+      "Your team lives in HubSpot and needs reliable, proven CRM sync that just works.",
+      "You are willing to pay a small premium for a larger template library and broader native integrations."
+    ],
+    pricing: "Teams from $16/seat/month (annual)",
+    affiliateSlug: "calendly",
+    ctaLabel: "See Calendly pricing"
+  },
+  {
+    name: "Chili Piper",
+    conditions: [
+      "You have a high-volume inbound demo request flow and need real-time lead routing based on Salesforce or HubSpot ownership rules.",
+      "Show rates and speed-to-lead are primary revenue metrics you are accountable for.",
+      "You can justify a higher per-router cost because the revenue impact of faster routing is measurable."
+    ],
+    pricing: "Concierge from $30/seat/month, contact sales for Distro",
+    affiliateSlug: "chili-piper",
+    ctaLabel: "See Chili Piper pricing"
+  }
+]} />
+
+The scheduling cluster on this site has a [three-way comparison of Cal.com, Calendly, and Chili Piper](/tools/cal-com/) for teams that want the full feature breakdown. This post is intentionally focused on cost math and the tier decision, not the feature-by-feature table.
+
+The seat-vs-flat-rate trade-off I outlined in [the Laxis vs Fathom pricing post](/blog/2026-11-24-laxis-pricing-in-2026-per-seat-costs-and-when-fathom-is-free/) applies cleanly to scheduling tools too. When a tool charges per seat, your costs scale linearly with headcount. Great for small teams. Painful for fast-growing ones.
+
+## Where Cal.com pricing is fair and where it stings
+
+The free individual tier is genuinely one of the most generous in the scheduling category. Cal.com is not using it as a bait-and-switch. It reflects the open-source model: individual users get real value, and the company monetizes at the team and enterprise layer.
+
+The sting is at the enterprise boundary. If you are a mid-market company that needs SAML SSO (which most SOC 2 or enterprise security reviews will require), you are off the Team plan entirely and into a negotiated contract. Calendly has the same pattern, so this is a category issue rather than a Cal.com-specific one. But the jump from $15 per seat to enterprise pricing feels abrupt when SSO is the only feature driving the upgrade.
+
+For [Salesforce](/tools/salesforce/) shops in particular: the Salesforce integration on the Team plan logs meetings and creates contacts, but advanced ownership-based routing (where the form submission looks up the account owner in SFDC and routes accordingly) is Enterprise territory. That feature gap is exactly why [Chili Piper](/tools/chili-piper/) exists and continues to hold market share despite a significantly higher price point.
+
+<MyTake>
+Cal.com's pricing is not the story. The real question is whether you need a scheduling tool or a routing tool. Cal.com and Calendly are scheduling tools with routing bolted on. Chili Piper is a routing tool with scheduling built in. If inbound demo volume is a significant revenue lever, don't reach for Cal.com Enterprise to solve a routing problem. Buy the right tool for the job and pay the Chili Piper premium instead.
+</MyTake>
+
+## The self-host calculus
+
+If your engineering team is already running infrastructure for other tools, self-hosted Cal.com deserves a serious look. The [Cal.com self-hosting documentation](https://cal.com/docs/self-hosting/installation/docker) is thorough and the Docker Compose path is reasonably well maintained. At 20-plus seats, the license savings become material: $3,600 per year at Team pricing versus engineering time spent on upgrades, which per the docs runs to minor version releases on a regular cadence and larger lifts for major releases.
+
+The trap teams fall into: treating self-hosted as "free." The hidden costs are infrastructure (roughly $50 to $150 per month on AWS or GCP for a production-grade setup), engineering time for upgrades, and the opportunity cost when something breaks on a Friday. My read is that the self-host path is right for companies with a dedicated platform engineer and wrong for RevOps teams that need to move fast without babysitting a calendar service.
+
+## The bottom line
+
+Cal.com at $15 per seat is a well-priced scheduling tool for teams up to roughly 20 reps with standard routing needs. The free tier is real. The open-source self-host option is a genuine differentiator that no Calendly equivalent matches. Where [Calendly](/tools/calendly/) holds the edge is in day-one polish and a wider ecosystem of native integrations that work without configuration. Where [Chili Piper](/tools/chili-piper/) is worth the step-up in cost is in Salesforce-native inbound routing at volume, where speed-to-lead is a measurable revenue input rather than a nice-to-have.
+
+<BottomLine
+  verdict="Cal.com Team at $15 per seat is the right default for most sub-20-rep teams. Move to Calendly if your reps resist configuration friction. Move to Chili Piper if inbound routing accuracy is a revenue-accountable metric."
+  pick="Cal.com"
+  affiliateSlug="cal-com"
+  ctaLabel="See Cal.com pricing"
+/>
+
+<Sources sources={[
+  { label: "Cal.com: official pricing page", url: "https://cal.com/pricing" },
+  { label: "Cal.com: self-hosting installation docs (Docker)", url: "https://cal.com/docs/self-hosting/installation/docker" },
+  { label: "Cal.com: enterprise features FAQ", url: "https://cal.com/enterprise" },
+  { label: "GitHub: cal.com open-source repository (Apache 2.0 license)", url: "https://github.com/calcom/cal.com" }
+]} />
